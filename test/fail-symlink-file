@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+#get absolute path to running script
+name=`basename $0`;
+abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+exedir=`dirname "$abspath"`;
+libdir="$exedir/../lib";
+
+#bring in the shared libraries
+source "$libdir/shared";
+
+#attempt to symlink the test runner to the /etc directory
+expand_path "$exedir/../runner";
+symlink "$_result" "/etc/runner-symlink";
+
+if [ $? -ne 0 ]; then
+	quit 1 "failed to symlink file";
+fi

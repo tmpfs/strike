@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+######################################################################
+# 	exit-codes
+#
+#	Variables containing program exit codes.
+######################################################################
+
+#success exit code
+SUCCESS=0;
+
+#error exit codes
+ERR_WRONG_SHELL=100;
+
+#missing a program dependency
+ERR_MISSING_PROGRAM=101;
+
+#error while extracting an archive
+ERR_ARCHIVE_EXTRACT_FAIL=102;
+
+#missing installation scripts for a platform - unsupported platform
+ERR_MISSING_PLATFORM_INSTALL=103;
+
+#missing source path arguments for an installation script
+ERR_MISSING_SOURCE_PATH=104;
+
+#an installation source path is not a valid directory that is both executable and writable
+ERR_INVALID_SOURCE_PATH=105;
+
+#missing the full name argument for an installation script
+ERR_MISSING_FULL_NAME=106;
+
+#missing the short name argument for an installation script
+ERR_MISSING_SHORT_NAME=107;
+
+#TODO
+ERR_MISSING_PROGRAM_LIST=200;

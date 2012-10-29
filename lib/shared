@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+######################################################################
+# 	shared
+#
+#	Sources shared libraries common to all programs.
+######################################################################
+
+#whether to suppress the default welcome message
+SUPPRESS_WELCOME=0;
+
+#default program name
+program_name=`basename $0`;
+
+#custom program name set by running executable
+PNAME=${PROGRAM_NAME:-}
+if [ ! -z ${PNAME} ]; then
+	program_name="$PROGRAM_NAME";	
+fi
+
+source "$libdir/constants";
+source "$libdir/exit-codes";
+source "$libdir/messages";
+source "$libdir/style";
+source "$libdir/sysout";
+source "$libdir/help";
+source "$libdir/utilities";
+source "$libdir/fs";
+source "$libdir/git-util";
+source "$libdir/archive-util";
+source "$libdir/clean-util";
+
+#set +e;
+
+#ensure we can't use unbound variables
+#set -o nounset;
+
+#set -o errexit;
+#set -o pipefail;
+
+#TODO: refactor this so a program can set a name other than the basename of the executing program
+function welcome_msg {
+	if [ "$SUPPRESS_WELCOME" = "1" ]; then
+		return 0;
+	fi
+	info "$WELCOME" "$program_name" "$OS_INSTALL" "`whoami`";	
+}
+
+welcome_msg;

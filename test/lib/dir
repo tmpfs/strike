@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+function test_runner_dir {
+	
+	#TODO: test $1 is a directory
+	local dir=$1;
+	
+	info "$TEST_RUNNER_START" "$dir";
+	
+	for f in $1/*
+		do
+			local nm=`basename $f`;
+			local expects='== 0';
+			local type=`expr "$nm" : '\(fail\)'`;
+			
+			if [ "$type" = "fail" ]; then
+				local expects=">= 1";
+			fi
+			
+			if [ -x "$f" ]; then
+				info "$TEST_RUN_START" "$TEST_PREFIX" "$nm" "$expects";
+			
+				#execute the test
+				"$f";
+				#get the exit code
+				local rescode=$?;
+			
+				#fail: expecting a non-zero exit status but exited with zero
+				if [ "$type" = "fail" -a $rescode -eq 0 ]; then
+					error "$TEST_RUN_FAIL" "$TEST_FAIL" "$nm" "$rescode" "$expects";
+				fi
+			
+				#pass: expecting a non-zero exit status
+				if [ "$type" = "fail" -a $rescode -ne 0 ]; then
+					info "$TEST_RUN_PASS" "$TEST_PASS" "$nm" "$rescode";
+				fi
+			
+				#expecting a zero status and was zero
+				if [ "$type" = "" -a $rescode -eq 0 ]; then
+					info "$TEST_RUN_PASS" "$TEST_PASS" "$nm" "$rescode";
+				fi
+				
+				#expecting a zero status and was zero
+				if [ "$type" = "" -a $rescode -ne 0 ]; then
+					error "$TEST_RUN_FAIL" "$TEST_FAIL" "$nm" "$rescode" "$expects";
+				fi
+			else
+				warn "skipping test %s file is not executable" "$nm";
+			fi
+	done
+}

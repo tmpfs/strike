@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+#get absolute path to running script
+name=`basename $0`;
+abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+exedir=`dirname "$abspath"`;
+libdir="$exedir/../lib";
+
+#bring in the shared libraries
+source "$libdir/shared";
+
+function test_expansion {
+	local relative="$1";
+	expand_path "$relative";
+	local expanded="$_result";
+	if [ "$expanded" != "$relative" ]; then
+		info "expanded %s to %s" "$relative" "$expanded";
+	fi
+}
+
+git_ls_remote_tags "git@github.com:stax/server.git";
+git_find_tag "prototype" "$_result";
+if [ $? -eq 0 ]; then
+	success "find git tag test complete";
+fi
+
+exit 1;

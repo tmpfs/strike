@@ -1,0 +1,288 @@
+#!/usr/bin/env bash
+
+######################################################################
+# 	sysout
+#
+#	Library functions for system output and program exit.
+######################################################################
+
+######################################################################
+#	Colours a message string formatting each replacement as bold.
+#
+#	$1		The name of the colour function to call.
+#	$2		The function to call to highlight each replacement parameter.	
+#	$3 		The printf format string.
+#	$4-@	The remaining string replacements to be highlighted.
+######################################################################
+function colorize {
+	#function used to start the main color
+	local start_function="$1";
+	#function used to highlight each replacement parameter
+	local highlight_function="$2";
+	local message="$3";
+	local replacements=("${@:3}");
+	local output=( "$message" );
+	local c=0;	
+	for i in "${replacements[@]}"
+		do
+			if [ $c -ne 0 ]; then
+				#highlight each replacement parameter
+				eval "$highlight_function" "'$i'";
+				local res="$_result";
+				eval "$start_function";
+				#concatenate together
+				res="$res$_result";
+				#and push back on to the output data
+				output=( "${output[@]}" "$res" );
+			fi
+			c=$[$c+1];
+	done
+	#get the overall start
+	eval "$start_function";
+	local start="$_result";
+	
+	#always end with a style terminator
+	style_terminator;
+	local end="$_result";
+	
+	#perform the replacement on the message template string
+	_result=$(printf "${output[@]}");	
+	
+	#wrap the replaced message with the start and end highlighting
+	local full="$start${_result[@]}$end";
+	
+	#return the output
+	_result="$full";
+	#echo "got FULL RESULT: $full";
+	#echo -e "$full";
+	#echo "this is a normal message";
+}
+
+######################################################################
+#	Performs replacement without performing any highlighting
+#	appropriate for output to a non-terminal.
+#
+#	$1 		The printf format string.
+#	$2-@	The remaining string replacements to be highlighted.
+######################################################################
+function sprintf {
+	_result=$(printf "${@}");
+}
+
+#TODO : integrate this logic so no highlighting is performed when not a terminal
+#if [ -t 1 ] ; then echo terminal; fi
+#(if [ -t 1 ] ; then echo terminal; fi) | echo
+
+#quits a program with a message and exit code
+function quit {
+	
+	#trap - INT TERM EXIT;
+	
+	local code=$1 || 1;
+	local params=("${@:2}");
+	
+	#echo "GOT QUIT PARAMS ${params[@]}"
+	error "${params[@]}";
+	
+	exit $code;
+}
+
+#prints a message with the default output formatting
+function print {
+	local msg="$1";
+	print_prefix;
+	echo -e "$msg";
+}
+
+function print_prefix {
+	local prefix="[$program_name]";
+	if [ -t 1 ]; then	
+		if [ "$prefix" != "" ]; then
+			gray "$prefix";
+			echo -ne "$_result";
+			echo -ne " ";
+		fi	
+	else
+		echo -n "$prefix ";
+	fi
+}
+
+#exits a program with a success message
+function success {
+	local status="[ok]";
+	local prefix="$status";
+	local msg="";
+	if [ -t 1 ]; then
+		#get the message prefix
+		bold "$status";
+		prefix="$_result";
+
+		#highlight the message and parameters
+		msgs=( "default_style" "bold" "${@}" );
+		colorize "${msgs[@]}";
+		msg="$_result";
+	else
+		sprintf "${@}";
+		msg="$_result";
+	fi
+	
+	#output everything
+	print_prefix;
+	echo -e "$prefix $msg";
+	
+	exit $SUCCESS;
+}
+
+#outputs an info message
+function info {	
+	local status="[info]";
+	local prefix="$status";
+	local msg="";
+	if [ -t 1 ]; then
+		#get the message prefix
+		bold "$status";
+		prefix="$_result";
+
+		#highlight the message and parameters
+		msgs=( "default_style" "bold" "${@}" );
+		colorize "${msgs[@]}";
+		msg="$_result";
+	else
+		sprintf "${@}";
+		msg="$_result";
+	fi
+	
+	#output everything
+	print_prefix;
+	echo -e "$prefix $msg";
+}
+
+#outputs an important info message
+function important {
+	local status="[info]";
+	local prefix="$status";
+	local msg="";
+	if [ -t 1 ]; then
+		#get the message prefix
+		bold "$status";
+		prefix="$_result";
+
+		#highlight the message and parameters
+		msgs=( "start_blue" "boldblue" "${@}" );
+		colorize "${msgs[@]}";
+		msg="$_result";
+	else
+		sprintf "${@}";
+		msg="$_result";
+	fi
+	
+	#output everything
+	print_prefix;
+	echo -e "$prefix $msg";
+}
+
+#outputs a usage message
+function usage {
+	local status="[usage]";
+	local prefix="$status";
+	local msg="";
+	if [ -t 1 ]; then
+		#get the message prefix
+		bold "$status";
+		prefix="$_result";
+
+		#highlight the message and parameters
+		msgs=( "default_style" "bold" "${@}" );
+		colorize "${msgs[@]}";
+		msg="$_result";
+	else
+		sprintf "${@}";
+		msg="$_result";
+	fi
+	
+	#output everything
+	print_prefix;
+	echo -e "$prefix $msg";
+}
+
+#output a usage description with no formatting
+function usage_description {
+	local status="[usage]";
+	local prefix="$status";
+	local msg="";
+	if [ -t 1 ]; then
+		#get the message prefix
+		bold "$status";
+		prefix="$_result";
+
+		#no highlight for usage descriptions
+		msgs=( "normal" "normal" "${@}" );
+		colorize "${msgs[@]}";
+		msg="$_result";
+	else
+		sprintf "${@}";
+		msg="$_result";
+	fi
+	
+	#get the message prefix
+	#bold "[usage]";
+	#local prefix="$_result";
+	
+	#highlight the message and parameters
+	#msgs=( "default_style" "default_style" "${@}" );
+	#colorize "${msgs[@]}";
+	#local msg="$_result";
+	
+	#output everything
+	print_prefix;
+	echo -e "$prefix $msg";
+}
+
+#outputs a warning message
+function warn {	
+
+	local status="[warn]";
+	local prefix="$status";
+	local msg="";
+	if [ -t 1 ]; then
+		#get the message prefix
+		boldpurple "$status";
+		prefix="$_result";
+
+		#highlight the message and parameters
+		msgs=( "start_purple" "boldpurple" "${@}" );
+		colorize "${msgs[@]}";
+		msg="$_result";
+	else
+		sprintf "${@}";
+		msg="$_result";
+	fi
+	
+	#output everything
+	print_prefix;
+	echo -e "$prefix $msg";
+}
+
+#outputs an error message
+function error {
+	local status="[not ok]";
+	local prefix="$status";
+	local msg="";
+	if [ -t 1 ]; then
+		#get the message prefix
+		boldred "$status";
+		prefix="$_result";
+
+		#highlight the message and parameters
+		msgs=( "start_red" "boldred" "${@}" );
+		colorize "${msgs[@]}";
+		msg="$_result";
+	else
+		sprintf "${@}";
+		msg="$_result";
+	fi
+	
+	#output everything
+	print_prefix;
+	echo -e "$prefix $msg";
+}

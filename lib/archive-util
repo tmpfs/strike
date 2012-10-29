@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+######################################################################
+# 	archive-utils
+#
+#	Utilties for working with the archives.
+######################################################################
+
+function extract_tar {
+	local archive="$1";
+	local target="$2";
+	
+	#change into the target directory for extraction
+	if [ `pwd` != "$target" ]; then
+		cdir "$target" > /dev/null;
+	fi
+	
+	info "$EXTRACTING" "`basename $archive`" "$target";
+	
+	#extract the archive
+	tar xzf "$archive" --directory="$target";
+}
+
+function create_tar {
+	local archive="$1";
+	local target="$2";
+	
+	local dir=`dirname "$target"`;
+	local name=`basename "$target"`;
+	
+	#change into the target directory for extraction
+	if [ `pwd` != "$dir" ]; then
+		cdir "$dir" > /dev/null;
+	fi
+	
+	info "$ARCHIVING" "$archive" "$target";
+	
+	#create the archive
+	tar czf "$archive" "$name";
+}

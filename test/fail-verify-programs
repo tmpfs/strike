@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+#get absolute path to running script
+name=`basename $0`;
+abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+exedir=`dirname "$abspath"`;
+libdir="$exedir/../lib";
+
+#bring in the shared libraries
+source "$libdir/shared";
+
+#verify all stack programs are installed
+stack_programs=( 'ls' 'mv' 'rm' 'fubar' 'foo' 'bar' );
+verify_program_list "${stack_programs[@]}";

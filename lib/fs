@@ -1,0 +1,207 @@
+#!/usr/bin/env bash
+
+######################################################################
+# 	fs
+#
+#	Utilties for working with the filesystem.
+######################################################################
+
+######################################################################
+#	Tests if a path exists and is a directory.
+#
+#	$1 		The path to the directory.
+######################################################################
+function directory {
+	info "$CHECK_DIRECTORY" "$1";
+	test -d "$1";
+	#if [ -d $1 ]; then
+	#	return 0;
+	#fi
+	#return 1;
+}
+
+######################################################################
+#	Copies a file or directory recursively forcing an overwrite.
+#
+#	cp -rf
+#
+#	$1 		The source file or folder.
+#	$2 		The destination file or parent folder.
+######################################################################
+function copy {
+	local src="$1";
+	local dest="$2";
+	cp -rf "$src" "$dest" > /dev/null 2>&1;
+	if [ $? -eq 0 ]; then
+			info "$COPY_SUCCESS" "$src" "$dest";
+			return 0;
+		else
+			error "$COPY_ERROR" "$src" "$dest";
+			return 1;
+	fi
+}
+
+######################################################################
+#	Moves a file or directory.
+#
+#	mv
+#
+#	$1 		The source file or folder.
+#	$2 		The destination file or parent folder.
+######################################################################
+function move {
+	local src="$1";
+	local dest="$2";
+	mv "$src" "$dest"  > /dev/null 2>&1;
+	if [ $? -eq 0 ]; then
+			info "$MOVE_SUCCESS" "$src" "$dest";
+			return 0;
+		else
+			error "$MOVE_ERROR" "$src" "$dest";
+			return 1;
+	fi
+}
+
+######################################################################
+#	Creates a soft symbolic link.
+#
+#	If a symbolic link already exists then it is removed prior to 
+#	creation of the new symbolic link.
+#
+#	ln -s
+#
+#	$1 		The source for the symbolic link.
+#	$2 		The destination for the symbolic link.
+######################################################################
+function symlink {
+	local src="$1";
+	local dest="$2";
+	#symlink exists, attempt to remove it before creation
+	if [ -h "$dest" ]; then
+		rm "$dest";
+	fi
+	ln -s "$src" "$dest" > /dev/null 2>&1;
+	if [ $? -eq 0 ]; then
+			info "$SYM_LINK_SUCCESS" "$src" "$dest";
+			return 0;
+		else
+			error "$SYM_LINK_ERROR" "$src" "$dest";
+			return 1;
+	fi
+}
+
+######################################################################
+#	Expands a path to an absolute representation of an existing
+#	directory.
+#
+#	$1 		The path to the directory.
+######################################################################
+function expand_path {
+	local dir="$1";
+	if [  -d "$dir" ]; then
+		local owd=`pwd`;
+		cd "$dir" > /dev/null;
+		_result=`pwd`;
+		cd "$owd";
+	elif [ ! -d "$dir" ]; then
+		local nm=`basename $dir`
+		dir=`dirname $dir`;
+		expand_path "$dir";
+		_result="$_result/$nm";
+	fi
+	
+	if [ ! -e "$dir" -o ! -e "$_result" ]; then
+		error "unable to expand path %s" "$1";
+		_result="$1";
+	fi
+}
+
+######################################################################
+#	Creates a directory including any non-existing directories.
+#
+#	$1 		The path to the directory.
+######################################################################
+function mkdirp {
+	local dir="$1";
+	if [ ! -d "$dir" ]; then
+		mkdir -p "$dir";
+	fi
+	if [ $? -eq 0 ]; then
+			info "$CREATED_DIRECTORY" "$dir";
+			return 0;
+		else
+			error "$DIRECTORY_CREATE_FAIL" "$dir";
+			return 1;
+	fi
+}
+
+######################################################################
+#	Attempts to change directory and print the new working directory.
+#
+#	$1 		The path to the directory.
+######################################################################
+function cdir {
+	local dir="$1";
+	cd "$dir";
+	if [ $? -eq 0 ]; then
+			info "$CHANGED_DIRECTORY" "$dir";
+			return 0;
+		else
+			error "$DIRECTORY_CHANGE_FAIL" "$dir";
+			return 1;
+	fi
+}
+
+######################################################################
+#	Attempts to verify whether a directory is allowed for removal.
+#
+#	$1 		The path to the directory.
+######################################################################
+function validate_rmdir {
+	local dir="$1";
+	if [ -z "$dir" -o "$dir" == "/" -o "$dir" == "." -o "$dir" == ".." -o "$dir" == "./" ]; then
+		quit 1 "deletion of %s not allowed" "$dir";
+	fi
+}
+
+######################################################################
+#	Attempts to remove a directory.
+#
+#	$1 		The path to the directory.
+######################################################################
+function rmdir {
+	local dir="$1";
+	validate_rmdir "$dir";	
+	expand_path "$dir";
+	dir=$_result;
+	validate_rmdir "$dir";
+	rm -rf "$dir";
+	if [ $? -eq 0 ]; then
+			info "$REMOVED_DIRECTORY" "$dir";
+			return 0;
+		else
+			error "$DIRECTORY_REMOVE_FAIL" "$dir";
+			return 1;
+	fi
+}
+
+######################################################################
+#	Attempts to remove a directory as the root user.
+#
+#	$1 		The path to the directory.
+######################################################################
+function sudo_rmdir {
+	local dir="$1";
+	validate_rmdir "$dir";	
+	expand_path "$dir";
+	dir=$_result;
+	validate_rmdir "$dir";
+	sudo rm -rf "$dir";
+	if [ $? -eq 0 ]; then
+			info "$SUDO_REMOVED_DIRECTORY" "$dir";
+			return 0;
+		else
+			error "$SUDO_DIRECTORY_REMOVE_FAIL" "$dir";
+			return 1;
+	fi
+}

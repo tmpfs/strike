@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+######################################################################
+#	clean-util
+#
+#	Utilities for cleaning target directories.
+######################################################################
+
+function clean_target_directories {
+	local target_dir="$1";
+	expand_path "$target_dir";
+	target_dir="$_result";
+	
+	info "$CLEANING" "$target_dir/target";
+	
+	#find target build directories
+	local targets=`find $target_dir -name target -type d`;
+	for f in $targets
+		do
+			rmdir "$f";
+	done
+}

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+######################################################################
+# 	help
+#
+#	Functions for program help output.
+######################################################################
+
+function program_help {
+	local nm=`basename $0`;
+	local help_file="$exedir/${nm}.help";
+	if [ ! -f "$help_file" ]; then
+		info "no program help available for %s" "$nm";
+	else
+		usage_description " ";
+		while read line
+			do
+				#echo "$line";
+				IFS=":";
+				declare -a parts=( $line );
+				unset IFS;
+				
+				local description=${parts[${#parts[@]}-1]};
+				
+				local msg="${parts[0]}";
+
+				#remove the last part for the description
+				unset parts[${#parts[@]}-1];
+				
+				#remove the first message format part
+				unset parts[0];				
+				
+				#echo "GOT HELP MESSAGE PARTS : ${parts[@]}";
+				
+				usage "    $msg" "${parts[@]}";
+				usage_description " ";
+				usage_description "      $description";
+				usage_description " ";
+		done < "$help_file"
+	fi
+}
