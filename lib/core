@@ -1,0 +1,9 @@
+######################################################################
+#	Determines whether a method has been declared.
+######################################################################
+function method_exists {
+	local method="$1";
+	#echo "testing method $method"
+	declare -f -F "$method" > /dev/null;
+	return $?;
+}
