@@ -7,3 +7,9 @@ function method_exists {
 	declare -f -F "$method" > /dev/null;
 	return $?;
 }
+
+function strict_method_exists {
+	set +o errexit;
+	method_exists "$1";
+	return $?;
+}
