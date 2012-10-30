@@ -2,15 +2,31 @@
 
 A suite of utility functions for *bash* programs.
 
+## Repository Layout
+
+### bin
+
+Contains executables for running tests and inspecting the host system.
+
+#### host
+
+A utility program for inspecting information about the host system.
+
+	host
+	
+#### runner
+
+The test runner, to run all tests:
+
+	runner
+
 ### lib
 
 The main library functions are located in the `lib` directory.
 
 ### test
 
-Tests are located in the `test` directory, you can run all tests with:
-
-	./bin/runner
+Tests and the test library functions are located in the `test` directory.
 	
 When writing tests for failure situations; those that expect a non-zero exit status to indicate that the test has passed must prefix the name of the test program with `fail`.
 
