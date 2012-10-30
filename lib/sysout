@@ -216,7 +216,7 @@ function usage_description {
 		prefix="$_result";
 
 		#no highlight for usage descriptions
-		msgs=( "normal" "normal" "${@}" );
+		msgs=( "default_style" "default_style" "${@}" );
 		colorize "${msgs[@]}";
 		msg="$_result";
 	else
