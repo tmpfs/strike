@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+##!/bin/bash.3.2.48
+
+#set -o errtrace
+#set -o errexit
+#set -o nounset
+
+#get absolute path to running script
+name=`basename $0`;
+abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+exedir=`dirname "$abspath"`;
+libdir="$exedir/../lib";
+
+export PROGRAM_NAME="host";
+
+source "$libdir/shared";
+
+info "os type: %s" "$OSTYPE";
+info "host type: %s" "$HOSTTYPE";
+info "os install key: %s" "$OS_INSTALL";
+info "bash version: %s" "$BASH_VERSION";
+info "host name: %s" "`hostname`";
+
+#function method {
+#	echo "I'm a method!!"
+#}
+
+#function method_exists {
+#	local method="$1";
+#	echo "testing method $method"
+#	declare -f -F "$method" > /dev/null;
+#	return $?;
+#}
+
+#method_exists "method"; echo $?;
+#method_exists "non-existent"; echo $?;
+
+#list all functions, including source code
+#typeset -f;
+
+#list all function names
+#typeset -F;
+
+exit 0;
