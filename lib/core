@@ -13,3 +13,16 @@ function strict_method_exists {
 	method_exists "$1";
 	return $?;
 }
+
+######################################################################
+#	Gets the absolute path to the parent directory for a script.
+#
+#	get_script_directory "${BASH_SOURCE[0]}";
+#
+#	$1 The script that wants the absolute parent directory.
+######################################################################
+function get_script_directory {
+	local script="$1";
+	local abspath=$(cd ${script%/*} && echo $PWD/${0##*/});
+	_result=`dirname "$abspath"`;
+}
