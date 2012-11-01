@@ -102,9 +102,7 @@ function expand_path {
 		local owd=`pwd`;
 		cd "$dir" > /dev/null;
 		_result=`pwd`;
-		if [ -d "$owd" ]; then
-			cd "$owd" > /dev/null;
-		fi
+		cd "$owd" > /dev/null;
 	elif [ ! -d "$dir" ]; then
 		local nm=`basename $dir`
 		dir=`dirname $dir`;

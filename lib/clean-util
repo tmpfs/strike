@@ -6,17 +6,23 @@
 #	Utilities for cleaning target directories.
 ######################################################################
 
+######################################################################
+#	clean_target_directories
+#
+#	Removes all directories named *target* within a folder structure.
+######################################################################
 function clean_target_directories {
 	local target_dir="$1";
 	expand_path "$target_dir";
 	target_dir="$_result";
 	
-	info "$CLEANING" "$target_dir/target";
-	
 	#find target build directories
-	local targets=`find $target_dir -name target -type d`;
-	for f in $targets
-		do
-			rmdir "$f";
-	done
+	local targets=( $(find "$target_dir" -maxdepth 1 -name target -type d) );
+	if [ ${#targets[@]} -gt 0 ]; then
+		for f in ${targets[@]}
+			do
+				info "cleaning %s" "$f";
+				rmdir "$f";
+		done
+	fi
 }
