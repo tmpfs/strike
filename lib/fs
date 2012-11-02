@@ -218,7 +218,7 @@ function find_recursive_symlinks {
 	local l;
 	local n;
 	local t;
-	_result=();
+	local output=();
 	if [ ${#links[@]} -gt 0 ]; then
 		for l in ${links[@]}
 			do
@@ -228,8 +228,10 @@ function find_recursive_symlinks {
 				n=`echo "$n" | tr '[:upper:]' '[:lower:]'`;
 				t=`echo "$t" | tr '[:upper:]' '[:lower:]'`;
 				if [ "$n" == "$t" ]; then
-					_result+=( "$l" );
+					#echo "recursive $l : $n : $t";
+					output+=( "$l" );
 				fi
 		done
 	fi
+	_result="${output[@]:+${output[@]}}";
 }
