@@ -205,3 +205,31 @@ function sudo_rmdir {
 			return 1;
 	fi
 }
+
+######################################################################
+#	Finds symbolic links that point to themselves and will cause cp
+#	to fail.
+#
+#	$1 		The path to the directory to search.
+######################################################################
+function find_recursive_symlinks {
+	local src="$1";
+	local links=( $(find "$src" -type l) );
+	local l;
+	local n;
+	local t;
+	_result=();
+	if [ ${#links[@]} -gt 0 ]; then
+		for l in ${links[@]}
+			do
+				t=`readlink "$l"`;
+				n=`basename $l`;
+				#ensure we always compare case-insensitive
+				n=`echo "$n" | tr '[:upper:]' '[:lower:]'`;
+				t=`echo "$t" | tr '[:upper:]' '[:lower:]'`;
+				if [ "$n" == "$t" ]; then
+					_result+=( "$l" );
+				fi
+		done
+	fi
+}
