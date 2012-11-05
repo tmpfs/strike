@@ -18,7 +18,7 @@ function extract_tar {
 	info "$EXTRACTING" "`basename $archive`" "$target";
 	
 	#extract the archive
-	tar xzf "$archive" --directory="$target";
+	tar xzfj "$archive" --directory="$target";
 }
 
 function create_tar {
