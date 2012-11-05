@@ -15,10 +15,21 @@ function extract_tar {
 		cdir "$target" > /dev/null;
 	fi
 	
-	info "$EXTRACTING" "`basename $archive`" "$target";
+	local name=`basename $archive`;
+	local extension="${name##*.}";
+	local opts;
+	
+	if [ "$extension" == "gz" ]; then
+		opts="xzf";
+	elif [ "$extension" == "bz2" ]; then
+		opts="xjf";
+	else
+		quit 1 "invalid archive type found %s" "$extension";
+	fi
 	
 	#extract the archive
-	tar xzfj "$archive" --directory="$target";
+	info "$EXTRACTING" "$opts" "$name" "$target";
+	tar "$opts" "$archive" --directory="$target";
 }
 
 function create_tar {

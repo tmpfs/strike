@@ -64,7 +64,7 @@ INSTALL_SHORT_NAME_MISSING="installation short name not specified";
 INSTALL_START_MSG="installing %s from source %s";
 
 #archive
-EXTRACTING="tar xzf %s > %s";
+EXTRACTING="tar %s %s > %s";
 EXTRACTION_ERROR="could not extract archive %s";
 
 ARCHIVING="tar czf %s < %s";
