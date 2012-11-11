@@ -1,6 +1,6 @@
 {
 	"name": "strike",
-	"private": true,
+	"private": false,
 	"description": "Suite of bash library functions",
 	"homepage": "https://github.com/freeformsystems/strike",
 	"version": "0.1.0",
