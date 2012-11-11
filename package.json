@@ -4,7 +4,7 @@
 	"description": "Suite of bash library functions",
 	"homepage": "https://github.com/freeformsystems/strike",
 	"version": "0.1.0",
-	"author": "muji <muji@xpm.io>",
+	"author": "muji <freeformsystems@gmail.com>",
 	"files": [ "bin", "lib", "test", "README.md", "LICENSE" ],
 	"licenses": [{
 		"type": "Creative Commons attribution and share-alike license",
