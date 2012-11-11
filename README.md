@@ -8,8 +8,8 @@ A suite of utility functions for *bash* programs.
 	
 ## Core dependencies
 
-	* node
-	* npm
+* node
+* npm
 
 ## Repository layout
 
