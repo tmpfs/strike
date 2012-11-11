@@ -2,7 +2,16 @@
 
 A suite of utility functions for *bash* programs.
 
-## Repository Layout
+## Installation
+
+	npm install strike
+	
+## Core dependencies
+
+	* node
+	* npm
+
+## Repository layout
 
 ### bin
 
