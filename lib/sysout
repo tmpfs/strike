@@ -96,14 +96,17 @@ function print {
 
 function print_prefix {
 	local prefix="[$program_name]";
-	if [ -t 1 ]; then	
-		if [ "$prefix" != "" ]; then
-			gray "$prefix";
-			echo -ne "$_result";
-			echo -ne " ";
-		fi	
-	else
-		echo -n "$prefix ";
+	local include_prefix=${program_config_print_prefix:-};
+	if [ -z "$include_prefix" ]; then
+		if [ -t 1 ]; then	
+			if [ "$prefix" != "" ]; then
+				gray "$prefix";
+				echo -ne "$_result";
+				echo -ne " ";
+			fi	
+		else
+			echo -n "$prefix ";
+		fi		
 	fi
 }
 
