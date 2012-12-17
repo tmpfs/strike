@@ -7,7 +7,7 @@
 ######################################################################
 
 #whether to suppress the default welcome message
-SUPPRESS_WELCOME=0;
+SUPPRESS_WELCOME=${SUPPRESS_WELCOME:-0};
 
 #default program name
 program_name=`basename $0`;
