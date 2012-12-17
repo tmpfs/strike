@@ -41,7 +41,9 @@ source "$libdir/clean-util";
 
 #TODO: refactor this so a program can set a name other than the basename of the executing program
 function welcome_msg {
-	if [ "$SUPPRESS_WELCOME" = "1" ]; then
+	local print=${program_config_print_welcome:-};
+	#SUPPRESS_WELCOME is now deprecated, legacy support
+	if [ "$SUPPRESS_WELCOME" = "1" ] || [ ! -z "$print" ]; then
 		return 0;
 	fi
 	info "$WELCOME" "$program_name" "$OS_INSTALL" "`whoami`";	
