@@ -3,7 +3,7 @@ function main {
 	shift;
 	local method=${1:-};
 	shift;
-	local options=${@:-};
+	local options=( "${@:-}" );
 
 	if [ ! -z "$method" ]; then
 		#straight method call
