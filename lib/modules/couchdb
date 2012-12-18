@@ -12,6 +12,10 @@ export couchdb_result_method="";
 export couchdb_result_url="";
 export couchdb_result_status="";
 
+#function couchdb_initialize {
+#	echo "couchdb_initialize";
+#}
+
 function couchdb_curl {
 	local cmd=$( command -v "curl" );
 	if [ ! -x "$cmd" ]; then

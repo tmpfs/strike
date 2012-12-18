@@ -65,6 +65,13 @@ function module_load {
 		if [ $exists -ne 0 ]; then
 			warn "loaded module %s does not declare a method named %s" "$name" "$name";
 		fi
+		
+		strict_method_exists "${name}_initialize";
+		exists=$?;
+		set -o errexit;		
+		if [ $exists -eq 0 ]; then
+			"${name}_initialize";
+		fi		
 	fi
 }
 
