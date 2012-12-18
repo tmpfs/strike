@@ -1,25 +1,19 @@
 {
 	"name": "strike",
-	"private": false,
 	"description": "Suite of bash library functions",
 	"homepage": "https://github.com/freeformsystems/strike",
 	"version": "0.1.0",
 	"author": "muji <muji@xpm.io>",
 	"files": [ "bin", "lib", "test", "README.md", "LICENSE" ],
-	"licenses": [{
-		"type": "Creative Commons attribution and share-alike license",
-		"url": "http://creativecommons.org/licenses/by-sa/2.0/uk/"
-	}],
+	"licenses": [ {
+		"type": "MIT",
+		"url": "https://github.com/freeformsystems/strike/blob/master/LICENSE"
+	} ],
 	"repository": {
 		"type": "git",
 		"url": "git://github.com/freeformsystems/strike.git"
 	},
-	"dependencies": {
-	},
-	"devDependencies": {
-	},
 	"engine": [ "node >= 0.8.11" ],
-	"main": null,
-	"scripts": {"test": "./bin/runner"},
+	"scripts": { "test": "./bin/runner" },
 	"config" : {}
 }

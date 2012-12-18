@@ -101,7 +101,7 @@ function couchdb_info {
 
 function couchdb_get_url {
 	local path=${1:-};
-	local db=${2:-$couchdb_dbname};
+	local db=${2:-"$couchdb_dbname"};
 	local out="${couchdb_url}/$db";
 	#strip any leading slash
 	path=${path#/};
