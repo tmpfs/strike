@@ -37,11 +37,12 @@ function couchdb_curl {
 	couchdb_url "$path";
 	local url="$_result";
 	
-	local writeout="${couchdb_writeout:-$couchdb_curl_writeout}";
+	set +o nounset;
+	local writeout="--write-out ${curl_writeout:-"$couchdb_curl_writeout"}";
 	
 	#echo "got url $url";	
 	
-	local run="$cmd -X"$method" --write-out "$writeout" --silent --output /dev/null "$url" "${opts[@]:-}"";
+	local run="$cmd -X"$method" $writeout --silent --output /dev/null "$url" "${opts[@]:-}"";
 	#echo "run: ${run}";
 	local results=( $( eval "$run" ) );
 	results=( "$method" "${results[@]}" );
@@ -49,6 +50,8 @@ function couchdb_curl {
 	couchdb_result_method="${results[0]}";
 	couchdb_result_url="${results[1]}";
 	couchdb_result_status="${results[2]}";
+	
+	set -o nounset;	
 	
 	#echo "got results : ${results[@]}";
 }

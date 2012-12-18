@@ -34,7 +34,7 @@ function module_load {
 		"./node_modules"
 		"../node_modules"
 		"$exedir/../lib/modules"
-		"$abspath/../modules"
+		"$abspath/modules"
 	);
 	
 	
