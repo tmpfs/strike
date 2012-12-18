@@ -25,11 +25,20 @@ function module_list {
 
 function module_load {
 	local name="${1:-}";
+	
+	local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD);
+	
+	echo "got load abs path: $abspath";
+	
 	local searchpaths=(
 		"./node_modules"
 		"../node_modules"
 		"$exedir/../lib/modules"
+		"$abspath/../modules"
 	);
+	
+	
+	
 	if [ ! -z "$name" ]; then
 		local abs;
 		local loaded=0;
@@ -60,5 +69,5 @@ function module_load {
 	fi
 }
 
-#define 'couchdb';
+define 'couchdb';
 #module_list;
