@@ -1,16 +1,16 @@
-declare couchdb_url;
-declare couchdb_dbname;
-declare couchdb_user;
-declare couchdb_pass;
+# modules must *export* global variables
+export couchdb_url;
+export couchdb_dbname;
+export couchdb_user;
+export couchdb_pass;
 
 #default write out
-declare couchdb_curl_writeout="'%{url_effective}\n%{http_code}'";
-declare couchdb_expects="";
+export couchdb_curl_writeout="'%{url_effective}\n%{http_code}'";
+export couchdb_expects="";
 
-declare couchdb_result_method="";
-declare couchdb_result_url="";
-declare couchdb_result_status="";
-
+export couchdb_result_method="";
+export couchdb_result_url="";
+export couchdb_result_status="";
 
 function couchdb_curl {
 	local cmd=$( command -v "curl" );

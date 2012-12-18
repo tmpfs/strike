@@ -37,8 +37,6 @@ function module_load {
 		"$abspath/modules"
 	);
 	
-	
-	
 	if [ ! -z "$name" ]; then
 		local abs;
 		local loaded=0;
