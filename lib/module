@@ -33,6 +33,7 @@ function module_load {
 	local searchpaths=(
 		"./node_modules"
 		"../node_modules"
+		"$exedir/lib/modules"
 		"$exedir/../lib/modules"
 		"$abspath/modules"
 	);
