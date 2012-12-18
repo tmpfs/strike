@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+##!/bin/bash.3.2.48
+
+set -o errtrace;
+set -o errexit;
+set -o nounset;
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+export PROGRAM_NAME=`basename $0`;
+program_config_print_welcome="off";
+program_config_print_prefix="off";
+name=`basename $0`;
+abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+if [ -L "$abspath" ]; then
+	abspath=`readlink $abspath`;
+fi
+exedir=`dirname "$abspath"`;
+libdir="$exedir/../lib";
+######################################################################
+
+source "$libdir/shared";
+
+require 'main';
+
+declare module="$PROGRAM_NAME";
+declare method;
+declare options;
+
+function strike_info {
+	info "bash: %s" "$BASH";
+	info "os type: %s" "$OSTYPE";
+	info "host type: %s" "$HOSTTYPE";
+	info "mach type: %s" "$MACHTYPE";
+	info "os install key: %s" "$OS_INSTALL";
+	info "bash version: %s" "$BASH_VERSION";
+	info "bash major version: %s" "${BASH_VERSINFO[0]}";
+	info "bash minor version: %s" "${BASH_VERSINFO[1]}";
+	info "bash patch level: %s" "${BASH_VERSINFO[2]}";
+	info "host name: %s" "`hostname`";
+	info "home: %s" "${HOME}";
+}
+
+function configure_options {
+	verbose=0;
+}
+
+function get_options {
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+ 		info )
+			method="info";
+			;;
+		-h | --help )
+			program_help;
+			exit 0;
+			;;
+		* )
+			program_help;
+			exit 1;
+		esac
+		shift;
+	done
+}
+
+#configure all the option defaults
+configure_options;
+
+#validate the parameters
+get_options "$@";
+
+main "${module:-}" "${method:-}" "${options[@]:-}";
+
+exit 0;

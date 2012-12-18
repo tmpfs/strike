@@ -1,0 +1,17 @@
+function main {
+	local module=${1:-};
+	shift;
+	local method=${1:-};
+	shift;
+	local options=${@:-};
+
+	if [ ! -z "$method" ]; then
+		#straight method call
+		if [ -z "$module" ]; then
+			${method} "${options[@]:-}";
+		#method call in module
+		else
+			${module}_${method} "${options[@]:-}";
+		fi
+	fi
+}
