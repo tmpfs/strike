@@ -42,11 +42,15 @@ function couchdb_curl {
 	local url="$_result";
 	
 	set +o nounset;
-	local writeout="--write-out ${curl_writeout:-"$couchdb_curl_writeout"}";
+	#local writeout="--write-out ${curl_writeout:-"$couchdb_curl_writeout"}";
+	local silent="--silent --output /dev/null";
+	
+	writeout="";
+	silent="";
 	
 	#echo "got url $url";	
 	
-	local run="$cmd -X"$method" $writeout --silent --output /dev/null "$url" "${opts[@]:-}"";
+	local run="$cmd -X"$method" $writeout $silent "$url" "${opts[@]:-}"";
 	#echo "run: ${run}";
 	local results=( $( eval "$run" ) );
 	results=( "$method" "${results[@]}" );
