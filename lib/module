@@ -75,5 +75,5 @@ function module_load {
 	fi
 }
 
-#require 'couchdb';
+require 'couchdb';
 #module_list;

@@ -38,7 +38,7 @@ function couchdb_curl {
 	#empty data when applicable
 	#opts=( "${opts[@]:-}" "-d" "{}" );
 	
-	couchdb_url "$path";
+	couchdb_get_url "$path";
 	local url="$_result";
 	
 	set +o nounset;
@@ -99,7 +99,7 @@ function couchdb_info {
 	couchdb_curl "GET" "/";
 }
 
-function couchdb_url {
+function couchdb_get_url {
 	local path=${1:-};
 	local db=${2:-$couchdb_dbname};
 	local out="${couchdb_url}/$db";
