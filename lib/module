@@ -31,9 +31,9 @@ function module_load {
 	echo "got load abs path: $abspath";
 	
 	local searchpaths=(
+		"$exedir/lib/modules"
 		"./node_modules"
 		"../node_modules"
-		"$exedir/lib/modules"
 		"$exedir/../lib/modules"
 		"$abspath/modules"
 	);
