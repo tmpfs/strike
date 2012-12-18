@@ -6,7 +6,7 @@
 
 declare -a modules;
 
-function define {
+function require {
 	local name="${1:-}";
 	if [ ! -z "$name" ]; then
 		modules=( "${modules[@]:-""}" "$name" );
@@ -75,5 +75,5 @@ function module_load {
 	fi
 }
 
-#define 'couchdb';
+#require 'couchdb';
 #module_list;
