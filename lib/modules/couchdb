@@ -139,9 +139,9 @@ function couchdb {
 	fi
 }
 
-couchdb "auth" "https://ffsys.cloudant.com" "hosts";
-couchdb "info" && couchdb_print;
-couchdb "head" "cyberfunk" && couchdb_print;
-couchdb "get" "cyberfunk" && couchdb_print;
+#couchdb "auth" "https://ffsys.cloudant.com" "hosts";
+#couchdb "info" && couchdb_print;
+#couchdb "head" "cyberfunk" && couchdb_print;
+#couchdb "get" "cyberfunk" && couchdb_print;
 #couchdb "put_file" "package" "/Users/cyberfunk/git/hosts/package.json";
-couchdb "put_data" "test" '{ "test": "value" }' && couchdb_print;
+#couchdb "put_data" "test" '{ "test": "value" }' && couchdb_print;

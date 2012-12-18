@@ -69,5 +69,5 @@ function module_load {
 	fi
 }
 
-define 'couchdb';
+#define 'couchdb';
 #module_list;
