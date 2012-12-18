@@ -1,0 +1,147 @@
+declare couchdb_url;
+declare couchdb_dbname;
+declare couchdb_user;
+declare couchdb_pass;
+
+#default write out
+declare couchdb_curl_writeout="'%{url_effective}\n%{http_code}'";
+declare couchdb_expects="";
+
+declare couchdb_result_method="";
+declare couchdb_result_url="";
+declare couchdb_result_status="";
+
+
+function couchdb_curl {
+	local cmd=$( command -v "curl" );
+	if [ ! -x "$cmd" ]; then
+		quit 1 "could not locate curl executable %s" "$cmd";
+	fi
+	
+	local method="${1:-GET}";
+	shift;
+	local path="${1:-}";
+	shift;
+	
+	#curl --data-urlencode
+	
+	#remaining options
+	local opts=( "$@" );
+	
+	#mandatory options
+	#opts=( "${opts[@]:-}" "-H" "'Content-Type: application/json'" );
+	
+	#empty data when applicable
+	#opts=( "${opts[@]:-}" "-d" "{}" );
+	
+	couchdb_url "$path";
+	local url="$_result";
+	
+	local writeout="${couchdb_writeout:-$couchdb_curl_writeout}";
+	
+	#echo "got url $url";	
+	
+	local run="$cmd -X"$method" --write-out "$writeout" --silent --output /dev/null "$url" "${opts[@]:-}"";
+	#echo "run: ${run}";
+	local results=( $( eval "$run" ) );
+	results=( "$method" "${results[@]}" );
+	
+	couchdb_result_method="${results[0]}";
+	couchdb_result_url="${results[1]}";
+	couchdb_result_status="${results[2]}";
+	
+	#echo "got results : ${results[@]}";
+}
+
+function couchdb_module_name {
+	_result="couchdb";
+}
+
+function couchdb_print {
+	info "[%s] %s %s" "$couchdb_result_status" "$couchdb_result_method" "$couchdb_result_url";
+}
+
+function couchdb_head {
+	local path="${1:-/}";
+	couchdb_curl "HEAD" "$path" "-I";
+}
+
+function couchdb_get {
+	local path="${1:-/}";
+	couchdb_curl "GET" "$path";
+}
+
+function couchdb_put {
+	local path="${1:-/}";
+	couchdb_curl "PUT" "$path";
+}
+
+function couchdb_put_file {
+	local path="${1:-/}";
+	local file="${2:-}";
+	couchdb_curl "PUT" "$path" "--data-binary" "@${file}";
+}
+
+function couchdb_put_data {
+	local path="${1:-/}";
+	local data="${2:-}";
+	couchdb_curl "PUT" "$path" "-H" "'Content-Type: application/json'" "-d" "'$data'";
+}
+
+function couchdb_info {
+	couchdb_curl "GET" "/";
+}
+
+function couchdb_url {
+	local path=${1:-};
+	local db=${2:-$couchdb_dbname};
+	local out="${couchdb_url}/$db";
+	#strip any leading slash
+	path=${path#/};
+	out="${out}/${path}";
+	_result="$out";
+}
+
+function couchdb_auth {
+	local url="$1";	
+	local dbname="$2";
+	local user="${3:-}";
+	local pass="${4:-}";
+	
+	couchdb_module_name;
+	local module="$_result";
+	
+	eval "${module}_url"="$url";
+	eval "${module}_dbname"="$dbname";
+	eval "${module}_user"="$user";
+	eval "${module}_pass"="$pass";
+	
+	#echo "$couchdb_url";
+	#echo "$couchdb_dbname";	
+}
+
+function couchdb {
+	couchdb_module_name;
+	local module="$_result";
+	local method="$1";
+	shift;
+	local options=( "${@:-}" );
+	local func="${module}_${method}";
+	#echo "checking func: $func";
+	strict_method_exists "$func";
+	local exists=$?;
+	set -o errexit;	
+	
+	if [ $exists -eq 0 ]; then
+		$func "${options[@]}";
+	else
+		quit 1 "%s method %s does not exist" "$module" "$method";
+	fi
+}
+
+couchdb "auth" "https://ffsys.cloudant.com" "hosts";
+couchdb "info" && couchdb_print;
+couchdb "head" "cyberfunk" && couchdb_print;
+couchdb "get" "cyberfunk" && couchdb_print;
+#couchdb "put_file" "package" "/Users/cyberfunk/git/hosts/package.json";
+couchdb "put_data" "test" '{ "test": "value" }' && couchdb_print;

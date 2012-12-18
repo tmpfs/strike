@@ -1,0 +1,64 @@
+######################################################################
+# 	module
+#
+#	Logic for defining and loading modules.
+######################################################################
+
+declare -a modules;
+
+function define {
+	local name="${1:-}";
+	if [ ! -z "$name" ]; then
+		modules=( "${modules[@]:-""}" "$name" );
+		module_load "$name";
+	fi
+}
+
+function module_list {
+	for m in "${modules[@]}"
+		do
+			if [ ! -z "$m" ]; then
+				echo "[module] $m";
+			fi
+	done
+}
+
+function module_load {
+	local name="${1:-}";
+	local searchpaths=(
+		"./node_modules"
+		"../node_modules"
+		"$exedir/../lib/modules"
+	);
+	if [ ! -z "$name" ]; then
+		local abs;
+		local loaded=0;
+		for f in ${searchpaths[@]}
+			do
+				expand_path "$f" > /dev/null;
+				f="$_result";
+				abs="${f}/${name}";
+				echo "got module path $abs";
+				
+				if [ -f "$abs" ] && [ -r "$abs" ]; then
+					source "$abs";
+					loaded=1;
+					break;
+				fi
+		done
+		
+		if [ $loaded -eq 0 ]; then
+			quit 1 "failed to load module %s" "$name";
+		fi
+		
+		strict_method_exists "$name";
+		local exists=$?;
+		set -o errexit;
+		if [ $exists -ne 0 ]; then
+			warn "loaded module %s does not declare a method named %s" "$name" "$name";
+		fi
+	fi
+}
+
+#define 'couchdb';
+#module_list;

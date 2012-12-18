@@ -1,15 +1,23 @@
 #!/usr/bin/env bash
 ##!/bin/bash.3.2.48
 
-#set -o errtrace
-#set -o errexit
-#set -o nounset
+set -o errtrace
+set -o errexit
+set -o nounset
 
-#get absolute path to running script
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
 name=`basename $0`;
 abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+if [ -L "$abspath" ]; then
+	abspath=`readlink $abspath`;
+fi
 exedir=`dirname "$abspath"`;
 libdir="$exedir/../lib";
+######################################################################
 
 export PROGRAM_NAME="host";
 

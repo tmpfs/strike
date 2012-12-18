@@ -1,5 +1,3 @@
-#!/usr/bin/env bash
-
 ######################################################################
 # 	shared
 #
@@ -30,6 +28,7 @@ source "$libdir/fs";
 source "$libdir/git-util";
 source "$libdir/archive-util";
 source "$libdir/clean-util";
+source "$libdir/module";
 
 #set +e;
 
