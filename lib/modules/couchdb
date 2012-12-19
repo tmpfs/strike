@@ -1,3 +1,5 @@
+require "rest";
+
 # modules must *export* global variables
 export couchdb_url;
 export couchdb_dbname;
@@ -11,6 +13,8 @@ export couchdb_expects="";
 export couchdb_result_method="";
 export couchdb_result_url="";
 export couchdb_result_status="";
+
+#declare -A couchdb_view_options;
 
 #function couchdb_initialize {
 #	echo "couchdb_initialize";
@@ -45,19 +49,35 @@ function couchdb_curl {
 	#local writeout="--write-out ${curl_writeout:-"$couchdb_curl_writeout"}";
 	local silent="--silent --output /dev/null";
 	
-	writeout="";
+	#writeout="";
 	silent="";
 	
 	#echo "got url $url";	
 	
-	local run="$cmd -X"$method" $writeout $silent "$url" "${opts[@]:-}"";
-	#echo "run: ${run}";
-	local results=( $( eval "$run" ) );
-	results=( "$method" "${results[@]}" );
+	#$writeout $silent
 	
-	couchdb_result_method="${results[0]}";
-	couchdb_result_url="${results[1]}";
-	couchdb_result_status="${results[2]}";
+	#"${opts[@]:-}" 
+	
+	local runopts=(
+		"-X${method}"
+		
+		"$url"
+	);
+	
+	local run="$cmd -X"$method" "$url"";
+	
+	echo "run: ${run}";
+	
+	$cmd "${runopts[@]}";	
+	
+	#$cmd ""$run"";
+	#$cmd "${runopts[@]}"
+	#local results=( $( eval "/usr/bin/curl -XGET -o "$HOME/.couchdb.json" https://ffsys.cloudant.com/hosts/_design/views/_view/users >1" ) );
+	#results=( "$method" "${results[@]}" );
+	
+	#couchdb_result_method="${results[0]}";
+	#couchdb_result_url="${results[1]}";
+	#couchdb_result_status="${results[2]}";
 	
 	set -o nounset;	
 	
@@ -129,6 +149,42 @@ function couchdb_auth {
 	
 	#echo "$couchdb_url";
 	#echo "$couchdb_dbname";	
+}
+
+function couchdb_query_string {
+	local output="";
+	local oifs;
+	for opt in "${@}"
+		do
+			oifs="$IFS";
+			IFS="=";
+			while read -r name value
+				do
+					url_encode "$value";
+					output="${output}${name}=${_result}&";
+			done <<< "$opt";
+			IFS="$oifs";
+	done
+	_result="?${output}";
+}
+
+function couchdb_view {
+	local viewdoc="${1:-views}";
+	local view="${2:-}";
+	local querystring="${3:-}";
+	local path="_design/${viewdoc}/_view/${view}";
+	
+	if [ ! -z "$querystring" ]; then
+		path="${path}${querystring}";
+	fi
+	
+	#if [ ! -z "$couchdb_view_options" ]; then
+	#	echo "got view options...";
+	#fi
+	couchdb_curl "GET" "${path}";
+	
+	#reset the view options
+	#couchdb_view_options="";
 }
 
 function couchdb {

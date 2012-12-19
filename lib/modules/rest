@@ -1,0 +1,3 @@
+require "url";
+
+#TODO: implement get/post/put/delete etc

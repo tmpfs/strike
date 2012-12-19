@@ -1,0 +1,6 @@
+function url_encode {
+	set +o errexit;
+    local data=$(curl -s -o /dev/null -w %{url_effective} --get --data-urlencode "$1" "")
+	set -o errexit;
+    _result="${data##/?}";
+}

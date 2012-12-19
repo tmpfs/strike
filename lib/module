@@ -59,12 +59,12 @@ function module_load {
 			quit 1 "failed to load module %s" "$name";
 		fi
 		
-		strict_method_exists "$name";
-		local exists=$?;
-		set -o errexit;
-		if [ $exists -ne 0 ]; then
-			warn "loaded module %s does not declare a method named %s" "$name" "$name";
-		fi
+		#strict_method_exists "$name";
+		#local exists=$?;
+		#set -o errexit;
+		#if [ $exists -ne 0 ]; then
+		#	warn "loaded module %s does not declare a method named %s" "$name" "$name";
+		#fi
 		
 		strict_method_exists "${name}_initialize";
 		exists=$?;
@@ -75,8 +75,11 @@ function module_load {
 	fi
 }
 
-#require 'couchdb';
-#couchdb "auth" "https://ffsys.cloudant.com" "hosts";
+require 'couchdb';
+couchdb "auth" "https://ffsys.cloudant.com" "hosts";
+couchdb_query_string 'include_docs=true' 'reduce=false';
+#echo "got query string: $_result";
+couchdb_view "views" "users" "$_result";
 #couchdb "info" && couchdb_print;
 #couchdb "head" "cyberfunk" && couchdb_print;
 #couchdb "get" "cyberfunk" && couchdb_print;
