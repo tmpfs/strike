@@ -1,10 +1,22 @@
 #!/usr/bin/env bash
 
-#get absolute path to running script
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+export PROGRAM_NAME=`basename $0`;
+program_config_print_welcome="off";
+program_config_print_prefix="off";
 name=`basename $0`;
 abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+if [ -L "$abspath" ]; then
+	abspath=`readlink $abspath`;
+fi
 exedir=`dirname "$abspath"`;
 libdir="$exedir/../lib";
+######################################################################
+
 testdir="$exedir/../test";
 
 export PROGRAM_NAME="test-runner";
@@ -12,7 +24,7 @@ export PROGRAM_NAME="test-runner";
 #bring in the shared libraries
 source "$libdir/shared";
 
-source "$exedir/../test/lib/dir";
+require 'test';
 
 #if [ -t 1 ]; then
 #	echo "IS TERMINAL";
