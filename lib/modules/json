@@ -1,4 +1,7 @@
 
+#declare -A json;
+#json[ 'result' ]="whatever";
+
 throw () {
   echo "$*" >&2
   exit 1
@@ -11,8 +14,7 @@ tokenize () {
   local NUMBER='-?(0|[1-9][0-9]*)([.][0-9]*)?([eE][+-]?[0-9]*)?'
   local KEYWORD='null|false|true'
   local SPACE='[[:space:]]+'
-  egrep -ao "$STRING|$NUMBER|$KEYWORD|$SPACE|." --color=never |
-    egrep -v "^$SPACE$"  # eat whitespace
+  egrep -ao "$STRING|$NUMBER|$KEYWORD|$SPACE|." --color=never | egrep -v "^$SPACE$"  # eat whitespace
 }
 
 parse_array () {
@@ -75,18 +77,53 @@ parse_object () {
 }
 
 parse_value () {
+	
+	#echo "got parse_value opts : $*";
+	
   local jpath="${1:+$1,}$2"
   case "$token" in
     '{') parse_object "$jpath" ;;
     '[') parse_array  "$jpath" ;;
     # At this point, the only valid single-character tokens are digits.
     ''|[^0-9]) throw "EXPECTED value GOT ${token:-EOF}" ;;
-    *) value=$token ;;
+    *) value=${token} ;;
   esac
-  printf "[%s]\t%s\n" "$jpath" "$value"
+  #printf "[%s]\t%s\n" "$jpath" "$value"
+	#="$value";
+
+	#"$jpath"="$"$value;
+	
+	#f=( "$jpath" );
+	#subst="$f[@]"
+	#echo "got: ${!subst}"	
+	
+	#eval echo -n "${!key}=$jpath";
+	
+	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
+		local key=${jpath};
+		local val=${value};	
+		eval key=json_\$$key;
+		#val="$value";
+	
+		#switch the commas for underscores
+		key=${key//,/_};
+		#ensure we don't get double underscores
+		key=${key//__/_};
+	
+		if [ "$key" != 'json_$' ]; then
+			#local val="${value}";
+			#val=${val//^"/};
+			echo "${key}=${val}";
+		fi
+	
+		#echo "jpath :: $key :: ${!key}";
+	
+		#echo "got total rows : ${json_total_rows:-}";
+	
+	fi
 }
 
-json_parse () {
+json_start () {
   read -r token
   parse_value
   read -r token
@@ -94,6 +131,35 @@ json_parse () {
     '') ;;
     *) throw "EXPECTED EOF GOT $token" ;;
   esac
+}
+
+json_parse ()
+{
+	set +o errexit;	
+	set +o nounset;	
+	local results=( $( echo -ne "${@}" | tokenize | json_start ) );
+	local key;
+	local value;
+	for opt in ${results[@]}
+		do
+			echo "got var : $opt";
+			oifs="$IFS";
+			IFS="=";
+			while read -r key value
+				do
+					#strip out the double quotes from string values
+					value=$( echo "$value" | sed "s/^\([\"']\)\(.*\)\1\$/\2/g" );
+				
+					echo "got key: $key";					
+					echo "got value: $value";					
+					echo "got replaced: $replaced";
+					export "${key}=${value}";
+			done <<< "$opt";
+			IFS="$oifs";
+	done
+	
+	set -o errexit;
+	set -o nounset;
 }
 
 #if [ $0 = $BASH_SOURCE ];

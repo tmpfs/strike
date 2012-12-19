@@ -59,16 +59,30 @@ function couchdb_curl {
 	
 	#"${opts[@]:-}" 
 	
+	local jsonfile="$HOME/.couchdb.json";
+	
 	local runopts=(
 		"-X${method}"
 		"--silent"
+		"-o"
+		"$jsonfile"
 		"$url"
 	);
 
 	
 	echo "run: $cmd ${runopts[@]}";
 	
-	$cmd "${runopts[@]}" | tokenize | json_parse;
+	$cmd "${runopts[@]}";
+	
+	local result=`cat $jsonfile`;
+	
+	echo "got result: $result";
+	
+	json_parse "$result";
+	
+	echo "[couchdb] got json total rows :: ${json_rows_0_id:-}";
+	
+	#| tokenize | json_parse
 	
 	#$cmd ""$run"";
 	#$cmd "${runopts[@]}"
