@@ -1,4 +1,5 @@
 require "rest";
+require "json";
 
 # modules must *export* global variables
 export couchdb_url;
@@ -60,15 +61,14 @@ function couchdb_curl {
 	
 	local runopts=(
 		"-X${method}"
-		
+		"--silent"
 		"$url"
 	);
+
 	
-	local run="$cmd -X"$method" "$url"";
+	echo "run: $cmd ${runopts[@]}";
 	
-	echo "run: ${run}";
-	
-	$cmd "${runopts[@]}";	
+	$cmd "${runopts[@]}" | tokenize | json_parse;
 	
 	#$cmd ""$run"";
 	#$cmd "${runopts[@]}"

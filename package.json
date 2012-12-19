@@ -13,6 +13,9 @@
 		"type": "git",
 		"url": "git://github.com/freeformsystems/strike.git"
 	},
+	"dependencies": {
+		"JSON.sh": ">= 0.0.5"
+	},
 	"engine": [ "node >= 0.8.11" ],
 	"scripts": { "test": "./bin/runner" },
 	"config" : {}
