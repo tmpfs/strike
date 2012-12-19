@@ -4,48 +4,36 @@
 #	Sources shared libraries common to all programs.
 ######################################################################
 
-#whether to suppress the default welcome message
-SUPPRESS_WELCOME=${SUPPRESS_WELCOME:-0};
+#we need method, color and console functionality
+#before the module/require logic
+source "$libdir/modules/method";
+source "$libdir/modules/color";
+source "$libdir/modules/console";
 
-#default program name
-program_name=`basename $0`;
+#main module loader and require definition
+source "$libdir/modules/require";
 
-#custom program name set by running executable
-PNAME=${PROGRAM_NAME:-}
-if [ ! -z ${PNAME} ]; then
-	program_name="$PROGRAM_NAME";	
-fi
+require 'fs';
+
+source "$libdir/core";
+source "$libdir/help";
+source "$libdir/utilities";
 
 source "$libdir/constants";
 source "$libdir/exit-codes";
 source "$libdir/messages";
-source "$libdir/core";
-source "$libdir/style";
-source "$libdir/sysout";
-source "$libdir/help";
-source "$libdir/utilities";
-source "$libdir/fs";
-source "$libdir/git-util";
-source "$libdir/archive-util";
-source "$libdir/clean-util";
-source "$libdir/module";
+
+#require the welcome message last
+require 'welcome';
+
+#TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
+#source "$libdir/git-util";
+#source "$libdir/archive-util";
+#source "$libdir/clean-util";
 
 #set +e;
 
 #ensure we can't use unbound variables
 #set -o nounset;
-
 #set -o errexit;
 #set -o pipefail;
-
-#TODO: refactor this so a program can set a name other than the basename of the executing program
-function welcome_msg {
-	local print=${program_config_print_welcome:-};
-	#SUPPRESS_WELCOME is now deprecated, legacy support
-	if [ "$SUPPRESS_WELCOME" = "1" ] || [ ! -z "$print" ]; then
-		return 0;
-	fi
-	info "$WELCOME" "$program_name" "$OS_INSTALL" "`whoami`";	
-}
-
-welcome_msg;

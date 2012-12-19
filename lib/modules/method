@@ -1,0 +1,19 @@
+######################################################################
+#	Determines whether a method has been declared.
+######################################################################
+function method_exists {
+	local method="$1";
+	#echo "testing method $method"
+	declare -f -F "$method" > /dev/null;
+	return $?;
+}
+
+######################################################################
+#	Determines whether a method has been declared, when running with
+#	errexit on.
+######################################################################
+function strict_method_exists {
+	set +o errexit;
+	method_exists "$1";
+	return $?;
+}

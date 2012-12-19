@@ -30,32 +30,38 @@ function module_load {
 	
 	#echo "got load abs path: $abspath";
 	
-	local searchpaths=(
-		"$exedir/lib/modules"
-		"./node_modules"
-		"../node_modules"
-		"$exedir/../lib/modules"
-		"$abspath/modules"
-	);
-	
 	if [ ! -z "$name" ]; then
+		
+		echo "loading moduke : $name"
+		
+		local searchpaths=(
+			"$exedir/lib/modules"
+			"$exedir/node_modules/${name}/lib/modules"
+			"$exedir/../node_modules/${name}/lib/modules/"
+			"$exedir/../lib/modules"
+			"$abspath/modules"
+		);
+		
 		local abs;
 		local loaded=0;
 		for f in ${searchpaths[@]}
 			do
-				expand_path "$f" > /dev/null;
-				f="$_result";
+				#expand_path "$f" > /dev/null;
+				#f="$_result";
 				abs="${f}/${name}";
-				#echo "got module path $abs";
+				
+				echo "got module path $abs";
 				
 				if [ -f "$abs" ] && [ -r "$abs" ]; then
 					source "$abs";
+					echo "sourced module $name";
 					loaded=1;
 					break;
 				fi
 		done
 		
 		if [ $loaded -eq 0 ]; then
+			echo "failed to load";
 			quit 1 "failed to load module %s" "$name";
 		fi
 		
@@ -68,10 +74,12 @@ function module_load {
 		
 		strict_method_exists "${name}_initialize";
 		exists=$?;
-		set -o errexit;		
+		set -o errexit;
 		if [ $exists -eq 0 ]; then
 			"${name}_initialize";
-		fi		
+		fi
+		
+		echo "module loaded...";
 	fi
 }
 

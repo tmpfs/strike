@@ -26,6 +26,8 @@ source "$libdir/shared";
 
 require 'main';
 
+echo "after require main";
+
 declare module="$PROGRAM_NAME";
 declare method;
 declare options;
