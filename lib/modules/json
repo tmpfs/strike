@@ -136,13 +136,21 @@ json_start () {
 json_parse ()
 {
 	set +o errexit;	
-	set +o nounset;	
+	set +o nounset;
+	
+	#ensure we unset all variables before re-parsing
+	for opt in ${!json_*}
+		do
+			unset "$opt";
+	done
+	
 	local results=( $( echo -ne "${@}" | tokenize | json_start ) );
 	local key;
 	local value;
+	local oifs;
 	for opt in ${results[@]}
 		do
-			echo "got var : $opt";
+			#echo "got var : $opt";
 			oifs="$IFS";
 			IFS="=";
 			while read -r key value
@@ -150,9 +158,8 @@ json_parse ()
 					#strip out the double quotes from string values
 					value=$( echo "$value" | sed "s/^\([\"']\)\(.*\)\1\$/\2/g" );
 				
-					echo "got key: $key";					
-					echo "got value: $value";					
-					echo "got replaced: $replaced";
+					#echo "got key: $key";					
+					#echo "got value: $value";
 					export "${key}=${value}";
 			done <<< "$opt";
 			IFS="$oifs";

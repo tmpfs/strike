@@ -80,9 +80,17 @@ couchdb "auth" "https://ffsys.cloudant.com" "hosts";
 couchdb_query_string 'include_docs=true' 'reduce=false';
 #echo "got query string: $_result";
 couchdb_view "views" "users" "$_result";
-#couchdb "info" && couchdb_print;
+
+for opt in ${!rest_response_*}
+	do
+		eval value="$"$opt;
+		echo "got rest response opt : $opt : $value";
+done
+
+#couchdb "info";
 #couchdb "head" "cyberfunk" && couchdb_print;
-#couchdb "get" "cyberfunk" && couchdb_print;
+#couchdb "get" "cyberfunk-abc";
+#echo "got rev: ${json_rev}";
 #couchdb "put_file" "package" "/Users/cyberfunk/git/hosts/package.json";
 #couchdb "put_data" "test" '{ "test": "value" }' && couchdb_print;
 #module_list;

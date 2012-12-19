@@ -8,7 +8,7 @@ export couchdb_user;
 export couchdb_pass;
 
 #default write out
-export couchdb_curl_writeout="'%{url_effective}\n%{http_code}'";
+#write out the data as non-json
 export couchdb_expects="";
 
 export couchdb_result_method="";
@@ -21,82 +21,10 @@ export couchdb_result_status="";
 #	echo "couchdb_initialize";
 #}
 
-function couchdb_curl {
-	local cmd=$( command -v "curl" );
-	if [ ! -x "$cmd" ]; then
-		quit 1 "could not locate curl executable %s" "$cmd";
-	fi
-	
-	local method="${1:-GET}";
-	shift;
-	local path="${1:-}";
-	shift;
-	
-	#curl --data-urlencode
-	
-	#remaining options
-	local opts=( "$@" );
-	
-	#mandatory options
-	#opts=( "${opts[@]:-}" "-H" "'Content-Type: application/json'" );
-	
-	#empty data when applicable
-	#opts=( "${opts[@]:-}" "-d" "{}" );
-	
-	couchdb_get_url "$path";
-	local url="$_result";
-	
-	set +o nounset;
-	#local writeout="--write-out ${curl_writeout:-"$couchdb_curl_writeout"}";
-	local silent="--silent --output /dev/null";
-	
-	#writeout="";
-	silent="";
-	
-	#echo "got url $url";	
-	
-	#$writeout $silent
-	
-	#"${opts[@]:-}" 
-	
-	local jsonfile="$HOME/.couchdb.json";
-	
-	local runopts=(
-		"-X${method}"
-		"--silent"
-		"-o"
-		"$jsonfile"
-		"$url"
-	);
-
-	
-	echo "run: $cmd ${runopts[@]}";
-	
-	$cmd "${runopts[@]}";
-	
-	local result=`cat $jsonfile`;
-	
-	echo "got result: $result";
-	
-	json_parse "$result";
-	
-	echo "[couchdb] got json total rows :: ${json_rows_0_id:-}";
-	
-	#| tokenize | json_parse
-	
-	#$cmd ""$run"";
-	#$cmd "${runopts[@]}"
-	#local results=( $( eval "/usr/bin/curl -XGET -o "$HOME/.couchdb.json" https://ffsys.cloudant.com/hosts/_design/views/_view/users >1" ) );
-	#results=( "$method" "${results[@]}" );
-	
-	#couchdb_result_method="${results[0]}";
-	#couchdb_result_url="${results[1]}";
-	#couchdb_result_status="${results[2]}";
-	
-	set -o nounset;	
-	
-	#echo "got results : ${results[@]}";
-}
+#function rest_result_parse {
+#	local opts=( "${@}" );
+#	echo "got rest_result_parse opts ${opts[@]}";
+#}
 
 function couchdb_module_name {
 	_result="couchdb";
@@ -108,33 +36,33 @@ function couchdb_print {
 
 function couchdb_head {
 	local path="${1:-/}";
-	couchdb_curl "HEAD" "$path" "-I";
+	rest_curl "HEAD" "$path" "-I";
 }
 
 function couchdb_get {
 	local path="${1:-/}";
-	couchdb_curl "GET" "$path";
+	rest_curl "GET" "$path";
 }
 
 function couchdb_put {
 	local path="${1:-/}";
-	couchdb_curl "PUT" "$path";
+	rest_curl "PUT" "$path";
 }
 
 function couchdb_put_file {
 	local path="${1:-/}";
 	local file="${2:-}";
-	couchdb_curl "PUT" "$path" "--data-binary" "@${file}";
+	rest_curl "PUT" "$path" "--data-binary" "@${file}";
 }
 
 function couchdb_put_data {
 	local path="${1:-/}";
 	local data="${2:-}";
-	couchdb_curl "PUT" "$path" "-H" "'Content-Type: application/json'" "-d" "'$data'";
+	rest_curl "PUT" "$path" "-H" "'Content-Type: application/json'" "-d" "'$data'";
 }
 
 function couchdb_info {
-	couchdb_curl "GET" "/";
+	rest_curl "GET" "/";
 }
 
 function couchdb_get_url {
@@ -179,7 +107,7 @@ function couchdb_query_string {
 			done <<< "$opt";
 			IFS="$oifs";
 	done
-	_result="?${output}";
+	_result="?${output//&$/}";
 }
 
 function couchdb_view {
@@ -195,7 +123,7 @@ function couchdb_view {
 	#if [ ! -z "$couchdb_view_options" ]; then
 	#	echo "got view options...";
 	#fi
-	couchdb_curl "GET" "${path}";
+	rest_curl "GET" "${path}";
 	
 	#reset the view options
 	#couchdb_view_options="";

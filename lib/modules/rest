@@ -1,3 +1,164 @@
 require "url";
 
 #TODO: implement get/post/put/delete etc
+
+export rest_writeout_json=0;
+export rest_curl_writeout_json="{\"http_status\": \"%{http_code}\",\"http_url\":\"%{url_effective}\",\"http_time_total\":\"%{time_total}\"}";
+export rest_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n";
+
+function rest_curl {
+	local cmd=$( command -v "curl" );
+	if [ ! -x "$cmd" ]; then
+		quit 1 "could not locate curl executable %s" "$cmd";
+	fi
+	
+	#ensure we unset all variables before the next request
+	for opt in ${!rest_response_*}
+		do
+			unset "$opt";
+	done
+	
+	local method="${1:-GET}";
+	shift;
+	local path="${1:-}";
+	shift;
+	
+	#curl --data-urlencode
+	
+	#remaining options
+	local opts=( "$@" );
+	
+	#mandatory options
+	#opts=( "${opts[@]:-}" "-H" "'Content-Type: application/json'" );
+	
+	#empty data when applicable
+	#opts=( "${opts[@]:-}" "-d" "{}" );
+	
+	couchdb_get_url "$path";
+	local url="$_result";
+	
+	set +o nounset;
+	#local writeout="--write-out ${curl_writeout:-"$rest_curl_writeout"}";
+	local silent="--silent --output /dev/null";
+	
+	#writeout="";
+	silent="";
+	
+	#echo "got url $url";	
+	
+	#$writeout $silent
+	
+	#"${opts[@]:-}" 
+	
+	local rest_output_file="$HOME/.rest.out";
+	
+	local runopts=(
+		"-X${method}"
+		"--silent"
+		"-i"
+		"--write-out"
+		"${curl_writeout:-"$rest_curl_writeout"}"
+		"-o"
+		"$rest_output_file"
+	);
+
+	#pass in custom opts
+	if [ ${#opts[@]} -gt 0 ]; then
+		runopts=( "${runopts[@]}" "${opts[@]}" );
+	fi
+	
+	runopts=( "${runopts[@]}" "$url" );
+	
+	echo "run: $cmd ${runopts[@]}";	
+	
+	#not writing out to a json file so capture
+	#the writeout data
+	if [ $rest_writeout_json -eq 0 ]; then
+		local results=( $( $cmd "${runopts[@]}" ) );
+		rest_response_method="${method}";
+		rest_response_status="${results[0]}";
+		rest_response_url="${results[1]}";
+		rest_response_time_total="${results[2]}";
+	else
+		$cmd "${runopts[@]}";
+	fi
+	
+	rest_result_parse "${rest_output_file}";
+	
+	#echo "got result:--------------- ${result[@]}";
+	
+
+	#IFS="$oifs";
+	
+	#local elements=( "$result" );
+	
+	#rest_result_parse "${elements[@]}";
+	
+	#json_parse "$result";
+	
+	#echo "[couchdb] got json total rows :: ${json_rows_0_id:-}";
+	
+	#| tokenize | json_parse
+	
+	#$cmd ""$run"";
+	#$cmd "${runopts[@]}"
+	#local results=( $( eval "/usr/bin/curl -XGET -o "$HOME/.couchdb.json" https://ffsys.cloudant.com/hosts/_design/views/_view/users >1" ) );
+	#results=( "$method" "${results[@]}" );
+	
+	#couchdb_result_method="${results[0]}";
+	#couchdb_result_url="${results[1]}";
+	#couchdb_result_status="${results[2]}";
+	
+	set -o nounset;	
+	
+	#echo "got results : ${results[@]}";
+}
+
+function rest_result_parse_status {
+	#echo "got rest_result_parse_status : ${@}";
+	local opts=( "${@}" );
+	echo "opts length: ${#opts[@]}";
+	export rest_response_header_raw="${opts[@]:-}";
+	export rest_response_header_http="${opts[0]:-}";
+	export rest_response_header_status="${2:-}";	
+	export rest_response_header_message="${3:-}";
+	
+	echo "[rest_result_parse_status] : ${rest_response_header_raw}";	
+	echo "[rest_response_header_http] : ${rest_response_header_http}";		
+	
+	#for opt in ${@}
+	#	do
+	#		echo "got opt : $opt";
+	#done
+}
+
+function rest_result_parse {
+	
+	local output="$1";
+	local parts;
+	while read line
+		do
+			if [ -z "${rest_response_header_raw:-}" ]; then
+				echo "got first line to parse... $line"
+				parts=( "$line" );
+				rest_result_parse_status "${parts}";
+				echo "got rest_result_parse_status : $rest_response_header_status"
+			fi
+			echo "got line : $line";
+	done < "$output";
+	
+	#rest_http="$1";
+	#shift;
+	#rest_status=${1:-};
+	#shift;
+	#rest_message="${1:-}";
+	#shift;
+	
+	#echo "rest data: $rest_http : $rest_status : $rest_message";
+	#local result=( "${@}" );
+	#parse the headers
+	#for header in ${result[@]}
+#		do
+#			echo "got header: $header";
+#	done	
+}
