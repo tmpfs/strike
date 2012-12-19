@@ -93,23 +93,6 @@ function couchdb_auth {
 	#echo "$couchdb_dbname";	
 }
 
-function couchdb_query_string {
-	local output="";
-	local oifs;
-	for opt in "${@}"
-		do
-			oifs="$IFS";
-			IFS="=";
-			while read -r name value
-				do
-					url_encode "$value";
-					output="${output}${name}=${_result}&";
-			done <<< "$opt";
-			IFS="$oifs";
-	done
-	_result="?${output//&$/}";
-}
-
 function couchdb_view {
 	local viewdoc="${1:-views}";
 	local view="${2:-}";

@@ -77,7 +77,7 @@ function module_load {
 
 require 'couchdb';
 couchdb "auth" "https://ffsys.cloudant.com" "hosts";
-couchdb_query_string 'include_docs=true' 'reduce=false';
+url_query_string 'include_docs=true' 'reduce=false';
 #echo "got query string: $_result";
 couchdb_view "views" "users" "$_result";
 

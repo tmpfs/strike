@@ -4,3 +4,22 @@ function url_encode {
 	set -o errexit;
     _result="${data##/?}";
 }
+
+function url_query_string {
+	local output="";
+	local oifs;
+	for opt in "${@}"
+		do
+			oifs="$IFS";
+			IFS="=";
+			while read -r name value
+				do
+					url_encode "$value";
+					output="${output}${name}=${_result}&";
+			done <<< "$opt";
+			IFS="$oifs";
+	done
+	#strip trailing ampersand
+	output="${output%&}";
+	_result="?${output}";
+}

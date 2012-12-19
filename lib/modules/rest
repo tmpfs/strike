@@ -12,6 +12,12 @@ function rest_curl {
 		quit 1 "could not locate curl executable %s" "$cmd";
 	fi
 	
+	local rest_output_file="$HOME/.rest.out";	
+	#clean any previous rest output
+	if [ -f "$rest_output_file" ]; then
+		rm "$rest_output_file" > /dev/null;
+	fi
+	
 	#ensure we unset all variables before the next request
 	for opt in ${!rest_response_*}
 		do
@@ -23,38 +29,19 @@ function rest_curl {
 	local path="${1:-}";
 	shift;
 	
-	#curl --data-urlencode
-	
-	#remaining options
+	#remaining custom options
 	local opts=( "$@" );
-	
-	#mandatory options
-	#opts=( "${opts[@]:-}" "-H" "'Content-Type: application/json'" );
-	
-	#empty data when applicable
-	#opts=( "${opts[@]:-}" "-d" "{}" );
 	
 	couchdb_get_url "$path";
 	local url="$_result";
 	
-	set +o nounset;
-	#local writeout="--write-out ${curl_writeout:-"$rest_curl_writeout"}";
-	local silent="--silent --output /dev/null";
-	
-	#writeout="";
-	silent="";
-	
-	#echo "got url $url";	
-	
-	#$writeout $silent
-	
-	#"${opts[@]:-}" 
-	
-	local rest_output_file="$HOME/.rest.out";
+	#set +o nounset;
+	set +o errexit;	
 	
 	local runopts=(
 		"-X${method}"
 		"--silent"
+		"-L"
 		"-i"
 		"--write-out"
 		"${curl_writeout:-"$rest_curl_writeout"}"
@@ -71,47 +58,49 @@ function rest_curl {
 	
 	echo "run: $cmd ${runopts[@]}";	
 	
+	rest_response_method="${method}";
+	
+	local results=();
+	local curl_exit_code;
+	
 	#not writing out to a json file so capture
 	#the writeout data
 	if [ $rest_writeout_json -eq 0 ]; then
-		local results=( $( $cmd "${runopts[@]}" ) );
-		rest_response_method="${method}";
+		results=( $( $cmd "${runopts[@]}" || echo "$?" ) );
+		#rest_response_status="${results[0]}";
+		#rest_response_url="${results[1]}";
+		#rest_response_time_total="${results[2]}";
+		#rest_response_exit_code="${results[3]}";
+		curl_exit_code=${results[3]:-0};
+	else
+		$cmd "${runopts[@]}" > "$rest_output_file";
+		curl_exit_code=$?;
+		#rest_response_exit_code="$?";
+		#read in the status information on fail from the output file
+		#if [ $? -ne 0 ]; then
+		results=( $( cat "$rest_output_file" ) );
+		#fi
+	fi
+	
+	if [ ${#results[@]} -gt 2 ]; then
 		rest_response_status="${results[0]}";
 		rest_response_url="${results[1]}";
 		rest_response_time_total="${results[2]}";
-	else
-		$cmd "${runopts[@]}";
+		rest_response_exit_code=${curl_exit_code:-${results[3]:-}};
 	fi
 	
-	rest_result_parse "${rest_output_file}";
+	if [ "$rest_response_exit_code" != "0" ]; then
+		warn "curl exited with non-zero status code (%s)" "$rest_response_exit_code";
+	fi
 	
-	#echo "got result:--------------- ${result[@]}";
+	if [ -f "$rest_output_file" ] && [ "$rest_response_exit_code" == "0" ]; then
+		rest_result_parse "${rest_output_file}";
+	else
+		warn "no rest output file %s after request" "$rest_output_file";
+	fi
 	
-
-	#IFS="$oifs";
-	
-	#local elements=( "$result" );
-	
-	#rest_result_parse "${elements[@]}";
-	
-	#json_parse "$result";
-	
-	#echo "[couchdb] got json total rows :: ${json_rows_0_id:-}";
-	
-	#| tokenize | json_parse
-	
-	#$cmd ""$run"";
-	#$cmd "${runopts[@]}"
-	#local results=( $( eval "/usr/bin/curl -XGET -o "$HOME/.couchdb.json" https://ffsys.cloudant.com/hosts/_design/views/_view/users >1" ) );
-	#results=( "$method" "${results[@]}" );
-	
-	#couchdb_result_method="${results[0]}";
-	#couchdb_result_url="${results[1]}";
-	#couchdb_result_status="${results[2]}";
-	
-	set -o nounset;	
-	
-	#echo "got results : ${results[@]}";
+	#set -o nounset;
+	set -o errexit;
 }
 
 function rest_result_parse_status {
