@@ -1,0 +1,15 @@
+function executable_validate {
+	local cmd;
+	for opt in ${@}
+		do
+			set +o errexit;
+			cmd=$( command -v "$opt" );
+			set -o errexit;
+			if [ -z "$cmd" ]; then
+				quit 1 "%s is not available" "$opt";
+			fi
+			if [ ! -x "$cmd" ]; then
+				quit 1 "%s is not executable" "$opt";
+			fi
+	done
+}
