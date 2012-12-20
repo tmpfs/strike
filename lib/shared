@@ -13,7 +13,8 @@ source "$libdir/modules/console";
 #main module loader and require definition
 source "$libdir/modules/require";
 
-require 'fs';
+require "string";
+require "fs";
 
 source "$libdir/core";
 source "$libdir/help";
@@ -24,7 +25,7 @@ source "$libdir/exit-codes";
 source "$libdir/messages";
 
 #require the welcome message last
-require 'welcome';
+require "welcome";
 
 #TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
 #source "$libdir/git-util";

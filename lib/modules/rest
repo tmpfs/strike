@@ -1,10 +1,14 @@
 require "url";
+require "string";
 
 #TODO: implement get/post/put/delete etc
 
 export rest_writeout_json=0;
 export rest_curl_writeout_json="{\"http_status\": \"%{http_code}\",\"http_url\":\"%{url_effective}\",\"http_time_total\":\"%{time_total}\"}";
 export rest_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n";
+export rest_output_file="$HOME/.rest.out";
+export rest_head_file="$HOME/.rest.head";
+export rest_body_file="$HOME/.rest.body";
 
 function rest_curl {
 	local cmd=$( command -v "curl" );
@@ -12,13 +16,17 @@ function rest_curl {
 		quit 1 "could not locate curl executable %s" "$cmd";
 	fi
 	
-	local rest_output_file="$HOME/.rest.out";	
 	#clean any previous rest output
 	if [ -f "$rest_output_file" ]; then
 		rm "$rest_output_file" > /dev/null;
 	fi
 	
+	echo -n "" > "$rest_head_file";
+	echo -n "" > "$rest_body_file";	
+	
 	#ensure we unset all variables before the next request
+	
+	#TODO: move to a method for unsetting by group
 	for opt in ${!rest_response_*}
 		do
 			unset "$opt";
@@ -104,25 +112,28 @@ function rest_curl {
 }
 
 function rest_result_parse_status {
-	#echo "got rest_result_parse_status : ${@}";
-	local opts=( "${@}" );
-	echo "opts length: ${#opts[@]}";
-	export rest_response_header_raw="${opts[@]:-}";
-	export rest_response_header_http="${opts[0]:-}";
-	export rest_response_header_status="${2:-}";	
-	export rest_response_header_message="${3:-}";
+	export rest_response_header_raw="${@:-}";
+	local opts=();
+	for opt in ${@}
+		do
+			# echo "got opt : $opt";
+			opts=( "${opts[@]:-}" "$opt" );
+	done
 	
-	echo "[rest_result_parse_status] : ${rest_response_header_raw}";	
-	echo "[rest_response_header_http] : ${rest_response_header_http}";		
+	#omit the first empty element in the array
+	export rest_response_header_http="${opts[1]:-}";
+	export rest_response_header_status="${opts[2]:-}";
+	export rest_response_header_message="${opts[3]:-}";
 	
-	#for opt in ${@}
-	#	do
-	#		echo "got opt : $opt";
-	#done
+	# echo "opts length: ${#opts[@]}";
+	# echo "[rest_result_parse_status] : ${rest_response_header_raw}";	
+	# echo "[rest_response_header_http] : ${rest_response_header_http}";
+	# echo "[rest_response_header_status] : ${rest_response_header_status}";
+	# echo "[rest_response_header_message] : ${rest_response_header_message}";
 }
 
 function rest_parse_header {
-	echo "rest_parse_header: $1";
+	#echo "rest_parse_header: $1";
 	local name="${1%:*}";
 	local value="${1#*:}";
 	
@@ -133,51 +144,37 @@ function rest_parse_header {
 	name=${name,,};
 	
 	#strip leading whitespace
-	read  -rd '' value <<< "$value";
+	string_ltrim "$value";
+	value="$_result";
 	
+	#TODO: set header variables
 	echo "got name: $name";
 	echo "got value: $value";
 }
 
 function rest_result_parse {
-	
 	local output="$1";
-	local parts;
 	local head=0;
 	while read line
 		do
+			#parse the HTTP declaration
 			if [ -z "${rest_response_header_raw:-}" ]; then
-				#TODO :ensure this is parsing correctly
-				echo "got first line to parse... $line"
-				parts=( "$line" );
-				rest_result_parse_status "${parts}";
-				echo "got rest_result_parse_status : $rest_response_header_status"
+				rest_result_parse_status "${line}";
 			#parsing header lines
 			elif [ $head -eq 0 ]; then
 				#strip the carriage return and line feeds
 				line=`echo "$line" | tr -d "\r\n"`;
-				rest_parse_header "$line";
 				if [ -z "$line" ]; then
 					head=1;
+				else
+					#append to the header file
+					echo "$line" >> "$rest_head_file";
+					rest_parse_header "$line";
 				fi
 			#parsing the body content
 			elif [ $head -eq 1 ]; then
-				echo "parse body line... $line";
+				#append to the body file
+				echo "$line" >> "$rest_body_file";
 			fi
 	done < "$output";
-	
-	#rest_http="$1";
-	#shift;
-	#rest_status=${1:-};
-	#shift;
-	#rest_message="${1:-}";
-	#shift;
-	
-	#echo "rest data: $rest_http : $rest_status : $rest_message";
-	#local result=( "${@}" );
-	#parse the headers
-	#for header in ${result[@]}
-#		do
-#			echo "got header: $header";
-#	done	
 }
