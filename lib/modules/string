@@ -1,0 +1,33 @@
+# methods for lowercasing
+
+$ echo $a | tr '[A-Z]' '[a-z]'
+hi all
+awk
+
+$ echo $a | awk '{print tolower($0)}'
+hi all
+
+bash 4.0
+
+$ echo ${a,,}
+hi all
+Perl
+
+$ echo $a|perl -e 'print lc <>;'
+hi all
+Bash
+
+lc(){
+    case "$1" in
+        [A-Z])
+        n=$(printf "%d" "'$1")
+        n=$((n+32))
+        printf \\$(printf "%o" $n)
+    esac
+}
+word="ABX"
+for((i=0;i<${#word};i++))
+do
+    ch=${word:$i:1}
+    lc $ch
+done

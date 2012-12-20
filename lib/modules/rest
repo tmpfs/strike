@@ -121,19 +121,49 @@ function rest_result_parse_status {
 	#done
 }
 
+function rest_parse_header {
+	echo "rest_parse_header: $1";
+	local name="${1%:*}";
+	local value="${1#*:}";
+	
+	#convert hyphens to underscores
+	name="${name//-/_}";
+	
+	#lowercase name
+	name=${name,,};
+	
+	#strip leading whitespace
+	read  -rd '' value <<< "$value";
+	
+	echo "got name: $name";
+	echo "got value: $value";
+}
+
 function rest_result_parse {
 	
 	local output="$1";
 	local parts;
+	local head=0;
 	while read line
 		do
 			if [ -z "${rest_response_header_raw:-}" ]; then
+				#TODO :ensure this is parsing correctly
 				echo "got first line to parse... $line"
 				parts=( "$line" );
 				rest_result_parse_status "${parts}";
 				echo "got rest_result_parse_status : $rest_response_header_status"
+			#parsing header lines
+			elif [ $head -eq 0 ]; then
+				#strip the carriage return and line feeds
+				line=`echo "$line" | tr -d "\r\n"`;
+				rest_parse_header "$line";
+				if [ -z "$line" ]; then
+					head=1;
+				fi
+			#parsing the body content
+			elif [ $head -eq 1 ]; then
+				echo "parse body line... $line";
 			fi
-			echo "got line : $line";
 	done < "$output";
 	
 	#rest_http="$1";

@@ -32,8 +32,6 @@ function module_load {
 	
 	if [ ! -z "$name" ]; then
 		
-		echo "loading moduke : $name"
-		
 		local searchpaths=(
 			"$exedir/lib/modules"
 			"$exedir/node_modules/${name}/lib/modules"
@@ -50,18 +48,14 @@ function module_load {
 				#f="$_result";
 				abs="${f}/${name}";
 				
-				echo "got module path $abs";
-				
 				if [ -f "$abs" ] && [ -r "$abs" ]; then
 					source "$abs";
-					echo "sourced module $name";
 					loaded=1;
 					break;
 				fi
 		done
 		
 		if [ $loaded -eq 0 ]; then
-			echo "failed to load";
 			quit 1 "failed to load module %s" "$name";
 		fi
 		
@@ -78,16 +72,14 @@ function module_load {
 		if [ $exists -eq 0 ]; then
 			"${name}_initialize";
 		fi
-		
-		echo "module loaded...";
 	fi
 }
 
-#require 'couchdb';
-#couchdb "auth" "https://ffsys.cloudant.com" "hosts";
-#url_query_string 'include_docs=true' 'reduce=false';
+require 'couchdb';
+couchdb "auth" "https://ffsys.cloudant.com" "hosts";
+url_query_string 'include_docs=true' 'reduce=false';
 #echo "got query string: $_result";
-#couchdb_view "views" "users" "$_result";
+couchdb_view "views" "users" "$_result";
 
 #for opt in ${!rest_response_*}
 #	do
