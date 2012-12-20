@@ -26,6 +26,10 @@ source "$libdir/shared";
 
 require 'options';
 
+options_minimum=1;
+#options_fail_help=1;
+options_expects_command=( get post put delete options );
+
 function options_parse {
 	while [ "${1:-}" != "" ]; do
 		case $1 in
@@ -47,9 +51,18 @@ function options_parse {
 #configure all the option defaults
 options configure;
 
-#validate the parameters
-options parse "$@";
+#echo "$0";
+#echo "!$@!";
 
-main "${module:-}" "${method:-}" "${options[@]:-}";
+#remove the program from the arguments list
+#shift;
+
+#now validate on remaining options
+options validate "$@";
+
+#validate the parameters
+#options parse "$@";
+
+#main "${module:-}" "${method:-}" "${options[@]:-}";
 
 exit 0;

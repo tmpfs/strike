@@ -1,9 +1,71 @@
-declare module="${PROGRAM_NAME:-}";
+declare module="${module:-}";
 declare method;
 declare options;
 
-declare option_verbose;
-declare option_quiet;
+declare -gx option_verbose;
+declare -gx option_quiet;
+
+declare -gx options_minimum=0;
+declare -gx options_expects_command="";
+#quit = quit on fail
+#warn = show warning
+#info = show info
+declare -gx options_fail_mode="quit";
+#try to print program help on options validation fail
+declare -gxi options_fail_help=0;
+
+declare -Agx options_fail_messages;
+options_fail_messages["too_few_options"]="too few options";
+options_fail_messages["invalid_command"]="invalid command %s";
+
+function options_validate {
+	#echo "validating options commands... $# : $@";
+	#local exe="$0";
+	#local pname="`basename "$exe"`";
+	#shift;
+	
+	#shift so the array length is now zero
+	if [ $# -gt 0 ] && [ -z $1 ]; then
+		#echo "no options specified...";
+		shift;
+	fi
+	
+	#echo "after no options shift $#";
+	
+	if [ $options_minimum -gt 0 ] && [ $# -lt $options_minimum ]; then
+		__options_fail "too_few_options";
+		return 1;
+	fi
+	
+	if [ ! -z "${options_expects_command:-}" ]; then
+		
+		#if [ $# -eq 1 ] && [ "$0" == "${BASH_SOURCE[0]}" ]; then
+		#	echo "got no options..."
+		#fi
+		
+		#if [ "$pname" == "$program_name" ]; then
+		#	quit 1 "no command specified for %s" "$pname";
+		#fi
+		
+		if [ ${#options_expects_command[@]} -gt 0 ]; then
+			local valid=0;
+			for cmd in ${options_expects_command[@]}
+				do
+					#echo "got command to test : $cmd : $1";
+					if [ "$cmd" == "$1" ]; then
+						valid=1;
+						shift;
+						break;
+					fi
+			done
+		
+			#invalid command specified
+			if [ $valid -eq 0 ]; then
+				__options_fail "invalid_command" "$1";
+			fi
+		fi
+	fi
+}
 
 function options_configure {
 	option_verbose=0;
@@ -12,4 +74,34 @@ function options_configure {
 
 function options_parse {
 	_result="options_parse";
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __options_fail {
+	local key="$1";
+	shift;
+	local msg="${options_fail_messages[$key]}";
+	local replacements=( "$@" );
+	
+	#invalid fail mode - force to quit
+	if [ "$options_fail_mode" != "quit" ] || [ "$options_fail_mode" != "warn" ] || [ "$options_fail_mode" != "info" ]; then
+		options_fail_mode="quit";
+	fi
+	
+	#try to output program help
+	if [ $options_fail_help -gt 0 ]; then
+		program_help;
+	fi
+	
+	if [ "$options_fail_mode" == "quit" ]; then
+		#we need to prepend an exit code
+		quit 1 "$msg" "${replacements[@]:-}";
+	else
+		"$options_fail_mode" "$msg" "${replacements[@]:-}";
+	fi
 }

@@ -48,7 +48,9 @@ function http_curl {
 		url="${http_base_url}/${path}";
 	fi
 	
-	if [[ ! "$url" =~ https?: ]]; then
+	#TODO: only perform this test if a protocol has been specified
+	#otherwise we can let curl use it's default: http
+	if [[ ! "$url" =~ ^https?: ]]; then
 		warn "invalid url protocol must be %s or %s" "http" "https";
 		return 1;
 	fi
