@@ -1,4 +1,4 @@
-require "rest";
+require "http";
 require "json";
 
 # modules must *export* global variables
@@ -34,33 +34,33 @@ function couchdb_print {
 
 function couchdb_head {
 	local path="${1:-/}";
-	rest_curl "HEAD" "$path" "-I";
+	http_curl "HEAD" "$path" "-I";
 }
 
 function couchdb_get {
 	local path="${1:-/}";
-	rest_curl "GET" "$path";
+	http_curl "GET" "$path";
 }
 
 function couchdb_put {
 	local path="${1:-/}";
-	rest_curl "PUT" "$path";
+	http_curl "PUT" "$path";
 }
 
 function couchdb_put_file {
 	local path="${1:-/}";
 	local file="${2:-}";
-	rest_curl "PUT" "$path" "--data-binary" "@${file}";
+	http_curl "PUT" "$path" "--data-binary" "@${file}";
 }
 
 function couchdb_put_data {
 	local path="${1:-/}";
 	local data="${2:-}";
-	rest_curl "PUT" "$path" "-H" "'Content-Type: application/json'" "-d" "'$data'";
+	http_curl "PUT" "$path" "-H" "'Content-Type: application/json'" "-d" "'$data'";
 }
 
 function couchdb_info {
-	rest_curl "GET" "/";
+	http_curl "GET" "/";
 }
 
 function couchdb_get_url {
@@ -103,7 +103,7 @@ function couchdb_view {
 	#if [ ! -z "$couchdb_view_options" ]; then
 	#	echo "got view options...";
 	#fi
-	rest_curl "GET" "${path}";
+	http_curl "GET" "${path}";
 	
 	#reset the view options
 	#couchdb_view_options="";
