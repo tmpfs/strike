@@ -15,6 +15,8 @@ export couchdb_result_method="";
 export couchdb_result_url="";
 export couchdb_result_status="";
 
+export couchdb_module_name="couchdb";
+
 #declare -A couchdb_view_options;
 
 #function couchdb_initialize {
@@ -25,10 +27,6 @@ export couchdb_result_status="";
 #	local opts=( "${@}" );
 #	echo "got rest_result_parse opts ${opts[@]}";
 #}
-
-function couchdb_module_name {
-	_result="couchdb";
-}
 
 function couchdb_print {
 	info "[%s] %s %s" "$couchdb_result_status" "$couchdb_result_method" "$couchdb_result_url";
@@ -81,8 +79,7 @@ function couchdb_auth {
 	local user="${3:-}";
 	local pass="${4:-}";
 	
-	couchdb_module_name;
-	local module="$_result";
+	local module="$couchdb_module_name";
 	
 	eval "${module}_url"="$url";
 	eval "${module}_dbname"="$dbname";
@@ -113,17 +110,14 @@ function couchdb_view {
 }
 
 function couchdb {
-	couchdb_module_name;
-	local module="$_result";
+	local module="$couchdb_module_name";
 	local method="$1";
 	shift;
 	local options=( "${@:-}" );
 	local func="${module}_${method}";
-	#echo "checking func: $func";
 	strict_method_exists "$func";
 	local exists=$?;
 	set -o errexit;	
-	
 	if [ $exists -eq 0 ]; then
 		$func "${options[@]}";
 	else

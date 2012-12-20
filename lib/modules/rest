@@ -102,7 +102,7 @@ function rest_curl {
 	fi
 	
 	if [ -f "$rest_output_file" ] && [ "$rest_response_exit_code" == "0" ]; then
-		rest_result_parse "${rest_output_file}";
+		__rest_result_parse "${rest_output_file}";
 	else
 		warn "no rest output file %s after request" "$rest_output_file";
 	fi
@@ -111,7 +111,13 @@ function rest_curl {
 	set -o errexit;
 }
 
-function rest_result_parse_status {
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __rest_result_parse_status {
 	export rest_response_header_raw="${@:-}";
 	local opts=();
 	for opt in ${@}
@@ -126,14 +132,14 @@ function rest_result_parse_status {
 	export rest_response_header_message="${opts[3]:-}";
 	
 	# echo "opts length: ${#opts[@]}";
-	# echo "[rest_result_parse_status] : ${rest_response_header_raw}";	
+	# echo "[__rest_result_parse_status] : ${rest_response_header_raw}";	
 	# echo "[rest_response_header_http] : ${rest_response_header_http}";
 	# echo "[rest_response_header_status] : ${rest_response_header_status}";
 	# echo "[rest_response_header_message] : ${rest_response_header_message}";
 }
 
-function rest_parse_header {
-	#echo "rest_parse_header: $1";
+function __rest_parse_header {
+	#echo "__rest_parse_header: $1";
 	local name="${1%: ?*}";
 	local value="${1#*:}";
 	
@@ -153,14 +159,14 @@ function rest_parse_header {
 	export "rest_header_${name}=${value}";
 }
 
-function rest_result_parse {
+function __rest_result_parse {
 	local output="$1";
 	local head=0;
 	while read line
 		do
 			#parse the HTTP declaration
 			if [ -z "${rest_response_header_raw:-}" ]; then
-				rest_result_parse_status "${line}";
+				__rest_result_parse_status "${line}";
 			#parsing header lines
 			elif [ $head -eq 0 ]; then
 				#strip the carriage return and line feeds
@@ -170,7 +176,7 @@ function rest_result_parse {
 				else
 					#append to the header file
 					echo "$line" >> "$rest_head_file";
-					rest_parse_header "$line";
+					__rest_parse_header "$line";
 				fi
 			#parsing the body content
 			elif [ $head -eq 1 ]; then

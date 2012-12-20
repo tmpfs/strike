@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+##!/bin/bash.3.2.48
+
+set -o errtrace;
+set -o errexit;
+set -o nounset;
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+export PROGRAM_NAME=`basename $0`;
+program_config_print_welcome="off";
+program_config_print_prefix="off";
+name=`basename $0`;
+abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+if [ -L "$abspath" ]; then
+	abspath=`readlink $abspath`;
+fi
+exedir=`dirname "$abspath"`;
+libdir="$exedir/../lib";
+######################################################################
+
+source "$libdir/shared";
+
+require 'options';
+
+function options_parse {
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+ 		info )
+			method="info";
+			;;
+		-h | --help )
+			program_help;
+			exit 0;
+			;;
+		* )
+			program_help;
+			exit 1;
+		esac
+		shift;
+	done
+}
+
+#configure all the option defaults
+options configure;
+
+#validate the parameters
+options parse "$@";
+
+main "${module:-}" "${method:-}" "${options[@]:-}";
+
+exit 0;

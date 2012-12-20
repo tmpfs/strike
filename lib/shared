@@ -13,6 +13,7 @@ source "$libdir/modules/console";
 #main module loader and require definition
 source "$libdir/modules/require";
 
+require "main";
 require "string";
 require "fs";
 

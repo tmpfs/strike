@@ -95,7 +95,7 @@ function print {
 }
 
 function print_prefix {
-	local prefix="[$program_name]";
+	local prefix="[${program_name:-}]";
 	local include_prefix=${program_config_print_prefix:-};
 	if [ -z "$include_prefix" ]; then
 		if [ -t 1 ]; then	

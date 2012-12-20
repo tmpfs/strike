@@ -1,0 +1,15 @@
+declare module="${PROGRAM_NAME:-}";
+declare method;
+declare options;
+
+declare option_verbose;
+declare option_quiet;
+
+function options_configure {
+	option_verbose=0;
+	option_quiet=0;
+}
+
+function options_parse {
+	_result="options_parse";
+}
