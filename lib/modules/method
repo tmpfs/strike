@@ -17,3 +17,15 @@ function strict_method_exists {
 	method_exists "$1";
 	return $?;
 }
+
+######################################################################
+#	Lists all function names.
+######################################################################
+function method_list {
+	local methods=$( declare -f -F );
+	local parts;
+	while read decl func name
+		do
+			echo "$name";
+	done <<< "$methods";
+}

@@ -1,7 +1,11 @@
-require "url";
-require "string";
+require 'url';
+require 'string';
+require 'executable';
 
-#TODO: implement get/post/put/delete etc
+# validate the curl executable is available
+# after validation the executable path
+# is available at: ${executables[curl]}
+executable validate curl;
 
 export http_writeout_json=0;
 export http_curl_writeout_json="{\"http_status\": \"%{http_code}\",\"http_url\":\"%{url_effective}\",\"http_time_total\":\"%{time_total}\"}";
@@ -12,7 +16,7 @@ export http_body_file="$HOME/.http.body";
 export http_base_url="";
 
 function http_curl {
-	local cmd=$( command -v "curl" );
+	local cmd="${executables[curl]}";
 	if [ ! -x "$cmd" ]; then
 		quit 1 "could not locate curl executable %s" "$cmd";
 	fi

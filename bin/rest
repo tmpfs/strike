@@ -23,12 +23,21 @@ libdir="$exedir/../lib";
 
 source "$libdir/shared";
 
+# test that re-requiring doesn't override previous data
+
+# require 'executable';
+# executable validate curl;
+# echo "curl : ${executables[curl]}"
+# require 'executable';
+# echo "curl after re-require : ${executables[curl]}"
+# exit 0;
+
 require 'options';
-require 'executable';
 require 'rest';
 
-#validate the curl executable is available
-executable validate curl;
+method_list;
+
+require_list;
 
 options_minimum=1;
 #options_fail_help=1;

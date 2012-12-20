@@ -1,5 +1,7 @@
 require 'http';
 
+#TODO: implement get/post/put/delete etc
+
 function rest_get {
 	echo "rest get called.."
 	http_curl "GET" "http://checkyourc.com/s";

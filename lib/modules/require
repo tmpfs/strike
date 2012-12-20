@@ -4,29 +4,55 @@
 #	Logic for defining and loading modules.
 ######################################################################
 
-#must set this option so that aliases are expanded
+# must set this option so that aliases are expanded
 shopt -s expand_aliases;
 
 declare -a modules;
 
+# variables are: module_${name}_path which is the filesystem path to the module
+
 function require {
 	local name="${1:-}";
 	if [ ! -z "$name" ]; then
-		modules=( "${modules[@]:-""}" "$name" );
-		module_load "$name";
+		__require_load "$name";
 	fi
 }
 
-function module_list {
+function require_list {
+	local path;
 	for m in "${modules[@]}"
 		do
-			if [ ! -z "$m" ]; then
-				echo "[module] $m";
-			fi
+			require_show "$m";
 	done
 }
 
-function module_load {
+function require_show {
+	local m="${1:-}";
+	if [ ! -z "$m" ]; then
+		echo "[module] $m";
+		#path=\$"module_${m}_path";
+		variable_get "module_${m}_path";
+		if [ ! -z "$_result" ]; then
+			expand_path "$_result";
+			path="$_result";
+			echo "[path] $path";
+		fi
+	fi
+}
+
+function __require_register {
+	local name="${1:-}";
+	local path="${2:-}";
+	if [ ! -z "$name" ]; then
+		modules=( "${modules[@]:-""}" "$name" );	
+	
+		if [ ! -z "$path" ]; then
+			declare -gx "module_${name}_path"="$path";
+		fi		
+	fi
+}
+
+function __require_load {
 	local name="${1:-}";
 	
 	local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD);
@@ -62,6 +88,8 @@ function module_load {
 			quit 1 "failed to load module %s" "$name";
 		fi
 		
+		__require_register "$name" "$abs";
+		
 		strict_method_exists "$name";
 		local exists=$?;
 		if [ $exists -ne 0 ]; then
@@ -86,6 +114,9 @@ function module_load {
 		fi
 	fi
 }
+
+# modules require depends upon
+require 'variable';
 
 #require 'couchdb';
 #couchdb "auth" "https://ffsys.cloudant.com" "hosts";

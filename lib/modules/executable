@@ -1,3 +1,5 @@
+declare -Agx executables;
+
 function executable_validate {
 	local cmd;
 	for opt in ${@}
@@ -11,5 +13,6 @@ function executable_validate {
 			if [ ! -x "$cmd" ]; then
 				quit 1 "%s is not executable" "$opt";
 			fi
+			executables["$opt"]="$cmd";
 	done
 }
