@@ -32,10 +32,12 @@ source "$libdir/shared";
 # echo "curl after re-require : ${executables[curl]}"
 # exit 0;
 
+method_start_diff;
 require 'options';
+method_end_diff;
 require 'rest';
 
-method_list;
+#method_list;
 
 require_list;
 

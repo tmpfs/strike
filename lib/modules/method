@@ -1,3 +1,5 @@
+declare -a method_start_diff_list;
+
 ######################################################################
 #	Determines whether a method has been declared.
 ######################################################################
@@ -28,4 +30,17 @@ function method_list {
 		do
 			echo "$name";
 	done <<< "$methods";
+}
+
+function method_start_diff {
+	method_start_diff_list=( $( method_list ) );
+	#echo "got method start diff ${method_start_diff_list[@]}"
+}
+
+function method_end_diff {
+	if [ ${#method_start_diff_list} -gt 0 ]; then
+		local list=( $( method_list ) );
+		echo "got method end diff ${list[@]}";
+	fi
+	method_start_diff_list=();
 }
