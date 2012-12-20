@@ -67,10 +67,12 @@ function couchdb_get_url {
 	local path=${1:-};
 	local db=${2:-"$couchdb_dbname"};
 	local out="${couchdb_url}/$db";
+	http_base_url="$out";
+	
 	#strip any leading slash
-	path=${path#/};
-	out="${out}/${path}";
-	_result="$out";
+	#path=${path#/};
+	#out="${out}/${path}";
+	#_result="$out";
 }
 
 function couchdb_auth {
@@ -85,6 +87,8 @@ function couchdb_auth {
 	eval "${module}_dbname"="$dbname";
 	eval "${module}_user"="$user";
 	eval "${module}_pass"="$pass";
+	
+	couchdb_get_url;
 	
 	#echo "$couchdb_url";
 	#echo "$couchdb_dbname";	

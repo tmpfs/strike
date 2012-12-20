@@ -9,6 +9,7 @@ export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n";
 export http_output_file="$HOME/.rest.out";
 export http_head_file="$HOME/.rest.head";
 export http_body_file="$HOME/.rest.body";
+export http_base_url="";
 
 function http_curl {
 	local cmd=$( command -v "curl" );
@@ -40,8 +41,17 @@ function http_curl {
 	#remaining custom options
 	local opts=( "$@" );
 	
-	couchdb_get_url "$path";
-	local url="$_result";
+	local url="$path";
+	if [ ! -z "$http_base_url" ]; then
+		#strip any leading slash on path
+		path=${path#/};
+		url="${http_base_url}/${path}";
+	fi
+	
+	if [[ ! "$url" =~ https?: ]]; then
+		warn "invalid url protocol must be %s or %s" "http" "https";
+		return 1;
+	fi
 	
 	#set +o nounset;
 	set +o errexit;	

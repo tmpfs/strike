@@ -65,7 +65,7 @@ function module_load {
 		strict_method_exists "$name";
 		local exists=$?;
 		if [ $exists -ne 0 ]; then
-			warn "loaded module %s does not declare a method named %s" "$name" "$name";
+			#warn "loaded module %s does not declare a method named %s" "$name" "$name";
 			
 			#look for a main method to alias
 			strict_method_exists "main";
