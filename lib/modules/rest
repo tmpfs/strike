@@ -134,7 +134,7 @@ function rest_result_parse_status {
 
 function rest_parse_header {
 	#echo "rest_parse_header: $1";
-	local name="${1%:*}";
+	local name="${1%: ?*}";
 	local value="${1#*:}";
 	
 	#convert hyphens to underscores
@@ -147,9 +147,10 @@ function rest_parse_header {
 	string_ltrim "$value";
 	value="$_result";
 	
-	#TODO: set header variables
-	echo "got name: $name";
-	echo "got value: $value";
+	#echo "got name: $name";
+	#echo "got value: $value";
+	
+	export "rest_header_${name}=${value}";
 }
 
 function rest_result_parse {

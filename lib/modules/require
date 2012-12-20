@@ -81,6 +81,8 @@ url_query_string 'include_docs=true' 'reduce=false';
 #echo "got query string: $_result";
 couchdb_view "views" "users" "$_result";
 
+echo "got content type: $rest_header_content_type"
+
 #for opt in ${!rest_response_*}
 #	do
 #		eval value="$"$opt;

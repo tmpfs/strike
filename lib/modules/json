@@ -138,6 +138,7 @@ json_parse ()
 	set +o errexit;	
 	set +o nounset;
 	
+	#TODO: move to a method for unsetting by group
 	#ensure we unset all variables before re-parsing
 	for opt in ${!json_*}
 		do
