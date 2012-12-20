@@ -14,6 +14,7 @@ source "$libdir/modules/console";
 source "$libdir/modules/require";
 
 require "main";
+require "array";
 require "string";
 require "fs";
 

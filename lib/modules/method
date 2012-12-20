@@ -38,9 +38,24 @@ function method_start_diff {
 }
 
 function method_end_diff {
+	local declared=();
+	local contains;
 	if [ ${#method_start_diff_list} -gt 0 ]; then
 		local list=( $( method_list ) );
-		echo "got method end diff ${list[@]}";
+		#echo "got method end diff ${list[@]}";		
+		for m in ${list[@]}
+			do
+				echo "got method end diff $m";	
+				set +o errexit;			
+				array_contains "$m" "${method_start_diff_list[@]}";
+				contains=$?;
+				set -o errexit;	
+				
+				if [ $contains -eq 1 ]; then
+					declared=( "${declared[@]:-}" "$m" );
+				fi		
+		done
 	fi
+	echo "got method end diff declared: ${declared[@]}";	
 	method_start_diff_list=();
 }
