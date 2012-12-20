@@ -1,10 +1,9 @@
 {
 	"name": "strike",
-	"description": "Suite of bash library functions",
+	"description": "Suite of bash library modules",
 	"homepage": "https://github.com/freeformsystems/strike",
 	"version": "0.1.0",
 	"author": "muji <muji@xpm.io>",
-	"files": [ "bin", "lib", "test", "README.md", "LICENSE" ],
 	"licenses": [ {
 		"type": "MIT",
 		"url": "https://github.com/freeformsystems/strike/blob/master/LICENSE"
@@ -13,9 +12,7 @@
 		"type": "git",
 		"url": "git://github.com/freeformsystems/strike.git"
 	},
-	"dependencies": {
-		"JSON.sh": ">= 0.0.5"
-	},
+	"dependencies": {},
 	"engine": [ "node >= 0.8.11" ],
 	"scripts": { "test": "./bin/runner" },
 	"config" : {}
