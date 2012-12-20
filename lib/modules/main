@@ -1,3 +1,10 @@
+declare -gx module="${PROGRAM_NAME:-}";
+declare -gx method;
+declare -agx module_options;
+
+#echo "main module : ${module:-}";
+#echo "main method : ${method:-}";
+
 function main {
 	local module=${1:-};
 	shift;

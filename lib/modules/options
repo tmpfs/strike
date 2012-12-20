@@ -13,17 +13,15 @@ declare -gx options_expects_command="";
 declare -gx options_fail_mode="quit";
 #try to print program help on options validation fail
 declare -gxi options_fail_help=0;
+declare -gxi options_map_command_method=0;
+
+declare -gx options_command_method;
 
 declare -Agx options_fail_messages;
 options_fail_messages["too_few_options"]="too few options";
 options_fail_messages["invalid_command"]="invalid command %s";
 
 function options_validate {
-	#echo "validating options commands... $# : $@";
-	#local exe="$0";
-	#local pname="`basename "$exe"`";
-	#shift;
-	
 	#shift so the array length is now zero
 	if [ $# -gt 0 ] && [ -z $1 ]; then
 		#echo "no options specified...";
@@ -36,32 +34,29 @@ function options_validate {
 		__options_fail "too_few_options";
 		return 1;
 	fi
+
+	# validate a command option
+	if [ ! -z "${options_expects_command:-}" ] && [ ${#options_expects_command[@]} -gt 0 ]; then
+		local cmdopt="";
+		for cmd in ${options_expects_command[@]}
+			do
+				#echo "got command to test : $cmd : $1";
+				if [ "$cmd" == "$1" ]; then
+					cmdopt="$1";
+					break;
+				fi
+		done
 	
-	if [ ! -z "${options_expects_command:-}" ]; then
-		
-		#if [ $# -eq 1 ] && [ "$0" == "${BASH_SOURCE[0]}" ]; then
-		#	echo "got no options..."
-		#fi
-		
-		#if [ "$pname" == "$program_name" ]; then
-		#	quit 1 "no command specified for %s" "$pname";
-		#fi
-		
-		if [ ${#options_expects_command[@]} -gt 0 ]; then
-			local valid=0;
-			for cmd in ${options_expects_command[@]}
-				do
-					#echo "got command to test : $cmd : $1";
-					if [ "$cmd" == "$1" ]; then
-						valid=1;
-						shift;
-						break;
-					fi
-			done
-		
-			#invalid command specified
-			if [ $valid -eq 0 ]; then
-				__options_fail "invalid_command" "$1";
+		#invalid command specified
+		if [ -z "$cmdopt" ]; then
+			__options_fail "invalid_command" "$1";
+		#got valid command
+		else
+			if [ $options_map_command_method -gt 0 ]; then
+				echo "setting command method...";
+				#global method mapped to the command
+				options_command_method="$cmdopt";
+				echo "setting command method... $options_command_method";
 			fi
 		fi
 	fi

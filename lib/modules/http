@@ -6,9 +6,9 @@ require "string";
 export http_writeout_json=0;
 export http_curl_writeout_json="{\"http_status\": \"%{http_code}\",\"http_url\":\"%{url_effective}\",\"http_time_total\":\"%{time_total}\"}";
 export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n";
-export http_output_file="$HOME/.rest.out";
-export http_head_file="$HOME/.rest.head";
-export http_body_file="$HOME/.rest.body";
+export http_output_file="$HOME/.http.out";
+export http_head_file="$HOME/.http.head";
+export http_body_file="$HOME/.http.body";
 export http_base_url="";
 
 function http_curl {
@@ -50,9 +50,12 @@ function http_curl {
 	
 	#TODO: only perform this test if a protocol has been specified
 	#otherwise we can let curl use it's default: http
-	if [[ ! "$url" =~ ^https?: ]]; then
-		warn "invalid url protocol must be %s or %s" "http" "https";
-		return 1;
+	
+	if [[ "$url" =~ ^[a-zA-Z]+: ]]; then
+		if [[ ! "$url" =~ ^https?: ]]; then
+			warn "invalid url protocol must be %s or %s" "http" "https";
+			return 1;
+		fi
 	fi
 	
 	#set +o nounset;
@@ -114,6 +117,13 @@ function http_curl {
 	fi
 	
 	if [ -f "$http_output_file" ] && [ "$rest_response_exit_code" == "0" ]; then
+		
+		#ensure that there is always a trailing newline
+		#otherwise the body will not be parsed correctly
+		#for servers that do not terminate the body with a newline
+		#eg, json REST services
+		echo "" >> "$http_output_file";
+		
 		__http_response_parse "${http_output_file}";
 	else
 		warn "no rest output file %s after request" "$http_output_file";
@@ -172,18 +182,23 @@ function __http_parse_header {
 }
 
 function __http_response_parse {
+	#echo "pasin http response..$@";
 	local output="$1";
+	#cat "$output";
 	local head=0;
 	while read line
 		do
+			#echo "parsing http line $line";
 			#parse the HTTP declaration
 			if [ -z "${rest_response_header_raw:-}" ]; then
 				__http_response_parse_status "${line}";
 			#parsing header lines
 			elif [ $head -eq 0 ]; then
 				#strip the carriage return and line feeds
-				line=`echo "$line" | tr -d "\r\n"`;
+				line=`echo "$line" | tr -d "\r"`;
+				line=`echo "$line" | tr -d "\n"`;				
 				if [ -z "$line" ]; then
+					#echo "got end of head...";
 					head=1;
 				else
 					#append to the header file
@@ -192,6 +207,7 @@ function __http_response_parse {
 				fi
 			#parsing the body content
 			elif [ $head -eq 1 ]; then
+				#echo "parsing body line $line";
 				#append to the body file
 				echo "$line" >> "$http_body_file";
 			fi

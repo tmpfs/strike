@@ -1,0 +1,16 @@
+require 'http';
+
+function rest_get {
+	echo "rest get called.."
+	http_curl "GET" "http://checkyourc.com/s";
+	#http_curl "GET" "http://google.com";
+	echo "return code: $rest_response_exit_code";
+	__rest_print_body;
+}
+
+function __rest_print_body {
+	if [ -f "$http_body_file" ]; then
+		echo "got http body file... $http_body_file"
+		cat "$http_body_file";
+	fi
+}
