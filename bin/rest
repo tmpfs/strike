@@ -99,12 +99,12 @@ options validate "$@";
 #validate the parameters
 #options parse "$@";
 
-array_pop "$@";
-
-echo "$_result";
+#array_pop "$@";
+#echo "$_result";
 #echo "after pop length $#";
 
 #always add the url as the last option
+array_pop "$@";
 module_options+="$_result";
 
 main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";

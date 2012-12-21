@@ -10,6 +10,9 @@ executable validate curl;
 export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
 export http_output_file="$HOME/.http.out";
 export http_head_file="$HOME/.http.head";
+export http_trace_file="$HOME/.http.trace";
+export http_trace_ascii_file="$HOME/.http.trace.ascii";
+export http_head_dump_file="$HOME/.http.head.dump";
 export http_body_file="$HOME/.http.body";
 export http_base_url="";
 
@@ -69,7 +72,14 @@ function http_curl {
 		"-X${method}"
 		"--silent"
 		"-L"
+		"-v"
 		"-i"
+		"--dump-header"
+		"$http_head_dump_file"
+		"--trace"
+		"$http_trace_file"
+		"--trace-ascii"
+		"$http_trace_ascii_file"
 		"--write-out"
 		"${curl_writeout:-"$http_curl_writeout"}"
 		"-o"
@@ -135,8 +145,8 @@ function __http_response_parse_status {
 	local index="$1";
 	shift;
 	
-	echo "got response raw : $raw";
-	echo "got response index : $index";
+	# echo "got response raw : $raw";
+	# echo "got response index : $index";
 	
 	local opts=();
 	for opt in ${@}
@@ -189,7 +199,7 @@ function __http_response_parse {
 	let redirects="${http_response_num_redirects:-0}";
 	let index=0;
 	
-	echo "parsing response with number of redirects: $redirects";
+	#echo "parsing response with number of redirects: $redirects";
 	
 	local output="$1";
 	#cat "$output";
@@ -199,7 +209,7 @@ function __http_response_parse {
 			#echo "parsing http line $line";
 			#parse the HTTP declaration
 			if [[ "$line" =~ ^HTTP/1.[01]  ]]; then
-				echo "parsing http response line...";
+				#echo "parsing http response line...";
 				__http_response_parse_status "$index" "${line}";
 			#parsing header lines
 			elif [ $head -eq 0 ]; then
@@ -209,10 +219,12 @@ function __http_response_parse {
 				if [ -z "$line" ] && [ $redirects -eq 0 ]; then
 					#echo "got end of head...";
 					head=1;
+					echo "" >> "$http_head_file";					
 				elif [ -z "$line" ] && [ $redirects -gt 0 ]; then
 					#echo "parsing next header...";
 					let index++;					
 					let redirects--;
+					echo "" >> "$http_head_file";
 				else
 					#append to the header file
 					echo "$line" >> "$http_head_file";

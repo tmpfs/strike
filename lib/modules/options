@@ -53,10 +53,10 @@ function options_validate {
 		#got valid command
 		else
 			if [ $options_map_command_method -gt 0 ]; then
-				echo "setting command method...";
+				# echo "setting command method...";
 				#global method mapped to the command
 				options_command_method="$cmdopt";
-				echo "setting command method... $options_command_method";
+				# echo "setting command method... $options_command_method";
 			fi
 		fi
 	fi

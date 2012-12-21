@@ -6,7 +6,7 @@ function rest_get {
 	array_pop "$@";
 	local url="$_result";
 	
-	echo "rest get called... $url";
+	#echo "rest get called... $url";
 	
 	http_curl "GET" "$url";
 	#http_curl "GET" "http://google.com";
