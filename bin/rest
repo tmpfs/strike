@@ -39,23 +39,31 @@ require 'options';
 #method_end_diff;
 require 'rest';
 
-#variable_set "mytest" "myvalue";
-
-#variable_get "mytest";
-#echo "mytest: $_result";
-
-variable_declare "mytest_1" "myvalue" "agx";
-
-variable_get "mytest_1";
-echo "mytest: $_result";
-
-variable_unset "mytest";
-
-exit 0;
+# #variable_set "mytest" "myvalue";
+# 
+# #variable_get "mytest";
+# #echo "mytest: $_result";
+# 
+# variable_declare "mytest_1" "myvalue" "agx";
+# 
+# variable_get "mytest_1";
+# echo "mytest: $_result";
+# 
+# # TODO: get this to work more dynamically
+# #variable_unset "mytest";
+# 
+# exit 0;
 
 #method_list;
 
 #require_list;
+
+# arr=();
+# #declare -p "arrb" 2> /dev/null | grep -q 'declare \-a';
+# 
+# variable_is_array "arr";
+# echo "response: $_result";
+# exit 0;
 
 options_minimum=2;
 #options_fail_help=1;

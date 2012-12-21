@@ -28,6 +28,15 @@ function variable_declare {
 	#echo "variable_declare: $name";
 }
 
+function variable_is_array {
+	local name="$1";
+	set +o errexit;
+	declare -p "$name" 2> /dev/null | grep -q 'declare \-a';
+	local exists="$?";
+	set -o errexit;
+	_result="$exists";
+}
+
 function variable_unset {
 	local prefix="$1";
 	local expression="\${!${prefix}_*}";
