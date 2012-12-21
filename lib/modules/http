@@ -10,10 +10,10 @@ executable validate curl;
 export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
 export http_output_file="$HOME/.http.out";
 export http_head_file="$HOME/.http.head";
+export http_body_file="$HOME/.http.body";
 export http_trace_file="$HOME/.http.trace";
 export http_trace_ascii_file="$HOME/.http.trace.ascii";
 export http_head_dump_file="$HOME/.http.head.dump";
-export http_body_file="$HOME/.http.body";
 export http_base_url="";
 
 # array of raw response headers
@@ -31,7 +31,11 @@ function http_curl {
 	fi
 	
 	echo -n "" > "$http_head_file";
-	echo -n "" > "$http_body_file";	
+	echo -n "" > "$http_body_file";
+	
+	echo -n "" > "$http_trace_file";
+	echo -n "" > "$http_trace_ascii_file";
+	echo -n "" > "$http_head_dump_file";
 	
 	#ensure we unset all variables before the next request
 	
@@ -68,18 +72,22 @@ function http_curl {
 		fi
 	fi
 	
+	# "-v"	
+	
 	local runopts=(
 		"-X${method}"
 		"--silent"
 		"-L"
-		"-v"
 		"-i"
+		"-v"
 		"--dump-header"
 		"$http_head_dump_file"
 		"--trace"
-		"$http_trace_file"
+		"$http_trace_file"		
 		"--trace-ascii"
 		"$http_trace_ascii_file"
+		"--header"
+		"User-Agent: firefox"
 		"--write-out"
 		"${curl_writeout:-"$http_curl_writeout"}"
 		"-o"
@@ -93,7 +101,7 @@ function http_curl {
 	
 	runopts=( "${runopts[@]}" "$url" );
 	
-	echo "run: $cmd ${runopts[@]}";	
+	echo "run: $cmd ${runopts[@]}";
 	
 	http_request_method="${method}";
 	
