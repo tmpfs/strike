@@ -32,6 +32,7 @@ source "$libdir/shared";
 # echo "curl after re-require : ${executables[curl]}"
 # exit 0;
 
+# set up the main delegate module as 'rest'
 module="$PROGRAM_NAME";
 
 #method_start_diff;
@@ -53,6 +54,10 @@ require 'rest';
 # #variable_unset "mytest";
 # 
 # exit 0;
+
+#arr1=( 1 2 3 );
+#arr2=( arr1=${arr1[*]} );
+#test1=arr2[*];
 
 #method_list;
 

@@ -7,14 +7,14 @@ require 'executable';
 # is available at: ${executables[curl]}
 executable validate curl;
 
-export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";	# 
+export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
 export http_output_file="$HOME/.http.out";
 export http_head_file="$HOME/.http.head";
 export http_body_file="$HOME/.http.body";
 export http_base_url="";
 
 # array of raw response headers
-declare -agx http_response_headers;
+# declare -agx http_response_headers;
 
 function http_curl {
 	local cmd="${executables[curl]}";
@@ -130,12 +130,12 @@ function http_curl {
 ######################################################################
 
 function __http_response_parse_status {
-	export http_response_header_raw="${@:1}";
+	local raw="${@:2}";
 	
 	local index="$1";
 	shift;
 	
-	echo "got response raw : $http_response_header_raw";
+	echo "got response raw : $raw";
 	echo "got response index : $index";
 	
 	local opts=();
@@ -146,12 +146,13 @@ function __http_response_parse_status {
 	done
 	
 	#omit the first empty element in the array
-	export http_response_header_http="${opts[1]:-}";
-	export http_response_header_status="${opts[2]:-}";
-	export http_response_header_message="${opts[3]:-}";
+	eval "export http_header_${index}_raw='${raw}'";
+	export "http_header_${index}_http="${opts[1]:-}"";
+	export "http_header_${index}_status="${opts[2]:-}"";
+	export "http_header_${index}_message="${opts[3]:-}"";
 	
 	# echo "opts length: ${#opts[@]}";
-	# echo "[__http_response_parse_status] : ${http_response_header_raw}";	
+	# echo "[__http_response_parse_status] : ${http_response_header_raw}";
 	# echo "[http_response_header_http] : ${http_response_header_http}";
 	# echo "[http_response_header_status] : ${http_response_header_status}";
 	# echo "[http_response_header_message] : ${http_response_header_message}";
@@ -160,7 +161,7 @@ function __http_response_parse_status {
 function __http_parse_header {
 	#echo "__http_parse_header: $1 : $2";
 	
-	
+	local index="$1";
 	local name="${2%: ?*}";
 	local value="${2#*:}";
 	
@@ -178,7 +179,7 @@ function __http_parse_header {
 	#echo "got value: $value";
 	
 	#TODO: only export on the last header set received
-	export "http_header_${name}=${value}";
+	export "http_header_${index}_${name}=${value}";
 }
 
 function __http_response_parse {
@@ -206,11 +207,10 @@ function __http_response_parse {
 				line=`echo "$line" | tr -d "\r"`;
 				line=`echo "$line" | tr -d "\n"`;
 				if [ -z "$line" ] && [ $redirects -eq 0 ]; then
-					echo "got end of head...";
-					
+					#echo "got end of head...";
 					head=1;
 				elif [ -z "$line" ] && [ $redirects -gt 0 ]; then
-					echo "parsing next header...";
+					#echo "parsing next header...";
 					let index++;					
 					let redirects--;
 				else
@@ -225,4 +225,15 @@ function __http_response_parse {
 				echo "$line" >> "$http_body_file";
 			fi
 	done < "$output";
+	
+	for opt in ${!http_header_*}
+		do
+			variable_get "$opt";
+			echo "got header opt: $opt : $_result";
+	done
+	
+	# for opt in ${!http_response_header_*}
+	# 	do
+	# 		echo "got response header opt: $opt";
+	# done
 }
