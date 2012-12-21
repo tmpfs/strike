@@ -39,6 +39,20 @@ require 'options';
 #method_end_diff;
 require 'rest';
 
+#variable_set "mytest" "myvalue";
+
+#variable_get "mytest";
+#echo "mytest: $_result";
+
+variable_declare "mytest_1" "myvalue" "agx";
+
+variable_get "mytest_1";
+echo "mytest: $_result";
+
+variable_unset "mytest";
+
+exit 0;
+
 #method_list;
 
 #require_list;

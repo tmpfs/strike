@@ -38,7 +38,7 @@ function http_curl {
 			unset "$opt";
 	done
 	
-	http_response_headers=();
+	#http_response_headers=();
 	
 	local method="${1:-GET}";
 	shift;
@@ -207,6 +207,7 @@ function __http_response_parse {
 				line=`echo "$line" | tr -d "\n"`;
 				if [ -z "$line" ] && [ $redirects -eq 0 ]; then
 					echo "got end of head...";
+					
 					head=1;
 				elif [ -z "$line" ] && [ $redirects -gt 0 ]; then
 					echo "parsing next header...";

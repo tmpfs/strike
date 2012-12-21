@@ -5,3 +5,35 @@ function variable_get {
 	set -o nounset;
 	_result="$value";
 }
+
+function variable_set {
+	local name="$1";
+	local value="$2";	
+	
+	echo "variable_set: $name : $value";
+	eval "$name"="$value";
+}
+
+function variable_declare {
+	local name="$1";
+	local value="$2";
+	local options="${3:-}";
+	if [ ! -z "$options" ]; then
+		options="-${options}";
+	fi
+	local expression="declare $options $name";
+	eval $expression;
+	variable_set "$name" "$value";
+	
+	#echo "variable_declare: $name";
+}
+
+function variable_unset {
+	local prefix="$1";
+	local expression="\${!${prefix}_*}";
+	local opt;
+	for opt in "$expression"
+		do
+			unset "$opt";
+	done
+}
