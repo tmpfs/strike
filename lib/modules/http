@@ -13,6 +13,9 @@ export http_head_file="$HOME/.http.head";
 export http_body_file="$HOME/.http.body";
 export http_base_url="";
 
+# array of raw response headers
+declare -agx http_response_headers;
+
 function http_curl {
 	local cmd="${executables[curl]}";
 	if [ ! -x "$cmd" ]; then
@@ -34,6 +37,8 @@ function http_curl {
 		do
 			unset "$opt";
 	done
+	
+	http_response_headers=();
 	
 	local method="${1:-GET}";
 	shift;
@@ -125,7 +130,14 @@ function http_curl {
 ######################################################################
 
 function __http_response_parse_status {
-	export http_response_header_raw="${@:-}";
+	export http_response_header_raw="${@:1}";
+	
+	local index="$1";
+	shift;
+	
+	echo "got response raw : $http_response_header_raw";
+	echo "got response index : $index";
+	
 	local opts=();
 	for opt in ${@}
 		do
@@ -146,9 +158,11 @@ function __http_response_parse_status {
 }
 
 function __http_parse_header {
-	#echo "__http_parse_header: $1";
-	local name="${1%: ?*}";
-	local value="${1#*:}";
+	#echo "__http_parse_header: $1 : $2";
+	
+	
+	local name="${2%: ?*}";
+	local value="${2#*:}";
 	
 	#convert hyphens to underscores
 	name="${name//-/_}";
@@ -163,6 +177,7 @@ function __http_parse_header {
 	#echo "got name: $name";
 	#echo "got value: $value";
 	
+	#TODO: only export on the last header set received
 	export "http_header_${name}=${value}";
 }
 
@@ -171,6 +186,7 @@ function __http_response_parse {
 	
 	# number of redirects corresponds to the number of headers to parse
 	let redirects="${http_response_num_redirects:-0}";
+	let index=0;
 	
 	echo "parsing response with number of redirects: $redirects";
 	
@@ -181,8 +197,9 @@ function __http_response_parse {
 		do
 			#echo "parsing http line $line";
 			#parse the HTTP declaration
-			if [ -z "${http_response_header_raw:-}" ]; then
-				__http_response_parse_status "${line}";
+			if [[ "$line" =~ ^HTTP/1.[01]  ]]; then
+				echo "parsing http response line...";
+				__http_response_parse_status "$index" "${line}";
 			#parsing header lines
 			elif [ $head -eq 0 ]; then
 				#strip the carriage return and line feeds
@@ -193,11 +210,12 @@ function __http_response_parse {
 					head=1;
 				elif [ -z "$line" ] && [ $redirects -gt 0 ]; then
 					echo "parsing next header...";
+					let index++;					
 					let redirects--;
 				else
 					#append to the header file
 					echo "$line" >> "$http_head_file";
-					__http_parse_header "$line";
+					__http_parse_header "$index" "$line";
 				fi
 			#parsing the body content
 			elif [ $head -eq 1 ]; then
