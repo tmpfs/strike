@@ -3,10 +3,11 @@ require 'http';
 #TODO: implement get/post/put/delete etc
 
 function rest_get {
-	echo "rest get called.."
-	http_curl "GET" "http://checkyourc.com/s";
+	echo "rest get called..."
+	http_curl "GET" "http://checkyourc-abc.com/s";
 	#http_curl "GET" "http://google.com";
-	echo "return code: $rest_response_exit_code";
+	echo "num redirects: $http_response_num_redirects";
+	echo "return code: $http_response_exit_code";
 	__rest_print_body;
 }
 

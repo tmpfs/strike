@@ -71,6 +71,7 @@ function __require_load {
 		
 		local abs;
 		local loaded=0;
+		local declared;
 		for f in ${searchpaths[@]}
 			do
 				#expand_path "$f" > /dev/null;
@@ -78,7 +79,11 @@ function __require_load {
 				abs="${f}/${name}";
 				
 				if [ -f "$abs" ] && [ -r "$abs" ]; then
+					#method_start_diff;
 					source "$abs";
+					#method_end_diff;
+					#declared=( "$_result[@]" );
+					#echo "got declared methods : ${declared[@]}";
 					loaded=1;
 					break;
 				fi

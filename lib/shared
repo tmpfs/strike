@@ -9,12 +9,12 @@
 source "$libdir/modules/method";
 source "$libdir/modules/color";
 source "$libdir/modules/console";
+source "$libdir/modules/array";
 
 #main module loader and require definition
 source "$libdir/modules/require";
 
 require "main";
-require "array";
 require "string";
 require "fs";
 

@@ -1,4 +1,4 @@
-declare -a method_start_diff_list;
+declare -agx method_start_diff_list;
 
 ######################################################################
 #	Determines whether a method has been declared.
@@ -56,6 +56,7 @@ function method_end_diff {
 				fi		
 		done
 	fi
-	echo "got method end diff declared: ${declared[@]}";	
+	#echo "got method end diff declared: ${declared[@]}";	
 	method_start_diff_list=();
+	_result=( "${declared[@]}" );
 }

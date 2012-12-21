@@ -32,16 +32,16 @@ source "$libdir/shared";
 # echo "curl after re-require : ${executables[curl]}"
 # exit 0;
 
-method_start_diff;
+#method_start_diff;
 require 'options';
-method_end_diff;
+#method_end_diff;
 require 'rest';
 
 #method_list;
 
-require_list;
+#require_list;
 
-options_minimum=1;
+options_minimum=2;
 #options_fail_help=1;
 options_expects_command=( get post put delete options );
 options_map_command_method=1;
@@ -69,6 +69,10 @@ options validate "$@";
 
 #validate the parameters
 #options parse "$@";
+
+array_pop "$@";
+echo "got pop: $_result";
+#echo "after pop length $#";
 
 main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
 

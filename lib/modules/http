@@ -7,9 +7,7 @@ require 'executable';
 # is available at: ${executables[curl]}
 executable validate curl;
 
-export http_writeout_json=0;
-export http_curl_writeout_json="{\"http_status\": \"%{http_code}\",\"http_url\":\"%{url_effective}\",\"http_time_total\":\"%{time_total}\"}";
-export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n";
+export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";	# 
 export http_output_file="$HOME/.http.out";
 export http_head_file="$HOME/.http.head";
 export http_body_file="$HOME/.http.body";
@@ -32,7 +30,7 @@ function http_curl {
 	#ensure we unset all variables before the next request
 	
 	#TODO: move to a method for unsetting by group
-	for opt in ${!rest_response_*}
+	for opt in ${!http_response_*}
 		do
 			unset "$opt";
 	done
@@ -62,9 +60,6 @@ function http_curl {
 		fi
 	fi
 	
-	#set +o nounset;
-	set +o errexit;	
-	
 	local runopts=(
 		"-X${method}"
 		"--silent"
@@ -85,42 +80,30 @@ function http_curl {
 	
 	echo "run: $cmd ${runopts[@]}";	
 	
-	rest_response_method="${method}";
+	http_request_method="${method}";
 	
 	local results=();
 	local curl_exit_code;
 	
-	#not writing out to a json file so capture
-	#the writeout data
-	if [ $http_writeout_json -eq 0 ]; then
-		results=( $( $cmd "${runopts[@]}" || echo "$?" ) );
-		#rest_response_status="${results[0]}";
-		#rest_response_url="${results[1]}";
-		#rest_response_time_total="${results[2]}";
-		#rest_response_exit_code="${results[3]}";
-		curl_exit_code=${results[3]:-0};
-	else
-		$cmd "${runopts[@]}" > "$http_output_file";
-		curl_exit_code=$?;
-		#rest_response_exit_code="$?";
-		#read in the status information on fail from the output file
-		#if [ $? -ne 0 ]; then
-		results=( $( cat "$http_output_file" ) );
-		#fi
-	fi
+	set +o errexit;	
+	results=( $( $cmd "${runopts[@]}" || echo "$?" ) );
+	set -o errexit;
+	
+	curl_exit_code=${results[4]:-0};
 	
 	if [ ${#results[@]} -gt 2 ]; then
-		rest_response_status="${results[0]}";
-		rest_response_url="${results[1]}";
-		rest_response_time_total="${results[2]}";
-		rest_response_exit_code=${curl_exit_code:-${results[3]:-}};
+		http_response_status="${results[0]}";
+		http_response_url="${results[1]}";
+		http_response_time_total="${results[2]}";
+		http_response_num_redirects="${results[3]}";
+		http_response_exit_code=${curl_exit_code:-${results[4]:-}};
 	fi
 	
-	if [ "$rest_response_exit_code" != "0" ]; then
-		warn "curl exited with non-zero status code (%s)" "$rest_response_exit_code";
+	if [ "$http_response_exit_code" != "0" ]; then
+		warn "curl exited with non-zero status code (%s)" "$http_response_exit_code";
 	fi
 	
-	if [ -f "$http_output_file" ] && [ "$rest_response_exit_code" == "0" ]; then
+	if [ -f "$http_output_file" ] && [ "$http_response_exit_code" == "0" ]; then
 		
 		#ensure that there is always a trailing newline
 		#otherwise the body will not be parsed correctly
@@ -132,9 +115,6 @@ function http_curl {
 	else
 		warn "no rest output file %s after request" "$http_output_file";
 	fi
-	
-	#set -o nounset;
-	set -o errexit;
 }
 
 ######################################################################
@@ -144,7 +124,7 @@ function http_curl {
 ######################################################################
 
 function __http_response_parse_status {
-	export rest_response_header_raw="${@:-}";
+	export http_response_header_raw="${@:-}";
 	local opts=();
 	for opt in ${@}
 		do
@@ -153,15 +133,15 @@ function __http_response_parse_status {
 	done
 	
 	#omit the first empty element in the array
-	export rest_response_header_http="${opts[1]:-}";
-	export rest_response_header_status="${opts[2]:-}";
-	export rest_response_header_message="${opts[3]:-}";
+	export http_response_header_http="${opts[1]:-}";
+	export http_response_header_status="${opts[2]:-}";
+	export http_response_header_message="${opts[3]:-}";
 	
 	# echo "opts length: ${#opts[@]}";
-	# echo "[__http_response_parse_status] : ${rest_response_header_raw}";	
-	# echo "[rest_response_header_http] : ${rest_response_header_http}";
-	# echo "[rest_response_header_status] : ${rest_response_header_status}";
-	# echo "[rest_response_header_message] : ${rest_response_header_message}";
+	# echo "[__http_response_parse_status] : ${http_response_header_raw}";	
+	# echo "[http_response_header_http] : ${http_response_header_http}";
+	# echo "[http_response_header_status] : ${http_response_header_status}";
+	# echo "[http_response_header_message] : ${http_response_header_message}";
 }
 
 function __http_parse_header {
@@ -182,7 +162,7 @@ function __http_parse_header {
 	#echo "got name: $name";
 	#echo "got value: $value";
 	
-	export "rest_header_${name}=${value}";
+	export "http_header_${name}=${value}";
 }
 
 function __http_response_parse {
@@ -194,13 +174,13 @@ function __http_response_parse {
 		do
 			#echo "parsing http line $line";
 			#parse the HTTP declaration
-			if [ -z "${rest_response_header_raw:-}" ]; then
+			if [ -z "${http_response_header_raw:-}" ]; then
 				__http_response_parse_status "${line}";
 			#parsing header lines
 			elif [ $head -eq 0 ]; then
 				#strip the carriage return and line feeds
 				line=`echo "$line" | tr -d "\r"`;
-				line=`echo "$line" | tr -d "\n"`;				
+				line=`echo "$line" | tr -d "\n"`;
 				if [ -z "$line" ]; then
 					#echo "got end of head...";
 					head=1;

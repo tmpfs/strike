@@ -4,3 +4,27 @@ function array_contains {
 	for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
 	return 1;
 }
+
+function array_pop {
+	#local arr=( "$@" );
+	#_result=arr[${#arr[@]}-1];
+	#unset arr[${#arr[@]}-1];
+	
+	echo "1: $1";
+	echo "2: $2";
+	
+	local opts=( "$@" );	
+	_result=${opts[${#opts[@]}-1]};
+	unset opts[${#opts[@]}-1];
+	echo "got opts: ${opts[@]}";
+	echo "got opts length: ${#opts[@]}";
+	
+	#_result="";
+	
+	#while [ $# -gt 0 ]
+	#	do
+	#		_result="$1";			
+	#		shift;
+	#		echo "shifted..."
+	#done
+}
