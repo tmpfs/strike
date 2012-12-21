@@ -3,8 +3,12 @@ require 'http';
 #TODO: implement get/post/put/delete etc
 
 function rest_get {
-	echo "rest get called..."
-	http_curl "GET" "http://checkyourc-abc.com/s";
+	array_pop "$@";
+	local url="$_result";
+	
+	echo "rest get called... $url";
+	
+	http_curl "GET" "$url";
 	#http_curl "GET" "http://google.com";
 	echo "num redirects: $http_response_num_redirects";
 	echo "return code: $http_response_exit_code";
@@ -13,7 +17,7 @@ function rest_get {
 
 function __rest_print_body {
 	if [ -f "$http_body_file" ]; then
-		echo "got http body file... $http_body_file"
+		#echo "got http body file... $http_body_file"
 		cat "$http_body_file";
 	fi
 }

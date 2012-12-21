@@ -32,6 +32,8 @@ source "$libdir/shared";
 # echo "curl after re-require : ${executables[curl]}"
 # exit 0;
 
+module="$PROGRAM_NAME";
+
 #method_start_diff;
 require 'options';
 #method_end_diff;
@@ -71,8 +73,12 @@ options validate "$@";
 #options parse "$@";
 
 array_pop "$@";
-echo "got pop: $_result";
+
+echo "$_result";
 #echo "after pop length $#";
+
+#always add the url as the last option
+module_options+="$_result";
 
 main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
 

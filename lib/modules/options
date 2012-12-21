@@ -1,6 +1,6 @@
-declare module="${module:-}";
-declare method;
-declare options;
+declare -gx module="${module:-}";
+declare -gx module_method;
+declare -agx module_options;
 
 declare -gx option_verbose;
 declare -gx option_quiet;

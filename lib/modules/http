@@ -87,7 +87,6 @@ function http_curl {
 	
 	set +o errexit;	
 	results=( $( $cmd "${runopts[@]}" || echo "$?" ) );
-	set -o errexit;
 	
 	curl_exit_code=${results[4]:-0};
 	
@@ -95,7 +94,7 @@ function http_curl {
 		http_response_status="${results[0]}";
 		http_response_url="${results[1]}";
 		http_response_time_total="${results[2]}";
-		http_response_num_redirects="${results[3]}";
+		http_response_num_redirects="${results[3]:-0}";
 		http_response_exit_code=${curl_exit_code:-${results[4]:-}};
 	fi
 	
@@ -115,6 +114,8 @@ function http_curl {
 	else
 		warn "no rest output file %s after request" "$http_output_file";
 	fi
+	
+	set -o errexit;	
 }
 
 ######################################################################
@@ -167,6 +168,12 @@ function __http_parse_header {
 
 function __http_response_parse {
 	#echo "pasin http response..$@";
+	
+	# number of redirects corresponds to the number of headers to parse
+	let redirects="${http_response_num_redirects:-0}";
+	
+	echo "parsing response with number of redirects: $redirects";
+	
 	local output="$1";
 	#cat "$output";
 	local head=0;
@@ -181,9 +188,12 @@ function __http_response_parse {
 				#strip the carriage return and line feeds
 				line=`echo "$line" | tr -d "\r"`;
 				line=`echo "$line" | tr -d "\n"`;
-				if [ -z "$line" ]; then
-					#echo "got end of head...";
+				if [ -z "$line" ] && [ $redirects -eq 0 ]; then
+					echo "got end of head...";
 					head=1;
+				elif [ -z "$line" ] && [ $redirects -gt 0 ]; then
+					echo "parsing next header...";
+					let redirects--;
 				else
 					#append to the header file
 					echo "$line" >> "$http_head_file";
