@@ -27,7 +27,7 @@ function rest_options.parse {
 	local value;
 	while [ "${1:-}" != "" ]; do
 		case $1 in
-		--header )
+		-H | --header )
 			shift;
 			http request.add.header "$1";
 			;;
@@ -36,6 +36,7 @@ function rest_options.parse {
 			shift;
 			http request.add.header "content-type: $1";
 			;;
+		
 		# TODO: allow unrecognised options to be passed to curl ..
 		
 		# --* )
