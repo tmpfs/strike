@@ -32,6 +32,15 @@ function method_list {
 	done <<< "$methods";
 }
 
+######################################################################
+#	Removes a method definition.
+#
+#	$1	The name of the method.
+######################################################################
+function method.remove() {
+	unset -f "$1";
+}
+
 function method_start_diff {
 	method_start_diff_list=( $( method_list ) );
 	#echo "got method start diff ${method_start_diff_list[@]}"

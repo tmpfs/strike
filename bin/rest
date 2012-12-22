@@ -42,12 +42,15 @@ require 'rest';
 
 options add flag "v" "verbose" 'verbose program output';
 
-#module.method()
-#{
-#	echo "module.method"
-#}
-
-#module.method;
+# module.method() {
+# 	echo "module.method"
+# }
+# 
+# module.method;
+# 
+# #method.remove module.method;
+# 
+# module.method;
 
 #exit 0;
 
