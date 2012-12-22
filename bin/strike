@@ -29,7 +29,6 @@ module="$PROGRAM_NAME";
 
 require 'main';
 
-
 function strike_info {
 	info "bash: %s" "$BASH";
 	info "os type: %s" "$OSTYPE";

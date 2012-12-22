@@ -17,6 +17,8 @@ export http_trace_ascii_file="$http_home/http.trace.ascii";
 export http_head_dump_file="$http_home/http.head.dump";
 export http_base_url="";
 
+declare -gx http_strict="";
+
 declare -Agx http_request_headers;
 
 declare -agx http_command_options;
@@ -173,7 +175,12 @@ function http_curl {
 	fi
 	
 	if [ "$http_response_exit_code" != "0" ]; then
-		warn "curl exited with non-zero status code (%s)" "$http_response_exit_code";
+		
+		if [ ! -z "$http_strict" ]; then
+			quit $http_response_exit_code "curl exited with non-zero status code (%s)" "$http_response_exit_code";
+		else
+			warn "curl exited with non-zero status code (%s)" "$http_response_exit_code";
+		fi
 	fi
 	
 	if [ -f "$http_output_file" ] && [ "$http_response_exit_code" == "0" ]; then
@@ -189,7 +196,7 @@ function http_curl {
 		warn "no rest output file %s after request" "$http_output_file";
 	fi
 	
-	set -o errexit;	
+	set -o errexit;
 }
 
 ######################################################################
