@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-##!/bin/bash.3.2.48
+# #!/bin/bash.3.2.48
 
 set -o errtrace;
 set -o errexit;
@@ -24,7 +24,11 @@ libdir="$exedir/../lib";
 
 source "$libdir/shared";
 
+# set up the main delegate module as 'strike'
+module="$PROGRAM_NAME";
+
 require 'main';
+
 
 function strike_info {
 	info "bash: %s" "$BASH";

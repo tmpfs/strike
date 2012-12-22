@@ -1,9 +1,7 @@
-#!/usr/bin/env bash
-
 ######################################################################
 # 	git-util
 #
-#	Utilties for working with the git repositories.
+#	Utilties for working with git repositories.
 ######################################################################
 
 GIT_REPOSITORY=".git";
