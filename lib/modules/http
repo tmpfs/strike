@@ -1,5 +1,5 @@
 require 'url';
-require 'string';
+#require 'string';
 require 'executable';
 
 # validate the curl executable is available
@@ -18,6 +18,29 @@ export http_head_dump_file="$HOME/.http.head.dump";
 export http_base_url="";
 
 declare -Agx http_request_headers;
+
+#have to do this in two steps for arrays
+#direct assignment will cause the http_files array not
+#to be available inside function definitions
+declare -agx http_files;
+http_files=(
+	"$http_output_file"
+	"$http_head_file"
+	"$http_body_file"
+	"$http_trace_file"
+	"$http_exit_file"
+	"$http_trace_ascii_file"
+	"$http_head_dump_file" );
+
+echo "files...${http_files[@]}";
+
+function http_clean {
+	local f;
+	for f in ${http_files[@]}
+		do
+			rm -fv "$f";
+	done
+}
 
 # array of raw response headers
 # declare -agx http_response_headers;
