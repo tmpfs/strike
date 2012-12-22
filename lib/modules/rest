@@ -2,6 +2,33 @@ require 'http';
 
 #TODO: implement get/post/put/delete etc
 
+declare -Agx rest_header_options;
+
+function rest_options_parse {
+	echo "parsing rest program options..."
+	local value;
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+		--header )
+			shift;
+			#value="$1";
+			#local hname="${value%: ?*}";
+			#local hvalue="${value#*:}";
+			
+			#echo "got rest header option: $hname";
+			#echo "got rest header option: $hvalue";
+			
+			http add_request_header "$1";
+			;;
+		esac
+		if [ $# -ne 0 ]; then
+			shift;
+		else
+			break;
+		fi
+	done
+}
+
 function rest_get {
 	array_pop "$@";
 	local url="$_result";

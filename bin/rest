@@ -88,12 +88,10 @@ options configure;
 #parse the parameters
 options parse "$@";
 
-#echo "got last option: $rest_request_url";
-#exit 0;
+# parse custom program options
+rest options_parse "$@";
 
-#array_pop "$@";
-#echo "$_result";
-#echo "after pop length $#";
+#exit 0;
 
 #always add the url as the last option
 module_options+="$rest_request_url";
