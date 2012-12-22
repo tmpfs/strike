@@ -84,6 +84,17 @@ function http_curl {
 		"--silent"
 		"-L"
 		"-i"
+	);
+	
+	local hname hvalue;
+	for hname in ${!http_request_headers[@]}
+		do
+			hvalue=${http_request_headers[$hname]};
+			echo "adding request header: $hname::$hvalue";
+			runopts+=( "--header" "'${hname}:" "$hvalue'" );
+	done
+	
+	runopts+=(
 		"--dump-header"
 		"$http_head_dump_file"
 		"--trace"
@@ -112,6 +123,8 @@ function http_curl {
 	
 	set +o errexit;	
 	results=( $( $cmd "${runopts[@]}" || echo "$?" ) );
+	
+	#echo "got command results: ${results[@]}";
 	
 	curl_exit_code=${results[4]:-0};
 	
@@ -153,11 +166,11 @@ function http_add_request_header {
 		hvalue="${name#*:}";
 	fi
 	
-	echo "adding request header: $hname::$hvalue";	
+	#echo "adding request header: $hname::$hvalue";	
 	string_ltrim "$hvalue";
 	hvalue="$_result";
 	
-	#echo "adding request header (after trim): $hname::$hvalue";		
+	#echo "adding request header (after trim): $hname::$hvalue";
 	
 	http_request_headers[$hname]="$hvalue";
 	
@@ -224,7 +237,7 @@ function __http_parse_header {
 }
 
 function __http_response_parse {
-	echo "parsing http response..$@";
+	#echo "parsing http response..$@";
 	
 	# number of redirects corresponds to the number of headers to parse
 	local redirects=${http_response_num_redirects:-0};
