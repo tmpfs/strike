@@ -6,28 +6,28 @@
 #	Common utility library functions.
 ######################################################################
 
-function verifyshell {
-	shell=`basename $SHELL`
-	if [ "$shell" != "$TSHELL" ]; then
-		quit "$ERR_WRONG_SHELL" "incorrect shell %s expecting %s" "$SHELL" "$TSHELL";
-	fi
-}
+# function verifyshell {
+# 	shell=`basename $SHELL`
+# 	if [ "$shell" != "$TSHELL" ]; then
+# 		quit "$ERR_WRONG_SHELL" "incorrect shell %s expecting %s" "$SHELL" "$TSHELL";
+# 	fi
+# }
 
 #verifies that the specified executable is installed and available in PATH
-function verify_exe {
-	_result=0;
-	type -P "$1" &>/dev/null || _result=1;
-}
+# function verify_exe {
+# 	_result=0;
+# 	type -P "$1" &>/dev/null || _result=1;
+# }
 
-function verify_program {
-	local exe=$1;
-	info "checking for %s" "$exe";
-	verify_exe "$exe";
-	if [ $_result -ne 0 ]; then
-		error "$PROGRAM_NOT_FOUND" "$exe";
-		_result=1;
-	fi
-}
+# function verify_program {
+# 	local exe=$1;
+# 	info "checking for %s" "$exe";
+# 	verify_exe "$exe";
+# 	if [ $_result -ne 0 ]; then
+# 		error "$PROGRAM_NOT_FOUND" "$exe";
+# 		_result=1;
+# 	fi
+# }
 
 ######################################################################
 # 	verify_program_list
@@ -36,13 +36,13 @@ function verify_program {
 #	installed. If a program is not found this program will exit
 #	with a non-zero exit code.
 ######################################################################
-function verify_program_list {
-	local exes=( "$@" );
-	for exe in "${exes[@]}"
-		do
-			verify_program "$exe";
-			if [ "$_result" -eq 1 ]; then
-				quit "$ERR_MISSING_PROGRAM" "missing program %s" "$exe";
-			fi
-	done
-}
+# function verify_program_list {
+# 	local exes=( "$@" );
+# 	for exe in "${exes[@]}"
+# 		do
+# 			verify_program "$exe";
+# 			if [ "$_result" -eq 1 ]; then
+# 				quit "$ERR_MISSING_PROGRAM" "missing program %s" "$exe";
+# 			fi
+# 	done
+# }

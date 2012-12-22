@@ -20,7 +20,8 @@ require "fs";
 
 source "$libdir/core";
 source "$libdir/help";
-source "$libdir/utilities";
+
+#source "$libdir/utilities";
 
 source "$libdir/constants";
 source "$libdir/exit-codes";
