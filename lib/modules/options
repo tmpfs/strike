@@ -107,12 +107,12 @@ function options_parse {
 	#validate options
 	options_validate "$@";
 	
-	echo "parsing configured options...";
+	#echo "parsing configured options...";
 	
 	local l=$#;
 	
 	if [ ! -z "${options_map_last:-}" ]; then
-		echo "map last option to a variable...";
+		#echo "map last option to a variable...";
 		variable_set "$options_map_last" "${@: -1}";
 	fi
 	
@@ -120,7 +120,7 @@ function options_parse {
 	for((i = 0;i < l;i++))
 		do
 			val=$[$i];
-			echo "got opt..$val";
+			#echo "got opt..$val";
 	done
 	
 	# while [ "${1:-}" != "" ]; do

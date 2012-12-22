@@ -14,8 +14,8 @@ function variable_set {
 	
 	eval "$name"="'$value'";
 	
-	variable_get "$name";
-	echo "$_result";
+	#variable_get "$name";
+	#echo "$_result";
 }
 
 function variable_declare {

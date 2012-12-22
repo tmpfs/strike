@@ -5,7 +5,6 @@ require 'http';
 #echo "http files...${http_files[@]}";
 
 function rest_clean {
-	echo "got rest clean command called..."
 	http clean;
 }
 
@@ -23,7 +22,7 @@ function rest_get {
 }
 
 function rest_options_parse {
-	echo "parsing rest program options..."
+	#echo "parsing rest program options..."
 	local value;
 	while [ "${1:-}" != "" ]; do
 		case $1 in

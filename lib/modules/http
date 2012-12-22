@@ -32,8 +32,6 @@ http_files=(
 	"$http_trace_ascii_file"
 	"$http_head_dump_file" );
 
-echo "files...${http_files[@]}";
-
 function http_clean {
 	local f;
 	for f in ${http_files[@]}

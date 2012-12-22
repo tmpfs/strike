@@ -42,6 +42,13 @@ require 'rest';
 
 options add flag "v" "verbose" 'verbose program output';
 
+#module.method()
+#{
+#	echo "module.method"
+#}
+
+#module.method;
+
 #exit 0;
 
 # #variable_set "mytest" "myvalue";
