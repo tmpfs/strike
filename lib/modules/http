@@ -12,6 +12,7 @@ export http_output_file="$HOME/.http.out";
 export http_head_file="$HOME/.http.head";
 export http_body_file="$HOME/.http.body";
 export http_trace_file="$HOME/.http.trace";
+export http_exit_file="$HOME/.http.exit";
 export http_trace_ascii_file="$HOME/.http.trace.ascii";
 export http_head_dump_file="$HOME/.http.head.dump";
 export http_base_url="";
@@ -30,6 +31,9 @@ function http_curl {
 	#clean any previous rest output
 	if [ -f "$http_output_file" ]; then
 		rm "$http_output_file" > /dev/null;
+	fi
+	if [ -f "$http_exit_file" ]; then
+		rm "$http_exit_file" > /dev/null;
 	fi
 	
 	echo -n "" > "$http_head_file";
@@ -91,7 +95,7 @@ function http_curl {
 		do
 			hvalue=${http_request_headers[$hname]};
 			echo "adding request header: $hname::$hvalue";
-			runopts+=( "--header" "'${hname}:" "$hvalue'" );
+			runopts+=( "--header" "${hname}: $hvalue" );
 	done
 	
 	runopts+=(
@@ -122,11 +126,17 @@ function http_curl {
 	local curl_exit_code;
 	
 	set +o errexit;	
-	results=( $( $cmd "${runopts[@]}" || echo "$?" ) );
+	results=( $( $cmd "${runopts[@]}" || echo -n "$?" > "$http_exit_file" ) );
 	
 	#echo "got command results: ${results[@]}";
 	
-	curl_exit_code=${results[4]:-0};
+	curl_exit_code=0;
+	
+	if [ -f "$http_exit_file" ]; then
+		curl_exit_code=`cat "$http_exit_file"`;
+	fi
+	
+	echo "got curl exit code: $curl_exit_code";
 	
 	if [ ${#results[@]} -gt 2 ]; then
 		http_response_status="${results[0]}";
