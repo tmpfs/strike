@@ -40,6 +40,10 @@ require 'options';
 #method_end_diff;
 require 'rest';
 
+options add flag "v" "verbose" 'verbose program output';
+
+#exit 0;
+
 # #variable_set "mytest" "myvalue";
 # 
 # #variable_get "mytest";
@@ -75,37 +79,24 @@ options_minimum=2;
 options_expects_command=( get post put delete options );
 options_map_command_method=1;
 
-function options_parse {
-	while [ "${1:-}" != "" ]; do
-		case $1 in
-		-h | --help )
-			program_help;
-			exit 0;
-			;;
-		* )
-			program_help;
-			exit 1;
-		esac
-		shift;
-	done
-}
+#map the last option to the rest_request_url variable
+options_map_last="rest_request_url";
 
 #configure all the option defaults
 options configure;
 
-#now validate on remaining options
-options validate "$@";
+#parse the parameters
+options parse "$@";
 
-#validate the parameters
-#options parse "$@";
+#echo "got last option: $rest_request_url";
+#exit 0;
 
 #array_pop "$@";
 #echo "$_result";
 #echo "after pop length $#";
 
 #always add the url as the last option
-array_pop "$@";
-module_options+="$_result";
+module_options+="$rest_request_url";
 
 main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
 

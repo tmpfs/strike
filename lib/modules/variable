@@ -10,8 +10,12 @@ function variable_set {
 	local name="$1";
 	local value="$2";	
 	
-	echo "variable_set: $name : $value";
-	eval "$name"="$value";
+	#echo "variable_set: $name : $value";
+	
+	eval "$name"="'$value'";
+	
+	variable_get "$name";
+	echo "$_result";
 }
 
 function variable_declare {

@@ -21,6 +21,41 @@ declare -Agx options_fail_messages;
 options_fail_messages["too_few_options"]="too few options";
 options_fail_messages["invalid_command"]="invalid command %s";
 
+declare -agx options_types=( flag option );
+
+declare options_map_last;
+
+#declare -Agx options_flags;
+
+function options_add {
+	local optiontype="${1:-}";
+	local shortname="${2:-}";
+	local fullname="${3:-}";
+	local description="${4:-}";
+	
+	#options_flags=( "${options_flags[@]:-}" );
+	
+	# TODO: validate option type
+	
+	local varname="$fullname";
+	
+	# echo "adding flag prefix: $shortname";
+	# echo "adding flag prefix: $fullname";
+	# echo "adding flag prefix: $description";
+	
+	local name="options_${optiontype}_${varname}_shortname";
+	local value="$shortname";
+	variable_set "$name" "$value";
+	
+	name="options_${optiontype}_${varname}_fullname";
+	value="$fullname";
+	variable_set "$name" "$value";
+	
+	name="options_${optiontype}_${varname}_description";
+	value="$description";
+	variable_set "$name" "$value";
+}
+
 function options_validate {
 	#shift so the array length is now zero
 	if [ $# -gt 0 ] && [ -z $1 ]; then
@@ -68,7 +103,38 @@ function options_configure {
 }
 
 function options_parse {
-	_result="options_parse";
+	
+	#validate options
+	options_validate "$@";
+	
+	echo "parsing configured options...";
+	
+	local l=$#;
+	
+	if [ ! -z "${options_map_last:-}" ]; then
+		echo "map last option to a variable...";
+		variable_set "$options_map_last" "${@: -1}";
+	fi
+	
+	local i val;
+	for((i = 0;i < l;i++))
+		do
+			val=$[$i];
+			echo "got opt..$val";
+	done
+	
+	# while [ "${1:-}" != "" ]; do
+	# 	case $1 in
+	# 	-h | --help )
+	# 		program_help;
+	# 		exit 0;
+	# 		;;
+	# 	* )
+	# 		program_help;
+	# 		exit 1;
+	# 	esac
+	# 	shift;
+	# done
 }
 
 ######################################################################

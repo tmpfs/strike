@@ -72,7 +72,10 @@ function http_curl {
 		fi
 	fi
 	
-	# "-v"	
+	# "-v"
+	
+	# "--header"
+	# "User-Agent: firefox"
 	
 	local runopts=(
 		"-X${method}"
@@ -86,8 +89,6 @@ function http_curl {
 		"$http_trace_file"		
 		"--trace-ascii"
 		"$http_trace_ascii_file"
-		"--header"
-		"User-Agent: firefox"
 		"--write-out"
 		"${curl_writeout:-"$http_curl_writeout"}"
 		"-o"
