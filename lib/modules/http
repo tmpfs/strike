@@ -19,6 +19,9 @@ export http_base_url="";
 
 declare -Agx http_request_headers;
 
+declare -agx http_command_options;
+http_command_options=();
+
 #have to do this in two steps for arrays
 #direct assignment will cause the http_files array not
 #to be available inside function definitions
@@ -187,7 +190,24 @@ function http_curl {
 	set -o errexit;	
 }
 
-function http_add_request_header {
+######################################################################
+#
+#	Adds a command line option to be passed on when executing curl.
+#
+#	$1	The option name.
+#	$2	The option value.
+#
+######################################################################
+function http.option.add {
+	local name=${1:-};
+	local value=${2:-};	
+	if [ ! -z "$name" ] && [ ! -z "$value" ]; then
+		http_command_options+=( "$name" );
+		http_command_options+=( "$value" );
+	fi
+}
+
+function http_request.add.header {
 	local name="$1";
 	local value="${2:-}";
 	local hname hvalue;

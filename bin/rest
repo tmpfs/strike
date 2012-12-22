@@ -99,7 +99,7 @@ options configure;
 options parse "$@";
 
 # parse custom program options
-rest options_parse "$@";
+rest options.parse "$@";
 
 #exit 0;
 

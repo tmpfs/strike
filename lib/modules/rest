@@ -21,15 +21,32 @@ function rest_get {
 	__rest_print_body;
 }
 
-function rest_options_parse {
+function rest_options.parse {
 	#echo "parsing rest program options..."
+	local name;
 	local value;
 	while [ "${1:-}" != "" ]; do
 		case $1 in
 		--header )
 			shift;
-			http add_request_header "$1";
+			http request.add.header "$1";
 			;;
+		# shortcut for the content type header
+		--type )
+			shift;
+			http request.add.header "content-type: $1";
+			;;
+		# TODO: allow unrecognised options to be passed to curl ..
+		
+		# --* )
+		# 	name=${1:-};
+		# 	shift;
+		# 	value=${1:-};
+		# 	# TODO: validate that the option is a recognised curl option...
+		# 	echo "got unrecognised hyphen option... $name :: $value";
+		# 	http.option.add "$name" "$value";
+		# 	#http add_request_header "$1";
+		# 	;;
 		esac
 		if [ $# -ne 0 ]; then
 			shift;
