@@ -14,11 +14,20 @@ function rest_get {
 	
 	#echo "rest get called... $url";
 	
-	http_curl "GET" "$url";
+	http curl "GET" "$url";
 	#http_curl "GET" "http://google.com";
-	echo "num redirects: $http_response_num_redirects";
-	echo "return code: $http_response_exit_code";
+	#echo "num redirects: $http_response_num_redirects";
+	#echo "return code: $http_response_exit_code";
 	__rest_print_body;
+}
+
+function rest_post {
+	array_pop "$@";
+	local url="$_result";
+	
+	http curl "POST" "$url";
+	
+	__rest_print_body;	
 }
 
 function rest_options.parse {
@@ -36,6 +45,14 @@ function rest_options.parse {
 			shift;
 			http request.add.header "content-type: $1";
 			;;
+		--data )
+			shift;
+			value="$1";
+			echo "got data parameter... :: $value";
+			
+			#http request.add.header "content-type: $1";
+			;;
+			
 		
 		# TODO: allow unrecognised options to be passed to curl ..
 		

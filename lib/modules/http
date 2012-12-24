@@ -13,6 +13,7 @@ export http_head_file="$http_home/http.head";
 export http_body_file="$http_home/http.body";
 export http_trace_file="$http_home/http.trace";
 export http_exit_file="$http_home/http.exit";
+export http_config_file="$http_home/http.config";
 export http_trace_ascii_file="$http_home/http.trace.ascii";
 export http_head_dump_file="$http_home/http.head.dump";
 export http_base_url="";
