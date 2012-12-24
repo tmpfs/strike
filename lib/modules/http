@@ -58,22 +58,12 @@ function http_curl {
 		quit 1 "could not locate curl executable %s" "$cmd";
 	fi
 	
-	#clean any previous rest output
-	if [ -f "$http_output_file" ]; then
-		rm "$http_output_file" > /dev/null;
-	fi
-	if [ -f "$http_exit_file" ]; then
-		rm "$http_exit_file" > /dev/null;
-	fi
-	
-	echo -n "" > "$http_head_file";
-	echo -n "" > "$http_body_file";
-	echo -n "" > "$http_trace_file";
-	echo -n "" > "$http_trace_ascii_file";
-	echo -n "" > "$http_head_dump_file";
+	#ensure all files are removed before we start
+	#so we don't leave any previous request data
+	#around when a request fails
+	http_clean > /dev/null;
 	
 	#ensure we unset all variables before the next request
-	
 	#TODO: move to a method for unsetting by group
 	for opt in ${!http_response_*}
 		do
@@ -155,7 +145,7 @@ function http_curl {
 	local curl_exit_code;
 	
 	set +o errexit;	
-	results=( $( $cmd "${runopts[@]}" || echo -n "$?" > "$http_exit_file" ) );
+	results=( $( $cmd "${runopts[@]}" || echo -n "$?" >> "$http_exit_file" ) );
 	
 	#echo "got command results: ${results[@]}";
 	
@@ -163,6 +153,7 @@ function http_curl {
 	
 	if [ -f "$http_exit_file" ]; then
 		curl_exit_code=`cat "$http_exit_file"`;
+		curl_exit_code=${curl_exit_code:-0};
 	fi
 	
 	echo "got curl exit code: $curl_exit_code";
