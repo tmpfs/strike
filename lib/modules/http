@@ -13,9 +13,9 @@ export http_head_file="$http_home/http.head";
 export http_body_file="$http_home/http.body";
 export http_trace_file="$http_home/http.trace";
 export http_exit_file="$http_home/http.exit";
-export http_config_file="$http_home/http.config";
 export http_trace_ascii_file="$http_home/http.trace.ascii";
 export http_head_dump_file="$http_home/http.head.dump";
+export http_config_file="$http_home/http.config";
 export http_base_url="";
 
 declare -gx http_strict="";
@@ -36,7 +36,8 @@ http_files=(
 	"$http_trace_file"
 	"$http_exit_file"
 	"$http_trace_ascii_file"
-	"$http_head_dump_file" );
+	"$http_head_dump_file"
+	"$http_config_file" );
 
 function http_clean {
 	local f;
@@ -103,10 +104,11 @@ function http_curl {
 	# "User-Agent: firefox"
 	
 	local runopts=(
-		"-X${method}"
+		"--request"
+		"${method}"
 		"--silent"
-		"-L"
-		"-i"
+		"--location"
+		"--include"
 	);
 	
 	local hname hvalue;
@@ -121,12 +123,12 @@ function http_curl {
 		"--dump-header"
 		"$http_head_dump_file"
 		"--trace"
-		"$http_trace_file"		
+		"$http_trace_file"
 		"--trace-ascii"
 		"$http_trace_ascii_file"
 		"--write-out"
 		"${curl_writeout:-"$http_curl_writeout"}"
-		"-o"
+		"--output"
 		"$http_output_file"
 	);
 
@@ -143,6 +145,9 @@ function http_curl {
 	
 	local results=();
 	local curl_exit_code;
+	
+	#write out the options used as a config file
+	__http_write_config "${runopts[@]}";
 	
 	set +o errexit;	
 	results=( $( $cmd "${runopts[@]}" || echo -n "$?" >> "$http_exit_file" ) );
@@ -234,6 +239,9 @@ function http_request.add.header {
 #	PRIVATE METHODS
 #
 ######################################################################
+function __http_write_config {
+	echo "writing config with options: ${@}";
+}
 
 function __http_response_parse_status {
 	local raw="${@:2}";
