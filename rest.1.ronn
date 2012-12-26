@@ -7,7 +7,7 @@ rest(1) -- Generate HTTP requests
 
 ## DESCRIPTION
 
-**rest** generates HTTP requests using curl(1). The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.
+**rest** generates HTTP requests using the http(1) module which wraps curl(1). The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.
 
 ## FILES
 
@@ -28,8 +28,8 @@ Wherever possible **rest** follows the command line options available to curl(1)
 
 ## COPYRIGHT
 
-rest is Copyright (C) 2012 muji <http://xpm.io>
+**rest** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 
-manpages(5), curl(1)
+curl(1)
