@@ -17,7 +17,7 @@ function tasks.doc {
 	eval "$cmd";
 	
 	# also copy the index.txt file
-	cp "${root}/doc/index.txt" "${man}";
+	cp "${root}/doc/index.*" "${man}";
 	
 	# switch out to the develop page
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
@@ -25,7 +25,7 @@ function tasks.doc {
 	$ronn -w -s toc -r5 --markdown ${man}/*.ronn
 	
 	# copy over the temporary man pages
-	cmd="cp "${man}/*" "${root}"";
+	cmd="cp -f "${man}/*" "${root}"";
 	eval "$cmd" \
 		&& $git add . \
 		&& $git commit -m "doc rebuild" \

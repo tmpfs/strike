@@ -1,6 +1,26 @@
 declare -agx method_start_diff_list;
 
 ######################################################################
+#	Removes a method definition.
+#
+#	$1	The name of the method.
+######################################################################
+function method.remove() {
+	unset -f "$1";
+}
+
+######################################################################
+#	Determines whether a method exists.
+#
+#	$1	The name of the method.
+######################################################################
+function method.exists() {
+	set +o errexit;
+	method_exists "$1";
+	return $?;
+}
+
+######################################################################
 #	Determines whether a method has been declared.
 ######################################################################
 function method_exists {
@@ -22,12 +42,6 @@ function strict_method_exists {
 	return $?;
 }
 
-function method.exists {
-	set +o errexit;
-	method_exists "$1";
-	return "$?";
-}
-
 ######################################################################
 #	Lists all function names.
 ######################################################################
@@ -38,15 +52,6 @@ function method_list {
 		do
 			echo "$name";
 	done <<< "$methods";
-}
-
-######################################################################
-#	Removes a method definition.
-#
-#	$1	The name of the method.
-######################################################################
-function method.remove() {
-	unset -f "$1";
 }
 
 function method_start_diff {
