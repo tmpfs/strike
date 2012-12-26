@@ -19,9 +19,8 @@ if [ -L "$abspath" ]; then
 fi
 exedir=`dirname "$abspath"`;
 libdir="$exedir/../lib";
-######################################################################
-
 source "$libdir/shared";
+######################################################################
 
 # test that re-requiring doesn't override previous data
 

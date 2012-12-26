@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -o errtrace;
+set -o errexit;
+set -o nounset;
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+export PROGRAM_NAME=`basename $0`;
+program_config_print_welcome="off";
+program_config_print_prefix="off";
+name=`basename $0`;
+abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+if [ -L "$abspath" ]; then
+	abspath=`readlink $abspath`;
+fi
+exedir=`dirname "$abspath"`;
+libdir="$exedir/../lib";
+source "$libdir/shared";
+######################################################################
+
+#ronn -w -s toc -r5 --markdown man/*.ronn
+
+export filename="tasks";
+function build {
+	local f="${PWD}/${filename}";
+	if [ ! -f "$f" ]; then
+		quit 1 "nothing to build"
+	else
+		require "$f";
+		local cmd="$1";
+		shift;
+		local func="tasks.${cmd}";
+		#invoked the task function
+		$func "$@";
+	fi
+}
+
+build "$@";

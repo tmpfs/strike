@@ -46,7 +46,7 @@ function http_clean {
 	done
 }
 
-function http_initialize {
+function http.initialize {
 	if [ ! -d "$http_home" ]; then
 		mkdirp "$http_home";
 	fi

@@ -1,0 +1,16 @@
+declare -Agx tasks;
+tasks[target]="target";
+
+require 'executable';
+
+function tasks.initialize {
+	executable validate 'ronn';
+}
+
+function tasks.doc {
+	echo "$FUNCNAME :: $@";
+	
+	
+	
+	#ronn -w -s toc -r5 --markdown man/*.ronn
+}

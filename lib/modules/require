@@ -52,6 +52,11 @@ function __require_register {
 	fi
 }
 
+function __require_source {
+	local abs="$1";
+	source "$abs";
+}
+
 function __require_load {
 	local name="${1:-}";
 	
@@ -59,40 +64,49 @@ function __require_load {
 	
 	#echo "got load abs path: $abspath";
 	
+	local abs;
+	local loaded=0;
+	local declared;	
 	if [ ! -z "$name" ]; then
-		
-		local searchpaths=(
-			"$exedir/lib/modules"
-			"$exedir/node_modules/${name}/lib/modules"
-			"$exedir/../node_modules/${name}/lib/modules/"
-			"$exedir/../lib/modules"
-			"$abspath/modules"
-		);
-		
-		local abs;
-		local loaded=0;
-		local declared;
-		for f in ${searchpaths[@]}
-			do
-				#expand_path "$f" > /dev/null;
-				#f="$_result";
-				abs="${f}/${name}";
+		# got a path try to load from absolute path
+		if [[ "$name" =~ ^/ ]]; then
+			abs="$name";
+			name=`basename $abs`;
+			__require_source "$abs";
+			loaded=1;
+		# searching by name
+		else
+			local searchpaths=(
+				"$exedir/lib/modules"
+				"$exedir/node_modules/${name}/lib/modules"
+				"$exedir/../node_modules/${name}/lib/modules/"
+				"$exedir/../lib/modules"
+				"$abspath/modules"
+			);
+			for f in ${searchpaths[@]}
+				do
+					#expand_path "$f" > /dev/null;
+					#f="$_result";
+					abs="${f}/${name}";
 				
-				if [ -f "$abs" ] && [ -r "$abs" ]; then
-					#method_start_diff;
-					source "$abs";
-					#method_end_diff;
-					#declared=( "$_result[@]" );
-					#echo "got declared methods : ${declared[@]}";
-					loaded=1;
-					break;
-				fi
-		done
+					if [ -f "$abs" ] && [ -r "$abs" ]; then
+						#method_start_diff;
+						__require_source "$abs";
+						#method_end_diff;
+						#declared=( "$_result[@]" );
+						#echo "got declared methods : ${declared[@]}";
+						loaded=1;
+						break;
+					fi
+			done
+		
+		fi
 		
 		if [ $loaded -eq 0 ]; then
 			quit 1 "failed to load module %s" "$name";
 		fi
 		
+		# register the module
 		__require_register "$name" "$abs";
 		
 		strict_method_exists "$name";
@@ -111,11 +125,12 @@ function __require_load {
 		fi
 		set -o errexit;
 		
-		strict_method_exists "${name}_initialize";
+		local constructor="${name}.initialize";
+		strict_method_exists "$constructor";
 		exists=$?;
 		set -o errexit;
 		if [ $exists -eq 0 ]; then
-			"${name}_initialize";
+			"$constructor";
 		fi
 	fi
 }
