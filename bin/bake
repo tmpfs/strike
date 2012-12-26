@@ -36,14 +36,19 @@ fi
 export filename="tasks";
 function bake {
 	local f="${PWD}/${filename}";
-	
-	# variables to expose to the task runner
-	local root=`dirname $f`;
-	local target="${root}/target";
-	
 	if [ ! -f "$f" ]; then
 		quit 1 "nothing to build";
 	else
+		# variables to expose to the task(s)
+		local root=`dirname $f`;
+		local target="${root}/target";
+		local tasks="$f";
+	
+		declare -A build;
+		build[root]="$root";
+		build[target]="$target";
+		build[tasks]="$f";
+		
 		require "$f";
 		local cmd="$1";
 		shift;

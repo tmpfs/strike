@@ -24,6 +24,9 @@ The following variables are available to each command method:
 
 * `target`:
 	A temporary `target` directory corresponding to `${root}/target`.
+	
+* `tasks`:
+	The file system path to the tasks file, eg: `${root}/tasks`.
 
 ## BUGS
 
