@@ -12,7 +12,7 @@
 .br
 .
 .SH "DESCRIPTION"
-\fBbake\fR is \fBmake\fR for \fBbash\fR programs\. The \fBbake\fR program does not define any tasks by default but some common shared tasks are available in the \fBmodules/tasks\fR directory and can be included in a tasks file using:
+\fBbake\fR is \fBmake\fR for \fBbash\fR programs\. The \fBbake\fR program does not define any tasks by default but some common shared tasks are available in the \fBmodules/tasks\fR directory and can be included in a tasks file using \fBrequire\fR, for example:
 .
 .IP "" 4
 .
@@ -26,6 +26,17 @@ require \'tasks/clean\';
 .
 .SH "FILES"
 The bake(1) program looks for a \fBtasks\fR file in the current working directory and maps commands to the task methods found in the tasks file\. A command is considered to be the first option passed to the \fBbake\fR executable, any other options specified on the command line are passed to the corresponding task method\.
+.
+.SH "ENVIRONMENT"
+The following variables are available to each command method:
+.
+.TP
+\fBroot\fR
+The directory where the \fBtasks\fR file is located\.
+.
+.TP
+\fBtarget\fR
+A temporary \fBtarget\fR directory corresponding to \fB${root}/target\fR\.
 .
 .SH "BUGS"
 \fBbake\fR is written in bash and depends upon \fBbash\fR >= 4\.
