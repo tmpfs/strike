@@ -10,6 +10,12 @@ Modular `bash` using `require`. Depends upon `bash >= 4` for associative arrays.
 
 Brings structure and modularity to `bash` programs and provides a set of modules that can be used from any `bash` program.
 
+## Generating Documentation
+
+Documentation for the repository is generated using [ronn](https://github.com/rtomayko/ronn) which must be installed, to generate documentation run:
+
+	npm run-script doc
+
 ## Boilerplate
 
 Before using the library functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links), if you have installed the `strike` library as a node module and your executable is in a `bin` directory (sibling of the `node_modules` directory) the boilerplate would look like:
