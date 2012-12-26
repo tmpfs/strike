@@ -1,3 +1,4 @@
+# lists task methods
 function tasks.list {
 	executable validate 'egrep';
 	local egrep="${executables[egrep]}";

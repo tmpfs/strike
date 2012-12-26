@@ -1,3 +1,4 @@
+# removes the temporary target directory
 function tasks.clean {
 	rmdir "${target}";
 }

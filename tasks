@@ -6,6 +6,7 @@ function tasks.initialize {
 	executable validate 'ronn' 'git';
 }
 
+# generates the man page documentation
 function tasks.doc {
 	local ronn="${executables[ronn]}";
 	local git="${executables[git]}";
