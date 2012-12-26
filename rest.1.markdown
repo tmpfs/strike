@@ -17,9 +17,9 @@ The http(1) module generates some temporary files and some files used for loggin
 
 Wherever possible **rest** follows the command line options available to curl(1) but also adds some convenient shortcut options.
 
-	* `--type`:
+ * `--type`:
 		Set the content type for the request.
-	* `-H`, `--header`:
+ * `-H`, `--header`:
 		Set a request header.
 
 ## BUGS
