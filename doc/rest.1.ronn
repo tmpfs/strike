@@ -1,4 +1,4 @@
-rest(1) -- generate HTTP requests
+rest(1) -- Generate HTTP requests
 =============================================
 
 ## SYNOPSIS
@@ -7,4 +7,4 @@ rest(1) -- generate HTTP requests
 
 ## DESCRIPTION
 
-**Rest** generates HTTP requests using a simple command line format.
+**Rest** generates HTTP requests using a command line format.
