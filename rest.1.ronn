@@ -7,4 +7,4 @@ rest(1) -- Generate HTTP requests
 
 ## DESCRIPTION
 
-**Rest** generates HTTP requests using a command line format.
+**Rest** generates HTTP requests using a command line format. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.
