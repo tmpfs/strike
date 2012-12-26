@@ -7,15 +7,20 @@ rest(1) -- Generate HTTP requests
 
 ## DESCRIPTION
 
-**rest** generates HTTP requests using a command line format. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.
+**rest** generates HTTP requests using curl(1). The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.
 
 ## FILES
 
-this is some files text...
+The http(1) module generates some temporary files and some files used for logging purposes.
 
 ## OPTIONS
 
-this is some options text...
+Wherever possible **rest** follows the command line options available to curl(1) but also adds some convenient shortcut options.
+
+	* `--type`:
+		Set the content type for the request.
+	* `-H`, `--header`:
+		Set a request header.
 
 ## BUGS
 
@@ -39,6 +44,7 @@ manpages(5), curl(1)
 
 
 [bake(1)]: 	bake.1.html
+[http(1)]: 	http.1.html
 [rest(1)]: 	rest.1.html
 [curl(1)]: 	http://man.cx/curl(1).html
 [manpages(5)]: 	http://developer.apple.com/mac/library/documentation/Darwin/Reference/ManPages/man5/manpages.5.html.html

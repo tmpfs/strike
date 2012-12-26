@@ -12,13 +12,26 @@
 .br
 .
 .SH "DESCRIPTION"
-\fBrest\fR generates HTTP requests using a command line format\. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS\.
+\fBrest\fR generates HTTP requests using curl(1)\. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS\.
 .
 .SH "FILES"
-this is some files text\.\.\.
+The http(1) module generates some temporary files and some files used for logging purposes\.
 .
 .SH "OPTIONS"
-this is some options text\.\.\.
+Wherever possible \fBrest\fR follows the command line options available to curl(1) but also adds some convenient shortcut options\.
+.
+.IP "" 4
+.
+.nf
+
+* `\-\-type`:
+    Set the content type for the request\.
+* `\-H`, `\-\-header`:
+    Set a request header\.
+.
+.fi
+.
+.IP "" 0
 .
 .SH "BUGS"
 \fBrest\fR is written in bash and depends upon \fBbash\fR >= 4\.

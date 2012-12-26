@@ -86,15 +86,21 @@
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p><strong>rest</strong> generates HTTP requests using a command line format. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.</p>
+<p><strong>rest</strong> generates HTTP requests using <a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a>. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.</p>
 
 <h2 id="FILES">FILES</h2>
 
-<p>this is some files text...</p>
+<p>The <a class="man-ref" href="	http.1.html">http<span class="s">(1)</span></a> module generates some temporary files and some files used for logging purposes.</p>
 
 <h2 id="OPTIONS">OPTIONS</h2>
 
-<p>this is some options text...</p>
+<p>Wherever possible <strong>rest</strong> follows the command line options available to <a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a> but also adds some convenient shortcut options.</p>
+
+<pre><code>* `--type`:
+    Set the content type for the request.
+* `-H`, `--header`:
+    Set a request header.
+</code></pre>
 
 <h2 id="BUGS">BUGS</h2>
 
