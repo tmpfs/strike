@@ -109,7 +109,8 @@ rest options.parse "$@";
 #exit 0;
 
 #always add the url as the last option
-module_options+="$rest_request_url";
+module_options+=( "$rest_request_url" );
+#module_options+=();
 
 main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
 

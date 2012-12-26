@@ -36,8 +36,7 @@ http_files=(
 	"$http_trace_file"
 	"$http_exit_file"
 	"$http_trace_ascii_file"
-	"$http_head_dump_file"
-	"$http_config_file" );
+	"$http_head_dump_file" );
 
 function http_clean {
 	local f;
@@ -241,6 +240,41 @@ function http_request.add.header {
 ######################################################################
 function __http_write_config {
 	echo "writing config with options: ${@}";
+	
+	local f="$http_config_file";
+	
+	#empty the config file
+	echo -n > "$f";
+	
+	local opts=( "$@" );
+	
+	local l=$#;
+	local i val next;
+	for((i = 0;i < l;i++))
+		do
+			val=${opts[$i]};
+			next=${opts[i+1]:-};
+			echo "got opt: $i .. $val";	
+			
+			# got more options to deal with	
+			if [ ! -z "$next" ]; then
+				echo "got next.. $next";
+				if [[ ! "$next" =~ ^--[a-z] ]]; then
+					echo "got next value with :: $next";
+					echo "$val=\"$next\"" >> "$f";
+					i=$[i + 1];
+					continue;
+				else
+					echo "$val" >> "$f";
+				fi
+			# nothing left so at end of options
+			else
+				echo "got last parameter: $val : $i";
+				
+				# last option should be the URL pattern
+				echo "--url=\"$val\"" >> "$f";
+			fi
+	done
 }
 
 function __http_response_parse_status {
@@ -256,11 +290,12 @@ function __http_response_parse_status {
 	for opt in ${@}
 		do
 			# echo "got opt : $opt";
+			#TODO : change this to += 
 			opts=( "${opts[@]:-}" "$opt" );
 	done
 	
-	#omit the first empty element in the array
 	eval "export http_header_${index}_raw='${raw}'";
+	#skip the first empty element in the array
 	export "http_header_${index}_http="${opts[1]:-}"";
 	export "http_header_${index}_status="${opts[2]:-}"";
 	export "http_header_${index}_message="${opts[3]:-}"";

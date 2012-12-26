@@ -27,7 +27,7 @@ function rest_post {
 	
 	http curl "POST" "$url";
 	
-	__rest_print_body;	
+	__rest_print_body;
 }
 
 function rest_options.parse {
