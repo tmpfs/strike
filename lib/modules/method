@@ -14,10 +14,18 @@ function method_exists {
 #	Determines whether a method has been declared, when running with
 #	errexit on.
 ######################################################################
+
+# DEPRECATED
 function strict_method_exists {
 	set +o errexit;
 	method_exists "$1";
 	return $?;
+}
+
+function method.exists {
+	set +o errexit;
+	method_exists "$1";
+	return "$?";
 }
 
 ######################################################################

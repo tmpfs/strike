@@ -49,6 +49,14 @@ function bake {
 		shift;
 		local func="tasks.${cmd}";
 		
+		method.exists "$func";
+		if [ $? -ne 0 ]; then
+			quit 1 "task %s not found" "$cmd";
+		fi
+		
+		# switch back strict error checking
+		set -o errexit;
+		
 		#TODO: check method exists
 		
 		#invoked the task function
