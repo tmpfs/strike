@@ -9,7 +9,7 @@ The http(1) module wraps curl(1) to provide easy access to HTTP(S) functionality
 
 The http(1) module generates some temporary files and some files used for logging purposes stored in the `$HOME/.http` directory.
 
-## Temporary Files
+## TEMPORARY FILES
 
 These are files that correspond to the last request made by the http(1) module.
 
@@ -46,7 +46,7 @@ curl(1), rest(1)
 
 [DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
 [FILES]: #FILES "FILES"
-[Temporary Files]: #Temporary-Files "Temporary Files"
+[TEMPORARY FILES]: #TEMPORARY-FILES "TEMPORARY FILES"
 [BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
