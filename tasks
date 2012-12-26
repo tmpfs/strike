@@ -1,5 +1,4 @@
 require 'executable';
-
 require 'tasks/clean';
 
 function tasks.initialize {
@@ -16,10 +15,10 @@ function tasks.doc {
 	local cmd="cp "${root}/doc/*.ronn" "${man}"";
 	eval "$cmd";
 	
-	# also copy the index.txt file
+	# also copy the index.* files over
 	eval "cp "${root}/doc/index.*" "${man}"";
 	
-	# switch out to the develop page
+	# check out the gh-pages branch
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
 	
 	$ronn -w -s toc -r5 --markdown ${man}/*.ronn
