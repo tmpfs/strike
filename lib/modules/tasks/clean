@@ -1,4 +1,8 @@
 # removes the temporary target directory
 function tasks.clean {
-	rmdir "${target}";
+	if [ -d "${target}" ]; then
+		rmdir "${target}";
+		return $?;
+	fi
+	return 0;
 }

@@ -33,10 +33,9 @@ if [ $# -eq 0 ]; then
 	exit 1;
 fi
 
-export filename="tasks";
 function bake {
 	local nm="tasks";
-	local f="${PWD}/${filename}";
+	local f="${PWD}/${nm}";
 	if [ ! -f "$f" ]; then
 		quit 1 "no %s file in %s" "$nm" "${PWD}";
 	else
