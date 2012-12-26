@@ -55,7 +55,7 @@ function bake {
 		# switch back strict error checking
 		set -o errexit;
 		
-		#invoked the task function
+		# invoke  the task function
 		$func "$@" || quit 3 "task %s failed" "$func";
 	fi
 }
