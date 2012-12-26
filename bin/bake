@@ -42,25 +42,21 @@ function bake {
 	local target="${root}/target";
 	
 	if [ ! -f "$f" ]; then
-		quit 1 "nothing to build"
+		quit 1 "nothing to build";
 	else
 		require "$f";
 		local cmd="$1";
 		shift;
 		local func="tasks.${cmd}";
-		
 		method.exists "$func";
 		if [ $? -ne 0 ]; then
-			quit 1 "task %s not found" "$cmd";
+			quit 2 "task %s not found" "$cmd";
 		fi
 		
 		# switch back strict error checking
 		set -o errexit;
-		
-		#TODO: check method exists
-		
 		#invoked the task function
-		$func "$@";
+		$func "$@" || quit 3 "task %s failed" "$func";
 	fi
 }
 
