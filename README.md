@@ -14,7 +14,7 @@ Brings structure and modularity to `bash` programs and provides a set of modules
 
 Documentation for the repository is generated using [ronn](https://github.com/rtomayko/ronn) which must be installed, to generate documentation run:
 
-	npm run-script doc
+	./bin/bake doc
 
 ## Boilerplate
 
