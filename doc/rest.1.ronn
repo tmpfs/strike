@@ -3,7 +3,7 @@ rest(1) -- generate HTTP requests
 
 ## SYNOPSIS
 
-`rest` command [<options>...] <url>...<br>
+`rest` command [<options>...] <url><br>
 
 ## DESCRIPTION
 

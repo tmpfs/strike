@@ -16,7 +16,7 @@
 	"engine": [ "node >= 0.8.11" ],
 	"scripts": {
 		"test": "./bin/runner",
-		"doc": "ronn ./man/*.ronn"
+		"doc": "ronn ./doc/*.ronn"
 	},
 	"config" : {}
 }
