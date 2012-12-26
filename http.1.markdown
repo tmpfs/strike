@@ -28,7 +28,7 @@ These are files that correspond to the last request made by the http(1) module.
 * `http.exit`:
 	Contains a non-zero exit code for curl(1).
 * `http.config`:
-	A configuration file suitable for passing to the `--config` option of curl(1) corresponding to the last request.
+	A configuration file corresponding to the last request suitable for passing to the `--config` option of curl(1).
 
 ## BUGS
 
