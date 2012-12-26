@@ -22,7 +22,8 @@ function tasks.doc {
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
 	
 	# copy over the temporary man pages
-	cp "${man}/*" "${root}";
+	cmd="cp "${man}/*" "${root}"";
+	eval "$cmd";
 	
 	# switch back to the develop branch
 	$git checkout develop;
