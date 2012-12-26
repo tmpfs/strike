@@ -23,7 +23,11 @@ function tasks.doc {
 	
 	# copy over the temporary man pages
 	cmd="cp "${man}/*" "${root}"";
-	eval "$cmd";
+	eval "$cmd" \
+		&& $git commit -m "doc rebuild" \
+		&& $git ls-files \
+		&& $git push origin gh-pages \
+		|| quit 1 "could not rebuild docs";
 	
 	# switch back to the develop branch
 	$git checkout develop;
