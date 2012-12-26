@@ -22,7 +22,7 @@ libdir="$exedir/../lib";
 source "$libdir/shared";
 ######################################################################
 
-# TODO: add version handling
+# TODO: add --version handling
 
 function usage {
 	echo "$PROGRAM_NAME task [options]";
@@ -35,31 +35,27 @@ fi
 
 export filename="tasks";
 function bake {
+	local nm="tasks";
 	local f="${PWD}/${filename}";
 	if [ ! -f "$f" ]; then
-		quit 1 "nothing to build";
+		quit 1 "no %s file in %s" "$nm" "${PWD}";
 	else
 		# variables to expose to the task(s)
 		local root=`dirname $f`;
 		local target="${root}/target";
 		local tasks="$f";
-	
-		declare -A build;
-		build[root]="$root";
-		build[target]="$target";
-		build[tasks]="$f";
 		
 		require "$f";
 		local cmd="$1";
 		shift;
-		local func="tasks.${cmd}";
+		local func="${nm}.${cmd}";
 		method.exists "$func";
 		if [ $? -ne 0 ]; then
 			quit 2 "task %s not found" "$cmd";
 		fi
-		
 		# switch back strict error checking
 		set -o errexit;
+		
 		#invoked the task function
 		$func "$@" || quit 3 "task %s failed" "$func";
 	fi
