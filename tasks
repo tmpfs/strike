@@ -18,7 +18,12 @@ function tasks.doc {
 	local cmd="cp "${root}/doc/*.ronn" "${man}"";
 	eval "$cmd";
 	
-	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty"
+	# switch out to the develop page
+	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
 	
-	#ronn -w -s toc -r5 --markdown man/*.ronn
+	# copy over the temporary man pages
+	cp "${man}/*" "${root}";
+	
+	# switch back to the develop branch
+	$git checkout develop;
 }
