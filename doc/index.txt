@@ -1,5 +1,6 @@
 # manuals
 bake(1)     	bake.1.ronn
+http(1)     	http.1.ronn
 rest(1)     	rest.1.ronn
 
 # external manuals
