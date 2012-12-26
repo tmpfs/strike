@@ -24,7 +24,7 @@ function tasks.doc {
 	# copy over the temporary man pages
 	cmd="cp "${man}/*" "${root}"";
 	eval "$cmd" \
-		&& $git add .
+		&& $git add . \
 		&& $git commit -m "doc rebuild" \
 		&& $git ls-files \
 		&& $git push origin gh-pages \
