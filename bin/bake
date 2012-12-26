@@ -22,11 +22,14 @@ libdir="$exedir/../lib";
 source "$libdir/shared";
 ######################################################################
 
-#ronn -w -s toc -r5 --markdown man/*.ronn
-
 export filename="tasks";
-function build {
+function bake {
 	local f="${PWD}/${filename}";
+	
+	# variables to expose to the task runner
+	local root=`dirname $f`;
+	local target="${root}/target";
+	
 	if [ ! -f "$f" ]; then
 		quit 1 "nothing to build"
 	else
@@ -34,9 +37,12 @@ function build {
 		local cmd="$1";
 		shift;
 		local func="tasks.${cmd}";
+		
+		#TODO: check method exists
+		
 		#invoked the task function
 		$func "$@";
 	fi
 }
 
-build "$@";
+bake "$@";

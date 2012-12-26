@@ -7,10 +7,21 @@ function tasks.initialize {
 	executable validate 'ronn';
 }
 
+function tasks.clean {
+	rmdir "${target}";
+}
+
 function tasks.doc {
-	echo "$FUNCNAME :: $@";
+	local ronn="${executables[ronn]}";
 	
+	#echo "$FUNCNAME :: $ronn";
 	
+	local man="${target}/man";
+	
+	#echo "got man : $man"
+	
+	mkdirp "$man";
+	copy "${root}/doc/*.ronn" "${man}";
 	
 	#ronn -w -s toc -r5 --markdown man/*.ronn
 }
