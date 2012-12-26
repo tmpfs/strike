@@ -1,5 +1,6 @@
 require 'executable';
 require 'tasks/clean';
+require 'tasks/list';
 
 function tasks.initialize {
 	executable validate 'ronn' 'git';

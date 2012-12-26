@@ -16,18 +16,37 @@ function method.remove() {
 ######################################################################
 function method.exists() {
 	set +o errexit;
-	method_exists "$1";
+	__method_exists "$1";
 	return $?;
 }
 
+
 ######################################################################
-#	Determines whether a method has been declared.
+#	Lists all function names.
 ######################################################################
-function method_exists {
-	local method="$1";
-	#echo "testing method $method"
-	declare -f -F "$method" > /dev/null;
-	return $?;
+function method.list() {
+	local methods=$( declare -f -F );
+	local parts;
+	while read decl func name
+		do
+			echo "$name";
+	done <<< "$methods";
+}
+
+######################################################################
+#	Lists all function names, line numbers and source file paths.
+######################################################################
+function method.list.verbose() {
+	local m;
+	local methods=( $( method.list ) );
+	for m in ${methods[@]}
+		do
+			# turn on extended shell debugging			
+			shopt -s extdebug;
+			declare -F "$m";
+			# turn off extended shell debugging
+			shopt -u extdebug;
+	done
 }
 
 ######################################################################
@@ -38,20 +57,8 @@ function method_exists {
 # DEPRECATED
 function strict_method_exists {
 	set +o errexit;
-	method_exists "$1";
+	__method_exists "$1";
 	return $?;
-}
-
-######################################################################
-#	Lists all function names.
-######################################################################
-function method_list {
-	local methods=$( declare -f -F );
-	local parts;
-	while read decl func name
-		do
-			echo "$name";
-	done <<< "$methods";
 }
 
 function method_start_diff {
@@ -81,4 +88,24 @@ function method_end_diff {
 	#echo "got method end diff declared: ${declared[@]}";	
 	method_start_diff_list=();
 	_result=( "${declared[@]}" );
+}
+
+
+
+
+
+
+
+
+
+
+
+######################################################################
+#	Determines whether a method has been declared.
+######################################################################
+function __method_exists {
+	local method="$1";
+	#echo "testing method $method"
+	declare -f -F "$method" > /dev/null;
+	return $?;
 }
