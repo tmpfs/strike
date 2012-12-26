@@ -28,7 +28,7 @@ function tasks.doc {
 		&& $git commit -m "doc rebuild" \
 		&& $git ls-files \
 		&& $git push origin gh-pages \
-		|| $git checkout develop && quit 1 "could not rebuild docs";
+		|| [ $git checkout develop && quit 1 "could not rebuild docs" ];
 	
 	# switch back to the develop branch
 	$git checkout develop;
