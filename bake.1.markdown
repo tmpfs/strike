@@ -31,9 +31,9 @@ The following variables are available to each command method:
 ## EXIT CODES
 
 * `1`:
-	No `tasks` file available in the current working directory.
+	No tasks file available in the current working directory.
 * `2`:
-	No `tasks` command method available.
+	No tasks command method available.
 * `3`:
 	The task method invocation exited with a non-zero exit code.
 
