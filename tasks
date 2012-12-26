@@ -17,7 +17,7 @@ function tasks.doc {
 	eval "$cmd";
 	
 	# also copy the index.txt file
-	cp "${root}/doc/index.*" "${man}";
+	eval "cp "${root}/doc/index.*" "${man}"";
 	
 	# switch out to the develop page
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
