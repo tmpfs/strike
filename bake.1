@@ -38,6 +38,24 @@ The directory where the \fBtasks\fR file is located\.
 \fBtarget\fR
 A temporary \fBtarget\fR directory corresponding to \fB${root}/target\fR\.
 .
+.TP
+\fBtasks\fR
+The file system path to the tasks file, eg: \fB${root}/tasks\fR\.
+.
+.SH "EXIT CODES"
+.
+.TP
+\fB1\fR
+No \fBtasks\fR file available in the current working directory\.
+.
+.TP
+\fB2\fR
+No \fBtasks\fR command method available\.
+.
+.TP
+\fB3\fR
+The task method invocation exited with a non\-zero exit code\.
+.
 .SH "BUGS"
 \fBbake\fR is written in bash and depends upon \fBbash\fR >= 4\.
 .

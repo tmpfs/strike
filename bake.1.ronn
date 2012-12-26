@@ -24,6 +24,18 @@ The following variables are available to each command method:
 
 * `target`:
 	A temporary `target` directory corresponding to `${root}/target`.
+	
+* `tasks`:
+	The file system path to the tasks file, eg: `${root}/tasks`.
+	
+## EXIT CODES
+
+* `1`:
+	No `tasks` file available in the current working directory.
+* `2`:
+	No `tasks` command method available.
+* `3`:
+	The task method invocation exited with a non-zero exit code.
 
 ## BUGS
 
