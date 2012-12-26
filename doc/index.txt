@@ -3,6 +3,7 @@ bake(1)     	bake.1.ronn
 rest(1)     	rest.1.ronn
 
 # external manuals
+curl(1)     	http://man.cx/curl(1)
 # roff(7)     	http://man.cx/roff(7)
 # grep(1)     	http://man.cx/grep(1)
 # groff(1)    	http://man.cx/groff(1)
