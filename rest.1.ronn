@@ -1,4 +1,4 @@
-rest(1) -- Generate HTTP requests
+rest(1) -- generate HTTP requests
 =============================================
 
 ## SYNOPSIS
