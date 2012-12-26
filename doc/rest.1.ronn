@@ -19,6 +19,7 @@ Wherever possible **rest** follows the command line options available to curl(1)
 
 * `--type`:
 	Set the content type for the request.
+
 * `-H`, `--header`:
 	Set a request header.
 
