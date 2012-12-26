@@ -1,10 +1,7 @@
-declare -Agx tasks;
-tasks[target]="target";
-
 require 'executable';
 
 function tasks.initialize {
-	executable validate 'ronn';
+	executable validate 'ronn' 'git';
 }
 
 function tasks.clean {
@@ -13,15 +10,15 @@ function tasks.clean {
 
 function tasks.doc {
 	local ronn="${executables[ronn]}";
-	
-	#echo "$FUNCNAME :: $ronn";
-	
+	local git="${executables[git]}";
 	local man="${target}/man";
-	
-	#echo "got man : $man"
-	
 	mkdirp "$man";
-	copy "${root}/doc/*.ronn" "${man}";
+	
+	# copy all source .ronn to target/man
+	local cmd="cp "${root}/doc/*.ronn" "${man}"";
+	eval "$cmd";
+	
+	$git checkout gh-pages || quit 1 "could not checkout pages branch, may be dirty"
 	
 	#ronn -w -s toc -r5 --markdown man/*.ronn
 }
