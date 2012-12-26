@@ -38,4 +38,8 @@ manpages(5), curl(1)
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
+[bake(1)]: 	bake.1.html
+[rest(1)]: 	rest.1.html
+[curl(1)]: 	http://man.cx/curl(1).html
+[manpages(5)]: 	http://developer.apple.com/mac/library/documentation/Darwin/Reference/ManPages/man5/manpages.5.html.html
 [rest(1)]: rest.1.html
