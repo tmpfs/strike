@@ -1,0 +1,10 @@
+rest(1) -- Generate HTTP requests
+=============================================
+
+## SYNOPSIS
+
+`rest` command [<options>...] <url><br>
+
+## DESCRIPTION
+
+**Rest** generates HTTP requests using a command line format.
