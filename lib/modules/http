@@ -239,7 +239,7 @@ function http_request.add.header {
 #
 ######################################################################
 function __http_write_config {
-	echo "writing config with options: ${@}";
+	#echo "writing config with options: ${@}";
 	
 	local f="$http_config_file";
 	
@@ -254,13 +254,14 @@ function __http_write_config {
 		do
 			val=${opts[$i]};
 			next=${opts[i+1]:-};
-			echo "got opt: $i .. $val";	
+			
+			#echo "got opt: $i .. $val";
 			
 			# got more options to deal with	
 			if [ ! -z "$next" ]; then
-				echo "got next.. $next";
+				#echo "got next.. $next";
 				if [[ ! "$next" =~ ^--[a-z] ]]; then
-					echo "got next value with :: $next";
+					# echo "got next value with :: $next";
 					echo "$val=\"$next\"" >> "$f";
 					i=$[i + 1];
 					continue;
@@ -269,7 +270,7 @@ function __http_write_config {
 				fi
 			# nothing left so at end of options
 			else
-				echo "got last parameter: $val : $i";
+				#echo "got last parameter: $val : $i";
 				
 				# last option should be the URL pattern
 				echo "--url=\"$val\"" >> "$f";
