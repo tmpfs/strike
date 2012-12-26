@@ -1,11 +1,9 @@
 require 'executable';
 
+require 'tasks/clean';
+
 function tasks.initialize {
 	executable validate 'ronn' 'git';
-}
-
-function tasks.clean {
-	rmdir "${target}";
 }
 
 function tasks.doc {
@@ -18,10 +16,10 @@ function tasks.doc {
 	local cmd="cp "${root}/doc/*.ronn" "${man}"";
 	eval "$cmd";
 	
-	$ronn -w -s toc -r5 --markdown ${man}/*.ronn
-	
 	# switch out to the develop page
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
+	
+	$ronn -w -s toc -r5 --markdown ${man}/*.ronn
 	
 	# copy over the temporary man pages
 	cmd="cp "${man}/*" "${root}"";

@@ -91,6 +91,7 @@ function __require_load {
 				
 					if [ -f "$abs" ] && [ -r "$abs" ]; then
 						#method_start_diff;
+						name=`basename $abs`;
 						__require_source "$abs";
 						#method_end_diff;
 						#declared=( "$_result[@]" );
