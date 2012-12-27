@@ -86,19 +86,17 @@
 
 <p>If you have installed the <code>strike</code> library as a node module and your executable is in a <code>bin</code> directory (sibling of the <code>node_modules</code> directory) the boilerplate would look like:</p>
 
-<pre><code>######################################################################
-#
-#   BOILERPLATE
-#
-######################################################################
-abspath=$(cd ${BASH_SOURCE[0]%/*} &amp;&amp; echo $PWD/${0##*/});
-if [ -L "$abspath" ]; then
-    abspath=`readlink $abspath`;
-fi
-exedir=`dirname "$abspath"`;
-libdir="$exedir/../node_modules/strike/lib";
-source "$libdir/shared";
-######################################################################
+<pre><code>declare -gx exedir;
+function boilerplate {
+    local abspath=$(cd ${BASH_SOURCE[0]%/*} &amp;&amp; echo $PWD/${0##*/});
+    if [ -L "$abspath" ]; then
+        abspath=`readlink $abspath`;
+    fi
+    exedir=`dirname "$abspath"`;
+    local libdir="$exedir/../lib";
+    source "$libdir/shared";
+}
+boilerplate;
 </code></pre>
 
 <h2 id="BUGS">BUGS</h2>

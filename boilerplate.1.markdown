@@ -9,19 +9,17 @@ Before using the strike(1) modules and functions you need to include some boiler
 
 If you have installed the `strike` library as a node module and your executable is in a `bin` directory (sibling of the `node_modules` directory) the boilerplate would look like:
 
-	######################################################################
-	#
-	#	BOILERPLATE
-	#
-	######################################################################
-	abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-	if [ -L "$abspath" ]; then
-		abspath=`readlink $abspath`;
-	fi
-	exedir=`dirname "$abspath"`;
-	libdir="$exedir/../node_modules/strike/lib";
-	source "$libdir/shared";
-	######################################################################
+	declare -gx exedir;
+	function boilerplate {
+		local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+		if [ -L "$abspath" ]; then
+			abspath=`readlink $abspath`;
+		fi
+		exedir=`dirname "$abspath"`;
+		local libdir="$exedir/../lib";
+		source "$libdir/shared";
+	}
+	boilerplate;
 
 ## BUGS
 
