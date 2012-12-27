@@ -38,7 +38,7 @@ http_files=(
 	"$http_trace_ascii_file"
 	"$http_head_dump_file" );
 
-function http_clean {
+function http.clean {
 	local f;
 	for f in ${http_files[@]}
 		do
@@ -61,7 +61,7 @@ function http_curl {
 	#ensure all files are removed before we start
 	#so we don't leave any previous request data
 	#around when a request fails
-	http_clean > /dev/null;
+	http.clean > /dev/null;
 	
 	#ensure we unset all variables before the next request
 	#TODO: move to a method for unsetting by group

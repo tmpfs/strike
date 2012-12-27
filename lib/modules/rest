@@ -6,7 +6,9 @@ require 'http';
 #rest_parameters=();
 
 function rest_clean {
-	http clean;
+	info "cleaning files in %s" "$http_home";
+	http.clean > /dev/null || quit 1 "error cleaning files in %s" "$http_home";
+	success "clean complete";
 }
 
 function rest_get {
@@ -20,6 +22,7 @@ function rest_get {
 }
 
 function rest_redo {
+	info "using %s" "$http_config_file";
 	echo "rest redo called...";
 	
 	#http curl "GET" "$url";
@@ -28,6 +31,14 @@ function rest_redo {
 	#echo "return code: $http_response_exit_code";
 	
 	#__rest_print_body;
+}
+
+function rest_config {
+	if [ -f "$http_config_file" ]; then
+		cat "$http_config_file";
+	else
+		quit 1 "no config file %s" "$http_config_file";
+	fi
 }
 
 function rest_post {
