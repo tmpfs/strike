@@ -19,6 +19,14 @@ function rest_get {
 	# __rest_print_body;
 }
 
+function rest_head {
+	array.pop "$@";
+	local url="$_result";
+	http curl "GET" "$url" "--head";
+	
+	__rest_print_body;
+}
+
 function rest_post {
 	array.pop "$@";
 	local url="$_result";
