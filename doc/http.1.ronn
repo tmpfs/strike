@@ -1,4 +1,4 @@
-http(1) -- strike http module using curl(1) 
+http(1) -- http(s) module using curl(1) 
 =============================================
 
 ## DESCRIPTION
@@ -33,6 +33,10 @@ These are files that correspond to the last request made by the http(1) module.
 	Contains the curl(1) stdout output.
 * `http.config`:
 	A configuration file corresponding to the last request suitable for passing to the `--config` option of curl(1).
+	
+## DEPENDENCIES
+
+The http(1) module is dependent upon curl(1) and tee(1).
 
 ## BUGS
 
@@ -46,4 +50,4 @@ This module not been tested when multiple URLs are specified (eg: `http://site.{
 
 ## SEE ALSO
 
-curl(1), rest(1)
+curl(1), tee(1), rest(1)

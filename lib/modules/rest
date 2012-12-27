@@ -2,9 +2,6 @@ require 'http';
 
 #TODO: implement get/post/put/delete etc
 
-#declare -agx rest_parameters;
-#rest_parameters=();
-
 ######################################################################
 #
 #	HTTP verb commands
