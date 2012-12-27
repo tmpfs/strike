@@ -105,22 +105,20 @@ options parse "$@";
 # parse custom program options
 rest options.parse "$@";
 
-#exit 0;
+function rest.query.string() {
+	url.params.stringify;
+	params="$_result";
+	if [ ! -z "$params" ]; then
+		rest_request_url="${rest_request_url}${params}";
+	fi
+}
 
-# concatenate query string parameters
-rest_parameters=${rest_parameters[@]:-};
-if [ ${#rest_parameters} -gt 0 ]; then
-	echo "GOT REST PARAMETERS ${#rest_parameters[@]}";	
-	#echo "GOT REST PARAMETERS ${rest_parameters[@]}";
-	echo "GOT REST PARAMETERS ${rest_parameters[0]}";
-	echo "GOT REST PARAMETERS ${rest_parameters[1]}";
-	url query.string "${rest_parameters[@]}";
-	rest_request_url="${rest_request_url}${_result}";
-fi
+# append any query string parameters
+# to the request url
+rest.query.string;
 
 #always add the url as the last option
 module_options+=( "$rest_request_url" );
-#module_options+=();
 
 main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
 

@@ -5,7 +5,7 @@ function array_contains {
 	return 1;
 }
 
-function array_pop {
+function array.pop {
 	#local arr=( "$@" );
 	#_result=arr[${#arr[@]}-1];
 	#unset arr[${#arr[@]}-1];

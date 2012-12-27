@@ -2,28 +2,36 @@ require 'http';
 
 #TODO: implement get/post/put/delete etc
 
-declare -agx rest_parameters;
-rest_parameters=();
+#declare -agx rest_parameters;
+#rest_parameters=();
 
 function rest_clean {
 	http clean;
 }
 
 function rest_get {
-	array_pop "$@";
+	array.pop "$@";
 	local url="$_result";
-	
-	#echo "rest get called... $url";
-	
 	http curl "GET" "$url";
 	#http_curl "GET" "http://google.com";
 	#echo "num redirects: $http_response_num_redirects";
 	#echo "return code: $http_response_exit_code";
+	__rest_print_body;
+}
+
+function rest_redo {
+	echo "rest redo called...";
+	
+	#http curl "GET" "$url";
+	#http_curl "GET" "http://google.com";
+	#echo "num redirects: $http_response_num_redirects";
+	#echo "return code: $http_response_exit_code";
+	
 	#__rest_print_body;
 }
 
 function rest_post {
-	array_pop "$@";
+	array.pop "$@";
 	local url="$_result";
 	
 	http curl "POST" "$url";
@@ -35,10 +43,9 @@ function rest_options.parse {
 	#echo "parsing rest program options..."
 	local name;
 	local value;
-	rest_parameters=();
 	while [ "${1:-}" != "" ]; do
 		
-		echo "got option: $1";
+		#echo "got option: $1";
 		
 		case $1 in
 		-H | --header )
@@ -50,17 +57,13 @@ function rest_options.parse {
 			shift;
 			http request.add.header "content-type: $1";
 			;;
-		# specify query string parameter(s), repeatable
+		# query string parameter(s), repeatable
 		--param )
 			shift;
 			name="${1:-}";
 			shift;
 			value="${1:-}";
-			#echo $IFS;
-			rest_parameters+=( "${name}=${value}" );
-			echo "GOT QUERY STRING PARAM ${name} :: ${value}";
-			# echo "GOT QUERY STRING PARAM ${rest_parameters[@]}";
-			echo "GOT QUERY STRING PARAM ${#rest_parameters[@]}";
+			url.params.add "$name" "$value";
 			;;
 		--data )
 			shift;
