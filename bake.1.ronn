@@ -45,3 +45,7 @@ The following variables are available to each command method:
 ## COPYRIGHT
 
 **bake** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+strike(1), boilerplate(3), require(3), method(3), http(1), bake(1), rest(1)

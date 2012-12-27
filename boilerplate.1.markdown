@@ -42,7 +42,8 @@ strike(1)
 
 [strike(1)]: 	strike.1.html
 [boilerplate(3)]: boilerplate.3.html
-[method(1)]: 	method.1.html
+[require(3)]: 	require.3.html
+[method(3)]: 	method.3.html
 [http(1)]: 	http.1.html
 [bake(1)]: 	bake.1.html
 [rest(1)]: 	rest.1.html

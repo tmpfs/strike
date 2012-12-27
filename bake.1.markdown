@@ -46,6 +46,10 @@ The following variables are available to each command method:
 
 **bake** is copyright (c) 2012 muji <http://xpm.io>
 
+## SEE ALSO
+
+strike(1), boilerplate(3), require(3), method(3), http(1), bake(1), rest(1)
+
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
 [DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
 [FILES]: #FILES "FILES"
@@ -53,11 +57,13 @@ The following variables are available to each command method:
 [EXIT CODES]: #EXIT-CODES "EXIT CODES"
 [BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: 	strike.1.html
 [boilerplate(3)]: boilerplate.3.html
-[method(1)]: 	method.1.html
+[require(3)]: 	require.3.html
+[method(3)]: 	method.3.html
 [http(1)]: 	http.1.html
 [bake(1)]: 	bake.1.html
 [rest(1)]: 	rest.1.html

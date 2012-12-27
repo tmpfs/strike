@@ -21,10 +21,6 @@ If you have installed the `strike` library as a node module and your executable 
 	}
 	boilerplate;
 
-## BUGS
-
-**boilerplate** is written in bash and depends upon `bash` >= 4.
-
 ## COPYRIGHT
 
 **boilerplate** is copyright (c) 2012 muji <http://xpm.io>
@@ -35,14 +31,14 @@ strike(1)
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
 [CODE]: #CODE "CODE"
-[BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: 	strike.1.html
 [boilerplate(3)]: boilerplate.3.html
-[method(1)]: 	method.1.html
+[require(3)]: 	require.3.html
+[method(3)]: 	method.3.html
 [http(1)]: 	http.1.html
 [bake(1)]: 	bake.1.html
 [rest(1)]: 	rest.1.html
