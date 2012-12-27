@@ -22,6 +22,13 @@ The rest(1) program expects the first option to be a command, below is the list 
 	
 	`rest get google.com`
 	
+* `head`:
+	Perform a HEAD request:
+
+	`rest head google.com`
+	
+	Note that this command does not use the `--request HEAD` option as curl(1) tends to hang when using the HEAD verb, instead this command uses the `--head` option along with a GET request method.
+	
 * `dl`:
 	Download a file:
 

@@ -101,6 +101,11 @@
 <dt class="flush"><code>get</code></dt><dd><p>  Perform a GET request:</p>
 
 <p>  <code>rest get google.com</code></p></dd>
+<dt class="flush"><code>head</code></dt><dd><p>  Perform a HEAD request:</p>
+
+<p>  <code>rest head google.com</code></p>
+
+<p>  Note that this command does not use the <code>--request HEAD</code> option as <a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a> tends to hang when using the HEAD verb, instead this command uses the <code>--head</code> option along with a GET request method.</p></dd>
 <dt class="flush"><code>dl</code></dt><dd><p>  Download a file:</p>
 
 <p>  <code>rest dl google.com/index.html</code></p></dd>

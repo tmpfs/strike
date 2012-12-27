@@ -28,6 +28,16 @@ Perform a GET request:
 \fBrest get google\.com\fR
 .
 .TP
+\fBhead\fR
+Perform a HEAD request:
+.
+.IP
+\fBrest head google\.com\fR
+.
+.IP
+Note that this command does not use the \fB\-\-request HEAD\fR option as curl(1) tends to hang when using the HEAD verb, instead this command uses the \fB\-\-head\fR option along with a GET request method\.
+.
+.TP
 \fBdl\fR
 Download a file:
 .
