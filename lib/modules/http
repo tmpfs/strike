@@ -17,10 +17,14 @@ export http_trace_ascii_file="$http_home/http.trace.ascii";
 export http_head_dump_file="$http_home/http.head.dump";
 export http_config_dir="$http_home/config";
 export http_config_file="$http_home/http.config";
-export http_error_file="$http_home/http.err";
+export http_stderr_file="$http_home/http.stderr";
+export http_stdout_file="$http_home/http.stdout";
 export http_config_name="";
 export http_base_url="";
 
+# determines whether to quit when curl(1)
+# returns a non-zero exit code, set to a
+# non-blank string to switch on
 declare -gx http_strict="";
 
 declare -Agx http_request_headers;
@@ -28,9 +32,9 @@ declare -Agx http_request_headers;
 declare -agx http_command_options;
 http_command_options=();
 
-#have to do this in two steps for arrays
-#direct assignment will cause the http_files array not
-#to be available inside function definitions
+# have to do this in two steps for arrays as
+# direct assignment will cause the http_files array not
+# to be available inside function definitions
 declare -agx http_files;
 http_files=(
 	"$http_output_file"
@@ -40,7 +44,8 @@ http_files=(
 	"$http_exit_file"
 	"$http_trace_ascii_file"
 	"$http_head_dump_file"
-	"$http_error_file"
+	"$http_stderr_file"
+	"$http_stdout_file"
 );
 
 function http.config.save {
@@ -72,7 +77,6 @@ function http.initialize {
 function http.curl.execute {
 	local cmd="${executables[curl]}";	
 	local results=();
-	local curl_exit_code;
 	local runopts=( "$@" );
 	
 	if [ ! -x "$cmd" ]; then
@@ -91,55 +95,60 @@ function http.curl.execute {
 			unset "$opt";
 	done
 	
-	#http_response_exit_code=0;
-	
 	set +o errexit;	
-	results=( $( $cmd "${runopts[@]}" 2> "$http_error_file" || echo -n "$?" >> "$http_exit_file" ) );
-	curl_exit_code=0;
 	
+	# execute curl(1)
+	$cmd "${runopts[@]}" 2> "$http_stderr_file" 1> "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";
+	
+	# get the write out results
+	results=( $( < "$http_stdout_file" ) );
+	
+	# echo "got results: ${results[@]}";
+	
+	http_exit_code=0;
 	if [ -f "$http_exit_file" ]; then
-		curl_exit_code=`cat "$http_exit_file"`;
-		curl_exit_code=${curl_exit_code:-0};
+		http_exit_code=`cat "$http_exit_file"`;
+		http_exit_code=${http_exit_code:-0};
 	fi
 	
-	# echo "got curl exit code: $curl_exit_code";
+	echo "got curl exit code: $http_exit_code";
 	
 	if [ ${#results[@]} -gt 2 ]; then
 		http_response_status="${results[0]}";
 		http_response_url="${results[1]}";
 		http_response_time_total="${results[2]}";
 		http_response_num_redirects="${results[3]:-0}";
-		http_response_exit_code=${curl_exit_code:-${results[4]:-}};
 	fi
 	
 	if [ ! -z "$http_config_name" ]; then
 		http.config.save "$http_config_name";
 	fi
 	
-	if [ "$http_response_exit_code" != "0" ]; then
+	if [ "$http_exit_code" != "0" ]; then
 		if [ ! -z "$http_strict" ]; then
-			if [ -f "$http_error_file" ]; then
-				error "`cat $http_error_file`";
+			if [ -f "$http_stderr_file" ]; then
+				error "`cat $http_stderr_file`";
 			fi
-			quit $http_response_exit_code "curl exited with non-zero status code (%s)" "$http_response_exit_code";
+			quit $http_exit_code "curl exited with non-zero status code (%s)" "$http_exit_code";
 		else
-			if [ -f "$http_error_file" ]; then
-				warn "`cat $http_error_file`";
+			if [ -f "$http_stderr_file" ]; then
+				warn "`cat $http_stderr_file`";
 			else
-				warn "curl exited with non-zero status code (%s" "$http_response_exit_code";
+				warn "curl exited with non-zero status code (%s" "$http_exit_code";
 			fi
 		fi
 	fi
 	
-	if [ -f "$http_output_file" ] && [ "$http_response_exit_code" == "0" ]; then
+	if [ -f "$http_output_file" ] && [ "$http_exit_code" == "0" ]; then
 		
-		#ensure that there is always a trailing newline
-		#otherwise the body will not be parsed correctly
-		#for servers that do not terminate the body with a newline
-		#eg, json REST services
+		# ensure that there is always a trailing newline
+		# otherwise the body will not be parsed correctly
+		# for servers that do not terminate the body with a newline
+		# eg, json REST services
 		echo "" >> "$http_output_file";
 		__http_response_parse "${http_output_file}";
 	else
+		# TODO: remove this warning or prevent for the `rest dl` command?
 		warn "no rest output file %s after request" "$http_output_file";
 	fi
 	
@@ -161,9 +170,6 @@ function http_curl {
 		path=${path#/};
 		url="${http_base_url}/${path}";
 	fi
-	
-	#TODO: only perform this test if a protocol has been specified
-	#otherwise we can let curl use it's default: http
 	
 	if [[ "$url" =~ ^[a-zA-Z]+: ]]; then
 		if [[ ! "$url" =~ ^https?: ]]; then
@@ -206,6 +212,15 @@ function http_curl {
 		"--output"
 		"$http_output_file"
 	);
+	
+	# add additional command options
+	set +o nounset;
+	for hvalue in ${http_command_options[@]}
+		do
+			#echo "got http_command_options : $hvalue";
+			runopts+=( "$hvalue" );
+	done
+	set -o nounset;
 
 	#pass in custom opts
 	if [ ${#opts[@]} -gt 0 ]; then
@@ -234,11 +249,12 @@ function http_curl {
 ######################################################################
 function http.option.add {
 	local name=${1:-};
-	local value=${2:-};	
+	local value=${2:-};
 	if [ ! -z "$name" ] && [ ! -z "$value" ]; then
 		http_command_options+=( "$name" );
 		http_command_options+=( "$value" );
 	fi
+	echo "added command options: ${http_command_options[@]}";
 }
 
 function http_request.add.header {

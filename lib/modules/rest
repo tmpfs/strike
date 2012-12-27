@@ -113,12 +113,12 @@ function rest_options.parse {
 			echo "setting http_config_name to : $name";
 			http_config_name="$name";
 			;;
-		--data )
+		-d | --data )
 			shift;
 			value="$1";
 			echo "got data parameter... :: $value";
-			
 			#http request.add.header "content-type: $1";
+			http.option.add "--data" "$value";
 			;;
 			
 		
