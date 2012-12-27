@@ -28,6 +28,8 @@ function tasks.doc {
 	# copy over the temporary man pages
 	cmd="cp -f "${man}/*" "${root}"";
 	eval "$cmd" \
+		&& cd "${root}"
+		&& rm -fv ./*.html
 		&& $git add . \
 		&& $git commit -m "doc rebuild" \
 		&& $git ls-files \
