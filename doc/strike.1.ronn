@@ -11,9 +11,11 @@ Brings structure and modularity to `bash` programs and provides a set of modules
 
 ## MODULES
 
+Once the library code has been included the following modules are automatically available to your code.
+
 ### method
 
-Provides utility functions for determining whether functions exist, listing functions and removing methods.
+The method(1) module provides utility functions for determining whether functions exist, listing functions and removing methods.
 
 ## FILES
 
