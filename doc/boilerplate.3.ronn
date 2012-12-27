@@ -21,10 +21,6 @@ If you have installed the `strike` library as a node module and your executable 
 	}
 	boilerplate;
 
-## BUGS
-
-**boilerplate** is written in bash and depends upon `bash` >= 4.
-
 ## COPYRIGHT
 
 **boilerplate** is copyright (c) 2012 muji <http://xpm.io>

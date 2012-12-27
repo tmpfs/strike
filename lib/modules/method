@@ -76,7 +76,7 @@ function method_end_diff {
 			do
 				echo "got method end diff $m";	
 				set +o errexit;			
-				array_contains "$m" "${method_start_diff_list[@]}";
+				array.contains "$m" "${method_start_diff_list[@]}";
 				contains=$?;
 				set -o errexit;	
 				

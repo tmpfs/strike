@@ -18,6 +18,7 @@ require "main";
 require "string";
 require "fs";
 
+# TODO : remove these dependencies
 source "$libdir/core";
 source "$libdir/help";
 
