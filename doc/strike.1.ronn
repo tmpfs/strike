@@ -1,0 +1,36 @@
+strike(1) -- require for `bash`
+=============================================
+
+## SYNOPSIS
+
+Modular `bash` using `require`.
+
+## DESCRIPTION
+
+Brings structure and modularity to `bash` programs and provides a set of modules that can be used from any `bash` program.
+
+## MODULES
+
+### method
+
+Provides utility functions for determining whether functions exist, listing functions and removing methods.
+
+## FILES
+
+...
+
+## ENVIRONMENT
+
+...
+
+## BUGS
+
+**strike** is written in bash and depends upon `bash` >= 4 for associative arrays.
+
+## COPYRIGHT
+
+**strike** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+rest(1), method(1), http(1), bake(1)
