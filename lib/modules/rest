@@ -32,6 +32,12 @@ function rest_post {
 #	Utility commands
 #
 ######################################################################
+function rest_dl {
+	array.pop "$@";
+	local url="$_result";
+	http.curl.execute "--location" "-#" "--write-out" "$http_curl_writeout" "--remote-name" "$url";
+}
+
 function rest_clean {
 	info "cleaning files in %s" "$http_home";
 	http.clean > /dev/null || quit 1 "error cleaning files in %s" "$http_home";

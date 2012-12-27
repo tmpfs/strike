@@ -22,6 +22,11 @@ The rest(1) program expects the first option to be a command, below is the list 
 	
 	`rest get google.com`
 	
+* `dl`:
+	Download a file:
+
+	`rest dl google.com/index.html`
+	
 * `redo`:
 	Repeat the last request:
 

@@ -86,7 +86,9 @@ function http.curl.execute {
 	for opt in ${!http_response_*}
 		do
 			unset "$opt";
-	done	
+	done
+	
+	#http_response_exit_code=0;
 	
 	set +o errexit;	
 	results=( $( $cmd "${runopts[@]}" || echo -n "$?" >> "$http_exit_file" ) );
