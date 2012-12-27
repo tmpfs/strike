@@ -13,13 +13,18 @@ export PROGRAM_NAME=`basename $0`;
 program_config_print_welcome="off";
 program_config_print_prefix="off";
 name=`basename $0`;
-abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-if [ -L "$abspath" ]; then
-	abspath=`readlink $abspath`;
-fi
-exedir=`dirname "$abspath"`;
-libdir="$exedir/../lib";
-source "$libdir/shared";
+
+declare -gx exedir;
+function boilerplate {
+	local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+	if [ -L "$abspath" ]; then
+		abspath=`readlink $abspath`;
+	fi
+	exedir=`dirname "$abspath"`;
+	local libdir="$exedir/../lib";
+	source "$libdir/shared";
+}
+boilerplate;
 ######################################################################
 
 # test that re-requiring doesn't override previous data
