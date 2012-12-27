@@ -1,4 +1,6 @@
 # manuals
+strike(1)     	strike.1.ronn
+method(1)     	method.1.ronn
 bake(1)     	bake.1.ronn
 http(1)     	http.1.ronn
 rest(1)     	rest.1.ronn

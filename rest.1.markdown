@@ -81,6 +81,8 @@ curl(1)
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
+[strike(1)]: 	strike.1.html
+[method(1)]: 	method.1.html
 [bake(1)]: 	bake.1.html
 [http(1)]: 	http.1.html
 [rest(1)]: 	rest.1.html
@@ -89,3 +91,4 @@ curl(1)
 [bake(1)]: bake.1.html
 [http(1)]: http.1.html
 [rest(1)]: rest.1.html
+[strike(1)]: strike.1.html

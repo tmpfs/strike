@@ -55,6 +55,8 @@ The following variables are available to each command method:
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 
 
+[strike(1)]: 	strike.1.html
+[method(1)]: 	method.1.html
 [bake(1)]: 	bake.1.html
 [http(1)]: 	http.1.html
 [rest(1)]: 	rest.1.html
@@ -63,3 +65,4 @@ The following variables are available to each command method:
 [bake(1)]: bake.1.html
 [http(1)]: http.1.html
 [rest(1)]: rest.1.html
+[strike(1)]: strike.1.html
