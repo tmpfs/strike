@@ -15,6 +15,8 @@ The http(1) module generates some temporary files and some files used for loggin
 
 ## COMMANDS
 
+The rest(1) program always expects the first option to be a command, below is the list of available commands:
+
 * `get`:
 	Perform a GET request:
 	
