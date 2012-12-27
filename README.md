@@ -2,15 +2,27 @@
 
 Modular `bash` using `require`. Depends upon `bash >= 4` for associative arrays.
 
-## Installation
-
-	npm install strike
-	
 ## Synopsis
 
 Brings structure and modularity to `bash` programs and provides a set of modules that can be used from any `bash` program.
 
-## Generating Documentation
+## Installation
+
+To install the library code as a dependency for a project into the `node_modules` sub-folder use:
+
+	npm install strike
+	
+If you want the supplied executables to be available in `$PATH` use the global flag:
+
+	npm install -g strike
+	
+## Documentation	
+
+The [project documentation](http://freeformsystems.github.com/strike) is available as html man pages.
+
+## Developers
+
+### Generating Documentation
 
 Documentation for the repository is generated using [ronn](https://github.com/rtomayko/ronn) which must be installed, to generate documentation run:
 
