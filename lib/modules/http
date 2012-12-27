@@ -15,7 +15,9 @@ export http_trace_file="$http_home/http.trace";
 export http_exit_file="$http_home/http.exit";
 export http_trace_ascii_file="$http_home/http.trace.ascii";
 export http_head_dump_file="$http_home/http.head.dump";
+export http_config_dir="$http_home/config";
 export http_config_file="$http_home/http.config";
+export http_config_name="";
 export http_base_url="";
 
 declare -gx http_strict="";
@@ -37,6 +39,18 @@ http_files=(
 	"$http_exit_file"
 	"$http_trace_ascii_file"
 	"$http_head_dump_file" );
+
+function http.config.save {
+	local id="${1:-}";
+	if [ ! -z "$id" ] && [ -f "$http_config_file" ]; then
+		if [ ! -d "$http_config_dir" ]; then
+			mkdirp "$http_config_dir";
+		fi
+		local configfile="${http_config_dir}/${id}"
+		copy "$http_config_file" "$configfile" \
+			|| quit 1 "could not copy config file to %s" "$configfile";
+	fi
+}
 
 function http.clean {
 	local f;
@@ -91,6 +105,10 @@ function http.curl.execute {
 		http_response_time_total="${results[2]}";
 		http_response_num_redirects="${results[3]:-0}";
 		http_response_exit_code=${curl_exit_code:-${results[4]:-}};
+	fi
+	
+	if [ ! -z "$http_config_name" ]; then
+		http.config.save "$http_config_name";
 	fi
 	
 	if [ "$http_response_exit_code" != "0" ]; then

@@ -14,19 +14,17 @@ function rest_get {
 	array.pop "$@";
 	local url="$_result";
 	http curl "GET" "$url";
-	#http_curl "GET" "http://google.com";
 	#echo "num redirects: $http_response_num_redirects";
 	#echo "return code: $http_response_exit_code";
-	__rest_print_body;
+	# __rest_print_body;
 }
 
 function rest_post {
 	array.pop "$@";
 	local url="$_result";
-	
 	http.curl "POST" "$url";
 	
-	__rest_print_body;
+	# __rest_print_body;
 }
 
 ######################################################################
@@ -42,19 +40,23 @@ function rest_clean {
 
 function rest_redo {
 	info "using %s" "$http_config_file";
-	echo "rest redo called...";
 	if [ -f "$http_config_file" ]; then
-		http.curl.execute "-v" "--config" "$http_config_file";
+		http.curl.execute "--config" "$http_config_file";
 	else
 		quit 1 "no config file %s" "$http_config_file";
 	fi
 	
-	#http curl "GET" "$url";
-	#http_curl "GET" "http://google.com";
-	#echo "num redirects: $http_response_num_redirects";
-	#echo "return code: $http_response_exit_code";
-	
-	__rest_print_body;
+	# __rest_print_body;
+}
+
+function rest_load {
+	local id="${1:-}";
+	local path="${http_config_dir}/${id}";
+	if [ ! -f "$path" ]; then
+		quit 1 "no configuration file %s" "$path";
+	fi
+	info "using %s" "$path";
+	http.curl.execute "--config" "$path";
 }
 
 function rest_config {
@@ -90,6 +92,12 @@ function rest_options.parse {
 			shift;
 			value="${1:-}";
 			url.params.add "$name" "$value";
+			;;
+		--save )
+			shift;
+			name="${1:-}";
+			echo "setting http_config_name to : $name";
+			http_config_name="$name";
 			;;
 		--data )
 			shift;

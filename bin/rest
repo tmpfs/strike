@@ -90,7 +90,7 @@ http_strict="on";
 
 options_minimum=1;
 #options_fail_help=1;
-options_expects_command=( get post put delete options clean redo config );
+options_expects_command=( get post put delete options clean load redo config );
 options_map_command_method=1;
 
 #map the last option to the rest_request_url variable
