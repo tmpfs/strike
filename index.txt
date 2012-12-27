@@ -1,6 +1,6 @@
 # core manuals
 strike(1)     	strike.1.ronn
-boilerplate(1)  boilerplate.1.ronn
+boilerplate(3)  boilerplate.3.ronn
 
 # modules
 method(1)     	method.1.ronn

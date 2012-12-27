@@ -35,7 +35,7 @@ The method(1) module provides utility functions for determining whether function
 
 ## SEE ALSO
 
-boilerplate(1), method(1), http(1), bake(1), rest(1)
+boilerplate(3), method(1), http(1), bake(1), rest(1)
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
 [DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
@@ -49,7 +49,7 @@ boilerplate(1), method(1), http(1), bake(1), rest(1)
 
 
 [strike(1)]: 	strike.1.html
-[boilerplate(1)]: boilerplate.1.html
+[boilerplate(3)]: boilerplate.3.html
 [method(1)]: 	method.1.html
 [http(1)]: 	http.1.html
 [bake(1)]: 	bake.1.html
@@ -57,6 +57,7 @@ boilerplate(1), method(1), http(1), bake(1), rest(1)
 [curl(1)]: 	http://man.cx/curl(1).html
 [manpages(5)]: 	http://developer.apple.com/mac/library/documentation/Darwin/Reference/ManPages/man5/manpages.5.html.html
 [bake(1)]: bake.1.html
+[boilerplate(1)]: boilerplate.1.html
 [http(1)]: http.1.html
 [rest(1)]: rest.1.html
 [strike(1)]: strike.1.html
