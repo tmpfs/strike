@@ -77,7 +77,7 @@ For example to `require` the `http` module:
 
 If a module declares a (pseudo) *constructor* function then it is invoked when it is required.
 
-The convention for this *pseudo-constructor* is module name + `_initialize` so in the above example the `http` module does have a constructor named `http_initialize` which is responsible for ensuring that the directory used to store `http` related files always exists.
+The convention for this *pseudo-constructor* is module name + `.initialize` so in the above example the `http` module does have a constructor named `http.initialize` which is responsible for ensuring that the directory used to store `http` related files always exists.
 
 #### Main Method Delegate
 
