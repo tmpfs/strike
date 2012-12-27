@@ -30,7 +30,7 @@ The rest(1) program expects the first option to be a command, below is the list 
 * `load` `<var>name</var>`:
 	Loads and executes a previously saved configuration file:
 
-	`rest get --save google google.com`
+	`rest get --save google google.com`<br>
 	`rest load google`	
 	
 * `clean`:
