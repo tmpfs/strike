@@ -63,6 +63,7 @@
     <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#DESCRIPTION">DESCRIPTION</a>
     <a href="#FILES">FILES</a>
+    <a href="#COMMANDS">COMMANDS</a>
     <a href="#OPTIONS">OPTIONS</a>
     <a href="#BUGS">BUGS</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
@@ -92,6 +93,15 @@
 
 <p>The <a class="man-ref" href="	http.1.html">http<span class="s">(1)</span></a> module generates some temporary files and some files used for logging purposes.</p>
 
+<h2 id="COMMANDS">COMMANDS</h2>
+
+<dl>
+<dt class="flush"><code>get</code></dt><dd><p>  Perform a GET request, for example:</p>
+
+<p>  rest get google.com</p></dd>
+</dl>
+
+
 <h2 id="OPTIONS">OPTIONS</h2>
 
 <p>Wherever possible <strong>rest</strong> follows the command line options available to <a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a> but also adds some convenient shortcut options.</p>
@@ -99,6 +109,7 @@
 <dl>
 <dt class="flush"><code>--type</code></dt><dd><p>  Set the content type for the request.</p></dd>
 <dt><code>-H</code>, <code>--header</code></dt><dd><p>  Set a request header.</p></dd>
+<dt><code>--param</code> <code>&lt;name></code> <code>&lt;value></code></dt><dd><p>  Add a URL query string parameter, repeatable. The <code>&lt;value></code> should <em>not</em> be URL-encoded.</p></dd>
 </dl>
 
 

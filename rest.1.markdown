@@ -13,6 +13,13 @@ rest(1) -- generate HTTP requests
 
 The http(1) module generates some temporary files and some files used for logging purposes.
 
+## COMMANDS
+
+* `get`:
+	Perform a GET request, for example:
+	
+	rest get google.com
+
 ## OPTIONS
 
 Wherever possible **rest** follows the command line options available to curl(1) but also adds some convenient shortcut options.
@@ -22,6 +29,9 @@ Wherever possible **rest** follows the command line options available to curl(1)
 
 * `-H`, `--header`:
 	Set a request header.
+	
+* `--param` `<var>name</var>` `<var>value</var>`:
+	Add a URL query string parameter, repeatable. The `<var>value</var>` should *not* be URL-encoded.
 
 ## BUGS
 
@@ -38,6 +48,7 @@ curl(1)
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
 [DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
 [FILES]: #FILES "FILES"
+[COMMANDS]: #COMMANDS "COMMANDS"
 [OPTIONS]: #OPTIONS "OPTIONS"
 [BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
