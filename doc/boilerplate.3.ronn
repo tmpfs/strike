@@ -1,4 +1,4 @@
-boilerplate(1) -- boilerplate for strike(1)
+boilerplate(3) -- boilerplate for strike(1)
 =============================================
 
 ## SYNOPSIS
