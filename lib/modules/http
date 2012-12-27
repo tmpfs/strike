@@ -4,7 +4,7 @@ require 'executable';
 # validate the curl executable is available
 # after validation the executable path
 # is available at: ${executables[curl]}
-executable validate curl;
+executable validate curl tee;
 
 export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
 export http_home="$HOME/.http";
@@ -21,6 +21,10 @@ export http_stderr_file="$http_home/http.stderr";
 export http_stdout_file="$http_home/http.stdout";
 export http_config_name="";
 export http_base_url="";
+
+# determines whether curl(1) stderr output is also
+# printed to the screen
+export http_print_stderr="";
 
 # determines whether to quit when curl(1)
 # returns a non-zero exit code, set to a
@@ -76,6 +80,7 @@ function http.initialize {
 
 function http.curl.execute {
 	local cmd="${executables[curl]}";	
+	local tee="${executables[tee]}";
 	local results=();
 	local runopts=( "$@" );
 	
@@ -96,9 +101,18 @@ function http.curl.execute {
 	done
 	
 	set +o errexit;	
+		
+	# redirect stderr with tee, useful for also
+	# displaying file download progress
+	if [ ! -z "$http_print_stderr" ]; then
+		$cmd "${runopts[@]}" 2> >($tee "$http_stderr_file" >&2) 1> "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";	
+	# not redirecting stderr to screen as well
+	# so just send to the file
+	else
+		$cmd "${runopts[@]}" 2> "$http_stderr_file" 1> "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";
+	fi
 	
-	# execute curl(1)
-	$cmd "${runopts[@]}" 2> "$http_stderr_file" 1> "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";
+	# >(tee stderr.log >&2)
 	
 	# get the write out results
 	results=( $( < "$http_stdout_file" ) );
