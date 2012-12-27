@@ -7,9 +7,10 @@ bake(1) -- make for `bash`
 
 ## DESCRIPTION
 
-**bake** is `make` for `bash` programs. The `bake` program does not define any tasks by default but some common shared tasks are available in the `modules/tasks` directory and can be included in a tasks file using `require`, for example:
+**bake** is `make` for `bash` programs. The `bake` program does not define any tasks by default but some common tasks are available in the `modules/tasks` directory and can be included in a tasks file using `require`, for example:
 
 	require 'tasks/clean';
+	require 'tasks/list';
 
 ## FILES
 

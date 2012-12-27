@@ -12,13 +12,14 @@
 .br
 .
 .SH "DESCRIPTION"
-\fBbake\fR is \fBmake\fR for \fBbash\fR programs\. The \fBbake\fR program does not define any tasks by default but some common shared tasks are available in the \fBmodules/tasks\fR directory and can be included in a tasks file using \fBrequire\fR, for example:
+\fBbake\fR is \fBmake\fR for \fBbash\fR programs\. The \fBbake\fR program does not define any tasks by default but some common tasks are available in the \fBmodules/tasks\fR directory and can be included in a tasks file using \fBrequire\fR, for example:
 .
 .IP "" 4
 .
 .nf
 
 require \'tasks/clean\';
+require \'tasks/list\';
 .
 .fi
 .

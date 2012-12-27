@@ -1,4 +1,4 @@
-rest(1) -- generate HTTP requests
+rest(1) -- generate HTTP(S) requests
 =============================================
 
 ## SYNOPSIS
@@ -7,7 +7,7 @@ rest(1) -- generate HTTP requests
 
 ## DESCRIPTION
 
-**rest** generates HTTP requests using the http(1) module which wraps curl(1). The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.
+**rest** generates HTTP(S) requests using the http(1) module which wraps curl(1). The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.
 
 ## FILES
 

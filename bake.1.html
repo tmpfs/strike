@@ -86,9 +86,10 @@
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p><strong>bake</strong> is <code>make</code> for <code>bash</code> programs. The <code>bake</code> program does not define any tasks by default but some common shared tasks are available in the <code>modules/tasks</code> directory and can be included in a tasks file using <code>require</code>, for example:</p>
+<p><strong>bake</strong> is <code>make</code> for <code>bash</code> programs. The <code>bake</code> program does not define any tasks by default but some common tasks are available in the <code>modules/tasks</code> directory and can be included in a tasks file using <code>require</code>, for example:</p>
 
 <pre><code>require 'tasks/clean';
+require 'tasks/list';
 </code></pre>
 
 <h2 id="FILES">FILES</h2>
