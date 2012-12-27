@@ -52,6 +52,54 @@ function http.initialize {
 	fi
 }
 
+function http.curl.execute {
+	local results=();
+	local curl_exit_code;
+	local runopts=( "$@" );
+	
+	set +o errexit;	
+	results=( $( $cmd "${runopts[@]}" || echo -n "$?" >> "$http_exit_file" ) );
+	curl_exit_code=0;
+	
+	if [ -f "$http_exit_file" ]; then
+		curl_exit_code=`cat "$http_exit_file"`;
+		curl_exit_code=${curl_exit_code:-0};
+	fi
+	
+	echo "got curl exit code: $curl_exit_code";
+	
+	if [ ${#results[@]} -gt 2 ]; then
+		http_response_status="${results[0]}";
+		http_response_url="${results[1]}";
+		http_response_time_total="${results[2]}";
+		http_response_num_redirects="${results[3]:-0}";
+		http_response_exit_code=${curl_exit_code:-${results[4]:-}};
+	fi
+	
+	if [ "$http_response_exit_code" != "0" ]; then
+		
+		if [ ! -z "$http_strict" ]; then
+			quit $http_response_exit_code "curl exited with non-zero status code (%s)" "$http_response_exit_code";
+		else
+			warn "curl exited with non-zero status code (%s)" "$http_response_exit_code";
+		fi
+	fi
+	
+	if [ -f "$http_output_file" ] && [ "$http_response_exit_code" == "0" ]; then
+		
+		#ensure that there is always a trailing newline
+		#otherwise the body will not be parsed correctly
+		#for servers that do not terminate the body with a newline
+		#eg, json REST services
+		echo "" >> "$http_output_file";
+		__http_response_parse "${http_output_file}";
+	else
+		warn "no rest output file %s after request" "$http_output_file";
+	fi
+	
+	set -o errexit;	
+}
+
 function http_curl {
 	local cmd="${executables[curl]}";
 	if [ ! -x "$cmd" ]; then
@@ -142,57 +190,10 @@ function http_curl {
 	
 	http_request_method="${method}";
 	
-	local results=();
-	local curl_exit_code;
-	
 	#write out the options used as a config file
 	__http_write_config "${runopts[@]}";
 	
-	set +o errexit;	
-	results=( $( $cmd "${runopts[@]}" || echo -n "$?" >> "$http_exit_file" ) );
-	
-	#echo "got command results: ${results[@]}";
-	
-	curl_exit_code=0;
-	
-	if [ -f "$http_exit_file" ]; then
-		curl_exit_code=`cat "$http_exit_file"`;
-		curl_exit_code=${curl_exit_code:-0};
-	fi
-	
-	echo "got curl exit code: $curl_exit_code";
-	
-	if [ ${#results[@]} -gt 2 ]; then
-		http_response_status="${results[0]}";
-		http_response_url="${results[1]}";
-		http_response_time_total="${results[2]}";
-		http_response_num_redirects="${results[3]:-0}";
-		http_response_exit_code=${curl_exit_code:-${results[4]:-}};
-	fi
-	
-	if [ "$http_response_exit_code" != "0" ]; then
-		
-		if [ ! -z "$http_strict" ]; then
-			quit $http_response_exit_code "curl exited with non-zero status code (%s)" "$http_response_exit_code";
-		else
-			warn "curl exited with non-zero status code (%s)" "$http_response_exit_code";
-		fi
-	fi
-	
-	if [ -f "$http_output_file" ] && [ "$http_response_exit_code" == "0" ]; then
-		
-		#ensure that there is always a trailing newline
-		#otherwise the body will not be parsed correctly
-		#for servers that do not terminate the body with a newline
-		#eg, json REST services
-		echo "" >> "$http_output_file";
-		
-		__http_response_parse "${http_output_file}";
-	else
-		warn "no rest output file %s after request" "$http_output_file";
-	fi
-	
-	set -o errexit;
+	http.curl.execute "${runopts[@]}";
 }
 
 ######################################################################
