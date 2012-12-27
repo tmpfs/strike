@@ -53,9 +53,26 @@ function http.initialize {
 }
 
 function http.curl.execute {
+	local cmd="${executables[curl]}";	
 	local results=();
 	local curl_exit_code;
 	local runopts=( "$@" );
+	
+	if [ ! -x "$cmd" ]; then
+		quit 1 "could not locate curl executable %s" "$cmd";
+	fi	
+	
+	#ensure all files are removed before we start
+	#so we don't leave any previous request data
+	#around when a request fails
+	http.clean > /dev/null;	
+	
+	#ensure we unset all variables before the next request
+	#TODO: move to a method for unsetting by group
+	for opt in ${!http_response_*}
+		do
+			unset "$opt";
+	done	
 	
 	set +o errexit;	
 	results=( $( $cmd "${runopts[@]}" || echo -n "$?" >> "$http_exit_file" ) );
@@ -101,25 +118,6 @@ function http.curl.execute {
 }
 
 function http_curl {
-	local cmd="${executables[curl]}";
-	if [ ! -x "$cmd" ]; then
-		quit 1 "could not locate curl executable %s" "$cmd";
-	fi
-	
-	#ensure all files are removed before we start
-	#so we don't leave any previous request data
-	#around when a request fails
-	http.clean > /dev/null;
-	
-	#ensure we unset all variables before the next request
-	#TODO: move to a method for unsetting by group
-	for opt in ${!http_response_*}
-		do
-			unset "$opt";
-	done
-	
-	#http_response_headers=();
-	
 	local method="${1:-GET}";
 	shift;
 	local path="${1:-}";
@@ -186,7 +184,7 @@ function http_curl {
 	
 	runopts=( "${runopts[@]}" "$url" );
 	
-	echo "run: $cmd ${runopts[@]}";
+	echo "runopts: ${runopts[@]}";
 	
 	http_request_method="${method}";
 	

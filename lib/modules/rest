@@ -5,12 +5,11 @@ require 'http';
 #declare -agx rest_parameters;
 #rest_parameters=();
 
-function rest_clean {
-	info "cleaning files in %s" "$http_home";
-	http.clean > /dev/null || quit 1 "error cleaning files in %s" "$http_home";
-	success "clean complete";
-}
-
+######################################################################
+#
+#	HTTP verb commands
+#
+######################################################################
 function rest_get {
 	array.pop "$@";
 	local url="$_result";
@@ -21,16 +20,41 @@ function rest_get {
 	__rest_print_body;
 }
 
+function rest_post {
+	array.pop "$@";
+	local url="$_result";
+	
+	http.curl "POST" "$url";
+	
+	__rest_print_body;
+}
+
+######################################################################
+#
+#	Utility commands
+#
+######################################################################
+function rest_clean {
+	info "cleaning files in %s" "$http_home";
+	http.clean > /dev/null || quit 1 "error cleaning files in %s" "$http_home";
+	success "clean complete";
+}
+
 function rest_redo {
 	info "using %s" "$http_config_file";
 	echo "rest redo called...";
+	if [ -f "$http_config_file" ]; then
+		http.curl.execute "-v" "--config" "$http_config_file";
+	else
+		quit 1 "no config file %s" "$http_config_file";
+	fi
 	
 	#http curl "GET" "$url";
 	#http_curl "GET" "http://google.com";
 	#echo "num redirects: $http_response_num_redirects";
 	#echo "return code: $http_response_exit_code";
 	
-	#__rest_print_body;
+	__rest_print_body;
 }
 
 function rest_config {
@@ -39,15 +63,6 @@ function rest_config {
 	else
 		quit 1 "no config file %s" "$http_config_file";
 	fi
-}
-
-function rest_post {
-	array.pop "$@";
-	local url="$_result";
-	
-	http curl "POST" "$url";
-	
-	__rest_print_body;
 }
 
 function rest_options.parse {
