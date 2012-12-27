@@ -35,7 +35,7 @@ The method(1) module provides utility functions for determining whether function
 
 ## SEE ALSO
 
-rest(1), method(1), http(1), bake(1)
+boilerplate(1), method(1), http(1), bake(1), rest(1)
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
 [DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
