@@ -5,19 +5,19 @@ function url_encode {
     _result="${data##/?}";
 }
 
-function url_query_string {
+function url_query.string {
 	local output="";
 	local oifs;
 	for opt in "${@}"
 		do
-			oifs="$IFS";
-			IFS="=";
+			local IFS="=";
 			while read -r name value
 				do
 					url_encode "$value";
+					echo "echo encoding: ${name}";
+					echo "echo encoding: ${_result}";					
 					output="${output}${name}=${_result}&";
 			done <<< "$opt";
-			IFS="$oifs";
 	done
 	#strip trailing ampersand
 	output="${output%&}";

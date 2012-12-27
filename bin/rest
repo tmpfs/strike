@@ -44,7 +44,7 @@ require 'rest';
 #exit code
 http_strict="on";
 
-options add flag "v" "verbose" 'verbose program output';
+#options add flag "v" "verbose" 'verbose program output';
 
 # module.method() {
 # 	echo "module.method"
@@ -106,6 +106,17 @@ options parse "$@";
 rest options.parse "$@";
 
 #exit 0;
+
+# concatenate query string parameters
+rest_parameters=${rest_parameters[@]:-};
+if [ ${#rest_parameters} -gt 0 ]; then
+	echo "GOT REST PARAMETERS ${#rest_parameters[@]}";	
+	#echo "GOT REST PARAMETERS ${rest_parameters[@]}";
+	echo "GOT REST PARAMETERS ${rest_parameters[0]}";
+	echo "GOT REST PARAMETERS ${rest_parameters[1]}";
+	url query.string "${rest_parameters[@]}";
+	rest_request_url="${rest_request_url}${_result}";
+fi
 
 #always add the url as the last option
 module_options+=( "$rest_request_url" );

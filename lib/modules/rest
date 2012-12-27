@@ -2,7 +2,8 @@ require 'http';
 
 #TODO: implement get/post/put/delete etc
 
-#echo "http files...${http_files[@]}";
+declare -agx rest_parameters;
+rest_parameters=();
 
 function rest_clean {
 	http clean;
@@ -18,7 +19,7 @@ function rest_get {
 	#http_curl "GET" "http://google.com";
 	#echo "num redirects: $http_response_num_redirects";
 	#echo "return code: $http_response_exit_code";
-	__rest_print_body;
+	#__rest_print_body;
 }
 
 function rest_post {
@@ -34,7 +35,11 @@ function rest_options.parse {
 	#echo "parsing rest program options..."
 	local name;
 	local value;
+	rest_parameters=();
 	while [ "${1:-}" != "" ]; do
+		
+		echo "got option: $1";
+		
 		case $1 in
 		-H | --header )
 			shift;
@@ -44,6 +49,18 @@ function rest_options.parse {
 		--type )
 			shift;
 			http request.add.header "content-type: $1";
+			;;
+		# specify query string parameter(s), repeatable
+		--param )
+			shift;
+			name="${1:-}";
+			shift;
+			value="${1:-}";
+			#echo $IFS;
+			rest_parameters+=( "${name}=${value}" );
+			echo "GOT QUERY STRING PARAM ${name} :: ${value}";
+			# echo "GOT QUERY STRING PARAM ${rest_parameters[@]}";
+			echo "GOT QUERY STRING PARAM ${#rest_parameters[@]}";
 			;;
 		--data )
 			shift;
