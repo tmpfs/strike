@@ -1,8 +1,13 @@
-# manuals
+# core manuals
 strike(1)     	strike.1.ronn
+boilerplate(1)  boilerplate.1.ronn
+
+# modules
 method(1)     	method.1.ronn
-bake(1)     	bake.1.ronn
 http(1)     	http.1.ronn
+
+# executables
+bake(1)     	bake.1.ronn
 rest(1)     	rest.1.ronn
 
 # external manuals

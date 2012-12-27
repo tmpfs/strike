@@ -1,0 +1,44 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "BOILERPLATE" "1" "December 2012" "" ""
+.
+.SH "NAME"
+\fBboilerplate\fR \- boilerplate for strike(1)
+.
+.SH "SYNOPSIS"
+Before using the strike(1) modules and functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links)\.
+.
+.SH "BOILERPLATE"
+If you have installed the \fBstrike\fR library as a node module and your executable is in a \fBbin\fR directory (sibling of the \fBnode_modules\fR directory) the boilerplate would look like:
+.
+.IP "" 4
+.
+.nf
+
+######################################################################
+#
+#   BOILERPLATE
+#
+######################################################################
+abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+if [ \-L "$abspath" ]; then
+    abspath=`readlink $abspath`;
+fi
+exedir=`dirname "$abspath"`;
+libdir="$exedir/\.\./node_modules/strike/lib";
+source "$libdir/shared";
+######################################################################
+.
+.fi
+.
+.IP "" 0
+.
+.SH "BUGS"
+\fBboilerplate\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBboilerplate\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+strike(1)
