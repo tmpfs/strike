@@ -5,7 +5,7 @@ boilerplate(1) -- boilerplate for strike(1)
 
 Before using the strike(1) modules and functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links).
 
-## BOILERPLATE
+## CODE
 
 If you have installed the `strike` library as a node module and your executable is in a `bin` directory (sibling of the `node_modules` directory) the boilerplate would look like:
 
@@ -34,7 +34,7 @@ If you have installed the `strike` library as a node module and your executable 
 strike(1)
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
-[BOILERPLATE]: #BOILERPLATE "BOILERPLATE"
+[CODE]: #CODE "CODE"
 [BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
