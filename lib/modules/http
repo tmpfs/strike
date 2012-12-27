@@ -39,7 +39,9 @@ http_files=(
 	"$http_trace_file"
 	"$http_exit_file"
 	"$http_trace_ascii_file"
-	"$http_head_dump_file" );
+	"$http_head_dump_file"
+	"$http_error_file"
+);
 
 function http.config.save {
 	local id="${1:-}";
