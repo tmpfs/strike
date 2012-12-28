@@ -11,7 +11,7 @@ function tasks.doc.tmp {
 	local ronn="${executables[ronn]}";
 	local man="${target}/man";		
 	__doc_copy;
-	$ronn -w -s toc -r5 --markdown ${man}/*.ronn
+	$ronn -w -s toc -r5 --markdown ${man}/*.ronn;
 }
 
 # generates the man page documentation
@@ -27,13 +27,13 @@ function tasks.doc {
 	# check out the gh-pages branch
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
 	
+	$ronn -w -s toc -r5 --markdown ${man}/*.ronn;
+	
 	# copy over the temporary man pages
 	cmd="cp -f "${man}/*" "${root}"";
-	
 	cd "${root}" \
 		&& rm -fv ./*.html \
 		&& eval "$cmd" \
-		&& $ronn -w -s toc -r5 --markdown ${man}/*.ronn \
 		&& $git add . \
 		&& $git commit -m "doc rebuild" \
 		&& $git ls-files \
