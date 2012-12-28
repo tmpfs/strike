@@ -5,6 +5,12 @@ function array.contains {
 	return 1;
 }
 
+function array.join {
+	local delimiter="${1:-,}";
+	local elements=( "${@:2}" );
+	_result=$(printf "${delimiter}%s" "${elements[@]}");
+}
+
 # TODO: rename to array.last as it cannot pop
 function array.pop {
 	#local arr=( "$@" );

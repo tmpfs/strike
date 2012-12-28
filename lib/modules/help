@@ -5,7 +5,7 @@ declare -agx __help_manpath;
 __help_manpath=();
 
 function help.initialize {
-	executable validate man;
+	executable validate man less;
 	
 	# set up default man paths
 	help.man.path "$exedir/man";
@@ -27,19 +27,34 @@ function help.man.page {
 	__help_manpages[$name]=$filename;
 }
 
+# show a man page
+function help.man.show {
+	local man="${executables[man]}";	
+	local page="${1:-}";
+	local section=${page##*.};
+	local name=${page%%.*};
+	echo "got section: $section";
+	echo "got name: $name";	
+	local path file;
+	if [ ! -z "$page" ]; then
+		echo "show man page : $page";
+		array.join ":" "${__help_manpath[@]}";
+		local manpath="$_result";
+		echo "got man path: $manpath";
+		$man -M "$manpath" "$section" "$name";
+	fi
+}
+
+# inspect the program options looking for a help option
+# and display the appropriate man page if possible
 function help.parse {
-	local man="${executables[man]}";
 	local section;
 	local manpage;
 	while [ "${1:-}" != "" ]; do
 		case $1 in
 		-h | --help | help )
-			# echo "GOT HELP OPTION... $man";
 			shift;
 			section="${1:-}";
-			
-			#echo "length after shift: $#";
-		
 			# nothing specified after the help option
 			# try to show the default help man page
 			if [ $# -eq 0 ]; then
@@ -49,7 +64,10 @@ function help.parse {
 					quit 1 "no help available for %s" "`basename $0`";
 				fi
 				
-				echo "show default man page... $manpage";
+				echo "show default man page... $manpage";				
+				
+				help.man.show "$manpage";
+			# try to show a specific man page
 			else
 				echo "try to show specific manual page..."
 			fi
