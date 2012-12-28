@@ -7,11 +7,11 @@ rest(1) -- generate HTTP(S) requests
 
 ## DESCRIPTION
 
-**rest** generates HTTP(S) requests using the http(1) module which wraps curl(1). The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.
+**rest** generates HTTP(S) requests using the http(7) module which wraps curl(1). The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.
 
 ## FILES
 
-The http(1) module generates some temporary files and files used for logging purposes and command persistence.
+The http(7) module generates some temporary files and files used for logging purposes and command persistence.
 
 ## COMMANDS
 

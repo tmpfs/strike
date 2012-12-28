@@ -39,7 +39,7 @@ The method(1) module provides utility functions for determining whether function
 
 ## SEE ALSO
 
-boilerplate(3), method(1), http(1), bake(1), rest(1)
+boilerplate(3), method(1), http(7), bake(1), rest(1)
 ronn:markdown
 
 set -o errtrace;
