@@ -27,25 +27,25 @@ function rest_head {
 function rest_post {
 	array.pop "$@";
 	local url="$_result";
-	http.curl "POST" "$url";
+	http curl "POST" "$url";
 }
 
 function rest_put {
 	array.pop "$@";
 	local url="$_result";
-	http.curl "PUT" "$url";
+	http curl "PUT" "$url";
 }
 
 function rest_delete {
 	array.pop "$@";
 	local url="$_result";
-	http.curl "DELETE" "$url";
+	http curl "DELETE" "$url";
 }
 
 function rest_options {
 	array.pop "$@";
 	local url="$_result";
-	http.curl "OPTIONS" "$url";
+	http curl "OPTIONS" "$url";
 }
 
 ######################################################################
