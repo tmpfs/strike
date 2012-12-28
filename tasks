@@ -6,18 +6,6 @@ function tasks.initialize {
 	executable validate 'ronn' 'git';
 }
 
-function __doc_copy {
-	local man="${target}/man";
-	mkdirp "$man";
-	
-	# copy all source .ronn to target/man
-	local cmd="cp "${root}/doc/*.ronn" "${man}"";
-	eval "$cmd";
-	
-	# also copy the index.* files over
-	eval "cp "${root}/doc/index.*" "${man}"";
-}
-
 # generates the man page(s) into target/man
 function tasks.doc.tmp {
 	local ronn="${executables[ronn]}";
@@ -54,4 +42,21 @@ function tasks.doc {
 	
 	# switch back to the develop branch
 	$git checkout develop;
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+function __doc_copy {
+	local man="${target}/man";
+	mkdirp "$man";
+	
+	# copy all source .ronn to target/man
+	local cmd="cp "${root}/doc/*.ronn" "${man}"";
+	eval "$cmd";
+	
+	# also copy the index.* files over
+	eval "cp "${root}/doc/index.*" "${man}"";
 }
