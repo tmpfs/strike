@@ -1,0 +1,3 @@
+function test.validate.fail {
+	assert.expects "1";
+}

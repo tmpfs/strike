@@ -71,13 +71,40 @@ options configure;
 options parse "$@";
 
 function assert_test {
+	
+	# require.list;
+	
+	if [ $# -eq 0 ]; then
+		quit 1 "no tests specified";
+	fi
+	
 	local opts=( "$@" );
 	local searchpaths=(
 		"$exedir/test"
 		"$exedir/../test"
 	);
+	local unit path file;
+	for path in ${searchpaths[@]}
+		do
+			for unit in ${opts[@]}
+				do
+					file="${path}/${unit}.test";
+					if [ -f "$file" ]; then
+						__assert_run_test "$file";
+					fi
+			done
+	done
+}
+
+function assert.expects {
+	echo "expects called with : $1";
+}
+
+function __assert_run_test {
+	local file="$1";
+	echo "running test: $file";
 	
-	echo "got assert options : ${opts[@]}";
+	require "$file" || quit 1 "could not require test file %s" "$file";
 }
 
 main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
