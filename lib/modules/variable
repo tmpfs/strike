@@ -1,9 +1,15 @@
 function variable_get {
 	local name="$1";
 	set +o nounset;
-	eval value="$"$name;
-	set -o nounset;
+	variable_is_array "$name";
+	local isarray="$_result";
+	if [ $isarray -eq 0 ]; then
+		eval value=\${"$name"[@]};
+	else
+		eval value="$"$name;
+	fi
 	_result="$value";
+	set -o nounset;
 }
 
 function variable_set {
