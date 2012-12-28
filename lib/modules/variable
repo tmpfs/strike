@@ -14,7 +14,7 @@ function variable_get {
 
 function variable_set {
 	local name="$1";
-	local value="$2";	
+	local value="$2";
 	
 	#echo "variable_set: $name : $value";
 	
@@ -46,6 +46,7 @@ function variable_is_array {
 	set -o errexit;
 	_result="$exists";
 }
+
 
 function variable_unset {
 	local prefix="$1";

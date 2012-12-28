@@ -5,6 +5,7 @@ function array.contains {
 	return 1;
 }
 
+# TODO: rename to array.last as it cannot pop
 function array.pop {
 	#local arr=( "$@" );
 	#_result=arr[${#arr[@]}-1];
