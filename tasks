@@ -7,8 +7,6 @@ function tasks.initialize {
 }
 
 function __doc_copy {
-	local ronn="${executables[ronn]}";
-	local git="${executables[git]}";
 	local man="${target}/man";
 	mkdirp "$man";
 	
@@ -17,11 +15,13 @@ function __doc_copy {
 	eval "$cmd";
 	
 	# also copy the index.* files over
-	eval "cp "${root}/doc/index.*" "${man}"";	
+	eval "cp "${root}/doc/index.*" "${man}"";
 }
 
 # generates the man page(s) into target/man
 function tasks.doctmp {
+	local ronn="${executables[ronn]}";
+	local man="${target}/man";		
 	__doc_copy;
 	$ronn -w -s toc -r5 --markdown ${man}/*.ronn
 }
