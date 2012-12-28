@@ -106,9 +106,9 @@ The `--print-*` options control what is output after a request has been made.
 	Print all response headers.
 	
 * `--print-env`:
-	Print all `http_*` variables. This print output option outputs the variables in a `name=value` format with the values quoted using `printf`. This allows redirection of this output to a file that could later be included using `source`. For example:
+	Print all `http_*` variables. This print output option outputs the variables in a `name=value` format with the values quoted using printf(1). This allows redirection of this output to a file that could later be included using source(1). For example:
 
-	rest get --print-env google.com > http.vars;
+	rest get --print-env google.com > http.vars;<br>
 	source http.vars;
 
 ## BUGS
