@@ -1,10 +1,10 @@
 # core manuals
 strike(1)     	strike.1.ronn
 boilerplate(3)  boilerplate.3.ronn
-require(3)  	require.3.ronn
+# require(3)  	require.3.ronn
 
 # modules
-method(3)     	method.3.ronn
+# method(3)     	method.3.ronn
 http(1)     	http.1.ronn
 
 # executables
