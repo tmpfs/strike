@@ -20,6 +20,9 @@ In your tasks(7) file `require` the `doc` tasks using:
 
 The following commands are then available to bake(1):
 
+* `doc.build`:
+	Invokes `doc.generate`, `doc.compile` and `doc.man.import`.
+
 * `doc.generate`:
 	Searches the doc search paths and attempts to find inline heredoc declarations in any files within the search paths. When an inline heredoc is encountered a corresponding `.ronn` file is generated in `${target}/doc`.
 	
@@ -40,11 +43,12 @@ bake(1), strike(1), require(7)
 ronn:markdown
 
 function tasks.initialize {
-	executable validate 'ronn';
+	executable validate 'ronn' 'git';
 }
 
-function tasks.doc.all {
-	tasks.doc.generate && tasks.doc.compile;
+# generates, compiles and imports man pages
+function tasks.doc.build {
+	tasks.doc.generate && tasks.doc.compile && tasks.doc.man.import;
 }
 
 # generates ronn markdown documentation
@@ -64,6 +68,34 @@ function tasks.doc.generate {
 		do
 			__tasks.doc.walk "$path";
 	done
+}
+
+# removes man pages exported to ${root}/man
+function tasks.doc.man.clean {
+	local man="${root}/man";
+	# clean any existing man pages
+	local cmd="rm -fv "${man}/*"";
+	eval $cmd;
+}
+
+# imports the compiled man page(s) into ${root}/man
+function tasks.doc.man.import {
+	local man="${root}/man";
+	local mantmp="${target}/doc";
+	if [ ! -d "$man" ]; then
+		mkdirp "$man";
+	fi
+
+	tasks.doc.man.clean;
+
+	# copy over man pages
+	local i cmd;
+	for i in {1..8}
+		do
+			cmd="cp -v "${mantmp}/*.${i}" "${man}"";
+			eval $cmd > /dev/null 2>&1;
+	done
+	return 0;
 }
 
 # compiles generated .ronn files to markdown and html
@@ -163,6 +195,7 @@ function __tasks.doc.output {
 	_result="${target}/doc";
 }
 
+# retrieves a list of assets to be copied prior to compilation
 function __tasks.doc.assets {
 	local assets=(
 		"${root}/doc/index.txt"
