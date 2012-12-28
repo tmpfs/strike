@@ -1,0 +1,66 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "TASKS\-DOC" "7" "December 2012" "" ""
+.
+.SH "NAME"
+\fBtasks\-doc\fR \- documentation tasks for bake
+.
+.SH "SYNOPSIS"
+Collection of documentation tasks for bake(1)\.
+.
+.SH "DESCRIPTION"
+Adds task methods for generating and compiling inline heredoc documentation\.
+.
+.SH "USAGE"
+In your tasks(7) file \fBrequire\fR the \fBdoc\fR tasks using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/doc\';
+.
+.fi
+.
+.IP "" 0
+.
+.SH "METHODS"
+The following commands are then available to bake(1):
+.
+.TP
+\fBdoc\.all\fR
+Invokes \fBdoc\.build\fR and \fBdoc\.pages\.publish\fR\.
+.
+.TP
+\fBdoc\.build\fR
+Invokes \fBdoc\.generate\fR, \fBdoc\.compile\fR and \fBdoc\.man\.import\fR\.
+.
+.TP
+\fBdoc\.generate\fR
+Searches the doc search paths and attempts to find inline heredoc declarations in any files within the search paths\. When an inline heredoc is encountered a corresponding \fB\.ronn\fR file is generated in \fB${target}/doc\fR\.
+.
+.TP
+\fBdoc\.compile\fR
+Compiles any \fB\.ronn\fR documents previously generated using the \fBdoc\.generate\fR task\.
+.
+.TP
+\fBdoc\.pages\.publish\fR
+Switches to a \fBgh\-pages\fR branch, copies over generated documentation before pushing the \fBgh\-pages\fR branch to github(7)\. The \fBgh\-pages\fR branch must already exist for this command to succeed\.
+.
+.TP
+\fBdoc\.man\.import\fR
+Copies compiled man pages into \fB${root}/man\fR\.
+.
+.TP
+\fBdoc\.man\.clean\fR
+Removes man pages from \fB${root}/man\fR\.
+.
+.SH "BUGS"
+\fBtasks\-doc\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBtasks\-doc\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+bake(1), strike(1), require(7)
