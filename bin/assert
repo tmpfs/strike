@@ -50,7 +50,11 @@ function boilerplate {
 boilerplate;
 ######################################################################
 
+#method.list;
 require 'help';
+#method.list;
+exit 0;
+
 require 'options';
 
 # configure help
@@ -70,10 +74,7 @@ options configure;
 #parse the parameters
 options parse "$@";
 
-function assert_test {
-	
-	# require.list;
-	
+function assert_test {	
 	if [ $# -eq 0 ]; then
 		quit 1 "no tests specified";
 	fi
@@ -101,10 +102,14 @@ function assert.expects {
 }
 
 function __assert_run_test {
+	
+	require.list;	
 	local file="$1";
 	echo "running test: $file";
 	
 	require "$file" || quit 1 "could not require test file %s" "$file";
+	
+	require.list;	
 }
 
 main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";

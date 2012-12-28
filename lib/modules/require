@@ -64,7 +64,7 @@ function __require_source {
 	method.diff.start;
 	source "$abs";
 	method.diff.end;
-	#echo "got method end diff result: $_result";
+	echo "got method end diff result: $_result";
 	__require_methods=( "$_result" );
 }
 
@@ -79,6 +79,9 @@ function __require_load {
 	local loaded=0;
 	local declared;	
 	if [ ! -z "$name" ]; then
+		
+		# TODO: handle ./ and ../../ paths
+		
 		# got a path try to load from absolute path
 		if [[ "$name" =~ ^/ ]]; then
 			abs="$name";
