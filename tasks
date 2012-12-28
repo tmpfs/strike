@@ -30,7 +30,7 @@ function tasks.doc {
 	$ronn -w -s toc -r5 --markdown ${man}/*.ronn;
 	
 	# copy over the temporary man pages
-	cmd="cp -f "${man}/*" "${root}"";
+	cmd="cp -fv "${man}/*" "${root}"";
 	cd "${root}" \
 		&& rm -fv ./*.html \
 		&& eval "$cmd" \
