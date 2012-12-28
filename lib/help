@@ -6,6 +6,7 @@
 #	Functions for program help output.
 ######################################################################
 
+# deprecated: legacy program help support
 function program_help {
 	local nm=`basename $0`;
 	local help_file="$exedir/${nm}.help";

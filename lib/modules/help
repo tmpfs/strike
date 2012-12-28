@@ -1,0 +1,60 @@
+require 'executable';
+
+declare -Agx __help_manpages;
+declare -agx __help_manpath;
+__help_manpath=();
+
+function help.initialize {
+	executable validate man;
+	
+	# set up default man paths
+	help.man.path "$exedir/man";
+	help.man.path "$exedir/doc";
+	help.man.path "$exedir/../man";
+	help.man.path "$exedir/../doc";
+}
+
+# add a help man path search directory
+function help.man.path {
+	# echo "setting help man path: $1";
+	__help_manpath+=( "$1" );
+}
+
+# add a help man path search directory
+function help.man.page {
+	local name="${1:-}";
+	local filename="${2:-}";
+	__help_manpages[$name]=$filename;
+}
+
+function help.parse {
+	local man="${executables[man]}";
+	local section;
+	local manpage;
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+		-h | --help | help )
+			# echo "GOT HELP OPTION... $man";
+			shift;
+			section="${1:-}";
+			
+			#echo "length after shift: $#";
+		
+			# nothing specified after the help option
+			# try to show the default help man page
+			if [ $# -eq 0 ]; then
+				manpage=${__help_manpages[default]:-};
+				
+				if [ -z "$manpage" ]; then
+					quit 1 "no help available for %s" "`basename $0`";
+				fi
+				
+				echo "show default man page... $manpage";
+			else
+				echo "try to show specific manual page..."
+			fi
+			;;
+		esac
+		shift;
+	done
+}
