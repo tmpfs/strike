@@ -1,0 +1,22 @@
+assert(1) -- unit test runner for strike(1)
+=============================================
+
+## SYNOPSIS
+
+`assert` test [<unit>...]<br>
+
+## DESCRIPTION
+
+**assert** runs strike(1) unit tests.
+
+## BUGS
+
+**assert** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**assert** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+strike(1)

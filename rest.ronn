@@ -3,7 +3,7 @@ rest(1) -- generate HTTP(S) requests
 
 ## SYNOPSIS
 
-`rest` command [<var>options</var>...] <var>url</var><br>
+`rest` command [<options>...] <url><br>
 
 ## DESCRIPTION
 
@@ -54,7 +54,7 @@ The rest(1) program expects the first option to be a command, below is the list 
 
 	`rest redo`
 	
-* `load` `<var>name</var>`:
+* `load` `<name>`:
 	Loads and executes a previously saved configuration file:
 
 	`rest get --save google google.com`<br>
@@ -89,10 +89,10 @@ Wherever possible **rest** follows the command line options available to curl(1)
 * `--xml`:
 	Sends data using the `--data-binary` option and adds a *content-type* of **text/xml**.
 	
-* `--param` `<var>name</var>` `<var>value</var>`:
-	Add a URL query string parameter, repeatable. The `<var>value</var>` should *not* be URL-encoded.
+* `--param` `<name>` `<value>`:
+	Add a URL query string parameter, repeatable. The `<value>` should *not* be URL-encoded.
 	
-* `--save` `<var>name</var>`:
+* `--save` `<name>`:
 	Saves a configuration file into `.http/config` with the specified name. This configuration file may then later be executed using the `load` command.
 	
 ### PRINT OPTIONS
@@ -125,33 +125,3 @@ The `--print-*` options control what is output after a request has been made.
 ## SEE ALSO
 
 curl(1)
-
-
-[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
-[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
-[FILES]: #FILES "FILES"
-[COMMANDS]: #COMMANDS "COMMANDS"
-[OPTIONS]: #OPTIONS "OPTIONS"
-[PRINT OPTIONS]: #PRINT-OPTIONS "PRINT OPTIONS"
-[BUGS]: #BUGS "BUGS"
-[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
-[SEE ALSO]: #SEE-ALSO "SEE ALSO"
-
-
-[strike(1)]: 	strike.1.html
-[boilerplate(3)]: boilerplate.3.html
-[require(3)]: 	require.3.html
-[method(3)]: 	method.3.html
-[http(7)]: 	http.1.html
-[bake(1)]: 	bake.1.html
-[rest(1)]: 	rest.1.html
-[curl(1)]: 	http://man.cx/curl(1).html
-[tee(1)]: 		http://man.cx/tee(1).html
-[assert(1)]: assert.html
-[bake(1)]: bake.html
-[boilerplate(3)]: boilerplate.html
-[tasks-doc(7)]: doc.html
-[help(7)]: help.html
-[http(7)]: http.html
-[rest(1)]: rest.html
-[strike(1)]: strike.html

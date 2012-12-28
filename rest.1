@@ -12,10 +12,10 @@
 .br
 .
 .SH "DESCRIPTION"
-\fBrest\fR generates HTTP(S) requests using the http(1) module which wraps curl(1)\. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS\.
+\fBrest\fR generates HTTP(S) requests using the http(7) module which wraps curl(1)\. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS\.
 .
 .SH "FILES"
-The http(1) module generates some temporary files and files used for logging purposes and command persistence\.
+The http(7) module generates some temporary files and files used for logging purposes and command persistence\.
 .
 .SH "COMMANDS"
 The rest(1) program expects the first option to be a command, below is the list of available commands:
@@ -140,7 +140,7 @@ Print all response headers\.
 .
 .TP
 \fB\-\-print\-env\fR
-Print all \fBhttp_*\fR variables\. This print output option outputs the variables in a \fBname=value\fR format with the values quoted using printf(1)\. This allows redirection of this output to a file that could later be included using source(1)\. For example:
+Print all \fBhttp_*\fR variables\. This print output option outputs the variables in a \fBname=value\fR format with the values quoted using printf(1)\. This allows redirection of the output to a file that could later be included using source(1)\. For example:
 .
 .IP
 rest get \-\-print\-env google\.com > http\.vars;
