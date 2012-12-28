@@ -1,4 +1,4 @@
-assert(1) -- unit test runner
+assert(1) -- unit test runner for strike(1)
 =============================================
 
 ## SYNOPSIS

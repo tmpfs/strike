@@ -4,6 +4,8 @@ declare -Agx __help_manpages;
 declare -agx __help_manpath;
 __help_manpath=();
 
+declare -gx __help_stderr_file="$HOME/.help.stderr";
+
 function help.initialize {
 	executable validate man less;
 	
@@ -31,26 +33,55 @@ function help.man.page {
 function help.man.show {
 	local man="${executables[man]}";	
 	local page="${1:-}";
-	local section=${page##*.};
 	local name=${page%%.*};
-	# echo "got section: $section";
 	# echo "got name: $name";	
-	local path file;
+	local path file displayed=0;
 	if [ ! -z "$page" ]; then
-		# echo "show man page : $page";
-		array.join ":" "${__help_manpath[@]}";
-		local manpath="$_result";
-		# echo "got man path: $manpath";
-		
-		echo "help: $man -M "$manpath" "$section" "$name""		
-		
-		$man -M "$manpath" "$section" "$name";
+		for path in ${__help_manpath[@]}
+			do
+				file="${path}/${page}";
+				if [ -f "$file" ]; then
+					displayed=1;					
+					$man "$file" 2> "$__help_stderr_file";
+					return $?;
+				fi
+		done
+		if [ $displayed -eq 0 ]; then
+			array.join ":" "${__help_manpath[@]}";
+			local manpath="$_result";
+			$man -M "$manpath" "$name" 2> "$__help_stderr_file";
+			return $?;
+		fi
 	fi
+}
+
+function help.exit {
+	local code="$1";
+	# echo "got man page exit code: $code";
+	
+	# everything went ok so just quit
+	if [ $code -eq 0 ]; then
+		exit 0;
+	# got an error status and custom error output
+	elif [ $code -gt 0 ] && [ -f "$__help_stderr_file" ]; then
+		local err=`cat "$__help_stderr_file"`;
+		help.clean;
+		quit $code "$err";
+	elif [ $code -gt 0 ]; then
+		quit $code "no man page available";
+	fi
+}
+
+function help.clean {
+	if [ -f "$__help_stderr_file" ]; then
+		rm "$__help_stderr_file";
+	fi	
 }
 
 # inspect the program options looking for a help option
 # and display the appropriate man page if possible
 function help.parse {
+	help.clean;
 	local section;
 	local manpage;
 	while [ "${1:-}" != "" ]; do
@@ -62,17 +93,19 @@ function help.parse {
 			# try to show the default help man page
 			if [ $# -eq 0 ]; then
 				manpage=${__help_manpages[default]:-};
-				
 				if [ -z "$manpage" ]; then
 					quit 1 "no help available for %s" "`basename $0`";
 				fi
-				
-				# echo "show default man page... $manpage";				
-				
+				set +o errexit;				
 				help.man.show "$manpage";
+				help.exit "$?";
+				set -o errexit;
 			# try to show a specific man page
 			else
-				echo "try to show specific manual page..."
+				set +o errexit;
+				help.man.show "$section";
+				help.exit "$?";	
+				set -o errexit;
 			fi
 			;;
 		esac

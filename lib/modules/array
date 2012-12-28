@@ -6,6 +6,7 @@ function array.contains {
 }
 
 function array.join {
+	#TODO: strip leading delimiter
 	local delimiter="${1:-,}";
 	local elements=( "${@:2}" );
 	_result=$(printf "${delimiter}%s" "${elements[@]}");
