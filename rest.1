@@ -38,6 +38,27 @@ Perform a HEAD request:
 Note that this command does not use the \fB\-\-request HEAD\fR option as curl(1) tends to hang when using the HEAD verb, instead this command uses the \fB\-\-head\fR option along with a GET request method\.
 .
 .TP
+\fBpost\fR
+Perform a POST request:
+.
+.IP
+\fBrest post \-\-json \'{"name":"value"}\' google\.com\fR
+.
+.TP
+\fBput\fR
+Perform a PUT request:
+.
+.IP
+\fBrest put \-\-json \'{"name":"value"}\' google\.com\fR
+.
+.TP
+\fBdelete\fR
+Perform a DELETE request:
+.
+.IP
+\fBrest delete google\.com\fR
+.
+.TP
 \fBdl\fR
 Download a file:
 .

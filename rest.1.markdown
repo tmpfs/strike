@@ -29,6 +29,21 @@ The rest(1) program expects the first option to be a command, below is the list 
 	
 	Note that this command does not use the `--request HEAD` option as curl(1) tends to hang when using the HEAD verb, instead this command uses the `--head` option along with a GET request method.
 	
+* `post`:
+	Perform a POST request:
+
+	`rest post --json '{"name":"value"}' google.com`
+	
+* `put`:
+	Perform a PUT request:
+
+	`rest put --json '{"name":"value"}' google.com`
+	
+* `delete`:
+	Perform a DELETE request:
+
+	`rest delete google.com`
+	
 * `dl`:
 	Download a file:
 
