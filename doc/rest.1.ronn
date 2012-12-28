@@ -94,6 +94,19 @@ Wherever possible **rest** follows the command line options available to curl(1)
 	
 * `--save` `<name>`:
 	Saves a configuration file into `.http/config` with the specified name. This configuration file may then later be executed using the `load` command.
+	
+### PRINT OPTIONS
+
+The `--print-*` options control what is output after a request has been made.
+
+* `--print-body`:
+	Print the body of the response.
+	
+* `--print-headers`:
+	Print all response headers.
+	
+* `--print-env`:
+	Print all `http_*` variables.
 
 ## BUGS
 

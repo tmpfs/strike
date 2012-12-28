@@ -125,7 +125,7 @@ function http.curl.execute {
 		http_exit_code=${http_exit_code:-0};
 	fi
 	
-	echo "got curl exit code: $http_exit_code";
+	# echo "got curl exit code: $http_exit_code";
 	
 	if [ ${#results[@]} -gt 2 ]; then
 		http_response_status="${results[0]}";
@@ -243,7 +243,7 @@ function http_curl {
 	
 	runopts=( "${runopts[@]}" "$url" );
 	
-	echo "runopts: ${runopts[@]}";
+	# echo "runopts: ${runopts[@]}";
 	
 	http_request_method="${method}";
 	

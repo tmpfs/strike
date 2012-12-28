@@ -2,6 +2,8 @@ require 'http';
 
 #TODO: implement get/post/put/delete etc
 
+declare -Agx rest_print;
+
 ######################################################################
 #
 #	HTTP verb commands
@@ -11,41 +13,42 @@ function rest_get {
 	array.pop "$@";
 	local url="$_result";
 	http curl "GET" "$url";
-	#echo "num redirects: $http_response_num_redirects";
-	#echo "return code: $http_response_exit_code";
-	# __rest_print_body;
+	__rest_print;
 }
 
 function rest_head {
 	array.pop "$@";
 	local url="$_result";
 	http curl "GET" "$url" "--head";
-	
-	__rest_print_body;
+	__rest_print;
 }
 
 function rest_post {
 	array.pop "$@";
 	local url="$_result";
 	http curl "POST" "$url";
+	__rest_print;	
 }
 
 function rest_put {
 	array.pop "$@";
 	local url="$_result";
 	http curl "PUT" "$url";
+	__rest_print;	
 }
 
 function rest_delete {
 	array.pop "$@";
 	local url="$_result";
 	http curl "DELETE" "$url";
+	__rest_print;	
 }
 
 function rest_options {
 	array.pop "$@";
 	local url="$_result";
 	http curl "OPTIONS" "$url";
+	__rest_print;
 }
 
 ######################################################################
@@ -136,17 +139,28 @@ function rest_options.parse {
 			;;
 		--json )
 			shift;
-			value="$1";
+			# value="$1";
+			value=$( printf %q "$1" );
 			# echo "got json data parameter... :: $value";
 			http request.add.header "content-type: application/json";
 			http.option.add "--data-binary" "$value";
 			;;
 		--xml )
 			shift;
-			value="$1";
+			# value="$1";
+			value=$( printf %q "$1" );
 			# echo "got xml data parameter... :: $value";
 			http request.add.header "content-type: text/xml";
 			http.option.add "--data-binary" "$value";
+			;;
+		--print-body )
+			rest_print[body]="on";
+			;;
+		--print-headers )
+			rest_print[headers]="on";
+			;;
+		--print-env )
+			rest_print[env]="on";
 			;;
 			
 		
@@ -168,6 +182,46 @@ function rest_options.parse {
 			break;
 		fi
 	done
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __rest_print {
+	#echo "echo handling printing output...";
+	local p m exists;
+	for p in ${!rest_print[@]}
+		do
+			m="__rest_print_${p}";
+			# echo "handling print of : $m";
+			method.exists "$m";
+			exists=$?;
+			set -o errexit;
+			if [ $exists -eq 0 ]; then
+				# echo "got method exists... $m";
+				$m;
+			fi
+	done
+}
+
+function __rest_print_env {
+	local name value;
+	for name in ${!http_*}
+		do
+			variable_get "$name";
+			value=$( printf %q "$value" );
+			echo "${name}=${value}";
+	done
+}
+
+function __rest_print_headers {
+	if [ -f "$http_head_dump_file" ]; then
+		#echo "got http body file... $http_body_file"
+		cat "$http_head_dump_file";
+	fi
 }
 
 function __rest_print_body {
