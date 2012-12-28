@@ -87,6 +87,18 @@ Set the content type for the request\.
 Set a request header\.
 .
 .TP
+\fB\-d\fR, \fB\-\-data\fR
+Data to send with the request, see curl(1) for more information\.
+.
+.TP
+\fB\-\-json\fR
+Sends data using the \fB\-\-data\-binary\fR option and adds a \fIcontent\-type\fR of \fBapplication/json\fR\.
+.
+.TP
+\fB\-\-xml\fR
+Sends data using the \fB\-\-data\-binary\fR option and adds a \fIcontent\-type\fR of \fBtext/xml\fR\.
+.
+.TP
 \fB\-\-param\fR \fB<name>\fR \fB<value>\fR
 Add a URL query string parameter, repeatable\. The \fB<value>\fR should \fInot\fR be URL\-encoded\.
 .

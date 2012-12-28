@@ -65,6 +65,15 @@ Wherever possible **rest** follows the command line options available to curl(1)
 * `-H`, `--header`:
 	Set a request header.
 	
+* `-d`, `--data`:
+	Data to send with the request, see curl(1) for more information.
+	
+* `--json`:
+	Sends data using the `--data-binary` option and adds a *content-type* of **application/json**.
+	
+* `--xml`:
+	Sends data using the `--data-binary` option and adds a *content-type* of **text/xml**.
+	
 * `--param` `<var>name</var>` `<var>value</var>`:
 	Add a URL query string parameter, repeatable. The `<var>value</var>` should *not* be URL-encoded.
 	

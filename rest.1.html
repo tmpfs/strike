@@ -132,6 +132,9 @@
 <dl>
 <dt class="flush"><code>--type</code></dt><dd><p>  Set the content type for the request.</p></dd>
 <dt><code>-H</code>, <code>--header</code></dt><dd><p>  Set a request header.</p></dd>
+<dt><code>-d</code>, <code>--data</code></dt><dd><p>  Data to send with the request, see <a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a> for more information.</p></dd>
+<dt class="flush"><code>--json</code></dt><dd><p>  Sends data using the <code>--data-binary</code> option and adds a <em>content-type</em> of <strong>application/json</strong>.</p></dd>
+<dt class="flush"><code>--xml</code></dt><dd><p>  Sends data using the <code>--data-binary</code> option and adds a <em>content-type</em> of <strong>text/xml</strong>.</p></dd>
 <dt><code>--param</code> <code>&lt;name></code> <code>&lt;value></code></dt><dd><p>  Add a URL query string parameter, repeatable. The <code>&lt;value></code> should <em>not</em> be URL-encoded.</p></dd>
 <dt><code>--save</code> <code>&lt;name></code></dt><dd><p>  Saves a configuration file into <code>.http/config</code> with the specified name. This configuration file may then later be executed using the <code>load</code> command.</p></dd>
 </dl>
