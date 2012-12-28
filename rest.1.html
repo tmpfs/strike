@@ -156,7 +156,7 @@
 <dl>
 <dt><code>--print-body</code></dt><dd><p>  Print the body of the response.</p></dd>
 <dt><code>--print-headers</code></dt><dd><p>  Print all response headers.</p></dd>
-<dt><code>--print-env</code></dt><dd><p>  Print all <code>http_*</code> variables. This print output option outputs the variables in a <code>name=value</code> format with the values quoted using <span class="man-ref">printf<span class="s">(1)</span></span>. This allows redirection of this output to a file that could later be included using <span class="man-ref">source<span class="s">(1)</span></span>. For example:</p>
+<dt><code>--print-env</code></dt><dd><p>  Print all <code>http_*</code> variables. This print output option outputs the variables in a <code>name=value</code> format with the values quoted using <code>printf</code>. This allows redirection of this output to a file that could later be included using <code>source</code>. For example:</p>
 
 <p>  rest get --print-env google.com > http.vars;
   source http.vars;</p></dd>

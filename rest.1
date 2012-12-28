@@ -140,7 +140,7 @@ Print all response headers\.
 .
 .TP
 \fB\-\-print\-env\fR
-Print all \fBhttp_*\fR variables\. This print output option outputs the variables in a \fBname=value\fR format with the values quoted using printf(1)\. This allows redirection of this output to a file that could later be included using source(1)\. For example:
+Print all \fBhttp_*\fR variables\. This print output option outputs the variables in a \fBname=value\fR format with the values quoted using \fBprintf\fR\. This allows redirection of this output to a file that could later be included using \fBsource\fR\. For example:
 .
 .IP
 rest get \-\-print\-env google\.com > http\.vars; source http\.vars;
