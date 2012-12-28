@@ -27,8 +27,6 @@ function boilerplate {
 boilerplate;
 ######################################################################
 
-source "$libdir/shared";
-
 # set up the main delegate module as 'strike'
 module="$PROGRAM_NAME";
 
