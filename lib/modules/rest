@@ -116,9 +116,21 @@ function rest_options.parse {
 		-d | --data )
 			shift;
 			value="$1";
-			echo "got data parameter... :: $value";
-			#http request.add.header "content-type: $1";
 			http.option.add "--data" "$value";
+			;;
+		--json )
+			shift;
+			value="$1";
+			# echo "got json data parameter... :: $value";
+			http request.add.header "content-type: application/json";
+			http.option.add "--data-binary" "\"$value\"";
+			;;
+		--xml )
+			shift;
+			value="$1";
+			# echo "got xml data parameter... :: $value";
+			http request.add.header "content-type: text/xml";
+			http.option.add "--data-binary" "$value";
 			;;
 			
 		
