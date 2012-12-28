@@ -6,7 +6,29 @@ function tasks.initialize {
 	executable validate 'ronn' 'git';
 }
 
+function __doc_copy {
+	local ronn="${executables[ronn]}";
+	local git="${executables[git]}";
+	local man="${target}/man";
+	mkdirp "$man";
+	
+	# copy all source .ronn to target/man
+	local cmd="cp "${root}/doc/*.ronn" "${man}"";
+	eval "$cmd";
+	
+	# also copy the index.* files over
+	eval "cp "${root}/doc/index.*" "${man}"";	
+}
+
+# generates the man page(s) into target/man
+function tasks.doctmp {
+	__doc_copy;
+	$ronn -w -s toc -r5 --markdown ${man}/*.ronn
+}
+
 # generates the man page documentation
+# and attempts to push the gh-pages branch
+# before switching back to develop
 function tasks.doc {
 	local ronn="${executables[ronn]}";
 	local git="${executables[git]}";
