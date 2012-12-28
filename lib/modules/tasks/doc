@@ -20,6 +20,9 @@ In your tasks(7) file `require` the `doc` tasks using:
 
 The following commands are then available to bake(1):
 
+* `doc.all`:
+	Invokes `doc.build` and `doc.pages.publish`.
+
 * `doc.build`:
 	Invokes `doc.generate`, `doc.compile` and `doc.man.import`.
 
@@ -28,6 +31,15 @@ The following commands are then available to bake(1):
 	
 * `doc.compile`:
 	Compiles any `.ronn` documents previously generated using the `doc.generate` task.
+	
+* `doc.pages.publish`:
+	Switches to a `gh-pages` branch, copies over generated documentation before pushing the `gh-pages` branch to github(7).
+	
+* `doc.man.import`:
+	Copies compiled man pages into `${root}/man`.
+	
+* `doc.man.clean`:
+	Removes man pages from `${root}/man`.
 
 ## BUGS
 
@@ -44,6 +56,11 @@ ronn:markdown
 
 function tasks.initialize {
 	executable validate 'ronn' 'git';
+}
+
+# generates, compiles and imports man pages
+function tasks.doc.all {
+	tasks.doc.build && tasks.doc.pages.publish;
 }
 
 # generates, compiles and imports man pages
@@ -96,6 +113,36 @@ function tasks.doc.man.import {
 			eval $cmd > /dev/null 2>&1;
 	done
 	return 0;
+}
+
+# generates the man page documentation
+# and attempts to push the gh-pages branch
+# before switching back to develop
+function tasks.doc.pages.publish {
+	local ronn="${executables[ronn]}";
+	local git="${executables[git]}";
+	local man="${target}/doc";
+	
+	# __man_copy;
+	
+	# check out the gh-pages branch
+	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
+	
+	# $ronn -w -s toc -r5 --markdown ${man}/*.ronn;
+	
+	# copy over the temporary man pages
+	cmd="cp -fv "${man}/*" "${root}"";
+	cd "${root}" \
+		&& rm -fv ./*.html \
+		&& eval "$cmd" \
+		&& $git add . \
+		&& $git commit -a -m "doc rebuild" \
+		&& $git ls-files \
+		&& $git push origin gh-pages \
+		|| { $git checkout develop && quit 1 "could not rebuild docs"; };
+	
+	# switch back to the develop branch
+	$git checkout develop;
 }
 
 # compiles generated .ronn files to markdown and html
