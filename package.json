@@ -19,6 +19,7 @@
 	},
 	"config" : {},
 	"bin" : {
-		"bake" : "./bin/bake"
+		"bake" : "./bin/bake",
+		"assert" : "./bin/assert"
 	}
 }
