@@ -1,4 +1,4 @@
-strike(1) -- require for `bash`
+strike(1) -- require for bash
 =============================================
 
 ## SYNOPSIS
