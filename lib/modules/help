@@ -1,5 +1,11 @@
 require 'executable';
 
+# # specify the name of the manual page for
+# # inline man page heredoc
+# : <<'ronn:name'
+# help.7
+# ronn:name
+
 # TODO: implement inline ronn parsing...
 : <<'ronn:markdown'
 help(7) -- help module for strike(1)

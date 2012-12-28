@@ -8,8 +8,6 @@ function tasks.doc.generate {
 	__tasks.doc.output;
 	local output="$_result";
 	
-	#echo "got output directory.. $output";
-	
 	if [ ! -d "$output" ]; then
 		mkdir -p "$output";
 	fi
@@ -30,10 +28,29 @@ function tasks.doc.generate {
 
 # compiles generated .ronn files to markdown and html
 function tasks.doc.compile {
+	
+	# copy over assets
+	__tasks.doc.assets.copy;
+	
 	__tasks.doc.output;
 	local output="$_result";
 	local ronn="${executables[ronn]}";
 	$ronn -w -s toc -r5 --markdown ${output}/*.ronn;
+}
+
+function __tasks.doc.assets.copy {
+	__tasks.doc.assets;
+	local assets=( "$_result" );
+	
+	__tasks.doc.output;
+	local output="$_result";	
+	
+	local a;
+	for a in ${assets[@]}
+		do
+			cp -rfv "$a" "$output" 2> /dev/null;
+	done
+	#echo "copying assets ${assets[@]} to $output";
 }
 
 function __tasks.doc.parse {
@@ -46,21 +63,19 @@ function __tasks.doc.parse {
 	local docstart=": <<'ronn:markdown'";
 	local docend="ronn:markdown";
 	
-	#echo "parsing files ... $file";
-	
 	local inside=0;
 	local heredoc="";
 	while read line
 		do
 			#echo "got line $line";
 			if [ "$line" == "$docstart" ]; then
-				echo "got docstart on file : $file";
+				# echo "got docstart on file : $file";
 				inside=1;
 				continue;
 			fi
 			
 			if [ "$line" == "$docend" ]; then
-				echo "got docend on file : $file : $heredoc";
+				# echo "got docend on file : $file : $heredoc";
 				inside=0;
 				continue;
 			fi
@@ -72,7 +87,7 @@ function __tasks.doc.parse {
 			fi
 	done < "$file";
 	if [ ! -z "$heredoc" ]; then
-		echo -n "$heredoc" > "$outputfile";
+		echo -n "$heredoc" > "$outputfile" && info "generated %s" "$outputfile";
 	fi
 }
 
@@ -89,4 +104,13 @@ function __tasks.doc.path {
 # retrieves the doc generate output directory
 function __tasks.doc.output {
 	_result="${target}/doc";
+}
+
+function __tasks.doc.assets {
+	local assets=(
+		"${root}/doc/index.txt"
+		"${root}/doc/index.html"
+		"${root}/doc/assets"
+	);
+	_result="${assets[@]}";
 }
