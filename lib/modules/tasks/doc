@@ -15,11 +15,6 @@ Adds task methods for generating and compiling inline heredoc documentation.
 In your tasks(7) file `require` the `doc` tasks using:
 
 	require 'tasks/doc';
-	
-You can then generate and compile the documentation with:
-
-	`bake doc.generate`<br />
-	`bake doc.compile`<br />
 
 ## METHODS
 
@@ -41,7 +36,7 @@ The following commands are then available to bake(1):
 
 ## SEE ALSO
 
-bake(1), strike(1)
+bake(1), strike(1), require(7)
 ronn:markdown
 
 function tasks.initialize {
@@ -122,6 +117,8 @@ function __tasks.doc.parse {
 	
 	local inside=0;
 	local heredoc="";
+	local IFS="
+";
 	while read line
 		do
 			#echo "got line $line";
