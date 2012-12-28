@@ -10,7 +10,7 @@ function tasks.initialize {
 function tasks.man.tmp {
 	local ronn="${executables[ronn]}";
 	local man="${target}/man";	
-	__doc_copy;
+	__man_copy;
 	$ronn -w -s toc -r5 --markdown ${man}/*.ronn;
 }
 
@@ -41,12 +41,12 @@ function tasks.man {
 # generates the man page documentation
 # and attempts to push the gh-pages branch
 # before switching back to develop
-function tasks.doc {
+function tasks.man.publish {
 	local ronn="${executables[ronn]}";
 	local git="${executables[git]}";
 	local man="${target}/man";
 	
-	__doc_copy;
+	__man_copy;
 	
 	# check out the gh-pages branch
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
@@ -73,7 +73,7 @@ function tasks.doc {
 #	PRIVATE METHODS
 #
 ######################################################################
-function __doc_copy {
+function __man_copy {
 	local man="${target}/man";
 	mkdirp "$man";
 	

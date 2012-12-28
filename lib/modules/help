@@ -9,9 +9,9 @@ function help.initialize {
 	
 	# set up default man paths
 	help.man.path "$exedir/man";
-	help.man.path "$exedir/doc";
+	# help.man.path "$exedir/doc";
 	help.man.path "$exedir/../man";
-	help.man.path "$exedir/../doc";
+	# help.man.path "$exedir/../doc";
 }
 
 # add a help man path search directory
@@ -20,7 +20,7 @@ function help.man.path {
 	__help_manpath+=( "$1" );
 }
 
-# add a help man path search directory
+# add a help man page mapping
 function help.man.page {
 	local name="${1:-}";
 	local filename="${2:-}";
@@ -33,14 +33,17 @@ function help.man.show {
 	local page="${1:-}";
 	local section=${page##*.};
 	local name=${page%%.*};
-	echo "got section: $section";
-	echo "got name: $name";	
+	# echo "got section: $section";
+	# echo "got name: $name";	
 	local path file;
 	if [ ! -z "$page" ]; then
-		echo "show man page : $page";
+		# echo "show man page : $page";
 		array.join ":" "${__help_manpath[@]}";
 		local manpath="$_result";
-		echo "got man path: $manpath";
+		# echo "got man path: $manpath";
+		
+		echo "help: $man -M "$manpath" "$section" "$name""		
+		
 		$man -M "$manpath" "$section" "$name";
 	fi
 }
@@ -64,7 +67,7 @@ function help.parse {
 					quit 1 "no help available for %s" "`basename $0`";
 				fi
 				
-				echo "show default man page... $manpage";				
+				# echo "show default man page... $manpage";				
 				
 				help.man.show "$manpage";
 			# try to show a specific man page

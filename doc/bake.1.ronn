@@ -1,4 +1,4 @@
-bake(1) -- make for `bash`
+bake(1) -- make for bash
 =============================================
 
 ## SYNOPSIS
