@@ -1,6 +1,7 @@
 require 'executable';
 require 'tasks/clean';
 require 'tasks/list';
+require 'tasks/doc';
 
 function tasks.initialize {
 	executable validate 'ronn' 'git';
@@ -9,7 +10,7 @@ function tasks.initialize {
 # generates the man page(s) into target/man
 function tasks.man.tmp {
 	local ronn="${executables[ronn]}";
-	local man="${target}/man";	
+	local man="${target}/man";
 	__man_copy;
 	$ronn -w -s toc -r5 --markdown ${man}/*.ronn;
 }

@@ -1,24 +1,28 @@
 require 'executable';
 
+# TODO: implement inline ronn parsing...
+: <<'ronn:markdown'
+help(7) -- help module for strike(1)
+=============================================
+ronn:markdown
+
+declare -gx __help_stderr_file="$HOME/.help.stderr";
 declare -Agx __help_manpages;
 declare -agx __help_manpath;
 __help_manpath=();
 
-declare -gx __help_stderr_file="$HOME/.help.stderr";
-
+# validates required executables and
+# sets up the default man search paths
 function help.initialize {
-	executable validate man less;
+	executable validate man;
 	
 	# set up default man paths
 	help.man.path "$exedir/man";
-	# help.man.path "$exedir/doc";
 	help.man.path "$exedir/../man";
-	# help.man.path "$exedir/../doc";
 }
 
 # add a help man path search directory
 function help.man.path {
-	# echo "setting help man path: $1";
 	__help_manpath+=( "$1" );
 }
 
@@ -41,7 +45,7 @@ function help.man.show {
 			do
 				file="${path}/${page}";
 				if [ -f "$file" ]; then
-					displayed=1;					
+					displayed=1;		
 					$man "$file" 2> "$__help_stderr_file";
 					return $?;
 				fi
@@ -55,6 +59,7 @@ function help.man.show {
 	fi
 }
 
+# handles exiting once a help option has been processed
 function help.exit {
 	local code="$1";
 	# echo "got man page exit code: $code";
@@ -72,6 +77,7 @@ function help.exit {
 	fi
 }
 
+# cleans the file used for capturing `man` stderr
 function help.clean {
 	if [ -f "$__help_stderr_file" ]; then
 		rm "$__help_stderr_file";

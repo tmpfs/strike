@@ -29,23 +29,15 @@ require 'help';
 require 'options';
 
 # configure help
-
-# default man page
 help.man.page "default" "assert.1";
-
-# check if we should output help information
 help.parse "$@";
 
 # set up the main delegate module as 'assert'
 module="$PROGRAM_NAME";
 
 options_minimum=1;
-#options_fail_help=1;
 options_expects_command=( "test" );
 options_map_command_method=1;
-
-#map the last option to the rest_request_url variable
-options_map_last="rest_request_url";
 
 #configure all the option defaults
 options configure;

@@ -1,0 +1,92 @@
+function tasks.initialize {
+	executable validate 'ronn';
+}
+
+# generates ronn markdown documentation
+# from inline ronn:markdown heredoc
+function tasks.doc.generate {
+	__tasks.doc.output;
+	local output="$_result";
+	
+	#echo "got output directory.. $output";
+	
+	if [ ! -d "$output" ]; then
+		mkdir -p "$output";
+	fi
+	
+	__tasks.doc.path;
+	local paths=( "$_result" );
+	local path file;
+	for path in ${paths[@]}
+		do
+			for file in ${path}/*
+				do
+					if [ -f "$file" ]; then
+						__tasks.doc.parse "$output" "$file";
+					fi
+			done
+	done
+}
+
+# compiles generated .ronn files to markdown and html
+function tasks.doc.compile {
+	__tasks.doc.output;
+	local output="$_result";
+	local ronn="${executables[ronn]}";
+	$ronn -w -s toc -r5 --markdown ${output}/*.ronn;
+}
+
+function __tasks.doc.parse {
+	local output="$1";
+	local file="$2";
+	local name="`basename $file`";
+	local ext="ronn";
+	local outputfile="${output}/${name}.${ext}";
+	
+	local docstart=": <<'ronn:markdown'";
+	local docend="ronn:markdown";
+	
+	#echo "parsing files ... $file";
+	
+	local inside=0;
+	local heredoc="";
+	while read line
+		do
+			#echo "got line $line";
+			if [ "$line" == "$docstart" ]; then
+				echo "got docstart on file : $file";
+				inside=1;
+				continue;
+			fi
+			
+			if [ "$line" == "$docend" ]; then
+				echo "got docend on file : $file : $heredoc";
+				inside=0;
+				continue;
+			fi
+			
+			if [ $inside -eq 1 ]; then
+				# ensure the newline is present after each line
+				heredoc="${heredoc}${line}
+";
+			fi
+	done < "$file";
+	if [ ! -z "$heredoc" ]; then
+		echo -n "$heredoc" > "$outputfile";
+	fi
+}
+
+# retrieves the doc search paths
+function __tasks.doc.path {
+	local paths=(
+		"${root}/bin"
+		"${root}/lib"
+		"${root}/lib/modules"
+	);
+	_result="${paths[@]}";
+}
+
+# retrieves the doc generate output directory
+function __tasks.doc.output {
+	_result="${target}/doc";
+}
