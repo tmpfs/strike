@@ -1,3 +1,49 @@
+: <<'ronn:markdown'
+tasks-doc(7) -- documentation tasks for bake
+=============================================
+
+## SYNOPSIS
+
+Collection of documentation tasks for bake(1).
+
+## DESCRIPTION
+
+Adds task methods for generating and compiling inline heredoc documentation.
+
+## USAGE
+
+In your tasks(7) file `require` the `doc` tasks using:
+
+	require 'tasks/doc';
+	
+You can then generate and compile the documentation with:
+
+	`bake doc.generate`<br />
+	`bake doc.compile`<br />
+
+## METHODS
+
+The following commands are then available to bake(1):
+
+* `doc.generate`:
+	Searches the doc search paths and attempts to find inline heredoc declarations in any files within the search paths. When an inline heredoc is encountered a corresponding `.ronn` file is generated in `${target}/doc`.
+	
+* `doc.compile`:
+	Compiles any `.ronn` documents previously generated using the `doc.generate` task.
+
+## BUGS
+
+**tasks-doc** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**tasks-doc** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1), strike(1)
+ronn:markdown
+
 function tasks.initialize {
 	executable validate 'ronn';
 }
@@ -14,15 +60,10 @@ function tasks.doc.generate {
 	
 	__tasks.doc.path;
 	local paths=( "$_result" );
-	local path file;
+	local path;
 	for path in ${paths[@]}
 		do
-			for file in ${path}/*
-				do
-					if [ -f "$file" ]; then
-						__tasks.doc.parse "$output" "$file";
-					fi
-			done
+			__tasks.doc.walk "$path";
 	done
 }
 
@@ -41,18 +82,34 @@ function tasks.doc.compile {
 function __tasks.doc.assets.copy {
 	__tasks.doc.assets;
 	local assets=( "$_result" );
-	
 	__tasks.doc.output;
-	local output="$_result";	
-	
+	local output="$_result";
 	local a;
 	for a in ${assets[@]}
 		do
 			cp -rfv "$a" "$output" 2> /dev/null;
 	done
-	#echo "copying assets ${assets[@]} to $output";
 }
 
+# walk a directory containing heredoc candidates
+function __tasks.doc.walk {
+	local path="$1";
+	if [ -d "$path" ]; then
+		local file;
+		for file in ${path}/*
+			do
+				# parse any files found
+				if [ -f "$file" ]; then
+					__tasks.doc.parse "$output" "$file";
+				# recurse into nested sub-directories
+				elif [ -d "$file" ]; then
+					__tasks.doc.walk "$file";
+				fi
+		done
+	fi
+}
+
+# parse heredoc in a file
 function __tasks.doc.parse {
 	local output="$1";
 	local file="$2";
@@ -95,7 +152,6 @@ function __tasks.doc.parse {
 function __tasks.doc.path {
 	local paths=(
 		"${root}/bin"
-		"${root}/lib"
 		"${root}/lib/modules"
 	);
 	_result="${paths[@]}";
