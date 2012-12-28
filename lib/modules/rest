@@ -28,8 +28,24 @@ function rest_post {
 	array.pop "$@";
 	local url="$_result";
 	http.curl "POST" "$url";
-	
-	# __rest_print_body;
+}
+
+function rest_put {
+	array.pop "$@";
+	local url="$_result";
+	http.curl "PUT" "$url";
+}
+
+function rest_delete {
+	array.pop "$@";
+	local url="$_result";
+	http.curl "DELETE" "$url";
+}
+
+function rest_options {
+	array.pop "$@";
+	local url="$_result";
+	http.curl "OPTIONS" "$url";
 }
 
 ######################################################################
