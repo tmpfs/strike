@@ -28,7 +28,6 @@ boilerplate;
 ######################################################################
 
 # test that re-requiring doesn't override previous data
-
 # require 'executable';
 # executable validate curl;
 # echo "curl : ${executables[curl]}"
