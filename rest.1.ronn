@@ -115,4 +115,4 @@ The `--print-*` options control what is output after a request has been made.
 
 ## SEE ALSO
 
-curl(1), printf(1)
+curl(1)
