@@ -19,7 +19,7 @@ function __doc_copy {
 }
 
 # generates the man page(s) into target/man
-function tasks.doctmp {
+function tasks.doc.tmp {
 	local ronn="${executables[ronn]}";
 	local man="${target}/man";		
 	__doc_copy;
@@ -33,14 +33,8 @@ function tasks.doc {
 	local ronn="${executables[ronn]}";
 	local git="${executables[git]}";
 	local man="${target}/man";
-	mkdirp "$man";
 	
-	# copy all source .ronn to target/man
-	local cmd="cp "${root}/doc/*.ronn" "${man}"";
-	eval "$cmd";
-	
-	# also copy the index.* files over
-	eval "cp "${root}/doc/index.*" "${man}"";
+	__doc_copy;
 	
 	# check out the gh-pages branch
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
