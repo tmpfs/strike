@@ -123,7 +123,7 @@ function rest_options.parse {
 			value="$1";
 			# echo "got json data parameter... :: $value";
 			http request.add.header "content-type: application/json";
-			http.option.add "--data-binary" "\"$value\"";
+			http.option.add "--data-binary" "$value";
 			;;
 		--xml )
 			shift;
