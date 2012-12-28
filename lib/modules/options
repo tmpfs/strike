@@ -103,7 +103,6 @@ function options_configure {
 }
 
 function options_parse {
-	
 	#validate options
 	options_validate "$@";
 	
@@ -116,11 +115,16 @@ function options_parse {
 		variable_set "$options_map_last" "${@: -1}";
 	fi
 	
+	if [ $options_map_command_method -gt 0 ]; then
+		shift;
+	fi
+	
 	local i val;
-	for((i = 0;i < l;i++))
+	for((i = 1;i < l;i++))
 		do
-			val=$[$i];
-			#echo "got opt..$val";
+			eval val="$"$i;
+			#echo "got opt:: $val";
+			module_options+=( "$val" );
 	done
 	
 	# while [ "${1:-}" != "" ]; do

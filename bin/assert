@@ -34,14 +34,35 @@ if [ $# -eq 0 ]; then
 	exit 1;
 fi
 
+require 'options';
+
 # set up the main delegate module as 'assert'
 module="$PROGRAM_NAME";
 
-function assert_main {
+options_minimum=1;
+#options_fail_help=1;
+options_expects_command=( "test" );
+options_map_command_method=1;
+
+#map the last option to the rest_request_url variable
+options_map_last="rest_request_url";
+
+#configure all the option defaults
+options configure;
+
+#parse the parameters
+options parse "$@";
+
+function assert_test {
 	local opts=( "$@" );
+	local searchpaths=(
+		"$exedir/test"
+		"$exedir/../test"
+	);
+	
 	echo "got assert options : ${opts[@]}";
 }
 
-main "${module:-}" "main" "$@";
+main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
 
 exit 0;

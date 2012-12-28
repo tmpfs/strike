@@ -1,0 +1,3 @@
+function test.variable {
+	echo "testing variable get/set";
+}
