@@ -138,8 +138,19 @@ Print the body of the response\.
 \fB\-\-print\-headers\fR
 Print all response headers\.
 .
+.TP
+\fB\-\-print\-env\fR
+Print all \fBhttp_*\fR variables\. This print output option outputs the variables in a \fBname=value\fR format with the values quoted using printf(1)\. This allows redirection of this output to a file that could later be included using source(1)\. For example:
+.
+.IP
+rest get \-\-print\-env google\.com > http\.vars; source http\.vars;
+.
 .SH "BUGS"
 \fBrest\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.TP
+\fB\-\-print\-env\fR
+The output of this option does not output array values correctly, only the first array entry is available\.
 .
 .SH "COPYRIGHT"
 \fBrest\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR

@@ -156,12 +156,21 @@
 <dl>
 <dt><code>--print-body</code></dt><dd><p>  Print the body of the response.</p></dd>
 <dt><code>--print-headers</code></dt><dd><p>  Print all response headers.</p></dd>
+<dt><code>--print-env</code></dt><dd><p>  Print all <code>http_*</code> variables. This print output option outputs the variables in a <code>name=value</code> format with the values quoted using <span class="man-ref">printf<span class="s">(1)</span></span>. This allows redirection of this output to a file that could later be included using <span class="man-ref">source<span class="s">(1)</span></span>. For example:</p>
+
+<p>  rest get --print-env google.com > http.vars;
+  source http.vars;</p></dd>
 </dl>
 
 
 <h2 id="BUGS">BUGS</h2>
 
 <p><strong>rest</strong> is written in bash and depends upon <code>bash</code> >= 4.</p>
+
+<dl>
+<dt><code>--print-env</code></dt><dd>  The output of this option does not output array values correctly, only the first array entry is available.</dd>
+</dl>
+
 
 <h2 id="COPYRIGHT">COPYRIGHT</h2>
 
