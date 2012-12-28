@@ -127,6 +127,17 @@ Add a URL query string parameter, repeatable\. The \fB<value>\fR should \fInot\f
 \fB\-\-save\fR \fB<name>\fR
 Saves a configuration file into \fB\.http/config\fR with the specified name\. This configuration file may then later be executed using the \fBload\fR command\.
 .
+.SS "PRINT OPTIONS"
+The \fB\-\-print\-*\fR options control what is output after a request has been made\.
+.
+.TP
+\fB\-\-print\-body\fR
+Print the body of the response\.
+.
+.TP
+\fB\-\-print\-headers\fR
+Print all response headers\.
+.
 .SH "BUGS"
 \fBrest\fR is written in bash and depends upon \fBbash\fR >= 4\.
 .

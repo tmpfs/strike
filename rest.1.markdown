@@ -94,6 +94,16 @@ Wherever possible **rest** follows the command line options available to curl(1)
 	
 * `--save` `<var>name</var>`:
 	Saves a configuration file into `.http/config` with the specified name. This configuration file may then later be executed using the `load` command.
+	
+### PRINT OPTIONS
+
+The `--print-*` options control what is output after a request has been made.
+
+* `--print-body`:
+	Print the body of the response.
+	
+* `--print-headers`:
+	Print all response headers.
 
 ## BUGS
 
@@ -112,6 +122,7 @@ curl(1)
 [FILES]: #FILES "FILES"
 [COMMANDS]: #COMMANDS "COMMANDS"
 [OPTIONS]: #OPTIONS "OPTIONS"
+[PRINT OPTIONS]: #PRINT-OPTIONS "PRINT OPTIONS"
 [BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
@@ -126,9 +137,7 @@ curl(1)
 [rest(1)]: 	rest.1.html
 [curl(1)]: 	http://man.cx/curl(1).html
 [tee(1)]: 		http://man.cx/tee(1).html
-[manpages(5)]: 	http://developer.apple.com/mac/library/documentation/Darwin/Reference/ManPages/man5/manpages.5.html.html
 [bake(1)]: bake.1.html
-[boilerplate(1)]: boilerplate.1.html
 [http(1)]: http.1.html
 [rest(1)]: rest.1.html
 [strike(1)]: strike.1.html
