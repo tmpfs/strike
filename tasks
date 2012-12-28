@@ -7,11 +7,35 @@ function tasks.initialize {
 }
 
 # generates the man page(s) into target/man
-function tasks.doc.tmp {
+function tasks.man.tmp {
 	local ronn="${executables[ronn]}";
-	local man="${target}/man";		
+	local man="${target}/man";	
 	__doc_copy;
 	$ronn -w -s toc -r5 --markdown ${man}/*.ronn;
+}
+
+# generates the man page(s) into ${root}/man
+function tasks.man {
+	local man="${root}/man"
+	local mantmp="${target}/man";	
+	if [ ! -d "$man" ]; then
+		mkdirp "$man";
+	fi
+	
+	# generate man pages
+	tasks.man.tmp;
+	
+	# clean any existing man pages
+	rm -fv "${man}/*";
+
+	# copy over man pages
+	local i cmd;
+	for i in {1..8}
+		do
+			cmd="cp -v "${mantmp}/*.${i}" "${man}"";
+			eval $cmd > /dev/null 2>&1;
+	done
+	return 0;
 }
 
 # generates the man page documentation
