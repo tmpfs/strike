@@ -43,6 +43,10 @@ function tasks.initialize {
 	executable validate 'ronn';
 }
 
+function tasks.doc.all {
+	tasks.doc.generate && tasks.doc.compile;
+}
+
 # generates ronn markdown documentation
 # from inline ronn:markdown heredoc
 function tasks.doc.generate {
