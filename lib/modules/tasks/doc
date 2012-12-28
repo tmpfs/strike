@@ -12,6 +12,10 @@ Adds task methods for generating and compiling inline heredoc documentation.
 
 ## USAGE
 
+	bake doc.build
+
+## REQUIRE
+
 In your tasks(7) file `require` the `doc` tasks using:
 
 	require 'tasks/doc';
