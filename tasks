@@ -29,7 +29,7 @@ function tasks.doc {
 	cd "${root}" \
 		&& rm -fv ./*.html \
 		&& eval "$cmd" \
-		&& $ronn -w -s toc -r5 --markdown ${man}/*.ronn
+		&& $ronn -w -s toc -r5 --markdown ${man}/*.ronn \
 		&& $git add . \
 		&& $git commit -m "doc rebuild" \
 		&& $git ls-files \
