@@ -264,7 +264,7 @@ function console.warn {
 	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_format" ]; then
+	if [ -t 2 ] && [ -z "$console_no_format" ]; then
 		#get the message prefix
 		boldpurple "$status";
 		prefix="$_result";
@@ -280,7 +280,7 @@ function console.warn {
 	
 	#output everything
 	__console_print_program_prefix;
-	echo -e "$prefix $msg";
+	echo -e "$prefix $msg" >&2;
 }
 
 #outputs an error message
