@@ -69,6 +69,11 @@ boilerplate;
 # set up the main delegate module as 'strike'
 module="$PROGRAM_NAME";
 
+# configure help
+require 'help';
+help.man.page "default" "strike.1";
+help.parse "$@";
+
 require 'main';
 
 function strike_info {
@@ -95,13 +100,6 @@ function get_options {
  		info )
 			method="info";
 			;;
-		-h | --help )
-			program_help;
-			exit 0;
-			;;
-		* )
-			program_help;
-			exit 1;
 		esac
 		shift;
 	done

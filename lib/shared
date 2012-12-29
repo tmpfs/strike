@@ -1,30 +1,46 @@
 ######################################################################
 # 	shared
 #
-#	Sources shared libraries common to all programs.
+#	Includes core modules.
 ######################################################################
 
 #set -o pipefail;
 
-#we need method, color and console functionality
-#before the module/require logic
-source "$libdir/modules/variable";
-source "$libdir/modules/method";
-source "$libdir/modules/color";
-source "$libdir/modules/console";
-source "$libdir/modules/array";
+function __initialize__ {
+	local dir=`dirname "${BASH_SOURCE[0]}"`;
+	
+	# we need these modules before we include require(7)
+	source "${dir}/modules/variable";
+	source "${dir}/modules/method";
+	source "${dir}/modules/color";
+	source "${dir}/modules/console";
+	source "${dir}/modules/array";
 
-#main module loader and require definition
-source "$libdir/modules/require";
+	# main module loader and require(7) definition
+	source "${dir}/modules/require";
 
-require 'main';
-require 'string';
-require 'fs';
-require 'executable';
+	# manually register these modules
+	__require_register "variable" "${dir}/modules/variable";
+	__require_register "method" "${dir}/modules/method";
+	__require_register "color" "${dir}/modules/color";
+	__require_register "console" "${dir}/modules/console";
+	__require_register "array" "${dir}/modules/array";
+	__require_register "require" "${dir}/modules/require";
+	
+	# require(7) the remaining core modules
+	require 'main';
+	require 'string';
+	require 'fs';
+	require 'executable';
 
-# TODO: remove these dependencies
-source "$libdir/constants";
-source "$libdir/messages";
+	# require.list;
 
-#TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
-#source "$libdir/archive-util";
+	# TODO: remove these dependencies
+	source "${dir}/constants";
+	source "${dir}/messages";
+
+	#TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
+	#source "${dir}/archive-util";
+}
+
+__initialize__;

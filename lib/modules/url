@@ -1,18 +1,17 @@
 declare -Agx url_params;
-#url_params=();
 
-function url.encode() {
+function url.encode {
 	set +o errexit;
     local data=$(curl -s -o /dev/null -w %{url_effective} --get --data-urlencode "$1" "")
 	set -o errexit;
     _result="${data##/?}";
 }
 
-function url.params.clear() {
+function url.params.clear {
 	url_params=();
 }
 
-function url.params.add() {
+function url.params.add {
 	local name="${1:-}";
 	local value="${2:-}";
 	if [ ! -z "$name" ]; then
@@ -20,7 +19,7 @@ function url.params.add() {
 	fi
 }
 
-function url.params.stringify() {
+function url.params.stringify {
 	local opts=();
 	local p;
 	for p in ${!url_params[@]}

@@ -79,9 +79,8 @@ function boilerplate {
 boilerplate;
 ######################################################################
 
-require 'help';
-
 # configure help
+require 'help';
 help.man.page "default" "bake.1";
 help.parse "$@";
 
