@@ -52,7 +52,6 @@ set -o nounset;
 #
 ######################################################################
 export PROGRAM_NAME=`basename $0`;
-program_config_print_welcome="off";
 program_config_print_prefix="off";
 declare -gx exedir;
 function boilerplate {
