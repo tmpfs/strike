@@ -11,7 +11,7 @@ declare -Agx executables;
 # controls whether console output is formatted
 # a non-empty string value causes console to omit
 # all formatting of output, switched on with the --no-format option
-# see console(7)
+# see console(3)
 declare -gx console_no_format="";
 
 # controls whether console output generates a prefix

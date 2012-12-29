@@ -1,5 +1,5 @@
 : <<'ronn:markdown'
-executable(7) -- executable module
+executable(3) -- executable module
 =============================================
 
 ## SYNOPSIS
