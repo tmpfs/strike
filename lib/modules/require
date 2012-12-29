@@ -1,3 +1,34 @@
+: <<'ronn:markdown'
+require(3) -- module loader
+=============================================
+
+## SYNOPSIS
+
+Module loader for strike(7).
+
+## DESCRIPTION
+
+Loads modules by name and relative or absolute filesystem paths.
+
+## USAGE
+
+	require 'module';
+	require './module';
+	require '/path/to/module';
+
+## BUGS
+
+**require** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**require** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+strike(7)
+ronn:markdown
+
 # TODO: don't re-require if path matches an already loaded module
 
 function require {
