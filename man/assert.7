@@ -1,0 +1,43 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "TASKS\-ASSERT" "7" "December 2012" "" ""
+.
+.SH "NAME"
+\fBtasks\-assert\fR \- unit test tasks for bake(1)
+.
+.SH "SYNOPSIS"
+Unit test tasks for bake(1)\.
+.
+.SH "DESCRIPTION"
+Adds task methods for unit testing bash programs\.
+.
+.SH "REQUIRE"
+In your tasks(7) file \fBrequire\fR the \fBassert\fR tasks using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/assert\';
+.
+.fi
+.
+.IP "" 0
+.
+.SH "USAGE"
+.
+.nf
+
+bake assert [tests\.\.\.]
+.
+.fi
+.
+.SH "BUGS"
+\fBtasks\-assert\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBtasks\-assert\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+bake(1), strike(1)
