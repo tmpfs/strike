@@ -1,27 +1,36 @@
+# test for info messages
 function test.console.info {
 	assert.expects "0";
-	console.info "this is an info message, %s" 'but nothing really to report' 1> /dev/null;
+	console.info "this is an info message, %s" 'but nothing really to report';
 	assert.ok "$?";
 }
 
+# test for error messages
 function test.console.error {
 	assert.expects "0";
-	console.error "this is an error message, %s" 'but nothing is wrong' 2> /dev/null;
+	console.error "this is an error message, %s" 'but nothing is wrong';
 	assert.ok "$?";
 }
 
+# test for warn messages
 function test.console.warn {
 	assert.expects "0";
-	console.warn "this is a warning, %s" 'but nothing really went wrong' 2> /dev/null;
+	console.warn "this is a warning, %s" 'but nothing really went wrong';
 	assert.ok "$?";
 }
 
-# function test.console.quit {
-# 	# assert.expects "1";
-# 	# executable validate nonexistent 2> /dev/null &
-# 	# wait %%;
-# 	# assert.ok "$?";
-# 	assert.expects "0";
-# 	console.info "this is an info message, %s" 'but nothing really to report';
-# 	assert.ok "$?";
-# }
+# test for calling quit with no options
+function test.console.quit {
+	assert.expects "1";
+	quit 2> /dev/null &
+	wait %%;
+	assert.ok "$?";
+}
+
+# test for calling quit with a specific exit code
+function test.console.quit.code {
+	assert.expects "127";
+	quit 127 2> /dev/null &
+	wait %%;
+	assert.ok "$?";
+}

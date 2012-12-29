@@ -2,7 +2,7 @@
 # a non-zero exit code is returned
 function test.validate.fail {
 	assert.expects "1";
-	executable validate nonexistent 2> /dev/null &
+	executable validate nonexistent &
 	wait %%;
 	assert.ok "$?";
 }

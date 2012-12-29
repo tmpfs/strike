@@ -34,6 +34,12 @@ bake(1), strike(1)
 ronn:markdown
 
 function tasks.assert {
+	local stdout="${target}/assert.stdout.log";
+	local stderr="${target}/assert.stderr.log";
+	
+	echo -n "" > "$stdout" || quit 1 "could not create %s" "$stdout";	
+	echo -n "" > "$stderr" || quit 1 "could not create %s" "$stderr";
+	
 	if [ $# -eq 0 ]; then
 		__assert_run_all;
 	else
@@ -147,7 +153,7 @@ function __assert_run_test {
 				info "assert %s" "$m";
 				set +o errexit;
 				# execute the test method
-				"$m";
+				"$m" 1>> "$stdout" 2>> "$stderr";
 				set -o errexit;
 				
 				# remove the method so that it is not
