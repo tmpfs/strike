@@ -13,6 +13,9 @@
 #	$@	Options to pass to the invoked method.
 ######################################################################
 function main {
+	# method pseudo-namespace delimiter
+	local delimiter="_";
+	
 	local module=${1:-};
 	shift;
 	local method=${1:-};
@@ -24,7 +27,7 @@ function main {
 			${method} "${options[@]:-}";
 		#method call in module
 		else
-			${module}_${method} "${options[@]:-}";
+			${module}${delimiter}${method} "${options[@]:-}";
 		fi
 	fi
 }

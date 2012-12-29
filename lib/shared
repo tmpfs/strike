@@ -8,6 +8,7 @@
 
 #we need method, color and console functionality
 #before the module/require logic
+source "$libdir/modules/variable";
 source "$libdir/modules/method";
 source "$libdir/modules/color";
 source "$libdir/modules/console";

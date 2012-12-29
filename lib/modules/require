@@ -135,9 +135,6 @@ function __require_load {
 	fi
 }
 
-# modules require depends upon
-require 'variable';
-
 #require 'couchdb';
 #couchdb "auth" "https://ffsys.cloudant.com" "hosts";
 #url_query_string 'include_docs=true' 'reduce=false';

@@ -6,12 +6,6 @@
 #	Common variables for all programs.
 ######################################################################
 
-#keep track of the original working directory
-OWD=$PWD;
-
-#target shell that must be in use
-TSHELL="bash";
-
 #full os specific type and host type
 OS_INSTALL="$OSTYPE-$HOSTTYPE";
 
