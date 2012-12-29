@@ -63,7 +63,7 @@ function colorize {
 #	$1 		The printf format string.
 #	$2-@	The remaining string replacements to be highlighted.
 ######################################################################
-function sprintf {
+function console.sprintf {
 	_result=$(printf "${@}");
 }
 
@@ -96,15 +96,15 @@ function print_prefix {
 	local prefix="[${program_name:-}]";
 	local include_prefix=${program_config_print_prefix:-};
 	if [ -z "$include_prefix" ]; then
-		if [ -t 1 ]; then	
+		if [ -t 1 ] && [ -z "$console_no_format" ]; then	
 			if [ "$prefix" != "" ]; then
 				gray "$prefix";
 				echo -ne "$_result";
 				echo -ne " ";
-			fi	
+			fi
 		else
 			echo -n "$prefix ";
-		fi		
+		fi
 	fi
 }
 
@@ -113,7 +113,7 @@ function success {
 	local status="[ok]";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ]; then
+	if [ -t 1 ] && [ -z "$console_no_format" ]; then
 		#get the message prefix
 		bold "$status";
 		prefix="$_result";
@@ -123,7 +123,7 @@ function success {
 		colorize "${msgs[@]}";
 		msg="$_result";
 	else
-		sprintf "${@}";
+		console.sprintf "${@}";
 		msg="$_result";
 	fi
 	
@@ -137,7 +137,7 @@ function console.ok {
 	local status="[ok]";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ]; then
+	if [ -t 1 ] && [ -z "$console_no_format" ]; then
 		#get the message prefix
 		bold "$status";
 		prefix="$_result";
@@ -147,7 +147,7 @@ function console.ok {
 		colorize "${msgs[@]}";
 		msg="$_result";
 	else
-		sprintf "${@}";
+		console.sprintf "${@}";
 		msg="$_result";
 	fi
 	
@@ -161,7 +161,7 @@ function info {
 	local status="[info]";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ]; then
+	if [ -t 1 ] && [ -z "$console_no_format" ]; then
 		#get the message prefix
 		bold "$status";
 		prefix="$_result";
@@ -171,7 +171,7 @@ function info {
 		colorize "${msgs[@]}";
 		msg="$_result";
 	else
-		sprintf "${@}";
+		console.sprintf "${@}";
 		msg="$_result";
 	fi
 	
@@ -185,7 +185,7 @@ function important {
 	local status="[info]";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ]; then
+	if [ -t 1 ] && [ -z "$console_no_format" ]; then
 		#get the message prefix
 		bold "$status";
 		prefix="$_result";
@@ -195,7 +195,7 @@ function important {
 		colorize "${msgs[@]}";
 		msg="$_result";
 	else
-		sprintf "${@}";
+		console.sprintf "${@}";
 		msg="$_result";
 	fi
 	
@@ -209,7 +209,7 @@ function important {
 # 	local status="[usage]";
 # 	local prefix="$status";
 # 	local msg="";
-# 	if [ -t 1 ]; then
+# 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
 # 		#get the message prefix
 # 		bold "$status";
 # 		prefix="$_result";
@@ -219,7 +219,7 @@ function important {
 # 		colorize "${msgs[@]}";
 # 		msg="$_result";
 # 	else
-# 		sprintf "${@}";
+# 		console.sprintf "${@}";
 # 		msg="$_result";
 # 	fi
 # 	
@@ -233,7 +233,7 @@ function important {
 # 	local status="[usage]";
 # 	local prefix="$status";
 # 	local msg="";
-# 	if [ -t 1 ]; then
+# 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
 # 		#get the message prefix
 # 		bold "$status";
 # 		prefix="$_result";
@@ -243,7 +243,7 @@ function important {
 # 		colorize "${msgs[@]}";
 # 		msg="$_result";
 # 	else
-# 		sprintf "${@}";
+# 		console.sprintf "${@}";
 # 		msg="$_result";
 # 	fi
 # 	
@@ -267,7 +267,7 @@ function warn {
 	local status="[warn]";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ]; then
+	if [ -t 1 ] && [ -z "$console_no_format" ]; then
 		#get the message prefix
 		boldpurple "$status";
 		prefix="$_result";
@@ -277,7 +277,7 @@ function warn {
 		colorize "${msgs[@]}";
 		msg="$_result";
 	else
-		sprintf "${@}";
+		console.sprintf "${@}";
 		msg="$_result";
 	fi
 	
@@ -291,7 +291,7 @@ function error {
 	local status="[not ok]";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ]; then
+	if [ -t 1 ] && [ -z "$console_no_format" ]; then
 		#get the message prefix
 		boldred "$status";
 		prefix="$_result";
@@ -301,7 +301,7 @@ function error {
 		colorize "${msgs[@]}";
 		msg="$_result";
 	else
-		sprintf "${@}";
+		console.sprintf "${@}";
 		msg="$_result";
 	fi
 	
@@ -310,19 +310,16 @@ function error {
 	echo -e "$prefix $msg" >&2;
 }
 
-# inspect the program options looking for a --no-tty option
+# inspect the program options looking for a --no-format option
 function console.parse {
-	
-	echo "console.parse called: $@";
 	local l=$#;
 	local i val;
 	for((i = 1;i < l+1;i++))
 		do
 			eval val="$"$i;
-			echo "console.parse got opt: $val";
+			if [ "$val" == "--no-format" ]; then
+				console_no_format="on";
+			fi
 	done
 }
-
-echo "calling console.parse: $@";
-
 console.parse "$@";
