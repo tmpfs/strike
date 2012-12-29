@@ -1,0 +1,9 @@
+# not a module! declares global variables
+# used to view all global variable declarations
+# in a single location
+
+# duplicate of the original program options
+declare -agx program_options=( "$@" );
+
+# list of executables referenced, using `executable validate`
+declare -Agx executables;

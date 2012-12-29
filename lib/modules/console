@@ -313,25 +313,14 @@ function error {
 # inspect the program options looking for a --no-tty option
 function console.parse {
 	
-	echo "console.parse called: ${BASH_ARGV[@]}";
-	
-	# ${BASH_ARGV[*]}
-	
-	local l=$#;	
+	echo "console.parse called: $@";
+	local l=$#;
 	local i val;
-	for((i = 1;i < l;i++))
+	for((i = 1;i < l+1;i++))
 		do
 			eval val="$"$i;
 			echo "console.parse got opt: $val";
 	done
-	
-	# while [ "${1:-}" != "" ]; do
-	# 	case $1 in
-	# 	--no-tty )
-	# 		echo "got no tty options...";
-	# 		;;
-	# 	esac
-	# done
 }
 
 echo "calling console.parse: $@";

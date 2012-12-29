@@ -61,9 +61,9 @@ function boilerplate {
 	fi
 	exedir=`dirname "$abspath"`;
 	local libdir="$exedir/../lib";
-	source "$libdir/shared";
+	source "$libdir/shared" "$@";
 }
-boilerplate;
+boilerplate "$@";
 ######################################################################
 
 # set up the main delegate module as 'strike'

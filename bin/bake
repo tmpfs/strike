@@ -74,9 +74,9 @@ function boilerplate {
 	fi
 	exedir=`dirname "$abspath"`;
 	local libdir="$exedir/../lib";
-	source "$libdir/shared";
+	source "$libdir/shared" "$@";
 }
-boilerplate;
+boilerplate "$@";
 ######################################################################
 
 # configure help

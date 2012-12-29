@@ -39,8 +39,6 @@ If any of the listed executables are not available on the system the program wil
 require(7)
 ronn:markdown
 
-declare -Agx executables;
-
 function executable.validate {
 	local cmd;
 	for opt in ${@}

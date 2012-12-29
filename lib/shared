@@ -9,8 +9,13 @@
 # must set this option so that aliases are expanded
 # shopt -s expand_aliases;
 
+# echo "shared has parameters: $@";
+
 function __initialize__ {
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
+	
+	# global variable declarations
+	source "${dir}/globals";
 	
 	# we need these modules before we include require(7)
 	source "${dir}/modules/variable";
@@ -50,4 +55,4 @@ function __initialize__ {
 	#source "${dir}/archive-util";
 }
 
-__initialize__;
+__initialize__ "$@";
