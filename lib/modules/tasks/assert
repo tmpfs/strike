@@ -94,11 +94,12 @@ function assert.ok {
 }
 
 function __assert_run_test {
-	local file="$1";	
-	method.diff.start;
-	require "$file" || quit 1 "could not require test file %s" "$file";
-	method.diff.end;
+	local file="$1";
+	
+	# require and generate a list of method definitions
+	require.methods "$file";
 	local methods=( "$_result" );
+	
 	info "assert %s < %s" "`basename $file`" "$file";
 	local m;
 	for m in ${methods[@]}

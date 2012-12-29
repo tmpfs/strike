@@ -27,6 +27,12 @@ function require.list {
 	done
 }
 
+function require.methods {
+	method.diff.start;
+	require "$1";
+	method.diff.end;
+}
+
 function __require_register {
 	local name="${1:-}";
 	local path="${2:-}";
