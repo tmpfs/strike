@@ -1,0 +1,56 @@
+strike-tree(7) -- filesystem structure for strike(7)
+=============================================
+
+## SYNOPSIS
+
+Although it is *not mandatory* it is recommended (for maximum portability and consistency) that you follow a convention for the filesystem structure which is shown below.
+
+	|-- bin
+	|-- doc
+	|-- lib
+	|	|-- modules
+	|		|-- doc
+	|		|-- tasks
+	|-- man
+	|-- target
+	|-- test
+	
+## BIN
+
+Executable files should be placed in the `bin` directory.
+
+## DOC
+
+Auxiliary files for man page documentation (index.html, index.txt etc) should be placed in the `doc` directory.
+
+## LIB
+
+Library functions can be placed in the `lib` directory. Note that files in this directory are not included when generating documentation using task-doc(7), for inline documentation use a module. 
+
+## MODULES
+
+Modules for the program **must** be in the `lib/modules` directory in order for require(3) to find your modules correctly when no relative or absolute path to the module has been specified.
+
+## MODULES/DOC
+
+If you use `.ronn` files in addition to the inline documentation functionality it is recommended that they are placed in `lib/modules/doc`.
+
+## TASKS
+
+Any program-specific tasks for bake(1) should be placed in `lib/modules/tasks`.
+
+## MAN
+
+The `man` directory is where task-doc(7) will place generated man pages.
+
+## TARGET
+
+The `target` directory is used by bake(1) for staging, logging and any other temporary files, this directory should be ignored by any source code management tool such as git(1).
+
+## TEST
+
+Unit test files are searched for in the `test` directory when task-assert(7) runs.
+
+## SEE ALSO
+
+strike(7)

@@ -77,10 +77,6 @@ function __initialize__ {
 	require.delegate "color";
 	require.delegate "console";
 	require.delegate "array";
-	
-	# console info "hello there...";
-	# method.list;
-	# require.list;
 
 	# TODO: remove these dependencies
 	source "${dir}/constants";

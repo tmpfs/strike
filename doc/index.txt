@@ -12,6 +12,7 @@ bake(1)     	bake.1.ronn
 rest(1)     	rest.1.ronn
 
 # external manuals
+git(1)			http://git-scm.com/
 bash(1)   		http://man.cx/bash(1)
 curl(1)     	http://man.cx/curl(1)
 tee(1)     		http://man.cx/tee(1)

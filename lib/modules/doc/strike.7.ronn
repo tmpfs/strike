@@ -27,4 +27,4 @@ The method(3) module provides utility functions for determining whether function
 
 ## SEE ALSO
 
-boilerplate(3)
+strike-tree(7), boilerplate(3)
