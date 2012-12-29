@@ -182,7 +182,11 @@ function __tasks.doc.walk {
 			do
 				# parse any files found
 				if [ -f "$file" ]; then
-					__tasks.doc.parse "$output" "$file";
+					if [[ "$file" =~ .ronn$ ]]; then
+						cp "$file" "$output" || quit 1 "could not copy %s" "$file";
+					else
+						__tasks.doc.parse "$output" "$file";
+					fi
 				# recurse into nested sub-directories
 				elif [ -d "$file" ]; then
 					__tasks.doc.walk "$file";
@@ -199,8 +203,8 @@ function __tasks.doc.parse {
 	local ext="ronn";
 	local outputfile="${output}/${name}.${ext}";
 	
-	local docstart=": <<'ronn:markdown'";
-	local docend="ronn:markdown";
+	local docstart="${3:-": <<'ronn:markdown'"}";
+	local docend="${4:-"ronn:markdown"}";
 	
 	local inside=0;
 	local heredoc="";

@@ -1,4 +1,3 @@
-: <<'ronn:markdown'
 boilerplate(3) -- boilerplate for strike(1)
 =============================================
 
@@ -29,4 +28,3 @@ If you have installed the `strike` library as a node module and your executable 
 ## SEE ALSO
 
 strike(1)
-ronn:markdown

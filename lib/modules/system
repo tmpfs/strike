@@ -30,6 +30,6 @@ function system.print {
 	for key in "${!__system_info[@]}"
 		do
 			value="${__system_info["$key"]}";
-			info "${key}=%s" "$value";
+			console.info "${key}=%s" "$value";
 	done
 }
