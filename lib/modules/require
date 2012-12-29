@@ -7,14 +7,9 @@
 # must set this option so that aliases are expanded
 shopt -s expand_aliases;
 
-declare -agx __module_names;
 modules=();
-declare -Agx __module_methods;
 
 declare -Agx __module_paths;
-
-# list of methods declared by a module
-declare -agx __require_methods;
 
 function require {
 	local name="${1:-}";
@@ -32,15 +27,6 @@ function require.list {
 	done
 }
 
-# retrieves the method list for a module
-# by file path
-function require.methods {
-	_result="";	
-	if [ ! -z "${1:-}" ]; then
-		_result="${__module_methods[$1]}";
-	fi
-}
-
 function __require_register {
 	local name="${1:-}";
 	local path="${2:-}";
@@ -49,18 +35,6 @@ function __require_register {
 	if [ ! -z "$name" ]; then
 		
 		# echo "registering module: $name";
-		
-		# list of module names
-		__module_names+=( "$name" );
-		
-		# echo "registering $name with declared methods: ${__require_methods[@]}";
-		
-		# list of methods declared by a module
-		__module_methods["$path"]="${__require_methods[@]}";
-		
-		# clean up the temporary list of methods
-		# generated when require was called
-		__require_methods="";
 	
 		if [ ! -z "$path" ]; then
 			__module_paths["$path"]="$name";
@@ -70,12 +44,7 @@ function __require_register {
 
 function __require_source {
 	local abs="$1";
-	method.diff.start;
-	# echo "require: $abs";
 	source "$abs";
-	method.diff.end;
-	# echo "got method end diff result: $_result";
-	__require_methods=( "$_result" );
 }
 
 function __require_load {

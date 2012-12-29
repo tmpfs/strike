@@ -95,24 +95,19 @@ function assert.ok {
 
 function __assert_run_test {
 	local file="$1";	
+	method.diff.start;
 	require "$file" || quit 1 "could not require test file %s" "$file";
-	
-	info "assert %s < %s" "`basename $file`" "$file";
-	
-	# get the methods declared by the module
-	require.methods "$file";
+	method.diff.end;
 	local methods=( "$_result" );
+	info "assert %s < %s" "`basename $file`" "$file";
 	local m;
 	for m in ${methods[@]}
 		do
 			# check that the method starts with a test prefix
-			if [[ "$m" =~ ^test. ]]; then
-				
+			if [[ "$m" =~ ^test. ]]; then				
 				# clean up
 				__assert_expects="";
-				
 				info "assert %s" "$m";
-				
 				set +o errexit;
 				# execute the test method
 				"$m";
