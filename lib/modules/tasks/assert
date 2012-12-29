@@ -40,6 +40,11 @@ function tasks.assert {
 	echo -n "" > "$stdout" || quit 1 "could not create %s" "$stdout";	
 	echo -n "" > "$stderr" || quit 1 "could not create %s" "$stderr";
 	
+	local ttyout="";
+	local ttyerr="";
+	if [ -t 1 ]; then ttyout="on"; fi
+	if [ -t 2 ]; then ttyerr="on"; fi
+	
 	if [ $# -eq 0 ]; then
 		__assert_run_all;
 	else
@@ -76,10 +81,14 @@ function assert.ok {
 	local frame="${file}:${lineno}";
 	
 	if [ "$expected" == "$received" ]; then
-		exec 1> /dev/tty;
+		if [ ! -z "$ttyout" ]; then
+			exec 1> /dev/tty;
+		fi
 		console.ok "%s" "$method";
 	else
-		exec 2> /dev/tty;
+		if [ ! -z "$ttyout" ]; then
+			exec 2> /dev/tty;
+		fi
 		error "%s $frame" "$method";
 	fi
 }
