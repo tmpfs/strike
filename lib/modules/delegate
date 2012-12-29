@@ -14,23 +14,33 @@
 ######################################################################
 function delegate {
 	# method pseudo-namespace delimiter
-	local delimiter="_";
+	local delimiter=".";
 	
 	local module=${1:-};
 	shift;
 	local method=${1:-};
 	shift;
-	local options=( "${@:-}" );
+	local options=();
+	
+	if [ $# -gt 0 ]; then
+		options=( "$@" );
+	fi
+	
+	# echo "delegate got options length: ${#options[@]}";
 	
 	#TODO: test whether the delegate method exists
 	
 	if [ ! -z "$method" ]; then
 		#straight method call
 		if [ -z "$module" ]; then
-			${method} "${options[@]:-}";
+			set +o nounset;
+			${method} "${options[@]}";
+			set -o nounset;
 		#method call in module
 		else
-			${module}${delimiter}${method} "${options[@]:-}";
+			set +o nounset;
+			${module}${delimiter}${method} "${options[@]}";
+			set -o nounset;
 		fi
 	fi
 }

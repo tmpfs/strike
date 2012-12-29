@@ -41,7 +41,7 @@ ronn:markdown
 
 declare -Agx executables;
 
-function executable_validate {
+function executable.validate {
 	local cmd;
 	for opt in ${@}
 		do

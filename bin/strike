@@ -74,7 +74,7 @@ require 'help';
 help.man.page "default" "strike.1";
 help.parse "$@";
 
-function strike_info {
+function strike.info {
 	info "bash: %s" "$BASH";
 	info "os type: %s" "$OSTYPE";
 	info "host type: %s" "$HOSTTYPE";

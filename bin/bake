@@ -113,8 +113,12 @@ function bake {
 		# switch back strict error checking
 		set -o errexit;
 		
+		# echo "bake options: $# : $@";
+		
+		delegate "tasks" "$cmd" "$@" || quit 3 "task %s failed" "$func";
+		
 		# invoke  the task function
-		$func "$@" || quit 3 "task %s failed" "$func";
+		#$func "$@" || quit 3 "task %s failed" "$func";
 	fi
 }
 
