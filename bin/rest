@@ -154,6 +154,12 @@ function boilerplate {
 boilerplate;
 ######################################################################
 
+
+# configure help
+require 'help';
+help.man.page "default" "rest.1";
+help.parse "$@";
+
 # test that re-requiring doesn't override previous data
 # require 'executable';
 # executable validate curl;
