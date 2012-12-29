@@ -1,8 +1,40 @@
-# basic test for set/get variables
+# test for set/get variables
 function test.variable.set.get {
 	local expects="1 2 3";
 	assert.expects "$expects";
 	variable.set "var" "$expects";
 	variable.get "var";
+	assert.ok "$_result";
+}
+
+# test for get local variable
+function test.variable.get.local {
+	local expects="1 2 3";
+	assert.expects "$expects";
+	variable.get "expects";
+	assert.ok "$_result";
+}
+
+# test for get global variable
+function test.variable.get.global {
+	declare -gx expects="3 2 1";
+	assert.expects "$expects";
+	variable.get "expects";
+	assert.ok "$_result";
+}
+
+# test for get global array variable value
+function test.variable.get.global.array {
+	declare -agx expects=( "3 2 1" );
+	assert.expects "${expects[@]}";
+	variable.get "expects";
+	assert.ok "$_result";
+}
+
+# test for get local variable
+function test.variable.get.local.array {
+	local expects=( "1 2 3" );
+	assert.expects "${expects[@]}";
+	variable.get "expects";
 	assert.ok "$_result";
 }
