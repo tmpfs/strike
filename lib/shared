@@ -4,6 +4,8 @@
 #	Sources shared libraries common to all programs.
 ######################################################################
 
+#set -o pipefail;
+
 #we need method, color and console functionality
 #before the module/require logic
 source "$libdir/modules/method";
@@ -19,9 +21,6 @@ require 'string';
 require 'fs';
 require 'executable';
 
-# TODO : remove these dependencies
-#source "$libdir/core";
-
 # TODO: remove these dependencies
 source "$libdir/constants";
 source "$libdir/exit-codes";
@@ -29,10 +28,3 @@ source "$libdir/messages";
 
 #TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
 #source "$libdir/archive-util";
-
-#set +e;
-
-#ensure we can't use unbound variables
-#set -o nounset;
-#set -o errexit;
-#set -o pipefail;

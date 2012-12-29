@@ -6,8 +6,6 @@
 #	Variables containing program messages.
 ######################################################################
 
-WELCOME="%s running on %s as %s";
-
 #cleaning
 CLEANING="cleaning %s";
 CLEAN_COMPLETE="clean complete";
