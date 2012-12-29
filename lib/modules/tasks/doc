@@ -49,15 +49,15 @@ The following commands are then available to bake(1):
 
 ## BUGS
 
-**tasks-doc** is written in bash and depends upon `bash` >= 4.
+**task-doc** is written in bash and depends upon `bash` >= 4.
 
 ## COPYRIGHT
 
-**tasks-doc** is copyright (c) 2012 muji <http://xpm.io>
+**task-doc** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 
-bake(1), strike(1), require(7)
+bake(1)
 ronn:markdown
 
 function tasks.initialize {
