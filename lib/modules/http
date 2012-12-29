@@ -224,7 +224,7 @@ function http.curl.execute {
 	set -o errexit;	
 }
 
-function http_curl {
+function http.curl {
 	local method="${1:-GET}";
 	shift;
 	local path="${1:-}";
@@ -265,7 +265,7 @@ function http_curl {
 	for hname in ${!http_request_headers[@]}
 		do
 			hvalue=${http_request_headers[$hname]};
-			echo "adding request header: $hname::$hvalue";
+			# echo "adding request header: $hname::$hvalue";
 			runopts+=( "--header" "${hname}: $hvalue" );
 	done
 	
@@ -323,10 +323,11 @@ function http.option.add {
 		http_command_options+=( "$name" );
 		http_command_options+=( "$value" );
 	fi
-	echo "added command options: ${http_command_options[@]}";
+	
+	# echo "added command options: ${http_command_options[@]}";
 }
 
-function http_request.add.header {
+function http.request.add.header {
 	local name="$1";
 	local value="${2:-}";
 	local hname hvalue;
