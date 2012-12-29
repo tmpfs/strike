@@ -32,6 +32,15 @@ function require.list {
 	done
 }
 
+# retrieves the method list for a module
+# by file path
+function require.methods {
+	_result="";	
+	if [ ! -z "${1:-}" ]; then
+		_result="${__module_methods[$1]}";
+	fi
+}
+
 function __require_register {
 	local name="${1:-}";
 	local path="${2:-}";
@@ -39,12 +48,12 @@ function __require_register {
 	name=${name%%.*};
 	if [ ! -z "$name" ]; then
 		
-		echo "registering module: $name";
+		# echo "registering module: $name";
 		
 		# list of module names
 		__module_names+=( "$name" );
 		
-		echo "registering $name with declared methods: ${__require_methods[@]}";
+		# echo "registering $name with declared methods: ${__require_methods[@]}";
 		
 		# list of methods declared by a module
 		__module_methods["$path"]="${__require_methods[@]}";
@@ -62,9 +71,10 @@ function __require_register {
 function __require_source {
 	local abs="$1";
 	method.diff.start;
+	# echo "require: $abs";
 	source "$abs";
 	method.diff.end;
-	echo "got method end diff result: $_result";
+	# echo "got method end diff result: $_result";
 	__require_methods=( "$_result" );
 }
 

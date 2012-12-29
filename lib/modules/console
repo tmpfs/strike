@@ -136,6 +136,29 @@ function success {
 	exit $SUCCESS;
 }
 
+function console.ok {
+	local status="[ok]";
+	local prefix="$status";
+	local msg="";
+	if [ -t 1 ]; then
+		#get the message prefix
+		bold "$status";
+		prefix="$_result";
+
+		#highlight the message and parameters
+		msgs=( "default_style" "bold" "${@}" );
+		colorize "${msgs[@]}";
+		msg="$_result";
+	else
+		sprintf "${@}";
+		msg="$_result";
+	fi
+	
+	#output everything
+	print_prefix;
+	echo -e "$prefix $msg";
+}
+
 #outputs an info message
 function info {	
 	local status="[info]";
@@ -287,5 +310,5 @@ function error {
 	
 	#output everything
 	print_prefix;
-	echo -e "$prefix $msg";
+	echo -e "$prefix $msg" >&2;
 }

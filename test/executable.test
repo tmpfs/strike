@@ -1,3 +1,17 @@
+require 'executable';
+
+# test for a nonexistent program and validates that
+# a non-zero exit code is returned
 function test.validate.fail {
 	assert.expects "1";
+	executable validate nonexistent 2> /dev/null &
+	wait %%;
+	assert.ok "$?";
+}
+
+# test for a built in program
+function test.validate.ls {
+	assert.expects "ls";
+	executable validate ls;
+	assert.ok "`basename "${executables[ls]}"`";
 }

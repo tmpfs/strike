@@ -62,13 +62,13 @@ function strict_method_exists {
 }
 
 function method.diff.start {
-	echo "[START METHOD DIFF]";
+	# echo "[START METHOD DIFF]";
 	__method_diff_list=( $( method.list ) );
 	# echo "got method start diff ${__method_diff_list[@]}"
 }
 
 function method.diff.end {
-	echo "[END METHOD DIFF]";
+	# echo "[END METHOD DIFF]";
 	local contains;
 	__method_diff_list=${__method_diff_list[@]:-};
 	if [ ! -z "$__method_diff_list" ]; then
@@ -87,7 +87,7 @@ function method.diff.end {
 				contains=$?;
 				set -o errexit;
 				if [ $contains -eq 1 ]; then
-					echo "adding declared method $m"
+					# echo "adding declared method $m"
 					declared+=( "$m" );
 				fi
 		done

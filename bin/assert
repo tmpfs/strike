@@ -50,11 +50,7 @@ function boilerplate {
 boilerplate;
 ######################################################################
 
-#method.list;
 require 'help';
-#method.list;
-exit 0;
-
 require 'options';
 
 # configure help
@@ -74,7 +70,9 @@ options configure;
 #parse the parameters
 options parse "$@";
 
-function assert_test {	
+function assert_test {
+	#echo "assert_test"
+
 	if [ $# -eq 0 ]; then
 		quit 1 "no tests specified";
 	fi
@@ -97,19 +95,67 @@ function assert_test {
 	done
 }
 
+declare -gx __assert_expects;
+
 function assert.expects {
-	echo "expects called with : $1";
+	#echo "expects called with : $1";
+	__assert_expects="$1";
+}
+
+function assert.ok {
+	#echo "assert.complete called with : $1";
+	local expected="$__assert_expects";
+	local received="${1:-}";
+	
+	# local frame=0
+	# while caller $frame; do
+	# 	((frame++));
+	# done
+	
+	local stack=( $( caller 0 ) );
+	local lineno="${stack[0]}";
+	local method="${stack[1]}";
+	local file="${stack[2]}";
+	
+	# echo "got lineno : $lineno";
+	# echo "got method : $method";
+	# echo "got file : $file";
+	
+	local frame="${file}:${lineno}";
+	
+	if [ "$expected" == "$received" ]; then
+		console.ok "%s" "$method";
+	else
+		error "%s $frame" "$method";
+	fi
 }
 
 function __assert_run_test {
-	
-	require.list;	
-	local file="$1";
-	echo "running test: $file";
-	
+	local file="$1";	
 	require "$file" || quit 1 "could not require test file %s" "$file";
 	
-	require.list;	
+	info "assert %s < %s" "`basename $file`" "$file";
+	
+	# get the methods declared by the module
+	require.methods "$file";
+	local methods=( "$_result" );
+	local m;
+	for m in ${methods[@]}
+		do
+			# check that the method starts with a test prefix
+			if [[ "$m" =~ ^test. ]]; then
+				
+				# clean up
+				__assert_expects="";
+				
+				info "assert %s" "$m";
+				
+				set +o errexit;
+				# execute the test method
+				"$m";
+				set -o errexit;
+			fi
+	done
 }
 
 main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
