@@ -1,4 +1,4 @@
-require 'executable';
+require 'tasks/assert';
 require 'tasks/clean';
 require 'tasks/list';
 require 'tasks/doc';

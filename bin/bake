@@ -80,6 +80,12 @@ function boilerplate {
 boilerplate;
 ######################################################################
 
+require 'help';
+
+# configure help
+help.man.page "default" "bake.1";
+help.parse "$@";
+
 # TODO: add --version handling
 
 function program.usage {

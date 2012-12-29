@@ -91,11 +91,11 @@ function method.diff.end {
 					declared+=( "$m" );
 				fi
 		done
-		_result="${declared[@]}";
+		_result="${declared[@]:-}";
 		#echo "got method end diff declared: ${declared[@]}";	
 		__method_diff_list="";		
 	else
-		_result="";		
+		_result="";
 	fi
 }
 

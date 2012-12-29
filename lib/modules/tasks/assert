@@ -1,0 +1,112 @@
+: <<'ronn:markdown'
+assert(1) -- unit test runner for strike(1)
+=============================================
+
+## SYNOPSIS
+
+`assert` test [<unit>...]<br>
+
+## DESCRIPTION
+
+**assert** runs strike(1) unit tests.
+
+## BUGS
+
+**assert** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**assert** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+strike(1)
+ronn:markdown
+
+function tasks.assert {
+	#echo "assert_test"
+
+	if [ $# -eq 0 ]; then
+		quit 1 "no tests specified";
+	fi
+	
+	local opts=( "$@" );
+	local searchpaths=(
+		"$exedir/test"
+		"$exedir/../test"
+	);
+	local unit path file;
+	for path in ${searchpaths[@]}
+		do
+			for unit in ${opts[@]}
+				do
+					file="${path}/${unit}.test";
+					if [ -f "$file" ]; then
+						__assert_run_test "$file";
+					fi
+			done
+	done
+}
+
+declare -gx __assert_expects;
+
+function assert.expects {
+	#echo "expects called with : $1";
+	__assert_expects="$1";
+}
+
+function assert.ok {
+	#echo "assert.complete called with : $1";
+	local expected="$__assert_expects";
+	local received="${1:-}";
+	
+	# local frame=0
+	# while caller $frame; do
+	# 	((frame++));
+	# done
+	
+	local stack=( $( caller 0 ) );
+	local lineno="${stack[0]}";
+	local method="${stack[1]}";
+	local file="${stack[2]}";
+	
+	# echo "got lineno : $lineno";
+	# echo "got method : $method";
+	# echo "got file : $file";
+	
+	local frame="${file}:${lineno}";
+	
+	if [ "$expected" == "$received" ]; then
+		console.ok "%s" "$method";
+	else
+		error "%s $frame" "$method";
+	fi
+}
+
+function __assert_run_test {
+	local file="$1";	
+	require "$file" || quit 1 "could not require test file %s" "$file";
+	
+	info "assert %s < %s" "`basename $file`" "$file";
+	
+	# get the methods declared by the module
+	require.methods "$file";
+	local methods=( "$_result" );
+	local m;
+	for m in ${methods[@]}
+		do
+			# check that the method starts with a test prefix
+			if [[ "$m" =~ ^test. ]]; then
+				
+				# clean up
+				__assert_expects="";
+				
+				info "assert %s" "$m";
+				
+				set +o errexit;
+				# execute the test method
+				"$m";
+				set -o errexit;
+			fi
+	done
+}
