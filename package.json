@@ -2,7 +2,7 @@
 	"name": "strike",
 	"description": "Suite of bash library modules",
 	"homepage": "https://github.com/freeformsystems/strike",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"author": "muji <muji@xpm.io>",
 	"licenses": [ {
 		"type": "MIT",
