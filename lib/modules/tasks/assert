@@ -34,28 +34,11 @@ bake(1), strike(1)
 ronn:markdown
 
 function tasks.assert {
-	#echo "assert_test"
-
 	if [ $# -eq 0 ]; then
-		quit 1 "no tests specified";
+		__assert_run_all;
+	else
+		__assert_run_units "$@";
 	fi
-	
-	local opts=( "$@" );
-	local searchpaths=(
-		"$exedir/test"
-		"$exedir/../test"
-	);
-	local unit path file;
-	for path in ${searchpaths[@]}
-		do
-			for unit in ${opts[@]}
-				do
-					file="${path}/${unit}.test";
-					if [ -f "$file" ]; then
-						__assert_run_test "$file";
-					fi
-			done
-	done
 }
 
 declare -gx __assert_expects;
@@ -91,6 +74,59 @@ function assert.ok {
 	else
 		error "%s $frame" "$method";
 	fi
+}
+
+function __assert_run_all {
+	__assert_search_paths;
+	local searchpaths=( "$_result" );
+	local path file;
+	for path in ${searchpaths[@]}
+		do
+			if [ -d "$path" ]; then
+				__assert_run_dir "$path";
+			fi
+	done
+}
+
+
+function __assert_run_dir {
+	local dir="$1";
+	if [ -d "$dir" ]; then
+		for file in ${dir}/*
+			do
+				if [ -f "$file" ] && [[ "$file" =~ .test$ ]]; then
+					__assert_run_test "$file";
+				# recurse into sub-directories
+				elif [ -d "$file" ]; then
+					__assert_run_dir "$file";
+				fi
+		done
+	fi
+}
+
+function __assert_run_units {
+	__assert_search_paths;
+	local searchpaths=( "$_result" );
+	local opts=( "$@" );
+	local unit path file;
+	for path in ${searchpaths[@]}
+		do
+			for unit in ${opts[@]}
+				do
+					file="${path}/${unit}.test";
+					if [ -f "$file" ]; then
+						__assert_run_test "$file";
+					fi
+			done
+	done	
+}
+
+function __assert_search_paths {
+	local searchpaths=(
+		"$exedir/test"
+		"$exedir/../test"
+	);
+	_result="${searchpaths[@]}";
 }
 
 function __assert_run_test {
