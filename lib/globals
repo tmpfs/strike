@@ -19,6 +19,12 @@ declare -gx console_no_format="";
 # when printing output, switched on with the --no-prefix option
 declare -gx console_no_prefix="";
 
+declare -Agx console_prefixes;
+console_prefixes['console.info']="[info]";
+console_prefixes['console.error']="[not ok]";
+console_prefixes['console.warn']="[warn]";
+console_prefixes['console.ok']="[ok]";
+console_prefixes['console.success']="[ok]";
 
 # determines whether console prints the program name
 # at the beginning of each line of output

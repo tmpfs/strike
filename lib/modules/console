@@ -108,7 +108,7 @@ function __console_print_program_prefix {
 
 #exits a program with a success message
 function console.success {
-	local status="[ok]";
+	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
@@ -132,7 +132,7 @@ function console.success {
 }
 
 function console.ok {
-	local status="[ok]";
+	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
@@ -156,7 +156,7 @@ function console.ok {
 
 #outputs an info message
 function console.info {	
-	local status="[info]";
+	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
@@ -261,8 +261,7 @@ function console.info {
 
 #outputs a warning message
 function console.warn {	
-
-	local status="[warn]";
+	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
@@ -286,7 +285,7 @@ function console.warn {
 
 #outputs an error message
 function console.error {
-	local status="[not ok]";
+	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
 	if [ -t 2 ] && [ -z "$console_no_format" ]; then

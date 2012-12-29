@@ -15,7 +15,7 @@ function test.console.error {
 }
 
 function test.console.warn {
-	assert.expects "0";	
+	assert.expects "0";
 	console.warn "this is a warning, %s" 'but nothing really went wrong';
-	assert.ok "$?";	
+	assert.ok "$?";
 }
