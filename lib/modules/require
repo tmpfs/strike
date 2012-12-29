@@ -39,6 +39,28 @@ function require.methods {
 	method.diff.end;
 }
 
+# declares a delegate method
+function require.delegate {
+	local name="${1:-}";
+	if [ ! -z "$name" ]; then
+		method.exists "$name";
+		local exists=$?;
+		# echo "delegate exists: $exists";
+		if [ $exists -ne 0 ]; then
+			#warn "loaded module %s does not declare a method named %s" "$name" "$name";
+			
+			#look for a main method to alias
+			method.exists "delegate";
+			if [ $? -eq 0 ]; then
+				eval "$name(){ 
+					delegate "$1" \$*;
+				}";
+			fi
+		fi
+		set -o errexit;		
+	fi
+}
+
 function __require_register {
 	local name="${1:-}";
 	local path="${2:-}";
@@ -127,21 +149,7 @@ function __require_load {
 		
 		# echo "testing for delegate method : $name";
 		
-		method.exists "$name";
-		local exists=$?;
-		# echo "delegate exists: $exists";
-		if [ $exists -ne 0 ]; then
-			#warn "loaded module %s does not declare a method named %s" "$name" "$name";
-			
-			#look for a main method to alias
-			method.exists "delegate";
-			if [ $? -eq 0 ]; then
-				eval "$name(){ 
-					delegate "$1" \$*;
-				}";
-			fi
-		fi
-		set -o errexit;
+		require.delegate "$name";
 		
 		# register the module
 		__require_register "$name" "$abs";

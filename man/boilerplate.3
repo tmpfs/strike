@@ -24,9 +24,9 @@ function boilerplate {
     fi
     exedir=`dirname "$abspath"`;
     local libdir="$exedir/\.\./node_modules/strike/lib";
-    source "$libdir/shared";
+    source "$libdir/shared" "$@";
 }
-boilerplate;
+boilerplate "$@";
 .
 .fi
 .

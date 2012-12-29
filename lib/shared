@@ -4,12 +4,10 @@
 #	Includes core modules.
 ######################################################################
 
-#set -o pipefail;
-
 # must set this option so that aliases are expanded
 # shopt -s expand_aliases;
 
-# echo "shared has parameters: $@";
+#set -o pipefail;
 
 function __initialize__ {
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
