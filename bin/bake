@@ -102,6 +102,10 @@ function bake {
 		local target="${root}/target";
 		local tasks="$f";
 		
+		if [ ! -d "${target}" ]; then
+			mkdir -p "${target}";
+		fi
+		
 		require "$f";
 		local cmd="$1";
 		shift;
