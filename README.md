@@ -22,11 +22,17 @@ The [project documentation](http://freeformsystems.github.com/strike) is availab
 
 ## Developers
 
+### Running Tests
+
+Use `bake(1)` to execute the unit tests:
+
+	./bin/bake assert
+
 ### Generating Documentation
 
 Documentation for the repository is generated using [ronn](https://github.com/rtomayko/ronn) which must be installed, to generate documentation run:
 
-	./bin/bake doc
+	./bin/bake doc.build
 
 ## Boilerplate
 
