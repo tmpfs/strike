@@ -4,6 +4,8 @@
 #	Library functions for system output and program exit.
 ######################################################################
 
+# TODO: make output prefixes configurable
+
 ######################################################################
 #	Colours a message string formatting each replacement as bold.
 #
@@ -287,7 +289,7 @@ function console.error {
 	local status="[not ok]";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_format" ]; then
+	if [ -t 2 ] && [ -z "$console_no_format" ]; then
 		#get the message prefix
 		boldred "$status";
 		prefix="$_result";
