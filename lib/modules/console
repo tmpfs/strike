@@ -132,8 +132,7 @@ function success {
 	#output everything
 	print_prefix;
 	echo -e "$prefix $msg";
-	
-	exit $SUCCESS;
+	exit 0;
 }
 
 function console.ok {
