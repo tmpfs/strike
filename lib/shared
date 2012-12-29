@@ -6,6 +6,9 @@
 
 #set -o pipefail;
 
+# must set this option so that aliases are expanded
+# shopt -s expand_aliases;
+
 function __initialize__ {
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
 	
@@ -38,6 +41,8 @@ function __initialize__ {
 	# TODO: remove these dependencies
 	source "${dir}/constants";
 	source "${dir}/messages";
+	
+	# alias;
 
 	#TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
 	#source "${dir}/archive-util";

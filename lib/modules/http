@@ -305,7 +305,12 @@ function http.curl {
 	#write out the options used as a config file
 	__http_write_config "${runopts[@]}";
 	
-	http.curl.execute "${runopts[@]}";
+	# method.list | grep http;
+	
+	# alias;
+	# echo "has http alias : `command -v http`";
+	
+	http curl.execute "${runopts[@]}";
 }
 
 ######################################################################

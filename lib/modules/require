@@ -4,12 +4,16 @@
 #	Logic for defining and loading modules.
 ######################################################################
 
-# must set this option so that aliases are expanded
-shopt -s expand_aliases;
-
 modules=();
 
+# map of require paths to module names
 declare -Agx __module_paths;
+
+# public methods
+declare -Agx __module_methods;
+
+# private methods
+declare -Agx __module_private_methods;
 
 # TODO: don't re-require if path matches an already loaded module
 
@@ -40,9 +44,19 @@ function __require_register {
 	local path="${2:-}";
 	# strip any extension
 	name=${name%%.*};
+	local methods;
+	local private;
 	if [ ! -z "$name" ]; then
 		
 		# echo "registering module: $name";
+		
+		methods=( $( method.list | egrep "^${name}" ) );
+		#private=( $( method.list | egrep "^__${name}" ) );
+		
+		echo "got module private methods: ${private[@]:-}";
+		
+		__module_methods["$path"]="${methods[@]:-}";
+		__module_private_methods["$path"]="${private[@]:-}";
 	
 		if [ ! -z "$path" ]; then
 			__module_paths["$path"]="$name";
@@ -108,9 +122,6 @@ function __require_load {
 			quit 1 "failed to load module %s" "$name";
 		fi
 		
-		# register the module
-		__require_register "$name" "$abs";
-		
 		strict_method_exists "$name";
 		local exists=$?;
 		if [ $exists -ne 0 ]; then
@@ -120,12 +131,23 @@ function __require_load {
 			strict_method_exists "delegate";
 			if [ $? -eq 0 ]; then
 				#echo "alias main method for module!!!! : $name";
-				alias "$name"="delegate "$@"";
+				# alias "$name"="delegate "$@"";
 				#strict_method_exists "$name";
 				#echo "method exists after alias $?";
+				
+				# dynamic function definition
+				
+				#delegate "${1:-}" "${2:-}";
+				eval "$name(){ 
+					# echo "dynamic delegate called... $1 : \$* : ${2:-}";
+					delegate "$1" \$*;
+				}";
 			fi
 		fi
 		set -o errexit;
+		
+		# register the module
+		__require_register "$name" "$abs";
 		
 		local constructor="${name}.initialize";
 		strict_method_exists "$constructor";

@@ -103,6 +103,16 @@ function get_options {
 	done
 }
 
+# var="abc";
+# #declare -f "$var";
+# "$var"() {
+# 	echo "$FUNCNAME";
+# }
+
+#eval "$var() { echo "\$FUNCNAME"; }";
+
+#abc;
+
 #configure all the option defaults
 configure_options;
 
