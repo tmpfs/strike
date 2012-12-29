@@ -1,8 +1,6 @@
 declare -Agx __system_info;
 
 function system.initialize {
-	executable validate hostname;
-	
 	# TODO: deprecate: used by xpm
 	local OS_INSTALL="$OSTYPE-$HOSTTYPE";
 	#darwin12-x86_64 == Mountain Lion (bash 3.2.48) ?
@@ -21,7 +19,7 @@ function system.initialize {
 	__system_info["bash_major_version"]="${BASH_VERSINFO[0]}";
 	__system_info["bash_minor_version"]="${BASH_VERSINFO[1]}";
 	__system_info["bash_patch_level"]="${BASH_VERSINFO[2]}";
-	__system_info["host_name"]="`hostname`";
+	__system_info["host_name"]="${HOSTNAME}";
 	__system_info["home"]="${HOME}";
 }
 

@@ -16,7 +16,7 @@ function __initialize__ {
 	source "${dir}/modules/variable";
 	source "${dir}/modules/method";
 	source "${dir}/modules/color";
-	source "${dir}/modules/console" "$@";
+	source "${dir}/modules/console";
 	source "${dir}/modules/array";
 
 	# main module loader and require(7) definition
