@@ -11,6 +11,8 @@ modules=();
 
 declare -Agx __module_paths;
 
+# TODO: don't re-require if path matches an already loaded module
+
 function require {
 	local name="${1:-}";
 	if [ ! -z "$name" ]; then
@@ -115,10 +117,10 @@ function __require_load {
 			#warn "loaded module %s does not declare a method named %s" "$name" "$name";
 			
 			#look for a main method to alias
-			strict_method_exists "main";
+			strict_method_exists "delegate";
 			if [ $? -eq 0 ]; then
 				#echo "alias main method for module!!!! : $name";
-				alias "$name"="main "$@"";
+				alias "$name"="delegate "$@"";
 				#strict_method_exists "$name";
 				#echo "method exists after alias $?";
 			fi

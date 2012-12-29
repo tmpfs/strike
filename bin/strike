@@ -74,8 +74,6 @@ require 'help';
 help.man.page "default" "strike.1";
 help.parse "$@";
 
-require 'main';
-
 function strike_info {
 	info "bash: %s" "$BASH";
 	info "os type: %s" "$OSTYPE";
@@ -111,6 +109,6 @@ configure_options;
 #validate the parameters
 get_options "$@";
 
-main "${module:-}" "${method:-}" "${options[@]:-}";
+delegate "${module:-}" "${method:-}" "${options[@]:-}";
 
 exit 0;

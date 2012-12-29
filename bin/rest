@@ -257,6 +257,6 @@ rest.query.string;
 #always add the url as the last option
 module_options+=( "$rest_request_url" );
 
-main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
+delegate "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
 
 exit 0;
