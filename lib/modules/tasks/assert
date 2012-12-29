@@ -149,6 +149,10 @@ function __assert_run_test {
 				# execute the test method
 				"$m";
 				set -o errexit;
+				
+				# remove the method so that it is not
+				# executed again on subsequent passes
+				method.remove "$m";
 			fi
 	done
 }
