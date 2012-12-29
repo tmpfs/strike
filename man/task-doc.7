@@ -1,10 +1,10 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "TASKS\-DOC" "7" "December 2012" "" ""
+.TH "TASK\-DOC" "7" "December 2012" "" ""
 .
 .SH "NAME"
-\fBtasks\-doc\fR \- documentation tasks for bake(1)
+\fBtask\-doc\fR \- documentation tasks for bake(1)
 .
 .SH "SYNOPSIS"
 Collection of documentation tasks for bake(1)\.
@@ -47,6 +47,9 @@ Invokes \fBdoc\.generate\fR, \fBdoc\.compile\fR and \fBdoc\.man\.import\fR\.
 .TP
 \fBdoc\.generate\fR
 Searches the doc search paths and attempts to find inline heredoc declarations in any files within the search paths\. When an inline heredoc is encountered a corresponding \fB\.ronn\fR file is generated in \fB${target}/doc\fR\.
+.
+.IP
+If a file is encountered that has a \fB\.ronn\fR extension then that file is not parsed for heredoc declarations but is copied to the output directory for inclusion in the generated documentation\.
 .
 .TP
 \fBdoc\.compile\fR

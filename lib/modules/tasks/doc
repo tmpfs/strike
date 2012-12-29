@@ -1,5 +1,5 @@
 : <<'ronn:markdown'
-tasks-doc(7) -- documentation tasks for bake(1)
+task-doc(7) -- documentation tasks for bake(1)
 =============================================
 
 ## SYNOPSIS
@@ -32,6 +32,8 @@ The following commands are then available to bake(1):
 
 * `doc.generate`:
 	Searches the doc search paths and attempts to find inline heredoc declarations in any files within the search paths. When an inline heredoc is encountered a corresponding `.ronn` file is generated in `${target}/doc`.
+	
+	If a file is encountered that has a `.ronn` extension then that file is not parsed for heredoc declarations but is copied to the output directory for inclusion in the generated documentation.
 	
 * `doc.compile`:
 	Compiles any `.ronn` documents previously generated using the `doc.generate` task.
@@ -208,6 +210,7 @@ function __tasks.doc.parse {
 	
 	local inside=0;
 	local heredoc="";
+	local filename="";
 	local IFS="
 ";
 	while read line
@@ -225,7 +228,18 @@ function __tasks.doc.parse {
 				continue;
 			fi
 			
+			#echo "got line: $line";
+
 			if [ $inside -eq 1 ]; then
+
+				# parse .ronn file name
+				if [ -z "$heredoc" ] && [ -z "$filename" ] && [ ! -z "$line" ]; then
+					filename=${line%% *};
+					filename=${filename%)};
+					filename=${filename//(/.};
+					outputfile="${output}/${filename}.${ext}";
+				fi
+				
 				# ensure the newline is present after each line
 				heredoc="${heredoc}${line}
 ";
