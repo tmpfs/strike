@@ -11,7 +11,20 @@ Utility program for inspecting information about the system and bash installatio
 
 ## DESCRIPTION
 
-The strike(1) program also provides debugging commands and the ability to upgrade the installed bash version where possible.
+The strike(1) program also provides debugging commands and the ability to switch the installed bash version.
+
+## COMMANDS
+
+The strike(1) supports the following commands:
+
+* `info`:
+	Print system information.
+	
+* `module.list`:
+	Print a module list.
+	
+* `method.list`:
+	List method names.
 
 ## BUGS
 
@@ -62,12 +75,20 @@ function strike.info {
 	system print;
 }
 
+function strike.module.list {
+	require.list;
+}
+
+function strike.method.list {
+	method.list;
+}
+
 # configure options
 require 'options';
 
 options_minimum=1;
 options_fail_help=1;
-options_expects_command=( info );
+options_expects_command=( info module.list method.list );
 options_map_command_method=1;
 #configure all the option defaults
 options configure;
