@@ -6,8 +6,16 @@
 
 #set -o pipefail;
 
+# must set this option so that aliases are expanded
+# shopt -s expand_aliases;
+
+# echo "shared has parameters: $@";
+
 function __initialize__ {
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
+	
+	# global variable declarations
+	source "${dir}/globals";
 	
 	# we need these modules before we include require(7)
 	source "${dir}/modules/variable";
@@ -28,19 +36,23 @@ function __initialize__ {
 	__require_register "require" "${dir}/modules/require";
 	
 	# require(7) the remaining core modules
-	require 'main';
+	# the order here is *very* important
+	require 'delegate';
+	require 'executable';	
+	require 'system';
 	require 'string';
 	require 'fs';
-	require 'executable';
 
 	# require.list;
 
 	# TODO: remove these dependencies
 	source "${dir}/constants";
 	source "${dir}/messages";
+	
+	# alias;
 
 	#TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
 	#source "${dir}/archive-util";
 }
 
-__initialize__;
+__initialize__ "$@";

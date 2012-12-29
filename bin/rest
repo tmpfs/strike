@@ -149,9 +149,9 @@ function boilerplate {
 	fi
 	exedir=`dirname "$abspath"`;
 	local libdir="$exedir/../lib";
-	source "$libdir/shared";
+	source "$libdir/shared" "$@";
 }
-boilerplate;
+boilerplate "$@";
 ######################################################################
 
 
@@ -171,9 +171,7 @@ help.parse "$@";
 # set up the main delegate module as 'rest'
 module="$PROGRAM_NAME";
 
-#method_start_diff;
 require 'options';
-#method_end_diff;
 require 'rest';
 
 #switch on strict mode for http requests
@@ -257,6 +255,6 @@ rest.query.string;
 #always add the url as the last option
 module_options+=( "$rest_request_url" );
 
-main "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
+delegate "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
 
 exit 0;

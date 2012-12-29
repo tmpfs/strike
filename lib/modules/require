@@ -4,12 +4,18 @@
 #	Logic for defining and loading modules.
 ######################################################################
 
-# must set this option so that aliases are expanded
-shopt -s expand_aliases;
-
 modules=();
 
+# map of require paths to module names
 declare -Agx __module_paths;
+
+# public methods
+declare -Agx __module_methods;
+
+# private methods
+declare -Agx __module_private_methods;
+
+# TODO: don't re-require if path matches an already loaded module
 
 function require {
 	local name="${1:-}";
@@ -37,10 +43,23 @@ function __require_register {
 	local name="${1:-}";
 	local path="${2:-}";
 	# strip any extension
-	name=${name%%.*};
+	# name=${name%%.*};
+	local methods;
+	local private;
 	if [ ! -z "$name" ]; then
 		
 		# echo "registering module: $name";
+		
+		# get method definitions but don't quit if none are defined
+		set +o errexit;
+		methods=( $( method.list | egrep "^${name}" ) );
+		private=( $( method.list | egrep "^__${name}" ) );
+		set -o errexit;
+		
+		# echo "got module private methods: ${private[@]:-}";
+		
+		__module_methods["$path"]="${methods[@]:-}";
+		__module_private_methods["$path"]="${private[@]:-}";
 	
 		if [ ! -z "$path" ]; then
 			__module_paths["$path"]="$name";
@@ -106,24 +125,37 @@ function __require_load {
 			quit 1 "failed to load module %s" "$name";
 		fi
 		
-		# register the module
-		__require_register "$name" "$abs";
+		# echo "testing for delegate method : $name";
 		
 		strict_method_exists "$name";
 		local exists=$?;
+		# echo "delegate exists: $exists";
 		if [ $exists -ne 0 ]; then
 			#warn "loaded module %s does not declare a method named %s" "$name" "$name";
 			
 			#look for a main method to alias
-			strict_method_exists "main";
+			strict_method_exists "delegate";
 			if [ $? -eq 0 ]; then
 				#echo "alias main method for module!!!! : $name";
-				alias "$name"="main "$@"";
+				# alias "$name"="delegate "$@"";
 				#strict_method_exists "$name";
 				#echo "method exists after alias $?";
+				
+				# dynamic function definition
+				
+				# echo "adding delegate method for : $name";
+				
+				#delegate "${1:-}" "${2:-}";
+				eval "$name(){ 
+					# echo "dynamic delegate called... $1 : \$* : ${2:-}";
+					delegate "$1" \$*;
+				}";
 			fi
 		fi
 		set -o errexit;
+		
+		# register the module
+		__require_register "$name" "$abs";
 		
 		local constructor="${name}.initialize";
 		strict_method_exists "$constructor";

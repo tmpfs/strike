@@ -1,0 +1,20 @@
+# not a module! declares global variables
+# used to view all global variable declarations
+# in a single location
+
+# duplicate of the original program options
+declare -agx program_options=( "$@" );
+
+# list of executables referenced, using `executable validate`
+declare -Agx executables;
+
+# controls whether console output is formatted
+# a non-empty string value causes console to omit
+# all formatting of output, switched on with the --no-format option
+# see console(7)
+declare -gx console_no_format="";
+
+# controls whether console output generates a prefix
+# a non-empty string value causes console to omit a prefix
+# when printing output, switched on with the --no-prefix option
+declare -gx console_no_prefix="";

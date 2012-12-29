@@ -18,9 +18,9 @@ If you have installed the `strike` library as a node module and your executable 
 		fi
 		exedir=`dirname "$abspath"`;
 		local libdir="$exedir/../node_modules/strike/lib";
-		source "$libdir/shared";
+		source "$libdir/shared" "$@";
 	}
-	boilerplate;
+	boilerplate "$@";
 
 ## COPYRIGHT
 

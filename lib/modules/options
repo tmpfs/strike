@@ -27,7 +27,7 @@ declare options_map_last;
 
 #declare -Agx options_flags;
 
-function options_add {
+function options.add {
 	local optiontype="${1:-}";
 	local shortname="${2:-}";
 	local fullname="${3:-}";
@@ -56,7 +56,7 @@ function options_add {
 	variable.set "$name" "$value";
 }
 
-function options_validate {
+function options.validate {
 	#shift so the array length is now zero
 	if [ $# -gt 0 ] && [ -z $1 ]; then
 		#echo "no options specified...";
@@ -97,14 +97,14 @@ function options_validate {
 	fi
 }
 
-function options_configure {
+function options.configure {
 	option_verbose=0;
 	option_quiet=0;
 }
 
-function options_parse {
+function options.parse {
 	#validate options
-	options_validate "$@";
+	options.validate "$@";
 	
 	#echo "parsing configured options...";
 	

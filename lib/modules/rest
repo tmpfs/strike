@@ -1,7 +1,5 @@
 require 'http';
 
-#TODO: implement get/post/put/delete etc
-
 declare -Agx rest_print;
 
 ######################################################################
@@ -9,42 +7,42 @@ declare -Agx rest_print;
 #	HTTP verb commands
 #
 ######################################################################
-function rest_get {
+function rest.get {
 	array.pop "$@";
 	local url="$_result";
 	http curl "GET" "$url";
 	__rest_print;
 }
 
-function rest_head {
+function rest.head {
 	array.pop "$@";
 	local url="$_result";
 	http curl "GET" "$url" "--head";
 	__rest_print;
 }
 
-function rest_post {
+function rest.post {
 	array.pop "$@";
 	local url="$_result";
 	http curl "POST" "$url";
 	__rest_print;	
 }
 
-function rest_put {
+function rest.put {
 	array.pop "$@";
 	local url="$_result";
 	http curl "PUT" "$url";
 	__rest_print;	
 }
 
-function rest_delete {
+function rest.delete {
 	array.pop "$@";
 	local url="$_result";
 	http curl "DELETE" "$url";
 	__rest_print;	
 }
 
-function rest_options {
+function rest.options {
 	array.pop "$@";
 	local url="$_result";
 	http curl "OPTIONS" "$url";
@@ -56,7 +54,7 @@ function rest_options {
 #	Utility commands
 #
 ######################################################################
-function rest_dl {
+function rest.dl {
 	# show download progress to the screen
 	http_print_stderr="on";
 	
@@ -65,13 +63,13 @@ function rest_dl {
 	http.curl.execute "--location" "-#" "--write-out" "$http_curl_writeout" "--remote-name" "$url";
 }
 
-function rest_clean {
+function rest.clean {
 	info "cleaning files in %s" "$http_home";
 	http.clean > /dev/null || quit 1 "error cleaning files in %s" "$http_home";
 	success "clean complete";
 }
 
-function rest_redo {
+function rest.redo {
 	info "using %s" "$http_config_file";
 	if [ -f "$http_config_file" ]; then
 		http.curl.execute "--config" "$http_config_file";
@@ -79,10 +77,10 @@ function rest_redo {
 		quit 1 "no config file %s" "$http_config_file";
 	fi
 	
-	# __rest_print_body;
+	__rest_print;
 }
 
-function rest_load {
+function rest.load {
 	local id="${1:-}";
 	local path="${http_config_dir}/${id}";
 	if [ ! -f "$path" ]; then
@@ -92,7 +90,7 @@ function rest_load {
 	http.curl.execute "--config" "$path";
 }
 
-function rest_config {
+function rest.config {
 	if [ -f "$http_config_file" ]; then
 		cat "$http_config_file";
 	else
@@ -100,7 +98,7 @@ function rest_config {
 	fi
 }
 
-function rest_options.parse {
+function rest.options.parse {
 	#echo "parsing rest program options..."
 	local name;
 	local value;
