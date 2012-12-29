@@ -1,7 +1,3 @@
-# TODO: fix the fact that re-requiring this causes the executable validate
-# method to appear in the list of methods for this module
-require 'executable';
-
 : <<'ronn:markdown'
 help(7) -- help module for strike(1)
 =============================================

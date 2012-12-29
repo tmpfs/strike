@@ -1,5 +1,5 @@
 : <<'ronn:markdown'
-tasks-doc(7) -- documentation tasks for bake
+tasks-doc(7) -- documentation tasks for bake(1)
 =============================================
 
 ## SYNOPSIS
@@ -57,8 +57,6 @@ The following commands are then available to bake(1):
 
 bake(1), strike(1), require(7)
 ronn:markdown
-
-require 'executable';
 
 function tasks.initialize {
 	executable validate 'ronn' 'git';

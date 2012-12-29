@@ -55,7 +55,6 @@ curl(1), tee(1), rest(1)
 ronn:markdown
 
 require 'url';
-require 'executable';
 
 # validate the curl executable is available
 # after validation the executable path

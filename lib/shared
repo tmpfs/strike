@@ -14,9 +14,10 @@ source "$libdir/modules/array";
 #main module loader and require definition
 source "$libdir/modules/require";
 
-require "main";
-require "string";
-require "fs";
+require 'main';
+require 'string';
+require 'fs';
+require 'executable';
 
 # TODO : remove these dependencies
 source "$libdir/core";

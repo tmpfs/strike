@@ -1,26 +1,36 @@
 : <<'ronn:markdown'
-assert(1) -- unit test runner for strike(1)
+tasks-assert(7) -- unit test tasks for bake(1)
 =============================================
 
 ## SYNOPSIS
 
-`assert` test [<unit>...]<br>
+Unit test tasks for bake(1).
 
 ## DESCRIPTION
 
-**assert** runs strike(1) unit tests.
+Adds task methods for unit testing bash programs.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `assert` tasks using:
+
+	require 'tasks/assert';
+
+## USAGE
+
+	bake assert [tests...]
 
 ## BUGS
 
-**assert** is written in bash and depends upon `bash` >= 4.
+**tasks-assert** is written in bash and depends upon `bash` >= 4.
 
 ## COPYRIGHT
 
-**assert** is copyright (c) 2012 muji <http://xpm.io>
+**tasks-assert** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 
-strike(1)
+bake(1), strike(1)
 ronn:markdown
 
 function tasks.assert {
