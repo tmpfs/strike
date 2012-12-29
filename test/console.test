@@ -19,10 +19,18 @@ function test.console.warn {
 	assert.ok "$?";
 }
 
+# test for calling success
+function test.console.success {
+	assert.expects "0";
+	success "success, everything is really fine with this test" &
+	wait %%;
+	assert.ok "$?";
+}
+
 # test for calling quit with no options
 function test.console.quit {
 	assert.expects "1";
-	quit 2> /dev/null &
+	quit &
 	wait %%;
 	assert.ok "$?";
 }
@@ -30,7 +38,15 @@ function test.console.quit {
 # test for calling quit with a specific exit code
 function test.console.quit.code {
 	assert.expects "127";
-	quit 127 2> /dev/null &
+	quit 127 &
+	wait %%;
+	assert.ok "$?";
+}
+
+# test for calling quit with a specific exit code and error message
+function test.console.quit.code.message {
+	assert.expects "127";
+	quit 127 "we quit the program with %s, but everything is really fine" "127" &
 	wait %%;
 	assert.ok "$?";
 }
