@@ -158,9 +158,10 @@ function __options_fail {
 		options_fail_mode="quit";
 	fi
 	
+	# TODO: reinstate this functionality using the help module!
 	#try to output program help
 	if [ $options_fail_help -gt 0 ]; then
-		program_help;
+		#program_help;
 	fi
 	
 	if [ "$options_fail_mode" == "quit" ]; then
