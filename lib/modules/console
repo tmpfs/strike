@@ -10,9 +10,9 @@
 #	$1		The name of the colour function to call.
 #	$2		The function to call to highlight each replacement parameter.	
 #	$3 		The printf format string.
-#	$4-@	The remaining string replacements to be highlighted.
+#	$4-#	The remaining string replacements to be highlighted.
 ######################################################################
-function colorize {
+function console.colorize {
 	#function used to start the main color
 	local start_function="$1";
 	#function used to highlight each replacement parameter
@@ -72,30 +72,26 @@ function console.sprintf {
 #(if [ -t 1 ] ; then echo terminal; fi) | echo
 
 #quits a program with a message and exit code
-function quit {
-	
-	#trap - INT TERM EXIT;
-	
-	local code=$1 || 1;
-	local params=("${@:2}");
-	
-	#echo "GOT QUIT PARAMS ${params[@]}"
-	error "${params[@]}";
-	
+function console.quit {
+	local code="${1:-1}";
+	if [ $# -gt 1 ]; then
+		local params=("${@:2}");
+		console.error "${params[@]}";
+	fi
 	exit $code;
 }
 
 #prints a message with the default output formatting
 function print {
 	local msg="$1";
-	print_prefix;
+	__console_print_program_prefix;
 	echo -e "$msg";
 }
 
-function print_prefix {
+function __console_print_program_prefix {
 	local prefix="[${program_name:-}]";
-	local include_prefix=${program_config_print_prefix:-};
-	if [ -z "$include_prefix" ]; then
+	local include_prefix=${console_print_program_prefix:-};
+	if [ ! -z "$include_prefix" ]; then
 		if [ -t 1 ] && [ -z "$console_no_format" ]; then	
 			if [ "$prefix" != "" ]; then
 				gray "$prefix";
@@ -109,7 +105,7 @@ function print_prefix {
 }
 
 #exits a program with a success message
-function success {
+function console.success {
 	local status="[ok]";
 	local prefix="$status";
 	local msg="";
@@ -120,7 +116,7 @@ function success {
 
 		#highlight the message and parameters
 		msgs=( "default_style" "bold" "${@}" );
-		colorize "${msgs[@]}";
+		console.colorize "${msgs[@]}";
 		msg="$_result";
 	else
 		console.sprintf "${@}";
@@ -128,7 +124,7 @@ function success {
 	fi
 	
 	#output everything
-	print_prefix;
+	__console_print_program_prefix;
 	echo -e "$prefix $msg";
 	exit 0;
 }
@@ -144,7 +140,7 @@ function console.ok {
 
 		#highlight the message and parameters
 		msgs=( "default_style" "bold" "${@}" );
-		colorize "${msgs[@]}";
+		console.colorize "${msgs[@]}";
 		msg="$_result";
 	else
 		console.sprintf "${@}";
@@ -152,12 +148,12 @@ function console.ok {
 	fi
 	
 	#output everything
-	print_prefix;
+	__console_print_program_prefix;
 	echo -e "$prefix $msg";
 }
 
 #outputs an info message
-function info {	
+function console.info {	
 	local status="[info]";
 	local prefix="$status";
 	local msg="";
@@ -168,7 +164,7 @@ function info {
 
 		#highlight the message and parameters
 		msgs=( "default_style" "bold" "${@}" );
-		colorize "${msgs[@]}";
+		console.colorize "${msgs[@]}";
 		msg="$_result";
 	else
 		console.sprintf "${@}";
@@ -176,33 +172,33 @@ function info {
 	fi
 	
 	#output everything
-	print_prefix;
+	__console_print_program_prefix;
 	echo -e "$prefix $msg";
 }
 
 #outputs an important info message
-function important {
-	local status="[info]";
-	local prefix="$status";
-	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_format" ]; then
-		#get the message prefix
-		bold "$status";
-		prefix="$_result";
-
-		#highlight the message and parameters
-		msgs=( "start_blue" "boldblue" "${@}" );
-		colorize "${msgs[@]}";
-		msg="$_result";
-	else
-		console.sprintf "${@}";
-		msg="$_result";
-	fi
-	
-	#output everything
-	print_prefix;
-	echo -e "$prefix $msg";
-}
+# function important {
+# 	local status="[info]";
+# 	local prefix="$status";
+# 	local msg="";
+# 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
+# 		#get the message prefix
+# 		bold "$status";
+# 		prefix="$_result";
+# 
+# 		#highlight the message and parameters
+# 		msgs=( "start_blue" "boldblue" "${@}" );
+# 		console.colorize "${msgs[@]}";
+# 		msg="$_result";
+# 	else
+# 		console.sprintf "${@}";
+# 		msg="$_result";
+# 	fi
+# 	
+# 	#output everything
+# 	__console_print_program_prefix;
+# 	echo -e "$prefix $msg";
+# }
 
 #outputs a usage message
 # function usage {
@@ -216,7 +212,7 @@ function important {
 # 
 # 		#highlight the message and parameters
 # 		msgs=( "default_style" "bold" "${@}" );
-# 		colorize "${msgs[@]}";
+# 		console.colorize "${msgs[@]}";
 # 		msg="$_result";
 # 	else
 # 		console.sprintf "${@}";
@@ -224,7 +220,7 @@ function important {
 # 	fi
 # 	
 # 	#output everything
-# 	print_prefix;
+# 	__console_print_program_prefix;
 # 	echo -e "$prefix $msg";
 # }
 
@@ -240,7 +236,7 @@ function important {
 # 
 # 		#no highlight for usage descriptions
 # 		msgs=( "default_style" "default_style" "${@}" );
-# 		colorize "${msgs[@]}";
+# 		console.colorize "${msgs[@]}";
 # 		msg="$_result";
 # 	else
 # 		console.sprintf "${@}";
@@ -253,16 +249,16 @@ function important {
 # 	
 # 	#highlight the message and parameters
 # 	#msgs=( "default_style" "default_style" "${@}" );
-# 	#colorize "${msgs[@]}";
+# 	#console.colorize "${msgs[@]}";
 # 	#local msg="$_result";
 # 	
 # 	#output everything
-# 	print_prefix;
+# 	__console_print_program_prefix;
 # 	echo -e "$prefix $msg";
 # }
 
 #outputs a warning message
-function warn {	
+function console.warn {	
 
 	local status="[warn]";
 	local prefix="$status";
@@ -274,7 +270,7 @@ function warn {
 
 		#highlight the message and parameters
 		msgs=( "start_purple" "boldpurple" "${@}" );
-		colorize "${msgs[@]}";
+		console.colorize "${msgs[@]}";
 		msg="$_result";
 	else
 		console.sprintf "${@}";
@@ -282,12 +278,12 @@ function warn {
 	fi
 	
 	#output everything
-	print_prefix;
+	__console_print_program_prefix;
 	echo -e "$prefix $msg";
 }
 
 #outputs an error message
-function error {
+function console.error {
 	local status="[not ok]";
 	local prefix="$status";
 	local msg="";
@@ -298,7 +294,7 @@ function error {
 
 		#highlight the message and parameters
 		msgs=( "start_red" "boldred" "${@}" );
-		colorize "${msgs[@]}";
+		console.colorize "${msgs[@]}";
 		msg="$_result";
 	else
 		console.sprintf "${@}";
@@ -306,7 +302,7 @@ function error {
 	fi
 	
 	#output everything
-	print_prefix;
+	__console_print_program_prefix;
 	echo -e "$prefix $msg" >&2;
 }
 
@@ -323,3 +319,26 @@ function console.parse {
 	done
 }
 console.parse "$@";
+
+# must set this option so that aliases are expanded
+shopt -s expand_aliases;
+
+# set up aliases for backward compatability
+# WARNING: these aliases will be removed in a future
+# version and you should use console.info etc.
+alias "info=console.info";
+alias "error=console.error";
+alias "warn=console.warn";
+alias "success=console.success";
+alias "quit=console.quit";
+
+# info "this is an info message";
+# error "this is an error message";
+# warn "this is a warning";
+
+#quit;
+#quit 127;
+#quit 127 "this is an error message";
+#success "success";
+
+#alias;

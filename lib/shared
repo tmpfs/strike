@@ -4,9 +4,6 @@
 #	Includes core modules.
 ######################################################################
 
-# must set this option so that aliases are expanded
-# shopt -s expand_aliases;
-
 #set -o pipefail;
 
 function __initialize__ {

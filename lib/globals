@@ -19,6 +19,14 @@ declare -gx console_no_format="";
 # when printing output, switched on with the --no-prefix option
 declare -gx console_no_prefix="";
 
+
+# determines whether console prints the program name
+# at the beginning of each line of output
+# this is useful when a program proxies calls
+# to multiple other programs and you want to determine
+# which program is generating the output
+declare -gx console_print_program_prefix="";
+
 # list of global options that modules may inspect
 # to control functionality for all programs. modules
 # that do so *should* not modify the options passed to
@@ -27,3 +35,6 @@ declare -gx console_no_prefix="";
 # therefore they are listed here
 declare -agx global_options;
 global_options=( "--no-format" );
+
+# store the program name for better code legibilty
+declare -gx program_name="`basename $0`";

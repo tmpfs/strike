@@ -140,7 +140,7 @@ set -o nounset;
 #
 ######################################################################
 export PROGRAM_NAME=`basename $0`;
-program_config_print_prefix="off";
+console_print_program_prefix="off";
 declare -gx exedir;
 function boilerplate {
 	local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
