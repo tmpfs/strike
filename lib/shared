@@ -30,7 +30,6 @@ source "$libdir/exit-codes";
 source "$libdir/messages";
 
 #TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
-#source "$libdir/git-util";
 #source "$libdir/archive-util";
 
 #set +e;
