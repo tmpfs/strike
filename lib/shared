@@ -21,16 +21,12 @@ require 'executable';
 
 # TODO : remove these dependencies
 #source "$libdir/core";
-#source "$libdir/help";
 
 #source "$libdir/utilities";
 
 source "$libdir/constants";
 source "$libdir/exit-codes";
 source "$libdir/messages";
-
-#require the welcome message last
-require "welcome";
 
 #TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
 #source "$libdir/git-util";
