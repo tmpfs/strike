@@ -5,7 +5,7 @@ declare -agx __method_diff_list;
 #
 #	$1	The name of the method.
 ######################################################################
-function method.remove() {
+function method.remove {
 	unset -f "$1";
 }
 
@@ -14,7 +14,7 @@ function method.remove() {
 #
 #	$1	The name of the method.
 ######################################################################
-function method.exists() {
+function method.exists {
 	set +o errexit;
 	__method_exists "$1";
 	return $?;
@@ -24,7 +24,7 @@ function method.exists() {
 ######################################################################
 #	Lists all function names.
 ######################################################################
-function method.list() {
+function method.list {
 	local methods=$( declare -f -F );
 	while read decl func name
 		do
@@ -35,7 +35,7 @@ function method.list() {
 ######################################################################
 #	Lists all function names, line numbers and source file paths.
 ######################################################################
-function method.list.verbose() {
+function method.list.verbose {
 	local m;
 	local methods=( $( method.list ) );
 	for m in ${methods[@]}

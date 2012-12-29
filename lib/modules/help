@@ -91,7 +91,7 @@ function help.exit {
 function help.clean {
 	if [ -f "$__help_stderr_file" ]; then
 		rm "$__help_stderr_file";
-	fi	
+	fi
 }
 
 # inspect the program options looking for a help option
