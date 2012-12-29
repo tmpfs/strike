@@ -126,19 +126,6 @@ function options_parse {
 			#echo "got opt:: $val";
 			module_options+=( "$val" );
 	done
-	
-	# while [ "${1:-}" != "" ]; do
-	# 	case $1 in
-	# 	-h | --help )
-	# 		program_help;
-	# 		exit 0;
-	# 		;;
-	# 	* )
-	# 		program_help;
-	# 		exit 1;
-	# 	esac
-	# 	shift;
-	# done
 }
 
 ######################################################################
@@ -160,9 +147,9 @@ function __options_fail {
 	
 	# TODO: reinstate this functionality using the help module!
 	#try to output program help
-	# if [ $options_fail_help -gt 0 ]; then
-	# 	program_help;
-	# fi
+	if [ $options_fail_help -gt 0 ]; then
+		help.man.show.default;
+	fi
 	
 	if [ "$options_fail_mode" == "quit" ]; then
 		#we need to prepend an exit code

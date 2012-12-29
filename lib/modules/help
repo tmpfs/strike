@@ -56,6 +56,18 @@ function help.man.show {
 	fi
 }
 
+# attempt to show the default man page for a program
+function help.man.show.default {
+	local manpage=${__help_manpages[default]:-};
+	if [ -z "$manpage" ]; then
+		quit 1 "no help available for %s" "`basename $0`";
+	fi
+	set +o errexit;				
+	help.man.show "$manpage";
+	help.exit "$?";
+	set -o errexit;	
+}
+
 # handles exiting once a help option has been processed
 function help.exit {
 	local code="$1";
@@ -95,14 +107,7 @@ function help.parse {
 			# nothing specified after the help option
 			# try to show the default help man page
 			if [ $# -eq 0 ]; then
-				manpage=${__help_manpages[default]:-};
-				if [ -z "$manpage" ]; then
-					quit 1 "no help available for %s" "`basename $0`";
-				fi
-				set +o errexit;				
-				help.man.show "$manpage";
-				help.exit "$?";
-				set -o errexit;
+				help.man.show.default;
 			# try to show a specific man page
 			else
 				set +o errexit;
