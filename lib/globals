@@ -18,3 +18,12 @@ declare -gx console_no_format="";
 # a non-empty string value causes console to omit a prefix
 # when printing output, switched on with the --no-prefix option
 declare -gx console_no_prefix="";
+
+# list of global options that modules may inspect
+# to control functionality for all programs, modules
+# that do so *should* not modify the options passed to
+# the program but program option parsing may want to shift
+# or ignore these options (as they have already been handled)
+# therefore they are listed here
+declare -agx global_options;
+global_options=( "--no-format" );

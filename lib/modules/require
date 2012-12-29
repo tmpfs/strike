@@ -127,27 +127,16 @@ function __require_load {
 		
 		# echo "testing for delegate method : $name";
 		
-		strict_method_exists "$name";
+		method.exists "$name";
 		local exists=$?;
 		# echo "delegate exists: $exists";
 		if [ $exists -ne 0 ]; then
 			#warn "loaded module %s does not declare a method named %s" "$name" "$name";
 			
 			#look for a main method to alias
-			strict_method_exists "delegate";
+			method.exists "delegate";
 			if [ $? -eq 0 ]; then
-				#echo "alias main method for module!!!! : $name";
-				# alias "$name"="delegate "$@"";
-				#strict_method_exists "$name";
-				#echo "method exists after alias $?";
-				
-				# dynamic function definition
-				
-				# echo "adding delegate method for : $name";
-				
-				#delegate "${1:-}" "${2:-}";
 				eval "$name(){ 
-					# echo "dynamic delegate called... $1 : \$* : ${2:-}";
 					delegate "$1" \$*;
 				}";
 			fi
@@ -158,7 +147,7 @@ function __require_load {
 		__require_register "$name" "$abs";
 		
 		local constructor="${name}.initialize";
-		strict_method_exists "$constructor";
+		method.exists "$constructor";
 		exists=$?;
 		set -o errexit;
 		if [ $exists -eq 0 ]; then
