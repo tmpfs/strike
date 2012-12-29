@@ -1,5 +1,3 @@
-declare -agx __method_diff_list;
-
 ######################################################################
 #	Removes a method definition.
 #
@@ -59,51 +57,6 @@ function strict_method_exists {
 	__method_exists "$1";
 	return $?;
 }
-
-# function method.diff.start {
-# 	# echo "[START METHOD DIFF]";
-# 	
-# 	__method_diff_list="${__method_diff_list[@]:-}";
-# 	
-# 	if [ -z "${__method_diff_list}" ]; then
-# 		__method_diff_list=( $( method.list ) );
-# 	fi
-# 	# echo "got method start diff ${__method_diff_list[@]}"
-# }
-# 
-# function method.diff.end {
-# 	# echo "[END METHOD DIFF]";
-# 	local contains;
-# 	__method_diff_list=${__method_diff_list[@]:-};
-# 	if [ ! -z "$__method_diff_list" ]; then
-# 		local declared=();
-# 		local list=( $( method.list ) );
-# 		#echo "got method end diff ${list[@]}";		
-# 		for m in ${list[@]}
-# 			do
-# 				# TODO: fix this, probably an issue with array.contains
-# 				if [ "$m" == "__method_exists" ]; then
-# 					continue;
-# 				fi 
-# 				# echo "checking for previous method declaration: $m";	
-# 				set +o errexit;
-# 				array.contains "$m" "${__method_diff_list[@]}";
-# 				contains=$?;
-# 				set -o errexit;
-# 				if [ $contains -eq 1 ]; then
-# 					# echo "adding declared method $m"
-# 					declared+=( "$m" );
-# 				fi
-# 		done
-# 		_result="${declared[@]:-}";
-# 		#echo "got method end diff declared: ${declared[@]}";	
-# 		__method_diff_list=( "${list[@]}" );
-# 	else
-# 		_result="";
-# 	fi
-# }
-
-
 
 ######################################################################
 #	Determines whether a method has been declared.
