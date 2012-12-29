@@ -24,6 +24,7 @@ require 'executable';
 
 #source "$libdir/utilities";
 
+# TODO: remove these dependencies
 source "$libdir/constants";
 source "$libdir/exit-codes";
 source "$libdir/messages";
@@ -31,7 +32,6 @@ source "$libdir/messages";
 #TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
 #source "$libdir/git-util";
 #source "$libdir/archive-util";
-#source "$libdir/clean-util";
 
 #set +e;
 
