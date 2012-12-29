@@ -1,6 +1,7 @@
 declare -Agx __system_info;
 
 function system.initialize {
+	
 	# TODO: deprecate: used by xpm
 	local OS_INSTALL="$OSTYPE-$HOSTTYPE";
 	#darwin12-x86_64 == Mountain Lion (bash 3.2.48) ?

@@ -34,9 +34,12 @@ function require.list {
 }
 
 function require.methods {
-	method.diff.start;
+	_result="";
 	require "$1";
-	method.diff.end;
+	local match="${2:-}";
+	if [ ! -z "$2" ]; then
+		_result=$( method.list | egrep "$match" );
+	fi
 }
 
 # declares a delegate method
@@ -140,7 +143,6 @@ function __require_load {
 						break;
 					fi
 			done
-		
 		fi
 		
 		if [ $loaded -eq 0 ]; then

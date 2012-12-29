@@ -133,7 +133,7 @@ function __assert_run_test {
 	local file="$1";
 	
 	# require and generate a list of method definitions
-	require.methods "$file";
+	require.methods "$file" "^test.";
 	local methods=( "$_result" );
 	
 	info "assert %s < %s" "`basename $file`" "$file";

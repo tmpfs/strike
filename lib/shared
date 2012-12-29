@@ -36,11 +36,21 @@ function __initialize__ {
 	# require(7) the remaining core modules
 	# the order here is *very* important
 	require 'delegate';
-	require 'executable';	
+	require 'executable';
 	require 'system';
 	require 'string';
 	require 'fs';
-
+	
+	# add delegates for modules that were not required
+	# must be done after the delegate module is available
+	require.delegate "variable";
+	require.delegate "method";
+	require.delegate "color";
+	require.delegate "console";
+	require.delegate "array";
+	
+	# console info "hello there...";
+	# method.list;
 	# require.list;
 
 	# TODO: remove these dependencies
