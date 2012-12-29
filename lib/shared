@@ -8,7 +8,7 @@
 
 function __initialize__ {
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
-	
+
 	# global variable declarations
 	source "${dir}/globals";
 	
@@ -38,6 +38,38 @@ function __initialize__ {
 	require 'string';
 	require 'fs';
 	
+	# configure program directories
+	local dir_root;
+	local pdir="$exedir";
+	fs.path.expand "$pdir";
+	pdir="$_result";
+	program_dirs[owd]="$PWD";
+	program_dirs[bin]="$pdir";
+	# cater for executables located in the project root
+	if [[ "$exedir" =~ /bin$ ]]; then
+		dir_root=`dirname "$exedir"`;
+	else
+		program_dirs[bin]="${dir_root}/bin";
+	fi
+	program_dirs[root]="${dir_root}";
+	program_dirs[lib]="${dir_root}/lib";
+	program_dirs[man]="${dir_root}/man";
+	program_dirs[modules]="${dir_root}/lib/modules";
+	program_dirs[test]="${dir_root}/test";
+	program_dirs[target]="${dir_root}/target";
+
+	# configure library directories	
+	fs.path.expand "$dir";
+	dir="$_result";
+	dir_root=`dirname "$dir"`;
+	library_dirs[root]="${dir_root}";
+	library_dirs[bin]="${dir_root}/bin";
+	library_dirs[lib]="$dir";
+	library_dirs[man]="${dir_root}/man";
+	library_dirs[modules]="${dir}/modules";
+	library_dirs[test]="${dir_root}/test";
+	library_dirs[target]="${dir_root}/target";
+	
 	# add delegates for modules that were not required
 	# must be done after the delegate module is available
 	require.delegate "variable";
@@ -53,8 +85,6 @@ function __initialize__ {
 	# TODO: remove these dependencies
 	source "${dir}/constants";
 	source "${dir}/messages";
-	
-	# alias;
 
 	#TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
 	#source "${dir}/archive-util";

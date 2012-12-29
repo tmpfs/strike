@@ -128,7 +128,7 @@ function __require_load {
 			);
 			for f in ${searchpaths[@]}
 				do
-					#expand_path "$f" > /dev/null;
+					#fs.path.expand "$f" > /dev/null;
 					#f="$_result";
 					abs="${f}/${name}";
 				

@@ -94,7 +94,7 @@ function symlink {
 #
 #	$1 		The path to the directory.
 ######################################################################
-function expand_path {
+function fs.path.expand {
 	local dir="$1";
 	if [  -d "$dir" ]; then
 		local owd=`pwd`;
@@ -104,7 +104,7 @@ function expand_path {
 	elif [ ! -d "$dir" ]; then
 		local nm=`basename $dir`
 		dir=`dirname $dir`;
-		expand_path "$dir";
+		fs.path.expand "$dir";
 		_result="$_result/$nm";
 	fi
 	
@@ -170,7 +170,7 @@ function validate_rmdir {
 function rmdir {
 	local dir="$1";
 	validate_rmdir "$dir";	
-	expand_path "$dir";
+	fs.path.expand "$dir";
 	dir=$_result;
 	validate_rmdir "$dir";
 	rm -rf "$dir";
@@ -191,7 +191,7 @@ function rmdir {
 function sudo_rmdir {
 	local dir="$1";
 	validate_rmdir "$dir";	
-	expand_path "$dir";
+	fs.path.expand "$dir";
 	dir=$_result;
 	validate_rmdir "$dir";
 	sudo rm -rf "$dir";
@@ -233,3 +233,6 @@ function find_recursive_symlinks {
 	fi
 	_result="${output[@]:+${output[@]}}";
 }
+
+# WARNING: these aliases will be removed in a future version
+alias "expand_path=fs.path.expand";

@@ -1,5 +1,3 @@
-declare -Agx __system_info;
-
 function system.initialize {
 	
 	# TODO: deprecate: used by xpm
@@ -11,25 +9,45 @@ function system.initialize {
 		then OS_INSTALL="darwin10.0-x86_64";
 	fi
 	
-	__system_info["bash"]="$BASH";
-	__system_info["os_type"]="$OSTYPE";
-	__system_info["host_type"]="$HOSTTYPE";
-	__system_info["mach_type"]="$MACHTYPE";
-	__system_info["os_install_key"]="$OS_INSTALL";
-	__system_info["bash_version"]="$BASH_VERSION";
-	__system_info["bash_major_version"]="${BASH_VERSINFO[0]}";
-	__system_info["bash_minor_version"]="${BASH_VERSINFO[1]}";
-	__system_info["bash_patch_level"]="${BASH_VERSINFO[2]}";
-	__system_info["host_name"]="${HOSTNAME}";
-	__system_info["home"]="${HOME}";
+	system_info["bash"]="$BASH";
+	system_info["os_type"]="$OSTYPE";
+	system_info["host_type"]="$HOSTTYPE";
+	system_info["mach_type"]="$MACHTYPE";
+	system_info["os_install_key"]="$OS_INSTALL";
+	system_info["bash_version"]="$BASH_VERSION";
+	system_info["bash_major_version"]="${BASH_VERSINFO[0]}";
+	system_info["bash_minor_version"]="${BASH_VERSINFO[1]}";
+	system_info["bash_patch_level"]="${BASH_VERSINFO[2]}";
+	system_info["host_name"]="${HOSTNAME}";
+	system_info["home"]="${HOME}";
 }
 
 # prints system information
 function system.print {
 	local key value;
-	for key in "${!__system_info[@]}"
+	for key in "${!system_info[@]}"
 		do
-			value="${__system_info["$key"]}";
+			value="${system_info["$key"]}";
+			console.info "${key}=%s" "$value";
+	done
+}
+
+# prints dirs information
+function system.dirs {
+	local key value;
+	for key in "${!program_dirs[@]}"
+		do
+			value="${program_dirs["$key"]}";
+			console.info "${key}=%s" "$value";
+	done
+}
+
+# prints library dirs information
+function system.lib.dirs {
+	local key value;
+	for key in "${!library_dirs[@]}"
+		do
+			value="${library_dirs["$key"]}";
 			console.info "${key}=%s" "$value";
 	done
 }
