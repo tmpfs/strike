@@ -1,10 +1,10 @@
 : <<'ronn:markdown'
-task-clean(7) -- clean task for bake(1)
+task-clean(7) -- clean task(s) for bake(1)
 =============================================
 
 ## SYNOPSIS
 
-Clean task for bake(1).
+Clean task(s) for bake(1).
 
 ## DESCRIPTION
 
@@ -12,7 +12,7 @@ Removes the `${target}` directory.
 
 ## REQUIRE
 
-In your tasks(7) file `require` the `clean` task using:
+In your tasks(7) file `require` the `clean` task(s) using:
 
 	require 'tasks/clean';
 

@@ -12,14 +12,14 @@ function __initialize__ {
 	# global variable declarations
 	source "${dir}/globals";
 	
-	# we need these modules before we include require(7)
+	# we need these modules before we include require(3)
 	source "${dir}/modules/variable";
 	source "${dir}/modules/method";
 	source "${dir}/modules/color";
 	source "${dir}/modules/console";
 	source "${dir}/modules/array";
 
-	# main module loader and require(7) definition
+	# main module loader and require(3) definition
 	source "${dir}/modules/require";
 
 	# manually register these modules
@@ -30,7 +30,7 @@ function __initialize__ {
 	__require_register "array" "${dir}/modules/array";
 	__require_register "require" "${dir}/modules/require";
 	
-	# require(7) the remaining core modules
+	# require(3) the remaining core modules
 	# the order here is *very* important
 	require 'delegate';
 	require 'executable';

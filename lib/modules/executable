@@ -36,7 +36,7 @@ If any of the listed executables are not available on the system the program wil
 
 ## SEE ALSO
 
-require(7)
+require(3)
 ronn:markdown
 
 function executable.validate {

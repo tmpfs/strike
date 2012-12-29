@@ -1,10 +1,10 @@
 : <<'ronn:markdown'
-task-assert(7) -- unit test tasks for bake(1)
+task-assert(7) -- unit test task(s) for bake(1)
 =============================================
 
 ## SYNOPSIS
 
-Unit test tasks for bake(1).
+Unit test task(s) for bake(1).
 
 ## DESCRIPTION
 
@@ -12,7 +12,7 @@ Adds task methods for unit testing bash programs, unit tests are defined in file
 
 ## REQUIRE
 
-In your tasks(7) file `require` the `assert` tasks using:
+In your tasks(7) file `require` the `assert` task(s) using:
 
 	require 'tasks/assert';
 

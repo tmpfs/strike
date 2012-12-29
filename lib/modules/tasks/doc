@@ -1,5 +1,5 @@
 : <<'ronn:markdown'
-task-doc(7) -- documentation tasks for bake(1)
+task-doc(7) -- documentation task(s) for bake(1)
 =============================================
 
 ## SYNOPSIS
@@ -12,7 +12,7 @@ Adds task methods for generating and compiling inline heredoc documentation.
 
 ## REQUIRE
 
-In your tasks(7) file `require` the `doc` tasks using:
+In your tasks(7) file `require` the `doc` task(s) using:
 
 	require 'tasks/doc';
 
