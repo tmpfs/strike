@@ -16,7 +16,7 @@ function __initialize__ {
 	source "${dir}/modules/variable";
 	source "${dir}/modules/method";
 	source "${dir}/modules/color";
-	source "${dir}/modules/console";
+	source "${dir}/modules/console" "$@";
 	source "${dir}/modules/array";
 
 	# main module loader and require(7) definition
@@ -31,10 +31,12 @@ function __initialize__ {
 	__require_register "require" "${dir}/modules/require";
 	
 	# require(7) the remaining core modules
+	# the order here is *very* important
 	require 'delegate';
+	require 'executable';	
+	require 'system';
 	require 'string';
 	require 'fs';
-	require 'executable';
 
 	# require.list;
 

@@ -43,7 +43,7 @@ function __require_register {
 	local name="${1:-}";
 	local path="${2:-}";
 	# strip any extension
-	name=${name%%.*};
+	# name=${name%%.*};
 	local methods;
 	local private;
 	if [ ! -z "$name" ]; then
@@ -56,7 +56,7 @@ function __require_register {
 		private=( $( method.list | egrep "^__${name}" ) );
 		set -o errexit;
 		
-		echo "got module private methods: ${private[@]:-}";
+		# echo "got module private methods: ${private[@]:-}";
 		
 		__module_methods["$path"]="${methods[@]:-}";
 		__module_private_methods["$path"]="${private[@]:-}";
@@ -125,8 +125,11 @@ function __require_load {
 			quit 1 "failed to load module %s" "$name";
 		fi
 		
+		# echo "testing for delegate method : $name";
+		
 		strict_method_exists "$name";
 		local exists=$?;
+		# echo "delegate exists: $exists";
 		if [ $exists -ne 0 ]; then
 			#warn "loaded module %s does not declare a method named %s" "$name" "$name";
 			
@@ -139,6 +142,8 @@ function __require_load {
 				#echo "method exists after alias $?";
 				
 				# dynamic function definition
+				
+				# echo "adding delegate method for : $name";
 				
 				#delegate "${1:-}" "${2:-}";
 				eval "$name(){ 

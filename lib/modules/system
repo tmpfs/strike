@@ -1,0 +1,36 @@
+declare -Agx __system_info;
+
+function system.initialize {
+	executable validate hostname;
+	
+	# TODO: deprecate: used by xpm
+	local OS_INSTALL="$OSTYPE-$HOSTTYPE";
+	#darwin12-x86_64 == Mountain Lion (bash 3.2.48) ?
+	#darwin10.0-x86_64 == Snow Leopard (10.6.8) (bash 3.2.48)
+	#darwin10.8.0-i386 == Snow Leopard (10.6.8) (bash 4.2)
+	if [ "$OS_INSTALL" == "darwin12-x86_64" ] || [ "$OS_INSTALL" == "darwin10.8.0-i386" ];
+		then OS_INSTALL="darwin10.0-x86_64";
+	fi
+	
+	__system_info["bash"]="$BASH";
+	__system_info["os_type"]="$OSTYPE";
+	__system_info["host_type"]="$HOSTTYPE";
+	__system_info["mach_type"]="$MACHTYPE";
+	__system_info["os_install_key"]="$OS_INSTALL";
+	__system_info["bash_version"]="$BASH_VERSION";
+	__system_info["bash_major_version"]="${BASH_VERSINFO[0]}";
+	__system_info["bash_minor_version"]="${BASH_VERSINFO[1]}";
+	__system_info["bash_patch_level"]="${BASH_VERSINFO[2]}";
+	__system_info["host_name"]="`hostname`";
+	__system_info["home"]="${HOME}";
+}
+
+# prints system information
+function system.print {
+	local key value;
+	for key in "${!__system_info[@]}"
+		do
+			value="${__system_info["$key"]}";
+			info "${key}=%s" "$value";
+	done
+}

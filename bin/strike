@@ -75,50 +75,20 @@ help.man.page "default" "strike.1";
 help.parse "$@";
 
 function strike.info {
-	info "bash: %s" "$BASH";
-	info "os type: %s" "$OSTYPE";
-	info "host type: %s" "$HOSTTYPE";
-	info "mach type: %s" "$MACHTYPE";
-	info "os install key: %s" "$OS_INSTALL";
-	info "bash version: %s" "$BASH_VERSION";
-	info "bash major version: %s" "${BASH_VERSINFO[0]}";
-	info "bash minor version: %s" "${BASH_VERSINFO[1]}";
-	info "bash patch level: %s" "${BASH_VERSINFO[2]}";
-	info "host name: %s" "`hostname`";
-	info "home: %s" "${HOME}";
+	system print;
 }
 
-function configure_options {
-	verbose=0;
-}
+# configure options
+require 'options';
 
-function get_options {
-	while [ "${1:-}" != "" ]; do
-		case $1 in
- 		info )
-			method="info";
-			;;
-		esac
-		shift;
-	done
-}
-
-# var="abc";
-# #declare -f "$var";
-# "$var"() {
-# 	echo "$FUNCNAME";
-# }
-
-#eval "$var() { echo "\$FUNCNAME"; }";
-
-#abc;
-
+options_minimum=1;
+options_fail_help=1;
+options_expects_command=( info );
+options_map_command_method=1;
 #configure all the option defaults
-configure_options;
+options configure;
+#parse the parameters
+options parse "$@";
 
-#validate the parameters
-get_options "$@";
-
-delegate "${module:-}" "${method:-}" "${options[@]:-}";
-
+delegate "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
 exit 0;

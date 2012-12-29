@@ -171,9 +171,7 @@ help.parse "$@";
 # set up the main delegate module as 'rest'
 module="$PROGRAM_NAME";
 
-#method_start_diff;
 require 'options';
-#method_end_diff;
 require 'rest';
 
 #switch on strict mode for http requests
