@@ -1,7 +1,5 @@
-#!/usr/bin/env bash
-
 ######################################################################
-# 	sysout
+# 	console
 #
 #	Library functions for system output and program exit.
 ######################################################################
@@ -207,61 +205,61 @@ function important {
 }
 
 #outputs a usage message
-function usage {
-	local status="[usage]";
-	local prefix="$status";
-	local msg="";
-	if [ -t 1 ]; then
-		#get the message prefix
-		bold "$status";
-		prefix="$_result";
-
-		#highlight the message and parameters
-		msgs=( "default_style" "bold" "${@}" );
-		colorize "${msgs[@]}";
-		msg="$_result";
-	else
-		sprintf "${@}";
-		msg="$_result";
-	fi
-	
-	#output everything
-	print_prefix;
-	echo -e "$prefix $msg";
-}
+# function usage {
+# 	local status="[usage]";
+# 	local prefix="$status";
+# 	local msg="";
+# 	if [ -t 1 ]; then
+# 		#get the message prefix
+# 		bold "$status";
+# 		prefix="$_result";
+# 
+# 		#highlight the message and parameters
+# 		msgs=( "default_style" "bold" "${@}" );
+# 		colorize "${msgs[@]}";
+# 		msg="$_result";
+# 	else
+# 		sprintf "${@}";
+# 		msg="$_result";
+# 	fi
+# 	
+# 	#output everything
+# 	print_prefix;
+# 	echo -e "$prefix $msg";
+# }
 
 #output a usage description with no formatting
-function usage_description {
-	local status="[usage]";
-	local prefix="$status";
-	local msg="";
-	if [ -t 1 ]; then
-		#get the message prefix
-		bold "$status";
-		prefix="$_result";
-
-		#no highlight for usage descriptions
-		msgs=( "default_style" "default_style" "${@}" );
-		colorize "${msgs[@]}";
-		msg="$_result";
-	else
-		sprintf "${@}";
-		msg="$_result";
-	fi
-	
-	#get the message prefix
-	#bold "[usage]";
-	#local prefix="$_result";
-	
-	#highlight the message and parameters
-	#msgs=( "default_style" "default_style" "${@}" );
-	#colorize "${msgs[@]}";
-	#local msg="$_result";
-	
-	#output everything
-	print_prefix;
-	echo -e "$prefix $msg";
-}
+# function usage_description {
+# 	local status="[usage]";
+# 	local prefix="$status";
+# 	local msg="";
+# 	if [ -t 1 ]; then
+# 		#get the message prefix
+# 		bold "$status";
+# 		prefix="$_result";
+# 
+# 		#no highlight for usage descriptions
+# 		msgs=( "default_style" "default_style" "${@}" );
+# 		colorize "${msgs[@]}";
+# 		msg="$_result";
+# 	else
+# 		sprintf "${@}";
+# 		msg="$_result";
+# 	fi
+# 	
+# 	#get the message prefix
+# 	#bold "[usage]";
+# 	#local prefix="$_result";
+# 	
+# 	#highlight the message and parameters
+# 	#msgs=( "default_style" "default_style" "${@}" );
+# 	#colorize "${msgs[@]}";
+# 	#local msg="$_result";
+# 	
+# 	#output everything
+# 	print_prefix;
+# 	echo -e "$prefix $msg";
+# }
 
 #outputs a warning message
 function warn {	

@@ -7,7 +7,7 @@ function test.validate.fail {
 	assert.ok "$?";
 }
 
-# test for a built in program
+# test for a built in program ls(1)
 function test.validate.ls {
 	assert.expects "ls";
 	executable validate ls;

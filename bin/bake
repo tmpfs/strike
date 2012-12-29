@@ -86,12 +86,8 @@ help.parse "$@";
 
 # TODO: add --version handling
 
-function program.usage {
-	usage "$PROGRAM_NAME task [options]";
-}
-
 if [ $# -eq 0 ]; then
-	program.usage;
+	help.man.show.default;
 	exit 1;
 fi
 

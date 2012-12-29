@@ -47,7 +47,7 @@ function variable_is_array {
 	_result="$exists";
 }
 
-
+# TODO: implement
 function variable_unset {
 	local prefix="$1";
 	local expression="\${!${prefix}_*}";

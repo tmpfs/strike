@@ -3,6 +3,7 @@ help(7) -- help module for strike(1)
 =============================================
 ronn:markdown
 
+# TODO: include program name in this .tmp file, to prevent conflicts
 declare -gx __help_stderr_file="$HOME/.help.stderr";
 declare -Agx __help_manpages;
 declare -agx __help_manpath;
