@@ -242,7 +242,7 @@ options parse "$@";
 # parse custom program options
 rest options.parse "$@";
 
-function rest.query.string() {
+function rest.query.string {
 	url.params.stringify;
 	params="$_result";
 	if [ ! -z "$params" ]; then
