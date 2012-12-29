@@ -495,7 +495,7 @@ function __http_response_parse {
 	
 	# for opt in ${!http_header_*}
 	# 	do
-	# 		variable_get "$opt";
+	# 		variable.get "$opt";
 	# 		echo "got header opt: $opt : $_result";
 	# done
 	

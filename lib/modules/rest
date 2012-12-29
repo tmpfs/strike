@@ -211,7 +211,7 @@ function __rest_print_env {
 	local name value;
 	for name in ${!http_*}
 		do
-			variable_get "$name";
+			variable.get "$name";
 			value=$( printf %q "$value" );
 			echo "${name}=${value}";
 	done

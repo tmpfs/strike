@@ -45,15 +45,15 @@ function options_add {
 	
 	local name="options_${optiontype}_${varname}_shortname";
 	local value="$shortname";
-	variable_set "$name" "$value";
+	variable.set "$name" "$value";
 	
 	name="options_${optiontype}_${varname}_fullname";
 	value="$fullname";
-	variable_set "$name" "$value";
+	variable.set "$name" "$value";
 	
 	name="options_${optiontype}_${varname}_description";
 	value="$description";
-	variable_set "$name" "$value";
+	variable.set "$name" "$value";
 }
 
 function options_validate {
@@ -112,7 +112,7 @@ function options_parse {
 	
 	if [ ! -z "${options_map_last:-}" ]; then
 		#echo "map last option to a variable...";
-		variable_set "$options_map_last" "${@: -1}";
+		variable.set "$options_map_last" "${@: -1}";
 	fi
 	
 	if [ $options_map_command_method -gt 0 ]; then

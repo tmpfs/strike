@@ -1,4 +1,4 @@
-function variable_get {
+function variable.get {
 	local name="$1";
 	set +o nounset;
 	variable_is_array "$name";
@@ -12,15 +12,15 @@ function variable_get {
 	set -o nounset;
 }
 
-function variable_set {
+function variable.set {
 	local name="$1";
 	local value="$2";
 	
-	#echo "variable_set: $name : $value";
+	#echo "variable.set: $name : $value";
 	
 	eval "$name"="'$value'";
 	
-	#variable_get "$name";
+	#variable.get "$name";
 	#echo "$_result";
 }
 
@@ -33,7 +33,7 @@ function variable_declare {
 	fi
 	local expression="declare $options $name";
 	eval $expression;
-	variable_set "$name" "$value";
+	variable.set "$name" "$value";
 	
 	#echo "variable_declare: $name";
 }

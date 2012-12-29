@@ -189,14 +189,14 @@ http_strict="on";
 
 #exit 0;
 
-# #variable_set "mytest" "myvalue";
+# #variable.set "mytest" "myvalue";
 # 
-# #variable_get "mytest";
+# #variable.get "mytest";
 # #echo "mytest: $_result";
 # 
 # variable_declare "mytest_1" "myvalue" "agx";
 # 
-# variable_get "mytest_1";
+# variable.get "mytest_1";
 # echo "mytest: $_result";
 # 
 # # TODO: get this to work more dynamically

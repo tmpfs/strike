@@ -1,3 +1,8 @@
-function test.variable {
-	echo "testing variable get/set";
+# basic test for set/get variables
+function test.variable.set.get {
+	local expects="1 2 3";
+	assert.expects "$expects";
+	variable.set "var" "$expects";
+	variable.get "var";
+	assert.ok "$_result";
 }
