@@ -137,7 +137,7 @@ function tasks.doc.pages.publish {
 	# $ronn -w -s toc -r5 --markdown ${man}/*.ronn;
 	
 	# copy over the temporary man pages
-	cmd="cp -fv "${man}/*" "${root}"";
+	cmd="cp -rfv "${man}/*" "${root}"";
 	cd "${root}" \
 		&& rm -fv ./*.html \
 		&& eval "$cmd" \
