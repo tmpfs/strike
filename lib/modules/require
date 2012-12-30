@@ -58,6 +58,15 @@ function require.methods {
 	fi
 }
 
+function require.dirs {
+	__require_dirs;
+	local searchpaths=( $_result ) d;
+	for d in "${searchpaths[@]}"
+		do
+			echo "$d";
+	done
+}
+
 # declares a delegate method
 function require.delegate {
 	local name="${1:-}";
@@ -149,15 +158,9 @@ function __require_load {
 			loaded=1;
 		# searching by name
 		else
-			# TODO: remove usage of $exedir
-			local searchpaths=(
-				"$exedir/lib/modules"
-				"$exedir/node_modules/${name}/lib/modules"
-				"$exedir/../node_modules/${name}/lib/modules/"
-				"$exedir/../lib/modules"
-				"$abspath/modules"
-			);
-			for f in ${searchpaths[@]}
+			__require_dirs;
+			local searchpaths=( $_result );
+			for f in "${searchpaths[@]}"
 				do
 					#fs.path.expand "$f" > /dev/null;
 					#f="$_result";
@@ -195,6 +198,16 @@ function __require_load {
 			"$constructor";
 		fi
 	fi
+}
+
+function __require_dirs {
+	local exemodules="${program_dirs[modules]}";
+	local libmodules="${library_dirs[modules]}";
+	local searchpaths=(
+		"${exemodules}"
+		"${libmodules}"
+	);
+	_result="${searchpaths[@]}";
 }
 
 #require 'couchdb';

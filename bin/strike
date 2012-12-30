@@ -20,6 +20,9 @@ The strike(1) supports the following commands:
 * `info`:
 	Print system information.
 	
+* `module.dirs`:
+	Print a module search path directories.	
+	
 * `module.list`:
 	Print a module list.
 	
@@ -99,6 +102,10 @@ function strike.module.list {
 	require.list;
 }
 
+function strike.module.dirs {
+	require.dirs;
+}
+
 function strike.method.list {
 	method.list;
 }
@@ -108,7 +115,7 @@ require 'options';
 
 options_minimum=1;
 options_fail_help=1;
-options_expects_command=( info dirs lib.dirs module.list method.list );
+options_expects_command=( info dirs lib.dirs module.dirs module.list method.list );
 options_map_command_method=1;
 #configure all the option defaults
 options configure;

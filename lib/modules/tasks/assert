@@ -199,13 +199,21 @@ function __assert_run_test {
 	
 	# require and generate a list of method definitions
 	require.methods "$file" "^test.";
-	local methods="$_result";
+	local methods=( $_result );
 	console.info "assert %s < %s" "$name" "$file";
-	if [ -z "${methods}" ]; then
+	if [ "${#methods[@]}" -eq 0 ]; then
 		console.warn "test %s does not declare any test methods" "$name";
 	else
 		local m;
-		for m in ${methods[@]}
+		
+		# print methods		
+		for m in "${methods[@]}"
+			do
+				console.info "assert %s" "$m";
+		done
+		
+		# run method assertions
+		for m in "${methods[@]}"
 			do
 				# check that the method starts with a test prefix
 				if [[ "$m" =~ ^test. ]]; then				
