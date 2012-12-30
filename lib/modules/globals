@@ -9,6 +9,10 @@
 ######################################################################
 
 # duplicate of the original program options
+
+: <<'api:ronn:markdown'
+this is some api documentation ...
+api:ronn:markdown
 declare -agx program_options=( "$@" );
 
 # store the program name for better code legibilty

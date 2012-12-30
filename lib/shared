@@ -10,7 +10,7 @@ function __initialize__ {
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
 
 	# global variable declarations
-	source "${dir}/globals";
+	source "${dir}/modules/globals";
 	
 	# we need these modules before we include require(3)
 	source "${dir}/modules/variable";
