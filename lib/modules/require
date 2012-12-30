@@ -14,6 +14,7 @@ Loads modules by name or filesystem path and adds delegate(3) functionality to m
 
 	require 'module';
 	require './module';
+	require '../path/to/module';
 	require '/path/to/module';
 
 ## BUGS
@@ -30,6 +31,7 @@ delegate(3)
 ronn:markdown
 
 # TODO: don't re-require if path matches an already loaded module
+# TODO: add require.unload method to call method.remove on all declared methods
 
 function require {
 	local name="${1:-}";
