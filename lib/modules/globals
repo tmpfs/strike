@@ -8,14 +8,28 @@
 #
 ######################################################################
 
-# duplicate of the original program options
+: <<'api:ronn:markdown'
+globals-api(3) -- api for globals
+=============================================
+
+## VARIABLES
+
+api:ronn:markdown
 
 : <<'api:ronn:markdown'
-this is some api documentation ...
+### program_options
+
+A duplicate of the original program options.
+
 api:ronn:markdown
 declare -agx program_options=( "$@" );
 
-# store the program name for better code legibilty
+: <<'api:ronn:markdown'
+### program_name
+
+Store the program name for better code legibilty.
+
+api:ronn:markdown
 declare -gx program_name="`basename $0`";
 
 ######################################################################

@@ -208,6 +208,9 @@ function __tasks.doc.parse {
 	local docstart="${3:-": <<'ronn:markdown'"}";
 	local docend="${4:-"ronn:markdown"}";
 	
+	local apidoc=": <<'api:ronn:markdown'";	
+	local api=0;
+	
 	local inside=0;
 	local heredoc="";
 	local filename="";
@@ -229,6 +232,10 @@ function __tasks.doc.parse {
 			fi
 			
 			#echo "got line: $line";
+			
+			if [ "$line" == "$apidoc" ] && [ "$docstart" != "$apidoc" ]; then
+				api=1;
+			fi
 
 			if [ $inside -eq 1 ]; then
 
@@ -247,6 +254,11 @@ function __tasks.doc.parse {
 	done < "$file";
 	if [ ! -z "$heredoc" ]; then
 		echo -n "$heredoc" > "$outputfile" && info "generated %s" "$outputfile";
+	fi
+	
+	# also got some api documentation to parse
+	if [ "$api" -eq 1 ]; then
+		__tasks.doc.parse "$output" "$file" "$apidoc" "api:ronn:markdown";
 	fi
 }
 
