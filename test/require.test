@@ -1,0 +1,61 @@
+# test for absolute require
+function test.require.absolute {
+	assert.expects "0";
+	local dir=`dirname ${BASH_SOURCE[0]}`;
+	fs.path.expand "$dir";
+	dir="$_result";
+	require "${dir}/modules/say";
+	assert.ok "$?";
+	assert.loaded.module;
+}
+
+# test for module search path lookup
+function test.require.lookup {
+	assert.expects "0";
+	require "string";
+	assert.ok "$?";
+	local methods=( $( method.list | egrep '^string' ) );
+	assert.gt "1" "${#methods[@]}";
+}
+
+# test for relative require using: ./
+function test.require.relative {
+	assert.expects "0";
+	require "./modules/say";
+	assert.ok "$?";
+	assert.loaded.module;
+}
+
+# test for relative require using: ../
+# function test.require.relative.parent {
+# 	assert.expects "0";
+# 	require "../test/modules/say"
+# 	wait %%;
+# 	assert.ok "$?";
+# 	
+# 	method.list | grep http;
+# 	
+# 	local method=$( method.list | egrep ^http\s+ );
+# 	echo "got http method : $method";
+# }
+
+# test for a non-existent module
+function test.require.nonexistent {
+	assert.expects "1";
+	require "nonexistent" &
+	wait %%;
+	assert.ok "$?";
+}
+
+function assert.loaded.module {
+	assert.expects "say say.goodbye say.hello";
+	local methods=( $( method.list | grep "say" ) );
+	methods="${methods[@]}";
+	# echo "got methods: $methods";
+	assert.ok "${methods}";
+	
+	# clean up declared methods
+	method.remove "say";
+	method.remove "say.goodbye";
+	method.remove "say.hello";
+}

@@ -74,29 +74,45 @@ function assert.ok {
 	# while caller $frame; do
 	# 	((frame++));
 	# done
-	
-	local stack=( $( caller 0 ) );
+
+	if [ "$expected" == "$received" ]; then
+		__assert_ok;
+	else		
+		__assert_err;		
+	fi
+}
+
+# asserts that a value is greater than
+# an expected value
+function assert.gt {
+	local expected="${1:-}";
+	local received="${2:-}";
+	if [ "$received" -gt "$expected" ]; then
+		__assert_ok;
+	else		
+		__assert_err;
+	fi
+}
+
+function __assert_ok {
+	local stack=( $( caller 1 ) );
+	local method="${stack[1]}";
+	if [ ! -z "$ttyout" ]; then
+		exec 1> /dev/tty;
+	fi
+	console.ok "%s" "$method";
+}
+
+function __assert_err {
+	local stack=( $( caller 1) );
 	local lineno="${stack[0]}";
 	local method="${stack[1]}";
 	local file="${stack[2]}";
-	
-	# echo "got lineno : $lineno";
-	# echo "got method : $method";
-	# echo "got file : $file";
-	
 	local frame="${file}:${lineno}";
-	
-	if [ "$expected" == "$received" ]; then
-		if [ ! -z "$ttyout" ]; then
-			exec 1> /dev/tty;
-		fi
-		console.ok "%s" "$method";
-	else
-		if [ ! -z "$ttyout" ]; then
-			exec 2> /dev/tty;
-		fi
-		error "%s $frame" "$method";
+	if [ ! -z "$ttyout" ]; then
+		exec 2> /dev/tty;
 	fi
+	error "%s $frame" "$method";
 }
 
 function __assert_run_all {

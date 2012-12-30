@@ -125,14 +125,29 @@ function __require_load {
 		
 		# TODO: handle ./ and ../../ paths
 		
-		# got a path try to load from absolute path
-		if [[ "$name" =~ ^/ ]]; then
+		# got a relative path, load from a relative path
+		if [[ "$name" =~ ^\.+ ]]; then
+			# note: we need to skip one on caller stack as this private
+			# method is called by `require`, hence caller 1 (not zero)
+			local stack=( $( caller 1 ) );
+			local sourcefile="${stack[2]}";
+			sourcefile=`dirname "$sourcefile"`;
+			sourcefile="${sourcefile}/${name}";
+			fs.path.expand "$sourcefile";
+			abs="$_result";
+			name=`basename $abs`;			
+			__require_source "$abs";
+			loaded=1;
+			echo "load relative require $name : $abs";
+		# got an absolute path try to load from absolute path			
+		elif [[ "$name" =~ ^/ ]]; then
 			abs="$name";
 			name=`basename $abs`;
 			__require_source "$abs";
 			loaded=1;
 		# searching by name
 		else
+			# TODO: remove usage of $exedir
 			local searchpaths=(
 				"$exedir/lib/modules"
 				"$exedir/node_modules/${name}/lib/modules"
