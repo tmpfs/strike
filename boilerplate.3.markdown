@@ -15,6 +15,9 @@ If you have installed the `strike` library as a node module and your executable 
 		if [ -L "$abspath" ]; then
 			abspath=`readlink $abspath`;
 		fi
+		if [[ "$abspath" =~ ^\./ ]]; then
+			abspath="${PWD}/${abspath}";
+		fi		
 		exedir=`dirname "$abspath"`;
 		local libdir="$exedir/../node_modules/strike/lib";
 		source "$libdir/shared" "$@";
@@ -52,6 +55,7 @@ strike(1)
 [npm(1)]: http://npmjs.org
 [delegate(3)]: delegate.3.html
 [executable(3)]: executable.3.html
+[globals-api(3)]: globals-api.3.html
 [help(7)]: help.7.html
 [strike-credits(7)]: strike-credits.7.html
 [strike-tree(7)]: strike-tree.7.html

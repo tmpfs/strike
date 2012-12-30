@@ -16,11 +16,20 @@ The strike(1) supports the following commands:
 * `info`:
 	Print system information.
 	
+* `module.dirs`:
+	Print a module search path directories.	
+	
 * `module.list`:
 	Print a module list.
 	
 * `method.list`:
-	List method names.
+	Print method names.
+	
+* `dirs`:
+	Print program directories.
+	
+* `lib.dirs`:
+	Print library directories.
 
 ## BUGS
 
@@ -60,6 +69,7 @@ bake(1)
 [npm(1)]: http://npmjs.org
 [delegate(3)]: delegate.3.html
 [executable(3)]: executable.3.html
+[globals-api(3)]: globals-api.3.html
 [help(7)]: help.7.html
 [strike-credits(7)]: strike-credits.7.html
 [strike-tree(7)]: strike-tree.7.html

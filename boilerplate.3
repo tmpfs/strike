@@ -22,6 +22,9 @@ function boilerplate {
     if [ \-L "$abspath" ]; then
         abspath=`readlink $abspath`;
     fi
+    if [[ "$abspath" =~ ^\e\./ ]]; then
+        abspath="${PWD}/${abspath}";
+    fi
     exedir=`dirname "$abspath"`;
     local libdir="$exedir/\.\./node_modules/strike/lib";
     source "$libdir/shared" "$@";

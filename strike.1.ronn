@@ -16,11 +16,20 @@ The strike(1) supports the following commands:
 * `info`:
 	Print system information.
 	
+* `module.dirs`:
+	Print a module search path directories.	
+	
 * `module.list`:
 	Print a module list.
 	
 * `method.list`:
-	List method names.
+	Print method names.
+	
+* `dirs`:
+	Print program directories.
+	
+* `lib.dirs`:
+	Print library directories.
 
 ## BUGS
 
