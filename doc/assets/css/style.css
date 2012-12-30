@@ -55,7 +55,7 @@ div#container {
 	padding-top: 60px;
 	width: 28em;
 	margin: 0 auto;
-	height: 100%;
+	padding-bottom: 80px;
 }
 
 h1, h3, h4 {
