@@ -10,7 +10,7 @@ function stack.trace {
 }
 
 function throw {
-	local message="${1:-Error}";
+	local message="${1:-Unknown error}";
 	error "$message";
 	stack.trace 1;
 }
