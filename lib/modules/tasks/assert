@@ -58,30 +58,6 @@ function tasks.assert {
 	fi
 }
 
-declare -gx __assert_expects;
-
-function assert.expects {
-	#echo "expects called with : $1";
-	__assert_expects="$1";
-}
-
-function assert.ok {
-	#echo "assert.complete called with : $1";
-	local expected="$__assert_expects";
-	local received="${1:-}";
-	
-	# local frame=0
-	# while caller $frame; do
-	# 	((frame++));
-	# done
-
-	if [ "$expected" == "$received" ]; then
-		__assert_ok "$FUNCNAME";
-	else		
-		__assert_err "$FUNCNAME";
-	fi
-}
-
 # asserts that two string values are equal
 function assert.equal {
 	local expected="${1:-}";
