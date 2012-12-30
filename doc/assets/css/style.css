@@ -1,33 +1,73 @@
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;	
+	position: relative;
+}
+
+html, body {
+    height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
 body {
-	font-size: 24px;
+	font-size: 1.2em;
 	line-height: 1.5;
 	font-family: georgia, serif;
 	color: #555;
+	overflow: hidden;
 }
-div#index {
+
+div {
+	margin: 0;
+	padding: 0;
+}
+
+div#container {
+	height: 100%;
+}
+
+#header {
+	background: #eee;
+	color: #999;
+	font-size: .8rem;
+	padding: 10px;
+	width: 100%;
+	position: fixed;
+	top: 0px;
+	height: 80px;
+	z-index: 100;
+}
+
+#scroller {
+	position: relative;
+    top: 80px;
+    left: 0px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	width: 100%;
+	height: 100%;
+}
+
+#scroller>div:first-child {
+	font-size: 1.6rem !important;
+	padding-top: 60px;
 	width: 28em;
 	margin: 0 auto;
+	height: 100%;
 }
-h1 {
-	text-align: center;
-	font-weight: normal;
-	color: #000;
-	margin-bottom: 0;
-	letter-spacing: -3px;
+
+h1, h3, h4 {
+	margin: 0;
+	padding: 0;	
 }
-h3 {
-	text-align: center;
-	font-weight: normal;
-	color: #444;
-	margin-top: -20px;
-	margin-bottom: 40px;
-}
-h4 {
-	font-weight: normal;
-	font-size: 26px;
-	color: #111;
-}
+
 p, dl    { margin-left:40px }
+dl {
+	padding: 0;
+	margin: 0;
+}
 .aux     { font-family:monospace;font-size:20px;letter-spacing:1px; }
 .also    { font-size:18px }
 .copy    { font-size:16px;text-align:center;color:#111 }
