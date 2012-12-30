@@ -69,6 +69,17 @@ function assert.equal {
 	fi
 }
 
+# asserts that a string matches a regex
+function assert.match {
+	local expected="${1:-}";
+	local received="${2:-}";
+	if [[ "$received" =~ $expected ]]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
 # asserts that an integer is greater than
 # an expected value
 function assert.gt {
