@@ -1,15 +1,13 @@
 # test for a nonexistent program and validates that
 # a non-zero exit code is returned
 function test.validate.fail {
-	assert.expects "1";
 	executable validate nonexistent &
 	wait %%;
-	assert.ok "$?";
+	assert.eq "1" "$?";
 }
 
 # test for a built in program ls(1)
 function test.validate.ls {
-	assert.expects "ls";
 	executable validate ls;
-	assert.ok "`basename "${executables[ls]}"`";
+	assert.equal "ls" "`basename "${executables[ls]}"`";
 }

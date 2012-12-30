@@ -76,34 +76,71 @@ function assert.ok {
 	# done
 
 	if [ "$expected" == "$received" ]; then
-		__assert_ok;
+		__assert_ok "$FUNCNAME";
 	else		
-		__assert_err;		
+		__assert_err "$FUNCNAME";
 	fi
 }
 
-# asserts that a value is greater than
+# asserts that two string values are equal
+function assert.equal {
+	local expected="${1:-}";
+	local received="${2:-}";
+	if [ "$expected" == "$received" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
+# asserts that an integer is greater than
 # an expected value
 function assert.gt {
 	local expected="${1:-}";
 	local received="${2:-}";
 	if [ "$received" -gt "$expected" ]; then
-		__assert_ok;
+		__assert_ok "$FUNCNAME";
 	else		
-		__assert_err;
+		__assert_err "$FUNCNAME";
+	fi
+}
+
+# asserts that an integer is less than
+# an expected value
+function assert.lt {
+	local expected="${1:-}";
+	local received="${2:-}";
+	if [ "$received" -lt "$expected" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
+# asserts that an integer is equal to
+# an expected value
+function assert.eq {
+	local expected="${1:-}";
+	local received="${2:-}";
+	if [ "$received" -eq "$expected" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
 	fi
 }
 
 function __assert_ok {
+	local assertion="$1";
 	local stack=( $( caller 1 ) );
 	local method="${stack[1]}";
 	if [ ! -z "$ttyout" ]; then
 		exec 1> /dev/tty;
 	fi
-	console.ok "%s" "$method";
+	console.ok "$assertion %s" "$method";
 }
 
 function __assert_err {
+	local assertion="$1";	
 	local stack=( $( caller 1) );
 	local lineno="${stack[0]}";
 	local method="${stack[1]}";
@@ -112,7 +149,7 @@ function __assert_err {
 	if [ ! -z "$ttyout" ]; then
 		exec 2> /dev/tty;
 	fi
-	error "%s $frame" "$method";
+	error "$assertion %s $frame" "$method";
 }
 
 function __assert_run_all {
@@ -183,7 +220,7 @@ function __assert_run_test {
 			if [[ "$m" =~ ^test. ]]; then				
 				# clean up
 				__assert_expects="";
-				info "assert %s" "$m";
+				info "run %s" "$m";
 				set +o errexit;
 				# execute the test method
 				"$m" 1>> "$stdout" 2>> "$stderr";
