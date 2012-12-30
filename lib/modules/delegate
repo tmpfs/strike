@@ -1,3 +1,53 @@
+: <<'ronn:markdown'
+delegate(3) -- method delegation
+=============================================
+
+## SYNOPSIS
+
+Provides the main delegate entry point for programs that wish to map command options to method invocations and provides modules with a default delegate where no main module method has been declared.
+
+## DESCRIPTION
+
+A module may declare a `main` method which should have the same name as the module. The require(3) module is a good example of a module which does this. If a main method is not declared and the `delegate` method is available then a dynamic method is created which invokes delegate(3). This allows for useful behaviour such as to map a command line option to a module method invocation.
+
+## USAGE
+
+	delegate "module" "method" "${options[@]:-}";
+	
+## EXAMPLE
+
+Suppose you had a `say` module with the following code:
+
+	declare -gx say_greeting="world";
+	say.hello() {
+		console.info "hello %s" "$say_greeting";
+	}
+	
+	say.goodbye() {
+		console.info "goodbye %s" "$say_greeting";
+	}
+	
+And then included the module in your program using require(3):
+
+	require 'say';
+	
+The `say` module would automatically have a dynamic delegate(3) method created (called `say`) which allows for invocations such as:
+
+	say hello && say goodbye;
+
+## BUGS
+
+**delegate** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**delegate** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+require(3)
+ronn:markdown
+
 ######################################################################
 # 	delegate
 #

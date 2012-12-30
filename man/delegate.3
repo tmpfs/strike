@@ -1,0 +1,76 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "DELEGATE" "3" "December 2012" "" ""
+.
+.SH "NAME"
+\fBdelegate\fR \- method delegation
+.
+.SH "SYNOPSIS"
+Provides the main delegate entry point for programs that wish to map command options to method invocations and provides modules with a default delegate where no main module method has been declared\.
+.
+.SH "DESCRIPTION"
+A module may declare a \fBmain\fR method which should have the same name as the module\. The require(3) module is a good example of a module which does this\. If a main method is not declared and the \fBdelegate\fR method is available then a dynamic method is created which invokes delegate(3)\. This allows for useful behaviour such as to map a command line option to a module method invocation\.
+.
+.SH "USAGE"
+.
+.nf
+
+delegate "module" "method" "${options[@]:\-}";
+.
+.fi
+.
+.SH "EXAMPLE"
+Suppose you had a \fBsay\fR module with the following code:
+.
+.IP "" 4
+.
+.nf
+
+declare \-gx say_greeting="world";
+say\.hello() {
+    console\.info "hello %s" "$say_greeting";
+}
+
+say\.goodbye() {
+    console\.info "goodbye %s" "$say_greeting";
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+And then included the module in your program using require(3):
+.
+.IP "" 4
+.
+.nf
+
+require \'say\';
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The \fBsay\fR module would automatically have a dynamic delegate(3) method created (called \fBsay\fR) which allows for invocations such as:
+.
+.IP "" 4
+.
+.nf
+
+say hello && say goodbye;
+.
+.fi
+.
+.IP "" 0
+.
+.SH "BUGS"
+\fBdelegate\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBdelegate\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+require(3)

@@ -8,7 +8,7 @@ Module loader for strike(7).
 
 ## DESCRIPTION
 
-Loads modules by name and relative or absolute filesystem paths.
+Loads modules by name or filesystem path and adds delegate(3) functionality to modules once loaded.
 
 ## USAGE
 
@@ -26,7 +26,7 @@ Loads modules by name and relative or absolute filesystem paths.
 
 ## SEE ALSO
 
-strike(7)
+delegate(3)
 ronn:markdown
 
 # TODO: don't re-require if path matches an already loaded module
