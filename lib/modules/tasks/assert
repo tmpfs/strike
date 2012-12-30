@@ -195,28 +195,32 @@ function __assert_search_paths {
 
 function __assert_run_test {
 	local file="$1";
+	local name="`basename $file`";
 	
 	# require and generate a list of method definitions
 	require.methods "$file" "^test.";
-	local methods=( "$_result" );
-	
-	info "assert %s < %s" "`basename $file`" "$file";
-	local m;
-	for m in ${methods[@]}
-		do
-			# check that the method starts with a test prefix
-			if [[ "$m" =~ ^test. ]]; then				
-				# clean up
-				__assert_expects="";
-				info "run %s" "$m";
-				set +o errexit;
-				# execute the test method
-				"$m" 1>> "$stdout" 2>> "$stderr";
-				set -o errexit;
-				
-				# remove the method so that it is not
-				# executed again on subsequent passes
-				method.remove "$m";
-			fi
-	done
+	local methods="$_result";
+	console.info "assert %s < %s" "$name" "$file";
+	if [ -z "${methods}" ]; then
+		console.warn "test %s does not declare any test methods" "$name";
+	else
+		local m;
+		for m in ${methods[@]}
+			do
+				# check that the method starts with a test prefix
+				if [[ "$m" =~ ^test. ]]; then				
+					# clean up
+					__assert_expects="";
+					console.info "run %s" "$m";
+					set +o errexit;
+					# execute the test method
+					"$m" 1>> "$stdout" 2>> "$stderr";
+					set -o errexit;
+
+					# remove the method so that it is not
+					# executed again on subsequent passes
+					method.remove "$m";
+				fi
+		done	
+	fi
 }
