@@ -1,6 +1,6 @@
-require 'stack';
-
-function test.stack.trace {
-	#method.list | grep throw;
-	throw "an error message ...";
-}
+# require 'stack';
+# 
+# function test.stack.trace {
+# 	#method.list | grep throw;
+# 	throw "an error message ...";
+# }

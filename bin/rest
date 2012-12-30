@@ -147,6 +147,9 @@ function boilerplate {
 	if [ -L "$abspath" ]; then
 		abspath=`readlink $abspath`;
 	fi
+	if [[ "$abspath" =~ ^\./ ]]; then
+		abspath="${PWD}/${abspath}";
+	fi	
 	exedir=`dirname "$abspath"`;
 	local libdir="$exedir/../lib";
 	source "$libdir/shared" "$@";

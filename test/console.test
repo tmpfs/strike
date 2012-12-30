@@ -16,6 +16,18 @@ function test.console.warn {
 	assert.eq "0" "$?";
 }
 
+# test for stack trace
+function test.console.trace {
+	console.trace;
+	assert.eq "0" "$?";
+}
+
+# test for throwing an unknown error
+function test.console.throw.unknown {
+	console.throw;
+	assert.eq "0" "$?";
+}
+
 # test for calling success
 function test.console.success {
 	success "success, everything is really fine with this test" &

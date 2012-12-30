@@ -307,6 +307,27 @@ function console.error {
 	echo -e "$prefix $msg" >&2;
 }
 
+# generates a stack trace
+function console.trace {
+	local offset="${1:-0}";
+	local frame=$offset line;
+	local data=( $( caller $frame ) );
+	while [ "${#data[@]}" -gt 0 ]; do
+		console.error "%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
+		((frame++));
+		data=( $( caller $frame ) );
+	done
+	return 0;
+}
+
+# throws an error message and prints the stack trace
+function console.throw {
+	local message="${1:-Unknown error}";
+	#echo "throw message: $message";
+	console.error "$message";
+	console.trace 1;
+}
+
 # inspect the program options looking for a --no-format option
 function console.parse {
 	local l=$#;

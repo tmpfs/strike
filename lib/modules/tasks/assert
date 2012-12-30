@@ -127,7 +127,7 @@ function __assert_ok {
 }
 
 function __assert_err {
-	local assertion="$1";	
+	local assertion="$1";
 	local stack=( $( caller 1) );
 	local lineno="${stack[0]}";
 	local method="${stack[1]}";
@@ -137,6 +137,7 @@ function __assert_err {
 		exec 2> /dev/tty;
 	fi
 	error "$assertion %s $frame" "$method";
+	error "expected %s, got %s" "$expected" "$received";
 }
 
 function __assert_run_all {
