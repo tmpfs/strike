@@ -1,10 +1,107 @@
-######################################################################
-# 	console
-#
-#	Library functions for system output and program exit.
-######################################################################
+: <<'ronn:markdown'
+console(3) -- pretty print
+=============================================
 
-# TODO: make output prefixes configurable
+## SYNOPSIS
+
+Helper methods for printing ANSI formatted output to a terminal.
+
+## DESCRIPTION
+
+The console(3) module is a built in module available to all programs. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed.
+
+If either stdout or stderr is not a *tty* then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but *no formatting*.
+
+## USAGE
+
+The general syntax for printing output is:
+
+console.info "message to print with %s information" "important";
+	
+Whereby the `%s` substring in the main message will be highlighted and replaced with the string *important*, generating:
+
+message to print with `important` information
+	
+## EXIT METHODS
+
+The console(3) module provides methods for exiting the program (optionally with a formatted message).
+
+* `console.success`:
+
+	Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message.
+	
+* `console.quit`:
+
+	Exits the program with a non-zero exit code and optional message. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code.
+
+## STDOUT
+
+To print to standard output use the following methods.
+
+* `console.info`:
+
+	Prints an informational message.
+	
+## STDERR
+
+To print to standard error use the following methods.
+
+* `console.warn`:
+
+	Prints a warning message.
+	
+* `console.error`:
+
+	Prints an error message.
+	
+* `console.throw`:
+
+	Prints an error message followed by a stack trace of the current method call stack.
+	
+## OPTIONS
+
+The console(3) module parses the program options (but does not modify them) looking for the following options:
+
+* `--no-format`:
+
+	Do not perform any ANSI color or formatting modifications to the output.
+	
+## VARIABLES
+
+See the globals-api(3) documentation.
+	
+## MISCELLANEOUS
+
+You may also print a stack trace (without any preceeding error message) using the `console.trace` method. Note that this method does not follow the general syntax for console(3) method invocations and accepts no parameters.
+
+## BUGS
+
+The number of replacement parameters must match exactly the number of `%s` occurences in the message otherwise unexpected behaviour will occur.
+
+**console** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**console** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+globals-api(3)
+ronn:markdown
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ######################################################################
 #	Colours a message string formatting each replacement as bold.

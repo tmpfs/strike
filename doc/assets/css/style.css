@@ -34,7 +34,6 @@ div#container {
 	font-size: .8rem;
 	padding: 10px;
 	width: 100%;
-	position: fixed;
 	top: 0px;
 	height: 80px;
 	z-index: 100;
@@ -42,7 +41,6 @@ div#container {
 
 #scroller {
 	position: relative;
-    top: 80px;
     left: 0px;
 	overflow-x: hidden;
 	overflow-y: scroll;
