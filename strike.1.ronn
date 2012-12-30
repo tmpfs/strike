@@ -1,29 +1,26 @@
-strike(1) -- require for bash
+strike(1) -- require(3) for bash
 =============================================
 
 ## SYNOPSIS
 
-Modular `bash` using `require`.
+Utility program for inspecting information about the system and bash installation.
 
 ## DESCRIPTION
 
-Brings structure and modularity to `bash` programs and provides a set of modules that can be used from any `bash` program.
+The strike(1) program also provides debugging commands and the ability to switch the installed bash version.
 
-## MODULES
+## COMMANDS
 
-Once the library code has been included the following modules are automatically available to your code.
+The strike(1) supports the following commands:
 
-### method
-
-The method(1) module provides utility functions for determining whether functions exist, listing functions and removing methods.
-
-## FILES
-
-...
-
-## ENVIRONMENT
-
-...
+* `info`:
+	Print system information.
+	
+* `module.list`:
+	Print a module list.
+	
+* `method.list`:
+	List method names.
 
 ## BUGS
 
@@ -35,4 +32,4 @@ The method(1) module provides utility functions for determining whether function
 
 ## SEE ALSO
 
-boilerplate(3), method(1), http(1), bake(1), rest(1)
+bake(1)

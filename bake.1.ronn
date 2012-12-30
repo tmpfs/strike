@@ -1,4 +1,4 @@
-bake(1) -- make for `bash`
+bake(1) -- make for bash
 =============================================
 
 ## SYNOPSIS
@@ -7,10 +7,9 @@ bake(1) -- make for `bash`
 
 ## DESCRIPTION
 
-**bake** is `make` for `bash` programs. The `bake` program does not define any tasks by default but some common tasks are available in the `modules/tasks` directory and can be included in a tasks file using `require`, for example:
+**bake** is `make` for bash programs. The `bake` program does not define any tasks by default but some common tasks are available in the `modules/tasks` directory and can be included in a tasks file using `require`, for example:
 
 	require 'tasks/clean';
-	require 'tasks/list';
 
 ## FILES
 
@@ -48,4 +47,4 @@ The following variables are available to each command method:
 
 ## SEE ALSO
 
-strike(1), boilerplate(3), require(3), method(3), http(1), bake(1), rest(1)
+task-assert(7), task-doc(7), task-clean(7), task-list(7)

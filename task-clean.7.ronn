@@ -1,0 +1,32 @@
+task-clean(7) -- clean task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+Clean task(s) for bake(1).
+
+## DESCRIPTION
+
+Removes the `${target}` directory.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `clean` task(s) using:
+
+	require 'tasks/clean';
+
+## USAGE
+
+	bake clean
+
+## BUGS
+
+**task-clean** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**task-clean** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)

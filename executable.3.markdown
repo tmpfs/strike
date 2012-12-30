@@ -1,36 +1,48 @@
-boilerplate(3) -- boilerplate for strike(1)
+executable(3) -- executable module
 =============================================
 
 ## SYNOPSIS
 
-Before using the strike(1) modules and functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links).
+Module methods for system executables.
 
-## CODE
+## DESCRIPTION
 
-If you have installed the `strike` library as a node module and your executable is in a `bin` directory (sibling of the `node_modules` directory) the boilerplate would look like:
+Enables validation and referencing of executables in `$PATH`.
 
-	declare -gx exedir;
-	function boilerplate {
-		local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-		if [ -L "$abspath" ]; then
-			abspath=`readlink $abspath`;
-		fi
-		exedir=`dirname "$abspath"`;
-		local libdir="$exedir/../node_modules/strike/lib";
-		source "$libdir/shared" "$@";
-	}
-	boilerplate "$@";
+## REQUIRE
+
+In your tasks(7) file `require` the `executable` module using:
+
+	require 'executable';
+
+## USAGE
+
+Once the module is available you can then validate a list of executables:
+
+	executable validate ronn git;
+	
+If any of the listed executables are not available on the system the program will exit with a non-zero exit code. If executable validation succeeds the executable paths are available in the global `executables` associative array and can be accessed anywhere in the program, for example:
+
+	local git="${executables[git]}";
+
+## BUGS
+
+**executable** is written in bash and depends upon `bash` >= 4.
 
 ## COPYRIGHT
 
-**boilerplate** is copyright (c) 2012 muji <http://xpm.io>
+**executable** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 
-strike(1)
+require(3)
+
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
-[CODE]: #CODE "CODE"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[REQUIRE]: #REQUIRE "REQUIRE"
+[USAGE]: #USAGE "USAGE"
+[BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
 

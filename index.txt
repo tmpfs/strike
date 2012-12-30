@@ -5,15 +5,21 @@ require(3)  	require.3.ronn
 
 # modules
 method(3)     	method.3.ronn
-http(7)     	http.1.ronn
+http(3)     	http.3.ronn
 
 # executables
 bake(1)     	bake.1.ronn
 rest(1)     	rest.1.ronn
 
 # external manuals
+git(1)			http://git-scm.com/
+bash(1)   		http://man.cx/bash(1)
 curl(1)     	http://man.cx/curl(1)
 tee(1)     		http://man.cx/tee(1)
+ronn(1)			https://github.com/rtomayko/ronn
+github(7)     	http://github.com/
+json-sh(1)		https://github.com/dominictarr/JSON.sh
+npm(1)			http://npmjs.org
 
 # printf(1)		http://man.cx/printf(1)
 # source(1)		http://man.cx/source(1)

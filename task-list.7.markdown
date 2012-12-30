@@ -1,5 +1,44 @@
-help(7) -- help module for strike(1)
+task-list(7) -- list task(s) for bake(1)
 =============================================
+
+## SYNOPSIS
+
+List task(s) for bake(1).
+
+## DESCRIPTION
+
+Lists available tasks.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `list` task(s) using:
+
+	require 'tasks/list';
+
+## USAGE
+
+	bake list
+
+## BUGS
+
+**task-list** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**task-list** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[REQUIRE]: #REQUIRE "REQUIRE"
+[USAGE]: #USAGE "USAGE"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

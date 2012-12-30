@@ -90,13 +90,11 @@
 <p><strong>bake</strong> is <code>make</code> for bash programs. The <code>bake</code> program does not define any tasks by default but some common tasks are available in the <code>modules/tasks</code> directory and can be included in a tasks file using <code>require</code>, for example:</p>
 
 <pre><code>require 'tasks/clean';
-require 'tasks/list';
-require 'tasks/doc';
 </code></pre>
 
 <h2 id="FILES">FILES</h2>
 
-<p>The <a class="man-ref" href="	bake.1.html">bake<span class="s">(1)</span></a> program looks for a <code>tasks</code> file in the current working directory and maps commands to the task methods found in the tasks file. A command is considered to be the first option passed to the <code>bake</code> executable, any other options specified on the command line are passed to the corresponding task method.</p>
+<p>The <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a> program looks for a <code>tasks</code> file in the current working directory and maps commands to the task methods found in the tasks file. A command is considered to be the first option passed to the <code>bake</code> executable, any other options specified on the command line are passed to the corresponding task method.</p>
 
 <h2 id="ENVIRONMENT">ENVIRONMENT</h2>
 
@@ -128,7 +126,7 @@ require 'tasks/doc';
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
-<p><a class="man-ref" href="doc.html">tasks-doc<span class="s">(7)</span></a>, <a class="man-ref" href="	strike.1.html">strike<span class="s">(1)</span></a>, <a class="man-ref" href="boilerplate.3.html">boilerplate<span class="s">(3)</span></a>, <a class="man-ref" href="	require.3.html">require<span class="s">(3)</span></a>, <a class="man-ref" href="	method.3.html">method<span class="s">(3)</span></a>, <a class="man-ref" href="	http.1.html">http<span class="s">(7)</span></a>, <a class="man-ref" href="	bake.1.html">bake<span class="s">(1)</span></a>, <a class="man-ref" href="	rest.1.html">rest<span class="s">(1)</span></a></p>
+<p><a class="man-ref" href="task-assert.7.html">task-assert<span class="s">(7)</span></a>, <a class="man-ref" href="task-doc.7.html">task-doc<span class="s">(7)</span></a>, <a class="man-ref" href="task-clean.7.html">task-clean<span class="s">(7)</span></a>, <a class="man-ref" href="task-list.7.html">task-list<span class="s">(7)</span></a></p>
 
 
   <ol class='man-decor man-foot man foot'>

@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv='content-type' value='text/html;charset=utf8'>
   <meta name='generator' value='Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)'>
-  <title>boilerplate(3) - boilerplate for strike(1)</title>
+  <title>task-doc(7) - documentation task(s) for bake(1)</title>
   <style type='text/css' media='all'>
   /* style: man */
   body#manpage {margin:0}
@@ -61,56 +61,80 @@
   <div class='man-navigation' style='display:none'>
     <a href="#NAME">NAME</a>
     <a href="#SYNOPSIS">SYNOPSIS</a>
-    <a href="#CODE">CODE</a>
+    <a href="#DESCRIPTION">DESCRIPTION</a>
+    <a href="#REQUIRE">REQUIRE</a>
+    <a href="#USAGE">USAGE</a>
+    <a href="#METHODS">METHODS</a>
+    <a href="#BUGS">BUGS</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
     <a href="#SEE-ALSO">SEE ALSO</a>
   </div>
 
   <ol class='man-decor man-head man head'>
-    <li class='tl'>boilerplate(3)</li>
+    <li class='tl'>task-doc(7)</li>
     <li class='tc'></li>
-    <li class='tr'>boilerplate(3)</li>
+    <li class='tr'>task-doc(7)</li>
   </ol>
 
   <h2 id="NAME">NAME</h2>
 <p class="man-name">
-  <code>boilerplate</code> - <span class="man-whatis">boilerplate for <a class="man-ref" href="strike.1.html">strike<span class="s">(1)</span></a></span>
+  <code>task-doc</code> - <span class="man-whatis">documentation task(s) for <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a></span>
 </p>
 
 <h2 id="SYNOPSIS">SYNOPSIS</h2>
 
-<p>Before using the <a class="man-ref" href="strike.1.html">strike<span class="s">(1)</span></a> modules and functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links).</p>
+<p>Collection of documentation tasks for <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a>.</p>
 
-<h2 id="CODE">CODE</h2>
+<h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p>If you have installed the <code>strike</code> library as a node module and your executable is in a <code>bin</code> directory (sibling of the <code>node_modules</code> directory) the boilerplate would look like:</p>
+<p>Adds task methods for generating and compiling inline heredoc documentation.</p>
 
-<pre><code>declare -gx exedir;
-function boilerplate {
-    local abspath=$(cd ${BASH_SOURCE[0]%/*} &amp;&amp; echo $PWD/${0##*/});
-    if [ -L "$abspath" ]; then
-        abspath=`readlink $abspath`;
-    fi
-    exedir=`dirname "$abspath"`;
-    local libdir="$exedir/../node_modules/strike/lib";
-    source "$libdir/shared" "$@";
-}
-boilerplate "$@";
+<h2 id="REQUIRE">REQUIRE</h2>
+
+<p>In your <span class="man-ref">tasks<span class="s">(7)</span></span> file <code>require</code> the <code>doc</code> task(s) using:</p>
+
+<pre><code>require 'tasks/doc';
 </code></pre>
+
+<h2 id="USAGE">USAGE</h2>
+
+<pre><code>bake doc.build
+</code></pre>
+
+<h2 id="METHODS">METHODS</h2>
+
+<p>The following commands are then available to <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a>:</p>
+
+<dl>
+<dt class="flush"><code>doc.all</code></dt><dd><p>  Invokes <code>doc.build</code> and <code>doc.pages.publish</code>.</p></dd>
+<dt><code>doc.build</code></dt><dd><p>  Invokes <code>doc.generate</code>, <code>doc.compile</code> and <code>doc.man.import</code>.</p></dd>
+<dt><code>doc.generate</code></dt><dd><p>  Searches the doc search paths and attempts to find inline heredoc declarations in any files within the search paths. When an inline heredoc is encountered a corresponding <code>.ronn</code> file is generated in <code>${target}/doc</code>.</p>
+
+<p>  If a file is encountered that has a <code>.ronn</code> extension then that file is not parsed for heredoc declarations but is copied to the output directory for inclusion in the generated documentation.</p></dd>
+<dt><code>doc.compile</code></dt><dd><p>  Compiles any <code>.ronn</code> documents previously generated using the <code>doc.generate</code> task.</p></dd>
+<dt><code>doc.pages.publish</code></dt><dd><p>  Switches to a <code>gh-pages</code> branch, copies over generated documentation before pushing the <code>gh-pages</code> branch to <a class="man-ref" href="http://github.com/">github<span class="s">(7)</span></a>. The <code>gh-pages</code> branch must already exist for this command to succeed.</p></dd>
+<dt><code>doc.man.import</code></dt><dd><p>  Copies compiled man pages into <code>${root}/man</code>.</p></dd>
+<dt><code>doc.man.clean</code></dt><dd><p>  Removes man pages from <code>${root}/man</code>.</p></dd>
+</dl>
+
+
+<h2 id="BUGS">BUGS</h2>
+
+<p><strong>task-doc</strong> is written in bash and depends upon <code>bash</code> >= 4.</p>
 
 <h2 id="COPYRIGHT">COPYRIGHT</h2>
 
-<p><strong>boilerplate</strong> is copyright (c) 2012 muji <a href="http://xpm.io" data-bare-link="true">http://xpm.io</a></p>
+<p><strong>task-doc</strong> is copyright (c) 2012 muji <a href="http://xpm.io" data-bare-link="true">http://xpm.io</a></p>
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
-<p><a class="man-ref" href="strike.1.html">strike<span class="s">(1)</span></a></p>
+<p><a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a></p>
 
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
     <li class='tc'>December 2012</li>
-    <li class='tr'>boilerplate(3)</li>
+    <li class='tr'>task-doc(7)</li>
   </ol>
 
   </div>

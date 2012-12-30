@@ -1,36 +1,39 @@
-boilerplate(3) -- boilerplate for strike(1)
+strike(7) -- require for bash
 =============================================
 
 ## SYNOPSIS
 
-Before using the strike(1) modules and functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links).
+Modular `bash` using require(3).
 
-## CODE
+## DESCRIPTION
 
-If you have installed the `strike` library as a node module and your executable is in a `bin` directory (sibling of the `node_modules` directory) the boilerplate would look like:
+Brings structure and modularity to `bash` programs and provides a set of modules that can be used from any `bash` program.
 
-	declare -gx exedir;
-	function boilerplate {
-		local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-		if [ -L "$abspath" ]; then
-			abspath=`readlink $abspath`;
-		fi
-		exedir=`dirname "$abspath"`;
-		local libdir="$exedir/../node_modules/strike/lib";
-		source "$libdir/shared" "$@";
-	}
-	boilerplate "$@";
+## MODULES
+
+Once the library code has been included the following modules are automatically available to your code.
+
+### method
+
+The method(3) module provides utility functions for determining whether functions exist, listing functions and removing methods.
+
+## BUGS
+
+**strike** is written in bash and depends upon `bash` >= 4 for associative arrays.
 
 ## COPYRIGHT
 
-**boilerplate** is copyright (c) 2012 muji <http://xpm.io>
+**strike** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 
-strike(1)
+strike-tree(7), boilerplate(3)
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
-[CODE]: #CODE "CODE"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[MODULES]: #MODULES "MODULES"
+[method]: #method "method"
+[BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
 

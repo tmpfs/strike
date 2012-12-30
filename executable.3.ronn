@@ -1,0 +1,38 @@
+executable(3) -- executable module
+=============================================
+
+## SYNOPSIS
+
+Module methods for system executables.
+
+## DESCRIPTION
+
+Enables validation and referencing of executables in `$PATH`.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `executable` module using:
+
+	require 'executable';
+
+## USAGE
+
+Once the module is available you can then validate a list of executables:
+
+	executable validate ronn git;
+	
+If any of the listed executables are not available on the system the program will exit with a non-zero exit code. If executable validation succeeds the executable paths are available in the global `executables` associative array and can be accessed anywhere in the program, for example:
+
+	local git="${executables[git]}";
+
+## BUGS
+
+**executable** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**executable** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+require(3)

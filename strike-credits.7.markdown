@@ -1,37 +1,38 @@
-boilerplate(3) -- boilerplate for strike(1)
+strike-credits(7) -- credits for strike(7)
 =============================================
 
 ## SYNOPSIS
 
-Before using the strike(1) modules and functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links).
+It is my belief that no work is truly original as every creation stands on the shoulders of giants whether the influence is conscious or not.
 
-## CODE
+This work could not have been possible without the excellent work of many other people here I list some of the obvious influences and direct contributions.
 
-If you have installed the `strike` library as a node module and your executable is in a `bin` directory (sibling of the `node_modules` directory) the boilerplate would look like:
+## BASH
 
-	declare -gx exedir;
-	function boilerplate {
-		local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-		if [ -L "$abspath" ]; then
-			abspath=`readlink $abspath`;
-		fi
-		exedir=`dirname "$abspath"`;
-		local libdir="$exedir/../node_modules/strike/lib";
-		source "$libdir/shared" "$@";
-	}
-	boilerplate "$@";
+None of this would be possible without Brian Fox's bash(1).
 
-## COPYRIGHT
+## HTTP
 
-**boilerplate** is copyright (c) 2012 muji <http://xpm.io>
+The http(3) module is a wrapper for the excellent curl(1), thanks to Daniel Stenberg and all the other contributors.
+
+## RONN
+
+Man page documentation thanks to Ryan Tomayko, see ronn(1).
+
+## JSON
+
+The json module was based on code by Dominic Tarr, see json-sh(1).
 
 ## SEE ALSO
 
-strike(1)
+strike(7)
+
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
-[CODE]: #CODE "CODE"
-[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[BASH]: #BASH "BASH"
+[HTTP]: #HTTP "HTTP"
+[RONN]: #RONN "RONN"
+[JSON]: #JSON "JSON"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 

@@ -1,5 +1,40 @@
-help(7) -- help module for strike(1)
+require(3) -- module loader
 =============================================
+
+## SYNOPSIS
+
+Module loader for strike(7).
+
+## DESCRIPTION
+
+Loads modules by name or filesystem path and adds delegate(3) functionality to modules once loaded.
+
+## USAGE
+
+	require 'module';
+	require './module';
+	require '../path/to/module';
+	require '/path/to/module';
+
+## BUGS
+
+**require** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**require** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+delegate(3)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[USAGE]: #USAGE "USAGE"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

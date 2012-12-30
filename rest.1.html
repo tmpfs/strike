@@ -87,15 +87,15 @@
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p><strong>rest</strong> generates HTTP(S) requests using the <a class="man-ref" href="	http.1.html">http<span class="s">(7)</span></a> module which wraps <a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a>. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.</p>
+<p><strong>rest</strong> generates HTTP(S) requests using the <a class="man-ref" href="http.3.html">http<span class="s">(3)</span></a> module which wraps <a class="man-ref" href="http://man.cx/curl(1)">curl<span class="s">(1)</span></a>. The core commands correspond to the HTTP verbs GET, POST, PUT, HEAD, DELETE and OPTIONS.</p>
 
 <h2 id="FILES">FILES</h2>
 
-<p>The <a class="man-ref" href="	http.1.html">http<span class="s">(7)</span></a> module generates some temporary files and files used for logging purposes and command persistence.</p>
+<p>The <a class="man-ref" href="http.3.html">http<span class="s">(3)</span></a> module generates some temporary files and files used for logging purposes and command persistence.</p>
 
 <h2 id="COMMANDS">COMMANDS</h2>
 
-<p>The <a class="man-ref" href="	rest.1.html">rest<span class="s">(1)</span></a> program expects the first option to be a command, below is the list of available commands:</p>
+<p>The <a class="man-ref" href="rest.1.html">rest<span class="s">(1)</span></a> program expects the first option to be a command, below is the list of available commands:</p>
 
 <dl>
 <dt class="flush"><code>get</code></dt><dd><p>  Perform a GET request:</p>
@@ -105,7 +105,7 @@
 
 <p>  <code>rest head google.com</code></p>
 
-<p>  Note that this command does not use the <code>--request HEAD</code> option as <a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a> tends to hang when using the HEAD verb, instead this command uses the <code>--head</code> option along with a GET request method.</p></dd>
+<p>  Note that this command does not use the <code>--request HEAD</code> option as <a class="man-ref" href="http://man.cx/curl(1)">curl<span class="s">(1)</span></a> tends to hang when using the HEAD verb, instead this command uses the <code>--head</code> option along with a GET request method.</p></dd>
 <dt class="flush"><code>post</code></dt><dd><p>  Perform a POST request:</p>
 
 <p>  <code>rest post --json '{"name":"value"}' google.com</code></p></dd>
@@ -136,12 +136,12 @@
 
 <h2 id="OPTIONS">OPTIONS</h2>
 
-<p>Wherever possible <strong>rest</strong> follows the command line options available to <a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a> but also adds some convenient shortcut options.</p>
+<p>Wherever possible <strong>rest</strong> follows the command line options available to <a class="man-ref" href="http://man.cx/curl(1)">curl<span class="s">(1)</span></a> but also adds some convenient shortcut options.</p>
 
 <dl>
 <dt class="flush"><code>--type</code></dt><dd><p>  Set the content type for the request.</p></dd>
 <dt><code>-H</code>, <code>--header</code></dt><dd><p>  Set a request header.</p></dd>
-<dt><code>-d</code>, <code>--data</code></dt><dd><p>  Data to send with the request, see <a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a> for more information.</p></dd>
+<dt><code>-d</code>, <code>--data</code></dt><dd><p>  Data to send with the request, see <a class="man-ref" href="http://man.cx/curl(1)">curl<span class="s">(1)</span></a> for more information.</p></dd>
 <dt class="flush"><code>--json</code></dt><dd><p>  Sends data using the <code>--data-binary</code> option and adds a <em>content-type</em> of <strong>application/json</strong>.</p></dd>
 <dt class="flush"><code>--xml</code></dt><dd><p>  Sends data using the <code>--data-binary</code> option and adds a <em>content-type</em> of <strong>text/xml</strong>.</p></dd>
 <dt><code>--param</code> <code>&lt;name></code> <code>&lt;value></code></dt><dd><p>  Add a URL query string parameter, repeatable. The <code>&lt;value></code> should <em>not</em> be URL-encoded.</p></dd>
@@ -178,7 +178,7 @@
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
-<p><a class="man-ref" href="	http://man.cx/curl(1).html">curl<span class="s">(1)</span></a></p>
+<p><a class="man-ref" href="http://man.cx/curl(1)">curl<span class="s">(1)</span></a></p>
 
 
   <ol class='man-decor man-foot man foot'>
