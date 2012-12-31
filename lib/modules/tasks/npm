@@ -5,12 +5,5 @@ function tasks.npm.package.print {
 	
 	# parse the json package descriptor
 	json.parse < "$descriptor";
-	for key in "${!json_doc[@]}"
-		do
-			val="${json_doc["$key"]}";
-			console.log "${key}=${val}";
-	done
-	
-	# json.parse <<< '{ "test": "data" }';
-	# echo "got json keys: ${!json_doc[@]}";
+	json.print;
 }

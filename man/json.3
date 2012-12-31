@@ -1,0 +1,36 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "JSON" "3" "December 2012" "" ""
+.
+.SH "NAME"
+\fBjson\fR \- JSON manipulation
+.
+.SH "SYNOPSIS"
+An experimental module for parsing and stringifying JSON data\.
+.
+.SH "DESCRIPTION"
+The json(3) module adds methods for parsing and creating JSON documents\.
+.
+.SH "USAGE"
+.
+.nf
+
+require \'json\';
+
+# parse a json document
+json\.parse < "${program_dirs[root]}/package\.json";
+
+# parse a json string
+json\.parse <<< \'{ "data": "value" }\';
+.
+.fi
+.
+.SH "BUGS"
+\fBjson\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBjson\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+strike(7)

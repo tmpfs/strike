@@ -12,26 +12,14 @@ Module methods for system executables\.
 .SH "DESCRIPTION"
 Enables validation and referencing of executables in \fB$PATH\fR\.
 .
-.SH "REQUIRE"
-In your tasks(7) file \fBrequire\fR the \fBexecutable\fR module using:
+.SH "USAGE"
+Use executable(3) to validate a list of executables:
 .
 .IP "" 4
 .
 .nf
 
 require \'executable\';
-.
-.fi
-.
-.IP "" 0
-.
-.SH "USAGE"
-Once the module is available you can then validate a list of executables:
-.
-.IP "" 4
-.
-.nf
-
 executable validate ronn git;
 .
 .fi

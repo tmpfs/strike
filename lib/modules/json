@@ -1,3 +1,40 @@
+: <<'ronn:markdown'
+json(3) -- JSON manipulation
+=============================================
+
+## SYNOPSIS
+
+An experimental module for parsing and stringifying JSON data.
+
+## DESCRIPTION
+
+The json(3) module adds methods for parsing and creating JSON documents.
+
+## USAGE
+
+	require 'json';
+	
+	# parse a json document
+	json.parse < "${program_dirs[root]}/package.json";
+	json.print;
+	
+	# parse a json string
+	json.parse <<< '{ "data": "value" }';
+	json.print;	
+
+## BUGS
+
+**json** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**json** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+strike(7)
+ronn:markdown
+
 # TODO: add array _length property so arrays can be iterated?
 
 # global json document data
@@ -43,6 +80,15 @@ function json.parse {
 			
 			#global=3D": Available outside the loop.";
 	done < <( __json_tokenize <&0 > >(__json_start) );
+}
+
+function json.print {
+	local key val;
+	for key in "${!json_doc[@]}"
+		do
+			val="${json_doc["$key"]}";
+			console.log "${key}=${val}";
+	done
 }
 
 ######################################################################
