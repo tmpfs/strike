@@ -101,7 +101,7 @@ parse_value () {
 	
 	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
 		local key=${jpath};
-		local val=${value};	
+		local val=${value};
 		eval key=json_\$$key;
 		#val="$value";
 	
@@ -111,8 +111,7 @@ parse_value () {
 		key=${key//__/_};
 	
 		if [ "$key" != 'json_$' ]; then
-			#local val="${value}";
-			#val=${val//^"/};
+			#val=$(printf %q "$val");
 			echo "${key}=${val}";
 		fi
 	
@@ -145,15 +144,17 @@ json_parse ()
 			unset "$opt";
 	done
 	
+	local IFS="
+";
 	local results=( $( echo -ne "${@}" | tokenize | json_start ) );
 	local key;
 	local value;
 	local oifs;
-	for opt in ${results[@]}
+	for opt in "${results[@]}"
 		do
 			#echo "got var : $opt";
-			oifs="$IFS";
-			IFS="=";
+			#oifs="$IFS";
+			local IFS="=";
 			while read -r key value
 				do
 					#strip out the double quotes from string values
@@ -163,7 +164,7 @@ json_parse ()
 					#echo "got value: $value";
 					export "${key}=${value}";
 			done <<< "$opt";
-			IFS="$oifs";
+			#IFS="$oifs";
 	done
 	
 	set -o errexit;

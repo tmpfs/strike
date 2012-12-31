@@ -1,0 +1,18 @@
+require 'json';
+
+function tasks.npm.package.print {
+	local descriptor="${program_dirs[root]}/package.json";
+	# parse the package descriptor into variables
+	json_parse "`cat "$descriptor"`";
+	
+	# print everything
+	if [ $# -eq 0 ]; then
+		local key val;
+		for key in ${!json_*}
+			do
+				variable.get "$key";
+				val="$_result";
+				console.log "${key}=${val}";
+		done
+	fi
+}

@@ -86,6 +86,8 @@ require 'help';
 help.man.page "default" "strike.1";
 help.parse "$@";
 
+require 'tasks/npm';
+
 function strike.info {
 	system.print;
 }
@@ -109,6 +111,12 @@ function strike.module.dirs {
 function strike.method.list {
 	method.list;
 }
+
+function strike.package {
+	tasks.npm.package.print;
+}
+
+strike.package;
 
 # configure options
 require 'options';
