@@ -59,39 +59,39 @@ set -o nounset;
 
 # echo "[$(date +"%D %T")] $data" >> $logfile
 
-function tokenize {
-	echo "tokenize called";
-	local ESCAPE='(\\[^u[:cntrl:]]|\\u[0-9a-fA-F]{4})'
-	local CHAR='[^[:cntrl:]"\\]'
-	local STRING="\"$CHAR*($ESCAPE$CHAR*)*\""
-	local NUMBER='-?(0|[1-9][0-9]*)([.][0-9]*)?([eE][+-]?[0-9]*)?'
-	local KEYWORD='null|false|true'
-	local SPACE='[[:space:]]+'
-	egrep -ao "$STRING|$NUMBER|$KEYWORD|$SPACE|." --color=never | egrep -v "^$SPACE$"   # eat whitespace	
-}
-
-function chain {
-	echo "chain called!!"	
-	
-	#test_doc[test]="wahoo";
-	while read input
-		do
-			echo "got chain stdin ${input[@]}";
-	done
-}
-
-# method <<< "a 
-# b 
-# c";
-
-#method < "./package.json";
-
-#tokenize <&0;
-#declare -Agx test_doc;
-tokenize <&0 > >(chain);
-#echo "test doc: ${test_doc[test]}";
-
-exit 0;
+# function tokenize {
+# 	echo "tokenize called";
+# 	local ESCAPE='(\\[^u[:cntrl:]]|\\u[0-9a-fA-F]{4})'
+# 	local CHAR='[^[:cntrl:]"\\]'
+# 	local STRING="\"$CHAR*($ESCAPE$CHAR*)*\""
+# 	local NUMBER='-?(0|[1-9][0-9]*)([.][0-9]*)?([eE][+-]?[0-9]*)?'
+# 	local KEYWORD='null|false|true'
+# 	local SPACE='[[:space:]]+'
+# 	egrep -ao "$STRING|$NUMBER|$KEYWORD|$SPACE|." --color=never | egrep -v "^$SPACE$"   # eat whitespace	
+# }
+# 
+# function chain {
+# 	echo "chain called!!"	
+# 	
+# 	#test_doc[test]="wahoo";
+# 	while read input
+# 		do
+# 			echo "got chain stdin ${input[@]}";
+# 	done
+# }
+# 
+# # method <<< "a 
+# # b 
+# # c";
+# 
+# #method < "./package.json";
+# 
+# #tokenize <&0;
+# #declare -Agx test_doc;
+# tokenize <&0 > >(chain);
+# #echo "test doc: ${test_doc[test]}";
+# 
+# exit 0;
 
 ######################################################################
 #
