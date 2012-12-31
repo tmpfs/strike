@@ -3,26 +3,14 @@ require 'json';
 function tasks.npm.package.print {
 	local descriptor="${program_dirs[root]}/package.json";
 	
-	# parse the package descriptor into variables
-	json.parse "`cat "$descriptor"`";
+	# parse the json package descriptor
+	json.parse < "$descriptor";
+	for key in "${!json_doc[@]}"
+		do
+			val="${json_doc["$key"]}";
+			console.log "${key}=${val}";
+	done
 	
-	# print everything
-	if [ $# -eq 0 ]; then
-		local key val;
-		for key in ${!json_*}
-			do
-				variable.get "$key";
-				val="$_result";
-				
-				# skip any array/object definitions
-				if [[ "$val" =~ ^(\[|{) ]]; then
-					continue;
-				fi
-				
-				# clean json_prefix from the name
-				key=${key##json_};				
-				
-				console.log "${key}=${val}";
-		done
-	fi
+	# json.parse <<< '{ "test": "data" }';
+	# echo "got json keys: ${!json_doc[@]}";
 }

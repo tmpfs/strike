@@ -2,8 +2,11 @@
 #declare -A json;
 #json[ 'result' ]="whatever";
 
+declare -Agx json_doc;
+
 throw () {
-  echo "$*" >&2
+  #echo "$*" >&2
+console.throw "$*";
   exit 1
 }
 
@@ -88,7 +91,7 @@ parse_value () {
     ''|[^0-9]) throw "EXPECTED value GOT ${token:-EOF}" ;;
     *) value=${token} ;;
   esac
-  #printf "[%s]\t%s\n" "$jpath" "$value"
+  #printf "[%s]\t%s\n" "$jpath" "$value";
 	#="$value";
 
 	#"$jpath"="$"$value;
@@ -137,38 +140,42 @@ json.parse ()
 	set +o errexit;	
 	set +o nounset;
 	
-	#TODO: move to a method for unsetting by group
-	#ensure we unset all variables before re-parsing
-	for opt in ${!json_*}
+	# clean any existing data
+	for key in "${!json_doc[@]}";
 		do
-			unset "$opt";
+			unset json_doc["$key"];
 	done
 	
-	local IFS="
-";
-	local results=( $( echo -ne "${@}" | tokenize | json_start ) );
-	local key;
-	local value;
-	local oifs;
-	for opt in "${results[@]}"
+	# run the process subsititution in this manner
+	# to block until the parsing is complete
+	while read line
 		do
-			#echo "got var : $opt";
-			#oifs="$IFS";
-			local IFS="=";
-			while read -r key value
+			#echo "line: $line";
+			
+			# available outside the loop
+			# because it does NOT run in a subshell
+			local IFS="=";	
+			while read key value
 				do
 					#strip out the double quotes from string values
-					value=$( echo "$value" | sed "s/^\([\"']\)\(.*\)\1\$/\2/g" );
-				
-					#echo "got key: $key";					
+					value=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$value" );
+					key=${key##json_};
+					
+					# skip any array/object definitions
+					# as child elements should already by parsed
+					if [[ "$value" =~ ^(\[|{) ]]; then
+						continue;
+					fi
+					
+					#echo "got key: $key";
 					#echo "got value: $value";
-					export "${key}=${value}";
-			done <<< "$opt";
-			#IFS="$oifs";
-	done
-	
-	set -o errexit;
-	set -o nounset;
+					
+					# store the value in the json_doc associative array
+					json_doc["$key"]="$value";
+			done <<< "$line";
+			
+			#global=3D": Available outside the loop.";
+	done < <( tokenize <&0 > >(json_start) );
 }
 
 #if [ $0 = $BASH_SOURCE ];
