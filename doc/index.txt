@@ -15,6 +15,7 @@ rest(1)     	rest.1.ronn
 git(1)			http://git-scm.com/
 bash(1)   		http://man.cx/bash(1)
 curl(1)     	http://man.cx/curl(1)
+echo(1)     	http://man.cx/echo(1)
 tee(1)     		http://man.cx/tee(1)
 ronn(1)			https://github.com/rtomayko/ronn
 github(7)     	http://github.com/

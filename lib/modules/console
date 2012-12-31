@@ -4,7 +4,7 @@ console(3) -- pretty print
 
 ## SYNOPSIS
 
-Helper methods for printing ANSI formatted output to a terminal.
+Helper methods for printing ANSI formatted output to a terminal and redirecting output to log file(s).
 
 ## DESCRIPTION
 
@@ -41,6 +41,10 @@ To print to standard output use the following methods.
 * `console.info`:
 
 	Prints an informational message.
+	
+* `console.log`:
+
+	Prints a log message. This method *does not perform any formatting* or print any program (or message type prefix) but does provide parameter replacement. This method is essentially just a wrapper for echo(1) that allows the use of parameter replacement and the log file redirection functionality.
 	
 ## STDERR
 
@@ -89,9 +93,6 @@ The number of replacement parameters must match exactly the number of `%s` occur
 globals-api(3)
 ronn:markdown
 
-
-
-
 declare -gx __stdout_log_file="";
 declare -gx __stderr_log_file="";
 
@@ -134,6 +135,12 @@ function console.log.stderr.close {
 		exec 2>&4 4>&- || console.warn "no file descriptor for stderr log file";
 		__stderr_log_file="";
 	fi
+}
+
+function console.log {
+	console.sprintf "${@}";
+	msg="$_result";
+	echo -e "$msg";
 }
 
 
