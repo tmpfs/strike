@@ -4,10 +4,10 @@
 .TH "CONSOLE" "3" "December 2012" "" ""
 .
 .SH "NAME"
-\fBconsole\fR \- pretty print
+\fBconsole\fR \- console output
 .
 .SH "SYNOPSIS"
-Helper methods for printing ANSI formatted output to a terminal\.
+Helper methods for printing ANSI formatted output to a terminal and redirecting output to log file(s)\.
 .
 .SH "DESCRIPTION"
 The console(3) module is a built in module available to all programs\. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed\.
@@ -40,7 +40,7 @@ Marks the program as completed successfully (exiting with a zero exit code) and 
 \fBconsole\.quit\fR:
 .
 .IP
-Exits the program with a non\-zero exit code and optional message\. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code\.
+Exits the program with a non\-zero exit code and optional error message\. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code\.
 .
 .SH "STDOUT"
 To print to standard output use the following methods\.
@@ -50,6 +50,12 @@ To print to standard output use the following methods\.
 .
 .IP
 Prints an informational message\.
+.
+.TP
+\fBconsole\.log\fR:
+.
+.IP
+Prints a log message\. This method \fIdoes not perform any formatting\fR or print any program (or message type prefix) but does provide parameter replacement\. This method is essentially just a wrapper for echo(1) that allows the use of parameter replacement and the log file redirection functionality\.
 .
 .SH "STDERR"
 To print to standard error use the following methods\.
@@ -71,6 +77,33 @@ Prints an error message\.
 .
 .IP
 Prints an error message followed by a stack trace of the current method call stack\.
+.
+.SH "LOG FILE REDIRECTION"
+The console(3) module supports redirecting stdout/stderr to log file(s)\.
+.
+.TP
+\fBconsole\.log\.stdout\fR:
+.
+.IP
+Redirect stdout to a log file and store stdout in file descriptor #3\.
+.
+.TP
+\fBconsole\.log\.stdout\.close\fR:
+.
+.IP
+Close redirection of stdout, restoring stdout and closing file descriptor #3\.
+.
+.TP
+\fBconsole\.log\.stderr\fR:
+.
+.IP
+Redirect stderr to a log file and store stderr in file descriptor #4\.
+.
+.TP
+\fBconsole\.log\.stderr\.close\fR:
+.
+.IP
+Close redirection of stderr, restoring stderr and closing file descriptor #4\.
 .
 .SH "OPTIONS"
 The console(3) module parses the program options (but does not modify them) looking for the following options:

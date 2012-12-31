@@ -1,5 +1,5 @@
 : <<'ronn:markdown'
-console(3) -- pretty print
+console(3) -- console output
 =============================================
 
 ## SYNOPSIS
@@ -32,7 +32,7 @@ The console(3) module provides methods for exiting the program (optionally with 
 	
 * `console.quit`:
 
-	Exits the program with a non-zero exit code and optional message. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code.
+	Exits the program with a non-zero exit code and optional error message. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code.
 
 ## STDOUT
 
@@ -61,6 +61,26 @@ To print to standard error use the following methods.
 * `console.throw`:
 
 	Prints an error message followed by a stack trace of the current method call stack.
+	
+## LOG FILE REDIRECTION
+
+The console(3) module supports redirecting stdout/stderr to log file(s). 
+
+* `console.log.stdout`:
+
+	Redirect stdout to a log file and store stdout in file descriptor #3.
+	
+* `console.log.stdout.close`:
+
+	Close redirection of stdout, restoring stdout and closing file descriptor #3.
+	
+* `console.log.stderr`:
+
+	Redirect stderr to a log file and store stderr in file descriptor #4.
+
+* `console.log.stderr.close`:
+
+	Close redirection of stderr, restoring stderr and closing file descriptor #4.
 	
 ## OPTIONS
 
