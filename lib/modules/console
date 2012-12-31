@@ -21,18 +21,6 @@ console.info "message to print with %s information" "important";
 Whereby the `%s` substring in the main message will be highlighted and replaced with the string *important*, generating:
 
 message to print with `important` information
-	
-## EXIT METHODS
-
-The console(3) module provides methods for exiting the program (optionally with a formatted message).
-
-* `console.success`:
-
-	Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message.
-	
-* `console.quit`:
-
-	Exits the program with a non-zero exit code and optional error message. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code.
 
 ## STDOUT
 
@@ -81,6 +69,18 @@ The console(3) module supports redirecting stdout/stderr to log file(s).
 * `console.log.stderr.close`:
 
 	Close redirection of stderr, restoring stderr and closing file descriptor #4.
+	
+## EXIT METHODS
+
+The console(3) module provides methods for exiting the program (optionally with a formatted message).
+
+* `console.success`:
+
+	Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message.
+
+* `console.quit`:
+
+	Exits the program with a non-zero exit code and optional error message. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code.
 	
 ## OPTIONS
 

@@ -27,21 +27,6 @@ Whereby the \fB%s\fR substring in the main message will be highlighted and repla
 .P
 message to print with \fBimportant\fR information
 .
-.SH "EXIT METHODS"
-The console(3) module provides methods for exiting the program (optionally with a formatted message)\.
-.
-.TP
-\fBconsole\.success\fR:
-.
-.IP
-Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message\.
-.
-.TP
-\fBconsole\.quit\fR:
-.
-.IP
-Exits the program with a non\-zero exit code and optional error message\. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code\.
-.
 .SH "STDOUT"
 To print to standard output use the following methods\.
 .
@@ -104,6 +89,21 @@ Redirect stderr to a log file and store stderr in file descriptor #4\.
 .
 .IP
 Close redirection of stderr, restoring stderr and closing file descriptor #4\.
+.
+.SH "EXIT METHODS"
+The console(3) module provides methods for exiting the program (optionally with a formatted message)\.
+.
+.TP
+\fBconsole\.success\fR:
+.
+.IP
+Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message\.
+.
+.TP
+\fBconsole\.quit\fR:
+.
+.IP
+Exits the program with a non\-zero exit code and optional error message\. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code\.
 .
 .SH "OPTIONS"
 The console(3) module parses the program options (but does not modify them) looking for the following options:
