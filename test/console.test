@@ -55,3 +55,47 @@ function test.console.quit.code.message {
 	wait %%;
 	assert.eq "127" "$?";
 }
+
+# test for redirecting stdout to a log file
+function test.console.stdout.log {
+	local logfile="${target}/${FUNCNAME}";
+	
+	# redirect stdout to a log file
+	console.log.stdout "$logfile";
+	
+	# send the message to the log file
+	console.info "this is a message redirected to a stdout log file %s" "$logfile";
+	
+	# assert
+	local expected="[info] this is a message redirected to a stdout log file $logfile";
+	local received="`cat "$logfile"`";
+	assert.equal "$expected" "$received";
+	
+	# clean up
+	rm "$logfile";
+	
+	# revert the log file redirection
+	console.log.stdout.close;
+}
+
+# test for redirecting stderr to a log file
+function test.console.stderr.log {
+	local logfile="${target}/${FUNCNAME}";
+	
+	# redirect stderr to a log file
+	console.log.stderr "$logfile";
+	
+	# send the error message to the log file
+	console.error "this is a message redirected to a stderr log file %s" "$logfile";
+	
+	# assert
+	local expected="[not ok] this is a message redirected to a stderr log file $logfile";
+	local received="`cat "$logfile"`";
+	assert.equal "$expected" "$received";
+	
+	# clean up
+	rm "$logfile";
+	
+	# revert the log file redirection
+	console.log.stderr.close;
+}
