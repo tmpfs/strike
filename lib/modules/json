@@ -2,6 +2,8 @@
 #declare -A json;
 #json[ 'result' ]="whatever";
 
+# TODO: add array _length property so arrays can be iterated?
+
 declare -Agx json_doc;
 
 throw () {
