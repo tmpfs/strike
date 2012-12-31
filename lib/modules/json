@@ -21,10 +21,15 @@ The json(3) module adds methods for parsing and creating JSON documents.
 	# parse a json string
 	json.parse <<< '{ "data": "value" }';
 	json.print;	
+	
+	# clean up parsed json data
+	json.clean;
 
 ## BUGS
 
 **json** is written in bash and depends upon `bash` >= 4.
+
+The json(3) module is derived from json-sh(1).
 
 ## COPYRIGHT
 
@@ -44,11 +49,7 @@ function json.parse {
 	set +o errexit;	
 	set +o nounset;
 	
-	# clean any existing data
-	for key in "${!json_doc[@]}";
-		do
-			unset json_doc["$key"];
-	done
+	json.clean;
 	
 	# run the process subsititution in this manner
 	# to block until the parsing is complete
@@ -88,6 +89,15 @@ function json.print {
 		do
 			val="${json_doc["$key"]}";
 			console.log "${key}=${val}";
+	done
+}
+
+function json.clean {
+	local key;
+	# clean any existing data
+	for key in "${!json_doc[@]}";
+		do
+			unset json_doc["$key"];
 	done
 }
 

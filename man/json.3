@@ -20,14 +20,22 @@ require \'json\';
 
 # parse a json document
 json\.parse < "${program_dirs[root]}/package\.json";
+json\.print;
 
 # parse a json string
 json\.parse <<< \'{ "data": "value" }\';
+json\.print;
+
+# clean up parsed json data
+json\.clean;
 .
 .fi
 .
 .SH "BUGS"
 \fBjson\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.P
+The json(3) module is derived from json\-sh(1)\.
 .
 .SH "COPYRIGHT"
 \fBjson\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR

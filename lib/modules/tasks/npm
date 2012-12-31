@@ -6,4 +6,7 @@ function tasks.npm.package.print {
 	# parse the json package descriptor
 	json.parse < "$descriptor";
 	json.print;
+	
+	# json.parse <<< '{ "data": "value" }';
+	# json.print;
 }
