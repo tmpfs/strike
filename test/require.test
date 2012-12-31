@@ -1,9 +1,7 @@
 # test for absolute require
 function test.require.absolute {
-	local dir=`dirname ${BASH_SOURCE[0]}`;
-	fs.path.expand "$dir";
 	dir="$_result";
-	require "${dir}/modules/say";
+	require "${testdir}/modules/say";
 	assert.eq "0" "$?";
 	assert.loaded.module;
 }

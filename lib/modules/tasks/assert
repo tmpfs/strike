@@ -43,6 +43,11 @@ function tasks.assert {
 	local stdout="${target}/assert.stdout.log";
 	local stderr="${target}/assert.stderr.log";
 	
+	# expose a `testdir` variable to the test methods
+	local testdir="${program_dirs[test]}";
+	fs.path.expand "$testdir";
+	testdir="$_result";
+	
 	echo -n "" > "$stdout" || quit 1 "could not create %s" "$stdout";	
 	echo -n "" > "$stderr" || quit 1 "could not create %s" "$stderr";
 	
@@ -121,6 +126,7 @@ function __assert_ok {
 	local stack=( $( caller 1 ) );
 	local method="${stack[1]}";
 	if [ ! -z "$ttyout" ]; then
+		# TODO: switch output back after the console.ok messages
 		exec 1> /dev/tty;
 	fi
 	console.ok "$assertion %s" "$method";
@@ -134,6 +140,7 @@ function __assert_err {
 	local file="${stack[2]}";
 	local frame="${file}:${lineno}";
 	if [ ! -z "$ttyout" ]; then
+		# TODO: switch output back after the console.error messages		
 		exec 2> /dev/tty;
 	fi
 	error "$assertion %s $frame" "$method";

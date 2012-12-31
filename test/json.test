@@ -1,0 +1,24 @@
+require 'json';
+
+function test.json.parse {
+	local valid="${testdir}/json/valid";
+	local file parsed name dir;
+	for file in ${valid}/*
+		do
+			dir=`dirname "$file"`;
+			name=`basename "$file"`;
+			name=${name%%.json};
+			parsed="${dir}/${name}.parsed";
+			echo "json.parse: $file : $parsed";
+			json.parse < "$file";
+			
+			# look for a parsed file to assert on
+			if [ -f "$parsed" ]; then
+				echo "got parsed `cat $parsed`";
+				
+				assert.equal "`cat "$parsed"`" "`json.print`";
+			fi
+			
+			json.print;
+	done
+}

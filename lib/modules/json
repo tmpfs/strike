@@ -72,11 +72,13 @@ function json.parse {
 						continue;
 					fi
 					
-					#echo "got key: $key";
-					#echo "got value: $value";
+					# echo "got key: $key";
+					# echo "got value: $value";
 					
-					# store the value in the json_doc associative array
-					json_doc["$key"]="$value";
+					if [ ! -z "$key" ]; then
+						# store the value in the json_doc associative array
+						json_doc["$key"]="$value";
+					fi
 			done <<< "$line";
 			
 			#global=3D": Available outside the loop.";
