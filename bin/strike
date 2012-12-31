@@ -20,6 +20,9 @@ The strike(1) supports the following commands:
 * `info`:
 	Print system information.
 	
+* `pkg`:
+	Print npm(1) package information.
+	
 * `module.dirs`:
 	Print a module search path directories.	
 	
@@ -112,18 +115,16 @@ function strike.method.list {
 	method.list;
 }
 
-function strike.package {
+function strike.pkg {
 	tasks.npm.package.print;
 }
-
-strike.package;
 
 # configure options
 require 'options';
 
 options_minimum=1;
 options_fail_help=1;
-options_expects_command=( info dirs lib.dirs module.dirs module.list method.list );
+options_expects_command=( info dirs pkg lib.dirs module.dirs module.list method.list );
 options_map_command_method=1;
 #configure all the option defaults
 options configure;

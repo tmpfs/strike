@@ -2,8 +2,9 @@ require 'json';
 
 function tasks.npm.package.print {
 	local descriptor="${program_dirs[root]}/package.json";
+	
 	# parse the package descriptor into variables
-	json_parse "`cat "$descriptor"`";
+	json.parse "`cat "$descriptor"`";
 	
 	# print everything
 	if [ $# -eq 0 ]; then
@@ -12,6 +13,15 @@ function tasks.npm.package.print {
 			do
 				variable.get "$key";
 				val="$_result";
+				
+				# skip any array/object definitions
+				if [[ "$val" =~ ^(\[|{) ]]; then
+					continue;
+				fi
+				
+				# clean json_prefix from the name
+				key=${key##json_};				
+				
 				console.log "${key}=${val}";
 		done
 	fi

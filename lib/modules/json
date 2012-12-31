@@ -132,7 +132,7 @@ json_start () {
   esac
 }
 
-json_parse ()
+json.parse ()
 {
 	set +o errexit;	
 	set +o nounset;
