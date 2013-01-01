@@ -3,7 +3,7 @@ function test.require.absolute {
 	dir="$_result";
 	require "${testdir}/modules/say";
 	assert.eq "0" "$?";
-	assert.loaded.module;
+	assert.on.loaded.module;
 }
 
 # test for module search path lookup
@@ -18,14 +18,14 @@ function test.require.lookup {
 function test.require.relative {
 	require "./modules/say";
 	assert.eq "0" "$?";
-	assert.loaded.module;
+	assert.on.loaded.module;
 }
 
 # test for relative require using: ../
 function test.require.relative.parent {
 	require "../test/modules/say";
 	assert.eq "0" "$?";
-	assert.loaded.module;
+	assert.on.loaded.module;
 }
 
 # test for a non-existent module
@@ -35,7 +35,7 @@ function test.require.nonexistent {
 	assert.eq "1" "$?";
 }
 
-function assert.loaded.module {
+function assert.on.loaded.module {
 	local methods=( $( method.list | grep "say" ) );
 	methods="${methods[@]}";
 	assert.equal "say say.goodbye say.hello" "${methods}";

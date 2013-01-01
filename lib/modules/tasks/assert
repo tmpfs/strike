@@ -214,6 +214,8 @@ function __assert_search_paths {
 
 function __assert_run_test {
 	local file="$1";
+	fs.path.expand "$file";
+	file="$_result";
 	local name="`basename $file`";
 	
 	# require and generate a list of method definitions

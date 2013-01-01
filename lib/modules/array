@@ -76,11 +76,13 @@ function array.each {
 	fi
 }
 
-# write an array to name=value pairs
+#TODO: allow for spaces in associative array key names
+
+# write array(s) to name=value pairs
 function array.write {
 	local opts=( "$@" );
 	local file="${1:-}";
-	local flags="${2:-gx}";
+	local flags="${2:-g}";
 	if [ -z "$file" ]; then
 		console.warn "no file passed to array.write";
 	else
@@ -97,7 +99,6 @@ function array.write {
 
 		function iterator {
 			local key="$1" value="$2" index="$3";
-			# echo "ITERATOR GOT KEY: $1";
 			echo "${key}=${value}" >> "$file";
 		}
 		
@@ -113,9 +114,7 @@ function array.write {
 					arrflags="-A";
 				fi
 				arrflags="${arrflags}${flags}";
-				
 				# write the array name header comment
-				# echo "writing array... $val";
 				echo "#¡ declare $arrflags $val" >> "$file";
 				array.each "$val" "iterator";
 		done
@@ -129,13 +128,10 @@ function array.write {
 function array.read {
 	local opts=( "$@" );
 	local file="${1:-}";
-	
 	local arrayname="";
 	
 	# deal with comments 
 	array.read.comment() {
-		echo "got comment line... $1";
-		
 		if [[ "$1" =~ ^#¡ ]]; then
 			local declaration=${1//#¡ /};
 			local name=${declaration##* };
@@ -143,9 +139,6 @@ function array.read {
 			arrayname="$name";
 			# declare the array
 			eval "$declaration";
-			
-			#array.isassoc "$name";
-			# echo "GOT ARRAY DECLARE LINE $declaration : $name : $_result";
 		fi
 	}
 	
@@ -154,33 +147,23 @@ function array.read {
 		local __key__=${1%%=*};
 		local __value__=${1##*=};
 		if [ ! -z "$arrayname" ]; then
-			echo "append to array $arrayname"
-			# echo "key: $__key__";
-			# echo "value: $__value__";
 			local setter="$arrayname[\"$__key__\"]=\"$__value__\";";
-			echo "using setter: $setter";
-			#set +o nounset;
 			eval "$setter";
-			#set -o nounset;
 		fi
 	}
 	
 	if [ ! -z "$file" ] && [ -f "$file" ] && [ -r "$file" ]; then
-		echo "read from file parameter...";
 		while read line
 			do
-				echo "got file parameter line: $line";
 				if [[ "$line" =~ ^# ]]; then
 					array.read.comment "$line";
 				else
 					array.read.add "$line";
 				fi
-		done < <("$file")
+		done < "$file"
 	elif [ ! -t 0 ]; then
-		echo "read from file stdin...";
 		while read line
 			do
-				echo "got stdin file parameter line: $line";
 				if [[ "$line" =~ ^# ]]; then
 					array.read.comment "$line";
 				else
@@ -191,7 +174,7 @@ function array.read {
 		quit 1 "invalid input to array.read, usage: array.read < file";
 	fi
 	
-	# clean up the methods
+	# clean up the internal methods
 	method.remove "array.read.comment";
 	method.remove "array.read.add";
 }
