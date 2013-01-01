@@ -86,6 +86,7 @@ function test.json.stringify.object.keys {
 	doc[key1]="the first value";
 	doc[key2]="the second value";
 	json.stringify <<< "doc";
+	#json.string;
 	local received="$json_str";
 	# key iterartion order appears to always be in reverse order
 	# this test will fail if that behaviour changes

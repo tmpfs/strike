@@ -12,7 +12,7 @@ The json(3) module adds methods for parsing and creating JSON documents.
 
 ## USAGE
 
-Parsing JSON data can be from a file, string or variable. After parsing the JSON data the parsed data is available on the global `json_doc` variable. Use the `json.print` method to quickly inspect the contents of the parsed data.
+Parsing JSON data can be from a file, string or variable. After parsing the JSON data the parsed data is available on the global `json_doc` associative array. Use the `json.print` method to quickly inspect the contents of the parsed data.
 
 	require 'json';
 	
@@ -22,12 +22,12 @@ Parsing JSON data can be from a file, string or variable. After parsing the JSON
 	
 	# parse a json string
 	json.parse <<< '{ "data": "value" }';
-	json.print;	
+	json.print;
 	
 	# clean up parsed json data
 	json.clean;
 	
-Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global `json_str` variable.
+Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global `json_str` variable. Use the `json.string` method to print the JSON string data.
 
 	require 'json';
 
@@ -36,7 +36,7 @@ Converting to JSON is achieved using references to variable names and afterwards
 		doc[key]="value";
 		doc[greeting]="hello world";
 		json.stringify <<< "doc";		# doc is the *name* of the variable to stringify
-		echo "tojson: ${json_str}";
+		json.string;					# print the result
 	}
 	toJSON;
 
@@ -180,6 +180,11 @@ function json.print {
 			val="${json_doc["$key"]}";
 			console.log "${key}=${val}";
 	done
+}
+
+function json.string {
+	local str="${json_str:-}";
+	console.log "$str":
 }
 
 function json.clean {

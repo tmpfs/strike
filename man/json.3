@@ -13,7 +13,7 @@ An experimental module for parsing and stringifying JSON data\.
 The json(3) module adds methods for parsing and creating JSON documents\.
 .
 .SH "USAGE"
-Parsing JSON data can be from a file, string or variable\. After parsing the JSON data the parsed data is available on the global \fBjson_doc\fR variable\. Use the \fBjson\.print\fR method to quickly inspect the contents of the parsed data\.
+Parsing JSON data can be from a file, string or variable\. After parsing the JSON data the parsed data is available on the global \fBjson_doc\fR associative array\. Use the \fBjson\.print\fR method to quickly inspect the contents of the parsed data\.
 .
 .IP "" 4
 .
@@ -37,7 +37,7 @@ json\.clean;
 .IP "" 0
 .
 .P
-Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global \fBjson_string\fR variable\.
+Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global \fBjson_str\fR variable\. Use the \fBjson\.string\fR method to print the JSON string data\.
 .
 .IP "" 4
 .
@@ -50,7 +50,7 @@ toJSON() {
     doc[key]="value";
     doc[greeting]="hello world";
     json\.stringify <<< "doc";       # doc is the *name* of the variable to stringify
-    echo "tojson: ${json_string}";
+    json\.string;                    # print the result
 }
 toJSON;
 .
