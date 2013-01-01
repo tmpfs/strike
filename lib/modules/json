@@ -12,6 +12,8 @@ The json(3) module adds methods for parsing and creating JSON documents.
 
 ## USAGE
 
+Parsing JSON data can be from a file, string or variable. After parsing the JSON data the parsed data is available on the global `json_doc` variable. Use the `json.print` method to quickly inspect the contents of the parsed data.
+
 	require 'json';
 	
 	# parse a json document
@@ -24,6 +26,19 @@ The json(3) module adds methods for parsing and creating JSON documents.
 	
 	# clean up parsed json data
 	json.clean;
+	
+Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global `json_string` variable.
+
+	require 'json';
+
+	toJSON() {
+		declare -A doc;
+		doc[key]="value";
+		doc[greeting]="hello world";
+		json.stringify <<< "doc";		# doc is the *name* of the variable
+		echo "tojson: ${json_string}";
+	}
+	toJSON;
 
 ## BUGS
 
