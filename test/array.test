@@ -1,0 +1,12 @@
+function test.array.write {
+	local file="${target}/${FUNCNAME}";
+	local arr=( 3 2 1 "this is a string value" );
+	declare -A assoc;
+	assoc[key]="value";
+	assoc[greeting]="hello world";
+	array.write "$file" <<< "arr assoc";
+	
+	# clean up
+	unset arr;
+	unset assoc;
+}

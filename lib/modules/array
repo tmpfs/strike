@@ -55,3 +55,71 @@ function array.pop {
 	#		echo "shifted..."
 	#done
 }
+
+function array.each {
+	local name="${1:-}";
+	local iterator="${2:-}";
+	local key value;
+	local index=0;
+	if [ ! -z "$name" ]; then
+		eval keys="\${!$name[@]}";
+		for key in $keys
+			do
+				eval value="\${$name[$key]}";
+				# echo "got key : $key";
+				# echo "got value : $value";
+				
+				# TODO: check the iterator method exists
+				"$iterator" "$key" "$value" "$index";
+				((index++));
+		done
+	fi
+}
+
+# write an array to name=value pairs
+function array.write {
+	local opts=( "$@" );
+	local file="${1:-}";
+	local flags="${2:-}";
+	if [ -z "$file" ]; then
+		console.warn "no file passed to array.write";
+	else
+		echo -ne "" > "$file" || quit 1 "could not create array.write file %s" "$file";
+		local stdin;
+		# this allows us to accept options and read from stdin
+		# with positional parameter expansion
+		if [ ! -t 0 ]; then
+			# read in stdin
+			read -a stdin;
+			# expand stdin data to positional parameters
+			set -- $( echo "${stdin[@]}" );
+		fi
+
+		function iterator {
+			local key="$1" value="$2" index="$3";
+			echo "${key}=${value}" >> "$file";
+		}
+		
+		local arrflags isassoc;
+		local i val;
+		for((i = 0;i < $#;i++))
+			do
+				eval val="$"$[i+1];
+				arrflags="-a";
+				array.isassoc "$val";
+				isassoc="$_result";
+				if [ $isassoc -eq 0 ]; then
+					arrflags="-A";
+				fi
+				arrflags="${arrflags}${flags}";
+				
+				# write the array name header comment
+				# echo "writing array... $val";
+				echo "# declare $arrflags $val" >> "$file";
+				array.each "$val" "iterator";
+		done
+
+		# clean up the iterator
+		method.remove "iterator";
+	fi
+}
