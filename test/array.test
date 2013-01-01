@@ -24,9 +24,11 @@ function test.array.write {
 }
 
 function assert.on.deserialized.array {
+	
 	# plain array
 	assert.eq "4" "${#arr[@]}";
 	assert.equal "0 1 2 3" "${!arr[*]}";
+	assert.equal "3 2 1 this is a string value" "${arr[*]}";
 	assert.equal "3" "${arr[0]}";
 	assert.equal "2" "${arr[1]}";
 	assert.equal "1" "${arr[2]}";
@@ -35,6 +37,7 @@ function assert.on.deserialized.array {
 	# associative array
 	assert.eq "2" "${#assoc[@]}";
 	assert.equal "key greeting" "${!assoc[*]}";
+	assert.equal "value hello world" "${assoc[*]}";
 	assert.equal "value" "${assoc[key]}";
 	assert.equal "hello world" "${assoc[greeting]}";
 }
