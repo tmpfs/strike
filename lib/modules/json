@@ -103,9 +103,27 @@ function json.parse {
 	done < <( __json_tokenize <&0 > >(__json_start) );
 }
 
+# TODO: add error handling for this method
 function json.stringify {
-	local json_data="${1:-}";
 	local json="{}";
+	# copy options
+	local opts=( "$@" );
+	
+	# this allows us to accept options and read from stdin
+	# with positional parameter expansion
+	if [ ! -t 0 ]; then
+		# read in stdin
+		read -a stdin;
+		# expand stdin data to positional parameters
+		set -- $( echo "${stdin[@]}" );
+	fi
+	
+	local json_data="${1:-}";
+	if [ -z "$json_data" ]; then
+		console.warn "invalid json.stringify call, usage: json.stringify <<< \"varname\"";
+		return 1;
+	fi
+	
 	json_string="";
 	if [ ! -z "$json_data" ]; then
 		local keys length value;

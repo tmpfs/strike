@@ -57,6 +57,28 @@ set -o errtrace;
 set -o errexit;
 set -o nounset;
 
+# function tester {
+# 	# copy options
+# 	local opts=( "$@" );
+# 	
+# 	echo "got opts: ${opts[@]}";
+# 	
+# 	read -a stdin;
+# 	set -- $( echo "${stdin[@]}" );
+# 	
+# 	echo "${stdin[@]}";
+# 	
+# 	echo "$#";
+# 	
+# 	echo "$1";
+# 	echo "$2";
+# 	echo "$3";
+# }
+# 
+# tester a b c d <<< "doca docb docc";
+# 
+# exit 0;
+
 # echo "[$(date +"%D %T")] $data" >> $logfile
 
 # function tokenize {

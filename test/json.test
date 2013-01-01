@@ -26,7 +26,7 @@ require 'json';
 # test for encoding an empty array
 function test.json.stringify.empty {
 	local doc;
-	json.stringify "doc";
+	json.stringify <<< "doc";
 	local received="$json_string";
 	assert.equal "{}" "$received";
 }
@@ -34,7 +34,7 @@ function test.json.stringify.empty {
 # test for encoding a string value
 function test.json.stringify.string {
 	local doc="this is a string value";
-	json.stringify "doc";
+	json.stringify <<< "doc";
 	local received="$json_string";
 	assert.equal "\"this is a string value\"" "$received";
 }
@@ -42,7 +42,7 @@ function test.json.stringify.string {
 # test for encoding a boolean true
 function test.json.stringify.boolean.true {
 	local doc="true";
-	json.stringify "doc";
+	json.stringify <<< "doc";
 	local received="$json_string";
 	assert.equal "true" "$received";
 }
@@ -50,7 +50,7 @@ function test.json.stringify.boolean.true {
 # test for encoding a boolean false
 function test.json.stringify.boolean.false {
 	local doc="false";
-	json.stringify "doc";
+	json.stringify <<< "doc";
 	local received="$json_string";
 	assert.equal "false" "$received";
 }
@@ -58,7 +58,7 @@ function test.json.stringify.boolean.false {
 # test for encoding a null
 function test.json.stringify.null {
 	local doc="null";
-	json.stringify "doc";
+	json.stringify <<< "doc";
 	local received="$json_string";
 	assert.equal "null" "$received";
 }
@@ -66,7 +66,7 @@ function test.json.stringify.null {
 # test for encoding an integer
 function test.json.stringify.integer {
 	local doc="127";
-	json.stringify "doc";
+	json.stringify <<< "doc";
 	local received="$json_string";
 	assert.equal "127" "$received";
 }
@@ -75,7 +75,7 @@ function test.json.stringify.integer {
 function test.json.stringify.object {
 	declare -A doc;
 	doc[key]="a key value";
-	json.stringify "doc";
+	json.stringify <<< "doc";
 	local received="$json_string";
 	assert.equal '{"key":"a key value"}' "$received";
 }
@@ -85,7 +85,7 @@ function test.json.stringify.object.keys {
 	declare -A doc;
 	doc[key1]="the first value";
 	doc[key2]="the second value";
-	json.stringify "doc";
+	json.stringify <<< "doc";
 	local received="$json_string";
 	# key iterartion order appears to always be in reverse order
 	# this test will fail if that behaviour changes
@@ -96,7 +96,7 @@ function test.json.stringify.object.keys {
 function test.json.stringify.array {
 	declare -a doc;
 	doc=( 127 null true false "a string value" );
-	json.stringify "doc";
+	json.stringify <<< "doc";
 	local received="$json_string";
 	assert.equal '[127,null,true,false,"a string value"]' "$received";
 }
