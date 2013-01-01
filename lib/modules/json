@@ -105,43 +105,33 @@ function json.parse {
 
 function json.stringify {
 	local json_data="${1:-}";
-	local json="";
+	local json="{}";
 	json_string="";
 	if [ ! -z "$json_data" ]; then
-		echo "got json.stringify data : $json_data";
-		
-		local key keys length value;
-		
-		# for key in ${!doc[@]}
-		# 	do
-		# 		echo "got doc key: $key";
-		# done
-		
-		# dynamically reference keys of the referenced data
-		eval keys="\${!$json_data[@]}";
-		eval length="\${#$json_data[@]}";
-		eval value="\${$json_data[__value__]}";	
-		
-		if [ $length -eq 0 ]; then
-			json="{}";
-		# encoding a single value
-		elif [ $length -eq 1 ] && [ ! -z "$value" ]; then
-			__json_stringify_string "$value";
+		local keys length value;
+		array.isarray "$json_data";
+		local isarray="$_result";
+		if [ $isarray -eq 0 ]; then
+			__json_stringify_array "$json_data";
 			json="$_result";
-			# echo "got plain string value to encode : $json";
-		# got multiple keys, treat as an object
 		else
-			__json_stringify_object "$json_data";		
-			echo "encode as object!!!!!!!!!!!!! $_result";
-			json="$_result";
+			array.isassoc "$json_data";
+			local isassoc="$_result";
+			if [ $isassoc -eq 0 ]; then
+				eval length="\${#$json_data[@]}";
+				if [ $length -gt 0 ]; then
+					__json_stringify_object "$json_data";
+					json="$_result";
+				fi
+			else
+				variable.get "$json_data";
+				value="$_result";
+				if [ ! -z "$value" ]; then
+					__json_stringify_string "$value";
+					json="$_result";
+				fi
+			fi
 		fi
-		
-		echo "got array length : $length";
-		
-		for key in $keys
-			do
-				echo "got doc key: $key";
-		done
 	fi
 	if [ ! -z "$json" ]; then
 		json_string="$json";
@@ -171,6 +161,23 @@ function json.clean {
 #	PRIVATE METHODS
 #
 ######################################################################
+
+function __json_stringify_array {
+	local obj="[";
+	local json_data="$1";
+	local key value;
+	eval keys="\${!$json_data[@]}";	
+	for key in $keys
+		do
+			eval value="\${$json_data[$key]}";
+			# encode the value
+			__json_stringify_string "$value";
+			obj="${obj}${_result},";
+	done
+	obj="${obj%,}";
+	obj="${obj}]";
+	_result="$obj";
+}
 
 function __json_stringify_object {
 	local obj="{";

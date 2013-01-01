@@ -1,7 +1,7 @@
 function variable.get {
 	local name="$1";
 	set +o nounset;
-	variable_is_array "$name";
+	array.isarray "$name";
 	local isarray="$_result";
 	if [ $isarray -eq 0 ]; then
 		eval value=\${"$name"[@]};
@@ -36,15 +36,6 @@ function variable_declare {
 	variable.set "$name" "$value";
 	
 	#echo "variable_declare: $name";
-}
-
-function variable_is_array {
-	local name="$1";
-	set +o errexit;
-	declare -p "$name" 2> /dev/null | grep -q 'declare \-a';
-	local exists="$?";
-	set -o errexit;
-	_result="$exists";
 }
 
 # TODO: implement

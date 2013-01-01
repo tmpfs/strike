@@ -25,7 +25,7 @@ require 'json';
 
 # test for encoding an empty array
 function test.json.stringify.empty {
-	declare -A doc;
+	local doc;
 	json.stringify "doc";
 	local received="$json_string";
 	assert.equal "{}" "$received";
@@ -33,47 +33,42 @@ function test.json.stringify.empty {
 
 # test for encoding a string value
 function test.json.stringify.string {
-	declare -A doc;
-	doc[__value__]="this is a string value";
+	local doc="this is a string value";
 	json.stringify "doc";
 	local received="$json_string";
-	assert.equal "\"${doc[__value__]}\"" "$received";
+	assert.equal "\"this is a string value\"" "$received";
 }
 
 # test for encoding a boolean true
 function test.json.stringify.boolean.true {
-	declare -A doc;
-	doc[__value__]="true";
+	local doc="true";
 	json.stringify "doc";
 	local received="$json_string";
-	assert.equal "${doc[__value__]}" "$received";
+	assert.equal "true" "$received";
 }
 
 # test for encoding a boolean false
 function test.json.stringify.boolean.false {
-	declare -A doc;
-	doc[__value__]="false";
+	local doc="false";
 	json.stringify "doc";
 	local received="$json_string";
-	assert.equal "${doc[__value__]}" "$received";
+	assert.equal "false" "$received";
 }
 
 # test for encoding a null
 function test.json.stringify.null {
-	declare -A doc;
-	doc[__value__]="null";
+	local doc="null";
 	json.stringify "doc";
 	local received="$json_string";
-	assert.equal "${doc[__value__]}" "$received";
+	assert.equal "null" "$received";
 }
 
 # test for encoding an integer
 function test.json.stringify.integer {
-	declare -A doc;
-	doc[__value__]="127";
+	local doc="127";
 	json.stringify "doc";
 	local received="$json_string";
-	assert.equal "${doc[__value__]}" "$received";
+	assert.equal "127" "$received";
 }
 
 # test for encoding an object with a single key
@@ -95,4 +90,13 @@ function test.json.stringify.object.keys {
 	# key iterartion order appears to always be in reverse order
 	# this test will fail if that behaviour changes
 	assert.equal '{"key2":"the second value""key1":"the first value"}' "$received";
+}
+
+# test for encoding an array
+function test.json.stringify.array {
+	declare -a doc;
+	doc=( 127 null true false "a string value" );
+	json.stringify "doc";
+	local received="$json_string";
+	assert.equal '[127,null,true,false,"a string value"]' "$received";
 }

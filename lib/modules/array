@@ -12,6 +12,25 @@ function array.join {
 	_result=$(printf "${delimiter}%s" "${elements[@]}");
 }
 
+
+function array.isarray {
+	local name="$1";
+	set +o errexit;
+	declare -p "$name" 2> /dev/null | grep -q 'declare \-a';
+	local exists="$?";
+	set -o errexit;
+	_result="$exists";
+}
+
+function array.isassoc {
+	local name="$1";
+	set +o errexit;
+	declare -p "$name" 2> /dev/null | grep -q 'declare \-A';
+	local exists="$?";
+	set -o errexit;
+	_result="$exists";
+}
+
 # TODO: rename to array.last as it cannot pop
 function array.pop {
 	#local arr=( "$@" );
