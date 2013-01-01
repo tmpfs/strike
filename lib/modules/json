@@ -342,10 +342,8 @@ function __json_parse_value {
 		local key=${jpath};
 		local val=${value};
 		eval key=json_\$$key;
-		#switch the commas for underscores
-		key=${key//,/_};
-		#ensure we don't get double underscores
-		key=${key//__/_};
+		#switch the commas for dot-style notation
+		key=${key//,/.};
 		if [ "$key" != 'json_$' ]; then
 			echo "${key}=${val}";
 		fi

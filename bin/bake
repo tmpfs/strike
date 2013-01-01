@@ -94,12 +94,6 @@ function boilerplate {
 }
 boilerplate "$@";
 ######################################################################
-# 
-# require 'multi';
-# 
-# multi.new "abc";
-# 
-# exit 0;
 
 # console.info "this is an info message";
 # console.log.stdout "./target/test.log";
