@@ -46,16 +46,21 @@ ronn:markdown
 declare -Agx json_doc;
 
 function json.parse {
-	set +o errexit;	
-	set +o nounset;
+	set +o errexit;
+	#set +o nounset;
 	
 	json.clean;
+	
+	local key value;
+	local root_type;
 	
 	# run the process subsititution in this manner
 	# to block until the parsing is complete
 	while read line
 		do
-			#echo "line: $line";
+			# echo "line: $line";
+			
+			#echo "got root type: $json_root_type";
 			
 			# available outside the loop
 			# because it does NOT run in a subshell
@@ -65,6 +70,14 @@ function json.parse {
 					#strip out the double quotes from string values
 					value=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$value" );
 					key=${key##json_};
+					
+					if [ "$key" == "root_type" ]; then
+						
+						root_type="$value";
+						continue;
+					fi
+					
+					#echo "got root type: $root_type";
 					
 					# skip any array/object definitions
 					# as child elements should already by parsed
@@ -80,8 +93,6 @@ function json.parse {
 						json_doc["$key"]="$value";
 					fi
 			done <<< "$line";
-			
-			#global=3D": Available outside the loop.";
 	done < <( __json_tokenize <&0 > >(__json_start) );
 }
 
@@ -121,7 +132,21 @@ function __json_tokenize {
 
 function __json_start {
 	read -r token
-	__json_parse_value
+	
+	##echo "got root token: $token" >&2;
+	
+	local json_root_type="object";
+	
+	if [ "$token" == "[" ]; then
+		json_root_type="array";
+	elif [[ "$token" =~ ^[0-9]+$ ]]; then
+		## echo "setting number root type!!!: $token" >&2;
+		json_root_type="number";
+	fi
+	
+	echo "json_root_type=\"$json_root_type\"";
+	
+	__json_parse_value;
 	read -r token
 	case "$token" in
 		'') ;;
