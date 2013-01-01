@@ -57,6 +57,21 @@ set -o errtrace;
 set -o errexit;
 set -o nounset;
 
+# empty?() {
+# 	echo "empty? called...";
+# }
+# 
+# empty?;
+# 
+# function empty!()
+# {
+# 	echo "empty! called...";
+# }
+# 
+# empty!;
+# 
+# exit 0;
+
 ######################################################################
 #
 #	BOILERPLATE
@@ -79,6 +94,12 @@ function boilerplate {
 }
 boilerplate "$@";
 ######################################################################
+# 
+# require 'multi';
+# 
+# multi.new "abc";
+# 
+# exit 0;
 
 # console.info "this is an info message";
 # console.log.stdout "./target/test.log";

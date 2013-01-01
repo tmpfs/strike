@@ -327,7 +327,7 @@ function __json_start {
 }
 
 function __json_parse_value {
-	local jpath="${1:+$1,}$2"
+	local jpath="${1:+$1,}${2:-}"
 	case "$token" in
 		'{') __json_parse_object "$jpath" ;;
 		'[') __json_parse_array  "$jpath" ;;
