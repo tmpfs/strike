@@ -37,6 +37,20 @@
 # ${string,}    hello, World! # First character to lowercase
 # ${string,,}   hello, world! # All characters to lowercase
 
+function string.repeat {
+	_result="";
+	local repeat="${2:-1}";
+	if [ $repeat -gt 0 ]; then
+		# do this with a loop rather than
+		# printf so that any string may be repeated easily
+		local i;
+		for((i = 0;i < repeat;i++))
+			do
+				_result="${_result}$1";
+		done
+	fi
+}
+
 function string_ltrim {
 	local value="${@}";
 	set +o errexit;

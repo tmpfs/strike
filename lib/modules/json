@@ -123,8 +123,32 @@ function json.parse {
 # TODO: add error handling for this method
 function json.stringify {
 	local json="{}";
-	# copy options
-	local opts=( "$@" );
+	
+	local objstart="{";
+	local objend="}";
+	
+	local arrstart="[";
+	local arrend="]";
+	
+	local newline="
+";
+	local pretty=0;
+	local space=' ';
+	local indent="";
+	
+	if [ $# -gt 0 ] && [ "$1" == "--pretty" ]; then
+		pretty=1;
+		local indent_repeat="${2:-2}";
+		space=${3:-$space};
+		string.repeat "${space}" "${indent_repeat}";
+		indent="$_result";
+		
+		objstart="${objstart}${newline}";
+		objend="${newline}${objend}";
+		
+		arrstart="${arrstart}${newline}";
+		arrend="${newline}${arrend}";
+	fi
 	
 	# this allows us to accept options and read from stdin
 	# with positional parameter expansion
@@ -141,7 +165,8 @@ function json.stringify {
 		return 1;
 	fi
 	
-	json_string="";
+	#json_string="";
+	
 	if [ ! -z "$json_data" ]; then
 		local keys length value;
 		array.is.array "$json_data";
@@ -184,7 +209,7 @@ function json.print {
 
 function json.string {
 	local str="${json_str:-}";
-	console.log "$str":
+	console.log "$str";
 }
 
 function json.clean {
@@ -203,7 +228,7 @@ function json.clean {
 ######################################################################
 
 function __json_stringify_array {
-	local obj="[";
+	local obj="${arrstart}";
 	local json_data="$1";
 	local key value;
 	eval keys="\${!$json_data[@]}";	
@@ -212,15 +237,19 @@ function __json_stringify_array {
 			eval value="\${$json_data[$key]}";
 			# encode the value
 			__json_stringify_string "$value";
-			obj="${obj}${_result},";
+			obj="${obj}${indent}${_result},";
+			if [ $pretty -eq 1 ]; then
+				obj="${obj}${newline}";
+			fi			
 	done
+	obj="${obj%$newline}";	
 	obj="${obj%,}";
-	obj="${obj}]";
+	obj="${obj}${arrend}";
 	_result="$obj";
 }
 
 function __json_stringify_object {
-	local obj="{";
+	local obj="${objstart}";
 	local json_data="$1";
 	local key value;
 	eval keys="\${!$json_data[@]}";	
@@ -231,13 +260,18 @@ function __json_stringify_object {
 			
 			# quote the key
 			__json_stringify_string "$key";
-			obj="${obj}${_result}:";
+			obj="${obj}${indent}${_result}:";
 			
 			# encode the value
 			__json_stringify_string "$value";
-			obj="${obj}${_result}";
+			obj="${obj}${_result},";
+			if [ $pretty -eq 1 ]; then
+				obj="${obj}${newline}";
+			fi
 	done
-	obj="${obj}}";
+	obj="${obj%$newline}";
+	obj="${obj%,}";
+	obj="${obj}${objend}";
 	_result="$obj";
 }
 

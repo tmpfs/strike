@@ -1,27 +1,29 @@
 require 'json';
 
-# function test.json.parse {
-# 	local valid="${testdir}/json/valid";
-# 	local file parsed name dir;
-# 	for file in ${valid}/*.json
-# 		do
-# 			dir=`dirname "$file"`;
-# 			name=`basename "$file"`;
-# 			name=${name%%.json};
-# 			parsed="${dir}/${name}.parsed";
-# 			json.parse < "$file";
-# 			
-# 			# look for a parsed file to assert on
-# 			if [ -f "$parsed" ]; then
-# 				#echo "got parsed `cat $parsed`";
-# 				assert.equal "`cat "$parsed"`" "`json.print`";
-# 			else
-# 				echo "json.parse, missing parsed : $parsed";
-# 			fi
-# 			
-# 			json.print;
-# 	done
-# }
+# TODO: ensure all valid parse tests are correct
+# TODO: add invalid parse tests
+function test.json.parse {
+	local valid="${testdir}/json/valid";
+	local file parsed name dir;
+	for file in ${valid}/*.json
+		do
+			dir=`dirname "$file"`;
+			name=`basename "$file"`;
+			name=${name%%.json};
+			parsed="${dir}/${name}.parsed";
+			json.parse < "$file";
+			
+			# look for a parsed file to assert on
+			if [ -f "$parsed" ]; then
+				#echo "got parsed `cat $parsed`";
+				assert.equal "`cat "$parsed"`" "`json.print`";
+			else
+				echo "json.parse, missing parsed : $parsed";
+			fi
+			
+			json.print;
+	done
+}
 
 # test for encoding an empty array
 function test.json.stringify.empty {
@@ -90,7 +92,7 @@ function test.json.stringify.object.keys {
 	local received="$json_str";
 	# key iterartion order appears to always be in reverse order
 	# this test will fail if that behaviour changes
-	assert.equal '{"key2":"the second value""key1":"the first value"}' "$received";
+	assert.equal '{"key2":"the second value","key1":"the first value"}' "$received";
 }
 
 # test for encoding an array
@@ -100,4 +102,58 @@ function test.json.stringify.array {
 	json.stringify <<< "doc";
 	local received="$json_str";
 	assert.equal '[127,null,true,false,"a string value"]' "$received";
+}
+
+# test for pretty printing an array using two spaces
+function test.json.stringify.array.pretty.space {
+	declare -a doc;
+	doc=( 127 null true false "a string value" );
+	
+	# pretty print with 2 spaces for the indent	
+	json.stringify --pretty 2 <<< "doc";
+
+	local file="${testdir}/json/pretty/array.json";
+	local expected=$( < "$file" );
+	assert.equal "$expected" "$json_str";
+}
+
+# test for pretty printing an array using a single tab
+function test.json.stringify.array.pretty.tab {
+	declare -a doc;
+	doc=( 127 null true false "a string value" );
+	
+	# pretty print with 2 spaces for the indent	
+	json.stringify --pretty 1 '	' <<< "doc";			#third parameter is actually: \t
+
+	local file="${testdir}/json/pretty/array.tab.json";
+	local expected=$( < "$file" );
+	assert.equal "$expected" "$json_str";
+}
+
+# test for encoding an object and pretty printing using two spaces
+function test.json.stringify.object.pretty.space {
+	declare -A doc;
+	doc[key1]="the first value";
+	doc[key2]="the second value";
+	
+	# pretty print with 2 spaces for the indent
+	json.stringify --pretty 2 <<< "doc";
+	
+	local file="${testdir}/json/pretty/object.json";
+	local expected=$( < "$file" );
+	assert.equal "$expected" "$json_str";
+}
+
+# test for encoding an object and pretty printing using a single tab
+function test.json.stringify.object.pretty.tab {
+	declare -A doc;
+	doc[key1]="the first value";
+	doc[key2]="the second value";
+	
+	# pretty print with a single tab for the indent
+	json.stringify --pretty 1 '	' <<< "doc";			#third parameter is actually: \t
+	
+	local file="${testdir}/json/pretty/object.tab.json";
+	local expected=$( < "$file" );
+	assert.equal "$expected" "$json_str";
 }
