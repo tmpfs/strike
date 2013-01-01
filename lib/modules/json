@@ -144,13 +144,13 @@ function json.stringify {
 	json_string="";
 	if [ ! -z "$json_data" ]; then
 		local keys length value;
-		array.isarray "$json_data";
+		array.is.array "$json_data";
 		local isarray="$_result";
 		if [ $isarray -eq 0 ]; then
 			__json_stringify_array "$json_data";
 			json="$_result";
 		else
-			array.isassoc "$json_data";
+			array.is.assoc "$json_data";
 			local isassoc="$_result";
 			if [ $isassoc -eq 0 ]; then
 				eval length="\${#$json_data[@]}";

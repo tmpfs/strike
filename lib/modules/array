@@ -73,7 +73,7 @@ function array.join {
 }
 
 
-function array.isarray {
+function array.is.array {
 	local name="$1";
 	set +o errexit;
 	declare -p "$name" 2> /dev/null | grep -q 'declare \-a';
@@ -82,7 +82,7 @@ function array.isarray {
 	_result="$exists";
 }
 
-function array.isassoc {
+function array.is.assoc {
 	local name="$1";
 	set +o errexit;
 	declare -p "$name" 2> /dev/null | grep -q 'declare \-A';
@@ -168,7 +168,7 @@ function array.write {
 			do
 				eval val="$"$[i+1];
 				arrflags="-a";
-				array.isassoc "$val";
+				array.is.assoc "$val";
 				isassoc="$_result";
 				if [ $isassoc -eq 0 ]; then
 					arrflags="-A";

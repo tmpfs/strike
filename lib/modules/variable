@@ -1,7 +1,7 @@
 function variable.get {
 	local name="$1";
 	set +o nounset;
-	array.isarray "$name";
+	array.is.array "$name";
 	local isarray="$_result";
 	if [ $isarray -eq 0 ]; then
 		eval value=\${"$name"[@]};
