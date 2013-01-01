@@ -40,10 +40,17 @@ The json(3) module is derived from json-sh(1).
 strike(7)
 ronn:markdown
 
+# set -- $(date)
+# echo $*
+
 # TODO: add array _length property so arrays can be iterated?
 
+# TODO: move to the global variable file
 # global json document data
 declare -Agx json_doc;
+
+# holds the last result of calling json.stringify
+declare -gx json_string;
 
 function json.parse {
 	set +o errexit;
@@ -96,6 +103,51 @@ function json.parse {
 	done < <( __json_tokenize <&0 > >(__json_start) );
 }
 
+function json.stringify {
+	local json_data="${1:-}";
+	local json="";
+	json_string="";
+	if [ ! -z "$json_data" ]; then
+		echo "got json.stringify data : $json_data";
+		
+		local key keys length value;
+		
+		# for key in ${!doc[@]}
+		# 	do
+		# 		echo "got doc key: $key";
+		# done
+		
+		# dynamically reference keys of the referenced data
+		eval keys="\${!$json_data[@]}";
+		eval length="\${#$json_data[@]}";
+		eval value="\${$json_data[__value__]}";	
+		
+		if [ $length -eq 0 ]; then
+			json="{}";
+		# encoding a single value
+		elif [ $length -eq 1 ] && [ ! -z "$value" ]; then
+			__json_stringify_string "$value";
+			json="$_result";
+			# echo "got plain string value to encode : $json";
+		# got multiple keys, treat as an object
+		else
+			__json_stringify_object "$json_data";		
+			echo "encode as object!!!!!!!!!!!!! $_result";
+			json="$_result";
+		fi
+		
+		echo "got array length : $length";
+		
+		for key in $keys
+			do
+				echo "got doc key: $key";
+		done
+	fi
+	if [ ! -z "$json" ]; then
+		json_string="$json";
+	fi
+}
+
 function json.print {
 	local key val;
 	for key in "${!json_doc[@]}"
@@ -119,6 +171,45 @@ function json.clean {
 #	PRIVATE METHODS
 #
 ######################################################################
+
+function __json_stringify_object {
+	local obj="{";
+	local json_data="$1";
+	local key value;
+	eval keys="\${!$json_data[@]}";	
+	for key in $keys
+		do
+			eval value="\${$json_data[$key]}";
+			#echo "encode key: $key : $value";
+			
+			# quote the key
+			__json_stringify_string "$key";
+			obj="${obj}${_result}:";
+			
+			# encode the value
+			__json_stringify_string "$value";
+			obj="${obj}${_result}";
+	done
+	obj="${obj}}";
+	_result="$obj";
+}
+
+function __json_stringify_string {
+	_result="";
+	#echo "__json_stringify_string: $# : $@";
+	if [ $# -eq 1 ]; then
+		# unquoted value for null, true, false and numbers
+		if [ "$1" == "null" ] || [ "$1" == "true" ] || [ "$1" == "false" ] || [[ "$1" =~ ^[0-9]+$ ]]; then
+			_result="$1";
+		else
+			# quoted string
+			_result="\"$@\"";			
+		fi
+	else
+		# quoted string
+		_result="\"$@\"";
+	fi
+}
 
 function __json_tokenize {
 	local ESCAPE='(\\[^u[:cntrl:]]|\\u[0-9a-fA-F]{4})'

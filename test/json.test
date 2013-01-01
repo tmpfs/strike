@@ -1,24 +1,98 @@
 require 'json';
 
-function test.json.parse {
-	local valid="${testdir}/json/valid";
-	local file parsed name dir;
-	for file in ${valid}/*.json
-		do
-			dir=`dirname "$file"`;
-			name=`basename "$file"`;
-			name=${name%%.json};
-			parsed="${dir}/${name}.parsed";
-			json.parse < "$file";
-			
-			# look for a parsed file to assert on
-			if [ -f "$parsed" ]; then
-				#echo "got parsed `cat $parsed`";
-				assert.equal "`cat "$parsed"`" "`json.print`";
-			else
-				echo "json.parse, missing parsed : $parsed";
-			fi
-			
-			json.print;
-	done
+# function test.json.parse {
+# 	local valid="${testdir}/json/valid";
+# 	local file parsed name dir;
+# 	for file in ${valid}/*.json
+# 		do
+# 			dir=`dirname "$file"`;
+# 			name=`basename "$file"`;
+# 			name=${name%%.json};
+# 			parsed="${dir}/${name}.parsed";
+# 			json.parse < "$file";
+# 			
+# 			# look for a parsed file to assert on
+# 			if [ -f "$parsed" ]; then
+# 				#echo "got parsed `cat $parsed`";
+# 				assert.equal "`cat "$parsed"`" "`json.print`";
+# 			else
+# 				echo "json.parse, missing parsed : $parsed";
+# 			fi
+# 			
+# 			json.print;
+# 	done
+# }
+
+# test for encoding an empty array
+function test.json.stringify.empty {
+	declare -A doc;
+	json.stringify "doc";
+	local received="$json_string";
+	assert.equal "{}" "$received";
+}
+
+# test for encoding a string value
+function test.json.stringify.string {
+	declare -A doc;
+	doc[__value__]="this is a string value";
+	json.stringify "doc";
+	local received="$json_string";
+	assert.equal "\"${doc[__value__]}\"" "$received";
+}
+
+# test for encoding a boolean true
+function test.json.stringify.boolean.true {
+	declare -A doc;
+	doc[__value__]="true";
+	json.stringify "doc";
+	local received="$json_string";
+	assert.equal "${doc[__value__]}" "$received";
+}
+
+# test for encoding a boolean false
+function test.json.stringify.boolean.false {
+	declare -A doc;
+	doc[__value__]="false";
+	json.stringify "doc";
+	local received="$json_string";
+	assert.equal "${doc[__value__]}" "$received";
+}
+
+# test for encoding a null
+function test.json.stringify.null {
+	declare -A doc;
+	doc[__value__]="null";
+	json.stringify "doc";
+	local received="$json_string";
+	assert.equal "${doc[__value__]}" "$received";
+}
+
+# test for encoding an integer
+function test.json.stringify.integer {
+	declare -A doc;
+	doc[__value__]="127";
+	json.stringify "doc";
+	local received="$json_string";
+	assert.equal "${doc[__value__]}" "$received";
+}
+
+# test for encoding an object with a single key
+function test.json.stringify.object {
+	declare -A doc;
+	doc[key]="a key value";
+	json.stringify "doc";
+	local received="$json_string";
+	assert.equal '{"key":"a key value"}' "$received";
+}
+
+# test for encoding an object with multiple keys
+function test.json.stringify.object.keys {
+	declare -A doc;
+	doc[key1]="the first value";
+	doc[key2]="the second value";
+	json.stringify "doc";
+	local received="$json_string";
+	# key iterartion order appears to always be in reverse order
+	# this test will fail if that behaviour changes
+	assert.equal '{"key2":"the second value""key1":"the first value"}' "$received";
 }

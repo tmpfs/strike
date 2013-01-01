@@ -32,6 +32,11 @@
 #     lc $ch
 # done
 
+# ${string^}    Hello, World! # First character to uppercase
+# ${string^^}   HELLO, WORLD! # All characters to uppercase
+# ${string,}    hello, World! # First character to lowercase
+# ${string,,}   hello, world! # All characters to lowercase
+
 function string_ltrim {
 	local value="${@}";
 	set +o errexit;
