@@ -157,3 +157,23 @@ function test.json.stringify.object.pretty.tab {
 	local expected=$( < "$file" );
 	assert.equal "$expected" "$json_str";
 }
+
+function test.json.stringify.multi {
+	declare -A doc;
+	doc[type]="info";
+	doc[data.name]="muji";
+	doc[data.email]="<noop@xpm.io>";
+	doc[data.names.0]="muji";
+	doc[data.names.1]="null";
+	doc[data.names.2]="true";
+	doc[data.names.3]="false";
+	json.stringify <<< "doc";
+	
+	
+	for key in "${!doc[@]}"
+		do
+			echo "json multi key: $key";
+	done
+	
+	json.string;
+}

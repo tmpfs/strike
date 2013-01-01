@@ -122,7 +122,7 @@ function json.parse {
 
 # TODO: add error handling for this method
 function json.stringify {
-	local json="{}";
+	local json="";
 	
 	local objstart="{";
 	local objend="}";
@@ -135,6 +135,7 @@ function json.stringify {
 	local pretty=0;
 	local space=' ';
 	local indent="";
+	local depth=0;
 	
 	if [ $# -gt 0 ] && [ "$1" == "--pretty" ]; then
 		pretty=1;
@@ -173,7 +174,6 @@ function json.stringify {
 		local isarray="$_result";
 		if [ $isarray -eq 0 ]; then
 			__json_stringify_array "$json_data";
-			json="$_result";
 		else
 			array.is.assoc "$json_data";
 			local isassoc="$_result";
@@ -181,7 +181,6 @@ function json.stringify {
 				eval length="\${#$json_data[@]}";
 				if [ $length -gt 0 ]; then
 					__json_stringify_object "$json_data";
-					json="$_result";
 				fi
 			else
 				variable.get "$json_data";
@@ -189,9 +188,13 @@ function json.stringify {
 				if [ ! -z "$value" ]; then
 					__json_stringify_string "$value";
 					json="$_result";
+				else
+					json="{}";
 				fi
 			fi
 		fi
+	else
+		json="{}";
 	fi
 	if [ ! -z "$json" ]; then
 		json_str="$json";
@@ -228,7 +231,7 @@ function json.clean {
 ######################################################################
 
 function __json_stringify_array {
-	local obj="${arrstart}";
+	json="${json}${arrstart}";
 	local json_data="$1";
 	local key value;
 	eval keys="\${!$json_data[@]}";	
@@ -237,42 +240,83 @@ function __json_stringify_array {
 			eval value="\${$json_data[$key]}";
 			# encode the value
 			__json_stringify_string "$value";
-			obj="${obj}${indent}${_result},";
+			json="${json}${indent}${_result},";
 			if [ $pretty -eq 1 ]; then
-				obj="${obj}${newline}";
-			fi			
+				json="${json}${newline}";
+			fi
 	done
-	obj="${obj%$newline}";	
-	obj="${obj%,}";
-	obj="${obj}${arrend}";
-	_result="$obj";
+	json="${json%$newline}";	
+	json="${json%,}";
+	json="${json}${arrend}";
+
+	# add to main output
+	#json="${json}${obj}";
 }
 
 function __json_stringify_object {
-	local obj="${objstart}";
 	local json_data="$1";
+	eval keys="\${!$json_data[@]}";
+	if [[ "$keys" =~ ^([0-9]+ ?)+$ ]]; then
+		__json_stringify_array "$json_data";
+		return 0;
+	fi
+		
+	#local output="$2";
+	json="${json}${objstart}";
 	local key value;
-	eval keys="\${!$json_data[@]}";	
+	
+	# deal with top-level properties of this object
 	for key in $keys
 		do
-			eval value="\${$json_data[$key]}";
-			#echo "encode key: $key : $value";
-			
-			# quote the key
-			__json_stringify_string "$key";
-			obj="${obj}${indent}${_result}:";
-			
-			# encode the value
-			__json_stringify_string "$value";
-			obj="${obj}${_result},";
-			if [ $pretty -eq 1 ]; then
-				obj="${obj}${newline}";
+			# not a nested property
+			if [[ ! "$key" =~ \. ]]; then
+				eval value="\${$json_data[$key]}";
+				__json_add_key_value "$key" "$value";
 			fi
 	done
-	obj="${obj%$newline}";
-	obj="${obj%,}";
-	obj="${obj}${objend}";
-	_result="$obj";
+	
+	# deal with nested properties
+	for key in $keys
+		do
+			#eval value="\${$json_data[$key]}";
+			# got a nested dot-style reference
+			if [[ "$key" =~ \. ]]; then
+				#set +o errexit;
+				#echo "got nested key: $key";
+				
+				local k=${key%%.*};
+				eval "declare -A $k";
+				local match="^$k";
+				for nk in $keys
+					do
+						if [[ "$nk" =~ $match ]]; then
+							eval nv="\${$json_data[$nk]}";
+							local ak=${nk#*.};
+							eval "${k}[\"$ak\"]=\"$nv\"";
+						fi
+				done
+				json="${json}\"$k\":";
+				__json_stringify_object "$k";
+				json="${json}${objend}";
+				return 0;
+			fi
+	done
+	json="${json%$newline}";
+	json="${json%,}";
+	json="${json}${objend}";
+}
+
+function __json_add_key_value {
+	# quote the key
+	__json_stringify_string "$1";
+	json="${json}${indent}${_result}:";
+	
+	# encode the value
+	__json_stringify_string "$2";
+	json="${json}${_result},";
+	if [ $pretty -eq 1 ]; then
+		json="${json}${newline}";
+	fi	
 }
 
 function __json_stringify_string {
