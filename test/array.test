@@ -12,10 +12,11 @@ function test.array.write {
 	
 	# read in the array data
 	array.read < "$file";
+	# array.read "$file";
 	
-	echo "arr keys: ${!arr[@]}";
-	echo "arr values: ${arr[@]}";
+	echo "arr keys: ${!arr[*]}";
+	echo "arr values: ${arr[*]}";
 	
-	echo "assoc keys: ${!assoc[@]}";
-	echo "assoc values: ${assoc[@]}";
+	echo "assoc keys: ${!assoc[*]}";
+	echo "assoc values: ${assoc[*]}";
 }

@@ -63,10 +63,10 @@ function array.each {
 	local index=0;
 	if [ ! -z "$name" ]; then
 		eval keys="\${!$name[@]}";
-		for key in $keys
+		for key in ${keys}
 			do
 				eval value="\${$name[$key]}";
-				# echo "got key : $key";
+				#echo "array.each got key : $key";
 				# echo "got value : $value";
 				
 				# TODO: check the iterator method exists
@@ -80,7 +80,7 @@ function array.each {
 function array.write {
 	local opts=( "$@" );
 	local file="${1:-}";
-	local flags="${2:-}";
+	local flags="${2:-gx}";
 	if [ -z "$file" ]; then
 		console.warn "no file passed to array.write";
 	else
@@ -97,6 +97,7 @@ function array.write {
 
 		function iterator {
 			local key="$1" value="$2" index="$3";
+			# echo "ITERATOR GOT KEY: $1";
 			echo "${key}=${value}" >> "$file";
 		}
 		
@@ -143,9 +144,8 @@ function array.read {
 			# declare the array
 			eval "$declaration";
 			
-			array.isassoc "$name";
-			
-			echo "GOT ARRAY DECLARE LINE $declaration : $name : $_result";
+			#array.isassoc "$name";
+			# echo "GOT ARRAY DECLARE LINE $declaration : $name : $_result";
 		fi
 	}
 	
@@ -157,15 +157,11 @@ function array.read {
 			echo "append to array $arrayname"
 			# echo "key: $__key__";
 			# echo "value: $__value__";
-			#eval \${$arrayname[$key]}="$value";
-			local setter="$arrayname[$__key__]=\"$__value__\";";
+			local setter="$arrayname[\"$__key__\"]=\"$__value__\";";
 			echo "using setter: $setter";
-			set +o nounset;
+			#set +o nounset;
 			eval "$setter";
-			set -o nounset;
-			
-			# variable.get "$arrayname";
-			# echo "got result: $_result";
+			#set -o nounset;
 		fi
 	}
 	
@@ -179,7 +175,7 @@ function array.read {
 				else
 					array.read.add "$line";
 				fi
-		done < "$file"
+		done < <("$file")
 	elif [ ! -t 0 ]; then
 		echo "read from file stdin...";
 		while read line
@@ -194,15 +190,6 @@ function array.read {
 	else
 		quit 1 "invalid input to array.read, usage: array.read < file";
 	fi
-	
-			
-	# eval keys="\${!$arrayname[@]}";	
-	# for key in $keys
-	# 	do
-	# 		eval value="\${$arrayname[$key]}";
-	# 		echo "got array key after set : $key";
-	# 		echo "got array value after set : $value";
-	# done	
 	
 	# clean up the methods
 	method.remove "array.read.comment";

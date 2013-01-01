@@ -57,6 +57,33 @@ set -o errtrace;
 set -o errexit;
 set -o nounset;
 
+function testarrkeys() {
+	local arrayname="assoc";
+	eval "declare -A assoc";
+	
+	local __key__ __value__;
+
+	__key__="key"
+	__value__="value"
+
+	local setter="$arrayname[\"$__key__\"]=\"$__value__\";";
+	echo "using setter: $setter";
+	eval "$setter";
+
+	__key__="greeting"
+	__value__="hello world"
+
+	setter="$arrayname[\"$__key__\"]=\"$__value__\";";
+	echo "using setter: $setter";
+	eval "$setter";
+
+	echo "keys: ${!assoc[*]}";
+	echo "values: ${assoc[*]}";
+}
+
+# testarrkeys;
+# exit 0;
+
 # function tester {
 # 	# copy options
 # 	local opts=( "$@" );

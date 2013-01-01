@@ -217,7 +217,7 @@ function __assert_run_test {
 	local name="`basename $file`";
 	
 	# require and generate a list of method definitions
-	require.methods "$file" "^test.";
+	require.methods "$file" "^test\.";
 	local methods=( $_result );
 	console.info "assert %s < %s" "$name" "$file";
 	if [ "${#methods[@]}" -eq 0 ]; then
