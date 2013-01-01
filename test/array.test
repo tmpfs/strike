@@ -9,4 +9,13 @@ function test.array.write {
 	# clean up
 	unset arr;
 	unset assoc;
+	
+	# read in the array data
+	array.read < "$file";
+	
+	echo "arr keys: ${!arr[@]}";
+	echo "arr values: ${arr[@]}";
+	
+	echo "assoc keys: ${!assoc[@]}";
+	echo "assoc values: ${assoc[@]}";
 }

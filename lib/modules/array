@@ -115,11 +115,96 @@ function array.write {
 				
 				# write the array name header comment
 				# echo "writing array... $val";
-				echo "# declare $arrflags $val" >> "$file";
+				echo "#¡ declare $arrflags $val" >> "$file";
 				array.each "$val" "iterator";
 		done
 
 		# clean up the iterator
 		method.remove "iterator";
 	fi
+}
+
+# read a name=value pair array(s) file
+function array.read {
+	local opts=( "$@" );
+	local file="${1:-}";
+	
+	local arrayname="";
+	
+	# deal with comments 
+	array.read.comment() {
+		echo "got comment line... $1";
+		
+		if [[ "$1" =~ ^#¡ ]]; then
+			local declaration=${1//#¡ /};
+			local name=${declaration##* };
+			# store the array name
+			arrayname="$name";
+			# declare the array
+			eval "$declaration";
+			
+			array.isassoc "$name";
+			
+			echo "GOT ARRAY DECLARE LINE $declaration : $name : $_result";
+		fi
+	}
+	
+	# add an entry to the current array being processed
+	array.read.add() {
+		local __key__=${1%%=*};
+		local __value__=${1##*=};
+		if [ ! -z "$arrayname" ]; then
+			echo "append to array $arrayname"
+			# echo "key: $__key__";
+			# echo "value: $__value__";
+			#eval \${$arrayname[$key]}="$value";
+			local setter="$arrayname[$__key__]=\"$__value__\";";
+			echo "using setter: $setter";
+			set +o nounset;
+			eval "$setter";
+			set -o nounset;
+			
+			# variable.get "$arrayname";
+			# echo "got result: $_result";
+		fi
+	}
+	
+	if [ ! -z "$file" ] && [ -f "$file" ] && [ -r "$file" ]; then
+		echo "read from file parameter...";
+		while read line
+			do
+				echo "got file parameter line: $line";
+				if [[ "$line" =~ ^# ]]; then
+					array.read.comment "$line";
+				else
+					array.read.add "$line";
+				fi
+		done < "$file"
+	elif [ ! -t 0 ]; then
+		echo "read from file stdin...";
+		while read line
+			do
+				echo "got stdin file parameter line: $line";
+				if [[ "$line" =~ ^# ]]; then
+					array.read.comment "$line";
+				else
+					array.read.add "$line";
+				fi
+		done
+	else
+		quit 1 "invalid input to array.read, usage: array.read < file";
+	fi
+	
+			
+	# eval keys="\${!$arrayname[@]}";	
+	# for key in $keys
+	# 	do
+	# 		eval value="\${$arrayname[$key]}";
+	# 		echo "got array key after set : $key";
+	# 		echo "got array value after set : $value";
+	# done	
+	
+	# clean up the methods
+	method.remove "array.read.comment";
+	method.remove "array.read.add";
 }
