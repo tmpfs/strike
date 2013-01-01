@@ -169,20 +169,20 @@ function json.stringify {
 	#json_string="";
 	
 	if [ ! -z "$json_data" ]; then
-		local keys length value;
+		local value;
 		array.is.array "$json_data";
 		local isarray="$_result";
-		if [ $isarray -eq 0 ]; then
-			__json_stringify_array "$json_data";
+		array.is.assoc "$json_data";
+		local isassoc="$_result";
+		if [ $isarray -eq 0 ] || [ $isassoc -eq 0 ]; then
+			__json_stringify_object "$json_data";
 		else
-			array.is.assoc "$json_data";
-			local isassoc="$_result";
-			if [ $isassoc -eq 0 ]; then
-				eval length="\${#$json_data[@]}";
-				if [ $length -gt 0 ]; then
-					__json_stringify_object "$json_data";
-				fi
-			else
+			# if [ $isassoc -eq 0 ]; then
+			# 	eval length="\${#$json_data[@]}";
+			# 	if [ $length -gt 0 ]; then
+			# 		__json_stringify_object "$json_data";
+			# 	fi
+			# else
 				variable.get "$json_data";
 				value="$_result";
 				if [ ! -z "$value" ]; then
@@ -191,7 +191,7 @@ function json.stringify {
 				else
 					json="{}";
 				fi
-			fi
+			# fi
 		fi
 	else
 		json="{}";
@@ -256,12 +256,13 @@ function __json_stringify_array {
 function __json_stringify_object {
 	local json_data="$1";
 	eval keys="\${!$json_data[@]}";
+	
+	# if all keys are numeric, treat as an array
 	if [[ "$keys" =~ ^([0-9]+ ?)+$ ]]; then
 		__json_stringify_array "$json_data";
 		return 0;
 	fi
-		
-	#local output="$2";
+	
 	json="${json}${objstart}";
 	local key value;
 	
@@ -276,18 +277,19 @@ function __json_stringify_object {
 	done
 	
 	# deal with nested properties
+	local k match nk nv ak;	
 	for key in $keys
 		do
 			# got a nested dot-style reference
 			if [[ "$key" =~ \. ]]; then
-				local k=${key%%.*};
+				k=${key%%.*};
 				eval "declare -A $k";
-				local match="^$k";
+				match="^$k";
 				for nk in $keys
 					do
 						if [[ "$nk" =~ $match ]]; then
 							eval nv="\${$json_data[$nk]}";
-							local ak=${nk#*.};
+							ak=${nk#*.};
 							eval "${k}[\"$ak\"]=\"$nv\"";
 						fi
 				done
@@ -312,28 +314,21 @@ function __json_add_key_value {
 	json="${json}${_result},";
 	if [ $pretty -eq 1 ]; then
 		json="${json}${newline}";
-	fi	
+	fi
 }
 
 function __json_stringify_quote {
 	# quoted string
-	_result="\"$@\"";
+	_result="\"$1\"";
 }
 
 function __json_stringify_string {
 	_result="";
-	#echo "__json_stringify_string: $# : $@";
-	if [ $# -eq 1 ]; then
-		# unquoted value for null, true, false and numbers
-		if [ "$1" == "null" ] || [ "$1" == "true" ] || [ "$1" == "false" ] || [[ "$1" =~ ^[0-9]+$ ]]; then
-			_result="$1";
-		else
-			# quoted string
-			_result="\"$@\"";			
-		fi
+	# unquoted value for null, true, false and numbers
+	if [ "$1" == "null" ] || [ "$1" == "true" ] || [ "$1" == "false" ] || [[ "$1" =~ ^[0-9]+$ ]]; then
+		_result="$1";
 	else
-		# quoted string
-		_result="\"$@\"";
+		__json_stringify_quote "$1";
 	fi
 }
 

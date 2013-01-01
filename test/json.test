@@ -158,6 +158,7 @@ function test.json.stringify.object.pretty.tab {
 	assert.equal "$expected" "$json_str";
 }
 
+# test for serializing nested, complex objects
 function test.json.stringify.multi {
 	declare -A doc;
 	doc[type]="info";
@@ -167,14 +168,6 @@ function test.json.stringify.multi {
 	doc[data.names.1]="null";
 	doc[data.names.2]="true";
 	doc[data.names.3]="false";
-	doc[data.names.a]="b";
 	json.stringify <<< "doc";
-	
-	
-	for key in "${!doc[@]}"
-		do
-			echo "json multi key: $key";
-	done
-	
 	json.string;
 }
