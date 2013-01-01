@@ -27,7 +27,7 @@ Parsing JSON data can be from a file, string or variable. After parsing the JSON
 	# clean up parsed json data
 	json.clean;
 	
-Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global `json_string` variable.
+Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global `json_str` variable.
 
 	require 'json';
 
@@ -35,8 +35,8 @@ Converting to JSON is achieved using references to variable names and afterwards
 		declare -A doc;
 		doc[key]="value";
 		doc[greeting]="hello world";
-		json.stringify <<< "doc";		# doc is the *name* of the variable
-		echo "tojson: ${json_string}";
+		json.stringify <<< "doc";		# doc is the *name* of the variable to stringify
+		echo "tojson: ${json_str}";
 	}
 	toJSON;
 
@@ -60,12 +60,14 @@ ronn:markdown
 
 # TODO: add array _length property so arrays can be iterated?
 
+# TODO: 
+
 # TODO: move to the global variable file
 # global json document data
 declare -Agx json_doc;
 
 # holds the last result of calling json.stringify
-declare -gx json_string;
+declare -gx json_str;
 
 function json.parse {
 	set +o errexit;
@@ -167,7 +169,7 @@ function json.stringify {
 		fi
 	fi
 	if [ ! -z "$json" ]; then
-		json_string="$json";
+		json_str="$json";
 	fi
 }
 
