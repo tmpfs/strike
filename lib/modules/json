@@ -278,12 +278,8 @@ function __json_stringify_object {
 	# deal with nested properties
 	for key in $keys
 		do
-			#eval value="\${$json_data[$key]}";
 			# got a nested dot-style reference
 			if [[ "$key" =~ \. ]]; then
-				#set +o errexit;
-				#echo "got nested key: $key";
-				
 				local k=${key%%.*};
 				eval "declare -A $k";
 				local match="^$k";
@@ -308,7 +304,7 @@ function __json_stringify_object {
 
 function __json_add_key_value {
 	# quote the key
-	__json_stringify_string "$1";
+	__json_stringify_quote "$1";
 	json="${json}${indent}${_result}:";
 	
 	# encode the value
@@ -317,6 +313,11 @@ function __json_add_key_value {
 	if [ $pretty -eq 1 ]; then
 		json="${json}${newline}";
 	fi	
+}
+
+function __json_stringify_quote {
+	# quoted string
+	_result="\"$@\"";
 }
 
 function __json_stringify_string {
