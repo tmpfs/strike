@@ -16,7 +16,7 @@ function test.require.exists? {
 # test for absolute require
 function test.require.absolute {
 	dir="$_result";
-	require "${testdir}/modules/say";
+	require.load "${testdir}/modules/say";
 	assert.eq "0" "$?";
 	assert.on.loaded.module;
 }
@@ -31,14 +31,14 @@ function test.require.lookup {
 
 # test for relative require using: ./
 function test.require.relative {
-	require "./modules/say";
+	require.load "./modules/say";
 	assert.eq "0" "$?";
 	assert.on.loaded.module;
 }
 
 # test for relative require using: ../
 function test.require.relative.parent {
-	require "../test/modules/say";
+	require.load "../test/modules/say";
 	assert.eq "0" "$?";
 	assert.on.loaded.module;
 }
@@ -50,13 +50,24 @@ function test.require.nonexistent {
 	assert.eq "1" "$?";
 }
 
+# function test.require.load {
+# 	#require "./modules/say";
+# }
+
 function assert.on.loaded.module {
 	local methods=( $( method.list | grep "say" ) );
 	methods="${methods[@]}";
 	assert.equal "say say.goodbye say.hello" "${methods}";
-
-	# clean up declared methods
-	method.remove "say";
-	method.remove "say.goodbye";
-	method.remove "say.hello";
+	
+	# unload the module
+	require.name.unload! "say";
+	
+	if require.exists? "say"; then
+		assert.fail;
+	fi
+	
+	# check all methods are cleaned up
+	if method.exists? say || method.exists? say.hello || method.exists? say.goodbye; then
+		assert.fail;
+	fi
 }

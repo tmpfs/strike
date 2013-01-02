@@ -1,10 +1,10 @@
-######################################################################
-#	Removes a method definition.
-#
-#	$1	The name of the method.
-######################################################################
+# removes method definition(s)
 function method.remove {
-	unset -f "$1";
+	while [ $# -gt 0 ];
+		do
+			unset -f "$1";
+			shift;
+	done
 }
 
 ######################################################################

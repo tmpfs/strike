@@ -42,7 +42,6 @@ function require {
 
 # forces a require even if the module is already loaded
 function require.load {
-	echo "require.load: $FUNCNAME : $1";
 	local force=true;
 	require "$1";
 }
@@ -92,13 +91,12 @@ function require.delegate {
 # determines whether a module exists by name or path
 function require.exists? {
 	local module="${1:-}";
-	echo "$FUNCNAME : $module";
 	if [ ! -z "$module" ]; then
 		if [[ "$module" =~ ^(\.+)?/ ]]; then
 			require.path.exists? "$module";
 			return $?;
 		else
-			echo "testing for module by name : $module : ${module_paths[*]}";
+			# echo "testing for module by name : $module : ${module_paths[*]}";
 			require.name.exists? "$module";
 			return $?;
 		fi
@@ -120,6 +118,24 @@ function require.path.exists? {
 		return 0;
 	fi
 	return 1;
+}
+
+# removes a module definition by name
+function require.name.unload! {
+	local module="${1:-}";
+	if [ -n "$module" ]; then
+		local paths=( "${!module_paths[@]}" );
+		local path name;
+		for path in ${paths[@]}
+			do
+				name="${module_paths["$path"]}";
+				if [ "$name" == "$module" ]; then
+					local methods=( ${module_methods["$path"]} );
+					method.remove "${methods[@]}";
+					unset module_paths["$path"];
+				fi
+		done
+	fi
 }
 
 ######################################################################
@@ -158,15 +174,32 @@ function __require_register {
 
 function __require_source {
 	local abs="$1";
-	
-	echo "require by force: $force";
-	
 	# only require if path does not match an already loaded module
-	if ! require.path.exists? "$abs"; then
+	# or if the module is being loaded forcefully
+	if ! require.path.exists? "$abs" || $force; then
 		source "$abs";
 	else
 		console.warn "skipping require on loaded module %s" "$abs";
 	fi
+}
+
+# find the caller source directory
+function __require_find_caller_source_dir {
+	local self=`dirname $BASH_SOURCE`;
+	local index=1;
+	local stack=( $( caller $index ) );
+	local sourcedir=`dirname "${stack[2]}"`;
+	unset _result;
+	while [ "$sourcedir" == "$self" ]
+		do
+			stack=( $( caller $index ) );
+			sourcedir=`dirname "${stack[2]}"`;
+			if [ "$sourcedir" != "$self" ]; then
+				_result="$sourcedir";
+				break;
+			fi
+			((index++));
+	done
 }
 
 function __require_load {
@@ -185,18 +218,15 @@ function __require_load {
 		
 		# got a relative path, load from a relative path
 		if [[ "$name" =~ ^\.+ ]]; then
-			# note: we need to skip one on caller stack as this private
-			# method is called by `require`, hence caller 1 (not zero)
-			local stack=( $( caller 1 ) );
-			local sourcefile="${stack[2]}";
-			sourcefile=`dirname "$sourcefile"`;
+			__require_find_caller_source_dir;
+			sourcefile="$_result";
 			sourcefile="${sourcefile}/${name}";
 			fs.path.expand "$sourcefile";
 			abs="$_result";
-			name=`basename $abs`;			
+			name=`basename $abs`;
 			__require_source "$abs";
 			loaded=1;
-			echo "load relative require $name : $abs";
+			#echo "load relative require $name : $abs";
 		# got an absolute path try to load from absolute path			
 		elif [[ "$name" =~ ^/ ]]; then
 			abs="$name";
@@ -234,7 +264,7 @@ function __require_load {
 		
 		# only delegate and call constructor if the 
 		# module was required
-		if ! require.path.exists? "$abs"; then
+		if ! require.path.exists? "$abs" || $force; then
 			require.delegate "$name";
 		
 			# register the module
