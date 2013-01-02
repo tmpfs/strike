@@ -14,11 +14,12 @@ function __initialize__ {
 	
 	# we need these modules before we include require(3)
 	source "${dir}/modules/variable";
+	source "${dir}/modules/string";	
 	source "${dir}/modules/method";
 	source "${dir}/modules/color";
 	source "${dir}/modules/console";
 	source "${dir}/modules/array";
-	source "${dir}/modules/fs";	
+	source "${dir}/modules/fs";
 	
 	#NOTE: directories must be configured prior to including require(3)
 	# configure program directories
@@ -58,6 +59,7 @@ function __initialize__ {
 
 	# manually register these modules
 	__require_register "variable" "${dir}/modules/variable";
+	__require_register "variable" "${dir}/modules/string";
 	__require_register "method" "${dir}/modules/method";
 	__require_register "color" "${dir}/modules/color";
 	__require_register "console" "${dir}/modules/console";
@@ -70,7 +72,7 @@ function __initialize__ {
 	require 'delegate';
 	require 'executable';
 	require 'system';
-	require 'string';
+	# require 'string';
 	require 'process';	
 	
 	# add delegates for modules that were not required

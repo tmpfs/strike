@@ -37,6 +37,15 @@
 # ${string,}    hello, World! # First character to lowercase
 # ${string,,}   hello, world! # All characters to lowercase
 
+function string.contains? {
+	local haystack="${1:-}";
+	local needle="${2:-}";
+	if [[ "$haystack" == *$needle* ]]; then
+		return 0;
+	fi
+	return 1;
+}
+
 function string.upper {
 	local str="${1:-}";
 	_result=${str^^};

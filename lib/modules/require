@@ -82,6 +82,14 @@ function require.delegate {
 	fi
 }
 
+function require.path.exists? {
+	#echo "require.path.exists? $1 : ${!module_paths[@]}";
+	if string.contains? "${!module_paths[*]}" "$1"; then
+		return 0;
+	fi
+	return 1;
+}
+
 function __require_register {
 	local name="${1:-}";
 	local path="${2:-}";
@@ -112,7 +120,11 @@ function __require_register {
 
 function __require_source {
 	local abs="$1";
-	source "$abs";
+	if ! require.path.exists? "$abs"; then
+		source "$abs";
+	else
+		console.warn "skipping require on loaded module %s" "$abs";
+	fi
 }
 
 function __require_load {
@@ -178,15 +190,19 @@ function __require_load {
 		
 		# echo "testing for delegate method : $name";
 		
-		require.delegate "$name";
+		# only delegate and call constructor if the 
+		# module was required
+		if ! require.path.exists? "$abs"; then
+			require.delegate "$name";
 		
-		# register the module
-		__require_register "$name" "$abs";
+			# register the module
+			__require_register "$name" "$abs";
 		
-		local constructor="${name}.initialize";
-		# invoke a contructor if present
-		if method.exists? "$constructor"; then
-			"$constructor";
+			local constructor="${name}.initialize";
+			# invoke a contructor if present
+			if method.exists? "$constructor"; then
+				"$constructor";
+			fi
 		fi
 	fi
 }

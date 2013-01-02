@@ -26,12 +26,15 @@ function boilerplate {
 boilerplate "$@";
 ######################################################################
 
+# switch on debug/strict/test mode(s)
+process.use debug strict test;
+
 # allow inline assertions
 require 'assert';
 
+#require 'assert';
+
 function signals {
-	# switch on debug/strict/test mode(s)
-	process.use debug strict test;
 	
 	# trap handlers
 	signal.on()
