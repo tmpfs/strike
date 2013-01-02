@@ -9,6 +9,8 @@ declare -g process_lock="";
 
 declare -g process_pid="";
 
+declare -g process_tmp_dir="";
+
 # TODO: add the process.use "debug"
 # to force console.error to always throw
 # a stack trace
@@ -141,15 +143,23 @@ function process.test! {
 
 # TODO: allow this directory to be specified !
 
-# retrieve the directory for process temporary files
+# set or gets the directory for process temporary files
 function process.tmp.dir {
-	# put the tmp directory in the library directory
-	# so as not to pollute project directories
-	local dir="${library_dirs[root]}/tmp";
-	if [ ! -d "$dir" ] ;then
-		mkdir -p "$dir" || console.quit 1 "could not create temporary directory %s" "$dir";
+	if [ $# -eq 0 ]; then
+		if [ -z "$process_tmp_dir" ]; then
+			# put the tmp directory in the library directory
+			# so as not to pollute project directories
+			local dir="${library_dirs[root]}/tmp";
+			if [ ! -d "$dir" ] ;then
+				mkdir -p "$dir" || console.quit 1 "could not create temporary directory %s" "$dir";
+			fi
+			_result="$dir";
+		else
+			_result="$process_tmp_dir";
+		fi
+	else
+		process_tmp_dir="$1";
 	fi
-	_result="$dir";
 }
 
 # does nothing, use during development to prevent

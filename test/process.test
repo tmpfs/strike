@@ -1,7 +1,15 @@
-
 # test for process.pid output
 function test.process.pid {
 	local pid=`process.pid`;
 	console.log "$FUNCNAME $pid";
 	assert.match "^[0-9]+$" "$pid";
+}
+
+# test for process.uptime output
+function test.process.uptime {
+	# sleep for a but to ensure it's non-zero
+	sleep 1;
+	process.uptime;
+	local uptime="$_result";
+	assert.gt "0" "$uptime";
 }
