@@ -1,10 +1,10 @@
-#!/usr/bin/env bash
-
 ######################################################################
 # 	common
 #
 #	Common variables for all programs.
 ######################################################################
+
+# DEPRECATED: maintained for backward compatibility
 
 #full os specific type and host type
 OS_INSTALL="$OSTYPE-$HOSTTYPE";

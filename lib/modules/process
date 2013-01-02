@@ -1,0 +1,12 @@
+declare -gx process_strict="";
+
+function process.use {
+	#echo "process.use $1";
+	local val="${1:-}";
+	if [ "$val" == "strict" ]; then
+		process_strict="on";
+		set -o errtrace;
+		set -o errexit;
+		set -o nounset;
+	fi
+}

@@ -1,10 +1,10 @@
-#!/usr/bin/env bash
-
 ######################################################################
 # 	archive-utils
 #
 #	Utilties for working with the archives.
 ######################################################################
+
+# TODO: migrate this to an archive module for use by xpm(1)
 
 function extract_tar {
 	local archive="$1";

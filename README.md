@@ -16,7 +16,7 @@ If you want the supplied executables to be available in `$PATH` use the global f
 
 	npm install -g strike
 	
-## Documentation	
+## Documentation
 
 The [project documentation](http://freeformsystems.github.com/strike) is available as html man pages.
 
