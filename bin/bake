@@ -97,6 +97,8 @@ boilerplate "$@";
 
 process.use "strict";
 
+# process.pid;
+
 # notok() {
 # 	return 1;
 # }

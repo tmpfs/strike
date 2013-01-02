@@ -1,7 +1,11 @@
+# TODO: move to global variables?
 declare -gx process_strict="";
 
+# TODO: add the process.use "debug"
+# to force console.error to always throw
+# a stack trace
+
 function process.use {
-	#echo "process.use $1";
 	local val="${1:-}";
 	if [ "$val" == "strict" ]; then
 		process_strict="on";
@@ -9,4 +13,8 @@ function process.use {
 		set -o errexit;
 		set -o nounset;
 	fi
+}
+
+function process.pid {
+	echo -ne "$$";
 }
