@@ -26,8 +26,8 @@ function boilerplate {
 boilerplate "$@";
 ######################################################################
 
-# the exit code to use
-code="${1:-0}";
+# allow inline assertions
+require 'assert';
 
 function signals {
 	# switch on debug/strict/test mode(s)
@@ -36,33 +36,51 @@ function signals {
 	# trap handlers
 	signal.on()
 	{
-		process.noop;
+		return 0;
 	}
 	
 	signal.dup()
 	{
-		process.noop;
+		return 0;
 	}
 	
 	local __signals="${process_signals[@]}";
 	local signal;
 	for signal in ${__signals[@]}
 		do
-			# listen for everything, execept err and debug as they are too noisy
+			# listen for everything, except err and debug as they are too noisy
 			if [ "$signal" != "err" ] && [ "$signal" != "debug" ]; then
+				
 				# switch on handling of the signal
 				process.on "$signal";
 				
-				# register signal callbacks with
+				# register first callback with
 				# a custom method
 				process.signal.on "signal.on" "$signal";
+
+				# assert on callbacks
+				process.signal.list "$signal";
+				assert.equal "signal.on" "$_result";
+				
+				# register another callback
 				process.signal.on "signal.dup" "$signal";
-										
+				
+				# assert on multiple callbacks
+				process.signal.list "$signal";
+				assert.equal "signal.on signal.dup" "$_result";
+				
+				# remove the `dup` callback
+				process.signal.off "signal.dup" "$signal";
+
+				# assert on the removed callback
+				process.signal.list "$signal";
+				assert.equal "signal.on" "$_result";
+				
 				# debug callbacks
-				# process.signal.print "$signal";
+				#process.signal.print "$signal";
 				
 				# trigger the callbacks
-				process.signal.trigger "$signal";
+				# process.signal.trigger "$signal";
 			fi
 	done
 	

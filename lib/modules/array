@@ -117,14 +117,16 @@ function array.each {
 	local index=0;
 	if [ ! -z "$name" ]; then
 		eval keys="\${!$name[@]}";
+		echo "got array keys: ${keys}";
 		for key in ${keys}
 			do
 				eval value="\${$name[$key]}";
 				#echo "array.each got key : $key";
-				# echo "got value : $value";
-				
-				# TODO: check the iterator method exists
-				"$iterator" "$key" "$value" "$index";
+				echo "got value : $value";
+				if method.exists? "$iterator"; then
+					"$iterator" "$key" "$value" "$index" \
+						|| quit 1 "%s iterator error %s" "$FUNCNAME" "$iterator";
+				fi
 				((index++));
 		done
 	fi
@@ -151,7 +153,7 @@ function array.write {
 			set -- $( echo "${stdin[@]}" );
 		fi
 
-		function iterator {
+		iterator() {
 			local key="$1" value="$2" index="$3";
 			echo "${key}=${value}" >> "$file";
 		}

@@ -203,20 +203,59 @@ function process.signal.valid? {
 	return $?;
 }
 
-# remove a callback method for signal(s)
+# remove a callback method(s) for a signal
 function process.signal.off {
-	local method="${1:-process.trap}";	
-	local signal;
-	echo "process.signal.off : $method";
+	local method="${1:-process.trap}";
+	local signal callback i;
+	
+	declare -a callbacks;
+	
+	# TODO: work out why the iterator is failing?
+	# iterator() {
+	# 	local key="$1" value="$2" index="$3";
+	# 	echo "iterator: $key : $value : $index";
+	# }
+	
+	# got some signals specified
+	if [ $# -gt 0 ]; then
+		# remove the method reference $1
+		shift;
+		# process the signal definitions
+		while [ $# -gt 0 ];
+			do
+				signal="$1";
+				callbacks=( ${process_signal_callbacks["$signal"]} );
+				
+				# array.each "callbacks" "iterator";
+				
+				for((i = 0;i < ${#callbacks[@]};i++))
+					do
+						callback="${callbacks[$i]}";
+						if [ "$method" == "$callback" ]; then
+							unset callbacks[$i];
+							process_signal_callbacks["$signal"]="${callbacks[*]}";
+							break;
+						fi
+				done
+				
+				# process next signal name
+				shift;
+		done
+	else
+		console.warn "%s no signals specified" "$FUNCNAME";
+	fi
+	
+	# clean up the iterator
+	#method.remove "iterator";
 }
 
+# trigger callback(s) for signal(s) 
 function process.signal.trigger {
 	local signal callbacks method;
 	while [ $# -gt 0 ];
 		do
 			signal="$1";
-			callbacks=( "${process_signal_callbacks["$signal"]}" );
-			console.debug "%s (%s) > %s" "$FUNCNAME" "$signal" "${callbacks[*]}";
+			callbacks=( ${process_signal_callbacks["$signal"]} );
 			for method in ${callbacks[@]}
 				do
 					if method.exists? "$method"; then
@@ -237,6 +276,18 @@ function process.signal.print {
 			console.info "%s > %s" "$signal" "${callbacks[*]}";
 			shift;
 	done
+}
+
+# list callbacks for signal(s)
+function process.signal.list {
+	local signal callbacks=();
+	while [ $# -gt 0 ];
+		do
+			signal="$1";
+			callbacks+=( "${process_signal_callbacks["$signal"]}" );
+			shift;
+	done
+	_result="${callbacks[*]}";
 }
 
 # switch on a trap
@@ -279,7 +330,7 @@ function process.daemon.stop! {
 # does nothing, use during development to prevent
 # errors from empty conditionals, functions etc
 function process.noop {
-	echo -ne '';	
+	return 0;
 }
 
 # TODO: add lock file support for singleton processes
