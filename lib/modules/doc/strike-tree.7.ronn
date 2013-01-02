@@ -49,7 +49,7 @@ The `target` directory is used by bake(1) for staging, logging and any other tem
 
 ## TEST
 
-Unit test files are searched for in the `test` directory when task-assert(7) runs.
+Unit test files are searched for in the `test` directory when task-test(7) runs.
 
 ## SEE ALSO
 

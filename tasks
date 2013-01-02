@@ -1,4 +1,4 @@
-require 'tasks/assert';
+require 'tasks/test';
 require 'tasks/clean';
 require 'tasks/list';
 require 'tasks/doc';

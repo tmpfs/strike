@@ -30,7 +30,7 @@ Use `bake(1)` to execute the unit tests, run:
 	
 Which is an alias for:
 
-	./bake assert
+	./bake test
 
 ### Generating Documentation
 

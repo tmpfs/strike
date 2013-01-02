@@ -15,12 +15,11 @@
 	"dependencies": {},
 	"engine": [ "node >= 0.8.11" ],
 	"scripts": {
-		"test": "./bake assert",
+		"test": "./bake test",
 		"doc": "./bake doc.build"
 	},
 	"config" : {},
 	"bin" : {
-		"bake" : "./bin/bake",
-		"assert" : "./bin/assert"
+		"bake" : "./bin/bake"
 	}
 }

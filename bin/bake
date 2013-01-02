@@ -50,7 +50,7 @@ The following variables are available to each command method:
 
 ## SEE ALSO
 
-task-assert(7), task-doc(7), task-clean(7), task-list(7)
+task-test(7), task-doc(7), task-clean(7), task-list(7)
 ronn:markdown
 
 set -o errtrace;
