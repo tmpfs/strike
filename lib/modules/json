@@ -69,7 +69,12 @@ declare -Agx json_doc;
 # holds the last result of calling json.stringify
 declare -gx json_str;
 
+# regexp for number matching
+declare -g json_number_regexp="^-?[0-9]+((\.[0-9]+)?([eE][-+]?[0-9]+)?)?$";
+
 function json.parse {
+	
+	# TODO: remove this?
 	set +o errexit;
 	#set +o nounset;
 	
@@ -325,7 +330,7 @@ function __json_stringify_quote {
 function __json_stringify_string {
 	_result="";
 	# unquoted value for null, true, false and numbers
-	if [ "$1" == "null" ] || [ "$1" == "true" ] || [ "$1" == "false" ] || [[ "$1" =~ ^[0-9]+$ ]]; then
+	if [ "$1" == "null" ] || [ "$1" == "true" ] || [ "$1" == "false" ] || [[ "$1" =~ $json_number_regexp ]]; then
 		_result="$1";
 	else
 		__json_stringify_quote "$1";

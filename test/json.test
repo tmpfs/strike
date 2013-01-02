@@ -168,7 +168,10 @@ function test.json.stringify.complex {
 	doc[data.names.1]="null";
 	doc[data.names.2]="true";
 	doc[data.names.3]="false";
+	doc[data.names.4]="3.14e+10";
 	json.stringify <<< "doc";
+	
+	json.string;
 	
 	# round trip test with assertions
 	json.parse <<< `json.string`;
@@ -178,4 +181,73 @@ function test.json.stringify.complex {
 			expected="${doc["$key"]}";
 			assert.equal "$expected" "${json_doc["$key"]}";
 	done
+}
+
+# test for the json number regexp matching
+function test.json.number {
+	# ref to the regexp
+	local match="$json_number_regexp";
+	local num;	
+	
+	local valid=(
+		"-127"
+		"127"
+		"3.14"
+		"-3.14"
+		"2e10"
+		"2e-10"
+		"2e+10"
+		"3.14e10"
+		"3.14e-10"
+		"3.14e+10"
+	);
+	
+	# add uppercase versions for valid tests
+	for num in ${valid[@]}
+		do
+			if [[ "$num" =~ [a-z]+ ]]; then
+				string.upper "$num";
+				valid+=( "$_result" );
+			fi
+	done
+	
+	local invalid=(
+		"3."
+		"-3."
+		"-3.e"
+		"3a"
+		"b3"
+		".14"
+		".14e+10"
+		".14-10"
+	);
+	
+	regexp()
+	{
+		if [[ "$1" =~ $match ]]; then
+			return 0;
+		fi
+		return 1;
+	}
+	
+	# valid
+	console.info "$FUNCNAME (valid) ${valid[*]}";	
+	for num in ${valid[@]}
+		do
+			console.info "$FUNCNAME (valid) %s =~ %s" "$num" "$match";
+			`regexp "$num"`;
+			assert.eq "0" "$?";
+	done
+	
+	# invalid
+	console.info "$FUNCNAME (invalid) ${invalid[*]}";	
+	for num in ${invalid[@]}
+		do
+			console.info "$FUNCNAME (invalid) %s =~ %s" "$num" "$match";
+			`regexp "$num"`;
+			assert.eq "1" "$?";
+	done
+	
+	# clean inner method definitions
+	method.remove "regexp";
 }

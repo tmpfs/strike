@@ -108,6 +108,60 @@ process.use strict;
 # 
 # exit 1;
 
+#json_number_regexp="^-?[0-9]+((\.[0-9]+)?([eE][-+]?[0-9]+)?)?$";
+
+# # valid
+# if [[ "-1" =~ $json_number_regexp ]]; then
+# 	echo "got simple negative integer match ... ";
+# fi
+# 
+# if [[ "127" =~ $json_number_regexp ]]; then
+# 	echo "got simple positive integer match ... ";
+# fi
+# 
+# if [[ "3.14" =~ $json_number_regexp ]]; then
+# 	echo "got fraction match ... ";
+# fi
+# 
+# if [[ "-3.14" =~ $json_number_regexp ]]; then
+# 	echo "got negative fraction match ... ";
+# fi
+# 
+# if [[ "2e10" =~ $json_number_regexp ]]; then
+# 	echo "got integer exponent ... ";
+# fi
+# 
+# if [[ "2e-10" =~ $json_number_regexp ]]; then
+# 	echo "got integer negative exponent ... ";
+# fi
+# 
+# if [[ "2e+10" =~ $json_number_regexp ]]; then
+# 	echo "got integer positive exponent ... ";
+# fi
+# 
+# if [[ "3.14e10" =~ $json_number_regexp ]]; then
+# 	echo "got fraction exponent ... ";
+# fi
+# 
+# if [[ "3.14e-10" =~ $json_number_regexp ]]; then
+# 	echo "got fraction negative exponent ... ";
+# fi
+# 
+# if [[ "3.14e+10" =~ $json_number_regexp ]]; then
+# 	echo "got fraction positive exponent ... ";
+# fi
+# 
+# if [[ "3.14E+10" =~ $json_number_regexp ]]; then
+# 	echo "got fraction uppercase positive exponent ... ";
+# fi
+# 
+# # invalid
+# if [[ "-3." =~ $json_number_regexp ]]; then
+# 	echo "got trailing period matach (error) ... ";
+# fi
+# 
+# exit 0;
+
 # process.pid;
 
 # notok() {
