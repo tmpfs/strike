@@ -95,6 +95,7 @@ function boilerplate {
 boilerplate "$@";
 ######################################################################
 
+# switch on strict mode
 process.use strict;
 
 # process.on exit trap;
