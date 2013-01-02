@@ -95,7 +95,17 @@ function boilerplate {
 boilerplate "$@";
 ######################################################################
 
-process.use "strict";
+process.use strict;
+
+# process.on exit trap;
+# 
+# #process.off trap;
+# 
+# #console.quit;
+# 
+# kill -s trap $$;
+# 
+# exit 1;
 
 # process.pid;
 

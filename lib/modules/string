@@ -37,6 +37,13 @@
 # ${string,}    hello, World! # First character to lowercase
 # ${string,,}   hello, world! # All characters to lowercase
 
+function string.upper {
+	local str="${1:-}";
+	_result=${str^^};
+}
+
+#string.upper "abc";
+
 function string.repeat {
 	_result="";
 	local repeat="${2:-1}";

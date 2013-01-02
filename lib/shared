@@ -68,10 +68,10 @@ function __initialize__ {
 	# require(3) the remaining core modules
 	# the order here is *very* important
 	require 'delegate';
-	require 'process';
 	require 'executable';
 	require 'system';
 	require 'string';
+	require 'process';	
 	
 	# add delegates for modules that were not required
 	# must be done after the delegate module is available
