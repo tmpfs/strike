@@ -75,15 +75,27 @@ function assert.eq {
 
 # assert with -f
 function assert.file.exists? {
-	# echo "assert.f $1";
+	# TODO: add custom error message
 	local expected="0";
 	set +o errexit;
 	`test -f "$1"`;
 	local received="$?";
 	set -o errexit;
-	
-	# echo "assert.f after test"
-	
+	if [ "$expected" == "$received" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
+# assert that a file does not exist
+function assert.file.exists! {
+	# TODO: add custom error message
+	local expected="1";
+	set +o errexit;
+	`test -f "$1"`;
+	local received="$?";
+	set -o errexit;
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else

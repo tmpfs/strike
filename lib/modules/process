@@ -61,13 +61,21 @@ process_time[start]=`date +%s`;
 declare -g process_loop=false;
 
 function process.initialize {
+	
+	# check for an existing lock file
+	process.lock.file;
+	local file="$_result";
+	if [ -f "$file" ]; then
+		console.quit 1 "lock file %s exists" "$file";
+	fi
+	
+	# initialize registry of signal
+	# callback methods
 	local signal;
 	for signal in ${process_signals[@]}
 		do
-			# initialize registry of signal
-			# callback methods
 			process_signal_callbacks[$signal]="";
-	done	
+	done
 }
 
 function process.use {
@@ -109,11 +117,6 @@ function process.strict? {
 # determine if we are running in test mode
 function process.test? {
 	test -n "$process_test";
-}
-
-# determine if we are running as a lock
-function process.lock? {
-	test -n "$process_lock";
 }
 
 # switch off debug mode
@@ -344,6 +347,47 @@ function process.daemon.stop! {
 
 ######################################################################
 #
+#	LOCK FILE PUBLIC METHODS
+#
+######################################################################
+
+# determine if we are running as a singleton with a lock file
+function process.lock? {
+	test -n "$process_lock";
+}
+
+# retrieve the name of the lock file for this process
+function process.lock.name {
+	_result="${process_name}.lock";
+}
+
+# retrieve the path to the lock file for this process
+function process.lock.file {
+	process.tmp.dir;
+	local process="$_result";
+	process.lock.name;
+	_result="${process}/${_result}";
+}
+
+# flag this program as using a lock file
+function process.lock.use! {
+	if [ $# -eq 0 ]; then
+		# switch on trapping exit so we can clean up
+		# the lock file using the private handler
+		process.signal.on __process.lock.clean exit;
+		process.on exit;
+	
+		process_lock="on";
+		__process.lock.write;
+	else
+		process_lock="";
+		# clean the lock file immediately
+		__process.lock.clean;
+	fi
+}
+
+######################################################################
+#
 #	PID PUBLIC METHODS
 #
 ######################################################################
@@ -379,15 +423,20 @@ function process.pid.file {
 }
 
 # flag this program as using a PID file
-function process.pid.use! {
+function process.pid.use! {	
+	if [ $# -eq 0 ]; then
+		# switch on trapping exit so we can clean up
+		# the pid file using the private handler
+		process.signal.on __process.pid.clean exit;
+		process.on exit;
 	
-	# switch on trapping exit so we can clean up
-	# the pid file using the private handler
-	process.signal.on __process.pid.clean exit;
-	process.on exit;
-	
-	process_pid="on";
-	__process.pid.write;
+		process_pid="on";
+		__process.pid.write;
+	else
+		process_pid="";
+		# clean the pid file immediately
+		__process.pid.clean;
+	fi
 }
 
 # TODO: add lock file support for lock processes
@@ -420,19 +469,17 @@ function __process.trap {
 	if process.test?; then
 		echo -ne "$signal";
 	else
+		# TODO: tidy this output in non-debug mode
 		echo "$FUNCNAME got signal : $signal";
-		#local lineno="$2";
 		local data=( $( caller 1 ) );
-
 		if [ ${#data[@]} -gt 0 ]; then
 			echo "${data[@]}";
 		fi
-
 		echo "$FUNCNAME : $code : $1";
 	fi
 	
 	# trigger callbacks for the signal
-	process.signal.trigger "$signal";	
+	process.signal.trigger "$signal";
 }
 
 function __process.daemonize {
@@ -452,15 +499,31 @@ function __process.daemonize {
 # write the pid to a file
 function __process.pid.write {
 	process.pid.file;
-	local pidfile="$_result";
-	process.pid > "$pidfile" || quit 1 "could not write pid ($$) to file %s" "$pidfile";
+	local file="$_result";
+	process.pid > "$file" || quit 1 "could not write pid ($$) to file %s" "$file";
 }
 
 # remove the pid file
 function __process.pid.clean {
 	process.pid.file;
-	local pidfile="$_result";
-	if test -f "$pidfile"; then
-		rm "$pidfile" > /dev/null 2>&1 || console.warn "could not remove pid file %s" "$pidfile";
+	local file="$_result";
+	if test -f "$file"; then
+		rm "$file" > /dev/null 2>&1 || console.warn "could not remove pid file %s" "$file";
+	fi
+}
+
+# write the lock to a file
+function __process.lock.write {
+	process.lock.file;
+	local file="$_result";
+	process.pid > "$file" || quit 1 "could not write lock file %s" "$file";
+}
+
+# remove the lock file
+function __process.lock.clean {
+	process.lock.file;
+	local file="$_result";
+	if test -f "$file"; then
+		rm "$file" > /dev/null 2>&1 || console.warn "could not remove lock file %s" "$file";
 	fi
 }
