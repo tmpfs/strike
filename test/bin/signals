@@ -34,7 +34,6 @@ function signals {
 	# switch on debug/strict/test mode(s)
 	process.use debug strict test;
 	
-	local starttime=`date +%s`;
 	local loop=true;
 	
 	# if [ "true" == true ]; then
@@ -74,7 +73,8 @@ function signals {
 	# start an infinite loop
 	while $loop;
 		do
-			echo "start: $starttime";
+			process.uptime;
+			echo "process.uptime: $_result";
 			loop=false;
 	done
 }

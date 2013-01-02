@@ -114,6 +114,14 @@ function process.use {
 	done
 }
 
+# retrieves the process uptime in seconds
+function process.uptime {
+	local start=${process_time[start]};
+	local now=`date +%s`;
+	local uptime=$(( $now - $start ));
+	_result="$uptime";
+}
+
 # determine if we are running in debug mode
 function process.debug? {
 	test -n "$process_debug";
