@@ -15,6 +15,10 @@ function process.use {
 	fi
 }
 
+# TODO: add PID file support
+# print the process id
 function process.pid {
 	echo -ne "$$";
 }
+
+# TODO: add lock file support for singleton processes
