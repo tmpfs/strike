@@ -12,9 +12,10 @@ function method.remove {
 #
 #	$1	The name of the method.
 ######################################################################
-function method.exists {
-	set +o errexit;
-	__method_exists "$1";
+function method.exists? {
+	local method="$1";
+	#echo "testing method $method"
+	declare -f -F "$method" > /dev/null;
 	return $?;
 }
 
@@ -44,18 +45,6 @@ function method.list.verbose {
 			# turn off extended shell debugging
 			shopt -u extdebug;
 	done
-}
-
-######################################################################
-#	Determines whether a method has been declared, when running with
-#	errexit on.
-######################################################################
-
-# DEPRECATED
-function strict_method_exists {
-	set +o errexit;
-	__method_exists "$1";
-	return $?;
 }
 
 ######################################################################

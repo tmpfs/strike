@@ -113,16 +113,14 @@ function couchdb_view {
 	#couchdb_view_options="";
 }
 
+# TODO: remove this and let the delegate handle it
 function couchdb {
 	local module="$couchdb_module_name";
 	local method="$1";
 	shift;
 	local options=( "${@:-}" );
 	local func="${module}_${method}";
-	strict_method_exists "$func";
-	local exists=$?;
-	set -o errexit;	
-	if [ $exists -eq 0 ]; then
+	if method.exists? "$func"; then
 		$func "${options[@]}";
 	else
 		quit 1 "%s method %s does not exist" "$module" "$method";

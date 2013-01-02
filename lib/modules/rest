@@ -189,17 +189,11 @@ function rest.options.parse {
 ######################################################################
 
 function __rest_print {
-	#echo "echo handling printing output...";
 	local p m exists;
 	for p in ${!rest_print[@]}
 		do
 			m="__rest_print_${p}";
-			# echo "handling print of : $m";
-			method.exists "$m";
-			exists=$?;
-			set -o errexit;
-			if [ $exists -eq 0 ]; then
-				# echo "got method exists... $m";
+			if method.exists? "$m"; then
 				$m;
 			fi
 	done

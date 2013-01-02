@@ -63,7 +63,7 @@ function require.dirs {
 	local searchpaths=( $_result ) d;
 	for d in "${searchpaths[@]}"
 		do
-			echo "$d";
+			console.log "$d";
 	done
 }
 
@@ -71,21 +71,14 @@ function require.dirs {
 function require.delegate {
 	local name="${1:-}";
 	if [ ! -z "$name" ]; then
-		method.exists "$name";
-		local exists=$?;
-		# echo "delegate exists: $exists";
-		if [ $exists -ne 0 ]; then
+		if ! method.exists? "$name"; then
 			#warn "loaded module %s does not declare a method named %s" "$name" "$name";
-			
-			#look for a main method to alias
-			method.exists "delegate";
-			if [ $? -eq 0 ]; then
+			if method.exists? "delegate"; then
 				eval "$name(){ 
 					delegate "$1" \$*;
 				}";
 			fi
 		fi
-		set -o errexit;		
 	fi
 }
 
@@ -191,10 +184,8 @@ function __require_load {
 		__require_register "$name" "$abs";
 		
 		local constructor="${name}.initialize";
-		method.exists "$constructor";
-		exists=$?;
-		set -o errexit;
-		if [ $exists -eq 0 ]; then
+		# invoke a contructor if present
+		if method.exists? "$constructor"; then
 			"$constructor";
 		fi
 	fi

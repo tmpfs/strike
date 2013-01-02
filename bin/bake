@@ -180,19 +180,12 @@ function bake {
 		local cmd="$1";
 		shift;
 		local func="${nm}.${cmd}";
-		method.exists "$func";
-		if [ $? -ne 0 ]; then
+		if ! method.exists? "$func"; then
 			quit 2 "task %s not found" "$cmd";
 		fi
-		# switch back strict error checking
-		set -o errexit;
 		
-		# echo "bake options: $# : $@";
-		
+		# invoke  the task function		
 		delegate "tasks" "$cmd" "$@" || quit 3 "task %s failed" "$func";
-		
-		# invoke  the task function
-		#$func "$@" || quit 3 "task %s failed" "$func";
 	fi
 }
 
