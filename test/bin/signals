@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+set -o errtrace;
+set -o errexit;
+set -o nounset;
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+export PROGRAM_NAME=`basename $0`;
+console_print_program_prefix="off";
+declare -gx exedir;
+function boilerplate {
+	local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+	if [ -L "$abspath" ]; then
+		abspath=`readlink $abspath`;
+	fi
+	if [[ "$abspath" =~ ^\./ ]]; then
+		abspath="${PWD}/${abspath}";
+	fi
+	exedir=`dirname "$abspath"`;
+	local libdir="$exedir/../../lib";
+	source "$libdir/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+# the exit code to use
+code="${1:-0}";
+
+function signals {
+	# switch on debug/strict/test mode(s)
+	process.use debug strict test;
+	
+	local starttime=`date +%s`;
+	local loop=true;
+	
+	# if [ "true" == true ]; then
+	# 	echo "true == true";
+	# fi
+	# 
+	# if [ "false" == false ]; then
+	# 	echo "false == false";
+	# fi
+
+	# process.debug!;
+	# process.strict!;
+	# process.test!;
+
+	# if process.debug?; then
+	# 	echo "running as debug ... ";
+	# fi
+	# 
+	# if process.strict?; then
+	# 	echo "running as strict ... ";
+	# fi
+	# 
+	# if process.test?; then
+	# 	echo "running as test ... ";
+	# fi
+
+	local __signals="${signals[@]}";
+	local signal;
+	for signal in ${__signals[@]}
+		do
+			# listen for everything, execept err and debug as they are too noisy
+			if [ "$signal" != "err" ] && [ "$signal" != "debug" ]; then
+				process.on "$signal";
+			fi
+	done
+	
+	# start an infinite loop
+	while $loop;
+		do
+			echo "start: $starttime";
+			loop=false;
+	done
+}
+
+signals "$@";
+
+exit $code;

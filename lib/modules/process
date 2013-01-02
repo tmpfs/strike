@@ -3,6 +3,8 @@ declare -gx process_strict="";
 
 declare -g process_debug="";
 
+declare -g process_test="";
+
 # TODO: add the process.use "debug"
 # to force console.error to always throw
 # a stack trace
@@ -77,7 +79,7 @@ signals=(
 );
 
 # bash specific signals
-signals+=( debug err );
+signals+=( debug err exit );
 
 declare -Ag process_signals;
 
@@ -92,15 +94,54 @@ function process.initialize {
 }
 
 function process.use {
-	local val="${1:-}";
-	if [ "$val" == "strict" ]; then
-		process_strict="on";
-		set -o errtrace;
-		set -o errexit;
-		set -o nounset;
-	elif [ "$val" == "debug" ]; then
-		process_debug="on";
-	fi
+	while [ $# -gt 0 ];
+		do
+			local val="${1:-}";
+			if [ "$val" == "strict" ]; then
+				process_strict="on";
+				set -o errtrace;
+				set -o errexit;
+				set -o nounset;
+			elif [ "$val" == "debug" ]; then
+				process_debug="on";
+			elif [ "$val" == "test" ]; then
+				process_test="on";
+			fi
+			shift;
+	done
+}
+
+# determine if we are running in debug mode
+function process.debug? {
+	test -n "$process_debug";
+}
+
+# determine if we are running in strict mode
+function process.strict? {
+	test -n "$process_strict";
+}
+
+# determine if we are running in test mode
+function process.test? {
+	test -n "$process_test";
+}
+
+# switch off debug mode
+function process.debug! {
+	process_debug="";
+}
+
+# switch off strict mode
+function process.strict! {
+	process_strict="";
+	set +o errtrace;
+	set +o errexit;
+	set +o nounset;
+}
+
+# switch off test mode
+function process.test! {
+	process_test="";
 }
 
 # TODO: add PID file support
@@ -120,7 +161,7 @@ function process.on {
 	while [ $# -gt 0 ];
 		do
 			signal="$1";
-			trap "__process.trap.handler $? $signal" $signal;
+			trap "__process.trap $? $signal" $signal;
 			shift;
 	done
 }
@@ -140,20 +181,26 @@ function process.off {
 # TODO: add lock file support for singleton processes
 
 
-function __process.trap.handler {
+# responds to trap signals
+function __process.trap {
 	# exit code of last command
 	local code="$1";
 	
 	# signal being processed
 	local signal="$2";
 	
-	echo "$FUNCNAME got signal : $signal";
-	#local lineno="$2";
-	local data=( $( caller 1 ) );
-	
-	if [ ${#data[@]} -gt 0 ]; then
-		echo "${data[@]}";
+	# in test mode just output the signal name
+	if process.test?; then
+		echo -ne "$signal";
+	else
+		echo "$FUNCNAME got signal : $signal";
+		#local lineno="$2";
+		local data=( $( caller 1 ) );
+
+		if [ ${#data[@]} -gt 0 ]; then
+			echo "${data[@]}";
+		fi
+
+		echo "$FUNCNAME : $code : $1";
 	fi
-	
-	echo "$FUNCNAME : $code : $1";
 }
