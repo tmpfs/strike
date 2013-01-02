@@ -33,14 +33,24 @@ function signals {
 	# switch on debug/strict/test mode(s)
 	process.use debug strict test;
 	
+	# add a trap handler, using the default naming convention
+	signal()
+	{
+		echo "$FUNCNAME called!!!";
+	}
+	
 	local __signals="${process_signals[@]}";
 	local signal;
 	for signal in ${__signals[@]}
 		do
 			# listen for everything, execept err and debug as they are too noisy
 			if [ "$signal" != "err" ] && [ "$signal" != "debug" ]; then
-				# echo "adding signal $signal";
+				# switch on handling of the signal
 				process.on "$signal";
+				
+				# register signal callbacks with
+				# a custom method
+				process.signal.on "signal";
 			fi
 	done
 	
@@ -52,9 +62,11 @@ function signals {
 	}
 	
 	# start the process as a daemon
+	# with a custom method name
 	process.daemon.start! "loop";
 }
 
 signals "$@";
 
-# quit 1 "%s" "$process_name"
+# should never reach this line
+quit 1 "%s should not have got to %s" "$process_name" "$LINENO";

@@ -164,9 +164,32 @@ function process.pid {
 	echo -ne "$$";
 }
 
-# register a callback method for a signal
+# add a callback method for signal(s)
 function process.signal.on {
-	echo "process.signal.on : $1";
+	local method="${1:-process.trap}";
+	local signal;
+	if ! method.exists? "$method"; then
+		console.warn "$FUNCNAME cannot add non-existent callback method %s" "$method";
+	else
+		echo "process.signal.on : $method";
+	fi
+}
+
+# remove a callback method for signal(s)
+function process.signal.off {
+	local method="${1:-process.trap}";	
+	local signal;	
+	echo "process.signal.off : $method";
+}
+
+# print callbacks for signal(s)
+function process.signal.print {
+	while [ $# -gt 0 ];
+		do
+			signal="$1";
+			echo "listing signal $signal";
+			shift;
+	done
 }
 
 # switch on a trap
@@ -192,10 +215,7 @@ function process.off {
 }
 
 function process.daemon.start! {
-	local method="${1:-daemon.loop}";
-	
-	echo "$FUNCNAME : $method";
-	
+	local method="${1:-process.loop}";
 	if method.exists? "$method"; then
 		process_loop=true;
 		__process.daemonize "$method";
