@@ -5,7 +5,7 @@ declare -g process_debug="";
 
 declare -g process_test="";
 
-declare -g process_singleton="";
+declare -g process_lock="";
 
 declare -g process_pid="";
 
@@ -111,14 +111,9 @@ function process.test? {
 	test -n "$process_test";
 }
 
-# determine if we are running as a singleton
-function process.singleton? {
-	test -n "$process_singleton";
-}
-
-# determine if we are using as a pid file
-function process.pid? {
-	test -n "$process_pid";
+# determine if we are running as a lock
+function process.lock? {
+	test -n "$process_lock";
 }
 
 # switch off debug mode
@@ -139,12 +134,6 @@ function process.test! {
 	process_test="";
 }
 
-# TODO: add PID file support
-# print the process id
-function process.pid {
-	echo -ne "$$";
-}
-
 # retrieve the directory for process temporary files
 function process.tmp.dir {
 	# put the tmp directory in the library directory
@@ -156,37 +145,17 @@ function process.tmp.dir {
 	_result="$dir";
 }
 
-# retrieve the path to the pid file for this process
-function process.pid.name {
-	local ext="pid";
-	local pid=$$;
-	# singletons needn't include the pid in the name
-	if process.singleton?; then
-		_result="${process_name}.${ext}";
-	else
-		_result="${process_name}.${pid}.${ext}";
-	fi
+# does nothing, use during development to prevent
+# errors from empty conditionals, functions etc
+function process.noop {
+	return 0;
 }
 
-# retrieve the path to the pid file for this process
-function process.pid.file {
-	process.tmp.dir;
-	local process="$_result";
-	process.pid.name;
-	_result="${process}/${_result}";
-}
-
-# flag this program as using a PID file
-function process.pid.use! {
-	
-	# switch on trapping exit so we can clean up
-	# the pid file using the private handler
-	process.signal.on __process.pid.clean exit;
-	process.on exit;
-	
-	process_pid="on";
-	__process.pid.write;
-}
+######################################################################
+#
+#	SIGNAL PUBLIC METHODS
+#
+######################################################################
 
 # add a callback method for signal(s)
 function process.signal.on {
@@ -342,6 +311,13 @@ function process.off {
 	done
 }
 
+######################################################################
+#
+#	DAEMON PUBLIC METHODS
+#
+######################################################################
+
+# determine if the process is running as a daemon
 function process.daemon? {
 	if [ "$process_loop" == true ]; then
 		return 0;
@@ -349,6 +325,7 @@ function process.daemon? {
 	return 1;
 }
 
+# start this process running as a daemon
 function process.daemon.start! {
 	local method="${1:-process.loop}";
 	if method.exists? "$method"; then
@@ -359,18 +336,67 @@ function process.daemon.start! {
 	fi
 }
 
+# stop this process running as a daemon
 function process.daemon.stop! {
 	# switch the loop off
 	process_loop=false;
 }
 
-# does nothing, use during development to prevent
-# errors from empty conditionals, functions etc
-function process.noop {
-	return 0;
+######################################################################
+#
+#	PID PUBLIC METHODS
+#
+######################################################################
+
+# determine if we are using a pid file
+function process.pid? {
+	test -n "$process_pid";
 }
 
-# TODO: add lock file support for singleton processes
+# print the process id
+function process.pid {
+	echo -ne "$$";
+}
+
+# retrieve the path to the pid file for this process
+function process.pid.name {
+	local ext="pid";
+	local pid=$$;
+	# locks needn't include the pid in the name
+	if process.lock?; then
+		_result="${process_name}.${ext}";
+	else
+		_result="${process_name}.${pid}.${ext}";
+	fi
+}
+
+# retrieve the path to the pid file for this process
+function process.pid.file {
+	process.tmp.dir;
+	local process="$_result";
+	process.pid.name;
+	_result="${process}/${_result}";
+}
+
+# flag this program as using a PID file
+function process.pid.use! {
+	
+	# switch on trapping exit so we can clean up
+	# the pid file using the private handler
+	process.signal.on __process.pid.clean exit;
+	process.on exit;
+	
+	process_pid="on";
+	__process.pid.write;
+}
+
+# TODO: add lock file support for lock processes
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
 
 # responds to trap signals
 function __process.trap {

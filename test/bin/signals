@@ -32,15 +32,6 @@ process.use debug strict test;
 # allow inline assertions
 require 'assert';
 
-#require 'assert';
-
-#process.pid.file;
-#echo "pid file is: $_result";
-
-process.pid.use!;
-
-exit 0;
-
 function signals {
 	
 	# trap handlers
@@ -94,10 +85,23 @@ function signals {
 			fi
 	done
 	
+	# switch on pid file usage
+	# must be done after the signal assertions!
+	process.pid.use!;
+	
+	process.pid.file;
+	assert.file.exists? "$_result";
+	
+	#assert.f "abc";
+	
 	loop()
 	{
 		process.uptime;
-		echo "$FUNCNAME : process.uptime: $_result";
+		console.info "uptime %s" "$_result";
+		# wait a little while
+		sleep 2;
+		process.uptime;
+		console.info "uptime %s" "$_result";
 		exit 0;
 	}
 	

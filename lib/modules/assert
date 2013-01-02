@@ -1,3 +1,5 @@
+# STRING ASSERTIONS
+
 # asserts that two string values are equal
 function assert.equal {
 	local expected="${1:-}";
@@ -30,6 +32,8 @@ function assert.match! {
 		__assert_ok "$FUNCNAME";
 	fi
 }
+
+# NUMERIC ASSERTIONS
 
 # asserts that an integer is greater than
 # an expected value
@@ -67,10 +71,33 @@ function assert.eq {
 	fi
 }
 
+# FILE ASSERTIONS
 
+# assert with -f
+function assert.file.exists? {
+	# echo "assert.f $1";
+	local expected="0";
+	set +o errexit;
+	`test -f "$1"`;
+	local received="$?";
+	set -o errexit;
+	
+	# echo "assert.f after test"
+	
+	if [ "$expected" == "$received" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
 
 function __assert_ok {
-	
 	local ttyout="${ttyout:-}";
 	
 	local assertion="$1";
