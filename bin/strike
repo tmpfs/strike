@@ -63,17 +63,12 @@ set -o nounset;
 #	BOILERPLATE
 #
 ######################################################################
-export PROGRAM_NAME=`basename $0`;
 console_print_program_prefix="off";
 declare -gx exedir;
 function boilerplate {
 	local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-	if [ -L "$abspath" ]; then
-		abspath=`readlink $abspath`;
-	fi
-	if [[ "$abspath" =~ ^\./ ]]; then
-		abspath="${PWD}/${abspath}";
-	fi
+	if [ -L "$abspath" ]; then abspath=`readlink $abspath`; fi
+	if [[ "$abspath" =~ ^\./ ]]; then abspath="${PWD}/${abspath}"; fi
 	exedir=`dirname "$abspath"`;
 	local libdir="$exedir/../lib";
 	source "$libdir/shared" "$@";
@@ -82,7 +77,7 @@ boilerplate "$@";
 ######################################################################
 
 # set up the main delegate module as 'strike'
-module="$PROGRAM_NAME";
+module="$process_name";
 
 # configure help
 require 'help';

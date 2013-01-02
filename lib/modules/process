@@ -480,17 +480,17 @@ function __process.trap {
 	fi
 	
 	# in test mode just output the signal name
-	if process.test?; then
-		echo -ne "$signal";
-	else
-		# TODO: tidy this output in non-debug mode
-		echo "$FUNCNAME got signal : $signal";
-		local data=( $( caller 1 ) );
-		if [ ${#data[@]} -gt 0 ]; then
-			echo "${data[@]}";
-		fi
-		echo "$FUNCNAME : $code : $1";
-	fi
+	# if process.test?; then
+	# 	echo -ne "$signal";
+	# else
+	# 	# TODO: tidy this output in non-debug mode
+	# 	echo "$FUNCNAME got signal : $signal";
+	# 	local data=( $( caller 1 ) );
+	# 	if [ ${#data[@]} -gt 0 ]; then
+	# 		echo "${data[@]}";
+	# 	fi
+	# 	echo "$FUNCNAME : $code : $1";
+	# fi
 	
 	# trigger callbacks for the signal
 	process.signal.trigger "$signal";

@@ -1,12 +1,11 @@
 # MANUAL ASSERTIONS
 
 function assert.pass {
-	echo "assert pass called ... "
-	__assert_ok "$FUNCNAME";	
+	__assert_ok "$FUNCNAME" "$@";
 }
 
 function assert.fail {
-	__assert_err "$FUNCNAME";
+	__assert_err "$FUNCNAME" "$@";
 }
 
 # STRING ASSERTIONS
@@ -131,7 +130,13 @@ function __assert_ok {
 		exec 5>&1;
 		exec 1> /dev/tty;
 	fi
-	console.ok "$assertion %s" "$method";
+
+	if [ $# -eq 1 ]; then
+		console.ok "$assertion %s" "$method";
+	elif [ $# -gt 1 ]; then
+		# custom message
+		console.ok "${@:2}";
+	fi
 	
 	if [ ! -z "$ttyout" ]; then	
 		# restore stdout and close file descriptor #5
@@ -140,9 +145,7 @@ function __assert_ok {
 }
 
 function __assert_err {
-	
 	local ttyerr="${ttyerr:-}";
-	
 	local assertion="$1";
 	local stack=( $( caller 1) );
 	local lineno="${stack[0]}";
@@ -154,8 +157,14 @@ function __assert_err {
 		exec 6>&1;
 		exec 2> /dev/tty;
 	fi
-	console.error "$assertion %s $frame" "$method";
-	console.error "expected %s, got %s" "$expected" "$received";
+	
+	if [ $# -eq 1 ]; then
+		console.error "$assertion %s $frame" "$method";	
+		console.error "expected %s, got %s" "$expected" "$received";
+	elif [ $# -gt 1 ]; then
+		# custom message
+		console.error "${@:2}";
+	fi
 	
 	if [ ! -z "$ttyerr" ]; then
 		# restore stderr and close file descriptor #6

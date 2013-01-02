@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-set -o errtrace;
-set -o errexit;
-set -o nounset;
-
 ######################################################################
 #
 #	BOILERPLATE
@@ -13,12 +9,8 @@ console_print_program_prefix="off";
 declare -gx exedir;
 function boilerplate {
 	local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-	if [ -L "$abspath" ]; then
-		abspath=`readlink $abspath`;
-	fi
-	if [[ "$abspath" =~ ^\./ ]]; then
-		abspath="${PWD}/${abspath}";
-	fi
+	if [ -L "$abspath" ]; then abspath=`readlink $abspath`; fi
+	if [[ "$abspath" =~ ^\./ ]]; then abspath="${PWD}/${abspath}"; fi
 	exedir=`dirname "$abspath"`;
 	local libdir="$exedir/../../lib";
 	source "$libdir/shared" "$@";
@@ -26,10 +18,7 @@ function boilerplate {
 boilerplate "$@";
 ######################################################################
 
-# switch on debug/strict/test mode(s)
-process.use debug strict test;
-
-# allow inline assertions
+process.use 'strict';
 require 'assert';
 
 function signals {
@@ -84,35 +73,6 @@ function signals {
 				# process.signal.trigger "$signal";
 			fi
 	done
-	
-	# switch on pid file usage
-	# must be done after the signal assertions!
-	process.pid.use!;
-	# assert that we have a pid file
-	process.pid.file;
-	assert.file.exists? "$_result";
-	process.pid?;
-	assert.eq "0" "$?";
-	
-	# switch off pid file usage
-	process.pid.use! off;
-	# assert that the pid file does not exist
-	process.pid.file;
-	assert.file.exists! "$_result";
-	
-	# switch on lock file usage - singleton process
-	process.lock.use!;
-	# assert that we have a lock file
-	process.lock.file;
-	assert.file.exists? "$_result";
-	process.lock?;
-	assert.eq "0" "$?";
-	
-	# switch off lock file usage
-	process.lock.use! off;
-	# assert that the lock file does not exist
-	process.lock.file;
-	assert.file.exists! "$_result";
 	
 	loop()
 	{

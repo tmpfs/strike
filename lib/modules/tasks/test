@@ -59,6 +59,8 @@ function tasks.test {
 	if [ -t 1 ]; then ttyout="on"; fi
 	if [ -t 2 ]; then ttyerr="on"; fi
 	
+	local testbin="${testdir}/bin";
+	
 	if [ $# -eq 0 ]; then
 		__assert_run_all;
 	else
@@ -124,11 +126,34 @@ function __assert_run_test {
 	fs.path.expand "$file";
 	file="$_result";
 	local name="`basename $file`";
+	local suite=${name%%.*};
+	
+	# run any binary tests first
+	# these executables should perform inline assertions
+	if [ -d "$testbin" ]; then
+		local binary;
+		for binary in ${testbin}/${suite}.*
+			do
+				if [ -f "$binary" ]; then
+					if [ -x "$binary" ]; then
+						local binary_name="`basename $binary`";
+						console.info "binary test %s < %s" "$binary_name" "$binary";
+						# execute the binary test file
+						$binary;
+						if [ $? -gt 0 ]; then
+							assert.fail "binary test %s exited with non-zero code %s" "$binary_name" "$?";
+						fi
+					else
+						console.warn "test binary %s is not executable" "$binary";
+					fi
+				fi
+		done
+	fi
 	
 	# require and generate a list of method definitions
 	require.methods "$file" "^test\.";
 	local methods=( $_result );
-	console.info "assert %s < %s" "$name" "$file";
+	console.info "test %s < %s" "$suite" "$file";
 	if [ "${#methods[@]}" -eq 0 ]; then
 		console.warn "test %s does not declare any test methods" "$name";
 	else

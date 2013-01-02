@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+console_print_program_prefix="off";
+declare -gx exedir;
+function boilerplate {
+	local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
+	if [ -L "$abspath" ]; then abspath=`readlink $abspath`; fi
+	if [[ "$abspath" =~ ^\./ ]]; then abspath="${PWD}/${abspath}"; fi
+	exedir=`dirname "$abspath"`;
+	local libdir="$exedir/../../lib";
+	source "$libdir/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+process.use 'strict';
+require 'assert';
+
+function pidfile {
+	# switch on pid file usage
+	# must be done after the signal assertions!
+	process.pid.use!;
+	# assert that we have a pid file
+	process.pid.file;
+	assert.file.exists? "$_result";
+	process.pid?;
+	assert.eq "0" "$?";
+	
+	# switch off pid file usage
+	process.pid.use! off;
+	# assert that the pid file does not exist
+	process.pid.file;
+	assert.file.exists! "$_result";
+}
+
+pidfile "$@";
+exit 0;
