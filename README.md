@@ -8,12 +8,18 @@ Brings structure and modularity to `bash` programs and provides a set of modules
 
 ## Features
 
-* Write portable and maintainable code using [require(3)](http://freeformsystems.github.com/strike/require.3.html)
-* Encourages safe scripting with `process.use strict`
+* Be safe, declare `process.use strict`
 * Daemonize any process with `process.daemon.start!`
 * Make a process behave as a singleton with `process.lock.use!`
-* Easily add PID file management to a process with `process.pid.use!`
+* Easily add PID file management with `process.pid.use!`
+* Map trap signals to command methods with the `process.signal.*` commands, see [process(3)](http://freeformsystems.github.com/strike/process.3.html)
+* Write portable and maintainable code using [require(3)](http://freeformsystems.github.com/strike/require.3.html)
 * Read and write JSON data using [json(3)](http://freeformsystems.github.com/strike/json.3.html)
+* Make your program pretty, use [console(3)](http://freeformsystems.github.com/strike/console.3.html) for [ANSI escape sequences](http://en.wikipedia.org/wiki/ANSI_escape_code)
+* Use [bake(1)](http://freeformsystems.github.com/strike/bake.1.html) to automate common tasks
+* Improve code legibility without sacrificing terseness by using the various helper modules such as [method(3)](http://freeformsystems.github.com/strike/method.3.html), [array(3)](http://freeformsystems.github.com/strike/array.3.html) and [string(3)](http://freeformsystems.github.com/strike/string.3.html)
+* Write test-driven programs using the `test` task for [bake(1)](http://freeformsystems.github.com/strike/bake.1.html)
+* Document your program using inline heredoc comments and publish to html and man pages using the `doc.*` tasks for [bake(1)](http://freeformsystems.github.com/strike/bake.1.html)
 
 ## Installation
 
