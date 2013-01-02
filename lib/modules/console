@@ -249,7 +249,7 @@ function print {
 }
 
 function __console_print_program_prefix {
-	local prefix="[${program_name:-}]";
+	local prefix="[${process_name:-}]";
 	local include_prefix=${console_print_program_prefix:-};
 	if [ ! -z "$include_prefix" ]; then
 		if [ -t 1 ] && [ -z "$console_no_format" ]; then	

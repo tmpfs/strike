@@ -57,4 +57,4 @@ function signals {
 
 signals "$@";
 
-# quit 1 "%s" "$program_name"
+# quit 1 "%s" "$process_name"
