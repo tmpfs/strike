@@ -8,7 +8,7 @@ Unit test task(s) for bake(1).
 
 ## DESCRIPTION
 
-Adds task methods for unit testing bash programs, unit tests are defined in files with a `.test` extension.
+Adds task methods for unit testing bash(1) programs, unit tests are defined in files with a `.test` extension.
 
 ## REQUIRE
 
@@ -18,9 +18,9 @@ In your tasks(7) file `require` the `test` task(s) using:
 
 ## USAGE
 
-	bake test [tests...]
+	bake test [suite...]
 	
-When no unit tests are specified all tests will be executed, otherwise pass a list of specific tests to run.
+When no test suites are specified all test suites will be executed, otherwise pass a list of specific tests to run. Note that when specifying the test suites you *do not* include the `.test` file extension.
 
 ## FILES
 
