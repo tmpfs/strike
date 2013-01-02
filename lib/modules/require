@@ -33,10 +33,18 @@ ronn:markdown
 # TODO: add require.unload method to call method.remove on all declared methods
 
 function require {
+	force=${force:-false};
 	local name="${1:-}";
 	if [ ! -z "$name" ]; then
 		__require_load "$name";
 	fi
+}
+
+# forces a require even if the module is already loaded
+function require.load {
+	echo "require.load: $FUNCNAME : $1";
+	local force=true;
+	require "$1";
 }
 
 function require.list {
@@ -81,13 +89,44 @@ function require.delegate {
 	fi
 }
 
+# determines whether a module exists by name or path
+function require.exists? {
+	local module="${1:-}";
+	echo "$FUNCNAME : $module";
+	if [ ! -z "$module" ]; then
+		if [[ "$module" =~ ^(\.+)?/ ]]; then
+			require.path.exists? "$module";
+			return $?;
+		else
+			echo "testing for module by name : $module : ${module_paths[*]}";
+			require.name.exists? "$module";
+			return $?;
+		fi
+	fi
+	return 1;
+}
+
+# determines whether a module exists by name
+function require.name.exists? {
+	if string.contains? "${module_paths[*]}" "$1"; then
+		return 0;
+	fi
+	return 1;
+}
+
+# determines whether a module exists by absolute path
 function require.path.exists? {
-	#echo "require.path.exists? $1 : ${!module_paths[@]}";
 	if string.contains? "${!module_paths[*]}" "$1"; then
 		return 0;
 	fi
 	return 1;
 }
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
 
 function __require_register {
 	local name="${1:-}";
@@ -119,6 +158,9 @@ function __require_register {
 
 function __require_source {
 	local abs="$1";
+	
+	echo "require by force: $force";
+	
 	# only require if path does not match an already loaded module
 	if ! require.path.exists? "$abs"; then
 		source "$abs";

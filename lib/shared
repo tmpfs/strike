@@ -59,7 +59,7 @@ function __initialize__ {
 
 	# manually register these modules
 	__require_register "variable" "${dir}/modules/variable";
-	__require_register "variable" "${dir}/modules/string";
+	__require_register "string" "${dir}/modules/string";
 	__require_register "method" "${dir}/modules/method";
 	__require_register "color" "${dir}/modules/color";
 	__require_register "console" "${dir}/modules/console";

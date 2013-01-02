@@ -60,6 +60,8 @@ process_time[start]=`date +%s`;
 # store a boolean of whether we are looping as a daemon
 declare -g process_loop=false;
 
+#  TODO: add process.fork to run a process in the background and maintain a list of pids ? see jobs
+
 function process.initialize {
 	
 	# check for an existing lock file

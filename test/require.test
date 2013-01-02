@@ -1,3 +1,18 @@
+# test existence of built in modules
+function test.require.exists? {
+	local modules=( variable string method color console array require fs );
+	local module;
+	for module in ${modules[@]}
+		do
+			require.exists? "$module";
+			assert.eq "0" "$?";
+			require.name.exists? "$module";
+			assert.eq "0" "$?";
+			require.path.exists? "${library_dirs[modules]}/$module";
+			assert.eq "0" "$?";
+	done
+}
+
 # test for absolute require
 function test.require.absolute {
 	dir="$_result";

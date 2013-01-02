@@ -1,3 +1,14 @@
+# MANUAL ASSERTIONS
+
+function assert.pass {
+	echo "assert pass called ... "
+	__assert_ok "$FUNCNAME";	
+}
+
+function assert.fail {
+	__assert_err "$FUNCNAME";
+}
+
 # STRING ASSERTIONS
 
 # asserts that two string values are equal
