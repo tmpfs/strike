@@ -5,44 +5,15 @@ declare -g process_debug="";
 
 declare -g process_test="";
 
+declare -g process_singleton="";
+
+declare -g process_pid="";
+
 # TODO: add the process.use "debug"
 # to force console.error to always throw
 # a stack trace
 
-# OS X signals
-# No    Name         Default Action       Description
-# 1     SIGHUP       terminate process    terminal line hangup
-# 2     SIGINT       terminate process    interrupt program
-# 3     SIGQUIT      create core image    quit program
-# 4     SIGILL       create core image    illegal instruction
-# 5     SIGTRAP      create core image    trace trap
-# 6     SIGABRT      create core image    abort program (formerly SIGIOT)
-# 7     SIGEMT       create core image    emulate instruction executed
-# 8     SIGFPE       create core image    floating-point exception
-# 9     SIGKILL      terminate process    kill program
-# 10    SIGBUS       create core image    bus error
-# 11    SIGSEGV      create core image    segmentation violation
-# 12    SIGSYS       create core image    non-existent system call invoked
-# 13    SIGPIPE      terminate process    write on a pipe with no reader
-# 14    SIGALRM      terminate process    real-time timer expired
-# 15    SIGTERM      terminate process    software termination signal
-# 16    SIGURG       discard signal       urgent condition present on socket
-# 17    SIGSTOP      stop process         stop (cannot be caught or ignored)
-# 18    SIGTSTP      stop process         stop signal generated from keyboard
-# 19    SIGCONT      discard signal       continue after stop
-# 20    SIGCHLD      discard signal       child status has changed
-# 21    SIGTTIN      stop process         background read attempted from control terminal
-# 22    SIGTTOU      stop process         background write attempted to control terminal
-# 23    SIGIO        discard signal       I/O is possible on a descriptor (see fcntl(2))
-# 24    SIGXCPU      terminate process    cpu time limit exceeded (see setrlimit(2))
-# 25    SIGXFSZ      terminate process    file size limit exceeded (see setrlimit(2))
-# 26    SIGVTALRM    terminate process    virtual time alarm (see setitimer(2))
-# 27    SIGPROF      terminate process    profiling timer alarm (see setitimer(2))
-# 28    SIGWINCH     discard signal       Window size change
-# 29    SIGINFO      discard signal       status request from keyboard
-# 30    SIGUSR1      terminate process    User defined signal 1
-# 31    SIGUSR2      terminate process    User defined signal 2
-
+# man signal
 declare -ag process_signals;
 process_signals=(
 	hup
@@ -96,7 +67,7 @@ function process.initialize {
 			# initialize registry of signal
 			# callback methods
 			process_signal_callbacks[$signal]="";
-	done
+	done	
 }
 
 function process.use {
@@ -140,6 +111,16 @@ function process.test? {
 	test -n "$process_test";
 }
 
+# determine if we are running as a singleton
+function process.singleton? {
+	test -n "$process_singleton";
+}
+
+# determine if we are using as a pid file
+function process.pid? {
+	test -n "$process_pid";
+}
+
 # switch off debug mode
 function process.debug! {
 	process_debug="";
@@ -162,6 +143,49 @@ function process.test! {
 # print the process id
 function process.pid {
 	echo -ne "$$";
+}
+
+# retrieve the directory for process temporary files
+function process.tmp.dir {
+	# put the tmp directory in the library directory
+	# so as not to pollute project directories
+	local dir="${library_dirs[root]}/tmp";
+	if [ ! -d "$dir" ] ;then
+		mkdir -p "$dir" || console.quit 1 "could not create temporary directory %s" "$dir";
+	fi
+	_result="$dir";
+}
+
+# retrieve the path to the pid file for this process
+function process.pid.name {
+	local ext="pid";
+	local pid=$$;
+	# singletons needn't include the pid in the name
+	if process.singleton?; then
+		_result="${process_name}.${ext}";
+	else
+		_result="${process_name}.${pid}.${ext}";
+	fi
+}
+
+# retrieve the path to the pid file for this process
+function process.pid.file {
+	process.tmp.dir;
+	local process="$_result";
+	process.pid.name;
+	_result="${process}/${_result}";
+}
+
+# flag this program as using a PID file
+function process.pid.use! {
+	
+	# switch on trapping exit so we can clean up
+	# the pid file using the private handler
+	process.signal.on __process.pid.clean exit;
+	process.on exit;
+	
+	process_pid="on";
+	__process.pid.write;
 }
 
 # add a callback method for signal(s)
@@ -238,6 +262,8 @@ function process.signal.off {
 						fi
 				done
 				
+				# if callbacks are empty switch off signal ???
+				
 				# process next signal name
 				shift;
 		done
@@ -296,6 +322,8 @@ function process.on {
 	while [ $# -gt 0 ];
 		do
 			signal="$1";
+			string.lower "$signal";
+			signal="$_result";
 			trap "__process.trap $? $signal" $signal;
 			shift;
 	done
@@ -307,9 +335,18 @@ function process.off {
 	while [ $# -gt 0 ];
 		do
 			signal="$1";
+			string.lower "$signal";
+			signal="$_result";		
 			trap - $signal;
 			shift;
 	done
+}
+
+function process.daemon? {
+	if [ "$process_loop" == true ]; then
+		return 0;
+	fi
+	return 1;
 }
 
 function process.daemon.start! {
@@ -343,10 +380,15 @@ function __process.trap {
 	# signal being processed
 	local signal="$2";
 	
-	# switch off any daemon for these signals
-	case "$signal" in
-		exit ) process.daemon.stop! ;;
-	esac
+	# echo "trap called with signal: $signal";
+	
+	# TODO: move to a callback method in process.daemon.start! ?
+	if process.daemon?; then
+		# switch off any daemon for these signals
+		case "$signal" in
+			exit ) process.daemon.stop! ;;
+		esac
+	fi
 	
 	# in test mode just output the signal name
 	if process.test?; then
@@ -362,6 +404,9 @@ function __process.trap {
 
 		echo "$FUNCNAME : $code : $1";
 	fi
+	
+	# trigger callbacks for the signal
+	process.signal.trigger "$signal";	
 }
 
 function __process.daemonize {
@@ -376,4 +421,20 @@ function __process.daemonize {
 				process.daemon.stop!
 			fi
 	done
+}
+
+# write the pid to a file
+function __process.pid.write {
+	process.pid.file;
+	local pidfile="$_result";
+	process.pid > "$pidfile" || quit 1 "could not write pid ($$) to file %s" "$pidfile";
+}
+
+# remove the pid file
+function __process.pid.clean {
+	process.pid.file;
+	local pidfile="$_result";
+	if test -f "$pidfile"; then
+		rm "$pidfile" > /dev/null 2>&1 || console.warn "could not remove pid file %s" "$pidfile";
+	fi
 }

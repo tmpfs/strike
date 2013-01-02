@@ -30,7 +30,6 @@ Loads modules by name or filesystem path and adds delegate(3) functionality to m
 delegate(3)
 ronn:markdown
 
-# TODO: don't re-require if path matches an already loaded module
 # TODO: add require.unload method to call method.remove on all declared methods
 
 function require {
@@ -120,6 +119,7 @@ function __require_register {
 
 function __require_source {
 	local abs="$1";
+	# only require if path does not match an already loaded module
 	if ! require.path.exists? "$abs"; then
 		source "$abs";
 	else

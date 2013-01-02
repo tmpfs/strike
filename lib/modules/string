@@ -48,7 +48,12 @@ function string.contains? {
 
 function string.upper {
 	local str="${1:-}";
-	_result=${str^^};
+	_result="${str^^}";
+}
+
+function string.lower {
+	local str="${1:-}";
+	_result="${str,,}";
 }
 
 #string.upper "abc";

@@ -5,3 +5,4 @@ node_modules
 indexes
 *.log
 erl_crash.dump
+tmp

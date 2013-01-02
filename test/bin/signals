@@ -34,6 +34,13 @@ require 'assert';
 
 #require 'assert';
 
+#process.pid.file;
+#echo "pid file is: $_result";
+
+process.pid.use!;
+
+exit 0;
+
 function signals {
 	
 	# trap handlers
