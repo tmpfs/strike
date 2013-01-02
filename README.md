@@ -28,13 +28,17 @@ Use `bake(1)` to execute the unit tests, run:
 
 	npm test
 	
-Which is a shortcut for:
+Which is an alias for:
 
 	./bake assert
 
 ### Generating Documentation
 
 Documentation for the repository is generated using [ronn(1)](https://github.com/rtomayko/ronn) which must be installed, to generate documentation use task-doc(7):
+
+	npm run-script doc
+	
+Which is an alias for:
 
 	./bake doc.build
 	
