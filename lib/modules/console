@@ -336,6 +336,14 @@ function console.info {
 	echo -e "$prefix $msg";
 }
 
+# output a info message when the process is in debug mode
+function console.debug {
+	# TODO: change prefix to debug
+	if process.debug?; then
+		console.info "$@";
+	fi
+}
+
 #outputs an important info message
 # function important {
 # 	local status="[info]";

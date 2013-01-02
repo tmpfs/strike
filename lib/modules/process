@@ -169,25 +169,72 @@ function process.signal.on {
 	local method="${1:-process.trap}";
 	local signal;
 	if ! method.exists? "$method"; then
-		console.warn "$FUNCNAME cannot add non-existent callback method %s" "$method";
+		console.warn "%s cannot add non-existent callback method %s" "$FUNCNAME" "$method";
 	else
-		echo "process.signal.on : $method";
+		# got some signals specified
+		if [ $# -gt 1 ]; then
+			# remove the method reference $1
+			shift;
+			# process the signal definitions
+			while [ $# -gt 0 ];
+				do
+					signal="$1";
+					# validate the signal is recognized					
+					if process.signal.valid? "$signal"; then
+						# add the callback method
+						process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]} ${method}";
+						# remove a leading space delimiter
+						process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]# }";
+					else
+						console.warn "%s invalid signal %s" "$FUNCNAME" "$signal";
+					fi
+					# process next signal name
+					shift;
+			done
+		else
+			console.warn "%s no signals specified" "$FUNCNAME";
+		fi
 	fi
+}
+
+# determine if a signal name is valid
+function process.signal.valid? {
+	array.contains? "$1" ${process_signals[@]};
+	return $?;
 }
 
 # remove a callback method for signal(s)
 function process.signal.off {
 	local method="${1:-process.trap}";	
-	local signal;	
+	local signal;
 	echo "process.signal.off : $method";
+}
+
+function process.signal.trigger {
+	local signal callbacks method;
+	while [ $# -gt 0 ];
+		do
+			signal="$1";
+			callbacks=( "${process_signal_callbacks["$signal"]}" );
+			console.debug "%s (%s) > %s" "$FUNCNAME" "$signal" "${callbacks[*]}";
+			for method in ${callbacks[@]}
+				do
+					if method.exists? "$method"; then
+						"$method";
+					fi
+			done
+			shift;
+	done
 }
 
 # print callbacks for signal(s)
 function process.signal.print {
+	local signal callbacks;
 	while [ $# -gt 0 ];
 		do
 			signal="$1";
-			echo "listing signal $signal";
+			callbacks=( "${process_signal_callbacks["$signal"]}" );
+			console.info "%s > %s" "$signal" "${callbacks[*]}";
 			shift;
 	done
 }
@@ -227,6 +274,12 @@ function process.daemon.start! {
 function process.daemon.stop! {
 	# switch the loop off
 	process_loop=false;
+}
+
+# does nothing, use during development to prevent
+# errors from empty conditionals, functions etc
+function process.noop {
+	echo -ne '';	
 }
 
 # TODO: add lock file support for singleton processes

@@ -33,10 +33,15 @@ function signals {
 	# switch on debug/strict/test mode(s)
 	process.use debug strict test;
 	
-	# add a trap handler, using the default naming convention
-	signal()
+	# trap handlers
+	signal.on()
 	{
-		echo "$FUNCNAME called!!!";
+		process.noop;
+	}
+	
+	signal.dup()
+	{
+		process.noop;
 	}
 	
 	local __signals="${process_signals[@]}";
@@ -50,7 +55,14 @@ function signals {
 				
 				# register signal callbacks with
 				# a custom method
-				process.signal.on "signal";
+				process.signal.on "signal.on" "$signal";
+				process.signal.on "signal.dup" "$signal";
+										
+				# debug callbacks
+				# process.signal.print "$signal";
+				
+				# trigger the callbacks
+				process.signal.trigger "$signal";
 			fi
 	done
 	
