@@ -1,9 +1,9 @@
 function variable.get {
 	local name="$1";
 	set +o nounset;
-	array.is.array "$name";
-	local isarray="$_result";
-	if [ $isarray -eq 0 ]; then
+	#array.is.array? "$name";
+	#local isarray="$_result";
+	if array.is.array?; then
 		eval value=\${"$name"[@]};
 	else
 		eval value="$"$name;

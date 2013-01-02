@@ -170,11 +170,11 @@ function json.stringify {
 	
 	if [ ! -z "$json_data" ]; then
 		local value;
-		array.is.array "$json_data";
-		local isarray="$_result";
-		array.is.assoc "$json_data";
-		local isassoc="$_result";
-		if [ $isarray -eq 0 ] || [ $isassoc -eq 0 ]; then
+		# array.is.array? "$json_data";
+		# local isarray="$_result";
+		# array.is.assoc? "$json_data";
+		# local isassoc="$_result";
+		if array.is.array? "$json_data" || array.is.assoc? "$json_data"; then
 			__json_stringify_object "$json_data";
 		else
 			# if [ $isassoc -eq 0 ]; then

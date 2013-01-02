@@ -115,12 +115,16 @@ boilerplate "$@";
 # exit 0;
 
 # arr=(a b c);
-# 
-# if array.contains "a" "${arr[@]}"; then
-# 	echo "array contains a";
+
+# if array.contains? "a" "${arr[@]}" && array.contains? "b" "${arr[@]}"; then
+# 	echo "array contains a and b";
 # fi
 # 
-# if ! array.contains "d" "${arr[@]}"; then
+# if array.contains? "a" "${arr[@]}" || array.contains? "b" "${arr[@]}"; then
+# 	echo "array contains a or b";
+# fi
+# 
+# if ! array.contains? "d" "${arr[@]}"; then
 # 	echo "array does not contain d";
 # fi
 # 

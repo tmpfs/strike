@@ -59,7 +59,7 @@ require(3)
 ronn:markdown
 
 # "a string" "${array[@]}"
-function array.contains {
+function array.contains? {
 	local e;
 	for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
 	return 1;
@@ -73,22 +73,16 @@ function array.join {
 }
 
 
-function array.is.array {
+function array.is.array? {
 	local name="$1";
-	set +o errexit;
 	declare -p "$name" 2> /dev/null | grep -q 'declare \-a';
-	local exists="$?";
-	set -o errexit;
-	_result="$exists";
+	return $?;
 }
 
-function array.is.assoc {
+function array.is.assoc? {
 	local name="$1";
-	set +o errexit;
 	declare -p "$name" 2> /dev/null | grep -q 'declare \-A';
-	local exists="$?";
-	set -o errexit;
-	_result="$exists";
+	return $?;
 }
 
 # TODO: rename to array.last as it cannot pop
@@ -168,9 +162,7 @@ function array.write {
 			do
 				eval val="$"$[i+1];
 				arrflags="-a";
-				array.is.assoc "$val";
-				isassoc="$_result";
-				if [ $isassoc -eq 0 ]; then
+				if array.is.assoc? "$val"; then
 					arrflags="-A";
 				fi
 				arrflags="${arrflags}${flags}";
