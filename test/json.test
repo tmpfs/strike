@@ -162,6 +162,13 @@ function test.json.stringify.object.pretty.tab {
 function test.json.stringify.complex {
 	declare -A doc;
 	doc[type]="info";
+	
+	# TODO: ensure escape characters are correct
+	# doc[escaped]='\" \\ \/ \b \f \n \r \t \u four-hex-digits';
+	
+	# TODO: escape \u sequences so they are not interpreted by printf ?
+	# doc[escaped]="\u0040 ";
+	
 	doc[data.name]="muji";
 	doc[data.email]="<noop@xpm.io>";
 	doc[data.names.0]="muji";
@@ -179,6 +186,7 @@ function test.json.stringify.complex {
 	for key in "${!doc[@]}"
 		do
 			expected="${doc["$key"]}";
+			echo "expected: '$expected', received: '${json_doc["$key"]}'";
 			assert.equal "$expected" "${json_doc["$key"]}";
 	done
 }
