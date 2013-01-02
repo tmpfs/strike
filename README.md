@@ -8,11 +8,12 @@ Brings structure and modularity to `bash` programs and provides a set of modules
 
 ## Features
 
+* Write portable and maintainable code using [require(3)](http://freeformsystems.github.com/strike/require.3.html)
 * Encourages safe scripting with `process.use strict`
 * Daemonize any process with `process.daemon.start!`
 * Make a process behave as a singleton with `process.lock.use!`
 * Easily add PID file management to a process with `process.pid.use!`
-* Write portable and maintainable code using require(3)
+* Read and write JSON data using [json(3)](http://freeformsystems.github.com/strike/json.3.html)
 
 ## Installation
 
