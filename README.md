@@ -24,7 +24,11 @@ The [project documentation](http://freeformsystems.github.com/strike) is availab
 
 ### Running Tests
 
-Use `bake(1)` to execute the unit tests:
+Use `bake(1)` to execute the unit tests, run:
+
+	npm test
+	
+Which is a shortcut for:
 
 	./bake assert
 
