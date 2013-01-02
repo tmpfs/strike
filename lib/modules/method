@@ -46,13 +46,3 @@ function method.list.verbose {
 			shopt -u extdebug;
 	done
 }
-
-######################################################################
-#	Determines whether a method has been declared.
-######################################################################
-function __method_exists {
-	local method="$1";
-	#echo "testing method $method"
-	declare -f -F "$method" > /dev/null;
-	return $?;
-}
