@@ -30,8 +30,6 @@ Loads modules by name or filesystem path and adds delegate(3) functionality to m
 delegate(3)
 ronn:markdown
 
-# TODO: add require.unload method to call method.remove on all declared methods
-
 function require {
 	force=${force:-false};
 	local name="${1:-}";
@@ -119,6 +117,10 @@ function require.path.exists? {
 	fi
 	return 1;
 }
+
+# TODO: remove private method definitions
+# TODO: add require.path.unload!
+# TODO: add require.unload! to unload by name or path
 
 # removes a module definition by name
 function require.name.unload! {

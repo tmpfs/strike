@@ -6,6 +6,14 @@ Modular `bash` using `require` for *NIX systems. Depends upon `bash >= 4` for as
 
 Brings structure and modularity to `bash` programs and provides a set of modules that can be used from any `bash` program.
 
+## Features
+
+* Encourages safe scripting with `process.use strict`
+* Daemonize any process with `process.daemon.start!`
+* Make a process behave as a singleton with `process.lock.use!`
+* Easily add PID file management to a process with `process.pid.use!`
+* Write portable and maintainable code using require(3)
+
 ## Installation
 
 To install the library code as a dependency for a project into the `node_modules` sub-folder use:
