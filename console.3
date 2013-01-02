@@ -1,0 +1,133 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CONSOLE" "3" "January 2013" "" ""
+.
+.SH "NAME"
+\fBconsole\fR \- console output
+.
+.SH "SYNOPSIS"
+Helper methods for printing ANSI formatted output to a terminal and redirecting output to log file(s)\.
+.
+.SH "DESCRIPTION"
+The console(3) module is a built in module available to all programs\. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed\.
+.
+.P
+If either stdout or stderr is not a \fItty\fR then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but \fIno formatting\fR\.
+.
+.SH "USAGE"
+The general syntax for printing output is:
+.
+.P
+console\.info "message to print with %s information" "important";
+.
+.P
+Whereby the \fB%s\fR substring in the main message will be highlighted and replaced with the string \fIimportant\fR, generating:
+.
+.P
+message to print with \fBimportant\fR information
+.
+.SH "STDOUT"
+To print to standard output use the following methods\.
+.
+.TP
+\fBconsole\.info\fR:
+.
+.IP
+Prints an informational message\.
+.
+.TP
+\fBconsole\.log\fR:
+.
+.IP
+Prints a log message\. This method \fIdoes not perform any formatting\fR or print any program (or message type prefix) but does provide parameter replacement\. This method is essentially just a wrapper for echo(1) that allows the use of parameter replacement and the log file redirection functionality\.
+.
+.SH "STDERR"
+To print to standard error use the following methods\.
+.
+.TP
+\fBconsole\.warn\fR:
+.
+.IP
+Prints a warning message\.
+.
+.TP
+\fBconsole\.error\fR:
+.
+.IP
+Prints an error message\.
+.
+.TP
+\fBconsole\.throw\fR:
+.
+.IP
+Prints an error message followed by a stack trace of the current method call stack\.
+.
+.SH "LOG FILE REDIRECTION"
+The console(3) module supports redirecting stdout/stderr to log file(s)\.
+.
+.TP
+\fBconsole\.log\.stdout\fR:
+.
+.IP
+Redirect stdout to a log file and store stdout in file descriptor #3\.
+.
+.TP
+\fBconsole\.log\.stdout\.close\fR:
+.
+.IP
+Close redirection of stdout, restoring stdout and closing file descriptor #3\.
+.
+.TP
+\fBconsole\.log\.stderr\fR:
+.
+.IP
+Redirect stderr to a log file and store stderr in file descriptor #4\.
+.
+.TP
+\fBconsole\.log\.stderr\.close\fR:
+.
+.IP
+Close redirection of stderr, restoring stderr and closing file descriptor #4\.
+.
+.SH "EXIT METHODS"
+The console(3) module provides methods for exiting the program (optionally with a formatted message)\.
+.
+.TP
+\fBconsole\.success\fR:
+.
+.IP
+Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message\.
+.
+.TP
+\fBconsole\.quit\fR:
+.
+.IP
+Exits the program with a non\-zero exit code and optional error message\. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code\.
+.
+.SH "OPTIONS"
+The console(3) module parses the program options (but does not modify them) looking for the following options:
+.
+.TP
+\fB\-\-no\-format\fR:
+.
+.IP
+Do not perform any ANSI color or formatting modifications to the output\.
+.
+.SH "VARIABLES"
+See the globals\-api(3) documentation\.
+.
+.SH "MISCELLANEOUS"
+You may also print a stack trace (without any preceeding error message) using the \fBconsole\.trace\fR method\. Note that this method does not follow the general syntax for console(3) method invocations and accepts no parameters\.
+.
+.SH "BUGS"
+The number of replacement parameters must match exactly the number of \fB%s\fR occurences in the message otherwise unexpected behaviour will occur\.
+.
+.P
+\fBconsole\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBconsole\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+globals\-api(3)

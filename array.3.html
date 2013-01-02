@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv='content-type' value='text/html;charset=utf8'>
   <meta name='generator' value='Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)'>
-  <title>bake(1) - make for bash</title>
+  <title>array(3) - array module</title>
   <style type='text/css' media='all'>
   /* style: man */
   body#manpage {margin:0}
@@ -62,77 +62,85 @@
     <a href="#NAME">NAME</a>
     <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#DESCRIPTION">DESCRIPTION</a>
-    <a href="#FILES">FILES</a>
-    <a href="#ENVIRONMENT">ENVIRONMENT</a>
-    <a href="#EXIT-CODES">EXIT CODES</a>
+    <a href="#USAGE">USAGE</a>
     <a href="#BUGS">BUGS</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
     <a href="#SEE-ALSO">SEE ALSO</a>
   </div>
 
   <ol class='man-decor man-head man head'>
-    <li class='tl'>bake(1)</li>
+    <li class='tl'>array(3)</li>
     <li class='tc'></li>
-    <li class='tr'>bake(1)</li>
+    <li class='tr'>array(3)</li>
   </ol>
 
   <h2 id="NAME">NAME</h2>
 <p class="man-name">
-  <code>bake</code> - <span class="man-whatis">make for bash</span>
+  <code>array</code> - <span class="man-whatis">array module</span>
 </p>
 
 <h2 id="SYNOPSIS">SYNOPSIS</h2>
 
-<p><code>bake</code> command [<var>options</var>...]<br /></p>
+<p>Module methods for writing, reading, modifiying and inspecting arrays.</p>
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p><strong>bake</strong> is <code>make</code> for bash programs. The <code>bake</code> program does not define any tasks by default but some common tasks are available in the <code>modules/tasks</code> directory and can be included in a tasks file using <code>require</code>, for example:</p>
+<p>The <a class="man-ref" href="array.3.html">array<span class="s">(3)</span></a> modules can be used to write <em>global</em> array(s) to file(s) and read the file(s) back into array declarations.</p>
 
-<pre><code>require 'tasks/clean';
+<h2 id="USAGE">USAGE</h2>
+
+<p>To write an array file, declare the <em>global</em> array(s) and call <code>array.write</code>.</p>
+
+<pre><code>write_array() {
+    local file="${program_dirs[root]}/arrays";
+    declare -a array1;
+    array1=( 3 2 1 "a test string" );
+    declare -A array2;
+    array2[key]="value";
+    array2[greeting]="hello world";
+    array.write "$file" &lt;&lt;&lt; "array1 array2";    # specify the array names on stdin
+}
+write_array;
 </code></pre>
 
-<h2 id="FILES">FILES</h2>
+<p>To read an array file back into array(s) use the <code>array.read</code> method.</p>
 
-<p>The <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a> program looks for a <code>tasks</code> file in the current working directory and maps commands to the task methods found in the tasks file. A command is considered to be the first option passed to the <code>bake</code> executable, any other options specified on the command line are passed to the corresponding task method.</p>
+<pre><code>read_array() {
+    local file="${program_dirs[root]}/arrays";
+    array.read &lt; "$file";                       # read from the `arrays` file
 
-<h2 id="ENVIRONMENT">ENVIRONMENT</h2>
+    # print array keys
+    console.log "${!array1[*]}";
+    console.log "${!array2[*]}";
 
-<p>The following variables are available to each command method:</p>
-
-<dl>
-<dt class="flush"><code>root</code></dt><dd><p>  The directory where the <code>tasks</code> file is located.</p></dd>
-<dt class="flush"><code>target</code></dt><dd><p>  A temporary <code>target</code> directory corresponding to <code>${root}/target</code>.</p></dd>
-<dt class="flush"><code>tasks</code></dt><dd><p>  The file system path to the tasks file, eg: <code>${root}/tasks</code>.</p></dd>
-</dl>
-
-
-<h2 id="EXIT-CODES">EXIT CODES</h2>
-
-<dl>
-<dt class="flush"><code>1</code></dt><dd>  No tasks file available in the current working directory.</dd>
-<dt class="flush"><code>2</code></dt><dd>  No tasks command method available.</dd>
-<dt class="flush"><code>3</code></dt><dd>  The task method invocation exited with a non-zero exit code.</dd>
-</dl>
-
+    # print array values
+    console.log "${array1[*]}";
+    console.log "${array2[*]}";
+}
+read_array;
+</code></pre>
 
 <h2 id="BUGS">BUGS</h2>
 
-<p><strong>bake</strong> is written in bash and depends upon <code>bash</code> >= 4.</p>
+<p>When writing and reading arrays, the variable declarations must by <em>global</em>.</p>
+
+<p>Attempting to write and read associative arrays with spaces in the <em>keys</em> will result in unexpected behaviour.</p>
+
+<p><strong>array</strong> is written in bash and depends upon <code>bash</code> >= 4.</p>
 
 <h2 id="COPYRIGHT">COPYRIGHT</h2>
 
-<p><strong>bake</strong> is copyright (c) 2012 muji <a href="http://xpm.io" data-bare-link="true">http://xpm.io</a></p>
+<p><strong>array</strong> is copyright (c) 2012 muji <a href="http://xpm.io" data-bare-link="true">http://xpm.io</a></p>
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
-<p><a class="man-ref" href="task-test.7.html">task-test<span class="s">(7)</span></a>, <a class="man-ref" href="task-doc.7.html">task-doc<span class="s">(7)</span></a>, <a class="man-ref" href="task-clean.7.html">task-clean<span class="s">(7)</span></a>, <a class="man-ref" href="task-list.7.html">task-list<span class="s">(7)</span></a></p>
+<p><a class="man-ref" href="require.3.html">require<span class="s">(3)</span></a></p>
 
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
     <li class='tc'>January 2013</li>
-    <li class='tr'>bake(1)</li>
+    <li class='tr'>array(3)</li>
   </ol>
 
   </div>

@@ -9,16 +9,11 @@ Module methods for system executables.
 
 Enables validation and referencing of executables in `$PATH`.
 
-## REQUIRE
-
-In your tasks(7) file `require` the `executable` module using:
-
-	require 'executable';
-
 ## USAGE
 
-Once the module is available you can then validate a list of executables:
+Use executable(3) to validate a list of executables:
 
+	require 'executable';
 	executable validate ronn git;
 	
 If any of the listed executables are not available on the system the program will exit with a non-zero exit code. If executable validation succeeds the executable paths are available in the global `executables` associative array and can be accessed anywhere in the program, for example:

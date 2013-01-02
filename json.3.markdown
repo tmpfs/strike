@@ -1,55 +1,62 @@
-strike(1) -- require(3) for bash
+json(3) -- JSON manipulation
 =============================================
 
 ## SYNOPSIS
 
-Utility program for inspecting information about the system and bash installation.
+An experimental module for parsing and stringifying JSON data.
 
 ## DESCRIPTION
 
-The strike(1) program also provides debugging commands and the ability to switch the installed bash version.
+The json(3) module adds methods for parsing and creating JSON documents.
 
-## COMMANDS
+## USAGE
 
-The strike(1) supports the following commands:
+Parsing JSON data can be from a file, string or variable. After parsing the JSON data the parsed data is available on the global `json_doc` associative array. Use the `json.print` method to quickly inspect the contents of the parsed data.
 
-* `info`:
-	Print system information.
+	require 'json';
 	
-* `pkg`:
-	Print npm(1) package information.
+	# parse a json document
+	json.parse < "${program_dirs[root]}/package.json";
+	json.print;
 	
-* `module.dirs`:
-	Print a module search path directories.	
+	# parse a json string
+	json.parse <<< '{ "data": "value" }';
+	json.print;
 	
-* `module.list`:
-	Print a module list.
+	# clean up parsed json data
+	json.clean;
 	
-* `method.list`:
-	Print method names.
-	
-* `dirs`:
-	Print program directories.
-	
-* `lib.dirs`:
-	Print library directories.
+Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global `json_str` variable. Use the `json.string` method to print the JSON string data.
+
+	require 'json';
+
+	toJSON() {
+		declare -A doc;
+		doc[key]="value";
+		doc[greeting]="hello world";
+		json.stringify <<< "doc";		# doc is the *name* of the variable to stringify
+		json.string;					# print the result
+	}
+	toJSON;
 
 ## BUGS
 
-**strike** is written in bash and depends upon `bash` >= 4 for associative arrays.
+**json** is written in bash and depends upon `bash` >= 4.
+
+The json(3) module is derived from json-sh(1).
 
 ## COPYRIGHT
 
-**strike** is copyright (c) 2012 muji <http://xpm.io>
+**json** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 
-bake(1)
+strike(7)
 
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
 [DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
-[COMMANDS]: #COMMANDS "COMMANDS"
+[USAGE]: #USAGE "USAGE"
 [BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"

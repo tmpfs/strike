@@ -1,0 +1,57 @@
+array(3) -- array module
+=============================================
+
+## SYNOPSIS
+
+Module methods for writing, reading, modifiying and inspecting arrays.
+
+## DESCRIPTION
+
+The array(3) modules can be used to write *global* array(s) to file(s) and read the file(s) back into array declarations.
+
+## USAGE
+
+To write an array file, declare the *global* array(s) and call `array.write`.
+
+	write_array() {
+		local file="${program_dirs[root]}/arrays";
+		declare -a array1;
+		array1=( 3 2 1 "a test string" );
+		declare -A array2;
+		array2[key]="value";
+		array2[greeting]="hello world";
+		array.write "$file" <<< "array1 array2";	# specify the array names on stdin
+	}
+	write_array;
+	
+To read an array file back into array(s) use the `array.read` method.
+
+	read_array() {
+		local file="${program_dirs[root]}/arrays";
+		array.read < "$file";						# read from the `arrays` file
+		
+		# print array keys
+		console.log "${!array1[*]}";
+		console.log "${!array2[*]}";
+		
+		# print array values
+		console.log "${array1[*]}";
+		console.log "${array2[*]}";
+	}
+	read_array;
+
+## BUGS
+
+When writing and reading arrays, the variable declarations must by *global*.
+
+Attempting to write and read associative arrays with spaces in the *keys* will result in unexpected behaviour.
+
+**array** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**array** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+require(3)

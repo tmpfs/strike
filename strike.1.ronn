@@ -16,6 +16,9 @@ The strike(1) supports the following commands:
 * `info`:
 	Print system information.
 	
+* `pkg`:
+	Print npm(1) package information.
+	
 * `module.dirs`:
 	Print a module search path directories.	
 	

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv='content-type' value='text/html;charset=utf8'>
+  <meta name='generator' value='Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)'>
+  <title>console(3) - console output</title>
+  <style type='text/css' media='all'>
+  /* style: man */
+  body#manpage {margin:0}
+  .mp {max-width:100ex;padding:0 9ex 1ex 4ex}
+  .mp p,.mp pre,.mp ul,.mp ol,.mp dl {margin:0 0 20px 0}
+  .mp h2 {margin:10px 0 0 0}
+  .mp > p,.mp > pre,.mp > ul,.mp > ol,.mp > dl {margin-left:8ex}
+  .mp h3 {margin:0 0 0 4ex}
+  .mp dt {margin:0;clear:left}
+  .mp dt.flush {float:left;width:8ex}
+  .mp dd {margin:0 0 0 9ex}
+  .mp h1,.mp h2,.mp h3,.mp h4 {clear:left}
+  .mp pre {margin-bottom:20px}
+  .mp pre+h2,.mp pre+h3 {margin-top:22px}
+  .mp h2+pre,.mp h3+pre {margin-top:5px}
+  .mp img {display:block;margin:auto}
+  .mp h1.man-title {display:none}
+  .mp,.mp code,.mp pre,.mp tt,.mp kbd,.mp samp,.mp h3,.mp h4 {font-family:monospace;font-size:14px;line-height:1.42857142857143}
+  .mp h2 {font-size:16px;line-height:1.25}
+  .mp h1 {font-size:20px;line-height:2}
+  .mp {text-align:justify;background:#fff}
+  .mp,.mp code,.mp pre,.mp pre code,.mp tt,.mp kbd,.mp samp {color:#131211}
+  .mp h1,.mp h2,.mp h3,.mp h4 {color:#030201}
+  .mp u {text-decoration:underline}
+  .mp code,.mp strong,.mp b {font-weight:bold;color:#131211}
+  .mp em,.mp var {font-style:italic;color:#232221;text-decoration:none}
+  .mp a,.mp a:link,.mp a:hover,.mp a code,.mp a pre,.mp a tt,.mp a kbd,.mp a samp {color:#0000ff}
+  .mp b.man-ref {font-weight:normal;color:#434241}
+  .mp pre {padding:0 4ex}
+  .mp pre code {font-weight:normal;color:#434241}
+  .mp h2+pre,h3+pre {padding-left:0}
+  ol.man-decor,ol.man-decor li {margin:3px 0 10px 0;padding:0;float:left;width:33%;list-style-type:none;text-transform:uppercase;color:#999;letter-spacing:1px}
+  ol.man-decor {width:100%}
+  ol.man-decor li.tl {text-align:left}
+  ol.man-decor li.tc {text-align:center;letter-spacing:4px}
+  ol.man-decor li.tr {text-align:right;float:right}
+  </style>
+  <style type='text/css' media='all'>
+  /* style: toc */
+  .man-navigation {display:block !important;position:fixed;top:0;left:113ex;height:100%;width:100%;padding:48px 0 0 0;border-left:1px solid #dbdbdb;background:#eee}
+  .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {display:block;margin:0;padding:5px 2px 5px 30px;color:#999;text-decoration:none}
+  .man-navigation a:hover {color:#111;text-decoration:underline}
+  </style>
+</head>
+<!--
+  The following styles are deprecated and will be removed at some point:
+  div#man, div#man ol.man, div#man ol.head, div#man ol.man.
+
+  The .man-page, .man-decor, .man-head, .man-foot, .man-title, and
+  .man-navigation should be used instead.
+-->
+<body id='manpage'>
+  <div class='mp' id='man'>
+
+  <div class='man-navigation' style='display:none'>
+    <a href="#NAME">NAME</a>
+    <a href="#SYNOPSIS">SYNOPSIS</a>
+    <a href="#DESCRIPTION">DESCRIPTION</a>
+    <a href="#USAGE">USAGE</a>
+    <a href="#STDOUT">STDOUT</a>
+    <a href="#STDERR">STDERR</a>
+    <a href="#LOG-FILE-REDIRECTION">LOG FILE REDIRECTION</a>
+    <a href="#EXIT-METHODS">EXIT METHODS</a>
+    <a href="#OPTIONS">OPTIONS</a>
+    <a href="#VARIABLES">VARIABLES</a>
+    <a href="#MISCELLANEOUS">MISCELLANEOUS</a>
+    <a href="#BUGS">BUGS</a>
+    <a href="#COPYRIGHT">COPYRIGHT</a>
+    <a href="#SEE-ALSO">SEE ALSO</a>
+  </div>
+
+  <ol class='man-decor man-head man head'>
+    <li class='tl'>console(3)</li>
+    <li class='tc'></li>
+    <li class='tr'>console(3)</li>
+  </ol>
+
+  <h2 id="NAME">NAME</h2>
+<p class="man-name">
+  <code>console</code> - <span class="man-whatis">console output</span>
+</p>
+
+<h2 id="SYNOPSIS">SYNOPSIS</h2>
+
+<p>Helper methods for printing ANSI formatted output to a terminal and redirecting output to log file(s).</p>
+
+<h2 id="DESCRIPTION">DESCRIPTION</h2>
+
+<p>The <a class="man-ref" href="console.3.html">console<span class="s">(3)</span></a> module is a built in module available to all programs. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed.</p>
+
+<p>If either stdout or stderr is not a <em>tty</em> then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but <em>no formatting</em>.</p>
+
+<h2 id="USAGE">USAGE</h2>
+
+<p>The general syntax for printing output is:</p>
+
+<p>console.info "message to print with %s information" "important";</p>
+
+<p>Whereby the <code>%s</code> substring in the main message will be highlighted and replaced with the string <em>important</em>, generating:</p>
+
+<p>message to print with <code>important</code> information</p>
+
+<h2 id="STDOUT">STDOUT</h2>
+
+<p>To print to standard output use the following methods.</p>
+
+<dl>
+<dt><code>console.info</code>:</dt><dd><p></p>
+
+<p>  Prints an informational message.</p></dd>
+<dt><code>console.log</code>:</dt><dd><p></p>
+
+<p>  Prints a log message. This method <em>does not perform any formatting</em> or print any program (or message type prefix) but does provide parameter replacement. This method is essentially just a wrapper for <a class="man-ref" href="http://man.cx/echo(1)">echo<span class="s">(1)</span></a> that allows the use of parameter replacement and the log file redirection functionality.</p></dd>
+</dl>
+
+
+<h2 id="STDERR">STDERR</h2>
+
+<p>To print to standard error use the following methods.</p>
+
+<dl>
+<dt><code>console.warn</code>:</dt><dd><p></p>
+
+<p>  Prints a warning message.</p></dd>
+<dt><code>console.error</code>:</dt><dd><p></p>
+
+<p>  Prints an error message.</p></dd>
+<dt><code>console.throw</code>:</dt><dd><p></p>
+
+<p>  Prints an error message followed by a stack trace of the current method call stack.</p></dd>
+</dl>
+
+
+<h2 id="LOG-FILE-REDIRECTION">LOG FILE REDIRECTION</h2>
+
+<p>The <a class="man-ref" href="console.3.html">console<span class="s">(3)</span></a> module supports redirecting stdout/stderr to log file(s).</p>
+
+<dl>
+<dt><code>console.log.stdout</code>:</dt><dd><p></p>
+
+<p>  Redirect stdout to a log file and store stdout in file descriptor #3.</p></dd>
+<dt><code>console.log.stdout.close</code>:</dt><dd><p></p>
+
+<p>  Close redirection of stdout, restoring stdout and closing file descriptor #3.</p></dd>
+<dt><code>console.log.stderr</code>:</dt><dd><p></p>
+
+<p>  Redirect stderr to a log file and store stderr in file descriptor #4.</p></dd>
+<dt><code>console.log.stderr.close</code>:</dt><dd><p></p>
+
+<p>  Close redirection of stderr, restoring stderr and closing file descriptor #4.</p></dd>
+</dl>
+
+
+<h2 id="EXIT-METHODS">EXIT METHODS</h2>
+
+<p>The <a class="man-ref" href="console.3.html">console<span class="s">(3)</span></a> module provides methods for exiting the program (optionally with a formatted message).</p>
+
+<dl>
+<dt><code>console.success</code>:</dt><dd><p></p>
+
+<p>  Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message.</p></dd>
+<dt><code>console.quit</code>:</dt><dd><p></p>
+
+<p>  Exits the program with a non-zero exit code and optional error message. Note that the signature for this method differs from the general syntax for <a class="man-ref" href="console.3.html">console<span class="s">(3)</span></a> methods as it expects the first parameter to be the exit code.</p></dd>
+</dl>
+
+
+<h2 id="OPTIONS">OPTIONS</h2>
+
+<p>The <a class="man-ref" href="console.3.html">console<span class="s">(3)</span></a> module parses the program options (but does not modify them) looking for the following options:</p>
+
+<dl>
+<dt><code>--no-format</code>:</dt><dd><p></p>
+
+<p>  Do not perform any ANSI color or formatting modifications to the output.</p></dd>
+</dl>
+
+
+<h2 id="VARIABLES">VARIABLES</h2>
+
+<p>See the <a class="man-ref" href="globals-api.3.html">globals-api<span class="s">(3)</span></a> documentation.</p>
+
+<h2 id="MISCELLANEOUS">MISCELLANEOUS</h2>
+
+<p>You may also print a stack trace (without any preceeding error message) using the <code>console.trace</code> method. Note that this method does not follow the general syntax for <a class="man-ref" href="console.3.html">console<span class="s">(3)</span></a> method invocations and accepts no parameters.</p>
+
+<h2 id="BUGS">BUGS</h2>
+
+<p>The number of replacement parameters must match exactly the number of <code>%s</code> occurences in the message otherwise unexpected behaviour will occur.</p>
+
+<p><strong>console</strong> is written in bash and depends upon <code>bash</code> >= 4.</p>
+
+<h2 id="COPYRIGHT">COPYRIGHT</h2>
+
+<p><strong>console</strong> is copyright (c) 2012 muji <a href="http://xpm.io" data-bare-link="true">http://xpm.io</a></p>
+
+<h2 id="SEE-ALSO">SEE ALSO</h2>
+
+<p><a class="man-ref" href="globals-api.3.html">globals-api<span class="s">(3)</span></a></p>
+
+
+  <ol class='man-decor man-foot man foot'>
+    <li class='tl'></li>
+    <li class='tc'>January 2013</li>
+    <li class='tr'>console(3)</li>
+  </ol>
+
+  </div>
+</body>
+</html>

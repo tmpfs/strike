@@ -1,32 +1,56 @@
-executable(3) -- executable module
+array(3) -- array module
 =============================================
 
 ## SYNOPSIS
 
-Module methods for system executables.
+Module methods for writing, reading, modifiying and inspecting arrays.
 
 ## DESCRIPTION
 
-Enables validation and referencing of executables in `$PATH`.
+The array(3) modules can be used to write *global* array(s) to file(s) and read the file(s) back into array declarations.
 
 ## USAGE
 
-Use executable(3) to validate a list of executables:
+To write an array file, declare the *global* array(s) and call `array.write`.
 
-	require 'executable';
-	executable validate ronn git;
+	write_array() {
+		local file="${program_dirs[root]}/arrays";
+		declare -a array1;
+		array1=( 3 2 1 "a test string" );
+		declare -A array2;
+		array2[key]="value";
+		array2[greeting]="hello world";
+		array.write "$file" <<< "array1 array2";	# specify the array names on stdin
+	}
+	write_array;
 	
-If any of the listed executables are not available on the system the program will exit with a non-zero exit code. If executable validation succeeds the executable paths are available in the global `executables` associative array and can be accessed anywhere in the program, for example:
+To read an array file back into array(s) use the `array.read` method.
 
-	local git="${executables[git]}";
+	read_array() {
+		local file="${program_dirs[root]}/arrays";
+		array.read < "$file";						# read from the `arrays` file
+		
+		# print array keys
+		console.log "${!array1[*]}";
+		console.log "${!array2[*]}";
+		
+		# print array values
+		console.log "${array1[*]}";
+		console.log "${array2[*]}";
+	}
+	read_array;
 
 ## BUGS
 
-**executable** is written in bash and depends upon `bash` >= 4.
+When writing and reading arrays, the variable declarations must by *global*.
+
+Attempting to write and read associative arrays with spaces in the *keys* will result in unexpected behaviour.
+
+**array** is written in bash and depends upon `bash` >= 4.
 
 ## COPYRIGHT
 
-**executable** is copyright (c) 2012 muji <http://xpm.io>
+**array** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 

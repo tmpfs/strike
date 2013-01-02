@@ -9,7 +9,7 @@ globals-api(3) -- API for global variables
 
 A duplicate of the original program options.
 
-* `program_name`:
+* `process_name`:
 
 Store the program name for better code legibilty.
 

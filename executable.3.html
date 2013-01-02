@@ -62,7 +62,6 @@
     <a href="#NAME">NAME</a>
     <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#DESCRIPTION">DESCRIPTION</a>
-    <a href="#REQUIRE">REQUIRE</a>
     <a href="#USAGE">USAGE</a>
     <a href="#BUGS">BUGS</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
@@ -88,18 +87,12 @@
 
 <p>Enables validation and referencing of executables in <code>$PATH</code>.</p>
 
-<h2 id="REQUIRE">REQUIRE</h2>
-
-<p>In your <span class="man-ref">tasks<span class="s">(7)</span></span> file <code>require</code> the <code>executable</code> module using:</p>
-
-<pre><code>require 'executable';
-</code></pre>
-
 <h2 id="USAGE">USAGE</h2>
 
-<p>Once the module is available you can then validate a list of executables:</p>
+<p>Use <a class="man-ref" href="executable.3.html">executable<span class="s">(3)</span></a> to validate a list of executables:</p>
 
-<pre><code>executable validate ronn git;
+<pre><code>require 'executable';
+executable validate ronn git;
 </code></pre>
 
 <p>If any of the listed executables are not available on the system the program will exit with a non-zero exit code. If executable validation succeeds the executable paths are available in the global <code>executables</code> associative array and can be accessed anywhere in the program, for example:</p>
@@ -122,7 +115,7 @@
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
-    <li class='tc'>December 2012</li>
+    <li class='tc'>January 2013</li>
     <li class='tr'>executable(3)</li>
   </ol>
 

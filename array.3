@@ -1,0 +1,75 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "ARRAY" "3" "January 2013" "" ""
+.
+.SH "NAME"
+\fBarray\fR \- array module
+.
+.SH "SYNOPSIS"
+Module methods for writing, reading, modifiying and inspecting arrays\.
+.
+.SH "DESCRIPTION"
+The array(3) modules can be used to write \fIglobal\fR array(s) to file(s) and read the file(s) back into array declarations\.
+.
+.SH "USAGE"
+To write an array file, declare the \fIglobal\fR array(s) and call \fBarray\.write\fR\.
+.
+.IP "" 4
+.
+.nf
+
+write_array() {
+    local file="${program_dirs[root]}/arrays";
+    declare \-a array1;
+    array1=( 3 2 1 "a test string" );
+    declare \-A array2;
+    array2[key]="value";
+    array2[greeting]="hello world";
+    array\.write "$file" <<< "array1 array2";    # specify the array names on stdin
+}
+write_array;
+.
+.fi
+.
+.IP "" 0
+.
+.P
+To read an array file back into array(s) use the \fBarray\.read\fR method\.
+.
+.IP "" 4
+.
+.nf
+
+read_array() {
+    local file="${program_dirs[root]}/arrays";
+    array\.read < "$file";                       # read from the `arrays` file
+
+    # print array keys
+    console\.log "${!array1[*]}";
+    console\.log "${!array2[*]}";
+
+    # print array values
+    console\.log "${array1[*]}";
+    console\.log "${array2[*]}";
+}
+read_array;
+.
+.fi
+.
+.IP "" 0
+.
+.SH "BUGS"
+When writing and reading arrays, the variable declarations must by \fIglobal\fR\.
+.
+.P
+Attempting to write and read associative arrays with spaces in the \fIkeys\fR will result in unexpected behaviour\.
+.
+.P
+\fBarray\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBarray\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+require(3)
