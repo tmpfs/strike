@@ -137,6 +137,8 @@ function process.test! {
 	process_test="";
 }
 
+# TODO: allow this directory to be specified !
+
 # retrieve the directory for process temporary files
 function process.tmp.dir {
 	# put the tmp directory in the library directory
