@@ -43,8 +43,8 @@ declare -g process_test="";
 # 30    SIGUSR1      terminate process    User defined signal 1
 # 31    SIGUSR2      terminate process    User defined signal 2
 
-declare -ag signals;
-signals=(
+declare -ag process_signals;
+process_signals=(
 	hup
 	int
 	quit
@@ -79,17 +79,20 @@ signals=(
 );
 
 # bash specific signals
-signals+=( debug err exit );
+process_signals+=( debug err exit );
 
-declare -Ag process_signals;
+declare -Ag process_signal_callbacks;
+
+declare -Ag process_time;
+process_time[start]=`date +%s`;
 
 function process.initialize {
 	local signal;
-	for signal in ${signals[@]}
+	for signal in ${process_signals[@]}
 		do
 			# initialize registry of signal
 			# callback methods
-			process_signals[$signal]="";
+			process_signal_callbacks[$signal]="";
 	done
 }
 

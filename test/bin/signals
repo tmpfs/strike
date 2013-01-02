@@ -61,7 +61,7 @@ function signals {
 	# 	echo "running as test ... ";
 	# fi
 
-	local __signals="${signals[@]}";
+	local __signals="${process_signals[@]}";
 	local signal;
 	for signal in ${__signals[@]}
 		do
