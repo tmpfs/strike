@@ -330,7 +330,7 @@ function __json_stringify_quote {
 function __json_stringify_string {
 	_result="";
 	# unquoted value for null, true, false and numbers
-	if [ "$1" == "null" ] || [ "$1" == "true" ] || [ "$1" == "false" ] || [[ "$1" =~ $json_number_regexp ]]; then
+	if [ "$1" == "null" ] || [ "$1" == true ] || [ "$1" == false ] || [[ "$1" =~ $json_number_regexp ]]; then
 		_result="$1";
 	else
 		__json_stringify_quote "$1";

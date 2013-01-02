@@ -186,7 +186,7 @@ function test.json.stringify.complex {
 	for key in "${!doc[@]}"
 		do
 			expected="${doc["$key"]}";
-			echo "expected: '$expected', received: '${json_doc["$key"]}'";
+			# echo "expected: '$expected', received: '${json_doc["$key"]}'";
 			assert.equal "$expected" "${json_doc["$key"]}";
 	done
 }
