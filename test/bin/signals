@@ -9,7 +9,6 @@ set -o nounset;
 #	BOILERPLATE
 #
 ######################################################################
-export PROGRAM_NAME=`basename $0`;
 console_print_program_prefix="off";
 declare -gx exedir;
 function boilerplate {
@@ -34,51 +33,28 @@ function signals {
 	# switch on debug/strict/test mode(s)
 	process.use debug strict test;
 	
-	local loop=true;
-	
-	# if [ "true" == true ]; then
-	# 	echo "true == true";
-	# fi
-	# 
-	# if [ "false" == false ]; then
-	# 	echo "false == false";
-	# fi
-
-	# process.debug!;
-	# process.strict!;
-	# process.test!;
-
-	# if process.debug?; then
-	# 	echo "running as debug ... ";
-	# fi
-	# 
-	# if process.strict?; then
-	# 	echo "running as strict ... ";
-	# fi
-	# 
-	# if process.test?; then
-	# 	echo "running as test ... ";
-	# fi
-
 	local __signals="${process_signals[@]}";
 	local signal;
 	for signal in ${__signals[@]}
 		do
 			# listen for everything, execept err and debug as they are too noisy
 			if [ "$signal" != "err" ] && [ "$signal" != "debug" ]; then
+				# echo "adding signal $signal";
 				process.on "$signal";
 			fi
 	done
 	
-	# start an infinite loop
-	while $loop;
-		do
-			process.uptime;
-			echo "process.uptime: $_result";
-			loop=false;
-	done
+	loop()
+	{
+		process.uptime;
+		echo "$FUNCNAME : process.uptime: $_result";
+		exit 0;
+	}
+	
+	# start the process as a daemon
+	process.daemon.start! "loop";
 }
 
 signals "$@";
 
-exit $code;
+# quit 1 "%s" "$program_name"

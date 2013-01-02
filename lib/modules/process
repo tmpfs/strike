@@ -86,6 +86,9 @@ declare -Ag process_signal_callbacks;
 declare -Ag process_time;
 process_time[start]=`date +%s`;
 
+# store a boolean of whether we are looping as a daemon
+declare -g process_loop=false;
+
 function process.initialize {
 	local signal;
 	for signal in ${process_signals[@]}
@@ -182,15 +185,31 @@ function process.off {
 	local signal;
 	while [ $# -gt 0 ];
 		do
-			string.upper "$1";
-			signal="$_result";
+			signal="$1";
 			trap - $signal;
 			shift;
 	done
 }
 
-# TODO: add lock file support for singleton processes
+function process.daemon.start! {
+	local method="${1:-daemon.loop}";
+	
+	echo "$FUNCNAME : $method";
+	
+	if method.exists? "$method"; then
+		process_loop=true;
+		__process.daemonize "$method";
+	else
+		console.warn "attempt to daemonize with no callback method %s" "$method";
+	fi
+}
 
+function process.daemon.stop! {
+	# switch the loop off
+	process_loop=false;
+}
+
+# TODO: add lock file support for singleton processes
 
 # responds to trap signals
 function __process.trap {
@@ -199,6 +218,11 @@ function __process.trap {
 	
 	# signal being processed
 	local signal="$2";
+	
+	# switch off any daemon for these signals
+	case "$signal" in
+		exit ) process.daemon.stop! ;;
+	esac
 	
 	# in test mode just output the signal name
 	if process.test?; then
@@ -214,4 +238,18 @@ function __process.trap {
 
 		echo "$FUNCNAME : $code : $1";
 	fi
+}
+
+function __process.daemonize {
+	local method="${1:-}";
+	while $process_loop;
+		do
+			# invoke the daemon callback method
+			if method.exists? "$method"; then
+				"$method";
+			# method may have been removed, stop!
+			else
+				process.daemon.stop!
+			fi
+	done
 }
