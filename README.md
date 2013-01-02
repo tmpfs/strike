@@ -33,6 +33,8 @@ Use `bake(1)` to execute the unit tests:
 Documentation for the repository is generated using [ronn(1)](https://github.com/rtomayko/ronn) which must be installed, to generate documentation use task-doc(7):
 
 	./bake doc.build
+	
+Note that currently you will need to apply [this patch](https://github.com/rtomayko/ronn/issues/69) to [ronn(1)](https://github.com/rtomayko/ronn) for documentation to build correctly.
 
 ## License
 
