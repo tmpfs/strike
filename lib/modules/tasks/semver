@@ -32,7 +32,7 @@ To validate a semver(7) use the `semver.valid` command.
 
 ## SEE ALSO
 
-bake(1), semver(3)
+bake(1), semver(3), semver(7)
 ronn:markdown
 
 require 'semver';
@@ -103,6 +103,32 @@ function tasks.semver.test {
 	fi
 }
 
+# prints semver file status
+function tasks.semver.files {
+	__semver.file;
+	local semverfile="$_result";	
+	__semver.source.file;
+	local packagefile="$_result";
+	__semver.version.file;
+	local versionfile="$_result";
+	if [ ! -f "$semverfile" ] && [ ! -f "$packagefile" ] && [ ! -f "$versionfile" ]; then
+		console.quit 1 "no semver information available";
+	else
+		local file files=( "$packagefile" "$versionfile" "$semverfile" );
+		for file in ${files[@]}
+			do
+				if [ -f "$file" ]; then
+					console.info "%s %s" "$file" "✓";
+				else
+					console.warn "%s %s" "$file" "✘";
+				fi
+		done
+	 	if [ -f "$packagefile" ] && [ ! -f "$semverfile" ] && [ ! -f "$versionfile" ]; then
+			console.info "run %s to create semver files" "bake semver";
+		fi		
+	fi
+}
+
 function __semver.file.write! {
 	echo "write semver version file ... ";
 	return 0;
@@ -129,10 +155,14 @@ function __semver.source.parse {
 	json.clean;
 }
 
+function __semver.version.file {
+	_result="${root}/version";
+}
+
 function __semver.source.file {
 	_result="${root}/package.json";
 }
 
 function __semver.file {
-	_result="${root}/version.json";
+	_result="${root}/semver.json";
 }
