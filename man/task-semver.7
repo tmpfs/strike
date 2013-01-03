@@ -26,6 +26,22 @@ require \'tasks/semver\';
 .IP "" 0
 .
 .SH "USAGE"
+To view the status of task\-semver(7) files use the \fBsemver\.files\fR command\.
+.
+.IP "" 4
+.
+.nf
+
+bake semver\.files
+.
+.fi
+.
+.IP "" 0
+.
+.P
+If no files are present this command will exit with a non\-zero exit code, otherwise it will print warnings for any missing files\.
+.
+.P
 To validate a semver(7) use the \fBsemver\.valid\fR command\.
 .
 .IP "" 4
