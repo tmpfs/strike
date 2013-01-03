@@ -45,6 +45,30 @@ git\.find;
 .
 .IP "" 0
 .
+.P
+Sometimes it can be useful to test for an executable but do not quit the program so that the code can branch depending upon whether an executable is available (you have a fallback option)\. This can be achieved by passing the \fB\-\-test\fR flag as the \fIfirst\fR option to the validate command\.
+.
+.IP "" 4
+.
+.nf
+
+git\.find() {
+    # will be an empty string if git is not available
+    executable validate \-\-test git;
+    local git="${executables[git]}";
+    if [ \-n "$git" ]; then
+        $git status;
+    else
+        console\.info "git is not available";
+        # implement fallback logic
+    fi
+}
+git\.find;
+.
+.fi
+.
+.IP "" 0
+.
 .SH "BUGS"
 \fBexecutable\fR is written in bash and depends upon \fBbash\fR >= 4\.
 .
