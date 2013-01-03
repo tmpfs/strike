@@ -38,6 +38,16 @@ function require {
 	fi
 }
 
+# only load a module if it has not already
+# been loaded, this prevents the warning generated
+# when calling require with a previously loaded module
+function require.once {
+	# prevent warning if module is loaded
+	if ! require.exists? "$1"; then
+		require "$1";
+	fi
+}
+
 # forces a require even if the module is already loaded
 function require.load {
 	local force=true;
