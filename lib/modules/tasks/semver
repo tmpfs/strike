@@ -85,7 +85,6 @@ require.once 'json';
 
 # tasks for working with semver data
 function tasks.semver {
-	
 	# gather file information
 	declare -A files;
 	__semver.package.file;
@@ -125,7 +124,7 @@ function tasks.semver {
 		if ! method.exists? "$method"; then
 			console.quit 1 "invalid semver command $1";
 		else
-			delegate "sv.${FUNCNAME}" "$1" "${@:2}";
+			delegate "sv.${FUNCNAME}" "$1" ${@:2};
 		fi
 	else
 		# no options specified generate files
@@ -151,6 +150,12 @@ function sv.tasks.semver.test {
 # read semver information
 function sv.tasks.semver.read {
 	__semver.print;
+}
+
+# write raw semver information
+function sv.tasks.semver.write {
+	local semver="${1:-}";
+	__semver.write!;
 }
 
 # generate semver files
@@ -255,9 +260,41 @@ function __semver.parse {
 
 # FILE WRITE METHODS
 
-# TODO: implement method for writing package.json
+function __semver.write! {
+	local semver="${1:-$semver}";
+	if ! semver.valid? "$semver"; then
+		quit 1 "semver %s is invalid" "$semver";
+	else
+		echo "write semver $semver";
+		__semver.package.file.write! "$semver";
+	fi
+}
+
 function __semver.package.file.write! {
-	return 0;
+	local version="${1:-}";
+	local regexp="(\"version\"[ 	]*:[ 	]*\")[^\"]+(\")";
+	local replace="\1$version\2";
+	
+	# 0.1.1
+	
+	executable.validate --test sed;
+	
+	# TODO: validate sed executable has -E flag
+	# TODO: fallback to json parsing if sed -E is unavailable	
+	
+	if [ -n "${executables[sed]}" ]; then
+		# do this with `sed` for the moment
+		# as parsing the json and re-writing will
+		# change formatting (key order, whitespace etc.)
+		# which we want to avoid
+		# it's quite possible that the -E flag will break on
+		# other platforms
+		${executables[sed]} -E "s/$regexp/$replace/" "${files[package]}" >"${files[package]}";
+		return $?;
+	fi
+	
+	# assume failure
+	return 1;
 }
 
 # writes a semver to `version`

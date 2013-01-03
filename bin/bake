@@ -93,6 +93,34 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# "version": "0.1.1"
+
+# require.once 'json';
+# 
+# pkgwrite() {
+# 	
+# 	# json.parse
+# 	
+# 	local str=`cat package.json`;
+# 	# :\s?\"([^\"]+)\"
+# 	local regexp="\"version\"[ 	]{0,}:[ 	]*\"";
+# 	echo "regexp: '$regexp'";
+# 	echo "got source: $str";
+# 	str=${str/$regexp/abc};
+# 	echo "matches: ${!BASH_REMATCH[@]}"
+# 	echo "got replaced: $str";
+# 	
+# 	#sed 'PATTERNs/REGEXP/REPLACEMENT/FLAGS' filename	
+# 	
+# 	# local regexp="(\"version\"[ 	]*:[ 	]*\")[^\"]+(\")";
+# 	# local replace="\1abc\2";
+# 	# sed -E "s/$regexp/$replace/g" "package.json";
+# }
+# 
+# pkgwrite;
+# 
+# exit 0;
+
 # version() {
 # 	local file="${process_dirs[root]}/version";
 # 	local semver=$( cat "$file" );
