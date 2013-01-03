@@ -289,7 +289,8 @@ function __semver.package.file.write! {
 		# which we want to avoid
 		# it's quite possible that the -E flag will break on
 		# other platforms
-		${executables[sed]} -E "s/$regexp/$replace/" "${files[package]}" >"${files[package]}";
+		${executables[sed]} -E -i.bak "s/$regexp/$replace/" "${files[package]}" \
+			|| __semver.file.write.quit "${files[package]}";
 		return $?;
 	fi
 	
