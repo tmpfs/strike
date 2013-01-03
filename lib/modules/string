@@ -37,6 +37,24 @@
 # ${string,}    hello, World! # First character to lowercase
 # ${string,,}   hello, world! # All characters to lowercase
 
+
+function string.split {
+	_result="";
+	local array i;
+	local IFS="${1:-}";
+	# split on empty delimiter
+	if [ -z "$IFS" ]; then
+		if [ $# -gt 1 ]; then
+			array=();
+			for((i = 0;i < ${#2};i++))
+				do
+					array+=( "${2:$i:1}" );
+			done
+			_result="${array[@]}";
+		fi
+	fi
+}
+
 function string.contains? {
 	local haystack="${1:-}";
 	local needle="${2:-}";

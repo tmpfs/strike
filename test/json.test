@@ -227,3 +227,7 @@ function test.json.number {
 			assert.match! "$match" "$num";
 	done
 }
+
+function test.json.stringify.newline.escape {
+	echo "$FUNCNAME";
+}

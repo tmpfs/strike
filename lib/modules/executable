@@ -89,6 +89,7 @@ function executable.validate {
 # converts $PATH to an array
 function executable.path {
 	_result="";
+	# TODO: move to string.split
 	local IFS=":";
 	set $PATH;
 	_result="$@";

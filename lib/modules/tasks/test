@@ -100,29 +100,39 @@ function __assert_run_units {
 	__assert_search_paths;
 	local searchpaths=( "$_result" );
 	local opts=( "$@" );
-	local unit path file;
+	local unit path file methods;
 	for path in ${searchpaths[@]}
 		do
 			for unit in ${opts[@]}
 				do
-					file="${path}/${unit}.test";
+					if [[ "$unit" =~ : ]]; then
+						local IFS=":";
+						methods=( $data );
+						unset IFS;
+						
+						echo "got test methods to run ... "
+					fi
+					file="${path}/${unit}.test";			
+					echo "testing for file: $file";
 					if [ -f "$file" ]; then
 						__assert_run_test "$file";
+					else
+						console.warn "test file %s does not exist" "$file";
 					fi
 			done
-	done	
+	done
 }
 
 function __assert_search_paths {
 	local searchpaths=(
-		"$exedir/test"
-		"$exedir/../test"
+		"${root}/test"
 	);
 	_result="${searchpaths[@]}";
 }
 
 function __assert_run_test {
 	local file="$1";
+	
 	fs.path.expand "$file";
 	file="$_result";
 	local name="`basename $file`";
