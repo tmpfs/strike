@@ -19,7 +19,13 @@ Use executable(3) to validate a list of executables:
 	
 If any of the listed executables are not available on the system the program will exit with a non-zero exit code. If executable validation succeeds the executable paths are available in the global `executables` associative array and can be accessed anywhere in the program, for example:
 
-	local git="${executables[git]}";
+	git.find() {
+		# will quit the program if git is not available
+		executable validate git;
+		local git="${executables[git]}";
+		$git status; 
+	}
+	git.find;
 
 ## BUGS
 
@@ -35,13 +41,19 @@ require(3)
 ronn:markdown
 
 function executable.validate {
-	local cmd;
+	local cmd="";
+	local strict=true;
+	if [ "$1" == "--test" ]; then
+		strict=false;
+		shift;
+	fi
+	
 	for opt in ${@}
 		do
 			set +o errexit;
 			cmd=$( command -v "$opt" );
 			set -o errexit;
-			if [ -z "$cmd" ]; then
+			if [ -z "$cmd" ] && $strict; then
 				quit 1 "%s is not available" "$opt";
 			fi
 			if [ ! -x "$cmd" ]; then
@@ -51,7 +63,7 @@ function executable.validate {
 				executable.find "$opt";
 				if [ -n "$_result" ]; then
 					cmd="$_result";
-				else
+				elif $strict; then
 					quit 1 "%s at %s is not executable" "$opt" "$cmd";
 				fi
 			fi
@@ -69,16 +81,17 @@ function executable.path {
 
 # finds the first executable in $PATH
 function executable.find {
-	_result="";
 	local opt paths path;
 	for opt in ${@}
 		do
 			executable.path;
 			paths=( $_result );
+			_result="";
 			for path in ${paths[@]}
 				do
 					if [ -x "${path}/${opt}" ]; then
-						_result="${path}/${opt}";
+						#_result="${path}/${opt}";
+						executables["$opt"]="${path}/${opt}";
 						return 0;
 					fi
 			done

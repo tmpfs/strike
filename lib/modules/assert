@@ -43,6 +43,17 @@ function assert.match! {
 	fi
 }
 
+# asserts that a string is empty, blank string
+function assert.empty? {
+	local expected="";
+	local received="${1:-}";
+	if [ -z "$received" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
 # NUMERIC ASSERTIONS
 
 # asserts that an integer is greater than
