@@ -234,5 +234,6 @@ function test.json.stringify.newline.escape {
 
 that may contain line breaks";
 
-	
+	json.stringify <<< "doc";
+	json.string;
 }

@@ -193,7 +193,7 @@ function json.stringify {
 				variable.get "$json_data";
 				value="$_result";
 				if [ ! -z "$value" ]; then
-					__json_stringify_string "$value";
+					__json_stringify_value "$value";
 					json="$_result";
 				else
 					json="{}";
@@ -246,7 +246,7 @@ function __json_stringify_array {
 		do
 			eval value="\${$json_data[$key]}";
 			# encode the value
-			__json_stringify_string "$value";
+			__json_stringify_value "$value";
 			json="${json}${indent}${_result},";
 			if [ $pretty -eq 1 ]; then
 				json="${json}${newline}";
@@ -317,7 +317,7 @@ function __json_add_key_value {
 	json="${json}${indent}${_result}:";
 	
 	# encode the value
-	__json_stringify_string "$2";
+	__json_stringify_value "$2";
 	json="${json}${_result},";
 	if [ $pretty -eq 1 ]; then
 		json="${json}${newline}";
@@ -329,13 +329,18 @@ function __json_stringify_quote {
 	_result="\"$1\"";
 }
 
-function __json_stringify_string {
+function __json_stringify_value {
 	_result="";
 	# unquoted value for null, true, false and numbers
 	if [ "$1" == "null" ] || [ "$1" == true ] || [ "$1" == false ] || [[ "$1" =~ $json_number_regexp ]]; then
 		_result="$1";
 	else
-		__json_stringify_quote "$1";
+		
+		# escape special regex characters
+		
+		local jsonval="$1";
+		jsonval=${jsonval//$newline/'\\\''\n'};
+		__json_stringify_quote "$jsonval";
 	fi
 }
 
