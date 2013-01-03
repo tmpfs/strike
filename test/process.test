@@ -13,3 +13,5 @@ function test.process.uptime {
 	local uptime="$_result";
 	assert.gt "0" "$uptime";
 }
+
+# TODO: add test for specifying a custom tmp dir
