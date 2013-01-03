@@ -46,6 +46,18 @@ function tasks.test {
 	local stdout="${target}/assert.stdout.log";
 	local stderr="${target}/assert.stderr.log";
 	
+	string.repeat "+" 80;
+	local header="$_result";
+	
+	declare -A summary;
+	summary[suites]=0;
+	summary[methods]=0;
+	summary[assertions]=0;
+	summary[assertions.pass]=0;
+	summary[assertions.fail]=0;
+	
+	declare -A failures;
+	
 	# expose a `testdir` variable to the test methods
 	local testdir="${program_dirs[test]}";
 	fs.path.expand "$testdir";
@@ -70,6 +82,8 @@ function tasks.test {
 	else
 		__assert_run_units "$@";
 	fi
+	
+	__assert.print.summary;
 }
 
 function __assert_run_all {
@@ -83,7 +97,6 @@ function __assert_run_all {
 			fi
 	done
 }
-
 
 function __assert_run_dir {
 	local dir="$1";
@@ -144,6 +157,8 @@ function __assert_run_test {
 	file="$_result";
 	local name="`basename $file`";
 	local suite=${name%%.*};
+	
+	((summary[suites]++));
 	
 	# run any binary tests first
 	# these executables should perform inline assertions
@@ -219,6 +234,7 @@ function __assert_run_test {
 }
 
 function __assert_run_test_method {
+	((summary[methods]++));
 	console.info "run %s" "$m";
 	set +o errexit;
 	# execute the test method
@@ -227,5 +243,51 @@ function __assert_run_test_method {
 
 	# remove the method so that it is not
 	# executed again on subsequent passes
-	method.remove "$m";	
+	method.remove "$m";
+}
+
+function __assert.print.header {
+	if [ $# -eq 0 ]; then
+		console.log "$header";
+	fi
+}
+
+function __assert.print.summary {
+	
+	__assert.print.header;
+	
+	console.info "suites: %s" "${summary[suites]}";
+	console.info "methods: %s" "${summary[methods]}";
+	console.info "assertions: %s" "${summary[assertions]}";
+	console.info "assertions (pass): %s" "${summary[assertions.pass]}";
+	
+	if [ ${summary[assertions.fail]} -eq 0 ]; then
+		console.info "assertions (fail): %s" "${summary[assertions.fail]}";
+	else
+		console.warn "assertions (fail): %s" "${summary[assertions.fail]}";
+	fi
+	
+	if [ ${summary[assertions.fail]} -eq 0 ]; then
+		__assert.print.header;		
+		console.ok "test(s) passed %s" "✓";
+	else
+		
+		__assert.print.header;
+		console.log "# FAILURES";
+		__assert.print.header;		
+		
+		local debuginfo;
+		for debuginfo in ${!failures[@]}
+			do
+				local assertion="${failures[$debuginfo]}";
+				local frame=${debuginfo%:*};
+				local method=${debuginfo##*:};
+				console.error "$assertion %s" "$method";
+				console.error "$frame";
+		done
+		
+		__assert.print.header;		
+		
+		console.error "test(s) failed %s" "✘";
+	fi
 }

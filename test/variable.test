@@ -4,6 +4,9 @@ function test.variable.set.get {
 	variable.set "var" "$expects";
 	variable.get "var";
 	assert.equal "$expects" "$_result";
+	
+	# test for forcing a failure
+	# assert.eq "1" "0";
 }
 
 # test for get local variable
