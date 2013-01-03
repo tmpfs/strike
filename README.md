@@ -6,6 +6,10 @@ Modular `bash` using `require` for *NIX systems. Depends upon `bash >= 4` for as
 
 Brings structure and modularity to `bash` programs and provides a set of modules that can be used from any `bash` program.
 
+## Semantic Versioning
+
+This software is currently under development in the 0.x.x version range and is released using the [semver(7)](http://semver.org/) semantic versioning specification.
+
 ## Features
 
 ### Core

@@ -23,6 +23,7 @@ json-sh(1)		https://github.com/dominictarr/JSON.sh
 npm(1)			http://npmjs.org
 ruby(3)			http://www.ruby-lang.org/
 rake(1)			http://rake.rubyforge.org/
+semver(7)		http://semver.org/
 
 printf(1)		http://man.cx/printf(1)
 source(1)		http://man.cx/source(1)

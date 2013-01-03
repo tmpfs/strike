@@ -1,0 +1,78 @@
+: <<'ronn:markdown'
+semver(3) -- semantic version parser
+=============================================
+
+## SYNOPSIS
+
+Commands for working with semantic versioning.
+
+## DESCRIPTION
+
+Enables parsing of semantic version strings to complex objects.
+
+## USAGE
+
+To parse a semver(7) string invoke `semver.parse` with the string and a callback method:
+
+	require 'semver';
+	callback() {
+		console.info "semver keys %s" "${!semver[*]}";
+		console.info "semver values %s" "${semver[*]}";
+		semver.stringify;
+		console.info "semver string %s" "$_result";
+	}
+	semver.parse "2.0.0-rc" "callback";
+	
+Note that the `semver.parse` method will not perform any operations on invalid semver(7) string values, you may invoke `semver.valid?` to test the validity of a string.
+
+## BUGS
+
+**semver** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**semver** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+require(3)
+ronn:markdown
+
+declare -g semver_regexp="^([0-9]+)\.([0-9]+)\.([0-9]+)([-0-9A-Za-z.]+)?(\+[-0-9A-Za-z.]+)?$";
+
+# determine if a semver string is valid
+function semver.valid? {
+	if [[ "$1" =~ $semver_regexp ]]; then
+		return 0;
+	fi
+	return 1;
+}
+
+# convert parameters back from a semver array
+# to a string representation
+function semver.stringify {
+	_result="";
+	if [ $# -eq 0 ] && array.is.assoc? "semver"; then
+		_result="${semver[major]}.${semver[minor]}.${semver[patch]}${semver[release]:-}${semver[build]:-}";
+	else
+		_result="${1}.${2}.${3}${4:-}${5:-}";
+	fi
+}
+
+# parse a semver string to an array
+# and invoke a callback
+function semver.parse {
+	local callback="${2:-}";
+	unset semver;
+	declare -A semver;
+	if semver.valid? "$1"; then
+		semver[major]="${BASH_REMATCH[1]}";
+		semver[minor]="${BASH_REMATCH[2]}";
+		semver[patch]="${BASH_REMATCH[3]}";
+		semver[release]="${BASH_REMATCH[4]:-}";
+		semver[build]="${BASH_REMATCH[5]:-}";		
+		if method.exists? "$callback"; then
+			"$callback";
+		fi
+	fi
+}

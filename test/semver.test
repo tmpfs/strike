@@ -1,0 +1,47 @@
+require 'semver';
+
+declare -ag semver_invalid;
+semver_invalid=( "1" "1.0" "1.0.a" "1.0.0~pre~release" );
+
+declare -ag semver_valid;
+semver_valid=(
+	"1.0.0"
+	"1.0.0-alpha"
+	"1.0.0-alpha.1"
+	"1.0.0-0.3.7"
+	"1.0.0-x.7.z.92"
+	"1.0.0-rc.1+build.1"
+	"1.3.7+build.2.b8f12d7"
+);
+
+# test for valid/invalid semver strings
+function test.semver.valid? {
+	local str;
+	for str in ${semver_invalid[@]}
+		do
+			semver.valid? "$str";
+			assert.eq "1" "$?";
+	done
+	
+	for str in ${semver_valid[@]}
+		do
+			semver.valid? "$str";
+			assert.eq "0" "$?";
+	done
+}
+
+# test for parsing valid semvers
+function test.semver.parse {
+	local str;
+	semver.callback() {
+		# convert the array back to a string
+		semver.stringify;
+		# assert on the string result
+		assert.equal "$str" "$_result";
+	}
+	for str in ${semver_valid[@]}
+		do
+			semver.parse "$str" "semver.callback";
+	done
+	method.remove "semver.callback";
+}
