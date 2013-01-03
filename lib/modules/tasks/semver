@@ -27,10 +27,12 @@ Use the `semver` command to generate task-semver(7) files.
 If no files are available you will be prompted to enter a semver(7) compatible version to initialize the files with.
 	
 If a *package.json* file is available then the semver(7) string is read from the `version` field and the `version` and `semver.json` files are generated.
+
+If all files exist this command is equivalent to `semver read`.
 	
 * `semver read`:
 	
-To view version information use the `semver.read` command.
+To view version information use the `semver read` command.
 
 	bake semver read
 	
@@ -38,7 +40,7 @@ If no task-semver(7) files are present this command will exit with a non-zero ex
 
 * `semver test`:
 
-To validate a semver(7) use the `semver.test` command.
+To validate a semver(7) use the `semver test` command.
 
 	bake semver test 1.2.0-alpha.1+build.12f4e9
 	
