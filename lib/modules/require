@@ -264,6 +264,15 @@ function __require_load {
 		
 		# echo "testing for delegate method : $name";
 		
+		# TODO: change name handling for tasks loaded by name
+		# eg, tasks/test to correspond to tasks_test
+		
+		# never do delegate functionality for the `test`
+		# module otherwise we override the test command
+		if [ "$name" == test ]; then
+			return 0;
+		fi
+		
 		# only delegate and call constructor if the 
 		# module was required
 		if ! require.path.exists? "$abs" || $force; then
