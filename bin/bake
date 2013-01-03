@@ -93,6 +93,49 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# if method.exists? "return"; then
+# 	echo "return command exists";
+# fi
+
+#declare -f -F;
+
+#exit 0;
+
+#alias "_return=return";
+
+# function return {
+# 	local exitcode="${2:-0}";
+# 	if [[ "$1" =~ ^[0-9]+$ ]]; then
+# 		echo "return called with number $1";
+# 		builtin return $exitcode;
+# 	else
+# 		_result="$1";
+# 		echo "return called with alpha $1";
+# 		builtin return $exitcode;
+# 	fi
+# }
+# 
+# function method.alpha {
+# 	return "$1";
+# }
+# 
+# function method.number {
+# 	return "$1";
+# }
+# 
+# function method.alpha.branch {
+# 	return "$1" && builtin return;
+# 	echo "$FUNCNAME";
+# }
+# 
+# #alias "return=method.return";
+# 
+# method.alpha "abc";
+# method.number "0";
+# method.alpha.branch "abcdef";
+# 
+# exit 0;
+
 # process.on exit trap;
 # 
 # #process.off trap;

@@ -3,7 +3,7 @@ function test.string.split {
 	local array;
 	
 	# split with an blank delimiter and empty string
-	string.split '' "${data}";
+	string.split '' '';
 	array=( $_result );
 	assert.eq "0" "${#array[@]}";
 	assert.empty? "${array[*]}";

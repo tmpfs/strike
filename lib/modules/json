@@ -336,7 +336,8 @@ function __json_stringify_value {
 		_result="$1";
 	else
 		
-		# escape special regex characters
+		# escape special regex characters using grep !?
+		# grep -v -F "$data_line" "$data_dir"
 		
 		local jsonval="$1";
 		jsonval=${jsonval//$newline/'\\\''\n'};
