@@ -54,16 +54,45 @@ function git.valid? {
 	return 1;
 }
 
+# determines if the git program is available
+function git.exists? {
+	local git="${executables[git]:-}";
+	if [ -z "$git" ]; then
+		executable.validate --test git;
+		if [ -z "${executables[git]}" ]; then
+			console.warn "git is not available";
+			return 1;
+		fi
+	fi
+	return 0;
+}
+
 # get the current branch name
 function git.branch.current {
-	local branch=$( git rev-parse --abbrev-ref HEAD );
-	_result="$branch";
+	if git.exists?; then
+		local branch=$( "${executables[git]}" rev-parse --abbrev-ref HEAD );
+		_result="$branch";
+	fi
 }
 
 # get the hash of the last commit in a branch
 function git.branch.hash {
-	git.branch.current;
-	local branch="${1:-$_result}";
-	local hash=$( git rev-parse "$branch" );
-	_result="$hash";
+	if git.exists?; then	
+		git.branch.current;
+		local branch="${1:-$_result}";
+		local hash=$( "${executables[git]}" rev-parse "$branch" );
+		_result="$hash";
+	fi
 }
+
+# get the message of the last commit in a branch
+function git.branch.message {
+	if git.exists?; then
+		git.branch.current;
+		local branch="${1:-$_result}";
+		local msg=$( "${executables[git]}" log -n 1 "$branch" --format=format:%s );
+		_result="$msg";
+	fi
+}
+
+git.branch.message;

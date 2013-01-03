@@ -97,6 +97,10 @@ process.use strict;
 # 	echo "return command exists";
 # fi
 
+require 'git';
+echo "$_result";
+exit 0;
+
 #declare -f -F;
 
 #exit 0;
