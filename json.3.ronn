@@ -34,8 +34,10 @@ Converting to JSON is achieved using references to variable names and afterwards
 		declare -A doc;
 		doc[key]="value";
 		doc[greeting]="hello world";
-		json.stringify <<< "doc";		# doc is the *name* of the variable to stringify
-		json.string;					# print the result
+		# doc is the *name* of the variable to stringify
+		json.stringify <<< "doc";
+		# print the result
+		json.string;
 	}
 	toJSON;
 

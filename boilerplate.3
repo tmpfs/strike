@@ -19,14 +19,10 @@ If you have installed the \fBstrike\fR library as a node module and your executa
 declare \-gx exedir;
 function boilerplate {
     local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-    if [ \-L "$abspath" ]; then
-        abspath=`readlink $abspath`;
-    fi
-    if [[ "$abspath" =~ ^\e\./ ]]; then
-        abspath="${PWD}/${abspath}";
-    fi
+    if [ \-L "$abspath" ]; then abspath=`readlink $abspath`; fi
+    if [[ "$abspath" =~ ^\e\./ ]]; then abspath="${PWD}/${abspath}"; fi
     exedir=`dirname "$abspath"`;
-    local libdir="$exedir/\.\./node_modules/strike/lib";
+    local libdir="$exedir/\.\./\.\./lib";
     source "$libdir/shared" "$@";
 }
 boilerplate "$@";

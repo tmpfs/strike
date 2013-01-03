@@ -1,35 +1,46 @@
-boilerplate(3) -- boilerplate for strike(1)
+semver(3) -- semantic version parser
 =============================================
 
 ## SYNOPSIS
 
-Before using the strike(1) modules and functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links).
+Commands for working with semantic versioning.
 
-## CODE
+## DESCRIPTION
 
-If you have installed the `strike` library as a node module and your executable is in a `bin` directory (sibling of the `node_modules` directory) the boilerplate would look like:
+Enables parsing of semantic version strings to complex objects.
 
-	declare -gx exedir;
-	function boilerplate {
-		local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-		if [ -L "$abspath" ]; then abspath=`readlink $abspath`; fi
-		if [[ "$abspath" =~ ^\./ ]]; then abspath="${PWD}/${abspath}"; fi
-		exedir=`dirname "$abspath"`;
-		local libdir="$exedir/../../lib";
-		source "$libdir/shared" "$@";
+## USAGE
+
+To parse a semver(7) string invoke `semver.parse` with the string and a callback method:
+
+	require 'semver';
+	callback() {
+		console.info "semver keys %s" "${!semver[*]}";
+		console.info "semver values %s" "${semver[*]}";
+		semver.stringify;
+		console.info "semver string %s" "$_result";
 	}
-	boilerplate "$@";
+	semver.parse "2.0.0-rc" "callback";
+	
+Note that the `semver.parse` method will not perform any operations on invalid semver(7) string values, you may invoke `semver.valid?` to test the validity of a string.
+
+## BUGS
+
+**semver** is written in bash and depends upon `bash` >= 4.
 
 ## COPYRIGHT
 
-**boilerplate** is copyright (c) 2012 muji <http://xpm.io>
+**semver** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 
-strike(1)
+require(3)
+
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
-[CODE]: #CODE "CODE"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[USAGE]: #USAGE "USAGE"
+[BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"
 

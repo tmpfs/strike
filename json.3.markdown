@@ -34,8 +34,10 @@ Converting to JSON is achieved using references to variable names and afterwards
 		declare -A doc;
 		doc[key]="value";
 		doc[greeting]="hello world";
-		json.stringify <<< "doc";		# doc is the *name* of the variable to stringify
-		json.string;					# print the result
+		# doc is the *name* of the variable to stringify
+		json.stringify <<< "doc";
+		# print the result
+		json.string;
 	}
 	toJSON;
 
@@ -79,6 +81,10 @@ strike(7)
 [json-sh(1)]: https://github.com/dominictarr/JSON.sh
 [npm(1)]: http://npmjs.org
 [ruby(3)]: http://www.ruby-lang.org/
+[rake(1)]: http://rake.rubyforge.org/
+[semver(7)]: http://semver.org/
+[printf(1)]: http://man.cx/printf(1)
+[source(1)]: http://man.cx/source(1)
 [array(3)]: array.3.html
 [console(3)]: console.3.html
 [delegate(3)]: delegate.3.html
@@ -86,10 +92,12 @@ strike(7)
 [globals-api(3)]: globals-api.3.html
 [help(7)]: help.7.html
 [json(3)]: json.3.html
+[semver(3)]: semver.3.html
 [strike-credits(7)]: strike-credits.7.html
 [strike-tree(7)]: strike-tree.7.html
 [strike(7)]: strike.7.html
 [task-clean(7)]: task-clean.7.html
 [task-doc(7)]: task-doc.7.html
 [task-list(7)]: task-list.7.html
+[task-rake(7)]: task-rake.7.html
 [task-test(7)]: task-test.7.html

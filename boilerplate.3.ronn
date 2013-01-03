@@ -12,14 +12,10 @@ If you have installed the `strike` library as a node module and your executable 
 	declare -gx exedir;
 	function boilerplate {
 		local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-		if [ -L "$abspath" ]; then
-			abspath=`readlink $abspath`;
-		fi
-		if [[ "$abspath" =~ ^\./ ]]; then
-			abspath="${PWD}/${abspath}";
-		fi		
+		if [ -L "$abspath" ]; then abspath=`readlink $abspath`; fi
+		if [[ "$abspath" =~ ^\./ ]]; then abspath="${PWD}/${abspath}"; fi
 		exedir=`dirname "$abspath"`;
-		local libdir="$exedir/../node_modules/strike/lib";
+		local libdir="$exedir/../../lib";
 		source "$libdir/shared" "$@";
 	}
 	boilerplate "$@";
