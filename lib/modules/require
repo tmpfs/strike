@@ -310,7 +310,7 @@ function __require_load {
 }
 
 function __require_dirs {
-	local exemodules="${program_dirs[modules]}";
+	local exemodules="${process_dirs[modules]}";
 	local libmodules="${library_dirs[modules]}";
 	local searchpaths=(
 		"${exemodules}"

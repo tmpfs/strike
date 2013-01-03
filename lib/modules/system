@@ -51,9 +51,9 @@ function system.print {
 # prints dirs information
 function system.dirs {
 	local key value;
-	for key in "${!program_dirs[@]}"
+	for key in "${!process_dirs[@]}"
 		do
-			value="${program_dirs["$key"]}";
+			value="${process_dirs["$key"]}";
 			console.info "${key}=%s" "$value";
 	done
 }

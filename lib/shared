@@ -27,20 +27,20 @@ function __initialize__ {
 	local pdir="$exedir";
 	fs.path.expand "$pdir";
 	pdir="$_result";
-	program_dirs[owd]="$PWD";
-	program_dirs[bin]="$pdir";
+	process_dirs[owd]="$PWD";
+	process_dirs[bin]="$pdir";
 	# cater for executables located in the project root
 	if [[ "$exedir" =~ /bin$ ]]; then
 		dir_root=`dirname "$exedir"`;
 	else
-		program_dirs[bin]="${dir_root}/bin";
+		process_dirs[bin]="${dir_root}/bin";
 	fi
-	program_dirs[root]="${dir_root}";
-	program_dirs[lib]="${dir_root}/lib";
-	program_dirs[man]="${dir_root}/man";
-	program_dirs[modules]="${dir_root}/lib/modules";
-	program_dirs[test]="${dir_root}/test";
-	program_dirs[target]="${dir_root}/target";
+	process_dirs[root]="${dir_root}";
+	process_dirs[lib]="${dir_root}/lib";
+	process_dirs[man]="${dir_root}/man";
+	process_dirs[modules]="${dir_root}/lib/modules";
+	process_dirs[test]="${dir_root}/test";
+	process_dirs[target]="${dir_root}/target";
 
 	# configure library directories	
 	fs.path.expand "$dir";

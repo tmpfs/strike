@@ -94,7 +94,7 @@ boilerplate "$@";
 process.use strict;
 
 # version() {
-# 	local file="${program_dirs[root]}/version";
+# 	local file="${process_dirs[root]}/version";
 # 	local semver=$( cat "$file" );
 # 	console.info "version %s" "$semver";
 # }

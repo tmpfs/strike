@@ -57,7 +57,7 @@ An npm(1) package descriptor (*package.json*) that stores semver(7) information 
 A text file (*version*) containing the current semver(7) version. This file is generated and managed because there are occassions when a program requires quick access to version information without any parsing. A quick way to access semver(7) information from a strike(7) program is:
 
 	version() {
-		local file="${program_dirs[root]}/version";
+		local file="${process_dirs[root]}/version";
 		local semver=$( cat "$file" );
 		console.info "version %s" "$semver";
 	}

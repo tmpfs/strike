@@ -85,12 +85,12 @@ api:ronn:markdown
 declare -Agx library_dirs; 
 
 : <<'api:ronn:markdown'
-* `program_dirs`:
+* `process_dirs`:
 
 Directories for the current program.
 
 api:ronn:markdown
-declare -Agx program_dirs;
+declare -Agx process_dirs;
 
 ######################################################################
 #

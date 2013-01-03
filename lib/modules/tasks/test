@@ -59,7 +59,7 @@ function tasks.test {
 	declare -A failures;
 	
 	# expose a `testdir` variable to the test methods
-	local testdir="${program_dirs[test]}";
+	local testdir="${process_dirs[test]}";
 	fs.path.expand "$testdir";
 	testdir="$_result";
 	

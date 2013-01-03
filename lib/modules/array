@@ -15,7 +15,7 @@ The array(3) modules can be used to write *global* array(s) to file(s) and read 
 To write an array file, declare the *global* array(s) and call `array.write`.
 
 	write_array() {
-		local file="${program_dirs[root]}/arrays";
+		local file="${process_dirs[root]}/arrays";
 		declare -a array1;
 		array1=( 3 2 1 "a test string" );
 		declare -A array2;
@@ -28,7 +28,7 @@ To write an array file, declare the *global* array(s) and call `array.write`.
 To read an array file back into array(s) use the `array.read` method.
 
 	read_array() {
-		local file="${program_dirs[root]}/arrays";
+		local file="${process_dirs[root]}/arrays";
 		array.read < "$file";						# read from the `arrays` file
 		
 		# print array keys
