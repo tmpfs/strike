@@ -84,12 +84,12 @@ function delegate {
 		#straight method call
 		if [ -z "$module" ]; then
 			set +o nounset;
-			${method} "${options[@]}";
+			"${method}" "${options[@]}";
 			set -o nounset;
 		#method call in module
 		else
 			set +o nounset;
-			${module}${delimiter}${method} "${options[@]}";
+			"${module}${delimiter}${method}" "${options[@]}";
 			set -o nounset;
 		fi
 	fi

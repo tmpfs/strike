@@ -28,15 +28,17 @@ Brings structure and modularity to `bash` programs and provides a set of modules
 * Write test-driven programs using the `test` task for [bake(1)](http://freeformsystems.github.com/strike/bake.1.html)
 * Use [assert(3)](http://freeformsystems.github.com/strike/assert.3.html) to perform inline assertions
 
-### Document
+### Documentation & Help
 
 * Document your program using inline heredoc comments and publish to html and man pages using the `doc.*` tasks for [bake(1)](http://freeformsystems.github.com/strike/bake.1.html)
 * Publish documentation as github pages with the `doc.pages.publish` [bake(1)](http://freeformsystems.github.com/strike/bake.1.html) task
+* Easily display program help as man pages with [help(3)](http://freeformsystems.github.com/strike/help.3.html)
 
 ### Extensions & Executables
 
 * Read and write JSON data using [json(3)](http://freeformsystems.github.com/strike/json.3.html)
 * Use [bake(1)](http://freeformsystems.github.com/strike/bake.1.html) to automate common tasks
+* Intermingle [rake(1)](http://rake.rubyforge.org/) with [bake(1)](http://freeformsystems.github.com/strike/bake.1.html) tasks if you like
 
 ## Installation
 

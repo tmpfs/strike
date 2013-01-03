@@ -100,24 +100,24 @@ function help.parse {
 	help.clean;
 	local section;
 	local manpage;
-	while [ "${1:-}" != "" ]; do
-		case $1 in
-		-h | --help | help )
-			shift;
-			section="${1:-}";
-			# nothing specified after the help option
-			# try to show the default help man page
-			if [ $# -eq 0 ]; then
-				help.man.show.default;
-			# try to show a specific man page
-			else
-				set +o errexit;
-				help.man.show "$section";
-				help.exit "$?";	
-				set -o errexit;
-			fi
-			;;
-		esac
+	# we only check the first parameter
+	# so that task proxy commands can show
+	# help for proxies
+	case $1 in
+	-h | --help | help )
 		shift;
-	done
+		section="${1:-}";
+		# nothing specified after the help option
+		# try to show the default help man page
+		if [ $# -eq 0 ]; then
+			help.man.show.default;
+		# try to show a specific man page
+		else
+			set +o errexit;
+			help.man.show "$section";
+			help.exit "$?";	
+			set -o errexit;
+		fi
+		;;
+	esac
 }
