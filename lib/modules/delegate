@@ -8,7 +8,7 @@ Provides the main delegate entry point for programs that wish to map command opt
 
 ## DESCRIPTION
 
-A module may declare a `main` method which should have the same name as the module. The require(3) module is a good example of a module which does this. If a main method is not declared and the `delegate` method is available then a dynamic method is created which invokes delegate(3). This allows for useful behaviour such as to map a command line option to a module method invocation.
+A module may declare a `main` method which should have the same name as the module. The require(3) module is a good example of a module which does this. If a main method is not declared and the `delegate` method is available and the `delegate` variable has been set to `true` in that module then a dynamic method is created which invokes delegate(3). This allows for useful behaviour such as to map a command line option to a module method invocation.
 
 ## USAGE
 
