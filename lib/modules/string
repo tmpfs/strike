@@ -52,6 +52,30 @@ function string.split {
 			done
 			_result="${array[@]}";
 		fi
+	# split on delimiter
+	else
+		# TODO: use an inner callback for scoping issues
+		return 0;
+		# local join="${3:-}";
+		# 		echo "join $2 on $join";
+		# 		local IFS="${1:-}";
+		# 		echo "IFS '$IFS'";
+		# 		set ${2};
+		# 		echo "split on $@ : $#";
+		# 		_result="$@";		
+		# 		if [ -n "$join" ]; then
+		# 			local opt;
+		# 			local str quoted=();
+		# 			echo "got join opts : $@ : $#";
+		# 			for((i = 0;i < $#;i++))
+		# 				do
+		# 					opt="${$i}";
+		# 					echo "quoting for join: $opt : $str";					
+		# 					str=$( printf %q "$opt" );
+		# 					quoted+=( "$str" );
+		# 			done
+		# 			array.join "$join" ${quoted[@]};
+		# 		fi
 	fi
 }
 

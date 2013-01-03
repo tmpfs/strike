@@ -51,6 +51,10 @@ function tasks.test {
 	fs.path.expand "$testdir";
 	testdir="$_result";
 	
+	# specific methods to test, specified using a : delimiter
+	local testmethods=();
+	local unit;
+	
 	echo -n "" > "$stdout" || quit 1 "could not create %s" "$stdout";	
 	echo -n "" > "$stderr" || quit 1 "could not create %s" "$stderr";
 	
@@ -87,6 +91,8 @@ function __assert_run_dir {
 		for file in ${dir}/*
 			do
 				if [ -f "$file" ] && [[ "$file" =~ .test$ ]]; then
+					unit="`basename "$file"`";
+					unit="${unit%.test}";
 					__assert_run_test "$file";
 				# recurse into sub-directories
 				elif [ -d "$file" ]; then
@@ -100,20 +106,21 @@ function __assert_run_units {
 	__assert_search_paths;
 	local searchpaths=( "$_result" );
 	local opts=( "$@" );
-	local unit path file methods;
+	local path file methods;
 	for path in ${searchpaths[@]}
 		do
 			for unit in ${opts[@]}
 				do
+					# handle running specific test methods
 					if [[ "$unit" =~ : ]]; then
 						local IFS=":";
-						methods=( $data );
+						testmethods=( $unit );
 						unset IFS;
-						
-						echo "got test methods to run ... "
+						unit="${testmethods[0]}";
+						unset testmethods[0];
 					fi
 					file="${path}/${unit}.test";			
-					echo "testing for file: $file";
+					# echo "testing for file: $file";
 					if [ -f "$file" ]; then
 						__assert_run_test "$file";
 					else
@@ -160,6 +167,8 @@ function __assert_run_test {
 		done
 	fi
 	
+	# TODO: unload the module after the test suite has completed
+	
 	# require and generate a list of method definitions
 	require.methods "$file" "^test\.";
 	local methods=( $_result );
@@ -167,31 +176,56 @@ function __assert_run_test {
 	if [ "${#methods[@]}" -eq 0 ]; then
 		console.warn "test %s does not declare any test methods" "$name";
 	else
-		local m;
+		local m nm;
 		
-		# print methods		
+		# filter method flag
+		local filter=false;
+		
+		
+		# running specific test(s)
+		if [ ${#testmethods[@]} -gt 0 ]; then
+			filter=true;
+		fi		
+		
+		# print method summary	
 		for m in "${methods[@]}"
 			do
-				console.info "assert %s" "$m";
+				nm=${m#test.${unit}.};
+				if ! $filter; then
+					console.info "assert %s" "$nm";
+				else
+					if array.contains? "$nm" "${testmethods[@]}"; then
+						console.info "assert %s" "$nm";
+					fi
+				fi
 		done
 		
 		# run method assertions
 		for m in "${methods[@]}"
 			do
-				# check that the method starts with a test prefix
-				if [[ "$m" =~ ^test. ]]; then				
-					# clean up
-					__assert_expects="";
-					console.info "run %s" "$m";
-					set +o errexit;
-					# execute the test method
-					"$m" 1>> "$stdout" 2>> "$stderr";
-					set -o errexit;
-
-					# remove the method so that it is not
-					# executed again on subsequent passes
-					method.remove "$m";
+				# check that the method starts with a test prefix				
+				if [[ "$m" =~ ^test. ]]; then
+					nm=${m#test.${unit}.};
+					if ! $filter; then
+						__assert_run_test_method;
+					else
+						if array.contains? "$nm" "${testmethods[@]}"; then
+							__assert_run_test_method;
+						fi
+					fi
 				fi
 		done	
 	fi
+}
+
+function __assert_run_test_method {
+	console.info "run %s" "$m";
+	set +o errexit;
+	# execute the test method
+	"$m" 1>> "$stdout" 2>> "$stderr";
+	set -o errexit;
+
+	# remove the method so that it is not
+	# executed again on subsequent passes
+	method.remove "$m";	
 }
