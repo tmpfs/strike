@@ -35,7 +35,7 @@ This software is currently under development in the 0.x.x version range and is r
 ### Documentation & Help
 
 * Document your program using inline heredoc comments and publish to html and man pages using the `doc.*` tasks for [bake(1)](http://freeformsystems.github.com/strike/bake.1.html)
-* Publish documentation as github pages with the `doc.pages.publish` [bake(1)](http://freeformsystems.github.com/strike/bake.1.html) task
+* Publish documentation as github pages with the `doc.pages.push` [bake(1)](http://freeformsystems.github.com/strike/bake.1.html) task
 * Easily display program help as man pages with [help(3)](http://freeformsystems.github.com/strike/help.3.html)
 
 ### Extensions & Executables
