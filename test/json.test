@@ -1,4 +1,7 @@
-require 'json';
+# prevent warning if json module is loaded
+if ! require.exists? json; then
+	require 'json';
+fi
 
 # TODO: ensure all valid parse tests are correct
 # TODO: add invalid parse tests
