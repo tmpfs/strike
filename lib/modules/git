@@ -46,6 +46,11 @@ Retrieve the hash of the last commit in the current branch or a specific branch.
 require(3)
 ronn:markdown
 
+# TODO: ensure that delegation is not automatic
+
+# switch off automatic delegation for this module
+declare -g delegate=false;
+
 # determine if a directory is a valid git repository
 function git.valid? {
 	if [ -d "$1" ] && [ -d "${1}/.git" ]; then
@@ -94,5 +99,3 @@ function git.branch.message {
 		_result="$msg";
 	fi
 }
-
-git.branch.message;

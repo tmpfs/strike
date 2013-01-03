@@ -97,7 +97,20 @@ process.use strict;
 # 	echo "return command exists";
 # fi
 
+# function del {
+# 	echo "del called"
+# }
+# 
+# declare -g del="abc";
+# 
+# del;
+# echo "$del";
+# exit 0;
+
 require 'git';
+git.branch.message;
+echo "$_result";
+git.branch.message master;
 echo "$_result";
 exit 0;
 
