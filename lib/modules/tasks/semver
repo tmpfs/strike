@@ -266,8 +266,7 @@ function __semver.write! {
 	if ! semver.valid? "$semver"; then
 		quit 1 "semver %s is invalid" "$semver";
 	else
-		echo "write semver $semver";
-		
+		console.info "write semver %s" "$semver";
 		# only write to a package if it exists
 		if __semver.package.file.exists?; then
 			__semver.package.write! "$semver";
@@ -280,6 +279,8 @@ function __semver.write! {
 		
 		__semver.file.write! "$semver";
 		versions[semver]="$semver";
+		
+		__semver.print;
 	fi
 }
 
