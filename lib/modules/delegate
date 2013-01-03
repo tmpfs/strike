@@ -18,6 +18,9 @@ A module may declare a `main` method which should have the same name as the modu
 
 Suppose you had a `say` module with the following code:
 
+	# allow delegation for this module
+	declare -g delegate=true;
+
 	declare -gx say_greeting="world";
 	say.hello() {
 		console.info "hello %s" "$say_greeting";

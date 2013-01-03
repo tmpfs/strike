@@ -59,7 +59,7 @@ require 'url';
 # validate the curl executable is available
 # after validation the executable path
 # is available at: ${executables[curl]}
-executable validate curl tee;
+executable.validate curl tee;
 
 export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
 export http_home="$HOME/.http";

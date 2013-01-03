@@ -107,12 +107,12 @@ process.use strict;
 # echo "$del";
 # exit 0;
 
-require 'git';
-git.branch.message;
-echo "$_result";
-git.branch.message master;
-echo "$_result";
-exit 0;
+# require 'git';
+# git.branch.message;
+# echo "$_result";
+# git.branch.message master;
+# echo "$_result";
+# exit 0;
 
 #declare -f -F;
 

@@ -283,27 +283,29 @@ function __require_load {
 			return 0;
 		fi
 		
-		local delegate=${delegate:-true};
-		
-		# only delegate and call constructor if the 
-		# module was required
-		if $delegate && ! require.path.exists? "$abs" || $force; then
-			require.delegate "$name";
-		
-			# register the module
-			__require_register "$name" "$abs";
-		
-			local constructor="${name}.initialize";
-			# invoke a contructor if present
-			if method.exists? "$constructor"; then
-				"$constructor";
-			fi
+		# only add delegate functionality
+		# if the module explicitly marks it using
+		# the delegate variable
+		local delegate=${delegate:-false};
+		if $delegate; then
+			require.delegate "$name";			
 		fi
-		
 		# remove the require delegate flag
 		unset delegate;
 		
-		#echo "delegate after require: $delegate";
+		# only delegate and call constructor if the 
+		# module was required
+		if ! require.path.exists? "$abs" || $force; then
+			# register the module
+			__require_register "$name" "$abs";
+		fi
+		
+		# always call the constructor if possible
+		local constructor="${name}.initialize";
+		# invoke a contructor if present
+		if method.exists? "$constructor"; then
+			"$constructor";
+		fi		
 	fi
 }
 

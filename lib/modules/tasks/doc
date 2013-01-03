@@ -61,7 +61,7 @@ bake(1)
 ronn:markdown
 
 function tasks.initialize {
-	executable validate 'ronn' 'git';
+	executable.validate 'ronn' 'git';
 }
 
 # generates, compiles and imports man pages

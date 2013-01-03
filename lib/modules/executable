@@ -15,13 +15,13 @@ Enables validation and referencing of executables in `$PATH`.
 Use executable(3) to validate a list of executables:
 
 	require 'executable';
-	executable validate ronn git;
+	executable.validate ronn git;
 	
 If any of the listed executables are not available on the system the program will exit with a non-zero exit code. If executable validation succeeds the executable paths are available in the global `executables` associative array and can be accessed anywhere in the program, for example:
 
 	git.find() {
 		# will quit the program if git is not available
-		executable validate git;
+		executable.validate git;
 		local git="${executables[git]}";
 		$git status; 
 	}
@@ -31,7 +31,7 @@ Sometimes it can be useful to test for an executable but do not quit the program
 
 	git.find() {
 		# will be an empty string if git is not available
-		executable validate --test git;
+		executable.validate --test git;
 		local git="${executables[git]}";
 		if [ -n "$git" ]; then
 			$git status; 

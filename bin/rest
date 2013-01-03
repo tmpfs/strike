@@ -160,7 +160,7 @@ help.parse "$@";
 
 # test that re-requiring doesn't override previous data
 # require 'executable';
-# executable validate curl;
+# executable.validate curl;
 # echo "curl : ${executables[curl]}"
 # require 'executable';
 # echo "curl after re-require : ${executables[curl]}"

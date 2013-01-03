@@ -35,7 +35,7 @@ ronn:markdown
 
 # lists task methods
 function tasks.list {
-	executable validate 'egrep';
+	executable.validate 'egrep';
 	local egrep="${executables[egrep]}";
 	local methods=( $( method.list | $egrep "^tasks\.[a-zA-Z]+" ) );
 	local m;

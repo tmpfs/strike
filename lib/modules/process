@@ -78,7 +78,7 @@ function process.initialize {
 	local signal;
 	for signal in ${process_signals[@]}
 		do
-			process_signal_callbacks[$signal]="";
+			process_signal_callbacks["$signal"]="";
 	done
 }
 
@@ -192,6 +192,7 @@ function process.signal.on {
 					# validate the signal is recognized					
 					if process.signal.valid? "$signal"; then
 						# add the callback method
+						echo "processing signal $signal";
 						process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]} ${method}";
 						# remove a leading space delimiter
 						process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]# }";

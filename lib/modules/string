@@ -50,7 +50,9 @@ function string.split {
 				do
 					array+=( "${2:$i:1}" );
 			done
-			_result="${array[@]}";
+			if [ ${#array[@]} -gt 0 ]; then
+				_result="${array[@]}";
+			fi
 		fi
 	# split on delimiter
 	else
