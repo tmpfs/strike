@@ -93,6 +93,15 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# version() {
+# 	local file="${program_dirs[root]}/version";
+# 	local semver=$( cat "$file" );
+# 	console.info "version %s" "$semver";
+# }
+# version;
+# 
+# exit 0;
+
 # if method.exists? "return"; then
 # 	echo "return command exists";
 # fi
