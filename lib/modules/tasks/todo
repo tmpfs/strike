@@ -89,7 +89,7 @@ To mark code as deprecated.
 
 ## EXIT CODES
 
-If any *TODO* or *FIXME* tags are encountered then the program exits with a >0 exit code which is the total number of *TODO* and *FIXME* tags found, otherwise 0.
+If any *BUG* or *FIXME* tags are encountered then the program exits with a >0 exit code which is the total number of *BUG* and *FIXME* tags found, otherwise 0.
 
 ## BUGS
 
@@ -330,7 +330,7 @@ function __todo.output {
 #exit program
 function __todo.exit {
 	if [ ${count[todo]} -gt 0 ] || [ ${count[fixme]} -gt 0 ]; then
-		local total=$(( ${count[todo]} + ${count[fixme]} ));
+		local total=$(( ${count[bug]} + ${count[fixme]} ));
 		console.quit $total;
 	else
 		console.quit 0;
