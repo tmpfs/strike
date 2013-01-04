@@ -247,19 +247,30 @@ function __assert_run_test_method {
 }
 
 function __assert.print.header {
-	if [ $# -eq 0 ]; then
-		console.log "$header";
+	local output="${1:-$output}";
+	if [ -z "$output" ]; then
+		output="console.log";
 	fi
+	$output "$header";
 }
 
 function __assert.print.summary {
 	
-	__assert.print.header;
+	# switch output method for summary
+	# based on any assertions failing
+	local output="console.info";
 	
-	console.info "suites: %s" "${summary[suites]}";
-	console.info "methods: %s" "${summary[methods]}";
-	console.info "assertions: %s" "${summary[assertions]}";
-	console.info "assertions (pass): %s" "${summary[assertions.pass]}";
+	# some assertions failed
+	if [ ${summary[assertions.fail]} -gt 0 ]; then
+		output="console.warn";
+	fi
+	
+	__assert.print.header $output;
+	
+	$output "suites: %s" "${summary[suites]}";
+	$output "methods: %s" "${summary[methods]}";
+	$output "assertions: %s" "${summary[assertions]}";
+	$output "assertions (pass): %s" "${summary[assertions.pass]}";
 	
 	if [ ${summary[assertions.fail]} -eq 0 ]; then
 		console.info "assertions (fail): %s" "${summary[assertions.fail]}";
@@ -273,8 +284,8 @@ function __assert.print.summary {
 	else
 		
 		__assert.print.header;
-		console.log "# FAILURES";
-		__assert.print.header;		
+		console.warn "# FAILURES";
+		__assert.print.header;
 		
 		local debuginfo;
 		for debuginfo in ${!failures[@]}

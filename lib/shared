@@ -41,6 +41,9 @@ function __initialize__ {
 	process_dirs[modules]="${dir_root}/lib/modules";
 	process_dirs[test]="${dir_root}/test";
 	process_dirs[target]="${dir_root}/target";
+	process_dirs[package]="${dir_root}/package.json";
+	process_dirs[version]="${dir_root}/version";
+	process_dirs[semver]="${dir_root}/semver.json";
 
 	# configure library directories	
 	fs.path.expand "$dir";
@@ -52,7 +55,10 @@ function __initialize__ {
 	library_dirs[man]="${dir_root}/man";
 	library_dirs[modules]="${dir}/modules";
 	library_dirs[test]="${dir_root}/test";
-	library_dirs[target]="${dir_root}/target";	
+	library_dirs[target]="${dir_root}/target";
+	library_dirs[package]="${dir_root}/package.json";
+	library_dirs[version]="${dir_root}/version";
+	library_dirs[semver]="${dir_root}/semver.json";
 
 	# main module loader and require(3) definition
 	source "${dir}/modules/require";

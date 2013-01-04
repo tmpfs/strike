@@ -264,19 +264,14 @@ function sv.tasks.semver.major {
 	declare -g sv_msg="$sv_prefix major version";
 	
 	# TODO: test if version == newversion for decrement, nothing to be done
+	# TODO: add rollback warning on decrement
 	
-	# TODO: if major is going from zero to one
-	# add a prompt if they are sure the public API is stable
-	
+	# release process from 0 > 1 major version
 	if [[ "$version" =~ ^0 ]] && [[ "$newversion" =~ ^1 ]]; then
-		__semver.release.warn;		
-	fi
-	
-	if [ -t 0 ]; then	
-		ok() {
-			console.info "$sv_msg %s" "$newversion";
-		}
-		__semver.change.confirm "ok" "$sv_msg";
+		__semver.release;	
+	# simple bump
+	else
+		__semver.confirm;
 	fi
 }
 
@@ -297,13 +292,10 @@ function sv.tasks.semver.minor {
 	declare -g sv_msg="$sv_prefix minor version";	
 	
 	# TODO: test if version == newversion for decrement, nothing to be done	
+	# TODO: add rollback warning on decrement	
 	
-	if [ -t 0 ]; then
-		ok() {
-			console.info "$sv_msg %s" "$newversion";	
-		}
-		__semver.change.confirm "ok" "$sv_msg";
-	fi
+	# simple confirmation for minor release changes
+	__semver.confirm;
 }
 
 # increment or decrement a patch version
@@ -323,13 +315,10 @@ function sv.tasks.semver.patch {
 	declare -g sv_msg="$sv_prefix patch version";
 	
 	# TODO: test if version == newversion for decrement, nothing to be done	
+	# TODO: add rollback warning on decrement	
 	
-	if [ -t 0 ]; then
-		ok() {
-			console.info "$sv_msg %s" "$newversion";
-		}
-		__semver.change.confirm "ok" "$sv_msg";
-	fi
+	# simple confirmation for major release changes
+	__semver.confirm;
 }
 
 ######################################################################
@@ -364,17 +353,129 @@ function __semver.change.confirm {
 	prompt.clean;
 }
 
+# semver change confirmation
+function __semver.confirm {
+	ok() {
+		console.info "$sv_msg %s" "$newversion";
+	}
+	__semver.change.confirm "ok" "$sv_msg";	
+}
+
+# RELEASE MANAGEMENT
+
+# go through the release process
+function __semver.release {
+	
+	# TODO : skip straight to release process it not a tty
+	
+	__semver.release.warn;
+	__semver.release.confirm "__semver.release.confirmed";
+}
+
 function __semver.release.warn {
 	string.repeat "+" 80;
-	local header="$_result";	
+	local header="$_result";
 
 	console.log "$header";	
 	console.warn "You are about to go from major version %s to major version %s" "0" "1";
 	console.warn "creating a public version of your software.";
 	console.log "";
-	console.warn "This means you are about to create a %s for your software" "public API";
+	console.warn "This means you are about to create a %s for your software" "PUBLIC API";
 	console.warn "and you should be certain that you wish to proceed.";
-	console.log "$header";	
+	console.log "";	
+	console.warn "You should perform the following actions before creating version %s:" "1";
+	console.log "";	
+	console.warn "	* Run unit tests using %s or %s" "npm test" "bake test";
+	console.warn "	* Check %s information" "TODO";
+	console.warn "	* Generate documentation using %s" "bake doc.build";
+	console.warn "	* Publish documentation using %s" "bake doc.pages.push";
+	console.log "$header";
+}
+
+# initial release confirmation
+function __semver.release.confirm {
+	local callback="$1";
+	
+	accepted() {
+		$callback;
+	}
+	
+	rejected() {
+		console.success "aborted";		
+	}
+	
+	# define a boolean prompt
+	prompt.boolean confirm y n "are you sure you want to release to %s? (y/n)" "$newversion";
+	# set accept/reject callback(s)
+	prompt.accepts accepted;
+	prompt.rejects rejected;
+	prompt.show confirm;
+	prompt.clean;
+}
+
+# accepted the release process
+function __semver.release.confirmed {
+	local callback="$1";
+	
+	next() {
+		__semver.release.preprocess;
+	}
+	
+	accepted() {
+		# TODO: update new version
+		# TODO: ensure any release and build properties are included
+		newversion="1.0.0";
+		console.info "set release to %s" "$newversion";
+		next;
+		return 0;
+	}
+	
+	rejected() {
+		# move on to next step without modifying
+		# the new version
+		console.info "using %s" "$newversion";
+		next;
+	}
+	
+	# echo "$FUNCNAME : check release version $newversion";
+	
+	# validate release version is 1.0.0 or prompt to switch to 1.0.0 version
+	semver.callback() {
+		if [ ${semver[major]} -eq 1 ] && [ ${semver[minor]} -eq 0 ] && [ ${semver[patch]} -eq 0 ]; then
+			echo "release version is already at 1.0.0";
+			next;
+		else
+			# # define a boolean prompt
+			prompt.boolean confirm y n "would you prefer to use 1.0.0 instead of %s? (y/n)" "$newversion";
+			# set accept/reject callback(s)
+			prompt.accepts accepted;
+			prompt.rejects rejected;
+			prompt.show confirm;
+			prompt.clean;
+		fi
+	}
+	semver.parse "$newversion" "semver.callback";
+}
+
+# performs release preporcessing actions
+function __semver.release.preprocess {
+	__semver.release.preprocess.test;
+}
+
+function __semver.release.preprocess.test {
+	local testlog="${target}/release.test.log";
+	# use: npm test
+	if __semver.package.file.exists?; then
+		console.info "%s > %s" "npm test" "$testlog";
+		# TODO: integrate with pushd / popd
+		# pushd "$PWD";
+		cd "${root}" && npm test > "$testlog" || quit 1 "unit tests failed";
+		# popd;
+	# use: bake test
+	else
+		#TODO: look for bake test task!?
+		echo -ne '';
+	fi
 }
 
 # finds the first available semver string

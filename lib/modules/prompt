@@ -110,28 +110,26 @@ function __prompt.show.boolean {
 	local reject="$1";
 	shift;
 	
-	# echo "show boolean $# ... $@";
-	# echo "show boolean ... $3";
-	
 	# show the prompt message
 	console.prompt $@;
 	__prompt.show;
 }
 
 function __prompt.show {
-	# echo "show prompt ... '$accept'";
-	# echo "show prompt ... '$reject'";
-	
-	read value;
-	if [ "$value" == "$accept" ]; then
-		__prompt.accepted $@;
-	elif [ "$value" == "$reject" ]; then
-		__prompt.rejected $@;
-	else
-		__prompt.invalid $@;
+	# only prompt if stdin is a tty
+	if [ -t 0 ]; then
+		read value;
+		if [ "$value" == "$accept" ]; then
+			__prompt.accepted $@;
+		elif [ "$value" == "$reject" ]; then
+			__prompt.rejected $@;
+		else
+			__prompt.invalid $@;
+		fi
 	fi
 }
 
+# TODO: !?
 function __prompt.validate {
 	echo "validating prompt data ... $@";
 }
