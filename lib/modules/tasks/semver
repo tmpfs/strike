@@ -122,11 +122,24 @@ function tasks.semver {
 	__semver.version;
 	local version="$_result";
 	
+	if [ "${1:-}" != "sync" ]; then
+		# test if everything is in sync
+		$( sv.tasks.semver.sync > /dev/null 2>&1 );
+		local ok=$?;
+		if [ $ok -gt 0 ]; then
+			# write.* commands would bring semvers back in sync
+			if [ "${1:-}" != "write" ]; then
+				# quit on out of sync semver files
+				__semver.sync.quit;
+			fi
+		fi
+	fi
+	
 	# do command procesing via delegation
 	if [ $# -gt 0 ]; then
 		local method="sv.${FUNCNAME}.${1}";
 		if ! method.exists? "$method"; then
-			console.quit 1 "invalid semver command $1";
+			console.quit 1 "invalid semver command %s" "$1";
 		else
 			delegate "sv.${FUNCNAME}" "$1" ${@:2};
 		fi
@@ -159,7 +172,50 @@ function sv.tasks.semver.read {
 # write raw semver information
 function sv.tasks.semver.write {
 	local semver="${1:-}";
+	
+	if [ $# -eq 0 ]; then
+		quit 1 "no semver specified";
+	elif ! semver.valid? "$semver"; then
+		quit 1 "semver %s is invalid" "$semver";
+	fi	
+	
 	__semver.write!;
+}
+
+# determines whether semvers in all files are in sync
+function sv.tasks.semver.sync {
+	if [ $# -eq 0 ]; then
+		local valid=0;
+		local keys=( package version semver );
+		declare -A invalid;
+		local key subkey;
+		for key in ${keys[@]}
+			do
+				if [ -n "${versions[$key]}" ] && [ -f "${files[$key]}" ]; then
+					for subkey in ${keys[@]}
+						do
+							# don't compare to self
+							if [ "$key" != "$subkey" ]; then
+								if [ "${versions[$key]}" != "${versions[$subkey]}" ]; then
+									console.warn "%s != %s" "${versions[$key]}" "${versions[$subkey]}";
+									console.warn "%s != %s" "${files[$key]}" "${files[$subkey]}";
+									valid=1;
+								fi
+							fi
+					done
+				fi
+		done
+		
+		if [ $valid -eq 0 ]; then
+			console.ok "semver %s %s" "$version" "✓";
+		else
+			__semver.sync.quit;
+		fi
+		
+		return $valid;
+	else
+		echo "sync on file id";
+	fi
 }
 
 # generate semver files
@@ -267,25 +323,21 @@ function __semver.parse {
 # write a semver to all available files
 function __semver.write! {
 	local semver="${1:-$semver}";
-	if ! semver.valid? "$semver"; then
-		quit 1 "semver %s is invalid" "$semver";
-	else
-		console.info "write semver %s" "$semver";
-		# only write to a package if it exists
-		if __semver.package.file.exists?; then
-			__semver.package.write! "$semver";
-			versions[package]="$semver";
-		fi
-		
-		# always write to `version` and `semver.json`
-		__semver.version.write! "$semver";
-		versions[version]="$semver";
-		
-		__semver.file.write! "$semver";
-		versions[semver]="$semver";
-		
-		__semver.print;
+	console.info "write semver %s" "$semver";
+	# only write to a package if it exists
+	if __semver.package.file.exists?; then
+		__semver.package.write! "$semver";
+		versions[package]="$semver";
 	fi
+	
+	# always write to `version` and `semver.json`
+	__semver.version.write! "$semver";
+	versions[version]="$semver";
+	
+	__semver.file.write! "$semver";
+	versions[semver]="$semver";
+	
+	__semver.print;
 }
 
 # write a semver to `package.json`
@@ -320,7 +372,7 @@ function __semver.package.write! {
 # writes a semver to `version`
 function __semver.version.write! {
 	local version="${1:-}";
-	echo "$version" > "${files[version]}" || __semver.file.write.quit "${files[version]}";
+	echo -ne "$version" > "${files[version]}" || __semver.file.write.quit "${files[version]}";
 	return 0;
 }
 
@@ -395,6 +447,11 @@ function __semver.file.exists? {
 #	PRIVATE OUTPUT UTILITY METHODS
 #
 ######################################################################
+
+function __semver.sync.quit {
+	console.error "semver %s to sync semvers" "sync package|version|semver";
+	quit 1 "semver %s %s" "$version" "✘";	
+}
 
 function __semver.missing.files.info {
  	if [ -f "${files[package]}" ] && [ ! -f "${files[semver]}" ] && [ ! -f "${files[version]}" ]; then
