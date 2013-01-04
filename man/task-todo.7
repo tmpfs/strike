@@ -10,7 +10,7 @@
 Task(s) for bake(1) to find \fITODO\fR tags in a project\.
 .
 .SH "DESCRIPTION"
-Adds task methods for scanning a project looking for \fITODO\fR tags\.
+Adds task methods for scanning a project looking for \fITODO\fR tags, use these commands to give your code a sanity check\.
 .
 .SH "REQUIRE"
 In your tasks(7) file \fBrequire\fR the \fBtodo\fR task(s) using:
@@ -89,10 +89,55 @@ Flag options for task\-todo(7)\.
 
 .
 .P
-Makes task\-todo(7) mute\.
+Makes task\-todo(7) mute, this is useful if you are only interested in the exit code\.
+.
+.SH "TAGS"
+The following tags are supported by default:
+.
+.TP
+\fBFIXME\fR:
+
+.
+.P
+To mark potential problematic code that requires special attention and/or review\.
+.
+.TP
+\fBTODO\fR:
+
+.
+.P
+To indicate planned enhancements\.
+.
+.TP
+\fBNOTE\fR:
+
+.
+.P
+To document inner workings of code and indicate potential pitfalls\.
+.
+.TP
+\fBXXX\fR:
+
+.
+.P
+To warn other programmers of problematic or misguiding code\.
+.
+.TP
+\fBCHANGED\fR:
+
+.
+.P
+To indicate that behaviour or implementation has changed\.
+.
+.TP
+\fBDEPRECATED\fR:
+
+.
+.P
+To mark code as deprecated\.
 .
 .SH "EXIT CODES"
-If any \fITODO\fR or \fIFIXME\fR tags are encountered then the program exits with a >0 exit code, otherwise 0\.
+If any \fITODO\fR or \fIFIXME\fR tags are encountered then the program exits with a >0 exit code which is the total number of \fITODO\fR and \fIFIXME\fR tags found, otherwise 0\.
 .
 .SH "BUGS"
 \fBtask\-todo\fR is written in bash and depends upon \fBbash\fR >= 4\.

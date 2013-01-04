@@ -8,7 +8,7 @@ Task(s) for bake(1) to find *TODO* tags in a project.
 
 ## DESCRIPTION
 
-Adds task methods for scanning a project looking for *TODO* tags.
+Adds task methods for scanning a project looking for *TODO* tags, use these commands to give your code a sanity check.
 
 ## REQUIRE
 
@@ -53,11 +53,43 @@ Flag options for task-todo(7).
 
 * `--silent`:
 
-Makes task-todo(7) mute.
+Makes task-todo(7) mute, this is useful if you are only interested in the exit code.
+
+## TAGS
+
+The following tags are supported by default:
+
+* `BUG`:
+	
+To mark a known bug.
+
+* `FIXME`:
+	
+To mark potential problematic code that requires special attention and/or review.
+
+* `TODO`:
+	
+To indicate planned enhancements.
+
+* `NOTE`:
+
+To document inner workings of code and indicate potential pitfalls.
+
+* `XXX`:
+
+To warn other programmers of problematic or misguiding code.
+
+* `CHANGED`:
+
+To indicate that behaviour or implementation has changed.
+
+* `DEPRECATED`:
+
+To mark code as deprecated.
 
 ## EXIT CODES
 
-If any *TODO* or *FIXME* tags are encountered then the program exits with a >0 exit code, otherwise 0.
+If any *TODO* or *FIXME* tags are encountered then the program exits with a >0 exit code which is the total number of *TODO* and *FIXME* tags found, otherwise 0.
 
 ## BUGS
 
@@ -99,11 +131,12 @@ todo_ignore_patterns=(
 
 declare -Ag todo_tags;
 todo_tags[fixme]="FIX ?ME[\s,:]+\s*(.*)";
+todo_tags[bug]="BUG[\s,:]+\s*(.*)";
 todo_tags[todo]="TODO[\s,:]+\s*(.*)";
-todo_tags[note]="";
-todo_tags[xxx]="";
-todo_tags[deprecated]="";
-todo_tags[changed]="";
+todo_tags[note]="NOTE[\s,:]+\s*(.*)";
+todo_tags[xxx]="XXX[\s,:]+\s*(.*)";
+todo_tags[deprecated]="DEPRECATED[\s,:]+\s*(.*)";
+todo_tags[changed]="CHANGED[\s,:]+\s*(.*)";
 
 # tasks for working with TODO tags
 function tasks.todo {
@@ -294,9 +327,11 @@ function __todo.output {
 	fi
 }
 
+#exit program
 function __todo.exit {
 	if [ ${count[todo]} -gt 0 ] || [ ${count[fixme]} -gt 0 ]; then
-		console.quit 1;
+		local total=$(( ${count[todo]} + ${count[fixme]} ));
+		console.quit $total;
 	else
 		console.quit 0;
 	fi
