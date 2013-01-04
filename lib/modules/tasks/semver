@@ -247,29 +247,105 @@ function sv.tasks.semver.generate {
 	__semver.print;
 }
 
+function __semver.change.confirm {
+	local callback="$1";
+	local prefix="${2:-}";
+	if [ -n "$prefix" ]; then
+		prefix="${prefix} "
+	fi
+	console.prompt "${prefix}%s > %s, are you sure? (y/n)" "$version" "$newversion";
+	read ok;
+	if [ "$ok" != "y" ] && [ "$ok" != "n" ]; then
+		__semver.change.confirm "$callback" "$2";
+		return 0;
+	fi
+	#echo "got ok : $ok"
+	if [ "$ok" == "y" ]; then
+		$callback;
+	else
+		# nothing to do
+		console.success "aborted";
+	fi
+}
+
 # increment or decrement a major version
 function sv.tasks.semver.major {
-	echo "bump major version";
+	# TODO: add --force flag to prevent prompt for programmatic control
+	declare -g sv_prefix="bump";
 	# decrement
 	if [ "${1:-}" == "-" ]; then
 		semver.major! - "$version";
+		sv_prefix="revert";
 	# increment
 	else
 		semver.major! "$version";
 	fi
+	local newversion="$_result";
+	declare -g sv_msg="$sv_prefix major version";
+	
+	# TODO: test if version == newversion for decrement, nothing to be done
+	
 	# TODO: if major is going from zero to one
 	# add a prompt if they are sure the public API is stable
-	echo "bump major version afterwards : $_result";
+	
+	if [ -t 0 ]; then	
+		ok() {
+			console.info "$sv_msg %s" "$newversion";
+		}
+		__semver.change.confirm "ok" "$sv_msg";
+	fi
 }
 
 # increment or decrement a minor version
 function sv.tasks.semver.minor {
-	echo "bump minor version";
+	# TODO: add --force flag to prevent prompt for programmatic control
+	
+	declare -g sv_prefix="bump";
+	# decrement
+	if [ "${1:-}" == "-" ]; then
+		semver.minor! - "$version";
+		sv_prefix="revert";		
+	# increment
+	else
+		semver.minor! "$version";
+	fi
+	local newversion="$_result";
+	declare -g sv_msg="$sv_prefix minor version";	
+	
+	# TODO: test if version == newversion for decrement, nothing to be done	
+	
+	if [ -t 0 ]; then
+		ok() {
+			console.info "$sv_msg %s" "$newversion";	
+		}
+		__semver.change.confirm "ok" "$sv_msg";
+	fi
 }
 
 # increment or decrement a patch version
 function sv.tasks.semver.patch {
-	echo "bump patch version";
+	# TODO: add --force flag to prevent prompt for programmatic control
+	
+	declare -g sv_prefix="bump";
+	# decrement
+	if [ "${1:-}" == "-" ]; then
+		semver.patch! - "$version";
+		sv_prefix="revert";		
+	# increment
+	else
+		semver.patch! "$version";
+	fi
+	local newversion="$_result";
+	declare -g sv_msg="$sv_prefix patch version";
+	
+	# TODO: test if version == newversion for decrement, nothing to be done	
+	
+	if [ -t 0 ]; then
+		ok() {
+			console.info "$sv_msg %s" "$newversion";
+		}
+		__semver.change.confirm "ok" "$sv_msg";
+	fi
 }
 
 ######################################################################

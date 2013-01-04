@@ -312,6 +312,27 @@ function console.ok {
 	echo -e "$prefix $msg";
 }
 
+function console.prompt {
+	local msg="";
+	if [ -t 1 ] && [ -z "$console_no_format" ]; then
+		#get the message prefix
+		bold "$status";
+		prefix="$_result";
+
+		#highlight the message and parameters
+		msgs=( "default_style" "bold" "${@}" );
+		console.colorize "${msgs[@]}";
+		msg="$_result";
+	else
+		console.sprintf "${@}";
+		msg="$_result";
+	fi
+	
+	#output everything
+	__console_print_program_prefix;
+	echo -ne "$msg ";
+}
+
 #outputs an info message
 function console.info {	
 	local status="${console_prefixes[$FUNCNAME]}";
