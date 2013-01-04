@@ -142,8 +142,10 @@ function require.name.unload! {
 			do
 				name="${module_paths["$path"]}";
 				if [ "$name" == "$module" ]; then
-					local methods=( ${module_methods["$path"]} );
-					method.remove "${methods[@]}";
+					if [ ${#module_methods[@]} -gt 0 ]; then
+						local methods=( ${module_methods["$path"]} );
+						method.remove "${methods[@]}";
+					fi
 					unset module_paths["$path"];
 				fi
 		done

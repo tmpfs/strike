@@ -74,13 +74,14 @@ function __attr.define.reader.writer {
 
 function __attr.define.reader {
 	eval "$method(){
+		# echo \"getter called \$1\";
 		_result=\"\${$varname}\";
 	}";
 }
 
 function __attr.define.writer {
 	eval "$method(){
-		echo \"setter called \$1\";
+		# echo \"setter called \$1\";
 		$varname=\"\$1\";
 	}";
 }
