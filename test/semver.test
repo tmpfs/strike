@@ -31,6 +31,28 @@ function test.semver.valid? {
 	done
 }
 
+# test whether a release version is valid
+function test.semver.release? {
+	# valid
+	semver.release? "-rc.1";
+	assert.eq "0" "$?";
+	
+	# invalid
+	semver.release? "+rc.1";
+	assert.eq "1" "$?";
+}
+
+# test whether a build version is valid
+function test.semver.build? {
+	# valid
+	semver.build? "+build.2.b8f12d7";
+	assert.eq "0" "$?";
+	
+	# invalid
+	semver.build? "-build.2.b8f12d7";
+	assert.eq "1" "$?";
+}
+
 # test for parsing valid semvers
 function test.semver.parse {
 	local str;

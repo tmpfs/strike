@@ -38,14 +38,34 @@ Note that the `semver.parse` method will not perform any operations on invalid s
 require(3)
 ronn:markdown
 
-declare -g semver_regexp="^([0-9]+)\.([0-9]+)\.([0-9]+)([-0-9A-Za-z.]+)?(\+[-0-9A-Za-z.]+)?$";
+declare -g semver_release_regexp="([-0-9A-Za-z.]+)";
+declare -g semver_build_regexp="(\+[-0-9A-Za-z.]+)";
+declare -g semver_regexp="^([0-9]+)\.([0-9]+)\.([0-9]+)$semver_release_regexp?$semver_build_regexp?$";
 
 # determine if a semver string is valid
 function semver.valid? {
-	if [[ "$1" =~ $semver_regexp ]]; then
+	if [[ "${1:-}" =~ $semver_regexp ]]; then
 		return 0;
 	fi
 	return 1;
+}
+
+# determine if a release string is valid
+function semver.release? {
+	local regexp="^${semver_release_regexp}$";
+	if [[ "${1:-}" =~ $regexp ]]; then
+		return 0;
+	fi
+	return 1;
+}
+
+# determine if a build string is valid
+function semver.build? {
+	local regexp="^${semver_build_regexp}$";
+	if [[ "${1:-}" =~ $regexp ]]; then
+		return 0;
+	fi
+	return 1;	
 }
 
 # convert parameters back from a semver array

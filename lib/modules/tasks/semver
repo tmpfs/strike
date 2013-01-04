@@ -36,7 +36,15 @@ To view version information use the `semver read` command.
 
 	bake semver read
 	
-If no task-semver(7) files are present this command will exit with a non-zero exit code, otherwise it will print warnings for any missing files.
+If no task-semver(7) files are present this command will exit with a >0 exit code, otherwise it will print warnings for any missing files.
+
+* `semver sync`:
+
+Use the `sync` command to test whether all files are in sync.
+
+	bake semver sync
+	
+If any semver(7) strings do not match warnings will be printed and the exit code will be >0.
 
 * `semver test`:
 
@@ -236,6 +244,21 @@ function sv.tasks.semver.generate {
 	
 	# print summary
 	__semver.print;
+}
+
+# increment or decrement a major version
+function sv.tasks.semver.major {	
+	echo "bump major version";
+}
+
+# increment or decrement a minor version
+function sv.tasks.semver.minor {
+	echo "bump minor version";
+}
+
+# increment or decrement a patch version
+function sv.tasks.semver.patch {
+	echo "bump patch version";
 }
 
 ######################################################################
