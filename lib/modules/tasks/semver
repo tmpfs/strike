@@ -268,6 +268,19 @@ function __semver.change.confirm {
 	fi
 }
 
+function __semver.release.warn {
+	string.repeat "+" 80;
+	local header="$_result";	
+
+	console.log "$header";	
+	console.warn "You are about to go from major version %s to major version %s" "0" "1";
+	console.warn "creating a public version of your software.";
+	console.log "";
+	console.warn "This means you are about to create a %s for your software" "public API";
+	console.warn "and you should be certain that you wish to proceed.";
+	console.log "$header";	
+}
+
 # increment or decrement a major version
 function sv.tasks.semver.major {
 	# TODO: add --force flag to prevent prompt for programmatic control
@@ -287,6 +300,10 @@ function sv.tasks.semver.major {
 	
 	# TODO: if major is going from zero to one
 	# add a prompt if they are sure the public API is stable
+	
+	if [[ "$version" =~ ^0 ]] && [[ "$newversion" =~ ^1 ]]; then
+		__semver.release.warn;		
+	fi
 	
 	if [ -t 0 ]; then	
 		ok() {
