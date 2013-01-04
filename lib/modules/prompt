@@ -1,0 +1,137 @@
+declare -A prompt_data;
+declare -A prompt_boolean;
+
+# callback lists
+declare prompt_accepted;
+declare prompt_rejected;
+declare prompt_invalid;
+
+# add a boolean prompt
+# $1 id
+# $2 true string
+# $3 false string
+# $4..$# message parameters ...
+function prompt.boolean {
+	local key="${1:-}";
+	shift;
+	# store newline separated
+	local quoted="";
+	local IFS="
+";
+	quoted=( $@ );
+	prompt_boolean["$key"]="${quoted[*]}";
+}
+
+# show a prompt by id
+function prompt.show {
+	local key="${1:-}";
+	shift;
+	
+	if [ ${#prompt_boolean[@]} -gt 0 ]; then
+		if [ -n "${prompt_boolean["$key"]}" ]; then
+				local IFS="
+			";			
+			local values=( ${prompt_boolean["$key"]} );
+			__prompt.show.boolean ${values[@]};
+			return $?;
+		fi
+	fi
+
+	console.warn "no prompt data for %s" "$key";
+	return 1;
+}
+
+# sets `accept` callback method(s)
+function prompt.accepts {
+	prompt_accepted="$@";
+}
+
+# sets `rejects` callback method(s)
+function prompt.rejects {
+	prompt_rejected="$@";
+}
+
+# sets `invalid` callback method(s)
+function prompt.invalid {
+	prompt_invalid="$@";
+}
+
+# clean all prompt data
+function prompt.clean {
+	unset prompt_data[@];
+	unset prompt_boolean[@];
+	
+	#echo "prompt after clean : ${!prompt_data}";
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __prompt.trigger {
+	local m;
+	local IFS=' ';
+	local methods=( $1 );
+	# echo "trigger called with ${#methods[@]} : ${methods[@]}";
+	for m in ${methods[@]}
+		do
+			#echo "callback : $m";
+			if method.exists? "$m"; then
+				$m;
+			fi
+	done
+}
+
+function __prompt.accepted {
+	#echo "$FUNCNAME"
+	__prompt.trigger $prompt_accepted;
+	return 0;
+}
+
+function __prompt.rejected {
+	#echo "$FUNCNAME"
+	__prompt.trigger $prompt_rejected;
+	return 0;
+}
+
+function __prompt.invalid {
+	#echo "$FUNCNAME"
+	__prompt.trigger $prompt_invalid;
+	# show prompt on invalid input by default
+	__prompt.show $@;
+	return 0;
+}
+
+function __prompt.show.boolean {
+	local accept="$1";
+	shift;
+	local reject="$1";
+	shift;
+	
+	# echo "show boolean $# ... $@";
+	# echo "show boolean ... $3";
+	
+	# show the prompt message
+	console.prompt $@;
+	__prompt.show;
+}
+
+function __prompt.show {
+	# echo "show prompt ... '$accept'";
+	# echo "show prompt ... '$reject'";
+	
+	read value;
+	if [ "$value" == "$accept" ]; then
+		__prompt.accepted $@;
+	elif [ "$value" == "$reject" ]; then
+		__prompt.rejected $@;
+	else
+		__prompt.invalid $@;
+	fi
+}
+
+function __prompt.validate {
+	echo "validating prompt data ... $@";
+}

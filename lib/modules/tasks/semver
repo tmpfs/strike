@@ -94,6 +94,7 @@ ronn:markdown
 
 require.once 'semver';
 require.once 'json';
+require.once 'prompt';
 
 # tasks for working with semver data
 function tasks.semver {
@@ -247,40 +248,6 @@ function sv.tasks.semver.generate {
 	__semver.print;
 }
 
-function __semver.change.confirm {
-	local callback="$1";
-	local prefix="${2:-}";
-	if [ -n "$prefix" ]; then
-		prefix="${prefix} "
-	fi
-	console.prompt "${prefix}%s > %s, are you sure? (y/n)" "$version" "$newversion";
-	read ok;
-	if [ "$ok" != "y" ] && [ "$ok" != "n" ]; then
-		__semver.change.confirm "$callback" "$2";
-		return 0;
-	fi
-	#echo "got ok : $ok"
-	if [ "$ok" == "y" ]; then
-		$callback;
-	else
-		# nothing to do
-		console.success "aborted";
-	fi
-}
-
-function __semver.release.warn {
-	string.repeat "+" 80;
-	local header="$_result";	
-
-	console.log "$header";	
-	console.warn "You are about to go from major version %s to major version %s" "0" "1";
-	console.warn "creating a public version of your software.";
-	console.log "";
-	console.warn "This means you are about to create a %s for your software" "public API";
-	console.warn "and you should be certain that you wish to proceed.";
-	console.log "$header";	
-}
-
 # increment or decrement a major version
 function sv.tasks.semver.major {
 	# TODO: add --force flag to prevent prompt for programmatic control
@@ -370,6 +337,45 @@ function sv.tasks.semver.patch {
 #	PRIVATE METHODS
 #
 ######################################################################
+
+# INTERACTIVE METHODS
+
+function __semver.change.confirm {
+	local callback="$1";
+	local prefix="${2:-}";
+	if [ -n "$prefix" ]; then
+		prefix="${prefix} "
+	fi
+	
+	accepted() {
+		$callback;
+	}
+	
+	rejected() {
+		console.success "aborted";		
+	}
+	
+	# define a boolean prompt
+	prompt.boolean confirm y n "${prefix}%s > %s, are you sure? (y/n)" "$version" "$newversion";
+	# set accept/reject callback(s)
+	prompt.accepts accepted;
+	prompt.rejects rejected;
+	prompt.show confirm;
+	prompt.clean;
+}
+
+function __semver.release.warn {
+	string.repeat "+" 80;
+	local header="$_result";	
+
+	console.log "$header";	
+	console.warn "You are about to go from major version %s to major version %s" "0" "1";
+	console.warn "creating a public version of your software.";
+	console.log "";
+	console.warn "This means you are about to create a %s for your software" "public API";
+	console.warn "and you should be certain that you wish to proceed.";
+	console.log "$header";	
+}
 
 # finds the first available semver string
 function __semver.version {

@@ -93,6 +93,17 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# len()
+# {
+# 	echo "$# : $@";
+# }
+# 
+# len a;
+# 
+# len a\ b;
+# 
+# exit 0;
+
 #require.once 'attr';
 
 # attr.reader;
