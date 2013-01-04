@@ -4,7 +4,7 @@ semver(3) -- semantic version parser
 
 ## SYNOPSIS
 
-Commands for working with semantic versioning.
+Commands for working with semantic versioning as defined by semver(7).
 
 ## DESCRIPTION
 
@@ -12,7 +12,7 @@ Enables parsing of semantic version strings to complex objects.
 
 ## USAGE
 
-To parse a semver(7) string invoke `semver.parse` with the string and a callback method:
+To parse a semver(7) string into an associative array use `semver.parse` with the string and a callback method:
 
 	require 'semver';
 	callback() {
@@ -37,6 +37,8 @@ Note that the `semver.parse` method will not perform any operations on invalid s
 
 require(3)
 ronn:markdown
+
+# TODO: complete semver(3) documentation
 
 declare -g semver_release_regexp="([-0-9A-Za-z.]+)";
 declare -g semver_build_regexp="(\+[-0-9A-Za-z.]+)";
@@ -114,7 +116,9 @@ function semver.major! {
 			if $increment; then
 				((version++));
 			else
-				((version--));
+				if [ $version -gt 0 ]; then
+					((version--));
+				fi
 			fi
 			semver.stringify \
 				"$version" \
@@ -145,7 +149,9 @@ function semver.minor! {
 			if $increment; then
 				((version++));
 			else
-				((version--));
+				if [ $version -gt 0 ]; then
+					((version--));
+				fi
 			fi
 			semver.stringify \
 				"${BASH_REMATCH[1]}" \
@@ -176,7 +182,9 @@ function semver.patch! {
 			if $increment; then
 				((version++));
 			else
-				((version--));
+				if [ $version -gt 0 ]; then
+					((version--));
+				fi
 			fi
 			semver.stringify \
 				"${BASH_REMATCH[1]}" \

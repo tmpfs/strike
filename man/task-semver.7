@@ -71,7 +71,27 @@ bake semver read
 .IP "" 0
 .
 .P
-If no task\-semver(7) files are present this command will exit with a non\-zero exit code, otherwise it will print warnings for any missing files\.
+If no task\-semver(7) files are present this command will exit with a >0 exit code, otherwise it will print warnings for any missing files\.
+.
+.TP
+\fBsemver sync\fR:
+
+.
+.P
+Use the \fBsync\fR command to test whether all files are in sync\.
+.
+.IP "" 4
+.
+.nf
+
+bake semver sync
+.
+.fi
+.
+.IP "" 0
+.
+.P
+If any semver(7) strings do not match warnings will be printed and the exit code will be >0\.
 .
 .TP
 \fBsemver test\fR:

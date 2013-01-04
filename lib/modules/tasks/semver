@@ -222,7 +222,8 @@ function sv.tasks.semver.sync {
 		
 		return $valid;
 	else
-		echo "sync on file id";
+		# TODO: allow specifc sync identifier commands
+		echo "sync on file type id $1";
 	fi
 }
 
@@ -247,8 +248,18 @@ function sv.tasks.semver.generate {
 }
 
 # increment or decrement a major version
-function sv.tasks.semver.major {	
+function sv.tasks.semver.major {
 	echo "bump major version";
+	# decrement
+	if [ "${1:-}" == "-" ]; then
+		semver.major! - "$version";
+	# increment
+	else
+		semver.major! "$version";
+	fi
+	# TODO: if major is going from zero to one
+	# add a prompt if they are sure the public API is stable
+	echo "bump major version afterwards : $_result";
 }
 
 # increment or decrement a minor version
