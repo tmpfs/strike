@@ -4,6 +4,8 @@
 # attr_accessor :v	 attr_reader :v; attr_writer :v
 # attr_accessor :v, :w	 attr_accessor :v; attr_accessor :w
 
+# TODO: document this module
+
 declare -Ag attr_accessors;
 
 # set a read/write accessor

@@ -1,12 +1,14 @@
 require.once 'attr';
 
+# TODO: add test for -* flag options passed to declare
+
 function test.attr.reader {
 	attr.reader :reader.read "value";
 	reader.read;
 	assert.equal "value" "$_result";
 }
 
-function test.attr.write {
+function test.attr.writer {
 	attr.writer :writer.write;
 	writer.write "value";
 	assert.equal "value" "$writer_write";
