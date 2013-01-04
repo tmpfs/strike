@@ -88,11 +88,48 @@ The output format for this command is an uppercase tag identifier delimited by t
 Use the \fBlist\fR command to print a list of the files that a scan would match\.
 .
 .TP
+\fBcount\fR:
+
+.
+.P
+Count occurences of tags, this implies the \fB\-\-silent\fR option\. The format of count output is an uppercase tag name and the count value delimited by an \'=\' character, for example:
+.
+.IP "" 4
+.
+.nf
+
+TODO=76
+.
+.fi
+.
+.IP "" 0
+.
+.TP
 \fBexcludes\fR:
 
 .
 .P
 Prints the exclude patterns\.
+.
+.SH "OPTIONS"
+Options for task\-todo(7)\.
+.
+.TP
+\fB\-\-dir\fR:
+
+.
+.P
+Specify one or more specific directories \fIrelative to the project root\fR to scan for tags\. This removes all default directory scans and performs a custom scan using \fIonly\fR the directories specified on the command line\. For example:
+.
+.IP "" 4
+.
+.nf
+
+bake todo scan \-\-dir bin \-\-dir src \-\-bug \-\-fixme
+.
+.fi
+.
+.IP "" 0
 .
 .SH "FLAGS"
 Flag options for task\-todo(7)\.

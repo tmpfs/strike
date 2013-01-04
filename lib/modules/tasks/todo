@@ -49,7 +49,9 @@ Use the `list` command to print a list of the files that a scan would match.
 
 * `count`:
 
-Count occurences of tags, this implies the `--silent` option.
+Count occurences of tags, this implies the `--silent` option. The format of count output is an uppercase tag name and the count value delimited by an '=' character, for example:
+
+	TODO=76
 	
 * `excludes`:
 
@@ -160,10 +162,6 @@ If any *BUG* or *FIXME* tags are encountered then the program exits with a >0 ex
 bake(1)
 ronn:markdown
 
-# TODO: make scan inclusive with a directory search path by default
-# TODO: add --exclusive option to scan exclusively
-# TODO: add --todo, --bug etc flags to search only for those tags
-
 # BUG : this is a test bug, no problem really
 # TODO : this is a test todo, no problem really
 # FIX ME : this is a test fix me, no problem really
@@ -183,7 +181,7 @@ todo_ignore_patterns=(
 	"/doc/?.*$"
 	"/tmp/?.*$"
 	"\.DS_Store$"
-	"/package.json$"	
+	"/package.json$"
 	"/semver.json$"
 	"/version$"
 	"/tasks$"
@@ -226,7 +224,6 @@ function tasks.todo {
 	all_tags=( ${!todo_tags[@]} );	
 	
 	local include_symlinks=false;
-	local exclusive=false;
 	local silent=false;
 	local counting=false;
 	
@@ -430,32 +427,15 @@ function __todo.find {
 
 # get all files
 function __todo.list {
-	# TODO: remove exclusive style listing
-	if $exclusive; then
-		local IFS="
-	";
-		#files=( $( find "${root}" -type f ) );
-		__todo.find "${root}";
-		unset IFS;
-		local k f;
-		for k in ${!files[@]}
-			do
-				f="${files[$k]}";
-				if __todo.excludes? "$f" "${root}" || [ ! -r "$f" ]; then
-					unset files[$k];
-				fi
-		done
-	else
-		local dir;
-		for dir in ${todo_dirs[@]}
-			do
-				dir="${dir#/}";
-				dir="${root}/${dir}";
-				if [ -d "$dir" ]; then
-					__todo.find "$dir";
-				fi
-		done
-	fi
+	local dir;
+	for dir in ${todo_dirs[@]}
+		do
+			dir="${dir#/}";
+			dir="${root}/${dir}";
+			if [ -d "$dir" ]; then
+				__todo.find "$dir";
+			fi
+	done
 }
 
 # test if a line matches a tag pattern
@@ -537,7 +517,7 @@ function __todo.count {
 			fi
 			v="${count[$k]}";
 			k="${k^^}";
-			echo "$k: $v";
+			echo "$k=$v";
 	done
 }
 
