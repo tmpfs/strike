@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- not a real ant(1) build file used to test task-ant(7) -->
+<project name="strike" default="test" basedir=".">
+	<target name="test" description="A test target for task-ant(7)">
+		<echo message="ant(1) test target executed" />
+	</target>
+</project>

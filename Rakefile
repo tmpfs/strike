@@ -3,5 +3,5 @@
 task :default => [:test]
 
 task :test do
-  puts "rake test method executed"
+  puts "rake(1) test task executed";
 end
