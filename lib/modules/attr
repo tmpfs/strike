@@ -1,0 +1,129 @@
+# Shortcut	 Effect
+# attr_reader :v	 def v; @v; end
+# attr_writer :v	 def v=(value); @v=value; end
+# attr_accessor :v	 attr_reader :v; attr_writer :v
+# attr_accessor :v, :w	 attr_accessor :v; attr_accessor :w
+
+declare -Ag attr_accessors;
+
+# set a read/write accessor
+function attr.accessor {
+	echo "set read/write accessor .. $@";
+	__attr.options.validate "${FUNCNAME}" __attr.add $@;
+	__attr.add $@;
+	return 0;
+}
+
+# set a read accessor
+function attr.reader {
+	echo "set read accessor .. $@";	
+	__attr.options.validate "${FUNCNAME}" __attr.add.reader $@;
+	return 0;
+}
+
+# set a write accessor
+function attr.writer {
+	echo "set write accessor .. $@";	
+	__attr.options.validate "${FUNCNAME}" __attr.add.writer $@;
+	return 0;
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __attr.add {
+	echo "adding read/write accessor with name: $1 : $method : $varname";	
+	__attr.define "$varname";
+	__attr.define.reader.writer;
+}
+
+function __attr.add.reader {
+	
+	echo "adding read accessor with name: $1 : $method : $varname";
+	__attr.define;
+	__attr.define.reader;
+}
+
+function __attr.add.writer {
+	echo "adding write accessor with name: $1 : $method : $varname";
+	__attr.define;
+	__attr.define.writer;
+}
+
+function __attr.define {
+	local value="${value:-}";
+	echo "defining $flags $varname";
+	eval "declare $flags $varname;";
+	eval "$varname=\"$value\"";
+	
+	variable.get "$varname";
+	echo "after declare: ${_result}";
+}
+
+function __attr.define.reader.writer {
+	eval "$method(){
+		if [ $# -eq 0 ]; then
+			_result=\"\${$varname}\";
+		else
+			$varname=\"\$1\";
+		fi
+	}";
+}
+
+function __attr.define.reader {
+	eval "$method(){
+		_result=\"\${$varname}\";
+	}";
+}
+
+function __attr.define.writer {
+	eval "$method(){
+		$varname=\"\$1\";
+	}";
+}
+
+function __attr.options.validate {
+	local regexp="^:[.a-zA-Z0-9]+$";
+	local name="${1:-$FUNCNAME}";
+	shift;
+	local callback="$1";
+	shift;
+	if [ $# -eq 0  ]; then
+		console.quit 1 "%s: too few options" "${name}";
+	fi
+	
+	# handle flags
+	local flags="-g";
+	
+	# got flags definition
+	if [[ "$1" =~ ^- ]]; then
+		flags="$1";
+		shift;
+	fi
+	
+	if [[ ! "$1" =~ $regexp ]]; then
+		console.quit 1 "%s: invalid option %s, must match %s" "${name}" "$opt" "$regexp";
+	fi
+	
+	local value;
+	if [ $# -gt 1 ]; then
+		value="${2:-}";
+	fi
+	
+	# local opt;
+	# for opt in $@
+	# 	do
+	# 		if [[ ! "$opt" =~ $regexp ]]; then
+	# 			console.quit 1 "%s: invalid option %s, must match %s" "${name}" "$opt" "$regexp";
+	# 		fi
+	# done
+	
+	# if calback does not contain `writer` and flags does not contain -r - then add it
+	
+	local method="${1#:}";
+	local varname="${method//\./_}";
+	$callback $@;
+}

@@ -93,6 +93,29 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+require.once 'attr';
+
+# attr.reader;
+# attr.reader a b c;
+
+attr.reader :abc.reader "abc";
+
+#attr.writer;
+#attr.writer a b c;
+# attr.writer :abc.writer;
+# 
+# #attr.accessor :abc.readwrite;
+# 
+# method.list | grep abc;
+
+abc.reader;
+echo "after reader: '$_result'";
+# env | grep abc;
+
+#attr.accessor;
+
+exit 0;
+
 # "version": "0.1.1"
 
 # require.once 'json';
