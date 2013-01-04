@@ -3,4 +3,5 @@ require 'tasks/clean';
 require 'tasks/list';
 require 'tasks/doc';
 require 'tasks/rake';
+require 'tasks/todo';
 require 'tasks/semver';

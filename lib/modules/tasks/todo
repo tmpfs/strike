@@ -1,0 +1,180 @@
+# FIXME : /FIX ?ME[\s,:]+(\S.*)$/i
+# TODO : /TODO[\s,:]+(\S.*)$/i
+# CHANGED : /CHANGED[\s,:]+(\S.*)$/
+# RADAR : /(.*<)ra?dar:\/(?:\/problem|)\/([&0-9]+)(>.*)$/
+
+# Certain tags are used in comments to assist in indexing common issues. Such tags are commonly syntax-highlighted within text editors and can be searched for with common programming tools, such as the Unix grep utility. Examples of tag conventions include:
+
+# FIXME to mark potential problematic code that requires special attention and/or review.
+# NOTE to document inner workings of code and indicate potential pitfalls.
+# TODO to indicate planned enhancements.
+# XXX to warn other programmers of problematic or misguiding code.
+
+# There is a risk that tags accumulate over time; it is advisable to include the date and the tag owner in the tag comment to ease tracking.[35]
+
+declare -ag todo_ignore_patterns;
+todo_ignore_patterns=(
+	"\.log$"
+	"\.tmp$"
+	"\.bak$"
+	"/\.git/?.*$"
+	"\.gitignore$"
+	"/target/?.*$"
+	"/test/?.*$"
+	"/man/?.*$"
+	"/doc/?.*$"
+	"/tmp/?.*$"
+	"\.DS_Store$"
+	"/package.json$"	
+	"/semver.json$"
+	"/version$"
+	"/tasks$"
+	"/AUTHORS$"
+	"/CHANGES$"
+	"/LICENSE$"
+	"/INSTALL$"
+	"/README\.?.*$"
+	"/Rakefile$"
+);
+
+declare -Ag todo_tags;
+todo_tags[fixme]="FIX ?ME[\s,:]+\s*(.*)";
+todo_tags[todo]="TODO[\s,:]+\s*(.*)";
+todo_tags[note]="";
+todo_tags[xxx]="";
+todo_tags[deprecated]="";
+todo_tags[changed]="";
+
+# tasks for working with TODO tags
+function tasks.todo {
+	declare -a files;
+	
+	local include_symlinks=false;
+	local exclusive=true;
+	
+	# do command procesing via delegation
+	if [ $# -gt 0 ]; then
+		local method="td.${FUNCNAME}.${1}";
+		if ! method.exists? "$method"; then
+			console.quit 1 "invalid todo command %s" "$1";
+		else
+			delegate "td.${FUNCNAME}" "$1" ${@:2};
+		fi
+	else
+		# no options specified scan files
+		td.tasks.todo.scan;
+	fi
+}
+
+function td.tasks.todo.list {
+	console.log "# todo list ${root}";
+	__todo.list;
+	for f in ${files[@]}	
+		do
+			console.log "$f";
+	done
+	console.log "# ${#files[@]} files";
+}
+
+function td.tasks.todo.scan {
+	console.log "# todo scan %s" "${root}";
+	__todo.list;
+	for f in ${files[@]}
+		do
+			__todo.scan.file "$f";
+	done
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __todo.excludes? {
+	local replace="${2:-}";
+	local file="$1";
+	
+	if [ -n "$replace" ]; then
+		# remove any trailing slash from the replacement
+		replace="${replace/\$/}";
+		file="${file#$replace}";
+	fi
+	
+	# echo "testing exclude on $1 with ${#todo_ignore_patterns[@]}";
+	local p;
+	for p in ${todo_ignore_patterns[@]}
+		do	
+			# skip symbolic links
+			if ! $include_symlinks && [ -L "$1" ]; then
+				# echo "omitting symlink $1";
+				return 0;				
+			fi
+			# skip on pattern match
+			if [[ "$file" =~ $p ]]; then
+				# echo "excluded : $file on $p";
+				return 0;
+			fi
+	done
+	return 1;
+}
+
+# get all files
+function __todo.list {
+	if $exclusive; then
+		local IFS="
+	";
+		files=( $( find "${root}" -type f ) );
+		unset IFS;
+		local k f;
+		for k in ${!files[@]}
+			do
+				f="${files[$k]}";
+				if __todo.excludes? "$f" "${root}" || [ ! -r "$f" ]; then
+					unset files[$k];
+				fi
+		done
+	# TODO: implement inclusive scanning
+	fi
+}
+
+# test if a line matches a tag pattern
+function __todo.line.matches? {
+	local tag p todo;
+	for tag in ${!todo_tags[@]}
+		do	
+			p="${todo_tags[$tag]}";
+			if [ -n "$p" ]; then
+				# echo "matching line with  $p : $line";
+				if [[ "$line" =~ $p ]]; then
+					todo="${BASH_REMATCH[1]}";
+					__todo.output;
+					return 0;
+				fi
+			fi
+	done
+	return 1;
+}
+
+# scan a file
+function __todo.scan.file {
+	# console.info "scanning %s" "$1";
+	local lineno=0;
+	local file="$1";
+	while read line
+		do
+			((lineno++));			
+			# echo "got line ... $line";
+			if __todo.line.matches? "$line"; then
+				continue;
+			fi
+	done < "$file";
+}
+
+function __todo.output {
+	local frame="${file}:${lineno}";
+	tag="${tag^^}";
+	console.log "# %s %s" "$tag" "$frame";
+	todo="${todo/^[ 	]+/}";
+	echo "$todo";
+}
