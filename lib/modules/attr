@@ -8,22 +8,21 @@ declare -Ag attr_accessors;
 
 # set a read/write accessor
 function attr.accessor {
-	echo "set read/write accessor .. $@";
+	# echo "set read/write accessor .. $@";
 	__attr.options.validate "${FUNCNAME}" __attr.add $@;
-	__attr.add $@;
 	return 0;
 }
 
 # set a read accessor
 function attr.reader {
-	echo "set read accessor .. $@";	
+	# echo "set read accessor .. $@";
 	__attr.options.validate "${FUNCNAME}" __attr.add.reader $@;
 	return 0;
 }
 
 # set a write accessor
 function attr.writer {
-	echo "set write accessor .. $@";	
+	# echo "set write accessor .. $@";	
 	__attr.options.validate "${FUNCNAME}" __attr.add.writer $@;
 	return 0;
 }
@@ -35,37 +34,37 @@ function attr.writer {
 ######################################################################
 
 function __attr.add {
-	echo "adding read/write accessor with name: $1 : $method : $varname";	
+	# echo "adding read/write accessor with name: $1 : $method : $varname";	
 	__attr.define "$varname";
 	__attr.define.reader.writer;
 }
 
 function __attr.add.reader {
-	
-	echo "adding read accessor with name: $1 : $method : $varname";
+	# echo "adding read accessor with name: $1 : $method : $varname";
 	__attr.define;
 	__attr.define.reader;
 }
 
 function __attr.add.writer {
-	echo "adding write accessor with name: $1 : $method : $varname";
+	# echo "adding write accessor with name: $1 : $method : $varname";
 	__attr.define;
 	__attr.define.writer;
 }
 
 function __attr.define {
 	local value="${value:-}";
-	echo "defining $flags $varname";
+	# echo "defining $flags $varname";
 	eval "declare $flags $varname;";
 	eval "$varname=\"$value\"";
 	
-	variable.get "$varname";
-	echo "after declare: ${_result}";
+	# variable.get "$varname";
+	# echo "after declare: ${_result}";
 }
 
 function __attr.define.reader.writer {
 	eval "$method(){
-		if [ $# -eq 0 ]; then
+		# echo \"getter/setter called\"
+		if [ \$# -eq 0 ]; then
 			_result=\"\${$varname}\";
 		else
 			$varname=\"\$1\";
@@ -81,12 +80,13 @@ function __attr.define.reader {
 
 function __attr.define.writer {
 	eval "$method(){
+		echo \"setter called \$1\";
 		$varname=\"\$1\";
 	}";
 }
 
 function __attr.options.validate {
-	local regexp="^:[.a-zA-Z0-9]+$";
+	local regexp="^:[.a-zA-Z0-9?!]+$";
 	local name="${1:-$FUNCNAME}";
 	shift;
 	local callback="$1";
@@ -97,29 +97,19 @@ function __attr.options.validate {
 	
 	# handle flags
 	local flags="-g";
-	
-	# got flags definition
 	if [[ "$1" =~ ^- ]]; then
 		flags="$1";
 		shift;
 	fi
 	
+	# validate method/variable name
 	if [[ ! "$1" =~ $regexp ]]; then
 		console.quit 1 "%s: invalid option %s, must match %s" "${name}" "$opt" "$regexp";
 	fi
-	
 	local value;
 	if [ $# -gt 1 ]; then
 		value="${2:-}";
 	fi
-	
-	# local opt;
-	# for opt in $@
-	# 	do
-	# 		if [[ ! "$opt" =~ $regexp ]]; then
-	# 			console.quit 1 "%s: invalid option %s, must match %s" "${name}" "$opt" "$regexp";
-	# 		fi
-	# done
 	
 	# if calback does not contain `writer` and flags does not contain -r - then add it
 	

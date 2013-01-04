@@ -1,0 +1,33 @@
+require.once 'attr';
+
+function test.attr.reader {
+	attr.reader :reader.read "value";
+	reader.read;
+	assert.equal "value" "$_result";
+}
+
+function test.attr.write {
+	attr.writer :writer.write;
+	writer.write "value";
+	assert.equal "value" "$writer_write";
+	
+	# set a new value
+	writer.write "newvalue";
+	assert.equal "newvalue" "$writer_write";
+}
+
+function test.attr.accessor {
+	attr.accessor :accessor.getset;
+	accessor.getset "value";
+	assert.equal "value" "$accessor_getset";
+
+	# set a new value
+	accessor.getset "newvalue";
+	accessor.getset;
+	assert.equal "newvalue" "$_result";
+	
+	# revert value
+	accessor.getset "value";
+	accessor.getset;
+	assert.equal "value" "$_result";
+}
