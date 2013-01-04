@@ -63,9 +63,17 @@ Options for task-todo(7).
 
 * `--dir`:
 
-Specify one or more specific directories *relative to the project root* to scan for tags. This removes all default directory scans and performs a custom scan using *only* the directories specified on the command line. For example:
+Add one or more directories *relative to the project root* to scan for tags. This removes all default directory scans and performs a custom scan using *only* the directories specified on the command line. For example:
 
 	bake todo scan --dir bin --dir src --bug --fixme
+	
+* `--file`:
+
+Add one or more files to the list of files to scan.
+
+	bake todo scan --file bin/bake
+	
+If a file path starts with the pattern '^(\.+)?/' then it will be treated as an absolute file path, otherwise the file is treated as relative to `${root}`.
 
 ## FLAGS
 
@@ -213,19 +221,31 @@ todo_tags[changed]="CHANGED[ 	,:]+[ 	]*(.*)";
 function tasks.todo {
 	executable.validate find;	
 	
+	# list of files to scan
 	declare -a files;
 	files=();
+	
+	# custom list of dirs to scan
+	# specified with --dir
+	declare -a scandirs;
+	scandirs=();	
+	
+	# custom list of files to scan
+	# specified with --file
+	declare -a scanfiles;
+	scanfiles=();
 	
 	# custom tags to search for
 	declare -a tags;
 	tags=();
 	
+	# list of all tag keys
+	# used internally
 	declare -a all_tags;
 	all_tags=( ${!todo_tags[@]} );	
 	
 	local include_symlinks=false;
 	local silent=false;
-	local counting=false;
 	
 	__todo.options.parse "$@";
 	
@@ -349,8 +369,6 @@ function __todo.options.parse {
 			fi
 	done
 	
-	local scandirs=();
-	
 	# handle other options
 	while [ "${1:-}" != "" ]; do
 		if array.contains? "$1" "${tags_opts[@]}"; then
@@ -361,11 +379,29 @@ function __todo.options.parse {
 			--silent )
 				silent=true;
 				;;				
+			--file )
+				shift;
+				local file="${1:-}";
+				if [ -z "$file" ]; then
+					console.quit 1 "no file specified to %s" "--file";
+				fi
+				if [[ ! "$file" =~ ^(\.+)?/ ]]; then
+					file="${root}/${file}";
+				fi
+				if [ ! -f "$file" ]; then
+					console.warn "file %s is invalid" "$file";
+				else
+					fs.path.expand "$file";
+					file="$_result";
+					# add to custom list of files to scan
+					scanfiles+=( "$file" );
+				fi
+				;;
 			--dir )
 				shift;
 				local dir="${1:-}";
 				if [ -z "$dir" ]; then
-					quit 1 "no scan directory specified";
+					console.quit 1 "no directory specified to %s" "--dir";
 				fi
 				dir="${dir#/}";
 				dir="${root}/${dir}";				
@@ -386,11 +422,6 @@ function __todo.options.parse {
 			break;
 		fi
 	done
-	
-	#replace dirs with scan dirs
-	if [ ${#scandirs[@]} -gt 0 ]; then
-		todo_dirs=( ${scandirs[@]} );
-	fi
 }
 
 function __todo.excludes? {
@@ -421,14 +452,15 @@ function __todo.excludes? {
 	return 1;
 }
 
+# use `find` to locate files to scan
 function __todo.find {
 	files+=( $( "${executables[find]}" "$1" -type f ) );
 }
 
-# get all files
-function __todo.list {
+# build scan directories relative to ${root}
+function __todo.find.dirs {
 	local dir;
-	for dir in ${todo_dirs[@]}
+	for dir in $@
 		do
 			dir="${dir#/}";
 			dir="${root}/${dir}";
@@ -436,6 +468,21 @@ function __todo.list {
 				__todo.find "$dir";
 			fi
 	done
+}
+
+# get all files
+function __todo.list {
+	# default scan
+	if [ ${#scanfiles} -eq 0 ] && [ ${#scandirs[@]} -eq 0 ]; then
+		__todo.find.dirs "${todo_dirs[@]}";
+	else
+		if [ ${#scanfiles[@]} -gt 0 ]; then
+			files+=( ${scanfiles[@]} );
+		fi
+		if [ ${#scandirs[@]} -gt 0 ]; then
+			__todo.find.dirs ${scandirs[@]};
+		fi
+	fi
 }
 
 # test if a line matches a tag pattern
