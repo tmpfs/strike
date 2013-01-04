@@ -1,16 +1,76 @@
-# FIXME : /FIX ?ME[\s,:]+(\S.*)$/i
-# TODO : /TODO[\s,:]+(\S.*)$/i
-# CHANGED : /CHANGED[\s,:]+(\S.*)$/
-# RADAR : /(.*<)ra?dar:\/(?:\/problem|)\/([&0-9]+)(>.*)$/
+: <<'ronn:markdown'
+task-todo(7) -- todo task(s) for bake(1)
+=============================================
 
-# Certain tags are used in comments to assist in indexing common issues. Such tags are commonly syntax-highlighted within text editors and can be searched for with common programming tools, such as the Unix grep utility. Examples of tag conventions include:
+## SYNOPSIS
 
-# FIXME to mark potential problematic code that requires special attention and/or review.
-# NOTE to document inner workings of code and indicate potential pitfalls.
-# TODO to indicate planned enhancements.
-# XXX to warn other programmers of problematic or misguiding code.
+Task(s) for bake(1) to find *TODO* tags in a project.
 
-# There is a risk that tags accumulate over time; it is advisable to include the date and the tag owner in the tag comment to ease tracking.[35]
+## DESCRIPTION
+
+Adds task methods for scanning a project looking for *TODO* tags.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `todo` task(s) using:
+
+	require 'tasks/todo';
+
+## USAGE
+
+	bake todo [commands...] [flags...]
+	
+## COMMANDS
+
+Command options for task-todo(7).
+
+* `scan`:
+
+Scan the project `${root}` for files and print *TODO* tags information.
+	
+The format of the output for each tag found is a comment line (preceeded by a '#' character and a single space) with the tag converted to uppercase followed by a space and then the file path concatenated with the line number using a ':' delimiter, for example:
+
+	# TODO /path/to/project/bin/bake:358
+	this is a todo message string
+
+* `tags`:
+
+The `tags` command prints a list of tag identifiers and the corresponding pattern used to match a tag.
+	
+The output format for this command is an uppercase tag identifier delimited by the equals sign '=' followed by the pattern used to match the tag.
+
+* `list`:
+
+Use the `list` command to print a list of the files that a scan would match.
+	
+* `excludes`:
+
+Prints the exclude patterns.
+
+## FLAGS
+
+Flag options for task-todo(7).
+
+* `--silent`:
+
+Makes task-todo(7) mute.
+
+## EXIT CODES
+
+If any *TODO* or *FIXME* tags are encountered then the program exits with a >0 exit code, otherwise 0.
+
+## BUGS
+
+**task-todo** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**task-todo** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+ronn:markdown
 
 declare -ag todo_ignore_patterns;
 todo_ignore_patterns=(
@@ -52,6 +112,20 @@ function tasks.todo {
 	local include_symlinks=false;
 	local exclusive=true;
 	local silent=false;
+	local counting=false;
+	
+	# parse flags
+	if array.contains? "--silent" "$@"; then
+		silent=true;
+	fi
+	
+	# set up counters
+	declare -A count;
+	for k in ${!todo_tags[@]}
+		do
+			count[$k]=0;
+	done
+		
 	
 	# do command procesing via delegation
 	if [ $# -gt 0 ]; then
@@ -67,6 +141,29 @@ function tasks.todo {
 	fi
 }
 
+# print tags
+function td.tasks.todo.tags {
+	local k p;
+	for k in ${!todo_tags[@]}
+		do
+			p="${todo_tags[$k]}";
+			k="${k^^}";
+			__todo.log "$k=$p";
+	done
+	__todo.exit;
+}
+
+# print ignore patterns
+function td.tasks.todo.excludes {
+	local p
+	for p in ${todo_ignore_patterns[@]}
+		do
+			__todo.log "$p";
+	done
+	__todo.exit;
+}
+
+# list matched files
 function td.tasks.todo.list {
 	__todo.log "# todo list ${root}";
 	__todo.list;
@@ -75,8 +172,11 @@ function td.tasks.todo.list {
 			__todo.log "$f";
 	done
 	__todo.log "# ${#files[@]} files";
+	# echo "exiting from list";	
+	__todo.exit;
 }
 
+# scan and gather tag information
 function td.tasks.todo.scan {
 	__todo.log "# todo scan %s" "${root}";
 	__todo.list;
@@ -84,6 +184,8 @@ function td.tasks.todo.scan {
 		do
 			__todo.scan.file "$f";
 	done
+	# echo "exiting from scan";
+	__todo.exit;
 }
 
 ######################################################################
@@ -148,7 +250,7 @@ function __todo.line.matches? {
 			if [ -n "$p" ]; then
 				# echo "matching line with  $p : $line";
 				if [[ "$line" =~ $p ]]; then
-					todo="${BASH_REMATCH[1]}";
+					todo="${BASH_REMATCH[1]:-}";
 					__todo.output;
 					return 0;
 				fi
@@ -181,6 +283,7 @@ function __todo.log {
 
 # output todo tag information
 function __todo.output {
+	((count[$tag]++));
 	if ! $silent; then
 		local frame="${file}:${lineno}";
 		tag="${tag^^}";
@@ -188,5 +291,13 @@ function __todo.output {
 		string.ltrim "$todo";
 		todo="${_result}";
 		echo "$todo";
+	fi
+}
+
+function __todo.exit {
+	if [ ${count[todo]} -gt 0 ] || [ ${count[fixme]} -gt 0 ]; then
+		console.quit 1;
+	else
+		console.quit 0;
 	fi
 }
