@@ -110,6 +110,24 @@ bake semver test 1\.2\.0\-alpha\.1+build\.12f4e9
 .
 .IP "" 0
 .
+.SH "PUBLIC RELEASE"
+A \fIpublic release\fR is defined as going from major version 0 to major version 1\. This section describe the process involved with performing a \fIpublic release\fR\. Note that the interactivity described here only applies when stdin is a tty\.
+.
+.SS "CONFIRM"
+Initially task\-semver(7) will display a verbose warning that you are about to perform a \fIpublic release\fR and a prompt asking you whether you wish to proceed\.
+.
+.P
+If you accept the process and the new version is not a 1\.0\.0 version (for example you may be bumping to 1\.1\.0) then a prompt is displayed asking whether you wish to use a 1\.0\.0 version\. Upon accepting this prompt the new version becomes 1\.0\.0, otherwise it will remain at the version originally specified\.
+.
+.P
+Subsequently, the pre\-processing stage begins which attempts to perform various actions that verify the code integrity\.
+.
+.SS "TEST"
+The first phase is to run unit tests using \fBnpm test\fR if a \fIpackage\.json\fR file is available or alternatively running the task\-test(7) test command using bake(1)\. The stdout from running the tests are redirected to \fB${target}/release\.test\.log\fR whilst stderr will remain a tty if run from a tty (which allows faster debugging if some tests are failing)\.
+.
+.P
+If the exit code is >0 when running the tests the release process is aborted\.
+.
 .SH "FILES"
 All files are stored in the \fB${root}\fR of the project\. The rules for file precedence are the order described below, so a npm(1) \fIpackage\.json\fR takes precedence, followed by a \fIversion\fR file and finally a \fIsemver\.json\fR file is used if available\.
 .

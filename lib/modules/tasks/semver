@@ -52,6 +52,24 @@ To validate a semver(7) string use the `semver test` command.
 
 	bake semver test 1.2.0-alpha.1+build.12f4e9
 	
+## PUBLIC RELEASE
+
+A *public release* is defined as going from major version 0 to major version 1. This section describe the process involved with performing a *public release*. Note that the interactivity described here only applies when stdin is a tty.
+
+### CONFIRM
+
+Initially task-semver(7) will display a verbose warning that you are about to perform a *public release* and a prompt asking you whether you wish to proceed.
+
+If you accept the process and the new version is not a 1.0.0 version (for example you may be bumping to 1.1.0) then a prompt is displayed asking whether you wish to use a 1.0.0 version. Upon accepting this prompt the new version becomes 1.0.0, otherwise it will remain at the version originally specified.
+
+Subsequently, the pre-processing stage begins which attempts to perform various actions that verify the code integrity.
+
+### TEST
+
+The first phase is to run unit tests using `npm test` if a *package.json* file is available or alternatively running the task-test(7) test command using bake(1). The stdout from running the tests are redirected to `${target}/release.test.log` whilst stderr will remain a tty if run from a tty (which allows faster debugging if some tests are failing).
+
+If the exit code is >0 when running the tests the release process is aborted.
+	
 ## FILES
 
 All files are stored in the `${root}` of the project. The rules for file precedence are the order described below, so a npm(1) *package.json* takes precedence, followed by a *version* file and finally a *semver.json* file is used if available.
@@ -459,7 +477,8 @@ function __semver.release.confirmed {
 
 # performs release preporcessing actions
 function __semver.release.preprocess {
-	__semver.release.preprocess.test;
+	__semver.release.preprocess.test \
+		&& __semver.release.preprocess.todo;
 }
 
 function __semver.release.preprocess.test {
@@ -476,6 +495,11 @@ function __semver.release.preprocess.test {
 		#TODO: look for bake test task!?
 		echo -ne '';
 	fi
+	return 0;
+}
+
+function __semver.release.preprocess.todo {
+	echo "$FUNCNAME";
 }
 
 # finds the first available semver string
