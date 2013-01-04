@@ -51,6 +51,7 @@ function tasks.todo {
 	
 	local include_symlinks=false;
 	local exclusive=true;
+	local silent=false;
 	
 	# do command procesing via delegation
 	if [ $# -gt 0 ]; then
@@ -67,17 +68,17 @@ function tasks.todo {
 }
 
 function td.tasks.todo.list {
-	console.log "# todo list ${root}";
+	__todo.log "# todo list ${root}";
 	__todo.list;
 	for f in ${files[@]}	
 		do
-			console.log "$f";
+			__todo.log "$f";
 	done
-	console.log "# ${#files[@]} files";
+	__todo.log "# ${#files[@]} files";
 }
 
 function td.tasks.todo.scan {
-	console.log "# todo scan %s" "${root}";
+	__todo.log "# todo scan %s" "${root}";
 	__todo.list;
 	for f in ${files[@]}
 		do
@@ -171,10 +172,21 @@ function __todo.scan.file {
 	done < "$file";
 }
 
+# log output
+function __todo.log {
+	if ! $silent; then
+		console.log "$@";	
+	fi
+}
+
+# output todo tag information
 function __todo.output {
-	local frame="${file}:${lineno}";
-	tag="${tag^^}";
-	console.log "# %s %s" "$tag" "$frame";
-	todo="${todo/^[ 	]+/}";
-	echo "$todo";
+	if ! $silent; then
+		local frame="${file}:${lineno}";
+		tag="${tag^^}";
+		console.log "# %s %s" "$tag" "$frame";
+		string.ltrim "$todo";
+		todo="${_result}";
+		echo "$todo";
+	fi
 }

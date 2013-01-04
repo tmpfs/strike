@@ -62,8 +62,6 @@ ronn:markdown
 
 # TODO: add array _length property so arrays can be iterated?
 
-# TODO: 
-
 # TODO: move to the global variable file
 # global json document data
 declare -Agx json_doc;

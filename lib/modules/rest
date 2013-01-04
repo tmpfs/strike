@@ -2,6 +2,9 @@ require 'http';
 
 declare -Agx rest_print;
 
+# allow delegation for this module
+declare -g delegate=true;
+
 ######################################################################
 #
 #	HTTP verb commands

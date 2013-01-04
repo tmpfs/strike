@@ -120,7 +120,7 @@ function string.repeat {
 	fi
 }
 
-function string_ltrim {
+function string.ltrim {
 	local value="${@}";
 	set +o errexit;
 	read  -rd '' value <<< "$value";

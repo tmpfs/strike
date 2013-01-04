@@ -230,10 +230,10 @@ options_map_command_method=1;
 options_map_last="rest_request_url";
 
 #configure all the option defaults
-options configure;
+options.configure;
 
 #parse the parameters
-options parse "$@";
+options.parse "$@";
 
 # parse custom program options
 rest options.parse "$@";

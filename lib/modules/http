@@ -54,6 +54,9 @@ This module not been tested when multiple URLs are specified (eg: `http://site.{
 curl(1), tee(1), rest(1)
 ronn:markdown
 
+# allow delegation for this module
+declare -g delegate=true;
+
 require 'url';
 
 # validate the curl executable is available
@@ -343,7 +346,7 @@ function http.request.add.header {
 	fi
 	
 	#echo "adding request header: $hname::$hvalue";	
-	string_ltrim "$hvalue";
+	string.ltrim "$hvalue";
 	hvalue="$_result";
 	
 	#echo "adding request header (after trim): $hname::$hvalue";
@@ -442,7 +445,7 @@ function __http_parse_header {
 	name=${name,,};
 	
 	#strip leading whitespace
-	string_ltrim "$value";
+	string.ltrim "$value";
 	value="$_result";
 	
 	#echo "got name: $name";
