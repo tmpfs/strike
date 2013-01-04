@@ -34,7 +34,7 @@ bake todo [commands\.\.\.] [flags\.\.\.]
 .fi
 .
 .SH "COMMANDS"
-Command options for task\-todo(7)\.
+This section describes the command options for task\-todo(7)\. When no command is specified the default behaviour is to call the \fBscan\fR command\.
 .
 .TP
 \fBscan\fR:
@@ -51,7 +51,7 @@ The format of the output for each tag found is a comment line (preceeded by a \'
 .nf
 
 # TODO /path/to/project/bin/bake:358
-this is a todo message string
+this is a todo message
 .
 .fi
 .
@@ -103,6 +103,81 @@ Flag options for task\-todo(7)\.
 .
 .P
 Makes task\-todo(7) mute, this is useful if you are only interested in the exit code\.
+.
+.SH "FILTER FLAGS"
+You may specify any tag as an option to switch on tag filtering, when any filter tag option is specified, then only the tags specified are matched\. For example, to match only \fIBUG\fR tags, use:
+.
+.IP "" 4
+.
+.nf
+
+bake todo scan \-\-bug
+.
+.fi
+.
+.IP "" 0
+.
+.P
+But to include any other tags they must now be specified, so to find \fITODO\fR and \fINOTE\fR tags, use:
+.
+.IP "" 4
+.
+.nf
+
+bake todo scan \-\-todo \-\-note
+.
+.fi
+.
+.IP "" 0
+.
+.TP
+\fB\-\-bug\fR:
+
+.
+.P
+Filter for \fIBUG\fR tag matches\.
+.
+.TP
+\fB\-\-fixme\fR:
+
+.
+.P
+Filter for \fIFIXME\fR tag matches\.
+.
+.TP
+\fB\-\-todo\fR:
+
+.
+.P
+Filter for \fITODO\fR tag matches\.
+.
+.TP
+\fB\-\-note\fR:
+
+.
+.P
+Filter for \fINOTE\fR tag matches\.
+.
+.TP
+\fB\-\-xxx\fR:
+
+.
+.P
+Filter for \fIXXX\fR tag matches\.
+.
+.TP
+\fB\-\-changed\fR:
+
+.
+.P
+Filter for \fICHANGED\fR tag matches\.
+.
+.TP
+\fB\-\-deprecated\fR:
+
+.
+.P
+Filter for \fIDEPRECATED\fR tag matches\.
 .
 .SH "TAGS"
 The following tags are supported by default:

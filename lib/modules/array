@@ -43,7 +43,7 @@ To read an array file back into array(s) use the `array.read` method.
 
 ## BUGS
 
-When writing and reading arrays, the variable declarations must by *global*.
+When writing and reading arrays, the variable declarations *must be global*.
 
 Attempting to write and read associative arrays with spaces in the *keys* will result in unexpected behaviour.
 

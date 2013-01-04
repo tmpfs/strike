@@ -22,7 +22,7 @@ In your tasks(7) file `require` the `todo` task(s) using:
 	
 ## COMMANDS
 
-Command options for task-todo(7).
+This section describes the command options for task-todo(7). When no command is specified the default behaviour is to call the `scan` command.
 
 * `scan`:
 
@@ -31,7 +31,7 @@ Scan the project `${root}` for files and print *TODO* tags information.
 The format of the output for each tag found is a comment line (preceeded by a '#' character and a single space) with the tag converted to uppercase followed by a space and then the file path concatenated with the line number using a ':' delimiter, for example:
 
 	# TODO /path/to/project/bin/bake:358
-	this is a todo message string
+	this is a todo message
 	
 Output for *BUG* and *FIXME* tags found is redirected to stderr, all other tags found are sent to stdout. This enables easy redirection of these tags to a file using a command such as:
 
@@ -46,6 +46,10 @@ The output format for this command is an uppercase tag identifier delimited by t
 * `list`:
 
 Use the `list` command to print a list of the files that a scan would match.
+
+* `count`:
+
+Count occurences of tags, this implies the `--silent` option.
 	
 * `excludes`:
 
@@ -58,6 +62,44 @@ Flag options for task-todo(7).
 * `--silent`:
 
 Makes task-todo(7) mute, this is useful if you are only interested in the exit code.
+
+## FILTER FLAGS
+
+You may specify any tag as an option to switch on tag filtering, when any filter tag option is specified, then only the tags specified are matched. For example, to match only *BUG* tags, use:
+
+	bake todo scan --bug
+	
+But to include any other tags they must now be specified, so to find *TODO* and *NOTE* tags, use:
+
+	bake todo scan --todo --note
+
+* `--bug`:
+
+Filter for *BUG* tag matches.
+
+* `--fixme`:
+
+Filter for *FIXME* tag matches.
+
+* `--todo`:
+
+Filter for *TODO* tag matches.
+
+* `--note`:
+
+Filter for *NOTE* tag matches.
+
+* `--xxx`:
+
+Filter for *XXX* tag matches.
+
+* `--changed`:
+
+Filter for *CHANGED* tag matches.
+
+* `--deprecated`:
+
+Filter for *DEPRECATED* tag matches.
 
 ## TAGS
 
@@ -110,8 +152,13 @@ ronn:markdown
 
 # TODO: make scan inclusive with a directory search path by default
 # TODO: add --exclusive option to scan exclusively
+# TODO: add --todo, --bug etc flags to search only for those tags
 
-# BUG : this is a bug
+# BUG : this is a test bug, no problem really
+# TODO : this is a test todo, no problem really
+# FIX ME : this is a test fix me, no problem really
+# FIXME : this is a test fixme, no problem really
+# NOTE : this is a test note, no problem really
 
 declare -ag todo_ignore_patterns;
 todo_ignore_patterns=(
@@ -138,6 +185,13 @@ todo_ignore_patterns=(
 	"/Rakefile$"
 );
 
+declare -ag todo_dirs;
+todo_dirs=(
+	"bin"
+	"lib"
+	"src"
+);
+
 declare -Ag todo_tags;
 todo_tags[fixme]="FIX ?ME[ 	,:]+[ 	]*(.*)";
 todo_tags[bug]="BUG[ 	,:]+[ 	]*(.*)";
@@ -149,25 +203,44 @@ todo_tags[changed]="CHANGED[ 	,:]+[ 	]*(.*)";
 
 # tasks for working with todo tags
 function tasks.todo {
+	executable.validate find;	
+	
 	declare -a files;
+	files=();
+	
+	# custom tags to search for
+	declare -a tags;
+	tags=();
+	
+	declare -a all_tags;
+	all_tags=( ${!todo_tags[@]} );	
 	
 	local include_symlinks=false;
-	local exclusive=true;
+	local exclusive=false;
 	local silent=false;
 	local counting=false;
 	
-	# parse flags
-	if array.contains? "--silent" "$@"; then
-		silent=true;
+	__todo.options.parse "$@";
+	
+	# custom tag filters
+	if [ ${#tags[@]} -gt 0 ]; then
+		local k;
+		for k in ${!todo_tags[@]}
+			do
+				if ! array.contains? "$k" "${tags[@]}"; then
+					unset todo_tags[$k];
+				fi
+		done
 	fi
 	
 	# set up counters
 	declare -A count;
-	for k in ${!todo_tags[@]}
+	for k in ${all_tags[@]}
 		do
 			count[$k]=0;
 	done
-		
+	
+	#exit 0;
 	
 	# do command procesing via delegation
 	if [ $# -gt 0 ]; then
@@ -214,7 +287,6 @@ function td.tasks.todo.list {
 			__todo.log "$f";
 	done
 	__todo.log "# ${#files[@]} files";
-	# echo "exiting from list";	
 	__todo.exit;
 }
 
@@ -230,11 +302,68 @@ function td.tasks.todo.scan {
 	__todo.exit;
 }
 
+# count tags
+function td.tasks.todo.count {
+	silent=true;
+	__todo.list;
+	for f in ${files[@]}
+		do
+			__todo.scan.file "$f";
+	done
+	__todo.count;
+	__todo.exit;
+}
+
 ######################################################################
 #
 #	PRIVATE METHODS
 #
 ######################################################################
+
+# parse options
+function __todo.options.parse {
+	
+	# remove command option
+	shift;
+	
+	# build up tag option comparison
+	local tag_opts=();
+	for k in ${all_tags[@]}
+		do
+			tags_opts+=( "--${k}" );
+	done
+	
+	# handle custom tag filter flags
+	local k;
+	for k in ${!todo_tags[@]}
+		do
+			if array.contains? "--${k}" "$@"; then
+				tags+=( "$k" );
+			fi
+	done
+	
+	# handle other options
+	while [ "${1:-}" != "" ]; do
+		if array.contains? "$1" "${tags_opts[@]}"; then
+			shift;
+			continue;
+		fi
+		case $1 in
+			--silent )
+				silent=true;
+				;;
+			* )
+				console.warn "usage: todo [command] [options...]";
+				quit 1 "unkown option %s" "$1";
+				;;
+		esac
+		if [ $# -ne 0 ]; then
+			shift;
+		else
+			break;
+		fi
+	done
+}
 
 function __todo.excludes? {
 	local replace="${2:-}";
@@ -264,12 +393,17 @@ function __todo.excludes? {
 	return 1;
 }
 
+function __todo.find {
+	files+=( $( "${executables[find]}" "$1" -type f ) );
+}
+
 # get all files
 function __todo.list {
 	if $exclusive; then
 		local IFS="
 	";
-		files=( $( find "${root}" -type f ) );
+		#files=( $( find "${root}" -type f ) );
+		__todo.find "${root}";
 		unset IFS;
 		local k f;
 		for k in ${!files[@]}
@@ -279,7 +413,16 @@ function __todo.list {
 					unset files[$k];
 				fi
 		done
-	# TODO: implement inclusive scanning
+	else
+		local dir;
+		for dir in ${todo_dirs[@]}
+			do
+				dir="${dir#/}";
+				dir="${root}/${dir}";
+				if [ -d "$dir" ]; then
+					__todo.find "$dir";
+				fi
+		done
 	fi
 }
 
@@ -343,22 +486,32 @@ function __todo.output {
 
 # print the count summary
 function __todo.summary {
-	string.repeat "+" 80;
-	local header="$_result";
-	echo "$header";
+	if ! $silent; then
+		string.repeat "+" 80;
+		local header="$_result";	
+		echo "$header";
+		__todo.count;
+		echo "$header";
+	fi
+}
+
+function __todo.count {
 	local k v;
 	for k in ${!count[@]}
 		do
+			# tag filtering
+			if [ ${#tags[@]} -gt 0 ] && ! array.contains? "$k" "${tags[@]}"; then
+				continue;
+			fi
 			v="${count[$k]}";
 			k="${k^^}";
 			echo "$k: $v";
 	done
-	echo "$header";
 }
 
 #exit program
 function __todo.exit {
-	if [ ${count[todo]} -gt 0 ] || [ ${count[fixme]} -gt 0 ]; then
+	if [ ${#count[bug]} -gt 0 ] || [ ${#count[fixme]} -gt 0 ]; then
 		local total=$(( ${count[bug]} + ${count[fixme]} ));
 		console.quit $total;
 	else
