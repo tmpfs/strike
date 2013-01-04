@@ -55,6 +55,16 @@ Count occurences of tags, this implies the `--silent` option.
 
 Prints the exclude patterns.
 
+## OPTIONS
+
+Options for task-todo(7).
+
+* `--dir`:
+
+Specify one or more specific directories *relative to the project root* to scan for tags. This removes all default directory scans and performs a custom scan using *only* the directories specified on the command line. For example:
+
+	bake todo scan --dir bin --dir src --bug --fixme
+
 ## FLAGS
 
 Flag options for task-todo(7).
@@ -342,6 +352,8 @@ function __todo.options.parse {
 			fi
 	done
 	
+	local scandirs=();
+	
 	# handle other options
 	while [ "${1:-}" != "" ]; do
 		if array.contains? "$1" "${tags_opts[@]}"; then
@@ -351,10 +363,24 @@ function __todo.options.parse {
 		case $1 in
 			--silent )
 				silent=true;
+				;;				
+			--dir )
+				shift;
+				local dir="${1:-}";
+				if [ -z "$dir" ]; then
+					quit 1 "no scan directory specified";
+				fi
+				dir="${dir#/}";
+				dir="${root}/${dir}";				
+				if [ -d "${dir}" ]; then
+					scandirs+=( "$1" );
+				else
+ 					console.warn "invalid scan directory %s" "$dir";
+				fi
 				;;
 			* )
 				console.warn "usage: todo [command] [options...]";
-				quit 1 "unkown option %s" "$1";
+				console.quit 1 "unkown option %s" "$1";
 				;;
 		esac
 		if [ $# -ne 0 ]; then
@@ -363,6 +389,11 @@ function __todo.options.parse {
 			break;
 		fi
 	done
+	
+	#replace dirs with scan dirs
+	if [ ${#scandirs[@]} -gt 0 ]; then
+		todo_dirs=( ${scandirs[@]} );
+	fi
 }
 
 function __todo.excludes? {
@@ -399,6 +430,7 @@ function __todo.find {
 
 # get all files
 function __todo.list {
+	# TODO: remove exclusive style listing
 	if $exclusive; then
 		local IFS="
 	";
