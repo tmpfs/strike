@@ -167,16 +167,19 @@ function __require_register {
 		
 		# echo "registering module: $name";
 		
+		# TODO: only use reflection style stuff in debug mode ???
+		# as doing this slows things down noticeably
+		
 		# get method definitions but don't quit if none are defined
-		set +o errexit;
-		methods=( $( method.list | egrep "^${name}" ) );
-		private=( $( method.list | egrep "^__${name}" ) );
-		set -o errexit;
-		
-		# echo "got module private methods: ${private[@]:-}";
-		
-		module_methods["$path"]="${methods[@]:-}";
-		module_private_methods["$path"]="${private[@]:-}";
+		# set +o errexit;
+		# methods=( $( method.list | egrep "^${name}" ) );
+		# private=( $( method.list | egrep "^__${name}" ) );
+		# set -o errexit;
+		# 
+		# # echo "got module private methods: ${private[@]:-}";
+		# 
+		# module_methods["$path"]="${methods[@]:-}";
+		# module_private_methods["$path"]="${private[@]:-}";
 	
 		if [ ! -z "$path" ]; then
 			module_paths["$path"]="$name";
