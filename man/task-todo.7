@@ -57,6 +57,19 @@ this is a todo message string
 .
 .IP "" 0
 .
+.P
+Output for \fIBUG\fR and \fIFIXME\fR tags found is redirected to stderr, all other tags found are sent to stdout\. This enables easy redirection of these tags to a file using a command such as:
+.
+.IP "" 4
+.
+.nf
+
+bake todo scan 2> target/todo\.err\.log
+.
+.fi
+.
+.IP "" 0
+.
 .TP
 \fBtags\fR:
 
@@ -93,6 +106,13 @@ Makes task\-todo(7) mute, this is useful if you are only interested in the exit 
 .
 .SH "TAGS"
 The following tags are supported by default:
+.
+.TP
+\fBBUG\fR:
+
+.
+.P
+To mark a known bug\.
 .
 .TP
 \fBFIXME\fR:
@@ -137,7 +157,7 @@ To indicate that behaviour or implementation has changed\.
 To mark code as deprecated\.
 .
 .SH "EXIT CODES"
-If any \fITODO\fR or \fIFIXME\fR tags are encountered then the program exits with a >0 exit code which is the total number of \fITODO\fR and \fIFIXME\fR tags found, otherwise 0\.
+If any \fIBUG\fR or \fIFIXME\fR tags are encountered then the program exits with a >0 exit code which is the total number of \fIBUG\fR and \fIFIXME\fR tags found, otherwise 0\.
 .
 .SH "BUGS"
 \fBtask\-todo\fR is written in bash and depends upon \fBbash\fR >= 4\.

@@ -32,6 +32,10 @@ The format of the output for each tag found is a comment line (preceeded by a '#
 
 	# TODO /path/to/project/bin/bake:358
 	this is a todo message string
+	
+Output for *BUG* and *FIXME* tags found is redirected to stderr, all other tags found are sent to stdout. This enables easy redirection of these tags to a file using a command such as:
+
+	bake todo scan 2> target/todo.err.log
 
 * `tags`:
 
@@ -104,6 +108,11 @@ If any *BUG* or *FIXME* tags are encountered then the program exits with a >0 ex
 bake(1)
 ronn:markdown
 
+# TODO: make scan inclusive with a directory search path by default
+# TODO: add --exclusive option to scan exclusively
+
+# BUG : this is a bug
+
 declare -ag todo_ignore_patterns;
 todo_ignore_patterns=(
 	"\.log$"
@@ -130,15 +139,15 @@ todo_ignore_patterns=(
 );
 
 declare -Ag todo_tags;
-todo_tags[fixme]="FIX ?ME[\s,:]+\s*(.*)";
-todo_tags[bug]="BUG[\s,:]+\s*(.*)";
-todo_tags[todo]="TODO[\s,:]+\s*(.*)";
-todo_tags[note]="NOTE[\s,:]+\s*(.*)";
-todo_tags[xxx]="XXX[\s,:]+\s*(.*)";
-todo_tags[deprecated]="DEPRECATED[\s,:]+\s*(.*)";
-todo_tags[changed]="CHANGED[\s,:]+\s*(.*)";
+todo_tags[fixme]="FIX ?ME[ 	,:]+[ 	]*(.*)";
+todo_tags[bug]="BUG[ 	,:]+[ 	]*(.*)";
+todo_tags[todo]="TODO[ 	,:]+[ 	]*(.*)";
+todo_tags[note]="NOTE[ 	,:]+[ 	]*(.*)";
+todo_tags[xxx]="XXX[ 	,:]+[ 	]*(.*)";
+todo_tags[deprecated]="DEPRECATED[ 	,:]+[ 	]*(.*)";
+todo_tags[changed]="CHANGED[ 	,:]+[ 	]*(.*)";
 
-# tasks for working with TODO tags
+# tasks for working with todo tags
 function tasks.todo {
 	declare -a files;
 	
@@ -217,7 +226,7 @@ function td.tasks.todo.scan {
 		do
 			__todo.scan.file "$f";
 	done
-	# echo "exiting from scan";
+	__todo.summary;
 	__todo.exit;
 }
 
@@ -320,11 +329,30 @@ function __todo.output {
 	if ! $silent; then
 		local frame="${file}:${lineno}";
 		tag="${tag^^}";
-		console.log "# %s %s" "$tag" "$frame";
 		string.ltrim "$todo";
 		todo="${_result}";
-		echo "$todo";
+		if [ "$tag" == "BUG" ] || [ "$tag" == "FIXME" ]; then
+			echo "# $tag $frame" >&2;
+			echo "$todo" >&2;
+		else
+			console.log "# %s %s" "$tag" "$frame";
+			console.log "$todo";
+		fi
 	fi
+}
+
+function __todo.summary {
+	string.repeat "+" 80;
+	local header="$_result";
+	echo "$header";
+	local k v;
+	for k in ${!count[@]}
+		do
+			v="${count[$k]}";
+			k="${k^^}";
+			echo "$k: $v";
+	done
+	echo "$header";	
 }
 
 #exit program
