@@ -10,7 +10,7 @@
 Provides the main delegate entry point for programs that wish to map command options to method invocations and provides modules with a default delegate where no main module method has been declared\.
 .
 .SH "DESCRIPTION"
-A module may declare a \fBmain\fR method which should have the same name as the module\. The require(3) module is a good example of a module which does this\. If a main method is not declared and the \fBdelegate\fR method is available then a dynamic method is created which invokes delegate(3)\. This allows for useful behaviour such as to map a command line option to a module method invocation\.
+A module may declare a \fBmain\fR method which should have the same name as the module\. The require(3) module is a good example of a module which does this\. If a main method is not declared and the \fBdelegate\fR method is available and the \fBdelegate\fR variable has been set to \fBtrue\fR in that module then a dynamic method is created which invokes delegate(3)\. This allows for useful behaviour such as to map a command line option to a module method invocation\.
 .
 .SH "USAGE"
 .
@@ -26,6 +26,9 @@ Suppose you had a \fBsay\fR module with the following code:
 .IP "" 4
 .
 .nf
+
+# allow delegation for this module
+declare \-g delegate=true;
 
 declare \-gx say_greeting="world";
 say\.hello() {

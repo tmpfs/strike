@@ -86,7 +86,7 @@
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p>A module may declare a <code>main</code> method which should have the same name as the module. The <a class="man-ref" href="require.3.html">require<span class="s">(3)</span></a> module is a good example of a module which does this. If a main method is not declared and the <code>delegate</code> method is available then a dynamic method is created which invokes <a class="man-ref" href="delegate.3.html">delegate<span class="s">(3)</span></a>. This allows for useful behaviour such as to map a command line option to a module method invocation.</p>
+<p>A module may declare a <code>main</code> method which should have the same name as the module. The <a class="man-ref" href="require.3.html">require<span class="s">(3)</span></a> module is a good example of a module which does this. If a main method is not declared and the <code>delegate</code> method is available and the <code>delegate</code> variable has been set to <code>true</code> in that module then a dynamic method is created which invokes <a class="man-ref" href="delegate.3.html">delegate<span class="s">(3)</span></a>. This allows for useful behaviour such as to map a command line option to a module method invocation.</p>
 
 <h2 id="USAGE">USAGE</h2>
 
@@ -97,7 +97,10 @@
 
 <p>Suppose you had a <code>say</code> module with the following code:</p>
 
-<pre><code>declare -gx say_greeting="world";
+<pre><code># allow delegation for this module
+declare -g delegate=true;
+
+declare -gx say_greeting="world";
 say.hello() {
     console.info "hello %s" "$say_greeting";
 }

@@ -11,14 +11,23 @@ If you have installed the `strike` library as a node module and your executable 
 
 	declare -gx exedir;
 	function boilerplate {
-		local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-		if [ -L "$abspath" ]; then abspath=`readlink $abspath`; fi
-		if [[ "$abspath" =~ ^\./ ]]; then abspath="${PWD}/${abspath}"; fi
-		exedir=`dirname "$abspath"`;
-		local libdir="$exedir/../../lib";
-		source "$libdir/shared" "$@";
+		local src="${BASH_SOURCE[0]}"
+		exedir="$( dirname "$src" )"
+		while [ -h "$src" ]
+			do 
+				src="$(readlink "$src")";
+				[[ $src != /* ]] && src="$exedir/$src";
+				exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+		done
+		exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+		unset src;
+		source "$exedir/../node_modules/strike/lib/shared" "$@";
 	}
 	boilerplate "$@";
+	
+If your executable is in the `${root}` of the project you can change the `source` line to:
+
+	source "$exedir/node_modules/strike/lib/shared" "$@";
 
 ## COPYRIGHT
 

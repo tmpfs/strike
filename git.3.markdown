@@ -1,69 +1,52 @@
-task-doc(7) -- documentation task(s) for bake(1)
+git(3) -- git utility commands
 =============================================
 
 ## SYNOPSIS
 
-Collection of documentation tasks for bake(1).
-
-## DESCRIPTION
-
-Adds task methods for generating and compiling inline heredoc documentation.
-
-## REQUIRE
-
-In your tasks(7) file `require` the `doc` task(s) using:
-
-	require 'tasks/doc';
+Utility commands for working with git(1) repositories.
 
 ## USAGE
 
-	bake doc.build
+	require 'git';
+	git.info() {
+		local dir="$PWD";
+		if git.valid? "$dir"; then
+			console.info "%s is a git repository" "$dir";
+		else
+			console.warn "%s is %s a git repository" "$dir" "not";
+		fi
+	}
+	git.info;
 
-## METHODS
+# COMMANDS
 
-The following commands are then available to bake(1):
+* `git.valid?`:
 
-* `doc.all`:
-	Invokes `doc.build` and `doc.pages.push`.
+Determine if a directory is a valid git(1) repository.
 
-* `doc.build`:
-	Invokes `doc.generate`, `doc.compile` and `doc.man.import`.
+* `git.branch.current`:
 
-* `doc.generate`:
-	Searches the doc search paths and attempts to find inline heredoc declarations in any files within the search paths. When an inline heredoc is encountered a corresponding `.ronn` file is generated in `${target}/doc`.
-	
-	If a file is encountered that has a `.ronn` extension then that file is not parsed for heredoc declarations but is copied to the output directory for inclusion in the generated documentation.
-	
-* `doc.compile`:
-	Compiles any `.ronn` documents previously generated using the `doc.generate` task.
-	
-* `doc.pages.push`:
-	Switches to a `gh-pages` branch, copies over generated documentation before pushing the `gh-pages` branch to github(7). The `gh-pages` branch must already exist for this command to succeed.
-	
-* `doc.man.import`:
-	Copies compiled man pages into `${root}/man`.
-	
-* `doc.man.clean`:
-	Removes man pages from `${root}/man`.
+Retrieve the name of the current branch.
+
+* `git.branch.hash`:
+
+Retrieve the hash of the last commit in the current branch or a specific branch.
 
 ## BUGS
 
-**task-doc** is written in bash and depends upon `bash` >= 4.
+**git** is written in bash and depends upon `bash` >= 4.
 
 ## COPYRIGHT
 
-**task-doc** is copyright (c) 2012 muji <http://xpm.io>
+**git** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 
-bake(1)
+require(3)
 
 
 [SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
-[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
-[REQUIRE]: #REQUIRE "REQUIRE"
 [USAGE]: #USAGE "USAGE"
-[METHODS]: #METHODS "METHODS"
 [BUGS]: #BUGS "BUGS"
 [COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
 [SEE ALSO]: #SEE-ALSO "SEE ALSO"

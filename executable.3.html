@@ -92,12 +92,34 @@
 <p>Use <a class="man-ref" href="executable.3.html">executable<span class="s">(3)</span></a> to validate a list of executables:</p>
 
 <pre><code>require 'executable';
-executable validate ronn git;
+executable.validate ronn git;
 </code></pre>
 
 <p>If any of the listed executables are not available on the system the program will exit with a non-zero exit code. If executable validation succeeds the executable paths are available in the global <code>executables</code> associative array and can be accessed anywhere in the program, for example:</p>
 
-<pre><code>local git="${executables[git]}";
+<pre><code>git.find() {
+    # will quit the program if git is not available
+    executable.validate git;
+    local git="${executables[git]}";
+    $git status; 
+}
+git.find;
+</code></pre>
+
+<p>Sometimes it can be useful to test for an executable but do not quit the program so that the code can branch depending upon whether an executable is available (you have a fallback option). This can be achieved by passing the <code>--test</code> flag as the <em>first</em> option to the validate command.</p>
+
+<pre><code>git.find() {
+    # will be an empty string if git is not available
+    executable.validate --test git;
+    local git="${executables[git]}";
+    if [ -n "$git" ]; then
+        $git status; 
+    else
+        console.info "git is not available";
+        # implement fallback logic
+    fi
+}
+git.find;
 </code></pre>
 
 <h2 id="BUGS">BUGS</h2>

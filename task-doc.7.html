@@ -106,13 +106,13 @@
 <p>The following commands are then available to <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a>:</p>
 
 <dl>
-<dt class="flush"><code>doc.all</code></dt><dd><p>  Invokes <code>doc.build</code> and <code>doc.pages.publish</code>.</p></dd>
+<dt class="flush"><code>doc.all</code></dt><dd><p>  Invokes <code>doc.build</code> and <code>doc.pages.push</code>.</p></dd>
 <dt><code>doc.build</code></dt><dd><p>  Invokes <code>doc.generate</code>, <code>doc.compile</code> and <code>doc.man.import</code>.</p></dd>
 <dt><code>doc.generate</code></dt><dd><p>  Searches the doc search paths and attempts to find inline heredoc declarations in any files within the search paths. When an inline heredoc is encountered a corresponding <code>.ronn</code> file is generated in <code>${target}/doc</code>.</p>
 
 <p>  If a file is encountered that has a <code>.ronn</code> extension then that file is not parsed for heredoc declarations but is copied to the output directory for inclusion in the generated documentation.</p></dd>
 <dt><code>doc.compile</code></dt><dd><p>  Compiles any <code>.ronn</code> documents previously generated using the <code>doc.generate</code> task.</p></dd>
-<dt><code>doc.pages.publish</code></dt><dd><p>  Switches to a <code>gh-pages</code> branch, copies over generated documentation before pushing the <code>gh-pages</code> branch to <a class="man-ref" href="http://github.com/">github<span class="s">(7)</span></a>. The <code>gh-pages</code> branch must already exist for this command to succeed.</p></dd>
+<dt><code>doc.pages.push</code></dt><dd><p>  Switches to a <code>gh-pages</code> branch, copies over generated documentation before pushing the <code>gh-pages</code> branch to <a class="man-ref" href="http://github.com/">github<span class="s">(7)</span></a>. The <code>gh-pages</code> branch must already exist for this command to succeed.</p></dd>
 <dt><code>doc.man.import</code></dt><dd><p>  Copies compiled man pages into <code>${root}/man</code>.</p></dd>
 <dt><code>doc.man.clean</code></dt><dd><p>  Removes man pages from <code>${root}/man</code>.</p></dd>
 </dl>

@@ -1,0 +1,57 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "GIT" "3" "January 2013" "" ""
+.
+.SH "NAME"
+\fBgit\fR \- git utility commands
+.
+.SH "SYNOPSIS"
+Utility commands for working with git(1) repositories\.
+.
+.SH "USAGE"
+.
+.nf
+
+require \'git\';
+git\.info() {
+    local dir="$PWD";
+    if git\.valid? "$dir"; then
+        console\.info "%s is a git repository" "$dir";
+    else
+        console\.warn "%s is %s a git repository" "$dir" "not";
+    fi
+}
+git\.info;
+.
+.fi
+.
+.TP
+\fBgit\.valid?\fR:
+
+.
+.P
+Determine if a directory is a valid git(1) repository\.
+.
+.TP
+\fBgit\.branch\.current\fR:
+
+.
+.P
+Retrieve the name of the current branch\.
+.
+.TP
+\fBgit\.branch\.hash\fR:
+
+.
+.P
+Retrieve the hash of the last commit in the current branch or a specific branch\.
+.
+.SH "BUGS"
+\fBgit\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBgit\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+require(3)

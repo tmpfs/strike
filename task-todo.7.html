@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv='content-type' value='text/html;charset=utf8'>
+  <meta name='generator' value='Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)'>
+  <title>task-todo(7) - todo task(s) for bake(1)</title>
+  <style type='text/css' media='all'>
+  /* style: man */
+  body#manpage {margin:0}
+  .mp {max-width:100ex;padding:0 9ex 1ex 4ex}
+  .mp p,.mp pre,.mp ul,.mp ol,.mp dl {margin:0 0 20px 0}
+  .mp h2 {margin:10px 0 0 0}
+  .mp > p,.mp > pre,.mp > ul,.mp > ol,.mp > dl {margin-left:8ex}
+  .mp h3 {margin:0 0 0 4ex}
+  .mp dt {margin:0;clear:left}
+  .mp dt.flush {float:left;width:8ex}
+  .mp dd {margin:0 0 0 9ex}
+  .mp h1,.mp h2,.mp h3,.mp h4 {clear:left}
+  .mp pre {margin-bottom:20px}
+  .mp pre+h2,.mp pre+h3 {margin-top:22px}
+  .mp h2+pre,.mp h3+pre {margin-top:5px}
+  .mp img {display:block;margin:auto}
+  .mp h1.man-title {display:none}
+  .mp,.mp code,.mp pre,.mp tt,.mp kbd,.mp samp,.mp h3,.mp h4 {font-family:monospace;font-size:14px;line-height:1.42857142857143}
+  .mp h2 {font-size:16px;line-height:1.25}
+  .mp h1 {font-size:20px;line-height:2}
+  .mp {text-align:justify;background:#fff}
+  .mp,.mp code,.mp pre,.mp pre code,.mp tt,.mp kbd,.mp samp {color:#131211}
+  .mp h1,.mp h2,.mp h3,.mp h4 {color:#030201}
+  .mp u {text-decoration:underline}
+  .mp code,.mp strong,.mp b {font-weight:bold;color:#131211}
+  .mp em,.mp var {font-style:italic;color:#232221;text-decoration:none}
+  .mp a,.mp a:link,.mp a:hover,.mp a code,.mp a pre,.mp a tt,.mp a kbd,.mp a samp {color:#0000ff}
+  .mp b.man-ref {font-weight:normal;color:#434241}
+  .mp pre {padding:0 4ex}
+  .mp pre code {font-weight:normal;color:#434241}
+  .mp h2+pre,h3+pre {padding-left:0}
+  ol.man-decor,ol.man-decor li {margin:3px 0 10px 0;padding:0;float:left;width:33%;list-style-type:none;text-transform:uppercase;color:#999;letter-spacing:1px}
+  ol.man-decor {width:100%}
+  ol.man-decor li.tl {text-align:left}
+  ol.man-decor li.tc {text-align:center;letter-spacing:4px}
+  ol.man-decor li.tr {text-align:right;float:right}
+  </style>
+  <style type='text/css' media='all'>
+  /* style: toc */
+  .man-navigation {display:block !important;position:fixed;top:0;left:113ex;height:100%;width:100%;padding:48px 0 0 0;border-left:1px solid #dbdbdb;background:#eee}
+  .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {display:block;margin:0;padding:5px 2px 5px 30px;color:#999;text-decoration:none}
+  .man-navigation a:hover {color:#111;text-decoration:underline}
+  </style>
+</head>
+<!--
+  The following styles are deprecated and will be removed at some point:
+  div#man, div#man ol.man, div#man ol.head, div#man ol.man.
+
+  The .man-page, .man-decor, .man-head, .man-foot, .man-title, and
+  .man-navigation should be used instead.
+-->
+<body id='manpage'>
+  <div class='mp' id='man'>
+
+  <div class='man-navigation' style='display:none'>
+    <a href="#NAME">NAME</a>
+    <a href="#SYNOPSIS">SYNOPSIS</a>
+    <a href="#DESCRIPTION">DESCRIPTION</a>
+    <a href="#REQUIRE">REQUIRE</a>
+    <a href="#USAGE">USAGE</a>
+    <a href="#COMMANDS">COMMANDS</a>
+    <a href="#OPTIONS">OPTIONS</a>
+    <a href="#FLAGS">FLAGS</a>
+    <a href="#FILTER-FLAGS">FILTER FLAGS</a>
+    <a href="#TAGS">TAGS</a>
+    <a href="#EXIT-CODES">EXIT CODES</a>
+    <a href="#DEPENDENCIES">DEPENDENCIES</a>
+    <a href="#BUGS">BUGS</a>
+    <a href="#COPYRIGHT">COPYRIGHT</a>
+    <a href="#SEE-ALSO">SEE ALSO</a>
+  </div>
+
+  <ol class='man-decor man-head man head'>
+    <li class='tl'>task-todo(7)</li>
+    <li class='tc'></li>
+    <li class='tr'>task-todo(7)</li>
+  </ol>
+
+  <h2 id="NAME">NAME</h2>
+<p class="man-name">
+  <code>task-todo</code> - <span class="man-whatis">todo task(s) for <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a></span>
+</p>
+
+<h2 id="SYNOPSIS">SYNOPSIS</h2>
+
+<p>Task(s) for <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a> to find <em>TODO</em> tags in a project.</p>
+
+<h2 id="DESCRIPTION">DESCRIPTION</h2>
+
+<p>Adds task methods for scanning a project looking for <em>TODO</em> tags, use these commands to give your code a sanity check.</p>
+
+<h2 id="REQUIRE">REQUIRE</h2>
+
+<p>In your <span class="man-ref">tasks<span class="s">(7)</span></span> file <code>require</code> the <code>todo</code> task(s) using:</p>
+
+<pre><code>require 'tasks/todo';
+</code></pre>
+
+<h2 id="USAGE">USAGE</h2>
+
+<pre><code>bake todo [commands...] [flags...]
+</code></pre>
+
+<h2 id="COMMANDS">COMMANDS</h2>
+
+<p>This section describes the command options for <a class="man-ref" href="task-todo.7.html">task-todo<span class="s">(7)</span></a>. When no command is specified the default behaviour is to call the <code>scan</code> command.</p>
+
+<dl>
+<dt class="flush"><code>scan</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Scan the project <code>${root}</code> for files and print <em>TODO</em> tags information.</p>
+
+<p>The format of the output for each tag found is a comment line (preceeded by a '#' character and a single space) with the tag converted to uppercase followed by a space and then the file path concatenated with the line number using a ':' delimiter, for example:</p>
+
+<pre><code># TODO /path/to/project/bin/bake:358
+this is a todo message
+</code></pre>
+
+<p>Output for <em>BUG</em> and <em>FIXME</em> tags found is redirected to stderr, all other tags found are sent to stdout. This enables easy redirection of these tags to a file using a command such as:</p>
+
+<pre><code>bake todo scan 2&gt; target/todo.err.log
+</code></pre>
+
+<dl>
+<dt class="flush"><code>tags</code>:</dt><dd></dd>
+</dl>
+
+
+<p>The <code>tags</code> command prints a list of tag identifiers and the corresponding pattern used to match a tag.</p>
+
+<p>The output format for this command is an uppercase tag identifier delimited by the equals sign '=' followed by the pattern used to match the tag.</p>
+
+<dl>
+<dt class="flush"><code>list</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Use the <code>list</code> command to print a list of the files that a scan would match.</p>
+
+<dl>
+<dt class="flush"><code>count</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Count occurences of tags, this implies the <code>--silent</code> option. The format of count output is an uppercase tag name and the count value delimited by an '=' character, for example:</p>
+
+<pre><code>TODO=76
+</code></pre>
+
+<dl>
+<dt><code>excludes</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Prints the exclude patterns.</p>
+
+<h2 id="OPTIONS">OPTIONS</h2>
+
+<p>Options for <a class="man-ref" href="task-todo.7.html">task-todo<span class="s">(7)</span></a>.</p>
+
+<dl>
+<dt class="flush"><code>--dir</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Add one or more directories <em>relative to the project root</em> to scan for tags. This removes all default directory scans and performs a custom scan using <em>only</em> the directories specified on the command line. For example:</p>
+
+<pre><code>bake todo scan --dir bin --dir src --bug --fixme
+</code></pre>
+
+<dl>
+<dt class="flush"><code>--file</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Add one or more files to the list of files to scan.</p>
+
+<pre><code>bake todo scan --file bin/bake
+</code></pre>
+
+<p>If a file path starts with the pattern '(.+)?/' then it will be treated as an absolute file path, otherwise the file is treated as relative to <code>${root}</code>.</p>
+
+<h2 id="FLAGS">FLAGS</h2>
+
+<p>Flag options for <a class="man-ref" href="task-todo.7.html">task-todo<span class="s">(7)</span></a>.</p>
+
+<dl>
+<dt><code>--silent</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Makes <a class="man-ref" href="task-todo.7.html">task-todo<span class="s">(7)</span></a> mute, this is useful if you are only interested in the exit code.</p>
+
+<h2 id="FILTER-FLAGS">FILTER FLAGS</h2>
+
+<p>You may specify any tag as an option to switch on tag filtering, when any filter tag option is specified, then only the tags specified are matched. For example, to match only <em>BUG</em> tags, use:</p>
+
+<pre><code>bake todo scan --bug
+</code></pre>
+
+<p>But to include any other tags they must now be specified, so to find <em>TODO</em> and <em>NOTE</em> tags, use:</p>
+
+<pre><code>bake todo scan --todo --note
+</code></pre>
+
+<dl>
+<dt class="flush"><code>--bug</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Filter for <em>BUG</em> tag matches.</p>
+
+<dl>
+<dt><code>--fixme</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Filter for <em>FIXME</em> tag matches.</p>
+
+<dl>
+<dt class="flush"><code>--todo</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Filter for <em>TODO</em> tag matches.</p>
+
+<dl>
+<dt class="flush"><code>--note</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Filter for <em>NOTE</em> tag matches.</p>
+
+<dl>
+<dt class="flush"><code>--xxx</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Filter for <em>XXX</em> tag matches.</p>
+
+<dl>
+<dt><code>--changed</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Filter for <em>CHANGED</em> tag matches.</p>
+
+<dl>
+<dt><code>--deprecated</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Filter for <em>DEPRECATED</em> tag matches.</p>
+
+<h2 id="TAGS">TAGS</h2>
+
+<p>The following tags are supported by default:</p>
+
+<dl>
+<dt class="flush"><code>BUG</code>:</dt><dd></dd>
+</dl>
+
+
+<p>To mark a known bug.</p>
+
+<dl>
+<dt class="flush"><code>FIXME</code>:</dt><dd></dd>
+</dl>
+
+
+<p>To mark potential problematic code that requires special attention and/or review.</p>
+
+<dl>
+<dt class="flush"><code>TODO</code>:</dt><dd></dd>
+</dl>
+
+
+<p>To indicate planned enhancements.</p>
+
+<dl>
+<dt class="flush"><code>NOTE</code>:</dt><dd></dd>
+</dl>
+
+
+<p>To document inner workings of code and indicate potential pitfalls.</p>
+
+<dl>
+<dt class="flush"><code>XXX</code>:</dt><dd></dd>
+</dl>
+
+
+<p>To warn other programmers of problematic or misguiding code.</p>
+
+<dl>
+<dt><code>CHANGED</code>:</dt><dd></dd>
+</dl>
+
+
+<p>To indicate that behaviour or implementation has changed.</p>
+
+<dl>
+<dt><code>DEPRECATED</code>:</dt><dd></dd>
+</dl>
+
+
+<p>To mark code as deprecated.</p>
+
+<h2 id="EXIT-CODES">EXIT CODES</h2>
+
+<p>If any <em>BUG</em> or <em>FIXME</em> tags are encountered then the program exits with a >0 exit code which is the total number of <em>BUG</em> and <em>FIXME</em> tags found, otherwise 0.</p>
+
+<h2 id="DEPENDENCIES">DEPENDENCIES</h2>
+
+<p><a class="man-ref" href="http://man.cx/find(1)">find<span class="s">(1)</span></a></p>
+
+<h2 id="BUGS">BUGS</h2>
+
+<p><strong>task-todo</strong> is written in bash and depends upon <code>bash</code> >= 4.</p>
+
+<h2 id="COPYRIGHT">COPYRIGHT</h2>
+
+<p><strong>task-todo</strong> is copyright (c) 2012 muji <a href="http://xpm.io" data-bare-link="true">http://xpm.io</a></p>
+
+<h2 id="SEE-ALSO">SEE ALSO</h2>
+
+<p><a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a></p>
+
+
+  <ol class='man-decor man-foot man foot'>
+    <li class='tl'></li>
+    <li class='tc'>January 2013</li>
+    <li class='tr'>task-todo(7)</li>
+  </ol>
+
+  </div>
+</body>
+</html>

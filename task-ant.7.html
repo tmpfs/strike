@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv='content-type' value='text/html;charset=utf8'>
   <meta name='generator' value='Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)'>
-  <title>json(3) - JSON manipulation</title>
+  <title>task-ant(7) - ant task(s) for bake(1)</title>
   <style type='text/css' media='all'>
   /* style: man */
   body#manpage {margin:0}
@@ -62,6 +62,7 @@
     <a href="#NAME">NAME</a>
     <a href="#SYNOPSIS">SYNOPSIS</a>
     <a href="#DESCRIPTION">DESCRIPTION</a>
+    <a href="#REQUIRE">REQUIRE</a>
     <a href="#USAGE">USAGE</a>
     <a href="#BUGS">BUGS</a>
     <a href="#COPYRIGHT">COPYRIGHT</a>
@@ -69,77 +70,53 @@
   </div>
 
   <ol class='man-decor man-head man head'>
-    <li class='tl'>json(3)</li>
+    <li class='tl'>task-ant(7)</li>
     <li class='tc'></li>
-    <li class='tr'>json(3)</li>
+    <li class='tr'>task-ant(7)</li>
   </ol>
 
   <h2 id="NAME">NAME</h2>
 <p class="man-name">
-  <code>json</code> - <span class="man-whatis">JSON manipulation</span>
+  <code>task-ant</code> - <span class="man-whatis">ant task(s) for <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a></span>
 </p>
 
 <h2 id="SYNOPSIS">SYNOPSIS</h2>
 
-<p>An experimental module for parsing and stringifying JSON data.</p>
+<p>Integrates <a class="man-ref" href="http://ant.apache.org/">ant<span class="s">(1)</span></a> with <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a>.</p>
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p>The <a class="man-ref" href="json.3.html">json<span class="s">(3)</span></a> module adds methods for parsing and creating JSON documents.</p>
+<p>A proxy for the <a class="man-ref" href="http://ant.apache.org/">ant<span class="s">(1)</span></a> executable, allows ant tasks to be intermingled with <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a> tasks.</p>
+
+<h2 id="REQUIRE">REQUIRE</h2>
+
+<p>In your <span class="man-ref">tasks<span class="s">(7)</span></span> file <code>require</code> the <code>ant</code> task(s) using:</p>
+
+<pre><code>require 'tasks/ant';
+</code></pre>
 
 <h2 id="USAGE">USAGE</h2>
 
-<p>Parsing JSON data can be from a file, string or variable. After parsing the JSON data the parsed data is available on the global <code>json_doc</code> associative array. Use the <code>json.print</code> method to quickly inspect the contents of the parsed data.</p>
-
-<pre><code>require 'json';
-
-# parse a json document
-json.parse &lt; "${process_dirs[root]}/package.json";
-json.print;
-
-# parse a json string
-json.parse &lt;&lt;&lt; '{ "data": "value" }';
-json.print;
-
-# clean up parsed json data
-json.clean;
-</code></pre>
-
-<p>Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global <code>json_str</code> variable. Use the <code>json.string</code> method to print the JSON string data.</p>
-
-<pre><code>require 'json';
-
-toJSON() {
-    declare -A doc;
-    doc[key]="value";
-    doc[greeting]="hello world";
-    # doc is the *name* of the variable to stringify
-    json.stringify &lt;&lt;&lt; "doc";
-    # print the result
-    json.string;
-}
-toJSON;
+<pre><code>bake ant [options] [targets...]
 </code></pre>
 
 <h2 id="BUGS">BUGS</h2>
 
-<p><strong>json</strong> is written in bash and depends upon <code>bash</code> >= 4.</p>
-
-<p>The <a class="man-ref" href="json.3.html">json<span class="s">(3)</span></a> module is derived from <a class="man-ref" href="https://github.com/dominictarr/JSON.sh">json-sh<span class="s">(1)</span></a>.</p>
+<p><strong>task-ant</strong> is written in bash and depends upon <code>bash</code> >= 4.</p>
 
 <h2 id="COPYRIGHT">COPYRIGHT</h2>
 
-<p><strong>json</strong> is copyright (c) 2012 muji <a href="http://xpm.io" data-bare-link="true">http://xpm.io</a></p>
+<p><strong>task-ant</strong> is copyright (c) 2012 muji <a href="http://xpm.io" data-bare-link="true">http://xpm.io</a></p>
 
 <h2 id="SEE-ALSO">SEE ALSO</h2>
 
-<p><a class="man-ref" href="strike.7.html">strike<span class="s">(7)</span></a></p>
+<p><a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a></p>
 
 
   <ol class='man-decor man-foot man foot'>
     <li class='tl'></li>
     <li class='tc'>January 2013</li>
-    <li class='tr'>json(3)</li>
+    <li class='tr'>task-ant(7)</li>
   </ol>
 
   </div>

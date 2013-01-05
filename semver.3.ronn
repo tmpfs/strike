@@ -3,7 +3,7 @@ semver(3) -- semantic version parser
 
 ## SYNOPSIS
 
-Commands for working with semantic versioning.
+Commands for working with semantic versioning as defined by semver(7).
 
 ## DESCRIPTION
 
@@ -11,7 +11,7 @@ Enables parsing of semantic version strings to complex objects.
 
 ## USAGE
 
-To parse a semver(7) string invoke `semver.parse` with the string and a callback method:
+To parse a semver(7) string into an associative array use `semver.parse` with the string and a callback method:
 
 	require 'semver';
 	callback() {

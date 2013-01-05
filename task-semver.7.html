@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv='content-type' value='text/html;charset=utf8'>
+  <meta name='generator' value='Ronn/v0.7.3 (http://github.com/rtomayko/ronn/tree/0.7.3)'>
+  <title>task-semver(7) - semver task(s) for bake(1)</title>
+  <style type='text/css' media='all'>
+  /* style: man */
+  body#manpage {margin:0}
+  .mp {max-width:100ex;padding:0 9ex 1ex 4ex}
+  .mp p,.mp pre,.mp ul,.mp ol,.mp dl {margin:0 0 20px 0}
+  .mp h2 {margin:10px 0 0 0}
+  .mp > p,.mp > pre,.mp > ul,.mp > ol,.mp > dl {margin-left:8ex}
+  .mp h3 {margin:0 0 0 4ex}
+  .mp dt {margin:0;clear:left}
+  .mp dt.flush {float:left;width:8ex}
+  .mp dd {margin:0 0 0 9ex}
+  .mp h1,.mp h2,.mp h3,.mp h4 {clear:left}
+  .mp pre {margin-bottom:20px}
+  .mp pre+h2,.mp pre+h3 {margin-top:22px}
+  .mp h2+pre,.mp h3+pre {margin-top:5px}
+  .mp img {display:block;margin:auto}
+  .mp h1.man-title {display:none}
+  .mp,.mp code,.mp pre,.mp tt,.mp kbd,.mp samp,.mp h3,.mp h4 {font-family:monospace;font-size:14px;line-height:1.42857142857143}
+  .mp h2 {font-size:16px;line-height:1.25}
+  .mp h1 {font-size:20px;line-height:2}
+  .mp {text-align:justify;background:#fff}
+  .mp,.mp code,.mp pre,.mp pre code,.mp tt,.mp kbd,.mp samp {color:#131211}
+  .mp h1,.mp h2,.mp h3,.mp h4 {color:#030201}
+  .mp u {text-decoration:underline}
+  .mp code,.mp strong,.mp b {font-weight:bold;color:#131211}
+  .mp em,.mp var {font-style:italic;color:#232221;text-decoration:none}
+  .mp a,.mp a:link,.mp a:hover,.mp a code,.mp a pre,.mp a tt,.mp a kbd,.mp a samp {color:#0000ff}
+  .mp b.man-ref {font-weight:normal;color:#434241}
+  .mp pre {padding:0 4ex}
+  .mp pre code {font-weight:normal;color:#434241}
+  .mp h2+pre,h3+pre {padding-left:0}
+  ol.man-decor,ol.man-decor li {margin:3px 0 10px 0;padding:0;float:left;width:33%;list-style-type:none;text-transform:uppercase;color:#999;letter-spacing:1px}
+  ol.man-decor {width:100%}
+  ol.man-decor li.tl {text-align:left}
+  ol.man-decor li.tc {text-align:center;letter-spacing:4px}
+  ol.man-decor li.tr {text-align:right;float:right}
+  </style>
+  <style type='text/css' media='all'>
+  /* style: toc */
+  .man-navigation {display:block !important;position:fixed;top:0;left:113ex;height:100%;width:100%;padding:48px 0 0 0;border-left:1px solid #dbdbdb;background:#eee}
+  .man-navigation a,.man-navigation a:hover,.man-navigation a:link,.man-navigation a:visited {display:block;margin:0;padding:5px 2px 5px 30px;color:#999;text-decoration:none}
+  .man-navigation a:hover {color:#111;text-decoration:underline}
+  </style>
+</head>
+<!--
+  The following styles are deprecated and will be removed at some point:
+  div#man, div#man ol.man, div#man ol.head, div#man ol.man.
+
+  The .man-page, .man-decor, .man-head, .man-foot, .man-title, and
+  .man-navigation should be used instead.
+-->
+<body id='manpage'>
+  <div class='mp' id='man'>
+
+  <div class='man-navigation' style='display:none'>
+    <a href="#NAME">NAME</a>
+    <a href="#SYNOPSIS">SYNOPSIS</a>
+    <a href="#DESCRIPTION">DESCRIPTION</a>
+    <a href="#REQUIRE">REQUIRE</a>
+    <a href="#COMMANDS">COMMANDS</a>
+    <a href="#PUBLIC-RELEASE">PUBLIC RELEASE</a>
+    <a href="#FILES">FILES</a>
+    <a href="#BUGS">BUGS</a>
+    <a href="#COPYRIGHT">COPYRIGHT</a>
+    <a href="#SEE-ALSO">SEE ALSO</a>
+  </div>
+
+  <ol class='man-decor man-head man head'>
+    <li class='tl'>task-semver(7)</li>
+    <li class='tc'></li>
+    <li class='tr'>task-semver(7)</li>
+  </ol>
+
+  <h2 id="NAME">NAME</h2>
+<p class="man-name">
+  <code>task-semver</code> - <span class="man-whatis">semver task(s) for <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a></span>
+</p>
+
+<h2 id="SYNOPSIS">SYNOPSIS</h2>
+
+<p>Task(s) for <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a> that handle working with the semantic versioning specification.</p>
+
+<h2 id="DESCRIPTION">DESCRIPTION</h2>
+
+<p>Command methods for semantic versioning, including <a class="man-ref" href="http://semver.org/">semver<span class="s">(7)</span></a> validation and creation of a project version descriptor.</p>
+
+<h2 id="REQUIRE">REQUIRE</h2>
+
+<p>In your <span class="man-ref">tasks<span class="s">(7)</span></span> file <code>require</code> the <code>semver</code> task(s) using:</p>
+
+<pre><code>require 'tasks/semver';
+</code></pre>
+
+<h2 id="COMMANDS">COMMANDS</h2>
+
+<dl>
+<dt class="flush"><code>semver</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Use the <code>semver</code> command to generate <a class="man-ref" href="task-semver.7.html">task-semver<span class="s">(7)</span></a> files.</p>
+
+<pre><code>bake semver
+</code></pre>
+
+<p>If no files are available you will be prompted to enter a <a class="man-ref" href="http://semver.org/">semver<span class="s">(7)</span></a> compatible version to initialize the files with.</p>
+
+<p>If a <em>package.json</em> file is available then the <a class="man-ref" href="http://semver.org/">semver<span class="s">(7)</span></a> string is read from the <code>version</code> field and the <code>version</code> and <code>semver.json</code> files are generated.</p>
+
+<p>If all files exist this command is equivalent to <code>semver read</code>.</p>
+
+<dl>
+<dt><code>semver read</code>:</dt><dd></dd>
+</dl>
+
+
+<p>To view version information use the <code>semver read</code> command.</p>
+
+<pre><code>bake semver read
+</code></pre>
+
+<p>If no <a class="man-ref" href="task-semver.7.html">task-semver<span class="s">(7)</span></a> files are present this command will exit with a >0 exit code, otherwise it will print warnings for any missing files.</p>
+
+<dl>
+<dt><code>semver sync</code>:</dt><dd></dd>
+</dl>
+
+
+<p>Use the <code>sync</code> command to test whether all files are in sync.</p>
+
+<pre><code>bake semver sync
+</code></pre>
+
+<p>If any <a class="man-ref" href="http://semver.org/">semver<span class="s">(7)</span></a> strings do not match warnings will be printed and the exit code will be >0.</p>
+
+<dl>
+<dt><code>semver test</code>:</dt><dd></dd>
+</dl>
+
+
+<p>To validate a <a class="man-ref" href="http://semver.org/">semver<span class="s">(7)</span></a> string use the <code>semver test</code> command.</p>
+
+<pre><code>bake semver test 1.2.0-alpha.1+build.12f4e9
+</code></pre>
+
+<h2 id="PUBLIC-RELEASE">PUBLIC RELEASE</h2>
+
+<p>A <em>public release</em> is defined as going from major version 0 to major version 1. This section describe the process involved with performing a <em>public release</em>. Note that the interactivity described here only applies when stdin is a tty.</p>
+
+<h3 id="CONFIRM">CONFIRM</h3>
+
+<p>Initially <a class="man-ref" href="task-semver.7.html">task-semver<span class="s">(7)</span></a> will display a verbose warning that you are about to perform a <em>public release</em> and a prompt asking you whether you wish to proceed.</p>
+
+<p>If you accept the process and the new version is not a 1.0.0 version (for example you may be bumping to 1.1.0) then a prompt is displayed asking whether you wish to use a 1.0.0 version. Upon accepting this prompt the new version becomes 1.0.0, otherwise it will remain at the version originally specified.</p>
+
+<p>Subsequently, the pre-processing stage begins which attempts to perform various actions that verify the code integrity.</p>
+
+<h3 id="TEST">TEST</h3>
+
+<p>The first phase is to run unit tests using <code>npm test</code> if a <em>package.json</em> file is available or alternatively running the <a class="man-ref" href="task-test.7.html">task-test<span class="s">(7)</span></a> test command using <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a>. The stdout from running the tests are redirected to <code>${target}/release.test.log</code> whilst stderr will remain a tty if run from a tty (which allows faster debugging if some tests are failing).</p>
+
+<p>If the exit code is >0 when running the tests the release process is aborted.</p>
+
+<h2 id="FILES">FILES</h2>
+
+<p>All files are stored in the <code>${root}</code> of the project. The rules for file precedence are the order described below, so a <a class="man-ref" href="http://npmjs.org">npm<span class="s">(1)</span></a> <em>package.json</em> takes precedence, followed by a <em>version</em> file and finally a <em>semver.json</em> file is used if available.</p>
+
+<h3 id="PACKAGE">PACKAGE</h3>
+
+<p>An <a class="man-ref" href="http://npmjs.org">npm<span class="s">(1)</span></a> package descriptor (<em>package.json</em>) that stores <a class="man-ref" href="http://semver.org/">semver<span class="s">(7)</span></a> information in the <code>version</code> field.</p>
+
+<h3 id="VERSION">VERSION</h3>
+
+<p>A text file (<em>version</em>) containing the current <a class="man-ref" href="http://semver.org/">semver<span class="s">(7)</span></a> version. This file is generated and managed because there are occassions when a program requires quick access to version information without any parsing. A quick way to access <a class="man-ref" href="http://semver.org/">semver<span class="s">(7)</span></a> information from a <a class="man-ref" href="strike.7.html">strike<span class="s">(7)</span></a> program is:</p>
+
+<pre><code>version() {
+    local file="${process_dirs[root]}/version";
+    local semver=$( cat "$file" );
+    console.info "version %s" "$semver";
+}
+version;
+</code></pre>
+
+<h3 id="SEMVER">SEMVER</h3>
+
+<p>A JSON document (<em>semver.json</em>) generated by <a class="man-ref" href="task-semver.7.html">task-semver<span class="s">(7)</span></a> containing version information for the project.</p>
+
+<h3 id="BACKUP">BACKUP</h3>
+
+<p>If a <em>package.json</em> file is available and <a class="man-ref" href="http://man.cx/sed(1)">sed<span class="s">(1)</span></a> is available and used to replace the version field, then a <em>package.json.bak</em> file is created.</p>
+
+<h2 id="BUGS">BUGS</h2>
+
+<p><strong>task-semver</strong> is written in bash and depends upon <code>bash</code> >= 4.</p>
+
+<h2 id="COPYRIGHT">COPYRIGHT</h2>
+
+<p><strong>task-semver</strong> is copyright (c) 2012 muji <a href="http://xpm.io" data-bare-link="true">http://xpm.io</a></p>
+
+<h2 id="SEE-ALSO">SEE ALSO</h2>
+
+<p><a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a>, <a class="man-ref" href="semver.3.html">semver<span class="s">(3)</span></a>, <a class="man-ref" href="http://semver.org/">semver<span class="s">(7)</span></a></p>
+
+
+  <ol class='man-decor man-foot man foot'>
+    <li class='tl'></li>
+    <li class='tc'>January 2013</li>
+    <li class='tr'>task-semver(7)</li>
+  </ol>
+
+  </div>
+</body>
+</html>

@@ -12,20 +12,23 @@
 .br
 .
 .SH "DESCRIPTION"
-\fBbake\fR is \fBmake\fR for bash programs\. The \fBbake\fR program does not define any tasks by default but some common tasks are available in the \fBmodules/tasks\fR directory and can be included in a tasks file using \fBrequire\fR, for example:
+\fBbake\fR is \fBmake\fR for bash programs\. It provides an extensible system for managing project tasks using modular code\.All bake(1) projects have the following tasks built in task\-test(7), task\-clean(7), task\-list(7), task\-doc(7) and task\-semver(7)\.The convention is that task methods are not declared in tasks(7) but are placed in modules and then included using require(3)\. So to include the task\-todo(7) functionality into your project all you need to do is require(3) it:
 .
 .IP "" 4
 .
 .nf
 
-require \'tasks/clean\';
+require \'tasks/todo\';
 .
 .fi
 .
 .IP "" 0
 .
 .SH "FILES"
-The bake(1) program looks for a \fBtasks\fR file in the current working directory and maps commands to the task methods found in the tasks file\. A command is considered to be the first option passed to the \fBbake\fR executable, any other options specified on the command line are passed to the corresponding task method\.
+The bake(1) program looks for a tasks(7) file in the current working directory\. If no tasks(7) file is found in the current working directory then bake(1) will walk all parent directories looking for a tasks(7) file\.
+.
+.P
+It maps commands (the first option passed to bake(1)) to task method(s) declared by the tasks file\. A command is considered to be the first option passed to the \fBbake\fR executable, any other options specified on the command line are passed to the corresponding task method\.
 .
 .SH "ENVIRONMENT"
 The following variables are available to each command method:
@@ -43,18 +46,22 @@ A temporary \fBtarget\fR directory corresponding to \fB${root}/target\fR\.
 The file system path to the tasks file, eg: \fB${root}/tasks\fR\.
 .
 .SH "EXIT CODES"
+A >0 exit code is used when no task(7) file could be located or no command is available, otherwise the exit code is deferred to the task being executed\.
 .
 .TP
 \fB1\fR
-No tasks file available in the current working directory\.
+No task(7) file available in the current working directory (or any parent directories)\.
 .
 .TP
 \fB2\fR
-No tasks command method available\.
+No task command available\.
 .
 .TP
-\fB3\fR
-The task method invocation exited with a non\-zero exit code\.
+\fB>0\fR
+The task command invocation returned a non\-zero exit code but did not explicitly call \fBexit\fR\.
+.
+.P
+It is recommended that task command implementations explicitly exit the program using the \fBquit\fR and \fBsuccess\fR commands declared by console(3)\.
 .
 .SH "BUGS"
 \fBbake\fR is written in bash and depends upon \fBbash\fR >= 4\.

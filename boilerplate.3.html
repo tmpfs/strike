@@ -87,14 +87,24 @@
 
 <pre><code>declare -gx exedir;
 function boilerplate {
-    local abspath=$(cd ${BASH_SOURCE[0]%/*} &amp;&amp; echo $PWD/${0##*/});
-    if [ -L "$abspath" ]; then abspath=`readlink $abspath`; fi
-    if [[ "$abspath" =~ ^\./ ]]; then abspath="${PWD}/${abspath}"; fi
-    exedir=`dirname "$abspath"`;
-    local libdir="$exedir/../../lib";
-    source "$libdir/shared" "$@";
+    local src="${BASH_SOURCE[0]}"
+    exedir="$( dirname "$src" )"
+    while [ -h "$src" ]
+        do 
+            src="$(readlink "$src")";
+            [[ $src != /* ]] &amp;&amp; src="$exedir/$src";
+            exedir="$( cd -P "$( dirname "$src"  )" &amp;&amp; pwd )";
+    done
+    exedir="$( cd -P "$( dirname "$src" )" &amp;&amp; pwd )";
+    unset src;
+    source "$exedir/../node_modules/strike/lib/shared" "$@";
 }
 boilerplate "$@";
+</code></pre>
+
+<p>If your executable is in the <code>${root}</code> of the project you can change the <code>source</code> line to:</p>
+
+<pre><code>source "$exedir/node_modules/strike/lib/shared" "$@";
 </code></pre>
 
 <h2 id="COPYRIGHT">COPYRIGHT</h2>

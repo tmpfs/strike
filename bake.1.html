@@ -87,14 +87,24 @@
 
 <h2 id="DESCRIPTION">DESCRIPTION</h2>
 
-<p><strong>bake</strong> is <code>make</code> for bash programs. The <code>bake</code> program does not define any tasks by default but some common tasks are available in the <code>modules/tasks</code> directory and can be included in a tasks file using <code>require</code>, for example:</p>
+<p><strong>bake</strong> is <code>make</code> for bash programs. It provides an extensible system for managing project tasks using modular code.</p>
 
-<pre><code>require 'tasks/clean';
+<h1>BUILTIN TASKS</h1>
+
+<p>All <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a> projects have the following tasks built in <a class="man-ref" href="task-test.7.html">task-test<span class="s">(7)</span></a>, <a class="man-ref" href="task-clean.7.html">task-clean<span class="s">(7)</span></a>, <a class="man-ref" href="task-list.7.html">task-list<span class="s">(7)</span></a>, <a class="man-ref" href="task-doc.7.html">task-doc<span class="s">(7)</span></a> and <a class="man-ref" href="task-semver.7.html">task-semver<span class="s">(7)</span></a>.</p>
+
+<h1>REQUIRE TASKS</h1>
+
+<p>The convention is that task methods are not declared in <span class="man-ref">tasks<span class="s">(7)</span></span> but are placed in modules and then included using <a class="man-ref" href="require.3.html">require<span class="s">(3)</span></a>. So to include the <a class="man-ref" href="task-todo.7.html">task-todo<span class="s">(7)</span></a> functionality into your project all you need to do is <a class="man-ref" href="require.3.html">require<span class="s">(3)</span></a> it:</p>
+
+<pre><code>require 'tasks/todo';
 </code></pre>
 
 <h2 id="FILES">FILES</h2>
 
-<p>The <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a> program looks for a <code>tasks</code> file in the current working directory and maps commands to the task methods found in the tasks file. A command is considered to be the first option passed to the <code>bake</code> executable, any other options specified on the command line are passed to the corresponding task method.</p>
+<p>The <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a> program looks for a <span class="man-ref">tasks<span class="s">(7)</span></span> file in the current working directory. If no <span class="man-ref">tasks<span class="s">(7)</span></span> file is found in the current working directory then <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a> will walk all parent directories looking for a <span class="man-ref">tasks<span class="s">(7)</span></span> file.</p>
+
+<p>It maps commands (the first option passed to <a class="man-ref" href="bake.1.html">bake<span class="s">(1)</span></a>) to task method(s) declared by the tasks file. A command is considered to be the first option passed to the <code>bake</code> executable, any other options specified on the command line are passed to the corresponding task method.</p>
 
 <h2 id="ENVIRONMENT">ENVIRONMENT</h2>
 
@@ -109,12 +119,16 @@
 
 <h2 id="EXIT-CODES">EXIT CODES</h2>
 
+<p>A >0 exit code is used when no <span class="man-ref">task<span class="s">(7)</span></span> file could be located or no command is available, otherwise the exit code is deferred to the task being executed.</p>
+
 <dl>
-<dt class="flush"><code>1</code></dt><dd>  No tasks file available in the current working directory.</dd>
-<dt class="flush"><code>2</code></dt><dd>  No tasks command method available.</dd>
-<dt class="flush"><code>3</code></dt><dd>  The task method invocation exited with a non-zero exit code.</dd>
+<dt class="flush"><code>1</code></dt><dd>  No <span class="man-ref">task<span class="s">(7)</span></span> file available in the current working directory (or any parent directories).</dd>
+<dt class="flush"><code>2</code></dt><dd>  No task command available.</dd>
+<dt class="flush"><code>&gt;0</code></dt><dd>  The task command invocation returned a non-zero exit code but did not explicitly call <code>exit</code>.</dd>
 </dl>
 
+
+<p>It is recommended that task command implementations explicitly exit the program using the <code>quit</code> and <code>success</code> commands declared by <a class="man-ref" href="console.3.html">console<span class="s">(3)</span></a>.</p>
 
 <h2 id="BUGS">BUGS</h2>
 

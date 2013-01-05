@@ -92,7 +92,7 @@
 <p>To write an array file, declare the <em>global</em> array(s) and call <code>array.write</code>.</p>
 
 <pre><code>write_array() {
-    local file="${program_dirs[root]}/arrays";
+    local file="${process_dirs[root]}/arrays";
     declare -a array1;
     array1=( 3 2 1 "a test string" );
     declare -A array2;
@@ -106,7 +106,7 @@ write_array;
 <p>To read an array file back into array(s) use the <code>array.read</code> method.</p>
 
 <pre><code>read_array() {
-    local file="${program_dirs[root]}/arrays";
+    local file="${process_dirs[root]}/arrays";
     array.read &lt; "$file";                       # read from the `arrays` file
 
     # print array keys
@@ -122,7 +122,7 @@ read_array;
 
 <h2 id="BUGS">BUGS</h2>
 
-<p>When writing and reading arrays, the variable declarations must by <em>global</em>.</p>
+<p>When writing and reading arrays, the variable declarations <em>must be global</em>.</p>
 
 <p>Attempting to write and read associative arrays with spaces in the <em>keys</em> will result in unexpected behaviour.</p>
 

@@ -38,7 +38,7 @@ The following commands are then available to bake(1):
 .
 .TP
 \fBdoc\.all\fR
-Invokes \fBdoc\.build\fR and \fBdoc\.pages\.publish\fR\.
+Invokes \fBdoc\.build\fR and \fBdoc\.pages\.push\fR\.
 .
 .TP
 \fBdoc\.build\fR
@@ -56,7 +56,7 @@ If a file is encountered that has a \fB\.ronn\fR extension then that file is not
 Compiles any \fB\.ronn\fR documents previously generated using the \fBdoc\.generate\fR task\.
 .
 .TP
-\fBdoc\.pages\.publish\fR
+\fBdoc\.pages\.push\fR
 Switches to a \fBgh\-pages\fR branch, copies over generated documentation before pushing the \fBgh\-pages\fR branch to github(7)\. The \fBgh\-pages\fR branch must already exist for this command to succeed\.
 .
 .TP

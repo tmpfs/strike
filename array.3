@@ -20,7 +20,7 @@ To write an array file, declare the \fIglobal\fR array(s) and call \fBarray\.wri
 .nf
 
 write_array() {
-    local file="${program_dirs[root]}/arrays";
+    local file="${process_dirs[root]}/arrays";
     declare \-a array1;
     array1=( 3 2 1 "a test string" );
     declare \-A array2;
@@ -42,7 +42,7 @@ To read an array file back into array(s) use the \fBarray\.read\fR method\.
 .nf
 
 read_array() {
-    local file="${program_dirs[root]}/arrays";
+    local file="${process_dirs[root]}/arrays";
     array\.read < "$file";                       # read from the `arrays` file
 
     # print array keys
@@ -60,7 +60,7 @@ read_array;
 .IP "" 0
 .
 .SH "BUGS"
-When writing and reading arrays, the variable declarations must by \fIglobal\fR\.
+When writing and reading arrays, the variable declarations \fImust be global\fR\.
 .
 .P
 Attempting to write and read associative arrays with spaces in the \fIkeys\fR will result in unexpected behaviour\.
