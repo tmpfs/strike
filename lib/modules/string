@@ -79,6 +79,7 @@ function string.split {
 		# 			array.join "$join" ${quoted[@]};
 		# 		fi
 	fi
+	unset IFS;
 }
 
 function string.quote {

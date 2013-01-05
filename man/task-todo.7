@@ -119,7 +119,7 @@ Options for task\-todo(7)\.
 
 .
 .P
-Specify one or more specific directories \fIrelative to the project root\fR to scan for tags\. This removes all default directory scans and performs a custom scan using \fIonly\fR the directories specified on the command line\. For example:
+Add one or more directories \fIrelative to the project root\fR to scan for tags\. This removes all default directory scans and performs a custom scan using \fIonly\fR the directories specified on the command line\. For example:
 .
 .IP "" 4
 .
@@ -130,6 +130,26 @@ bake todo scan \-\-dir bin \-\-dir src \-\-bug \-\-fixme
 .fi
 .
 .IP "" 0
+.
+.TP
+\fB\-\-file\fR:
+
+.
+.P
+Add one or more files to the list of files to scan\.
+.
+.IP "" 4
+.
+.nf
+
+bake todo scan \-\-file bin/bake
+.
+.fi
+.
+.IP "" 0
+.
+.P
+If a file path starts with the pattern \'(\.+)?/\' then it will be treated as an absolute file path, otherwise the file is treated as relative to \fB${root}\fR\.
 .
 .SH "FLAGS"
 Flag options for task\-todo(7)\.
@@ -270,6 +290,9 @@ To mark code as deprecated\.
 .
 .SH "EXIT CODES"
 If any \fIBUG\fR or \fIFIXME\fR tags are encountered then the program exits with a >0 exit code which is the total number of \fIBUG\fR and \fIFIXME\fR tags found, otherwise 0\.
+.
+.SH "DEPENDENCIES"
+find(1)
 .
 .SH "BUGS"
 \fBtask\-todo\fR is written in bash and depends upon \fBbash\fR >= 4\.

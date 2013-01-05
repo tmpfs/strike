@@ -93,6 +93,7 @@ function executable.path {
 	local IFS=":";
 	set $PATH;
 	_result="$@";
+	unset IFS;
 }
 
 # finds the first executable in $PATH

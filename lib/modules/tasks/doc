@@ -260,6 +260,7 @@ function __tasks.doc.parse {
 	if [ "$api" -eq 1 ]; then
 		__tasks.doc.parse "$output" "$file" "$apidoc" "api:ronn:markdown";
 	fi
+	unset IFS;
 }
 
 # retrieves the doc search paths

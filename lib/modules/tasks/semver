@@ -404,7 +404,7 @@ function __semver.release.warn {
 	console.warn "You should perform the following actions before creating version %s:" "1";
 	console.log "";	
 	console.warn "	* Run unit tests using %s or %s" "npm test" "bake test";
-	console.warn "	* Check %s information" "TODO";
+	console.warn "	* Check for %s and %s tags" "BUG" "FIXME";
 	console.warn "	* Generate documentation using %s" "bake doc.build";
 	console.warn "	* Publish documentation using %s" "bake doc.pages.push";
 	console.log "$header";
@@ -464,7 +464,7 @@ function __semver.release.confirmed {
 			next;
 		else
 			# # define a boolean prompt
-			prompt.boolean confirm y n "would you prefer to use 1.0.0 instead of %s? (y/n)" "$newversion";
+			prompt.boolean confirm y n "would you prefer to use %s instead of %s? (y/n)" "1.0.0" "$newversion";
 			# set accept/reject callback(s)
 			prompt.accepts accepted;
 			prompt.rejects rejected;
@@ -490,6 +490,7 @@ function __semver.release.preprocess.test {
 		# pushd "$PWD";
 		cd "${root}" && npm test > "$testlog" || quit 1 "unit tests failed";
 		# popd;
+		return $?;
 	# use: bake test
 	else
 		#TODO: look for bake test task!?
@@ -499,7 +500,15 @@ function __semver.release.preprocess.test {
 }
 
 function __semver.release.preprocess.todo {
-	echo "$FUNCNAME";
+	local scanlog="${target}/release.todo.log";
+	console.info "scan %s %s > %s" "BUG" "FIXME" "$scanlog";
+	
+	require.once "tasks/todo";
+	$( tasks.todo scan --bug --fixme > "$scanlog" 2>&1 );
+	local tags=$?;
+	if [ $tags -ne 0 ]; then
+		quit 1 "found %s %s and/or %s tags, cannot release" "$tags" "BUG" "FIXME";
+	fi
 }
 
 # finds the first available semver string

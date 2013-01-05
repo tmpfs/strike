@@ -74,6 +74,7 @@ function __prompt.trigger {
 	local m;
 	local IFS=' ';
 	local methods=( $1 );
+	unset IFS;	
 	# echo "trigger called with ${#methods[@]} : ${methods[@]}";
 	for m in ${methods[@]}
 		do
