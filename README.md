@@ -66,7 +66,11 @@ Use `bake(1)` to execute the unit tests, run:
 
 	npm test
 	
-Which is an alias for:
+If you prefer [ant(1)](http://ant.apache.org/) you may use the `test` target:
+
+	ant test
+	
+All of these commands are an alias for:
 
 	./bake test
 
