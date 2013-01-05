@@ -18,14 +18,32 @@ If you have installed the \fBstrike\fR library as a node module and your executa
 
 declare \-gx exedir;
 function boilerplate {
-    local abspath=$(cd ${BASH_SOURCE[0]%/*} && echo $PWD/${0##*/});
-    if [ \-L "$abspath" ]; then abspath=`readlink $abspath`; fi
-    if [[ "$abspath" =~ ^\e\./ ]]; then abspath="${PWD}/${abspath}"; fi
-    exedir=`dirname "$abspath"`;
-    local libdir="$exedir/\.\./\.\./lib";
-    source "$libdir/shared" "$@";
+    local src="${BASH_SOURCE[0]}"
+    exedir="$( dirname "$src" )"
+    while [ \-h "$src" ]
+        do
+            src="$(readlink "$src")";
+            [[ $src != /* ]] && src="$exedir/$src";
+            exedir="$( cd \-P "$( dirname "$src"  )" && pwd )";
+    done
+    exedir="$( cd \-P "$( dirname "$src" )" && pwd )";
+    unset src;
+    source "$exedir/\.\./node_modules/strike/lib/shared" "$@";
 }
 boilerplate "$@";
+.
+.fi
+.
+.IP "" 0
+.
+.P
+If your executable is in the \fB${root}\fR of the project you can change the \fBsource\fR line to:
+.
+.IP "" 4
+.
+.nf
+
+source "$exedir/node_modules/strike/lib/shared" "$@";
 .
 .fi
 .

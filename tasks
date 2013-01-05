@@ -1,8 +1,3 @@
-require 'tasks/test';
-require 'tasks/clean';
-require 'tasks/list';
-require 'tasks/doc';
 require 'tasks/rake';
 require 'tasks/ant';
 require 'tasks/todo';
-require 'tasks/semver';
