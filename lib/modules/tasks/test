@@ -64,6 +64,13 @@ function tasks.test {
 	fs.path.expand "$testdir";
 	testdir="$_result";
 	
+	# list of test suites
+	local suites=();
+	# list of test suite paths
+	# key is test suite name
+	# value is test suite path/file
+	declare -A paths;
+	
 	# specific methods to test, specified using a : delimiter
 	local testmethods=();
 	local unit;
@@ -78,28 +85,104 @@ function tasks.test {
 	
 	local testbin="${testdir}/bin";
 	
-	if [ $# -eq 0 ]; then
-		__assert_run_all;
+	# do command procesing via delegation
+	if [ $# -gt 0 ]; then
+		local cmd="$1";		
+		local method="tdd.${FUNCNAME}.${1}";
+		# remove command option
+		local commands=( run list );
+		if array.contains? "${cmd}" "${commands[@]}"; then
+			shift;
+		fi
+		#echo "got cmd: $cmd : $#";
+		if [ "$cmd" == "run" ] && [ $# -eq 0 ]; then
+			# no suites specified to run
+			tdd.tasks.test.run "$@";
+		else
+			# look for a command method
+			if ! method.exists? "$method"; then
+				console.quit 1 "invalid test command %s" "$1";
+			else
+				delegate "tdd.${FUNCNAME}" "$cmd" $@;
+			fi
+		fi	
 	else
-		__assert_run_units "$@";
+		# no options specified run all tests
+		tdd.tasks.test.run "$@";
+	fi
+}
+
+function tdd.tasks.test.list {
+	
+	#echo "got list command $#";	
+	
+	# gather test suites
+	if [ $# -eq 0 ]; then
+		__assert_get_all;
+	else
+		__assert_get_suites "$@";
 	fi
 	
+	#echo "got list command ${suites[@]}";
+	
+	for unit in ${suites[@]}
+		do
+			path="${paths["$unit"]}";
+			console.log "$unit ${paths["$unit"]}";
+	done
+}
+
+function tdd.tasks.test.run {
+	
+	# gather test suites
+	if [ $# -eq 0 ]; then
+		__assert_get_all;
+	else
+		__assert_get_suites "$@";
+	fi
+	
+	# run tests
+	__assert.run;
+	
+	# print the summary
 	__assert.print.summary;
 }
 
-function __assert_run_all {
+# run all test suites
+function __assert.run {
+	local path;
+	for unit in ${suites[@]}
+		do
+			path="${paths["$unit"]}";
+			__assert_run_suite;
+	done
+}
+
+function __assert.suite.add {
+	if [ -f "$2" ] ;then
+		suites+=( "$1" );
+		paths["$1"]="$2";
+	fi
+}
+
+function __assert_get_all {
+	
+	# look for all .test suites
 	__assert_search_paths;
 	local searchpaths=( "$_result" );
 	local path file;
 	for path in ${searchpaths[@]}
 		do
 			if [ -d "$path" ]; then
-				__assert_run_dir "$path";
+				__assert_get_dir "$path";
 			fi
 	done
+	
+	# find all binary tests (last)
+	__assert.get.binary;
 }
 
-function __assert_run_dir {
+function __assert_get_dir {
 	local dir="$1";
 	if [ -d "$dir" ]; then
 		for file in ${dir}/*
@@ -107,16 +190,50 @@ function __assert_run_dir {
 				if [ -f "$file" ] && [[ "$file" =~ .test$ ]]; then
 					unit="`basename "$file"`";
 					unit="${unit%.test}";
-					__assert_run_test "$file";
+					__assert.suite.add "$unit" "$file";
 				# recurse into sub-directories
 				elif [ -d "$file" ]; then
-					__assert_run_dir "$file";
+					__assert_get_dir "$file";
 				fi
 		done
 	fi
 }
 
-function __assert_run_units {
+function __assert.get.binary {
+	local suite="${1:-}";
+	local bin binsuite;
+	if [ -d "$testbin" ]; then
+		# searching for binaries matching a suite name
+		if [ -n "$suite" ]; then
+			bin="${testbin}/${suite}";
+			binsuite="${bin#${testdir}/}";
+			# binary matching the suite name
+			if [ -f "$bin" ] && [ -x "$bin" ]; then
+				__assert.suite.add "$binsuite" "$bin";
+			fi
+			# looking for suite.* binaries
+			for bin in ${testbin}/${suite}.*
+				do					
+					if [ -f "$bin" ] && [ -x "$bin" ]; then
+						binsuite="${bin#${testdir}/}";
+						__assert.suite.add "$binsuite" "$bin";								
+					fi
+			done
+		else
+			# looking for all binary tests
+			for bin in ${testbin}/**
+				do
+					if [ -f "$bin" ] && [ -x "$bin" ] ; then
+						binsuite="${bin#${testdir}/}";
+						__assert.suite.add "$binsuite" "$bin";
+					fi
+			done
+		fi
+	fi
+}
+
+# filter by suites specified on the command line
+function __assert_get_suites {
 	__assert_search_paths;
 	local searchpaths=( "$_result" );
 	local opts=( "$@" );
@@ -124,30 +241,39 @@ function __assert_run_units {
 	for path in ${searchpaths[@]}
 		do
 			for unit in ${opts[@]}
-				do
-					# handle running specific test methods
-					if [[ "$unit" =~ : ]]; then
-						local IFS=":";
-						testmethods=( $unit );
-						unset IFS;
-						unit="${testmethods[0]}";
-						unset testmethods[0];
-					fi
-					file="${path}/${unit}.test";			
-					# echo "testing for file: $file";
-					
-					# run test suite(s) (including executables)
-					if [ -f "$file" ]; then
-						__assert_run_test "$file";
-					# only matched executable test suites
-					elif [ -x "${testbin}/${unit}" ]; then
-						__assert_run_test "${testbin}/${unit}" true;
-					# no test suite found
+				do					
+					if [[ ! "$unit" =~ \.test$ ]]; then
+						__assert.suite.add "$unit" "${path}/${unit}.test";
+					# allow people to specify the .test extension if they
+					# really want to
 					else
-						console.warn "test file %s does not exist" "$file";
+						__assert.suite.add "$unit" "${path}/${unit}";
 					fi
+					
+					__assert.get.binary "$unit";					
 			done
 	done
+}
+
+function __assert_run_suite {
+	# handle running specific test methods
+	if [[ "$unit" =~ : ]]; then
+		local IFS=":";
+		testmethods=( $unit );
+		unset IFS;
+		unit="${testmethods[0]}";
+		unset testmethods[0];
+	fi
+	
+	file="$path";
+	
+	# run test suite(s) (including executables)
+	if [ -f "$file" ]; then
+		__assert_run_test "$file";
+	# no test suite found
+	else
+		console.warn "test file %s does not exist" "$file";
+	fi
 }
 
 function __assert_search_paths {
@@ -170,76 +296,59 @@ function __assert_run_test {
 	
 	((summary[suites]++));
 	
-	# run any binary tests first
-	# these executables should perform inline assertions
-	# and return a zero exit code for success and >0 for failure
-	if [ -d "$testbin" ]; then
-		# binary matching the suite name
-		if [ -f "${testbin}/${suite}" ]; then
-			__assert_run_test_executable "${testbin}/${suite}";
-		fi
-		local binary;
-		for binary in ${testbin}/${suite}.*
-			do
-				if [ -f "$binary" ]; then
-					__assert_run_test_executable "$binary";
-				fi
-		done
-	fi
-	
-	# only running binary tests
-	if $only_binaries; then
-		return 0;
-	fi
-	
-	# TODO: unload the module after the test suite has completed
-	
-	# require and generate a list of method definitions
-	require.methods "$file" "^test\.";
-	local methods=( $_result );
-	console.info "test %s < %s" "$suite" "$file";
-	if [ "${#methods[@]}" -eq 0 ]; then
-		console.warn "test %s does not declare any test methods" "$name";
+	# run test as an executable
+	if [ -x "$file" ]; then
+		__assert_run_test_executable "${file}";
+	# run test as a .test source file
 	else
-		local m nm;
-		
-		# filter method flag
-		local filter=false;
-		
-		
-		# running specific test(s)
-		if [ ${#testmethods[@]} -gt 0 ]; then
-			filter=true;
-		fi		
-		
-		# print method summary	
-		for m in "${methods[@]}"
-			do
-				nm=${m#test.${unit}.};
-				if ! $filter; then
-					console.info "assert %s" "$nm";
-				else
-					if array.contains? "$nm" "${testmethods[@]}"; then
-						console.info "assert %s" "$nm";
-					fi
-				fi
-		done
-		
-		# run method assertions
-		for m in "${methods[@]}"
-			do
-				# check that the method starts with a test prefix				
-				if [[ "$m" =~ ^test. ]]; then
+		# TODO: unload the module after the test suite has completed
+
+		# require and generate a list of method definitions
+		require.methods "$file" "^test\.";
+		local methods=( $_result );
+		console.info "test %s < %s" "$suite" "$file";
+		if [ "${#methods[@]}" -eq 0 ]; then
+			console.warn "test %s does not declare any test methods" "$name";
+		else
+			local m nm;
+
+			# filter method flag
+			local filter=false;
+
+			# running specific test(s)
+			if [ ${#testmethods[@]} -gt 0 ]; then
+				filter=true;
+			fi
+
+			# print method summary	
+			for m in "${methods[@]}"
+				do
 					nm=${m#test.${unit}.};
 					if ! $filter; then
-						__assert_run_test_method;
+						console.info "assert %s" "$nm";
 					else
 						if array.contains? "$nm" "${testmethods[@]}"; then
-							__assert_run_test_method;
+							console.info "assert %s" "$nm";
 						fi
 					fi
-				fi
-		done	
+			done
+
+			# run method assertions
+			for m in "${methods[@]}"
+				do
+					# check that the method starts with a test prefix				
+					if [[ "$m" =~ ^test. ]]; then
+						nm=${m#test.${unit}.};
+						if ! $filter; then
+							__assert_run_test_method;
+						else
+							if array.contains? "$nm" "${testmethods[@]}"; then
+								__assert_run_test_method;
+							fi
+						fi
+					fi
+			done	
+		fi
 	fi
 }
 
@@ -297,9 +406,9 @@ function __assert.print.summary {
 	
 	__assert.print.header $output;
 	
-	$output "suites: %s" "${summary[suites]}";
+	$output "suites (total): %s" "${summary[suites]}";
+	$output "suites (binary): %s" "${summary[executables]}";
 	$output "methods: %s" "${summary[methods]}";
-	$output "binary: %s" "${summary[executables]}";
 	$output "assertions: %s" "${summary[assertions]}";
 	$output "assertions (pass): %s" "${summary[assertions.pass]}";
 	
