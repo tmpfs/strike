@@ -114,6 +114,24 @@ function fs.path.expand {
 	fi
 }
 
+# walks the parent hierarchy looking for a file
+function fs.walk {
+	local name="${1:-}";
+	local flag="${2:-"-f"}";
+	local dir="$PWD";
+	local file="${dir}/${name}";
+	while ! test "$flag" "$file" && [ "$dir" != "/" ];
+		do
+			dir=$( dirname "$dir" );
+			file="${dir}/${name}";
+	done
+	if test "$flag" "$file"; then
+		_result="$file";
+	else
+		_result="";
+	fi
+}
+
 ######################################################################
 #	Creates a directory including any non-existing directories.
 #

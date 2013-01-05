@@ -369,9 +369,10 @@ fi
 
 function bake {
 	local nm="tasks";
-	local f="${PWD}/${nm}";
+	fs.walk "$nm";
+	local f="$_result";
 	if [ ! -f "$f" ]; then
-		quit 1 "no %s file in %s" "$nm" "${PWD}";
+		quit 1 "no %s file in %s (or any of the parent directories)" "$nm" "${PWD}";
 	else
 		# variables to expose to the task(s)
 		local root=`dirname $f`;

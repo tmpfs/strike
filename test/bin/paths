@@ -5,7 +5,7 @@
 # relative, absolute, relative parent
 
 if [ "${BASH_SOURCE[0]}" != "./test/bin/paths" ]; then
-	echo "path tests must be run from the root of the repository (./test/bin/paths)";
+	echo "path must be run from the root of the repository (./test/bin/paths)";
 	exit 1;
 fi
 
@@ -16,12 +16,14 @@ function paths {
 	messages["./bake"]="relative binary path ok";
 	messages["${PWD}/bake"]="absolute symlink path ok";
 	messages["${PWD}/bin/bake"]="absolute binary path ok";
+	messages["../bin/bake"]="parent binary path ok";
 	messages["../bake"]="parent symlink path ok";
 	declare -a paths;
 	paths+=( "./bake" );
 	paths+=( "${PWD}/bake" );
 	paths+=( "${PWD}/bin/bake" );
 
+	local changed=false;
 	# relative should come last
 	paths+=( "../bin/bake" );
 	paths+=( "../bake" );
@@ -30,8 +32,9 @@ function paths {
 		do
 			msg="${messages["$path"]}";
 			# run the relative reference correctly
-			if [[ "$path" =~ ^\.\./ ]]; then
-				cd "$parent";
+			if ! $changed && [[ "$path" =~ ^\.\./ ]]; then
+				cd "$PWD/test";
+				changed=true;
 			fi
 			if [ ! -x "$path" ]; then
 				echo "$path is not executable";
