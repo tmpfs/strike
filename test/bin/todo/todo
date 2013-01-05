@@ -1,0 +1,55 @@
+#! /usr/bin/env bash -vx
+
+set -o errtrace;
+set -o errexit;
+set -o nounset;
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+console_print_program_prefix="off";
+declare -gx exedir;
+function boilerplate {
+	local src="${BASH_SOURCE[0]}"
+	exedir="$( dirname "$src" )"
+	while [ -h "$src" ]
+		do 
+			src="$(readlink "$src")";
+			[[ $src != /* ]] && src="$exedir/$src";
+			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+	done
+	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+	unset src;
+	source "$exedir/../../../lib/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+# switch on strict mode
+#process.use strict;
+
+require 'assert';
+require 'tasks/todo';
+
+function __test.todo {
+	local file="$exedir/notes.todo";
+	echo "test todo .. $exedir/notes.todo"
+	
+	# mimic running from bake(1)
+	local root="${library_dirs[root]}";
+	local target="${root}/target";
+	local tasks="tasks";
+	
+	# set -x			# activate debugging from here
+	tasks.todo scan --file "$file";
+	echo "AFTER SCAN !!!!";
+	
+	#"$exedir/../../../bake" todo scan --file "$file";
+	
+	# set +x			# stop debugging from here
+}
+
+__test.todo;
+exit 0;

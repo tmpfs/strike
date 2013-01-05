@@ -23,7 +23,7 @@ function __initialize__ {
 	
 	#NOTE: directories must be configured prior to including require(3)
 	# configure program directories
-	local dir_root;
+	local dir_root="$exedir";
 	local pdir="$exedir";
 	fs.path.expand "$pdir";
 	pdir="$_result";
