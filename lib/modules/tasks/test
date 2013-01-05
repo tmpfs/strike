@@ -339,7 +339,7 @@ function __assert_run_test {
 				do
 					nm=${m#test.${unit}.};
 					if ! $filter; then
-						console.info "assert %s" "$nm";
+						console.info "test.%s" "$nm";
 					else
 						if array.contains? "$nm" "${testmethods[@]}"; then
 							console.info "assert %s" "$nm";

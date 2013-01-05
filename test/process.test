@@ -1,3 +1,9 @@
+# test for process.lib? output
+function test.process.lib? {
+	process.lib?;
+	assert.eq "0" "0";
+}
+
 # test for process.pid output
 function test.process.pid {
 	local pid=`process.pid`;
