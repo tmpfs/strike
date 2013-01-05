@@ -64,19 +64,19 @@ The [project documentation](http://freeformsystems.github.com/strike) is availab
 
 For illustrative purposes the `./bake test` runner is also available using the following commands:
 
-You may use [npm(1)](http://npmjs.org) to execute the unit tests, run:
+If you prefer [npm(1)](http://npmjs.org) use the `test` command:
 
 	npm test
 	
-If you prefer [rake(1)](http://rake.rubyforge.org/) to execute the unit tests, run:
+If you prefer [rake(1)](http://rake.rubyforge.org/) use the `test` task:
 
 	rake test
 	
-If you prefer [ant(1)](http://ant.apache.org/) you may use the `test` target:
+If you prefer [ant(1)](http://ant.apache.org/) use the `test` target:
 
 	ant test
 	
-If you preference is [mvn(1)](http://maven.apache.org/) then use the `test` goal:
+If you prefer [mvn(1)](http://maven.apache.org/) use the `test` goal:
 
 	mvn test
 	
