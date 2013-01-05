@@ -75,6 +75,14 @@ If you prefer [rake(1)](http://rake.rubyforge.org/) to execute the unit tests, r
 If you prefer [ant(1)](http://ant.apache.org/) you may use the `test` target:
 
 	ant test
+	
+If you preference is [mvn(1)](http://maven.apache.org/) then use the `test` goal:
+
+	mvn test
+	
+To verify all build tools are executing tests correctly use this one-liner:
+
+	npm test && rake test && ant test && mvn test && ./bake test
 
 ### Generating Documentation
 
