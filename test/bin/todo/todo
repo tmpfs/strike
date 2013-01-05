@@ -1,4 +1,5 @@
-#! /usr/bin/env bash -vx
+#! /usr/bin/env bash 
+# -vx
 
 set -o errtrace;
 set -o errexit;
@@ -28,28 +29,52 @@ boilerplate "$@";
 ######################################################################
 
 # switch on strict mode
-#process.use strict;
+process.use strict;
 
 require 'assert';
 require 'tasks/todo';
 
-function __test.todo {
-	local file="$exedir/notes.todo";
+function todo {
+	local file="$exedir/1.notes.todo";
 	echo "test todo .. $exedir/notes.todo"
 	
 	# mimic running from bake(1)
 	local root="${library_dirs[root]}";
 	local target="${root}/target";
 	local tasks="tasks";
+	declare -A expects_count;
+	expects_count[1.notes.todo]="3";
+	local commands=( count );
+	# invocation type prefixes
+	local types=( "$exedir/bake" "tasks." "delegate" );
+	declare -A delimiters;
+	delimiters[0]=' ';
+	delimiters[1]='.';
+	delimiters[2]=' ';
+	local invocation delimiter;
+	local f;
+	# for f in ${exedir}/*.todo
+	# 	do
+	# 		echo "got file $f";
+	# 		declare -i index=0;
+	# 		for invocation in ${types[@]}
+	# 			do
+	# 				delimiter="${delimiters[$index]}";
+	# 				echo "got invocation ... $invocation : '$delimiter'";
+	# 				#set +o nounset;
+	# 				: $(( index++ ));
+	# 				#set -o nounset;					
+	# 		done
+	# done
 	
-	# set -x			# activate debugging from here
+	#echo "got file $file"
 	tasks.todo scan --file "$file";
-	echo "AFTER SCAN !!!!";
 	
-	#"$exedir/../../../bake" todo scan --file "$file";
+	# invoke the task function
+	#delegate "tasks" "todo" scan --file "$file" || quit $? "task %s failed" "$func";
 	
-	# set +x			# stop debugging from here
+	#echo "AFTER SCAN !!!! $output";
 }
 
-__test.todo;
+todo;
 exit 0;

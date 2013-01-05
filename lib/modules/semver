@@ -121,10 +121,10 @@ function semver.major! {
 			return 1;
 		else
 			if $increment; then
-				((version++));
+				: $((version++));
 			else
 				if [ $version -gt 0 ]; then
-					((version--));
+					: $((version--));
 				fi
 			fi
 			semver.stringify \
@@ -161,10 +161,10 @@ function semver.minor! {
 			return 1;
 		else
 			if $increment; then
-				((version++));
+				: $((version++));
 			else
 				if [ $version -gt 0 ]; then
-					((version--));
+					: $((version--));
 				fi
 			fi
 			semver.stringify \
@@ -201,10 +201,10 @@ function semver.patch! {
 			return 1;
 		else
 			if $increment; then
-				((version++));
+				: $((version++));
 			else
 				if [ $version -gt 0 ]; then
-					((version--));
+					: $((version--));
 				fi
 			fi
 			semver.stringify \

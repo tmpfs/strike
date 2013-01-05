@@ -547,11 +547,7 @@ function __todo.scan.file {
 	
 	while read line
 		do	
-			echo "got line ... $line";		
-		
-			((line_no++));
-			
-			echo "after line !!!"
+			: $((line_no++));
 			
 			# test for tag matches
 			if __todo.line.matches? "$line"; then
@@ -593,7 +589,7 @@ function __todo.log {
 # output todo tag information
 function __todo.output {
 	local countkey="${tag,,}";
-	((count["$countkey"]++));
+	: $(( count["$countkey"]++ ));
 	if ! $silent; then
 		if [ "$tag" == "BUG" ] || [ "$tag" == "FIXME" ]; then
 			echo "# $tag $frame" >&2;
@@ -618,9 +614,6 @@ function __todo.summary {
 
 function __todo.count {
 	local k v;
-		# 
-		# echo "printing count data with length: ${#count[@]}";
-		# echo "outputting with tag keys ${!count[@]}";	
 	for k in ${!count[@]}
 		do
 			# tag filtering

@@ -86,6 +86,9 @@ function delegate {
 	if [ ! -z "$method" ]; then
 		#straight method call
 		if [ -z "$module" ]; then
+			
+			# FIXME: don't switch off unset when invoking the delegate method
+			
 			set +o nounset;
 			"${method}" "${options[@]}";
 			set -o nounset;
