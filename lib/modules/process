@@ -82,6 +82,15 @@ function process.initialize {
 	done
 }
 
+# is this process running in the context
+# of the main library code
+function process.lib? {
+	if [ "${process_dirs[root]}" == "${library_dirs[root]}" ]; then
+		return 0;
+	fi
+	return 1;
+}
+
 function process.use {
 	while [ $# -gt 0 ];
 		do
