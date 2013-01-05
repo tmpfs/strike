@@ -127,7 +127,7 @@ function array.each {
 					"$iterator" "$key" "$value" "$index" \
 						|| quit 1 "%s iterator error %s" "$FUNCNAME" "$iterator";
 				fi
-				((index++));
+				: $((index++));
 		done
 	fi
 }

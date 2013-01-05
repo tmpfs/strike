@@ -134,8 +134,8 @@ function __assert_ok {
 	local ttyout="${ttyout:-}";
 	
 	if [ -n "${!summary[*]}" ]; then
-		((summary[assertions]++));
-		((summary[assertions.pass]++));		
+		: $((summary[assertions]++));
+		: $((summary[assertions.pass]++));		
 	fi
 	
 	local assertion="$1";
@@ -163,8 +163,8 @@ function __assert_ok {
 function __assert_err {
 	
 	if [ -n "${!summary[*]}" ]; then
-		((summary[assertions]++));
-		((summary[assertions.fail]++));
+		: $((summary[assertions]++));
+		: $((summary[assertions.fail]++));
 	fi
 	
 	local ttyerr="${ttyerr:-}";

@@ -215,7 +215,7 @@ function __require_find_caller_source_dir {
 				_result="$sourcedir";
 				break;
 			fi
-			((index++));
+			: $((index++));
 	done
 }
 

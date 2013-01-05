@@ -308,7 +308,7 @@ function __assert_run_test {
 	local name="`basename $file`";
 	local suite=${name%%.*};
 	
-	((summary[suites]++));
+	: $((summary[suites]++));
 	
 	# run test as an executable
 	if [ -x "$file" ]; then
@@ -367,7 +367,7 @@ function __assert_run_test {
 }
 
 function __assert_run_test_method {
-	((summary[methods]++));
+	: $((summary[methods]++));
 	console.info "run %s" "$m";
 	set +o errexit;
 	# execute the test method
@@ -384,7 +384,7 @@ function __assert_run_test_executable {
 	if [ -n "$binary" ] && [ -x "$binary" ] ;then
 		local binary_name="`basename $binary`";
 		console.info "binary test %s < %s" "$binary_name" "$binary";
-		((summary[executables]++));	
+		: $((summary[executables]++));	
 		# execute the binary test file
 		# 1>> "$stdout" 2>> "$stderr" 
 		"$binary" 1>> "$stdout" 2>> "$stderr" &

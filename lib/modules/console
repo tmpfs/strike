@@ -501,7 +501,7 @@ function console.trace {
 	local data=( $( caller $frame ) );
 	while [ "${#data[@]}" -gt 0 ]; do
 		console.error "%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
-		((frame++));
+		: $((frame++));
 		data=( $( caller $frame ) );
 	done
 	return 0;
