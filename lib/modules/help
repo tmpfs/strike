@@ -103,7 +103,7 @@ function help.parse {
 	# we only check the first parameter
 	# so that task proxy commands can show
 	# help for proxies
-	case $1 in
+	case "${1:-}" in
 	-h | --help | help )
 		shift;
 		section="${1:-}";
