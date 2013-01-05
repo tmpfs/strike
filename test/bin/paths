@@ -4,9 +4,33 @@
 # from various filesystems paths
 # relative, absolute, relative parent
 
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+console_print_program_prefix="off";
+declare -gx exedir;
+function boilerplate {
+	local src="${BASH_SOURCE[0]}"
+	exedir="$( dirname "$src" )"
+	while [ -h "$src" ]
+		do 
+			src="$(readlink "$src")";
+			[[ $src != /* ]] && src="$exedir/$src";
+			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+	done
+	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+	unset src;
+	source "$exedir/../../lib/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+# [[ "${BASH_SOURCE[0]}" =~ ^\. ]] && 
+
 if [ "${BASH_SOURCE[0]}" != "./test/bin/paths" ]; then
-	echo "path must be run from the root of the repository (./test/bin/paths)";
-	exit 1;
+	console.quit 1 "%s must be run from the root of the repository (%s)" "paths" "./test/bin/paths";
 fi
 
 function paths {
@@ -24,28 +48,31 @@ function paths {
 	paths+=( "${PWD}/bin/bake" );
 
 	local changed=false;
+	
 	# relative should come last
 	paths+=( "../bin/bake" );
 	paths+=( "../bake" );
-
 	for path in ${paths[@]}
 		do
 			msg="${messages["$path"]}";
 			# run the relative reference correctly
 			if ! $changed && [[ "$path" =~ ^\.\./ ]]; then
-				cd "$PWD/test";
+				cd "${library_dirs[root]}/test";
 				changed=true;
 			fi
 			if [ ! -x "$path" ]; then
-				echo "$path is not executable";
+				console.warn "%s is not executable" "$path";
 				exit 1;
 			fi
-			"$path" list && echo "$msg ($path)";
+			"$path" list && console.info "$msg (%s)" "$path";
 			if [ $? -ne 0 ]; then
-				echo "path test failed for $path";
-				exit 1;
+				console.quit 1 "path test failed for %s" "$path";
 			fi
 	done
+	
+	# revert working directory
+	cd "${process_dirs[owd]}";
 }
+
 paths;
 exit 0;

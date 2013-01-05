@@ -52,6 +52,7 @@ function tasks.test {
 	declare -A summary;
 	summary[suites]=0;
 	summary[methods]=0;
+	summary[executables]=0;
 	summary[assertions]=0;
 	summary[assertions.pass]=0;
 	summary[assertions.fail]=0;
@@ -134,8 +135,14 @@ function __assert_run_units {
 					fi
 					file="${path}/${unit}.test";			
 					# echo "testing for file: $file";
+					
+					# run test suite(s) (including executables)
 					if [ -f "$file" ]; then
 						__assert_run_test "$file";
+					# only matched executable test suites
+					elif [ -x "${testbin}/${unit}" ]; then
+						__assert_run_test "${testbin}/${unit}" true;
+					# no test suite found
 					else
 						console.warn "test file %s does not exist" "$file";
 					fi
@@ -153,6 +160,9 @@ function __assert_search_paths {
 function __assert_run_test {
 	local file="$1";
 	
+	# only runing binary tests
+	local only_binaries="${2:-false}";
+	
 	fs.path.expand "$file";
 	file="$_result";
 	local name="`basename $file`";
@@ -162,24 +172,24 @@ function __assert_run_test {
 	
 	# run any binary tests first
 	# these executables should perform inline assertions
+	# and return a zero exit code for success and >0 for failure
 	if [ -d "$testbin" ]; then
+		# binary matching the suite name
+		if [ -f "${testbin}/${suite}" ]; then
+			__assert_run_test_executable "${testbin}/${suite}";
+		fi
 		local binary;
 		for binary in ${testbin}/${suite}.*
 			do
 				if [ -f "$binary" ]; then
-					if [ -x "$binary" ]; then
-						local binary_name="`basename $binary`";
-						console.info "binary test %s < %s" "$binary_name" "$binary";
-						# execute the binary test file
-						$binary;
-						if [ $? -gt 0 ]; then
-							assert.fail "binary test %s exited with non-zero code %s" "$binary_name" "$?";
-						fi
-					else
-						console.warn "test binary %s is not executable" "$binary";
-					fi
+					__assert_run_test_executable "$binary";
 				fi
 		done
+	fi
+	
+	# only running binary tests
+	if $only_binaries; then
+		return 0;
 	fi
 	
 	# TODO: unload the module after the test suite has completed
@@ -246,6 +256,26 @@ function __assert_run_test_method {
 	method.remove "$m";
 }
 
+function __assert_run_test_executable {
+	local binary="${1:-}";
+	if [ -n "$binary" ] && [ -x "$binary" ] ;then
+		local binary_name="`basename $binary`";
+		console.info "binary test %s < %s" "$binary_name" "$binary";
+		((summary[executables]++));	
+		# execute the binary test file
+		# 1>> "$stdout" 2>> "$stderr" 
+		"$binary" 1>> "$stdout" 2>> "$stderr" &
+		local binary_exit_code="$?";
+		wait %%;
+		if [ $binary_exit_code -gt 0 ]; then
+			console.warn "binary test %s exited with non-zero code %s" "$binary_name" "$binary_exit_code";
+		fi
+		assert.eq "0" "$binary_exit_code";
+	else
+		console.warn "test binary %s is not executable" "$binary";
+	fi
+}
+
 function __assert.print.header {
 	local output="${1:-$output}";
 	if [ -z "$output" ]; then
@@ -269,6 +299,7 @@ function __assert.print.summary {
 	
 	$output "suites: %s" "${summary[suites]}";
 	$output "methods: %s" "${summary[methods]}";
+	$output "binary: %s" "${summary[executables]}";
 	$output "assertions: %s" "${summary[assertions]}";
 	$output "assertions (pass): %s" "${summary[assertions.pass]}";
 	
@@ -286,6 +317,8 @@ function __assert.print.summary {
 		
 		__assert.print.header;
 		console.warn "# FAILURES";
+		console.warn "# STDOUT: " "$stdout";
+		console.warn "# STDERR: " "$stderr";
 		__assert.print.header;
 		
 		local debuginfo;
