@@ -62,17 +62,19 @@ The [project documentation](http://freeformsystems.github.com/strike) is availab
 
 ### Running Tests
 
+For illustrative purposes the `./bake test` runner is also available using the following commands:
+
 You may use [npm(1)](http://npmjs.org) to execute the unit tests, run:
 
 	npm test
 	
+If you prefer [rake(1)](http://rake.rubyforge.org/) to execute the unit tests, run:
+
+	rake test
+	
 If you prefer [ant(1)](http://ant.apache.org/) you may use the `test` target:
 
 	ant test
-	
-All of these commands are an alias for:
-
-	./bake test
 
 ### Generating Documentation
 

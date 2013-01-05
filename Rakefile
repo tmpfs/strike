@@ -4,4 +4,5 @@ task :default => [:test]
 
 task :test do
   puts "rake(1) test task executed";
+  system( './bake test' );
 end
