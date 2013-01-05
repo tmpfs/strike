@@ -62,7 +62,7 @@ The [project documentation](http://freeformsystems.github.com/strike) is availab
 
 ### Running Tests
 
-Use `bake(1)` to execute the unit tests, run:
+You may use [npm(1)](http://npmjs.org) to execute the unit tests, run:
 
 	npm test
 	
