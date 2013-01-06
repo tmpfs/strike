@@ -300,8 +300,17 @@ function __require_load {
 			__require_register "$name" "$abs";
 		fi
 		
+		# NOTE: handle tasks/ext/build/ant style requires
+		# NOTE: constructor becomes: tasks.ant.initialize
+		local cname="${name}";
+		if [[ "$cname" =~ / ]]; then
+			local cprefix="${cname%%/*}";
+			local csuffix="${cname##*/}";
+			cname="${cprefix}.${csuffix}";
+		fi
+		
 		# always call the constructor if possible
-		local constructor="${name}.initialize";
+		local constructor="${cname}.initialize";
 		# invoke a contructor if present
 		if method.exists? "$constructor"; then
 			"$constructor";

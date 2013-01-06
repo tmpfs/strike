@@ -33,9 +33,13 @@ In your tasks(7) file `require` the `ant` task(s) using:
 bake(1)
 ronn:markdown
 
+# constructor for the ant build tasks
+function tasks.ant.initialize {
+	executable.validate ant;
+}
+
 # wrapper for the ant build tool
 function tasks.ant {
-	executable.validate "ant";
 	local ant="${executables[ant]}";
 	$ant $@;
 }
