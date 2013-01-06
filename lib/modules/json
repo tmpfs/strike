@@ -260,7 +260,7 @@ function __json_stringify_array {
 
 function __json_stringify_object {
 	local json_data="$1";
-	eval keys="(\${!$json_data[@]})";
+	eval keys="\${!$json_data[@]}";
 	
 	# if all keys are numeric, treat as an array
 	if [[ "$keys" =~ ^([0-9]+ ?)+$ ]]; then
@@ -268,35 +268,37 @@ function __json_stringify_object {
 		return 0;
 	fi
 	
+	# FIXME: implement handling of arrays of objects
+	
 	# deal with arrays of objects
-	declare -A array;
-	local i=0;
-	for key in ${keys[@]}
-		do
-			if [[ "$key" =~ ^[0-9]+\. ]]; then
-				eval value="\${$json_data[$key]}";				
-				array[ "$key" ]="$value";
-				echo "GOT NUMERIC ONLY KEY USING!!! : $key";
-				# attempt to use array
-				#__json_stringify_array "$json_data";
-				unset keys[$i];
-			fi
-			: $((i++));
-	done
+	# declare -A array;
+	# local i=0;
+	# for key in ${keys[@]}
+	# 	do
+	# 		if [[ "$key" =~ ^[0-9]+\. ]]; then
+	# 			eval value="\${$json_data[$key]}";				
+	# 			array[ "$key" ]="$value";
+	# 			echo "GOT NUMERIC ONLY KEY USING!!! : $key";
+	# 			# attempt to use array
+	# 			#__json_stringify_array "$json_data";
+	# 			unset keys[$i];
+	# 		fi
+	# 		: $((i++));
+	# done
+	# 
+	# if [ ${#array[@]} -gt 0 ]; then
+	# 	echo "array data : ${!array[@]} : ${array[@]}";
+	# fi
 	
-	if [ ${#array[@]} -gt 0 ]; then
-		echo "array data : ${!array[@]} : ${array[@]}";
-	fi
-	
-	if [ ${#keys[@]} -gt 0 ]; then
-		return 0;
-	fi
+	# if [ ${#keys[@]} -gt 0 ]; then
+	# 	return 0;
+	# fi
 	
 	json="${json}${objstart}";
 	local key value;
 	
 	# deal with top-level properties of this object
-	for key in ${keys[@]}
+	for key in $keys
 		do
 			# not a nested property
 			if [[ ! "$key" =~ \. ]]; then
@@ -307,7 +309,7 @@ function __json_stringify_object {
 	
 	# deal with nested properties
 	local k match nk nv ak;	
-	for key in ${keys[@]}
+	for key in $keys
 		do
 			# if [[ "$key" =~ ^[0-9]+\. ]]; then
 			# 	echo "GOT NUMERIC ONLY KEY USING UNDERSCORE!!! : $keys";
