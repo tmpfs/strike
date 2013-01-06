@@ -33,6 +33,14 @@ When no test suites are specified all test suites will be executed, otherwise pa
 * `ant`:
 
 	Attempts to run an ant(1) *test* target.
+	
+* `rake`:
+
+	Attempts to run a rake(1) *test* task.
+	
+* `mvn`:
+
+	Attempts to run a mvn(1) *test* goal.
 
 ## FILES
 
@@ -127,10 +135,22 @@ function tasks.test {
 	fi
 }
 
+# invoke an ant(1) *test* target
 function tdd.tasks.test.ant {
 	require.once 'tasks/ext/build/ant';
-	
-	
+	tasks.ant test;
+}
+
+# invoke a rake(1) *test* task
+function tdd.tasks.test.rake {
+	require.once 'tasks/ext/build/rake';
+	tasks.rake test;
+}
+
+# invoke a mvn(1) *test* goal
+function tdd.tasks.test.mvn {
+	require.once 'tasks/ext/build/mvn';
+	tasks.mvn test;
 }
 
 function tdd.tasks.test.list {
