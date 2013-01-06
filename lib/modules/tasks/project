@@ -20,7 +20,7 @@ In your tasks(7) file `require` the `project` task(s) using:
 
 	bake project init
 	bake project add id path|url [url...]
-	bake project exists id	
+	bake project exists id
 	bake project ls
 	bake project count
 	bake project rm id
@@ -29,7 +29,7 @@ In your tasks(7) file `require` the `project` task(s) using:
 
 * `init`:
 
-	Creates an empty projects file.
+	Creates an empty projects file. This command will exit with >0 exit code if a projects file already exists.
 	
 * `add`:
 
@@ -62,6 +62,10 @@ In your tasks(7) file `require` the `project` task(s) using:
 ## FILES
 
 The projects meta information is stored in a file named *projects.json* in the `${root}` of the current project.
+
+## EXIT CODES
+
+An exit code >0 indicates the operation failed, whilst 0 is success.
 
 ## BUGS
 
@@ -121,6 +125,7 @@ function prj.tasks.project.init {
 	if [ ! -f "$prjfile" ]; then
 		__project.file.missing.quit;
 	fi
+	console.success "project file %s created %s" "$prjfile" "✓";
 }
 
 function prj.tasks.project.exists {

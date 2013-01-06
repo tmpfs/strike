@@ -26,7 +26,7 @@ When no test suites are specified all test suites will be executed, otherwise pa
 
 	Run one or more test suites.
 	
-* `list`:
+* `ls`:
 
 	List test suites and test methods (if test methods have been specified).
 	
@@ -163,7 +163,7 @@ function tdd.tasks.test.make {
 	tasks.make test;
 }
 
-function tdd.tasks.test.list {
+function tdd.tasks.test.ls {
 	
 	#echo "got list command $#";	
 	

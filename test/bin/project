@@ -1,0 +1,41 @@
+#! /usr/bin/env bash
+
+set -o errtrace;
+set -o errexit;
+set -o nounset;
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+console_print_program_prefix="off";
+declare -gx exedir;
+function boilerplate {
+	local src="${BASH_SOURCE[0]}"
+	exedir="$( dirname "$src" )"
+	while [ -h "$src" ]
+		do 
+			src="$(readlink "$src")";
+			[[ $src != /* ]] && src="$exedir/$src";
+			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+	done
+	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+	unset src;
+	source "$exedir/../../lib/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+process.use strict;
+
+require 'assert';
+require 'tasks/project';
+
+# tests for task-project(7)
+function test.project {
+	echo "testing project tasks"
+}
+
+test.project;
+exit 0;
