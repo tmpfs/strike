@@ -117,7 +117,7 @@ function tasks.test {
 		local cmd="$1";		
 		local method="tdd.${FUNCNAME}.${1}";
 		# remove command option
-		local commands=( run list );
+		local commands=( run ls );
 		if array.contains? "${cmd}" "${commands[@]}"; then
 			shift;
 		fi
@@ -165,7 +165,7 @@ function tdd.tasks.test.make {
 
 function tdd.tasks.test.ls {
 	
-	#echo "got list command $#";	
+	#echo "got list command $# : $@";
 	
 	# gather test suites
 	if [ $# -eq 0 ]; then
@@ -174,11 +174,11 @@ function tdd.tasks.test.ls {
 		__assert_get_suites "$@";
 	fi
 	
-	#echo "got list command ${suites[@]}";
+	#echo "got list command ${#suites[@]}";
 	
 	if [ ${#suites[@]} -eq 0 ]; then
 		console.quit 1 "no test suites found";
-	fi	
+	fi
 	
 	for unit in ${suites[@]}
 		do
@@ -237,7 +237,7 @@ function __assert.suite.add {
 	if process.lib? && $all && [ "$1" == "task-test" ]; then
 		return 0;
 	fi
-	if [ -f "$2" ] ;then
+	if [ -f "$2" ]; then
 		suites+=( "$1" );
 		paths["$1"]="$2";
 	fi
@@ -288,6 +288,11 @@ function __assert.get.binary {
 			# binary matching the suite name
 			if [ -f "$bin" ] && [ -x "$bin" ]; then
 				__assert.suite.add "$binsuite" "$bin";
+			else
+				# do a greedy search for nested directories
+				# when not matched directly in the test/bin directory
+				#__assert.get.binary.all;
+				echo -ne '';
 			fi
 			# looking for suite.* binaries
 			for bin in ${testbin}/${suite}.*
@@ -298,16 +303,20 @@ function __assert.get.binary {
 					fi
 			done
 		else
-			# looking for all binary tests
-			for bin in ${testbin}/**
-				do
-					if [ -f "$bin" ] && [ -x "$bin" ] ; then
-						binsuite="${bin#${testdir}/}";
-						__assert.suite.add "$binsuite" "$bin";
-					fi
-			done
+			__assert.get.binary.all;
 		fi
 	fi
+}
+
+function __assert.get.binary.all {
+	# looking for all binary tests
+	for bin in ${testbin}/**
+		do
+			if [ -f "$bin" ] && [ -x "$bin" ] ; then
+				binsuite="${bin#${testdir}/}";
+				__assert.suite.add "$binsuite" "$bin";
+			fi
+	done	
 }
 
 # filter by suites specified on the command line
@@ -468,8 +477,8 @@ function __assert_run_test_executable {
 		# execute the binary test file
 		# 1>> "$stdout" 2>> "$stderr" 
 		"$binary" 1>> "$stdout" 2>> "$stderr" &
+		wait %%;		
 		local binary_exit_code="$?";
-		wait %%;
 		if [ $binary_exit_code -gt 0 ]; then
 			console.warn "binary test %s exited with non-zero code %s" "$binary_name" "$binary_exit_code";
 		fi
