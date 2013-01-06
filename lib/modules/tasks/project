@@ -132,14 +132,13 @@ function prj.tasks.project.init {
 }
 
 function prj.tasks.project.exists {
-	#exit 1;
 	if [ ! -f "$prjfile" ]; then
 		__project.file.missing.info;
 		__project.file.missing.quit;
 	fi
 	
 	if [ $# -eq 0 ]; then
-		console.quit 1 "no project identifier specified";
+		__project.id.missing.quit;
 	fi
 	prj_id="${1:-}";
 	__project.id.validate;
@@ -165,8 +164,8 @@ function prj.tasks.project.add {
 	shift;
 	__project.path.validate;
 	
-	# echo "adding project with id $prj_id";
-	# echo "adding project with path $prj_path";
+	echo "adding project with id $prj_id";
+	echo "adding project with path $prj_path";
 	
 	# related URLs
 	declare -a urls;
@@ -193,6 +192,7 @@ function prj.tasks.project.add {
 	# now read in any existing information
 	__project.file.read;
 	
+	# TODO: implement --force option
 	# test for id existence and prompt to overwrite?
 	if ! $force && __project.exists?; then
 		console.quit 1 "project %s exists use %s to overwrite" "$prj_id" "--force";
@@ -209,8 +209,19 @@ function prj.tasks.project.add {
 		done
 	fi
 	
+	echo "got add keys: ${!prj_doc[@]}";
+
+	__project.file.write!;
+}
+
+function __project.file.write! {
 	json.stringify <<< "prj_doc";
-	json.string > "$prjfile" || quit 1 "coult not write project file %s" "$prjfile";
+	json.string > "$prjfile" || __project.file.write.quit;	
+}
+
+# failed to write file
+function __project.file.write.quit {
+	console.quit 1 "coult not write project file %s" "$prjfile";
 }
 
 function prj.tasks.project.count {
@@ -222,6 +233,42 @@ function prj.tasks.project.count {
 	__project.list;
 	console.log "${#projects[@]}";
 	console.success;
+}
+
+function prj.tasks.project.rm {
+	if [ ! -f "$prjfile" ]; then
+		__project.file.missing.info;
+		__project.file.missing.quit;
+	fi
+	
+	if [ $# -eq 0 ]; then
+		__project.id.missing.quit;
+	fi
+	
+	local k re length=$#;
+	
+	__project.file.read;
+	while [ $# -gt 0 ];
+		do
+			prj_id="${1:-}";
+			shift;
+			__project.id.validate;
+			re="^projects\.${prj_id}";
+			
+			echo "rm : $prj_id";
+			
+			for k in "${!prj_doc[@]}"
+				do
+					if [[ "$k" =~ $re ]]; then
+						echo "got remove key: $k";
+						unset prj_doc["$k"];
+					fi
+			done
+	done
+	
+	__project.file.write!;
+	
+	#console.success "removed %s projects" "${length}";
 }
 
 function prj.tasks.project.print {
@@ -340,6 +387,11 @@ function __project.file.read {
 	done
 	# clean up json data
 	json.clean;
+}
+
+# quit on no identifier
+function __project.id.missing.quit {
+	console.quit 1 "no project identifier specified";
 }
 
 # add generator information to project.json

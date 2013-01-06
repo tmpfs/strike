@@ -262,6 +262,8 @@ function __json_stringify_object {
 	local json_data="$1";
 	eval keys="\${!$json_data[@]}";
 	
+	echo "__json_stringify_object: ${keys}";
+	
 	# if all keys are numeric, treat as an array
 	if [[ "$keys" =~ ^([0-9]+ ?)+$ ]]; then
 		__json_stringify_array "$json_data";
@@ -311,6 +313,9 @@ function __json_stringify_object {
 	local k match nk nv ak;	
 	for key in $keys
 		do
+			
+			echo "handling key: $key";
+			
 			# if [[ "$key" =~ ^[0-9]+\. ]]; then
 			# 	echo "GOT NUMERIC ONLY KEY USING UNDERSCORE!!! : $keys";
 			# 	#k="_$k";
@@ -433,6 +438,7 @@ function __json_parse_value {
 	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
 		local key=${jpath};
 		local val=${value};
+		#echo "got key: $key" >&2;
 		eval key=json_\$$key;
 		#switch the commas for dot-style notation
 		key=${key//,/.};

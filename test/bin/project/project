@@ -44,6 +44,8 @@ function test.project {
 	local tasks="tasks";
 	local projectfile="${target}/projects.json";
 	
+	# ensure we have a tmp `target` directory when
+	# run standalone
 	if [ ! -d "${target}" ]; then
 		mkdir -p "${target}" || quit 1 "could not create target directory %s" "${target}";
 	fi
@@ -62,8 +64,9 @@ function test.project {
 	local code=1;
 	
 	# dummy project in `target`
-	local test_project_name="test-project";
-	local test_project_path="./target/test/${test_project_name}";
+	local test_project_id="test-project";
+	local test_project_dup="test-project-new";
+	local test_project_path="./target/test/${test_project_id}";
 	
 	# create the test project
 	mkdir -p "${test_project_path}";	
@@ -81,7 +84,7 @@ function test.project {
 	assert.equal "${json_expected[init]}" "$contents";
 	
 	# add a project
-	tasks.project add "test-project" "${test_project_path}";
+	tasks.project add "${test_project_id}" "${test_project_path}";
 	assert.eq "0" "$?";
 	
 	# test print command
@@ -89,21 +92,38 @@ function test.project {
 	assert.equal "${json_expected[added1]}" "$contents";
 	
 	# test exists command
-	tasks.project exists "${test_project_name}" & wait %%;
+	tasks.project exists "${test_project_id}" & wait %%;
 	assert.eq "0" "$?";
 	tasks.project exists "non-existent-project" 2> /dev/null & wait %%;
 	assert.eq "1" "$?";
 	
 	# test ls command
 	local projects=( $( tasks.project ls ) );
-	assert.equal "${test_project_name}" "${projects[0]}";
+	assert.equal "${test_project_id}" "${projects[0]}";
 	assert.equal "${test_project_path}" "${projects[1]}";
 
 	local count=$( tasks.project count );
 	assert.eq "1" "${count}";
 	
+	# add another project
+	tasks.project add "${test_project_dup}" "${test_project_path}";
+	assert.eq "0" "$?";
+	
+	cat target/projects.json;
+	exit 0;
+	
+	tasks.project rm "${test_project_id}";
+	
 	# clean up so subsequent test runs will succeed
 	{ rm "${projectfile}" && console.info "removed project file %s" "$projectfile"; };
+	
+	# exists fails on no project file
+	tasks.project exists "${test_project_id}" > /dev/null 2>&1 & wait %%;
+	assert.gt "0" "$?";
+	
+	# ls fails on no project file
+	tasks.project ls "${test_project_id}" > /dev/null 2>&1 & wait %%;
+	assert.gt "0" "$?";
 }
 
 test.project;
