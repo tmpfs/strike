@@ -46,6 +46,16 @@ Retrieve the hash of the last commit in the current branch or a specific branch.
 require(3)
 ronn:markdown
 
+# determine if a git repository has changes
+# see: http://stackoverflow.com/questions/2657935/checking-for-a-dirty-index-or-untracked-files-with-git
+function git.clean? {
+	local output=$( git status --porcelain );
+	if [ -z "$output" ]; then
+		return 0;
+	fi
+	return 1;
+}
+
 # determine if a directory is a valid git repository
 function git.valid? {
 	if [ -d "$1" ] && [ -d "${1}/.git" ]; then
