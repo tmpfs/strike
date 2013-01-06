@@ -56,41 +56,51 @@ function test.project {
 	
 	declare -A json_expected;
 	json_expected[init]=$( < "$exedir/init.json" );
+	json_expected[added1]=$( < "$exedir/added.1.json" );
 	
 	# last exit code
 	local code=1;
 	
 	# dummy project in `target`
-	local test_project_dir="${target}/test/test-project";
+	local test_project_name="test-project";
+	local test_project_path="./target/test/${test_project_name}";
+	
+	# create the test project
+	mkdir -p "${test_project_path}";	
 	
 	# switch off errexit for these tests
 	set +o errexit;
 	
 	# initialize an empty projects.json file
-	tasks.project init &
-	wait %%;
+	tasks.project init & wait %%;
 	assert.eq "0" "$?";
 	assert.file.exists? "${projectfile}";
 	
-	# verify file contents
+	# test print command
 	local contents=$( tasks.project print );
 	assert.equal "${json_expected[init]}" "$contents";
 	
-	# create the test project
-	mkdir -p "${test_project_dir}";
-	
 	# add a project
-	tasks.project add "test-project" "${test_project_dir}";
+	tasks.project add "test-project" "${test_project_path}";
 	assert.eq "0" "$?";
 	
+	# test print command
 	contents=$( tasks.project print );
+	assert.equal "${json_expected[added1]}" "$contents";
 	
-	echo "$contents"
+	# test exists command
+	tasks.project exists "${test_project_name}" & wait %%;
+	assert.eq "0" "$?";
+	tasks.project exists "non-existent-project" 2> /dev/null & wait %%;
+	assert.eq "1" "$?";
 	
-	#tasks.project ls;
+	# test ls command
+	local projects=( $( tasks.project ls ) );
+	assert.equal "${test_project_name}" "${projects[0]}";
+	assert.equal "${test_project_path}" "${projects[1]}";
 	
 	# clean up so subsequent test runs will succeed
-	rm "${projectfile}" && { console.info "removed project file %s" "$projectfile"; };
+	{ rm "${projectfile}" && console.info "removed project file %s" "$projectfile"; };
 }
 
 test.project;

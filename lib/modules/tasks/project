@@ -33,7 +33,7 @@ In your tasks(7) file `require` the `project` task(s) using:
 	
 * `add`:
 
-	Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url. Subsequent options to `add` are related URLs for the project.
+	Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url. Subsequent options to `add` are related URLs for the project. Note that when specifying URLs they must be URL encoded so they do not contain any whitespace.
 	
 	This command will create a projects file if it does not exist.
 	
@@ -41,7 +41,7 @@ In your tasks(7) file `require` the `project` task(s) using:
 	
 * `ls`:
 
-	List projects. The output of this command is the identifier followed by the path or url delimited by a space. If the project has a related url then another space is concatenated along with the related url value. When specifying URLs they must be URL encoded.
+	List projects. The output of this command is the identifier followed by the path (or url) delimited by a space.
 	
 * `exists`:
 
@@ -129,6 +129,7 @@ function prj.tasks.project.init {
 }
 
 function prj.tasks.project.exists {
+	#exit 1;
 	if [ ! -f "$prjfile" ]; then
 		__project.file.missing.info;
 		__project.file.missing.quit;
@@ -161,8 +162,8 @@ function prj.tasks.project.add {
 	shift;
 	__project.path.validate;
 	
-	echo "adding project with id $prj_id";
-	echo "adding project with path $prj_path";
+	# echo "adding project with id $prj_id";
+	# echo "adding project with path $prj_path";
 	
 	# related URLs
 	declare -a urls;
@@ -242,9 +243,10 @@ function prj.tasks.project.ls {
 			if [ "$k" == "generator" ]; then
 				continue;
 			fi
-			if [[ "$k" =~ ^projects. ]]; then
+			if [[ "$k" =~ ^projects.[^.]+\.path ]]; then
 				v="${prj_doc[$k]}";
 				k="${k#projects.}";
+				k="${k%.path}";
 				console.log "$k $v";
 			fi
 	done
