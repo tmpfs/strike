@@ -34,6 +34,7 @@ process.use strict;
 require 'assert';
 require 'tasks/todo';
 
+# TODO: complete these tests
 function todo {
 	local file="$exedir/1.notes.todo";
 	echo "test todo .. $exedir/notes.todo"
