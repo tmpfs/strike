@@ -12,9 +12,7 @@ Adds task methods for generating and compiling inline heredoc documentation.
 
 ## REQUIRE
 
-In your tasks(7) file `require` the `doc` task(s) using:
-
-	require 'tasks/doc';
+You do not need to require(3) this task as it is a builtin task.
 
 ## USAGE
 

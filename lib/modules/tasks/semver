@@ -12,9 +12,7 @@ Command methods for semantic versioning, including semver(7) validation and crea
 
 ## REQUIRE
 
-In your tasks(7) file `require` the `semver` task(s) using:
-
-	require 'tasks/semver';
+You do not need to require(3) this task as it is a builtin task.
 
 ## COMMANDS
 

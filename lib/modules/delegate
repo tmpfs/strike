@@ -71,6 +71,8 @@ function delegate {
 	
 	local module=${1:-};
 	shift;
+	
+	# TODO: only shift if we have more options to process
 	local method=${1:-};
 	shift;
 	

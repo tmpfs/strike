@@ -266,6 +266,11 @@ function __console_print_program_prefix {
 
 #exits a program with a success message
 function console.success {
+	
+	if [ $# -eq 0 ]; then
+		exit 0;
+	fi
+	
 	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";

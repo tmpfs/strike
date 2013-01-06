@@ -12,9 +12,7 @@ Adds task methods for unit testing bash(1) programs, unit tests are defined in f
 
 ## REQUIRE
 
-In your tasks(7) file `require` the `test` task(s) using:
-
-	require 'tasks/test';
+You do not need to require(3) this task as it is a builtin task.
 
 ## USAGE
 

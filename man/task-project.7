@@ -1,0 +1,79 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "TASK\-PROJECT" "7" "January 2013" "" ""
+.
+.SH "NAME"
+\fBtask\-project\fR \- project task(s) for bake(1)
+.
+.SH "SYNOPSIS"
+Project task(s) for bake(1)\.
+.
+.SH "DESCRIPTION"
+Maintains a list of related projects\.
+.
+.SH "REQUIRE"
+In your tasks(7) file \fBrequire\fR the \fBproject\fR task(s) using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/project\';
+.
+.fi
+.
+.IP "" 0
+.
+.SH "USAGE"
+.
+.nf
+
+bake project init
+bake project add id path|url [url]
+bake project ls
+bake project count
+bake project rm id
+.
+.fi
+.
+.SH "COMMANDS"
+.
+.TP
+\fBinit\fR:
+.
+.IP
+Creates an empty projects file\.
+.
+.TP
+\fBadd\fR:
+.
+.IP
+Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remove url\. The third option to \fBadd\fR is a related URL for the project\.
+.
+.TP
+\fBls\fR:
+.
+.IP
+List projects\. The output of this command is the identifier followed by the path or url delimited by a space\. If the project has a related url then another space is concatenated along with the related url value\. When specifying URLs they must be URL encoded\.
+.
+.TP
+\fBcount\fR:
+.
+.IP
+Count the number of projects\.
+.
+.TP
+\fBrm\fR:
+.
+.IP
+Remove a project with the specified identifier\.
+.
+.SH "BUGS"
+\fBtask\-project\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBtask\-project\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+bake(1)

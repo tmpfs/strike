@@ -141,6 +141,7 @@ function __assert_ok {
 	local assertion="$1";
 	local stack=( $( caller 1 ) );
 	local method="${stack[1]}";
+	# FIXME: don't use fd 5, see: https://groups.google.com/forum/?fromgroups=#!topic/gnu.bash.bug/E5Vdqv3tO1w
 	if [ ! -z "$ttyout" ]; then
 		# save stdout in file descriptor #5		
 		exec 5>&1;
