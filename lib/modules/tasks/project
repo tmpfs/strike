@@ -165,8 +165,16 @@ function prj.tasks.project.add {
 	# TODO: gather existing project length
 	local len=0;
 	
-	prj_doc["projects.${len}.id"]="$prj_id";
-	prj_doc["projects.${len}.path"]="$prj_path";
+	# prj_doc["projects.${len}.id"]="$prj_id";
+	# prj_doc["projects.${len}.path"]="$prj_path";
+	
+	# prj_doc[data.name]="muji";
+	# prj_doc[data.email]="<noop@xpm.io>";
+	# prj_doc[data.names.0.a]="muji";
+	# prj_doc[data.names.1]="null";
+	# prj_doc[data.names.2]="true";
+	# prj_doc[data.names.3]="false";
+	# prj_doc[data.names.4]="3.14e+10";
 	
 	for k in ${!prj_doc[@]}
 		do
