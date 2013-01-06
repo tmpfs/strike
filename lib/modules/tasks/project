@@ -32,7 +32,9 @@ In your tasks(7) file `require` the `project` task(s) using:
 	
 * `add`:
 
-	Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remove url. The third option to `add` is a related URL for the project.
+	Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url. The third option to `add` is a related URL for the project.
+	
+	This command will create a projects file if it does not exist.
 	
 * `ls`:
 
@@ -40,11 +42,15 @@ In your tasks(7) file `require` the `project` task(s) using:
 	
 * `count`:
 
-	Count the number of projects.
+	Count the number of projects. The output of this command is an integer corresponding to the number of projects in the projects file.
 	
 * `rm`:
 
 	Remove a project with the specified identifier.
+	
+## FILES
+
+The projects meta information is stored in a file named *projects.json* in the `${root}` of the current project.
 
 ## BUGS
 
@@ -62,6 +68,7 @@ ronn:markdown
 require.once 'json';
 
 declare -g project_id_regexp="^[-a-zA-Z0-9]+$";
+declare -g project_remote_regexp="^[a-zA-Z]+://";
 
 function tasks.project {
 	__project.file;
