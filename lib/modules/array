@@ -58,6 +58,38 @@ Attempting to write and read associative arrays with spaces in the *keys* will r
 require(3)
 ronn:markdown
 
+# array.isset? : http://stackoverflow.com/questions/13219634/easiest-way-to-check-for-an-index-or-a-key-in-an-array
+
+# if test "${myArray['key_or_index']+isset}"
+#     then
+#         echo "yes"
+#     else
+#         echo "no"
+# fi
+
+# determine if a key exists in an array or assoc array
+# faster is to do it yourself: test "${arr['key_or_index']+isset}"
+# 
+# function array.isset? {
+# 	local key="${1:-}";
+# 	local name="${2:-}";
+# 	
+# 	echo "key: $key";
+# 	echo "key: $name";
+# 	
+# 	# local arr=( ${@:2} );
+# 	# # echo "key: $1"
+# 	# # echo "arr: ${arr[@]}";
+# 	# array.contains? "$key" "${arr[@]}";
+# }
+
+function array.isset? {
+	if [ $# -lt 2 ]; then
+		return 1;
+	fi 
+	eval '[ ${'$2'[$1]+a} ]';
+}
+
 # "a string" "${array[@]}"
 function array.contains? {
 	local e;
