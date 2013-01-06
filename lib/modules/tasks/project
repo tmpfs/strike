@@ -8,7 +8,7 @@ Project task(s) for bake(1).
 
 ## DESCRIPTION
 
-Maintains a list of related projects.
+Maintains a list of related projects by unique identifier.
 
 ## REQUIRE
 
@@ -20,6 +20,7 @@ In your tasks(7) file `require` the `project` task(s) using:
 
 	bake project init
 	bake project add id path|url [url...]
+	bake project exists id	
 	bake project ls
 	bake project count
 	bake project rm id
@@ -41,6 +42,10 @@ In your tasks(7) file `require` the `project` task(s) using:
 * `ls`:
 
 	List projects. The output of this command is the identifier followed by the path or url delimited by a space. If the project has a related url then another space is concatenated along with the related url value. When specifying URLs they must be URL encoded.
+	
+* `exists`:
+
+	Determine whether a project with the specified id exists.
 	
 * `count`:
 
@@ -81,6 +86,9 @@ function tasks.project {
 	__project.file;
 	local prjfile="$_result";
 	
+	# force overwrite
+	local force=false;
+	
 	# a project identifier
 	local prj_id;
 	
@@ -112,6 +120,24 @@ function prj.tasks.project.init {
 	__project.write!
 	if [ ! -f "$prjfile" ]; then
 		__project.file.missing.quit;
+	fi
+}
+
+function prj.tasks.project.exists {
+	if [ ! -f "$prjfile" ]; then
+		__project.file.missing.info;
+		__project.file.missing.quit;
+	fi
+	
+	if [ $# -eq 0 ]; then
+		console.quit 1 "no project identifier specified";
+	fi
+	prj_id="${1:-}";
+	__project.id.validate;
+	if __project.exists?; then
+		console.success "project %s %s" "$prj_id" "✓";
+	else
+		console.quit 1 "no project %s %s" "$prj_id" "✘";
 	fi
 }
 
@@ -155,34 +181,24 @@ function prj.tasks.project.add {
 	# now read in any existing information
 	__project.file.read;
 	
-	# TODO: ensure the id is unique	
-	for k in ${!prj_doc[@]}
-		do
-			#echo "got prj_doc key : $k";
-			break;
-	done
+	# test for id existence and prompt to overwrite?
+	if ! $force && __project.exists?; then
+		console.quit 1 "project %s exists use %s to overwrite" "$prj_id" "--force";
+	fi
 	
-	# TODO: gather existing project length
-	local len=0;
+	prj_doc["projects.$prj_id.path"]="$prj_path";
 	
-	# prj_doc["projects.${len}.id"]="$prj_id";
-	# prj_doc["projects.${len}.path"]="$prj_path";
-	
-	# prj_doc[data.name]="muji";
-	# prj_doc[data.email]="<noop@xpm.io>";
-	# prj_doc[data.names.0.a]="muji";
-	# prj_doc[data.names.1]="null";
-	# prj_doc[data.names.2]="true";
-	# prj_doc[data.names.3]="false";
-	# prj_doc[data.names.4]="3.14e+10";
-	
-	for k in ${!prj_doc[@]}
-		do
-			echo "got prj_doc key : $k";
-	done	
+	if [ ${#urls[@]} ]; then
+		local url i=0;
+		for url in ${urls[@]}
+			do
+				prj_doc["projects.$prj_id.urls.$i"]="${url}";
+				: $((i++));
+		done
+	fi
 	
 	json.stringify <<< "prj_doc";
-	# json.string;
+	json.string > "$prjfile" || quit 1 "coult not write project file %s" "$prjfile";
 }
 
 function prj.tasks.project.count {
@@ -211,16 +227,18 @@ function prj.tasks.project.ls {
 		__project.file.missing.quit;
 	fi
 	__project.file.read;
-	
-	echo "project list ... $prjfile";
-	
-	local k;
+	local k v;
+	local re="^projects\.$project_id_regexp"
 	for k in ${!prj_doc[@]}
 		do
 			if [ "$k" == "generator" ]; then
 				continue;
 			fi
-			echo "print key : $k";
+			if [[ "$k" =~ ^projects. ]]; then
+				v="${prj_doc[$k]}";
+				k="${k#projects.}";
+				console.log "$k $v";
+			fi
 	done
 }
 
@@ -229,6 +247,35 @@ function prj.tasks.project.ls {
 #	PRIVATE METHODS
 #
 ######################################################################
+
+# determine if a project exists
+function __project.exists? {
+	if [ ! -f "$prjfile" ]; then
+		return 1;
+	fi
+	
+	local id="${1:-}";
+	
+	# look for current id when no specific id is
+	# specified
+	if [ -z "$id" ]; then
+		id="$prj_id";
+	fi
+	
+	# not document information, try to read it in
+	if [ ${#prj_doc[@]} -eq 0 ]; then
+		__project.file.read;
+	fi
+	
+	local k;
+	for k in ${!prj_doc[@]}
+		do
+			if [[ "$k" =~ ^projects.$id ]]; then
+				return 0;
+			fi
+	done
+	return 1;
+}
 
 # validate a project identifier
 function __project.id.validate {
@@ -296,7 +343,7 @@ function __project.file.exists.quit {
 
 # info on creating a project file
 function __project.file.missing.info {
-	console.info "use %s to create a blank project file" "project init";
+	console.info "use %s to create an empty projects.json file" "project init";
 }
 
 # quit if no project file is available
