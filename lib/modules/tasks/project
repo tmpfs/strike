@@ -161,6 +161,9 @@ function prj.tasks.project.add {
 	shift;
 	__project.path.validate;
 	
+	echo "adding project with id $prj_id";
+	echo "adding project with path $prj_path";
+	
 	# related URLs
 	declare -a urls;
 	urls=();

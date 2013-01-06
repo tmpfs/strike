@@ -79,9 +79,15 @@ function test.project {
 	# create the test project
 	mkdir -p "${test_project_dir}";
 	
-	tasks.project add "test-project" "${test_project_dir}" &
-	wait %%;
+	# add a project
+	tasks.project add "test-project" "${test_project_dir}";
 	assert.eq "0" "$?";
+	
+	contents=$( tasks.project print );
+	
+	echo "$contents"
+	
+	#tasks.project ls;
 	
 	# clean up so subsequent test runs will succeed
 	rm "${projectfile}" && { console.info "removed project file %s" "$projectfile"; };

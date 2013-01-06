@@ -27,14 +27,6 @@ function boilerplate {
 boilerplate "$@";
 ######################################################################
 
-# [[ "${BASH_SOURCE[0]}" =~ ^\. ]] && 
-
-# echo "bash source: ${BASH}"
-# 
-# if [ "${BASH_SOURCE[0]}" != "./test/bin/paths" ]; then
-# 	console.quit 1 "%s must be run from the root of the repository (%s)" "paths" "./test/bin/paths";
-# fi
-
 function paths {
 	local parent="`dirname ${BASH_SOURCE[0]}`";
 	parent="`dirname "$parent"`";

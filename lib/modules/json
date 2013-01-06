@@ -322,21 +322,24 @@ function __json_stringify_object {
 					# FIXME: handle arrays of objects !!!
 					k=${key%%.*};
 					
+					local nestedkey="$k";
 					# sane bash compatible variable name
-					k=${k//-/_};
+					if [[ "$k" =~ [-.]+ ]]; then
+						nestedkey=${nestedkey//-/_};
+					fi
 					
-					eval "declare -A $k";
+					eval "declare -A $nestedkey";
 					match="^$k";
 					for nk in $keys
 						do
 							if [[ "$nk" =~ $match ]]; then
 								eval nv="\${$json_data[$nk]}";
 								ak=${nk#*.};
-								eval "${k}[\"$ak\"]=\"$nv\"";
+								eval "${nestedkey}[\"$ak\"]=\"$nv\"";
 							fi
 					done
 					json="${json}\"$k\":";
-					__json_stringify_object "$k";
+					__json_stringify_object "$nestedkey";
 					json="${json}${objend}";
 					return 0;
 				fi

@@ -1,6 +1,6 @@
 require.once 'attr';
 
-# TODO: add test for -* flag options passed to declare
+# TODO: add test(s) for -* flag options passed to declare
 
 function test.attr.reader {
 	attr.reader :reader.read "value";
