@@ -41,6 +41,10 @@ When no test suites are specified all test suites will be executed, otherwise pa
 * `mvn`:
 
 	Attempts to run a mvn(1) *test* goal.
+	
+* `mvn`:
+
+	Attempts to run a make(1) *test* rule.
 
 ## FILES
 
@@ -151,6 +155,12 @@ function tdd.tasks.test.rake {
 function tdd.tasks.test.mvn {
 	require.once 'tasks/ext/build/mvn';
 	tasks.mvn test;
+}
+
+# invoke a make(1) *test* target
+function tdd.tasks.test.make {
+	require.once 'tasks/ext/build/make';
+	tasks.make test;
 }
 
 function tdd.tasks.test.list {
