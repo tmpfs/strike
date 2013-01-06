@@ -322,13 +322,19 @@ function __assert_get_suites {
 				do
 					# handle running specific test methods
 					if [[ "$unit" =~ : ]]; then
+						
+						if [[ "$unit" =~ ^: ]] || [[ "$unit" =~ :$ ]]; then
+							console.quit 1 "invalid test specification %s, leading or trailing colon" "$unit";
+						fi
+						
 						# echo "checking for specific method(s) to test ... ";
 						local methods;
 						local IFS=":";
 						methods=( $unit );
-						#echo "got methods length: ${#methods[@]}";
-						#echo "got methods: ${methods[@]}";
+						# echo "got methods length: ${#methods[@]}";
+						# echo "got methods: ${methods[@]}";
 						unset IFS;
+						
 						unit="${methods[0]}";
 						unset methods[0];
 						if [ ${#methods[@]} -gt 0 ]; then
@@ -399,10 +405,13 @@ function __assert_run_test {
 
 			# filter method flag
 			local filter=false;
+			local filtermethods=();
 
 			# running specific test(s)
-			if [ ${#testmethods[@]} -gt 0 ]; then
+			if [ ${#testmethods[@]} -gt 0 ] && array.isset? "$unit" "testmethods"; then
+				# echo "switching on method filtering... for $unit"
 				filter=true;
+				filtermethods=( ${testmethods["$unit"]} );
 			fi
 
 			# print method summary	
@@ -412,7 +421,7 @@ function __assert_run_test {
 					if ! $filter; then
 						console.info "test.%s" "$nm";
 					else
-						if array.contains? "$nm" "${testmethods[@]}"; then
+						if array.contains? "$nm" "${filtermethods[@]}"; then
 							console.info "assert %s" "$nm";
 						fi
 					fi
@@ -427,7 +436,7 @@ function __assert_run_test {
 						if ! $filter; then
 							__assert_run_test_method;
 						else
-							if array.contains? "$nm" "${testmethods[@]}"; then
+							if array.contains? "$nm" "${filtermethods[@]}"; then
 								__assert_run_test_method;
 							fi
 						fi

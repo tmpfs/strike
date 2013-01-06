@@ -83,6 +83,7 @@ ronn:markdown
 # 	# array.contains? "$key" "${arr[@]}";
 # }
 
+# adapted from: http://stackoverflow.com/questions/13219634/easiest-way-to-check-for-an-index-or-a-key-in-an-array
 function array.isset? {
 	if [ $# -lt 2 ]; then
 		return 1;
