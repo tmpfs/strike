@@ -30,7 +30,7 @@ require \'tasks/project\';
 .nf
 
 bake project init
-bake project add id path|url [url]
+bake project add id path|url [url\.\.\.]
 bake project ls
 bake project count
 bake project rm id
@@ -49,7 +49,13 @@ Creates an empty projects file\.
 \fBadd\fR:
 .
 .IP
-Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remove url\. The third option to \fBadd\fR is a related URL for the project\.
+Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url\. Subsequent options to \fBadd\fR are related URLs for the project\.
+.
+.IP
+This command will create a projects file if it does not exist\.
+.
+.IP
+If the path specified is a filesystem path then it must point to a valid directory\.
 .
 .TP
 \fBls\fR:
@@ -61,13 +67,22 @@ List projects\. The output of this command is the identifier followed by the pat
 \fBcount\fR:
 .
 .IP
-Count the number of projects\.
+Count the number of projects\. The output of this command is an integer corresponding to the number of projects in the projects file\.
+.
+.TP
+\fBprint\fR:
+.
+.IP
+Print the raw JSON information\.
 .
 .TP
 \fBrm\fR:
 .
 .IP
 Remove a project with the specified identifier\.
+.
+.SH "FILES"
+The projects meta information is stored in a file named \fIprojects\.json\fR in the \fB${root}\fR of the current project\.
 .
 .SH "BUGS"
 \fBtask\-project\fR is written in bash and depends upon \fBbash\fR >= 4\.
