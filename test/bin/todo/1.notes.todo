@@ -1,5 +1,9 @@
 # a test for tags spanning multiple lines
 
+# NOTE: this is a single line before the block
+
 # NOTE: this is a note! that spans multiple lines
 # NOTE: not really a great deal to say except that
 # NOTE: this not is really long for test purposes
+
+# NOTE: this is a single line note after the block

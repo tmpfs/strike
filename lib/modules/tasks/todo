@@ -499,7 +499,7 @@ function __todo.line.matches? {
 				# echo "matching line with  $p : $line";
 				if [[ "$line" =~ $p ]]; then
 					todo="${BASH_REMATCH[1]:-}";
-					frame="${file}:${line_no}";
+					frame="${file}:${lineno}";
 					tag="${tag^^}";
 					string.ltrim "$todo";
 					todo="${_result}";			
@@ -508,81 +508,41 @@ function __todo.line.matches? {
 				fi
 			fi
 	done
+	tag="";
 	return 1;
 }
 
 # scan a file
 function __todo.scan.file {
 	# console.info "scanning %s" "$1";
-	local line_no=0;
-	local file="$1";
+	local file="$1";	
+	local lineno=0;
 	local tag frame todo;
-	local last_line_no;
-	local last_tag="";	
 	
-	#continuous file matches
-	local filematches=();
-	
-	# reset tag data
-	__todo.scan.file.clear()
-	{
-		tag="";
-		frame="";
-		todo="";
-	}
-	
-	# reset continuous line match data
-	__todo.scan.file.reset() {
-		last_line_no=0;				
-		last_tag="";
-		if [ ${#filematches[@]} -gt 0 ]; then
-			unset filematches[*];
-		fi
-	}
-	
-	__todo.scan.file.add()
-	{
-		filematches+=( "${line_no}!${frame}!${todo}" );
-	}
-	
-	while read line
+	while IFS= read -r line
 		do	
-			: $((line_no++));
-			
-			# test for tag matches
-			if __todo.line.matches? "$line"; then
-				if [ ${#filematches[@]} -eq 0 ]; then
-					__todo.scan.file.add;
-					last_line_no=$line_no;
-					#echo "setting last line to $last_line_no on $tag with last tag : $last_tag with filematches ${#filematches[@]}";
-				fi
-				# continuous tag matches
-				if [ "$tag" == "$last_tag" ]; then
-					__todo.scan.file.add;
-					echo "got continous line match with tag name $tag : ${#filematches[@]}";
-					#clear;
-					#echo "file matches length : ${#filematches[@]}";	
-				else
-					echo "output single line match ... $tag : $line_no";						
-					# single line match
-					__todo.output;
-					__todo.scan.file.reset;		
-				fi				
-				last_tag="$tag";
-			else
-				# clear matched data on non-match
-				__todo.scan.file.clear;
-			fi
+			__todo.line;
 	done < "$file";
+	# process last line
+	if [ -n "$line" ]; then __todo.line; fi
 	
 	# clean inner method definitions
-	method.remove __todo.scan.file.reset __todo.scan.file.add __todo.scan.file.clear;
+	method.remove __todo.scan.file.add;
+}
+
+# process a line in the file
+function __todo.line {
+	: $((lineno++));	
+	# test for tag matches
+	if __todo.line.matches? "$line"; then
+		__todo.output;
+	fi
 }
 
 # log output
 function __todo.log {
 	if ! $silent; then
-		console.log "$@";	
+		console.log "$@";
 	fi
 }
 
@@ -591,10 +551,10 @@ function __todo.output {
 	local countkey="${tag,,}";
 	: $(( count["$countkey"]++ ));
 	if ! $silent; then
-		if [ "$tag" == "BUG" ] || [ "$tag" == "FIXME" ]; then
+		if [ "$tag" == "BUG" ] || [ "$tag" == "FIXME" ]; then		
 			echo "# $tag $frame" >&2;
 			echo "$todo" >&2;
-		else
+		else		
 			console.log "# %s %s" "$tag" "$frame";
 			console.log "$todo";
 		fi
