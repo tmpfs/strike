@@ -14,7 +14,7 @@ A proxy for the rake(1) executable, allows rake tasks to be intermingled with ba
 
 In your tasks(7) file `require` the `rake` task(s) using:
 
-	require 'tasks/rake';
+	require 'tasks/ext/build/rake';
 
 ## USAGE
 

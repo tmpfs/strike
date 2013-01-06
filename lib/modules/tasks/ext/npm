@@ -1,7 +1,7 @@
-require 'json';
+require.once 'json';
 
-function tasks.npm.package.print {
-	local descriptor="${process_dirs[root]}/package.json";
+function tasks.npm.print {
+	local descriptor="${root}/package.json";
 	
 	# parse the json package descriptor
 	json.parse < "$descriptor";
