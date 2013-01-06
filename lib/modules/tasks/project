@@ -102,6 +102,9 @@ function tasks.project {
 	# parsed project information
 	declare -A prj_doc;
 	
+	# a map of project names to paths
+	declare -A projects;
+	
 	# do command procesing via delegation
 	if [ $# -gt 0 ]; then
 		local method="prj.${FUNCNAME}.${1}";
@@ -211,14 +214,13 @@ function prj.tasks.project.add {
 }
 
 function prj.tasks.project.count {
+	if [ ! -f "$prjfile" ]; then
+		__project.file.missing.info;
+		__project.file.missing.quit;
+	fi	
 	__project.file.read;
-	local prj_num=0;
-	for k in ${!prj_doc[@]}
-		do
-			echo "got prj_doc key : $k";
-	done
-	# 
-	console.log "$prj_num";
+	__project.list;
+	console.log "${#projects[@]}";
 	console.success;
 }
 
@@ -236,20 +238,7 @@ function prj.tasks.project.ls {
 		__project.file.missing.quit;
 	fi
 	__project.file.read;
-	local k v;
-	local re="^projects\.$project_id_regexp"
-	for k in ${!prj_doc[@]}
-		do
-			if [ "$k" == "generator" ]; then
-				continue;
-			fi
-			if [[ "$k" =~ ^projects.[^.]+\.path ]]; then
-				v="${prj_doc[$k]}";
-				k="${k#projects.}";
-				k="${k%.path}";
-				console.log "$k $v";
-			fi
-	done
+	__project.list true;
 }
 
 ######################################################################
@@ -257,6 +246,24 @@ function prj.tasks.project.ls {
 #	PRIVATE METHODS
 #
 ######################################################################
+
+# propagate the mapping between project id's and paths
+function __project.list {
+	local print="${1:-false}";
+	local k v;
+	for k in ${!prj_doc[@]}
+		do
+			if [[ "$k" =~ ^projects\. ]]; then
+				v="${prj_doc[$k]}";
+				k="${k%.*}";
+				k="${k#*.}";
+				projects["$k"]="$v";
+				if $print; then
+					console.log "$k $v";
+				fi
+			fi
+	done
+}
 
 # determine if a project exists
 function __project.exists? {

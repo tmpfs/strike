@@ -98,6 +98,9 @@ function test.project {
 	local projects=( $( tasks.project ls ) );
 	assert.equal "${test_project_name}" "${projects[0]}";
 	assert.equal "${test_project_path}" "${projects[1]}";
+
+	local count=$( tasks.project count );
+	assert.eq "1" "${count}";
 	
 	# clean up so subsequent test runs will succeed
 	{ rm "${projectfile}" && console.info "removed project file %s" "$projectfile"; };
