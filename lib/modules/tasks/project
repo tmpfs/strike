@@ -19,7 +19,7 @@ In your tasks(7) file `require` the `project` task(s) using:
 ## USAGE
 
 	bake project init
-	bake project add id path|url [url]
+	bake project add id path|url [url...]
 	bake project ls
 	bake project count
 	bake project rm id
@@ -43,6 +43,10 @@ In your tasks(7) file `require` the `project` task(s) using:
 * `count`:
 
 	Count the number of projects. The output of this command is an integer corresponding to the number of projects in the projects file.
+	
+* `print`:
+
+	Print the raw JSON information.
 	
 * `rm`:
 
@@ -120,6 +124,8 @@ function prj.tasks.project.add {
 		prj.tasks.project.init;
 	fi
 	
+	# TODO: ensure the id is unique
+	
 	# now read in any existing information
 	__project.file.read;
 	for k in ${!prj_doc[@]}
@@ -138,6 +144,14 @@ function prj.tasks.project.count {
 	# 
 	console.log "$prj_num";
 	console.success;
+}
+
+function prj.tasks.project.print {
+	if [ ! -f "$prjfile" ]; then
+		__project.file.missing.info;
+		__project.file.missing.quit;
+	fi
+	cat "$prjfile";
 }
 
 function prj.tasks.project.ls {
