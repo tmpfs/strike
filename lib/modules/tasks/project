@@ -32,9 +32,11 @@ In your tasks(7) file `require` the `project` task(s) using:
 	
 * `add`:
 
-	Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url. The third option to `add` is a related URL for the project.
+	Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url. Subsequent options to `add` are related URLs for the project.
 	
 	This command will create a projects file if it does not exist.
+	
+	If the path specified is a filesystem path then it must point to a valid directory.
 	
 * `ls`:
 
@@ -72,6 +74,7 @@ ronn:markdown
 require.once 'json';
 
 declare -g project_id_regexp="^[-a-zA-Z0-9]+$";
+declare -g project_path_regexp="^([a-zA-Z]+://|/|\./|\.\./)";
 declare -g project_remote_regexp="^[a-zA-Z]+://";
 
 function tasks.project {
@@ -80,6 +83,9 @@ function tasks.project {
 	
 	# a project identifier
 	local prj_id;
+	
+	# the main path or url for the project
+	local prj_path;
 	
 	# parsed project information
 	declare -A prj_doc;
@@ -117,21 +123,58 @@ function prj.tasks.project.add {
 	
 	# get the id
 	prj_id="${1:-}";
+	shift;
 	__project.id.validate;
+	
+	prj_path="${1:-}";
+	shift;
+	__project.path.validate;
+	
+	# related URLs
+	declare -a urls;
+	urls=();
+	while [ $# -gt 0 ];
+		do
+			urls+=( "${1:-}" );
+			shift;
+	done
 	
 	# initialize a project file if it doesn't exist
 	if [ ! -f "$prjfile" ]; then
 		prj.tasks.project.init;
 	fi
 	
-	# TODO: ensure the id is unique
+	if ! __project.path.remote?; then
+		if [ ! -d "$prj_path" ]; then
+			quit 1 "project path %s must be a directory" "$prj_path";
+		fi
+	fi
+	
+	# TODO: convert relative paths to absolute ???
 	
 	# now read in any existing information
 	__project.file.read;
+	
+	# TODO: ensure the id is unique	
+	for k in ${!prj_doc[@]}
+		do
+			#echo "got prj_doc key : $k";
+			break;
+	done
+	
+	# TODO: gather existing project length
+	local len=0;
+	
+	prj_doc["projects.${len}.id"]="$prj_id";
+	prj_doc["projects.${len}.path"]="$prj_path";
+	
 	for k in ${!prj_doc[@]}
 		do
 			echo "got prj_doc key : $k";
-	done
+	done	
+	
+	json.stringify <<< "prj_doc";
+	# json.string;
 }
 
 function prj.tasks.project.count {
@@ -179,10 +222,26 @@ function prj.tasks.project.ls {
 #
 ######################################################################
 
+# validate a project identifier
 function __project.id.validate {
 	if [[ ! "$prj_id" =~ $project_id_regexp ]]; then
 		console.quit 1 "invalid project identifier %s, mush match %s" "$prj_id" "$project_id_regexp";
 	fi
+}
+
+# validate a project path
+function __project.path.validate {
+	if [[ ! "$prj_path" =~ $project_path_regexp ]]; then
+		console.quit 1 "invalid project path %s, mush match %s" "$prj_path" "$project_path_regexp";
+	fi
+}
+
+# determine if a path is a remote path
+function __project.path.remote? {
+	if [[ "$prj_path" =~ $project_remote_regexp ]]; then
+		return 0;
+	fi
+	return 1;
 }
 
 # retrieve the path to the projects file
