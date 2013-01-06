@@ -131,7 +131,9 @@ function tasks.doc.pages.push {
 	
 	# __man_copy;
 	
-	$git stash;
+	# $git stash;
+	
+	#$git status; echo $?;
 	
 	# check out the gh-pages branch
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
@@ -151,7 +153,8 @@ function tasks.doc.pages.push {
 	
 	# switch back to the develop branch
 	$git checkout develop;
-	$git stash apply;
+	
+	# $git stash apply;
 }
 
 # compiles generated .ronn files to markdown and html
