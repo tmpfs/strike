@@ -1,0 +1,91 @@
+#! /usr/bin/env bash
+
+set -o errtrace;
+set -o errexit;
+set -o nounset;
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+console_print_program_prefix="off";
+declare -gx exedir;
+function boilerplate {
+	local src="${BASH_SOURCE[0]}"
+	exedir="$( dirname "$src" )"
+	while [ -h "$src" ]
+		do 
+			src="$(readlink "$src")";
+			[[ $src != /* ]] && src="$exedir/$src";
+			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+	done
+	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+	unset src;
+	source "$exedir/../../../lib/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+process.use strict;
+
+require 'assert';
+require.once 'tasks/project';
+
+# tests for task-project(7)
+function test.project {
+	
+	# mimic running from bake(1)
+	# and switch the `root` to `target`
+	# so we don't conflict with any projects.json
+	# file for this project
+	local target="${library_dirs[root]}/target";
+	local root="${target}";
+	local tasks="tasks";
+	local projectfile="${target}/projects.json";
+	
+	if [ ! -d "${target}" ]; then
+		mkdir -p "${target}" || quit 1 "could not create target directory %s" "${target}";
+	fi
+	
+	# potentially hanging around from a previous failure
+	# clean up to give us the best chance of success
+	if [ -f "${projectfile}" ]; then
+		rm "${projectfile}" || quit 1 "could not remove %s" "${projectfile}";
+	fi
+	
+	declare -A json_expected;
+	json_expected[init]=$( < "$exedir/init.json" );
+	
+	# last exit code
+	local code=1;
+	
+	# dummy project in `target`
+	local test_project_dir="${target}/test/test-project";
+	
+	# switch off errexit for these tests
+	set +o errexit;
+	
+	# initialize an empty projects.json file
+	tasks.project init &
+	wait %%;
+	assert.eq "0" "$?";
+	assert.file.exists? "${projectfile}";
+	
+	# verify file contents
+	local contents=$( tasks.project print );
+	assert.equal "${json_expected[init]}" "$contents";
+	
+	# create the test project
+	mkdir -p "${test_project_dir}";
+	
+	tasks.project add "test-project" "${test_project_dir}" &
+	wait %%;
+	assert.eq "0" "$?";
+	
+	# clean up so subsequent test runs will succeed
+	rm "${projectfile}" && { console.info "removed project file %s" "$projectfile"; };
+}
+
+test.project;
+exit 0;

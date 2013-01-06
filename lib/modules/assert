@@ -190,7 +190,8 @@ function __assert_err {
 		console.error "${@:2}";
 	fi
 	
-	if [ "${#failures[@]}" ]; then
+	# FIXME: correct this test for the presence of the failures list?
+	if [ "${!failures[@]}" ]; then
 		failures["${frame}:${method}"]="$assertion";
 	fi
 	

@@ -321,6 +321,10 @@ function __json_stringify_object {
 				if [[ "$key" =~ \. ]]; then
 					# FIXME: handle arrays of objects !!!
 					k=${key%%.*};
+					
+					# sane bash compatible variable name
+					k=${k//-/_};
+					
 					eval "declare -A $k";
 					match="^$k";
 					for nk in $keys

@@ -193,7 +193,7 @@ function prj.tasks.project.add {
 	
 	prj_doc["projects.$prj_id.path"]="$prj_path";
 	
-	if [ ${#urls[@]} ]; then
+	if [ ${#urls[@]} -gt 0 ]; then
 		local url i=0;
 		for url in ${urls[@]}
 			do
