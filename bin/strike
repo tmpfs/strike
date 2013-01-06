@@ -89,7 +89,7 @@ require 'help';
 help.man.page "default" "strike.1";
 help.parse "$@";
 
-require 'tasks/npm';
+require 'tasks/ext/npm';
 
 function strike.info {
 	system.print;

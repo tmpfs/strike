@@ -1,0 +1,22 @@
+
+
+function tasks.project {
+	echo "project task called ... "
+	
+	# do command procesing via delegation
+	if [ $# -gt 0 ]; then
+		local method="prj.${FUNCNAME}.${1}";
+		if ! method.exists? "$method"; then
+			console.quit 1 "invalid project command %s" "$1";
+		else
+			delegate "prj.${FUNCNAME}" "$1" ${@:2};
+		fi
+	else
+		# no options specified list projects
+		prj.tasks.project.list;
+	fi
+}
+
+function prj.tasks.project.list {
+	echo "project list ... ";
+}

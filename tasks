@@ -1,4 +1,6 @@
+require 'tasks/todo';
+require 'tasks/project';
+
 require 'tasks/ext/build/rake';
 require 'tasks/ext/build/ant';
 require 'tasks/ext/npm';
-require 'tasks/todo';

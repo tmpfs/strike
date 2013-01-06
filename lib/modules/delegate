@@ -73,30 +73,18 @@ function delegate {
 	shift;
 	local method=${1:-};
 	shift;
-	local options=();
 	
-	if [ $# -gt 0 ]; then
-		options=( "$@" );
-	fi
-	
-	# echo "delegate got options length: ${#options[@]}";
+	# echo "delegate got options length: $#";
 	
 	#TODO: test whether the delegate method exists
 	
 	if [ ! -z "$method" ]; then
 		#straight method call
 		if [ -z "$module" ]; then
-			
-			# FIXME: don't switch off unset when invoking the delegate method
-			
-			set +o nounset;
-			"${method}" "${options[@]}";
-			set -o nounset;
+			"${method}" "$@";
 		#method call in module
 		else
-			set +o nounset;
-			"${module}${delimiter}${method}" "${options[@]}";
-			set -o nounset;
+			"${module}${delimiter}${method}" "$@";
 		fi
 	fi
 }
