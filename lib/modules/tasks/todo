@@ -519,15 +519,57 @@ function __todo.scan.file {
 	local lineno=0;
 	local tag frame todo;
 	
+	# linked list style to maintain order
+	declare -a matchindex;
+	declare -A filematches;
+	__todo.scan.file.add()
+	{
+		local key="${tag}:${frame}";
+		filematches["$key"]="${todo}";
+		matchindex+=( "$key" );
+	}
+	
 	while IFS= read -r line
 		do	
 			__todo.line;
 	done < "$file";
 	# process last line
 	if [ -n "$line" ]; then __todo.line; fi
+		
+	# got some matches print them
+	if [ ${#filematches[@]} -gt 0 ]; then
+		__todo.print;
+	fi
 	
 	# clean inner method definitions
 	method.remove __todo.scan.file.add;
+}
+
+#print matches
+function __todo.print {
+	local k matches last_lineno=0;
+	local len=$(( ${#filematches[@]} - 1 ));
+	for k in ${matchindex[@]}
+		do
+			#echo "got key : $k";
+			local IFS=":";
+			matches=( $k );
+			unset IFS;
+			tag="${matches[0]}";	
+			lineno="${matches[1]}";
+			frame="${matches[2]}";
+			# 
+			todo="${filematches[$k]}";
+			
+			#echo "got todo: $todo"
+		
+			# if [ $i -lt $len ]; then
+			# 	#echo "check for next match ... ";
+			# fi
+			echo "got match: $i : $tag : $lineno : $frame";
+			
+			last_lineno=$lineno;
+	done
 }
 
 # process a line in the file
@@ -535,7 +577,13 @@ function __todo.line {
 	: $((lineno++));	
 	# test for tag matches
 	if __todo.line.matches? "$line"; then
+		# add the match
+		#__todo.scan.file.add;
+		
 		__todo.output;
+		
+		# increment counters
+		__todo.increment;
 	fi
 }
 
@@ -546,10 +594,14 @@ function __todo.log {
 	fi
 }
 
+function __todo.increment {
+	local countkey="${tag,,}";
+	: $(( count["$countkey"]++ ));	
+}
+
 # output todo tag information
 function __todo.output {
-	local countkey="${tag,,}";
-	: $(( count["$countkey"]++ ));
+	#echo "incrementing count on tag: $tag";
 	if ! $silent; then
 		if [ "$tag" == "BUG" ] || [ "$tag" == "FIXME" ]; then		
 			echo "# $tag $frame" >&2;
