@@ -90,6 +90,10 @@ function json.stringify {
 		if [ -n "$value" ]; then
 			__json.stringify.value "$value";
 			json="$_result";
+			
+	
+			echo "got result after evaluation : '''$json'''";
+			
 		# the empty string should be ""
 		else
 			json="\"\"";
@@ -139,7 +143,7 @@ function __json.stringify.object {
 	local json_data="$1";
 	eval keys="\${!$json_data[@]}";
 	
-	echo "__json.stringify.object: ${keys}";
+	#echo "__json.stringify.object: ${keys}";
 	
 	# if all keys are numeric, treat as an array
 	if [[ "$keys" =~ ^([0-9]+ ?)+$ ]]; then
@@ -248,7 +252,7 @@ function __json.add.key.value {
 function __json.stringify.quote {
 	local val="${1:-}";
 	# escape quotes in the value being quoted
-	val="${val//\"/\\\\\"}";
+	val="${val//\"/\\\"}";
 	# quoted string
 	_result="\"$val\"";
 }
@@ -264,10 +268,23 @@ function __json.stringify.value {
 		# grep -v -F "$data_line" "$data_dir"
 		
 		local jsonval="$1";
+		
+		# echo "jsonval: '''$jsonval'''";
+		# 
+		# if [[ "$jsonval" =~ \\n ]]; then
+		# 	echo "value has escaped newline!!: $jsonval";
+		# else
+		# 	jsonval=${jsonval//$newline/'\''\n'};			
+		# fi
+		
 		#if [[ "$jsonval" =~ $newline ]] ; then
-			jsonval=${jsonval//$newline/'\''\n'};
+			#jsonval=${jsonval//'\n'/'$newline};	
+
 			#echo "value contains newline: $jsonval";
 		#fi
+		
+		jsonval=${jsonval//$newline/'\n'};
+		
 		__json.stringify.quote "$jsonval";
 	fi
 }

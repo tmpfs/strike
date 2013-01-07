@@ -84,5 +84,7 @@ function json.string {
 	# NOTE: do not use console.log
 	# NOTE: as it calls printf which changes quoting
 	# NOTE: and escape sequences
-	echo -ne "${json_str:-}";
+	# NOTE: additionally do NOT specift the -e option
+	# NOTE: to echo, otherwise quoting will not work
+	echo -n "${json_str:-}";
 }
