@@ -1,3 +1,6 @@
+# SEE: http://tools.ietf.org/html/rfc4627.html
+# SEE: http://www.ecma-international.org/ecma-262/5.1/#sec-15.12.1
+
 # test(s) to verify the test suite from: http://json.org/JSON_checker/
 function test.json.checker.testsuite {
 	local jsoncheck="${target}/jsoncheck";
@@ -29,23 +32,25 @@ function test.json.checker.testsuite {
 				assert.ne "0" "$?";
 		done
 		
+		# FIXME: remove valid/invalid directories and tests, based on JSON.sh tests
+		
 		# JSON.SH TEST SUITE
 		
-		# valid
-		for f in test/json/valid/*.json
-			do
-				# make path absolute
-				f="${root}/$f";
-				echo "testing $f" >&2;
-				"${jsoncheck}" < "$f";
-				assert.eq "0" "$?";
-		done
-		# invalid
-		for f in test/json/invalid/*.json
-			do
-				f="${root}/$f";
-				"${jsoncheck}" < "$f" 2> /dev/null;
-				assert.ne "0" "$?";
-		done		
+		# # valid
+		# for f in test/json/valid/*.json
+		# 	do
+		# 		# make path absolute
+		# 		f="${root}/$f";
+		# 		echo "testing $f" >&2;
+		# 		"${jsoncheck}" < "$f";
+		# 		assert.eq "0" "$?";
+		# done
+		# # invalid
+		# for f in test/json/invalid/*.json
+		# 	do
+		# 		f="${root}/$f";
+		# 		"${jsoncheck}" < "$f" 2> /dev/null;
+		# 		assert.ne "0" "$?";
+		# done		
 	fi
 }
