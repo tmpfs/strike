@@ -7,7 +7,7 @@ declare -ag json_invalid_numbers;
 json_invalid_numbers=( "3." "-3." "-3.e" "3a" "b3" ".14" ".14e+10" ".14-10" );
 
 declare -ag json_valid_strings;
-json_valid_strings=( "value" 'a "quoted" value' );
+json_valid_strings=( "value" 'a "quoted" value' "that can't be so" );
 
 # test(s) for encoding set and unset variables
 function test.json.stringify.basic {
@@ -184,7 +184,17 @@ function test.json.stringify.number.match {
 # test(s) for encoding strings
 function test.json.stringify.string {
 	local result expected str;
-	for str in "${json_valid_strings[@]}"
+	
+	local newline="
+";
+	
+	local valid=( "${json_valid_strings[@]}" );
+	
+	# test multiline values
+	valid+=( "a multi${newline}line${newline}${newline} string" );
+	
+	# loop must be quoted to preserve spaced in array entries
+	for str in "${valid[@]}"
 		do
 			# echo "testing str: $str";
 			
@@ -195,6 +205,11 @@ function test.json.stringify.string {
 			# to be escaped
 			if [[ "$expected" =~ \" ]]; then
 				expected="${expected//\"/\\\"}";
+			fi
+			
+			if [[ "$expected" =~ $newline ]]; then
+				# expected="${expected//\"/\\\"}";	
+				expected=${expected//$newline/'\n'};
 			fi
 			
 			# we always expect overall quotes surrounding the value
