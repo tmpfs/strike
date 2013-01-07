@@ -10,7 +10,7 @@ function json.parse {
 	json.parse.clean;
 	
 	local key value;
-	local root_type;
+	##local root_type;
 	
 	# run the process subsititution in this manner
 	# to block until the parsing is complete
@@ -29,11 +29,11 @@ function json.parse {
 					value=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$value" );
 					key=${key##json_};
 					
-					if [ "$key" == "root_type" ]; then
-						
-						root_type="$value";
-						continue;
-					fi
+					# if [ "$key" == "root_type" ]; then
+					# 	
+					# 	root_type="$value";
+					# 	continue;
+					# fi
 					
 					#echo "got root type: $root_type";
 					
@@ -94,16 +94,16 @@ function __json.start {
 	
 	##echo "got root token: $token" >&2;
 	
-	local json_root_type="object";
-	
-	if [ "$token" == "[" ]; then
-		json_root_type="array";
-	elif [[ "$token" =~ ^[0-9]+$ ]]; then
-		## echo "setting number root type!!!: $token" >&2;
-		json_root_type="number";
-	fi
-	
-	echo "json_root_type=\"$json_root_type\"";
+	# local json_root_type="object";
+	# 
+	# if [ "$token" == "[" ]; then
+	# 	json_root_type="array";
+	# elif [[ "$token" =~ ^[0-9]+$ ]]; then
+	# 	## echo "setting number root type!!!: $token" >&2;
+	# 	json_root_type="number";
+	# fi
+	# 
+	# echo "json_root_type=\"$json_root_type\"";
 	
 	__json.parse.value;
 	read -r token
