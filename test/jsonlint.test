@@ -20,7 +20,7 @@ function test.json.jsonlint {
 		for f in test/json/invalid/*.json
 			do
 				f="${root}/$f";
-				"${executables[jsonlint]}" "$f";
+				"${executables[jsonlint]}" --compact "$f";
 				assert.ne "0" "$?";
 		done
 	fi
