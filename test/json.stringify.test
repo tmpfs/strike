@@ -1,6 +1,8 @@
 # attempts to stringify set and unset variables
 function test.stringify.invalid {
 	
+	local result;
+	
 	# test that an unset variable is detected
 	json.stringify <<< "missing_doc";
 	assert.eq "1" "$?";
@@ -14,12 +16,16 @@ function test.stringify.invalid {
 	declare -a myarray;
 	myarray=( 1 2 3 );
 	json.stringify <<< "myarray";
-	assert.eq "0" "$?";
+	assert.eq "0" "$?";	
+	result=$( json.string );
+	assert.equal "[1,2,3]" "$result";
 	
 	# test that a declared but unset array converts to []
 	declare -a mynewarray;
 	json.stringify <<< "mynewarray";
 	assert.eq "0" "$?";
+	result=$( json.string );
+	assert.equal "[]" "$result";
 	
 	# test that a set local array is valid
 	local localarr=( 1 2 3 );

@@ -4,10 +4,11 @@ declare -gx json_str;
 # regexp for number matching
 declare -g json_number_regexp="^-?[0-9]+((\.[0-9]+)?([eE][-+]?[0-9]+)?)?$";
 
-######################################################################
-
-# TODO: add error handling for this method
 function json.stringify {
+	
+	# clean up from last call
+	json.stringify.clean;
+	
 	local json="";
 	
 	local objstart="{";
@@ -52,7 +53,7 @@ function json.stringify {
 		return 1;
 	fi
 	
-	echo "testing existence of ${1:-}";
+	#echo "testing existence of ${1:-}";
 	
 	$( array.is.array? "$json_data" );
 	local isarr=$?;
@@ -75,23 +76,36 @@ function json.stringify {
 	fi
 	
 	local value;
-	if array.is.array? "$json_data" || array.is.assoc? "$json_data"; then
+	
+	# variable is a plain array
+	if [ $isarr -eq 0 ] && [ $isassoc -eq 1 ]; then
+		echo "handling array ... "
+		__json.stringify.array "$json_data";
+	# variable is an associative array, treat as a complex object
+	elif [ $isarr -eq 1 ] && [ $isassoc -eq 0 ]; then 
 		__json.stringify.object "$json_data";
+	# plain variable value
 	else
 		variable.get "$json_data";
 		value="$_result";
-		if [ ! -z "$value" ]; then
+		# variable has some sort of value
+		if [ -n "$value" ]; then
 			__json.stringify.value "$value";
 			json="$_result";
+		# the empty string should be ""
 		else
-			json="{}";
+			json="\"\"";
 		fi
 	fi
-		
 	if [ ! -z "$json" ]; then
 		json_str="$json";
 	fi
 	return 0;
+}
+
+# clean global variable(s)
+function json.stringify.clean {
+	unset json_str;
 }
 
 ######################################################################

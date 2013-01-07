@@ -61,7 +61,6 @@ function json.parse.clean {
 		do
 			unset json_doc["$key"];
 	done
-	unset json_str;
 }
 
 ######################################################################

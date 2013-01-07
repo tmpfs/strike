@@ -60,9 +60,11 @@ ronn:markdown
 require.once json.parse;
 require.once json.stringify;
 
-# cleans all parsed json data
+# cleans all global data set by
+# json.parse and json.stringify
 function json.clean {
 	json.parse.clean;
+	json.stringify.clean;
 }
 
 # prints key/value pairs from the last call
