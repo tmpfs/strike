@@ -243,7 +243,7 @@ function test.json.stringify.object {
 	declare -A doc;
 	doc[key]="a key value";
 	json.stringify <<< "doc";
-	local received="$json_str";
+	local received=$( json.string );
 	assert.equal '{"key":"a key value"}' "$received";
 }
 
@@ -253,7 +253,7 @@ function test.json.stringify.object.dash {
 	declare -A doc;
 	doc["-key"]="-value";
 	json.stringify <<< "doc";
-	local received="$json_str";
+	local received=$( json.string );
 	assert.equal '{"-key":"-value"}' "$received";
 }
 
@@ -264,7 +264,7 @@ function test.json.stringify.object.keys {
 	doc[key2]="the second value";
 	json.stringify <<< "doc";
 	#json.string;
-	local received="$json_str";
+	local received=$( json.string );
 	# key iterartion order appears to always be in reverse order
 	# this test will fail if that behaviour changes
 	assert.equal '{"key2":"the second value","key1":"the first value"}' "$received";
@@ -275,9 +275,19 @@ function test.json.stringify.array {
 	declare -a doc;
 	doc=( 127 null true false "a string value" );
 	json.stringify <<< "doc";
-	local received="$json_str";
+	local received=$( json.string );
 	assert.equal '[127,null,true,false,"a string value"]' "$received";
 }
+
+# test for encoding an array or objects
+function test.json.stringify.array {
+	declare -a doc;
+	doc=( 127 null true false "a string value" );
+	json.stringify <<< "doc";
+	local received=$( json.string );
+	assert.equal '[127,null,true,false,"a string value"]' "$received";
+}
+
 
 # PRETTY PRINT
 
@@ -291,7 +301,8 @@ function test.json.stringify.array.pretty.space {
 
 	local file="${testdir}/json/pretty/array.json";
 	local expected=$( < "$file" );
-	assert.equal "$expected" "$json_str";
+	local received=$( json.string );	
+	assert.equal "$expected" "$received";
 }
 
 # test for pretty printing an array using a single tab
@@ -304,7 +315,8 @@ function test.json.stringify.array.pretty.tab {
 
 	local file="${testdir}/json/pretty/array.tab.json";
 	local expected=$( < "$file" );
-	assert.equal "$expected" "$json_str";
+	local received=$( json.string );	
+	assert.equal "$expected" "$received";
 }
 
 # test for encoding an object and pretty printing using two spaces
@@ -318,7 +330,8 @@ function test.json.stringify.object.pretty.space {
 	
 	local file="${testdir}/json/pretty/object.json";
 	local expected=$( < "$file" );
-	assert.equal "$expected" "$json_str";
+	local received=$( json.string );	
+	assert.equal "$expected" "$received";
 }
 
 # test for encoding an object and pretty printing using a single tab
@@ -332,5 +345,6 @@ function test.json.stringify.object.pretty.tab {
 	
 	local file="${testdir}/json/pretty/object.tab.json";
 	local expected=$( < "$file" );
-	assert.equal "$expected" "$json_str";
+	local received=$( json.string );	
+	assert.equal "$expected" "$received";
 }
