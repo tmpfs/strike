@@ -234,7 +234,7 @@ function __json.stringify.object {
 	# with an integer value, in which case it is
 	# treated as an object
 	local arr=true;
-	for key in ${keys[@]}
+	for key in "${keys[@]}"
 		do
 			if [[ ! "$key" =~ ^[0-9]+(\.[a-zA-Z0-9])? ]]; then
 				arr=false;
@@ -263,7 +263,7 @@ function __json.stringify.object {
 	fi
 	
 	# deal with top-level properties of this object
-	for key in ${keys[@]}
+	for key in "${keys[@]}"
 		do
 			# not a nested property
 			if [[ ! "$key" =~ \. ]]; then
@@ -274,7 +274,7 @@ function __json.stringify.object {
 	
 	# deal with nested properties
 	local k match nk nv ak nestedkey;	
-	for key in ${keys[@]}
+	for key in "${keys[@]}"
 		do
 			
 			# echo "handling key: $key";
@@ -294,7 +294,7 @@ function __json.stringify.object {
 				
 				eval "declare -A $nestedkey";
 				match="^$k";
-				for nk in ${keys[@]}
+				for nk in "${keys[@]}"
 					do
 						if [[ "$nk" =~ $match ]]; then
 							eval nv="\${$json_data[$nk]}";
