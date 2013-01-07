@@ -64,6 +64,7 @@ function assert.gt {
 	if [ "$received" -gt "$expected" ]; then
 		__assert_ok "$FUNCNAME";
 	else		
+		expected=">$expected";
 		__assert_err "$FUNCNAME";
 	fi
 }
@@ -76,6 +77,7 @@ function assert.lt {
 	if [ "$received" -lt "$expected" ]; then
 		__assert_ok "$FUNCNAME";
 	else
+		expected="<$expected";
 		__assert_err "$FUNCNAME";
 	fi
 }
@@ -88,6 +90,7 @@ function assert.eq {
 	if [ "$received" -eq "$expected" ]; then
 		__assert_ok "$FUNCNAME";
 	else
+		expected="==$expected";
 		__assert_err "$FUNCNAME";
 	fi
 }
@@ -100,6 +103,7 @@ function assert.ne {
 	if [ "$received" -ne "$expected" ]; then
 		__assert_ok "$FUNCNAME";
 	else
+		expected="!=$expected";
 		__assert_err "$FUNCNAME";
 	fi
 }

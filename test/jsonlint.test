@@ -9,7 +9,7 @@ function test.json.jsonlint {
 	if [ -n "${executables[jsonlint]}" ]; then
 		local f;
 		# valid
-		for f in test/json/valid/*.json
+		for f in test/json/json-checker/pass*
 			do
 				# make path absolute
 				f="${root}/$f";
@@ -17,9 +17,10 @@ function test.json.jsonlint {
 				assert.eq "0" "$?";
 		done
 		# invalid
-		for f in test/json/invalid/*.json
+		for f in test/json/json-checker/fail*
 			do
 				f="${root}/$f";
+				echo "tseting: $f";
 				"${executables[jsonlint]}" --compact "$f";
 				assert.ne "0" "$?";
 		done
