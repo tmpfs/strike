@@ -234,3 +234,45 @@ function test.json.stringify.string {
 			assert.equal "$expected" "$result";
 	done
 }
+
+# PRETTY PRINT
+
+# test for pretty printing an array using two spaces
+function test.json.stringify.array.pretty.space {
+	declare -a doc;
+	doc=( 127 null true false "a string value" );
+	
+	# pretty print with 2 spaces for the indent	
+	json.stringify --pretty 2 <<< "doc";
+
+	local file="${testdir}/json/pretty/array.json";
+	local expected=$( < "$file" );
+	assert.equal "$expected" "$json_str";
+}
+
+# test for pretty printing an array using a single tab
+function test.json.stringify.array.pretty.tab {
+	declare -a doc;
+	doc=( 127 null true false "a string value" );
+	
+	# pretty print with 2 spaces for the indent	
+	json.stringify --pretty 1 '	' <<< "doc";			#third parameter is actually: \t
+
+	local file="${testdir}/json/pretty/array.tab.json";
+	local expected=$( < "$file" );
+	assert.equal "$expected" "$json_str";
+}
+
+# test for encoding an object and pretty printing using two spaces
+function test.json.stringify.object.pretty.space {
+	declare -A doc;
+	doc[key1]="the first value";
+	doc[key2]="the second value";
+	
+	# pretty print with 2 spaces for the indent
+	json.stringify --pretty 2 <<< "doc";
+	
+	local file="${testdir}/json/pretty/object.json";
+	local expected=$( < "$file" );
+	assert.equal "$expected" "$json_str";
+}
