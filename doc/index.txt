@@ -29,6 +29,7 @@ sed(1)			http://man.cx/sed(1)
 ant(1)			http://ant.apache.org/
 mvn(1)			http://maven.apache.org/
 make(1)			http://www.gnu.org/software/make/
+jsonlint(1)		https://github.com/zaach/jsonlint
 
 printf(1)		http://man.cx/printf(1)
 source(1)		http://man.cx/source(1)
