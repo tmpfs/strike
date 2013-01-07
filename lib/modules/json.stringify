@@ -139,27 +139,19 @@ function __json.stringify.array {
 ";
 	local lines="${keys[@]}"
 	unset IFS;
-	keys=$( echo "$lines" | sort -k1,1n );
-	
-	# echo "8,56,15,37,21" | tr ',' '\n' | sort -k1,1n | paste -s -d',' - 
-	
-	#echo "got sorted keys: $keys";
-	
-	#keys=$( echo "$keys" | rev );
-	
-	# for (( idx=${#MYARRAY[@]}-1 ; idx>=0 ; idx-- )) ; do
-	#     echo ${MYARRAY[idx]}
-	# done	
+	keys=( $( echo "$lines" | sort -k1,1n ) );
 	
 	# variables for nested matches
 	local k match nk nv ak nestedkey nlen;
 	
+	local index=0;
 	# deal with direct entries
-	for key in $keys
+	for key in ${keys[@]}
 		do
+			echo "processing array key: $key";
 			# direct array property
 			if [[ ! "$key" =~ \. ]]; then	
-				echo "array entry key: $key";
+				#echo "array entry key: $key";
 				eval value="\${$json_data[$key]}";
 				# encode the value
 				__json.stringify.value "$value";
@@ -167,8 +159,9 @@ function __json.stringify.array {
 				if [ $pretty -eq 1 ]; then
 					json="${json}${newline}";
 				fi
+				unset keys[$index];
+				echo "keys after unset: ${keys[@]}";
 			else
-				echo "got nested entry on key: $key";
 				k=${key%%.*};
 				# key would be a number and
 				# therefore would create an error so prefix 
@@ -176,24 +169,33 @@ function __json.stringify.array {
 				nestedkey="_$k";
 				eval "declare -A $nestedkey";
 				match="^$k";
-				for nk in $keys
+				#echo "got nested entry on key: $key : nested key is: $nestedkey : match is $match";
+				local ni=0;
+				for nk in ${keys[@]}
 					do
 						if [[ "$nk" =~ $match ]]; then
 							eval nv="\${$json_data[$nk]}";
 							ak=${nk#*.};
 							eval "${nestedkey}[\"$ak\"]=\"$nv\"";
-							echo "adding nested key: $ak : $nv";
+							#echo "adding nested key: $ak : $nv";
+							unset keys["$ni"];
 						fi
+						: $((ni++));
 				done
 				eval nlen="\${#$nestedkey[@]}";
 				if [ $nlen -gt 0 ]; then
+					echo "CALLING OBJECT.STRINGIFY WITH NESTEDKEY: $nestedkey : $index";
+					
 					# treat as an object
 					__json.stringify.object "$nestedkey";
 					# add comma between array entries
 					json="${json},";
+					#unset keys["$key"];
 				fi
 			fi
+			: $((index++));
 	done
+	
 	json="${json%$newline}";
 	json="${json%,}";
 	__json.stringify.array.end;
@@ -221,7 +223,7 @@ function __json.stringify.object {
 		return 0;
 	fi
 	
-	echo "__json.stringify.object: ${keys}";
+	echo "__json.stringify.object: $1 ::: ${keys}";
 	
 	# test if any key at this level does not start
 	# with an integer value, in which case it is

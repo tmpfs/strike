@@ -287,6 +287,7 @@ function test.json.stringify.array.objects {
 	doc[1.path]="path1";
 	doc[2.id]="id2";
 	doc[2.path]="path2";
+	doc[3]="after-value";
 	json.stringify <<< "doc";
 	local received=$( json.string );
 	echo "received: $received";
