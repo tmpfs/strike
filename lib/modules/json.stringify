@@ -1,0 +1,253 @@
+# holds the last result of calling json.stringify
+declare -gx json_str;
+
+# regexp for number matching
+declare -g json_number_regexp="^-?[0-9]+((\.[0-9]+)?([eE][-+]?[0-9]+)?)?$";
+
+######################################################################
+
+# TODO: add error handling for this method
+function json.stringify {
+	local json="";
+	
+	local objstart="{";
+	local objend="}";
+	
+	local arrstart="[";
+	local arrend="]";
+	
+	local newline="
+";
+	local pretty=0;
+	local space=' ';
+	local indent="";
+	local depth=0;
+	
+	if [ $# -gt 0 ] && [ "$1" == "--pretty" ]; then
+		pretty=1;
+		local indent_repeat="${2:-2}";
+		space=${3:-$space};
+		string.repeat "${space}" "${indent_repeat}";
+		indent="$_result";
+		
+		objstart="${objstart}${newline}";
+		objend="${newline}${objend}";
+		
+		arrstart="${arrstart}${newline}";
+		arrend="${newline}${arrend}";
+	fi
+	
+	# this allows us to accept options and read from stdin
+	# with positional parameter expansion
+	if [ ! -t 0 ]; then
+		# read in stdin
+		read -a stdin;
+		# expand stdin data to positional parameters
+		set -- $( echo "${stdin[@]}" );
+	fi
+	
+	local json_data="${1:-}";
+	if [ -z "$json_data" ]; then
+		console.warn "invalid json.stringify call, usage: json.stringify <<< \"varname\"";
+		return 1;
+	fi
+	
+	#json_string="";
+	
+	if [ ! -z "$json_data" ]; then
+		local value;
+		# array.is.array? "$json_data";
+		# local isarray="$_result";
+		# array.is.assoc? "$json_data";
+		# local isassoc="$_result";
+		if array.is.array? "$json_data" || array.is.assoc? "$json_data"; then
+			__json_stringify_object "$json_data";
+		else
+			# if [ $isassoc -eq 0 ]; then
+			# 	eval length="\${#$json_data[@]}";
+			# 	if [ $length -gt 0 ]; then
+			# 		__json_stringify_object "$json_data";
+			# 	fi
+			# else
+				variable.get "$json_data";
+				value="$_result";
+				if [ ! -z "$value" ]; then
+					__json_stringify_value "$value";
+					json="$_result";
+				else
+					json="{}";
+				fi
+			# fi
+		fi
+	else
+		json="{}";
+	fi
+	if [ ! -z "$json" ]; then
+		json_str="$json";
+	fi
+}
+
+function json.string {
+	local str="${json_str:-}";
+	console.log "$str";
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __json_stringify_array {
+	json="${json}${arrstart}";
+	local json_data="$1";
+	local key value;
+	eval keys="\${!$json_data[@]}";	
+	for key in $keys
+		do
+			eval value="\${$json_data[$key]}";
+			# encode the value
+			__json_stringify_value "$value";
+			json="${json}${indent}${_result},";
+			if [ $pretty -eq 1 ]; then
+				json="${json}${newline}";
+			fi
+	done
+	json="${json%$newline}";
+	json="${json%,}";
+	json="${json}${arrend}";
+
+	# add to main output
+	#json="${json}${obj}";
+}
+
+function __json_stringify_object {
+	local json_data="$1";
+	eval keys="\${!$json_data[@]}";
+	
+	echo "__json_stringify_object: ${keys}";
+	
+	# if all keys are numeric, treat as an array
+	if [[ "$keys" =~ ^([0-9]+ ?)+$ ]]; then
+		__json_stringify_array "$json_data";
+		return 0;
+	fi
+	
+	# FIXME: implement handling of arrays of objects
+	
+	# deal with arrays of objects
+	# declare -A array;
+	# local i=0;
+	# for key in ${keys[@]}
+	# 	do
+	# 		if [[ "$key" =~ ^[0-9]+\. ]]; then
+	# 			eval value="\${$json_data[$key]}";				
+	# 			array[ "$key" ]="$value";
+	# 			echo "GOT NUMERIC ONLY KEY USING!!! : $key";
+	# 			# attempt to use array
+	# 			#__json_stringify_array "$json_data";
+	# 			unset keys[$i];
+	# 		fi
+	# 		: $((i++));
+	# done
+	# 
+	# if [ ${#array[@]} -gt 0 ]; then
+	# 	echo "array data : ${!array[@]} : ${array[@]}";
+	# fi
+	
+	# if [ ${#keys[@]} -gt 0 ]; then
+	# 	return 0;
+	# fi
+	
+	json="${json}${objstart}";
+	local key value;
+	
+	# deal with top-level properties of this object
+	for key in $keys
+		do
+			# not a nested property
+			if [[ ! "$key" =~ \. ]]; then
+				eval value="\${$json_data[$key]}";
+				__json_add_key_value "$key" "$value";
+			fi
+	done
+	
+	# deal with nested properties
+	local k match nk nv ak;	
+	for key in $keys
+		do
+			
+			echo "handling key: $key";
+			
+			# if [[ "$key" =~ ^[0-9]+\. ]]; then
+			# 	echo "GOT NUMERIC ONLY KEY USING UNDERSCORE!!! : $keys";
+			# 	#k="_$k";
+			# 	# attempt to use array
+			# 	__json_stringify_array "$json_data";
+			# else
+				# got a nested dot-style reference
+				if [[ "$key" =~ \. ]]; then
+					# FIXME: handle arrays of objects !!!
+					k=${key%%.*};
+					
+					local nestedkey="$k";
+					# sane bash compatible variable name
+					if [[ "$k" =~ [-.]+ ]]; then
+						nestedkey=${nestedkey//-/_};
+					fi
+					
+					eval "declare -A $nestedkey";
+					match="^$k";
+					for nk in $keys
+						do
+							if [[ "$nk" =~ $match ]]; then
+								eval nv="\${$json_data[$nk]}";
+								ak=${nk#*.};
+								eval "${nestedkey}[\"$ak\"]=\"$nv\"";
+							fi
+					done
+					json="${json}\"$k\":";
+					__json_stringify_object "$nestedkey";
+					json="${json}${objend}";
+					return 0;
+				fi
+			#fi
+	done
+	json="${json%$newline}";
+	json="${json%,}";
+	json="${json}${objend}";
+}
+
+function __json_add_key_value {
+	# quote the key
+	__json_stringify_quote "$1";
+	json="${json}${indent}${_result}:";
+	
+	# encode the value
+	__json_stringify_value "$2";
+	json="${json}${_result},";
+	if [ $pretty -eq 1 ]; then
+		json="${json}${newline}";
+	fi
+}
+
+function __json_stringify_quote {
+	# quoted string
+	_result="\"$1\"";
+}
+
+function __json_stringify_value {
+	_result="";
+	# unquoted value for null, true, false and numbers
+	if [ "$1" == "null" ] || [ "$1" == true ] || [ "$1" == false ] || [[ "$1" =~ $json_number_regexp ]]; then
+		_result="$1";
+	else
+		
+		# escape special regex characters using grep !?
+		# grep -v -F "$data_line" "$data_dir"
+		
+		local jsonval="$1";
+		jsonval=${jsonval//$newline/'\\\''\n'};
+		__json_stringify_quote "$jsonval";
+	fi
+}
