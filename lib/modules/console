@@ -102,6 +102,8 @@ You may also print a stack trace (without any preceeding error message) using th
 
 The number of replacement parameters must match exactly the number of `%s` occurences in the message otherwise unexpected behaviour will occur.
 
+A leading hyphen in a replacement parameter or message will cause printf to fail.
+
 **console** is written in bash and depends upon `bash` >= 4.
 
 ## COPYRIGHT
