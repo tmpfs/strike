@@ -1,0 +1,29 @@
+# test(s) to verify the test suite from: http://json.org/JSON_checker/
+function test.json.checker {
+	local jsoncheck="${target}/jsoncheck";
+	executable.validate --test gcc;
+	
+	# attempt to compile jsoncheck
+	if [ -n "${executables[gcc]}" ] && [ ! -x "${jsoncheck}" ]; then
+		tasks.json.checker.compile;
+	fi	
+	
+	# only run these tests if `jsonlint` is available
+	if [ -x "${jsoncheck}" ]; then
+		local f;
+		# valid
+		for f in test/json/json-checker/pass*
+			do
+				f="${root}/$f";
+				"${jsoncheck}" < "$f";
+				assert.eq "0" "$?";
+		done
+		# invalid
+		for f in test/json/json-checker/fail*
+			do
+				f="${root}/$f";
+				"${jsoncheck}" < "$f" 2> /dev/null;
+				assert.ne "0" "$?";
+		done
+	fi
+}
