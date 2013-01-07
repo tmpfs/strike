@@ -27,6 +27,9 @@ function json.stringify {
 	local indent="";
 	local depth=0;
 	
+	# sort object keys by default
+	local sort=true;
+	
 	if [ $# -gt 0 ] && [ "$1" == "--pretty" ]; then
 		pretty=1;
 		local indent_repeat="${2:-2}";
@@ -131,7 +134,7 @@ function __json.stringify.array {
 	local json_data="$1";
 	local key value;
 	
-	# sort keys numerically, this involves
+	# always sort keys numerically, this involves
 	# splitting the keys onto lines and sending to
 	# sort for processing
 	local IFS="$newline";
@@ -215,11 +218,11 @@ function __json.stringify.array.end {
 function __json.stringify.object {
 	local key value;
 	local json_data="$1";
-	eval keys="\${!$json_data[@]}";
+	eval keys="(\${!$json_data[@]})";
 	
 	# no keys to process, nothing to be done
 	# set to: {}
-	if [ -z "$keys" ]; then
+	if [ "${#keys[@]}" -eq 0 ]; then
 		__json.stringify.object.start;
 		__json.stringify.object.end;
 		return 0;
@@ -231,7 +234,7 @@ function __json.stringify.object {
 	# with an integer value, in which case it is
 	# treated as an object
 	local arr=true;
-	for key in $keys
+	for key in ${keys[@]}
 		do
 			if [[ ! "$key" =~ ^[0-9]+(\.[a-zA-Z0-9])? ]]; then
 				arr=false;
@@ -248,8 +251,19 @@ function __json.stringify.object {
 	
 	__json.stringify.object.start;
 	
+	# sort object keys
+	if $sort; then
+		# # converts keys from string to array
+		# keys=( $keys );
+		# local IFS="$newline";
+		# local lines=( ${keys[@]} )
+		# unset IFS;
+		# keys=$( sort <<< "$lines" );
+		echo -ne '';
+	fi
+	
 	# deal with top-level properties of this object
-	for key in $keys
+	for key in ${keys[@]}
 		do
 			# not a nested property
 			if [[ ! "$key" =~ \. ]]; then
@@ -260,7 +274,7 @@ function __json.stringify.object {
 	
 	# deal with nested properties
 	local k match nk nv ak nestedkey;	
-	for key in $keys
+	for key in ${keys[@]}
 		do
 			
 			# echo "handling key: $key";
@@ -280,7 +294,7 @@ function __json.stringify.object {
 				
 				eval "declare -A $nestedkey";
 				match="^$k";
-				for nk in $keys
+				for nk in ${keys[@]}
 					do
 						if [[ "$nk" =~ $match ]]; then
 							eval nv="\${$json_data[$nk]}";

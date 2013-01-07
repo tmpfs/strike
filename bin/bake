@@ -112,6 +112,15 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# keys="c
+# b
+# a";
+# 
+# sort <<< "$keys";
+# 
+# exit 0;
+
+
 # arr=( 1 2 3 );
 # 
 # index=0;
