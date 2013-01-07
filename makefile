@@ -25,4 +25,7 @@ test:
 doc:
 	./bake doc.build
 	
-.PHONY: clean test doc
+json-checker:
+	gcc lib/json-checker/*.c lib/json-checker/*.h -o target/jsonlint
+	
+.PHONY: clean test doc json-checker
