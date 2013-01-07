@@ -10,7 +10,7 @@
 Project task(s) for bake(1)\.
 .
 .SH "DESCRIPTION"
-Maintains a list of related projects\.
+Maintains a list of related projects by unique identifier\.
 .
 .SH "REQUIRE"
 In your tasks(7) file \fBrequire\fR the \fBproject\fR task(s) using:
@@ -31,6 +31,7 @@ require \'tasks/project\';
 
 bake project init
 bake project add id path|url [url\.\.\.]
+bake project exists id
 bake project ls
 bake project count
 bake project rm id
@@ -43,13 +44,13 @@ bake project rm id
 \fBinit\fR:
 .
 .IP
-Creates an empty projects file\.
+Creates an empty projects file\. This command will exit with >0 exit code if a projects file already exists\.
 .
 .TP
 \fBadd\fR:
 .
 .IP
-Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url\. Subsequent options to \fBadd\fR are related URLs for the project\.
+Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url\. Subsequent options to \fBadd\fR are related URLs for the project\. Note that when specifying URLs they must be URL encoded so they do not contain any whitespace\.
 .
 .IP
 This command will create a projects file if it does not exist\.
@@ -61,7 +62,13 @@ If the path specified is a filesystem path then it must point to a valid directo
 \fBls\fR:
 .
 .IP
-List projects\. The output of this command is the identifier followed by the path or url delimited by a space\. If the project has a related url then another space is concatenated along with the related url value\. When specifying URLs they must be URL encoded\.
+List projects\. The output of this command is the identifier followed by the path (or url) delimited by a space\.
+.
+.TP
+\fBexists\fR:
+.
+.IP
+Determine whether a project with the specified id exists\.
 .
 .TP
 \fBcount\fR:
@@ -83,6 +90,9 @@ Remove a project with the specified identifier\.
 .
 .SH "FILES"
 The projects meta information is stored in a file named \fIprojects\.json\fR in the \fB${root}\fR of the current project\.
+.
+.SH "EXIT CODES"
+An exit code >0 indicates the operation failed, whilst 0 is success\.
 .
 .SH "BUGS"
 \fBtask\-project\fR is written in bash and depends upon \fBbash\fR >= 4\.

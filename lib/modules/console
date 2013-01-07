@@ -102,6 +102,8 @@ You may also print a stack trace (without any preceeding error message) using th
 
 The number of replacement parameters must match exactly the number of `%s` occurences in the message otherwise unexpected behaviour will occur.
 
+A leading hyphen in a replacement parameter or message will cause printf to fail.
+
 **console** is written in bash and depends upon `bash` >= 4.
 
 ## COPYRIGHT
@@ -224,7 +226,13 @@ function console.colorize {
 #	$2-@	The remaining string replacements to be highlighted.
 ######################################################################
 function console.sprintf {
-	_result=$(printf "${@}");
+	#echo "sprintf length : $#"
+	# escape hyphens
+	#local var="$@";
+	#var="${var//-/\-}";
+	#echo "var is: '''$var'''"
+	_result=$(printf "$@");
+	#_result="${_result//\\-/-}";
 }
 
 #TODO : integrate this logic so no highlighting is performed when not a terminal
@@ -554,5 +562,6 @@ alias "quit=console.quit";
 #quit 127;
 #quit 127 "this is an error message";
 #success "success";
+#success;
 
 #alias;

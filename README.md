@@ -83,6 +83,8 @@ If you prefer [mvn(1)](http://maven.apache.org/) use the `test` goal:
 To verify all build tools are executing tests correctly use this one-liner:
 
 	npm test && rake test && ant test && mvn test && ./bake test
+	
+It is recommended (for additional tests to run that validate the valid and invalid JSON documents) that you install [jsonlint(1)](https://github.com/zaach/jsonlint).
 
 ### Generating Documentation
 

@@ -43,7 +43,7 @@ function tasks.list {
 			m=${m#tasks.};
 			# ignore any constructor function, which is
 			# not considered to be a task
-			if [ "$m" == "initialize" ]; then continue; fi
+			if [[ "$m" =~ \.initialize$ ]]; then continue; fi
 			info "%s" "$m";
 	done
 }

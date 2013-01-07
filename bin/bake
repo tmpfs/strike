@@ -112,6 +112,27 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# keys="c
+# b
+# a";
+# 
+# sort <<< "$keys";
+# 
+# exit 0;
+
+
+# arr=( 1 2 3 );
+# 
+# index=0;
+# while [ ${#arr[@]} -gt 0 ];
+# 	do
+# 		echo "removed : ${!arr[@]} : ${#arr[@]}";
+# 		unset arr[$index];
+# 		: $((index++));
+# done
+# 
+# exit 0;
+
 # len()
 # {
 # 	echo "$# : $@";

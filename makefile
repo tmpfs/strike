@@ -25,4 +25,7 @@ test:
 doc:
 	./bake doc.build
 	
-.PHONY: clean test doc
+json-checker:
+	./bake json.checker.compile
+	
+.PHONY: clean test doc json-checker

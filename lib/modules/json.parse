@@ -1,0 +1,193 @@
+# global json document
+declare -Agx json_doc;
+
+function json.parse {
+	
+	# TODO: remove this?
+	set +o errexit;
+	#set +o nounset;
+	
+	json.parse.clean;
+	
+	local key value;
+	##local root_type;
+	
+	# run the process subsititution in this manner
+	# to block until the parsing is complete
+	while read line
+		do
+			# echo "line: $line";
+			
+			#echo "got root type: $json_root_type";
+			
+			# available outside the loop
+			# because it does NOT run in a subshell
+			local IFS="=";
+			while read key value
+				do
+					#strip out the double quotes from string values
+					value=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$value" );
+					key=${key##json_};
+					
+					# if [ "$key" == "root_type" ]; then
+					# 	
+					# 	root_type="$value";
+					# 	continue;
+					# fi
+					
+					#echo "got root type: $root_type";
+					
+					# skip any array/object definitions
+					# as child elements should already by parsed
+					if [[ "$value" =~ ^(\[|{) ]]; then
+						continue;
+					fi
+					
+					# echo "got key: $key";
+					# echo "got value: $value";
+					
+					if [ ! -z "$key" ]; then
+						# store the value in the json_doc associative array
+						json_doc["$key"]="$value";
+					fi
+			done <<< "$line";
+	done < <( __json.tokenize <&0 > >(__json.start) );
+}
+
+function json.parse.clean {
+	local key;
+	# clean any existing data
+	for key in "${!json_doc[@]}";
+		do
+			unset json_doc["$key"];
+	done
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __json.tokenize {
+	local ESCAPE='(\\[^u[:cntrl:]]|\\u[0-9a-fA-F]{4})'
+	local CHAR='[^[:cntrl:]"\\]'
+	local STRING="\"$CHAR*($ESCAPE$CHAR*)*\""
+	local NUMBER='-?(0|[1-9][0-9]*)([.][0-9]*)?([eE][+-]?[0-9]*)?'
+	local KEYWORD='null|false|true'
+	local SPACE='[[:space:]]+'
+	egrep -ao "$STRING|$NUMBER|$KEYWORD|$SPACE|." --color=never | egrep -v "^$SPACE$"  # eat whitespace
+}
+
+function __json.start {
+	read -r token
+	
+	##echo "got root token: $token" >&2;
+	
+	# local json_root_type="object";
+	# 
+	# if [ "$token" == "[" ]; then
+	# 	json_root_type="array";
+	# elif [[ "$token" =~ ^[0-9]+$ ]]; then
+	# 	## echo "setting number root type!!!: $token" >&2;
+	# 	json_root_type="number";
+	# fi
+	# 
+	# echo "json_root_type=\"$json_root_type\"";
+	
+	__json.parse.value;
+	read -r token
+	case "$token" in
+		'') ;;
+		*) __json.throw "EXPECTED EOF GOT $token" ;;
+	esac
+}
+
+function __json.parse.value {
+	local jpath="${1:+$1,}${2:-}"
+	case "$token" in
+		'{') __json.parse.object "$jpath" ;;
+		'[') __json.parse.array  "$jpath" ;;
+		# At this point, the only valid single-character tokens are digits.
+		''|[^0-9]) __json.throw "EXPECTED value GOT ${token:-EOF}" ;;
+		*) value=${token} ;;
+	esac
+
+	# printf "[%s]\t%s\n" "$jpath" "$value";
+	
+	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
+		local key=${jpath};
+		local val=${value};
+		#echo "got key: $key" >&2;
+		eval key=json_\$$key;
+		#switch the commas for dot-style notation
+		key=${key//,/.};
+		if [ "$key" != 'json_$' ]; then
+			echo "${key}=${val}";
+		fi
+	fi
+}
+
+function __json.parse.object {
+	local key
+	local obj=''
+	read -r token
+	case "$token" in
+		'}') ;;
+		*)
+		while :
+			do
+				case "$token" in
+					'"'*'"') key=$token ;;
+					*) __json.throw "EXPECTED string GOT ${token:-EOF}" ;;
+				esac
+				read -r token
+				case "$token" in
+					':') ;;
+					*) __json.throw "EXPECTED : GOT ${token:-EOF}" ;;
+				esac
+				read -r token
+				__json.parse.value "$1" "$key"
+				obj="$obj$key:$value"		 
+				read -r token
+				case "$token" in
+					'}') break ;;
+					',') obj="$obj," ;;
+					*) __json.throw "EXPECTED , or } GOT ${token:-EOF}" ;;
+				esac
+				read -r token
+		done
+		;;
+	esac
+	value=`printf '{%s}' "$obj"`;
+}
+
+function __json.parse.array {
+	local index=0
+	local ary=''
+	read -r token
+	case "$token" in
+		']') ;;
+		*)
+			while :
+				do
+					__json.parse.value "$1" "$index";
+					let index=$index+1;
+					ary="$ary""$value";
+					read -r token;
+					case "$token" in
+						']') break ;;
+						',') ary="$ary," ;;
+						*) __json.throw "EXPECTED , or ] GOT ${token:-EOF}" ;;
+					esac
+					read -r token;
+			done
+		;;
+	esac
+	value=`printf '[%s]' "$ary"`;
+}
+
+function __json.throw {
+	console.throw "$*";
+	exit 1;
+}

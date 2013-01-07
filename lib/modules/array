@@ -107,15 +107,11 @@ function array.join {
 
 
 function array.is.array? {
-	local name="$1";
-	declare -p "$name" 2> /dev/null | grep -q 'declare \-a';
-	return $?;
+	declare -p "${1:-}" 2> /dev/null | grep -q 'declare \-a';
 }
 
 function array.is.assoc? {
-	local name="$1";
-	declare -p "$name" 2> /dev/null | grep -q 'declare \-A';
-	return $?;
+	declare -p "${1:-}" 2> /dev/null | grep -q 'declare \-A';
 }
 
 # TODO: rename to array.last as it cannot pop
