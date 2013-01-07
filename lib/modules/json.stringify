@@ -85,9 +85,8 @@ function json.stringify {
 		__json.stringify.object "$json_data";
 	# plain variable value
 	else
-		variable.get "$json_data";
-		value="$_result";
 		# variable has some sort of value
+		eval value="\${$json_data}";
 		if [ -n "$value" ]; then
 			__json.stringify.value "$value";
 			json="$_result";
@@ -265,7 +264,10 @@ function __json.stringify.value {
 		# grep -v -F "$data_line" "$data_dir"
 		
 		local jsonval="$1";
-		jsonval=${jsonval//$newline/'\\\''\n'};
+		#if [[ "$jsonval" =~ $newline ]] ; then
+			jsonval=${jsonval//$newline/'\''\n'};
+			#echo "value contains newline: $jsonval";
+		#fi
 		__json.stringify.quote "$jsonval";
 	fi
 }

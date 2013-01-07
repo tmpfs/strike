@@ -81,5 +81,8 @@ function json.print {
 # prints the string value from
 # the last call to json.stringify
 function json.string {
-	console.log "${json_str:-}";
+	# NOTE: do not use console.log
+	# NOTE: as it calls printf which changes quoting
+	# NOTE: and escape sequences
+	echo -ne "${json_str:-}";
 }

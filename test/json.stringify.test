@@ -1,5 +1,9 @@
 require.once json;
 
+# TODO: add handling of arrays of objects
+# TODO: add handling of sibling objects
+# TODO: add handling of escape sequences: '\" \\ \/ \b \f \n \r \t \u four-hex-digits';
+
 declare -ag json_valid_numbers;
 json_valid_numbers=( "-127" "127" "3.14" "-3.14" "2e10" "2e-10" "2e+10" "3.14e10" "3.14e-10" "3.14e+10" );	
 
@@ -7,7 +11,7 @@ declare -ag json_invalid_numbers;
 json_invalid_numbers=( "3." "-3." "-3.e" "3a" "b3" ".14" ".14e+10" ".14-10" );
 
 declare -ag json_valid_strings;
-json_valid_strings=( "value" 'a "quoted" value' "that can't be so" );
+json_valid_strings=( "value" 'a "quoted" value' "that can't be so" 'an escaped newline\n\n value' );
 
 # test(s) for encoding set and unset variables
 function test.json.stringify.basic {
