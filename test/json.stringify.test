@@ -263,11 +263,36 @@ function test.json.stringify.object.keys {
 	doc[key1]="the first value";
 	doc[key2]="the second value";
 	json.stringify <<< "doc";
-	#json.string;
 	local received=$( json.string );
 	# key iterartion order appears to always be in reverse order
 	# this test will fail if that behaviour changes
 	assert.equal '{"key2":"the second value","key1":"the first value"}' "$received";
+}
+
+# test for encoding an object with multiple nested
+# objects that contain the same keys
+function test.json.stringify.object.multiple {
+	declare -A doc;
+	doc[type]="test";
+	doc[obj1.id]="id1";
+	doc[obj1.path]="path1";
+	doc[obj2.id]="id2";
+	doc[obj2.path]="path2";
+	doc[arr.0]="a";	
+	doc[arr.1]="b";	
+	doc[arr.2]="c";
+	doc[key]="value";
+	doc[true]=true;
+	doc[false]=false;
+	doc[null]=null;
+	doc[keys.name]="key name";
+	doc[keys.id]="key id";
+	json.stringify <<< "doc";
+	local received=$( json.string );
+	
+	# echo "received: $received";
+	
+	assert.equal '{"false":false,"key":"value","null":null,"true":true,"type":"test","obj1":{"path":"path1","id":"id1"},"obj2":{"path":"path2","id":"id2"},"arr":["a","b","c"],"keys":{"name":"key name","id":"key id"}}' "$received";
 }
 
 # ARRAY TESTS

@@ -2,7 +2,7 @@
 # SEE: http://blog.publicobject.com/2010/04/json-javascript-and-numeric-types.html
 
 # holds the last result of calling json.stringify
-declare -gx json_str;
+declare -g json_str;
 
 # regexp for number matching
 declare -g json_number_regexp="^-?[0-9]+((\.[0-9]+)?([eE][-+]?[0-9]+)?)?$";
@@ -26,9 +26,6 @@ function json.stringify {
 	local space=' ';
 	local indent="";
 	local depth=0;
-	
-	# sort object keys by default
-	local sort=true;
 	
 	if [ $# -gt 0 ] && [ "$1" == "--pretty" ]; then
 		pretty=1;
@@ -65,9 +62,6 @@ function json.stringify {
 	local isarr=$?;
 	$( array.is.assoc? "$json_data" );	
 	local isassoc=$?;
-	
-	# echo "is arr: $isarr : $json_data";
-	# echo "is assoc: $isassoc : $json_data";
 	
 	#echo "got exists: $exists";
 	
@@ -183,24 +177,20 @@ function __json.stringify.array {
 				# gobble matching array keys
 				while [ ${#arrkeys[@]} -gt 0 ] && [[ "$key" =~ ^$k\.? ]];
 					do
-						#echo "gobbling array key: $key : $i";
 						eval nv="\${$json_data[$key]}";
 						ak=${key#*.};
 						eval "_$k[\"$ak\"]=\"$nv\"";
 						if [ ${#arrkeys[@]} -gt 0 ]; then
-							#echo "before match next key: i: $i, l: ${#arrkeys[@]}, keys: ${!arrkeys[@]}";
 							key="${arrkeys[$i+1]:-}";
 						fi
 						unset arrkeys[$i];
 						: $((i++));
 				done
 				: $((i--));
-				#echo "BEFORE OBJECT ENCODE: i: $i, l: ${#arrkeys[@]}, keys: ${!arrkeys[@]}";
 				# # treat as an object
 				__json.stringify.object "_$k";
-				# # add comma between array entries
+				# add comma between array entries
 				json="${json},";
-				#echo "LOOP END: i: $i, l: ${#arrkeys[@]}, keys: ${!arrkeys[@]}";
 			fi
 	done
 	
@@ -220,6 +210,7 @@ function __json.stringify.array.end {
 }
 
 function __json.stringify.object {
+	local keys;
 	local key value;
 	local json_data="$1";
 	eval keys="(\${!$json_data[@]})";
@@ -232,7 +223,7 @@ function __json.stringify.object {
 		return 0;
 	fi
 	
-	#echo "__json.stringify.object: $1 ::: ${keys}";
+	#echo "__json.stringify.object: objid: $1, keys: ${!keys[@]}, values: ${keys[@]}";
 	
 	# test if any key at this level does not start
 	# with an integer value, in which case it is
@@ -246,75 +237,82 @@ function __json.stringify.object {
 			fi
 	done
 	
-	#echo "got is arr: $arr";
-	
 	if $arr; then
 		__json.stringify.array "$json_data";
 		return 0;
-	fi	
+	fi
 	
 	__json.stringify.object.start;
 	
-	# sort object keys
-	if $sort; then
-		# # converts keys from string to array
-		# keys=( $keys );
-		# local IFS="$newline";
-		# local lines=( ${keys[@]} )
-		# unset IFS;
-		# keys=$( sort <<< "$lines" );
-		echo -ne '';
-	fi
-	
-	# deal with top-level properties of this object
-	for key in "${keys[@]}"
-		do
-			# not a nested property
-			if [[ ! "$key" =~ \. ]]; then
-				eval value="\${$json_data[$key]}";
-				__json.add.key.value "$key" "$value";
-			fi
-	done
+	declare -A nested;
 	
 	# deal with nested properties
 	local k match nk nv ak nestedkey;	
 	for key in "${keys[@]}"
 		do
+			# echo "(object) processing key: $key";
 			
-			# echo "handling key: $key";
-			
+			# not a nested property
+			if [[ ! "$key" =~ \. ]]; then
+				eval value="\${$json_data[$key]}";
+				__json.add.key.value "$key" "$value";
 			# got a nested dot-style reference
-			if [[ "$key" =~ \. ]]; then
+			# group objects together
+			else
 				k=${key%%.*};
-				
-				nestedkey="$k";
-				# sane bash compatible variable name
-				if [[ "$k" =~ [-.]+ ]]; then
-					nestedkey=${nestedkey//-/_};
-				fi
-				if [[ "$nestedkey" =~ ^[0-9]+$ ]]; then
-					nestedkey="_$nestedkey";
-				fi					
-				
-				eval "declare -A $nestedkey";
-				match="^$k";
 				for nk in "${keys[@]}"
 					do
-						if [[ "$nk" =~ $match ]]; then
-							eval nv="\${$json_data[$nk]}";
-							ak=${nk#*.};
-							eval "${nestedkey}[\"$ak\"]=\"$nv\"";
-							#echo "adding nested key: $ak";
+						if [[ "$nk" =~ ^$k ]]; then
+							nk="${nk#*.}";
+							# prevent duplicate key entries
+							if [[ ! "${nested[$k]:-}" == *"$nk"* ]]; then
+								nested["$k"]="${nested[$k]:-} $nk";
+							fi
 						fi
 				done
-				
-				# FIXME: ensure key value is quoted using the shared method
-				json="${json}\"$k\":";
-				__json.stringify.object "$nestedkey";
-				json="${json}${objend}";
-				return 0;
 			fi
 	done
+	
+	# post-process nested data
+	if [ ${#nested[@]} -gt 0 ]; then
+		for nk in ${!nested[@]}
+			do
+				keys=( ${nested[$nk]} );
+				nestedkey="$nk";
+				
+				# sane bash compatible variable name
+				nestedkey="${nestedkey//[^_a-zA-Z0-9]/}";
+				
+				# we should we not get here as integer values
+				# should be passed to array handling, nonetheless
+				# an extra check to prevent an error on trying to
+				# set a numeric variable name
+				if [[ "$nestedkey" =~ ^[0-9]+$ ]]; then
+					nestedkey="_$nestedkey";
+				fi
+				
+				# pseudo-namespace the variable name
+				# to prevent conflicts with internal names
+				nestedkey="__json__${nestedkey}";
+				
+				declare -A $nestedkey;
+				for ak in ${keys[@]}
+					do
+						eval nv="\${$json_data[\"$nk.$ak\"]}";
+						eval "${nestedkey}[\"$ak\"]=\"$nv\"";
+				done
+				
+				#echo "got keys: ${keys[*]}";
+				
+				# # FIXME: ensure key value is quoted using the shared method
+				__json.stringify.quote "$nk";
+				json="${json}${_result}:";
+				#echo "PROCESSING NESTED KEY ON: $nk";
+				__json.stringify.object "$nestedkey";
+				json="${json},";
+		done
+	fi
+	
 	json="${json%$newline}";
 	json="${json%,}";
 	__json.stringify.object.end;	
