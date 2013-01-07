@@ -1,3 +1,5 @@
+# SEE: http://mywiki.wooledge.org/BashFAQ/006
+
 # holds the last result of calling json.stringify
 declare -gx json_str;
 
@@ -118,10 +120,36 @@ function json.stringify.clean {
 ######################################################################
 
 function __json.stringify.array {
+	eval keys="(\${!$json_data[@]})";
+	
+	if [ "${#keys[@]}" -eq 0 ]; then
+		__json.stringify.array.start;
+		__json.stringify.array.end;
+		return 0;
+	fi
+	
 	__json.stringify.array.start;
 	local json_data="$1";
 	local key value;
-	eval keys="\${!$json_data[@]}";	
+	
+	#echo "arr keys: ${keys[@]}";
+	
+	# sort keys numerically	
+	local IFS="
+";
+	local lines="${keys[@]}"
+	unset IFS;
+	keys=$( echo "$lines" | sort -k1,1n );
+	
+	# echo "8,56,15,37,21" | tr ',' '\n' | sort -k1,1n | paste -s -d',' - 
+	
+	#echo "got sorted keys: $keys";
+	
+	#keys=$( echo "$keys" | rev );
+	
+	# for (( idx=${#MYARRAY[@]}-1 ; idx>=0 ; idx-- )) ; do
+	#     echo ${MYARRAY[idx]}
+	# done	
 	
 	# variables for nested matches
 	local k match nk nv ak nestedkey nlen;
@@ -154,7 +182,7 @@ function __json.stringify.array {
 							eval nv="\${$json_data[$nk]}";
 							ak=${nk#*.};
 							eval "${nestedkey}[\"$ak\"]=\"$nv\"";
-							#echo "adding nested key: $ak";
+							echo "adding nested key: $ak : $nv";
 						fi
 				done
 				eval nlen="\${#$nestedkey[@]}";

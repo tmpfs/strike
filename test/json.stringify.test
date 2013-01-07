@@ -290,7 +290,11 @@ function test.json.stringify.array.objects {
 	json.stringify <<< "doc";
 	local received=$( json.string );
 	echo "received: $received";
-	#assert.equal '[127,null,true,false,"a string value"]' "$received";
+	
+	#echo "keys are: ${!doc[@]}"
+	
+	
+	#assert.equal '[{"path":"path2","id":"id2"},{"path":"path2","id":"id2"},"value"]' "$received";
 }
 
 
