@@ -61,11 +61,5 @@ require.once json.parse;
 require.once json.stringify;
 
 function json.clean {
-	local key;
-	# clean any existing data
-	for key in "${!json_doc[@]}";
-		do
-			unset json_doc["$key"];
-	done
-	unset json_str;
+	json.parse.clean;
 }

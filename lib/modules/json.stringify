@@ -61,18 +61,18 @@ function json.stringify {
 		# array.is.assoc? "$json_data";
 		# local isassoc="$_result";
 		if array.is.array? "$json_data" || array.is.assoc? "$json_data"; then
-			__json_stringify_object "$json_data";
+			__json.stringify.object "$json_data";
 		else
 			# if [ $isassoc -eq 0 ]; then
 			# 	eval length="\${#$json_data[@]}";
 			# 	if [ $length -gt 0 ]; then
-			# 		__json_stringify_object "$json_data";
+			# 		__json.stringify.object "$json_data";
 			# 	fi
 			# else
 				variable.get "$json_data";
 				value="$_result";
 				if [ ! -z "$value" ]; then
-					__json_stringify_value "$value";
+					__json.stringify.value "$value";
 					json="$_result";
 				else
 					json="{}";
@@ -98,7 +98,7 @@ function json.string {
 #
 ######################################################################
 
-function __json_stringify_array {
+function __json.stringify.array {
 	json="${json}${arrstart}";
 	local json_data="$1";
 	local key value;
@@ -107,7 +107,7 @@ function __json_stringify_array {
 		do
 			eval value="\${$json_data[$key]}";
 			# encode the value
-			__json_stringify_value "$value";
+			__json.stringify.value "$value";
 			json="${json}${indent}${_result},";
 			if [ $pretty -eq 1 ]; then
 				json="${json}${newline}";
@@ -121,15 +121,15 @@ function __json_stringify_array {
 	#json="${json}${obj}";
 }
 
-function __json_stringify_object {
+function __json.stringify.object {
 	local json_data="$1";
 	eval keys="\${!$json_data[@]}";
 	
-	echo "__json_stringify_object: ${keys}";
+	echo "__json.stringify.object: ${keys}";
 	
 	# if all keys are numeric, treat as an array
 	if [[ "$keys" =~ ^([0-9]+ ?)+$ ]]; then
-		__json_stringify_array "$json_data";
+		__json.stringify.array "$json_data";
 		return 0;
 	fi
 	
@@ -145,7 +145,7 @@ function __json_stringify_object {
 	# 			array[ "$key" ]="$value";
 	# 			echo "GOT NUMERIC ONLY KEY USING!!! : $key";
 	# 			# attempt to use array
-	# 			#__json_stringify_array "$json_data";
+	# 			#__json.stringify.array "$json_data";
 	# 			unset keys[$i];
 	# 		fi
 	# 		: $((i++));
@@ -168,7 +168,7 @@ function __json_stringify_object {
 			# not a nested property
 			if [[ ! "$key" =~ \. ]]; then
 				eval value="\${$json_data[$key]}";
-				__json_add_key_value "$key" "$value";
+				__json.add.key.value "$key" "$value";
 			fi
 	done
 	
@@ -183,7 +183,7 @@ function __json_stringify_object {
 			# 	echo "GOT NUMERIC ONLY KEY USING UNDERSCORE!!! : $keys";
 			# 	#k="_$k";
 			# 	# attempt to use array
-			# 	__json_stringify_array "$json_data";
+			# 	__json.stringify.array "$json_data";
 			# else
 				# got a nested dot-style reference
 				if [[ "$key" =~ \. ]]; then
@@ -207,7 +207,7 @@ function __json_stringify_object {
 							fi
 					done
 					json="${json}\"$k\":";
-					__json_stringify_object "$nestedkey";
+					__json.stringify.object "$nestedkey";
 					json="${json}${objend}";
 					return 0;
 				fi
@@ -218,25 +218,25 @@ function __json_stringify_object {
 	json="${json}${objend}";
 }
 
-function __json_add_key_value {
+function __json.add.key.value {
 	# quote the key
-	__json_stringify_quote "$1";
+	__json.stringify.quote "$1";
 	json="${json}${indent}${_result}:";
 	
 	# encode the value
-	__json_stringify_value "$2";
+	__json.stringify.value "$2";
 	json="${json}${_result},";
 	if [ $pretty -eq 1 ]; then
 		json="${json}${newline}";
 	fi
 }
 
-function __json_stringify_quote {
+function __json.stringify.quote {
 	# quoted string
 	_result="\"$1\"";
 }
 
-function __json_stringify_value {
+function __json.stringify.value {
 	_result="";
 	# unquoted value for null, true, false and numbers
 	if [ "$1" == "null" ] || [ "$1" == true ] || [ "$1" == false ] || [[ "$1" =~ $json_number_regexp ]]; then
@@ -248,6 +248,6 @@ function __json_stringify_value {
 		
 		local jsonval="$1";
 		jsonval=${jsonval//$newline/'\\\''\n'};
-		__json_stringify_quote "$jsonval";
+		__json.stringify.quote "$jsonval";
 	fi
 }
