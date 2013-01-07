@@ -22,6 +22,8 @@ json_valid_strings=(
 	"a literal tab				value"
 );
 
+# SIMPLE OBJECT TESTS
+
 # test(s) for encoding set and unset variables
 function test.json.stringify.basic {
 	local result;
@@ -197,7 +199,6 @@ function test.json.stringify.number.match {
 # test(s) for encoding strings
 function test.json.stringify.string {
 	local result expected str;
-	
 	local newline="
 ";
 	
@@ -233,6 +234,39 @@ function test.json.stringify.string {
 			# strings should be quoted
 			assert.equal "$expected" "$result";
 	done
+}
+
+# COMPLEX OBJECT TESTS
+
+# test for encoding an object with a single key
+function test.json.stringify.object {
+	declare -A doc;
+	doc[key]="a key value";
+	json.stringify <<< "doc";
+	local received="$json_str";
+	assert.equal '{"key":"a key value"}' "$received";
+}
+
+# test for encoding an object with multiple keys
+function test.json.stringify.object.keys {
+	declare -A doc;
+	doc[key1]="the first value";
+	doc[key2]="the second value";
+	json.stringify <<< "doc";
+	#json.string;
+	local received="$json_str";
+	# key iterartion order appears to always be in reverse order
+	# this test will fail if that behaviour changes
+	assert.equal '{"key2":"the second value","key1":"the first value"}' "$received";
+}
+
+# test for encoding an array
+function test.json.stringify.array {
+	declare -a doc;
+	doc=( 127 null true false "a string value" );
+	json.stringify <<< "doc";
+	local received="$json_str";
+	assert.equal '[127,null,true,false,"a string value"]' "$received";
 }
 
 # PRETTY PRINT
@@ -273,6 +307,20 @@ function test.json.stringify.object.pretty.space {
 	json.stringify --pretty 2 <<< "doc";
 	
 	local file="${testdir}/json/pretty/object.json";
+	local expected=$( < "$file" );
+	assert.equal "$expected" "$json_str";
+}
+
+# test for encoding an object and pretty printing using a single tab
+function test.json.stringify.object.pretty.tab {
+	declare -A doc;
+	doc[key1]="the first value";
+	doc[key2]="the second value";
+	
+	# pretty print with a single tab for the indent
+	json.stringify --pretty 1 '	' <<< "doc";			#third parameter is actually: \t
+	
+	local file="${testdir}/json/pretty/object.tab.json";
 	local expected=$( < "$file" );
 	assert.equal "$expected" "$json_str";
 }
