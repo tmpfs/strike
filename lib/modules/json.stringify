@@ -79,7 +79,6 @@ function json.stringify {
 	
 	# variable is a plain array
 	if [ $isarr -eq 0 ] && [ $isassoc -eq 1 ]; then
-		echo "handling array ... "
 		__json.stringify.array "$json_data";
 	# variable is an associative array, treat as a complex object
 	elif [ $isarr -eq 1 ] && [ $isassoc -eq 0 ]; then 
@@ -248,8 +247,11 @@ function __json.add.key.value {
 }
 
 function __json.stringify.quote {
+	local val="${1:-}";
+	# escape quotes in the value being quoted
+	val="${val//\"/\\\\\"}";
 	# quoted string
-	_result="\"$1\"";
+	_result="\"$val\"";
 }
 
 function __json.stringify.value {
