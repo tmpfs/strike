@@ -1,4 +1,5 @@
 # SEE: http://mywiki.wooledge.org/BashFAQ/006
+# SEE: http://blog.publicobject.com/2010/04/json-javascript-and-numeric-types.html
 
 # holds the last result of calling json.stringify
 declare -gx json_str;
@@ -93,10 +94,7 @@ function json.stringify {
 		if [ -n "$value" ]; then
 			__json.stringify.value "$value";
 			json="$_result";
-			
-	
 			#echo "got result after evaluation : '''$json'''";
-			
 		# the empty string should be ""
 		else
 			json="\"\"";
@@ -140,23 +138,21 @@ function __json.stringify.array {
 	unset IFS;
 	arrkeys=( $( echo "$lines" | sort -k1,1n ) );
 	
-	echo "ARRAY KEYS: ${!arrkeys[@]}";
-	echo "ARRAY VALUES: ${arrkeys[@]}";	
+	# echo "ARRAY KEYS: ${!arrkeys[@]}";
+	# echo "ARRAY VALUES: ${arrkeys[@]}";	
 	
 	# variables for nested matches
-	local k match nk nv ak nestedkey nlen;
+	local k nk nv ak nestedkey;
 	
-	local index=0;
 	local i=0;
 	local len=${#arrkeys[@]};
-	# deal with direct entries
 	for((i=0;i < $len;i++))
 		do
 			key="${arrkeys[$i]}";
-			echo "processing array key: $key";
+			# echo "processing array key: $key";
+			
 			# direct array property
-			if [[ ! "$key" =~ \. ]]; then	
-				#echo "array entry key: $key";
+			if [[ ! "$key" =~ \. ]]; then
 				eval value="\${$json_data[$key]}";
 				# encode the value
 				__json.stringify.value "$value";
@@ -164,50 +160,34 @@ function __json.stringify.array {
 				if [ $pretty -eq 1 ]; then
 					json="${json}${newline}";
 				fi
-				echo "removing (value) with index : $i : ${!arrkeys[@]}";				
 				unset arrkeys[$i];
-				#: $((i++));
-				#echo "after remove (value) with index : $i : ${!arrkeys[@]}";
+			# nested dot-style property
 			else
 				k=${key%%.*};
+				
 				# key would be a number and
 				# therefore would create an error so prefix 
 				# with an underscore
 				nestedkey="_$k";
-				eval "declare -A $nestedkey";
-				match="^$k";
-				#echo "got nested entry on key: $key : nested key is: $nestedkey : match is $match";
-				#for nk in ${arrkeys[@]}
-				#	do
-						# gobble matching array keys
-						#local ni=0;
-						while [ ${#arrkeys[@]} -gt 0 ] && [[ "$key" =~ $match ]];
-							do
-								#echo "GOT MATCH ON $key : with length ${#arrkeys[@]} and arrkeys: ${arrkeys[@]}";
-								eval nv="\${$json_data[$key]}";
-								ak=${key#*.};
-								eval "${nestedkey}[\"$ak\"]=\"$nv\"";
-								#echo "adding nested key: $ak : $nv";
-								echo "processed nested key: $key";
-								if [ ${#arrkeys[@]} -gt 0 ]; then
-									key="${arrkeys[$i+1]}";
-								fi
-								echo "removing (nested) with index : i: $i, keys: ${!arrkeys[@]}, values: ${arrkeys[@]}";
-								unset arrkeys[$i];
-								: $((i++));
-						done
-				#done
-				eval nlen="\${#$nestedkey[@]}";
-				if [ $nlen -gt 0 ]; then
-					echo "NESTEDKEY: $nestedkey, index: $i, length: ${#arrkeys[@]}, i: $i, keys: ${!arrkeys[@]}, values: ${arrkeys[@]}";
-					: $((i--));
-					# # treat as an object
-					__json.stringify.object "$nestedkey";
-					# # add comma between array entries
-					json="${json},";
-				fi
+				declare -A $nestedkey;
+				# gobble matching array keys
+				while [ ${#arrkeys[@]} -gt 0 ] && [[ "$key" =~ ^$k ]];
+					do
+						eval nv="\${$json_data[$key]}";
+						ak=${key#*.};
+						eval "${nestedkey}[\"$ak\"]=\"$nv\"";
+						if [ ${#arrkeys[@]} -gt 0 ]; then
+							key="${arrkeys[$i+1]}";
+						fi
+						unset arrkeys[$i];
+						: $((i++));
+				done
+				: $((i--));
+				# # treat as an object
+				__json.stringify.object "$nestedkey";
+				# # add comma between array entries
+				json="${json},";
 			fi
-		#echo "LOOPEND: i: $i, length: ${#arrkeys[@]}, keys: ${!arrkeys[@]}, values: ${arrkeys[@]}";
 	done
 	
 	json="${json%$newline}";
