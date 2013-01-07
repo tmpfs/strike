@@ -1,6 +1,5 @@
 # attempts to stringify set and unset variables
-function test.stringify.invalid {
-	
+function test.stringify.basic {
 	local result;
 	
 	# test that an unset variable is detected
@@ -11,6 +10,13 @@ function test.stringify.invalid {
 	local doc="mydocument";
 	json.stringify <<< "doc";
 	assert.eq "0" "$?";
+	
+	# test that a variable set to the empty string converts to ""
+	doc="";
+	json.stringify <<< "doc";
+	assert.eq "0" "$?";
+	result=$( json.string );
+	assert.equal '""' "$result";
 	
 	# test that a set array is detected
 	declare -a myarray;
@@ -31,20 +37,28 @@ function test.stringify.invalid {
 	local localarr=( 1 2 3 );
 	json.stringify <<< "localarr";
 	assert.eq "0" "$?";
+	result=$( json.string );
+	assert.equal "[1,2,3]" "$result";	
 	
 	# test that a set local but empty local array converts to []
 	local emptyarr=();
 	json.stringify <<< "emptyarr";
 	assert.eq "0" "$?";
+	result=$( json.string );
+	assert.equal "[]" "$result";	
 	
 	# test that a declared but unset associative array converts to {}
 	declare -A myassoc;
 	json.stringify <<< "myassoc";
 	assert.eq "0" "$?";
+	result=$( json.string );
+	assert.equal "{}" "$result";
 	
 	# test that a declared and set associative array is valid
 	declare -A mynewassoc;
 	mynewassoc[key]="value";
 	json.stringify <<< "mynewassoc";
 	assert.eq "0" "$?";
+	result=$( json.string );
+	assert.equal '{"key":"value"}' "$result";
 }
