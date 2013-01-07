@@ -270,6 +270,8 @@ function test.json.stringify.object.keys {
 	assert.equal '{"key2":"the second value","key1":"the first value"}' "$received";
 }
 
+# ARRAY TESTS
+
 # test for encoding an array
 function test.json.stringify.array {
 	declare -a doc;
@@ -305,6 +307,24 @@ function test.json.stringify.array.arrays {
 	json.stringify <<< "doc";
 	local received=$( json.string );
 	assert.equal '["a",["b","c"],["d","e"],"f"]' "$received";
+}
+
+# test for encoding a deep array of arrays
+function test.json.stringify.array.deep.arrays {
+	declare -A doc;
+	doc[0]="a";
+	doc[1.0]="b";
+	doc[1.1]="c";
+	doc[2.0]="d";
+	doc[2.1]="e";
+	doc[3.0.0]="f";
+	doc[3.0.1]="g";
+	doc[3.0.2]="h";
+	doc[3.1.0]="i";
+	doc[3.1.1]="j";
+	json.stringify <<< "doc";
+	local received=$( json.string );
+	assert.equal '["a",["b","c"],["d","e"],[["f","g","h"],["i","j"]]]' "$received";
 }
 
 # test for encoding an array of sparse indices

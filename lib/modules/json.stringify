@@ -143,7 +143,7 @@ function __json.stringify.array {
 	arrkeys=( $( sort -k1,1n <<< "$lines" ) );
 	
 	# echo "ARRAY KEYS: ${!arrkeys[@]}";
-	# echo "ARRAY VALUES: ${arrkeys[@]}";	
+	# echo "ARRAY VALUES: ${arrkeys[@]}";
 	
 	# variables for nested matches
 	local k nk nv ak;
@@ -153,7 +153,7 @@ function __json.stringify.array {
 	for((i=0;i < $len;i++))
 		do
 			key="${arrkeys[$i]}";
-			# echo "processing array key: $key";
+			#echo "processing array key: $key";
 			
 			# direct array property
 			if [[ ! "$key" =~ \. ]]; then
@@ -181,22 +181,26 @@ function __json.stringify.array {
 				# with an underscore
 				declare -A _$k;
 				# gobble matching array keys
-				while [ ${#arrkeys[@]} -gt 0 ] && [[ "$key" =~ ^$k ]];
+				while [ ${#arrkeys[@]} -gt 0 ] && [[ "$key" =~ ^$k\.? ]];
 					do
+						#echo "gobbling array key: $key : $i";
 						eval nv="\${$json_data[$key]}";
 						ak=${key#*.};
 						eval "_$k[\"$ak\"]=\"$nv\"";
 						if [ ${#arrkeys[@]} -gt 0 ]; then
-							key="${arrkeys[$i+1]}";
+							#echo "before match next key: i: $i, l: ${#arrkeys[@]}, keys: ${!arrkeys[@]}";
+							key="${arrkeys[$i+1]:-}";
 						fi
 						unset arrkeys[$i];
 						: $((i++));
 				done
 				: $((i--));
+				#echo "BEFORE OBJECT ENCODE: i: $i, l: ${#arrkeys[@]}, keys: ${!arrkeys[@]}";
 				# # treat as an object
 				__json.stringify.object "_$k";
 				# # add comma between array entries
 				json="${json},";
+				#echo "LOOP END: i: $i, l: ${#arrkeys[@]}, keys: ${!arrkeys[@]}";
 			fi
 	done
 	
