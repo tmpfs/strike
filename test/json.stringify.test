@@ -279,13 +279,18 @@ function test.json.stringify.array {
 	assert.equal '[127,null,true,false,"a string value"]' "$received";
 }
 
-# test for encoding an array or objects
-function test.json.stringify.array {
-	declare -a doc;
-	doc=( 127 null true false "a string value" );
+# test for encoding an array of objects
+function test.json.stringify.array.objects {
+	declare -A doc;
+	doc[0]="value";
+	doc[1.id]="id1";
+	doc[1.path]="path1";
+	doc[2.id]="id2";
+	doc[2.path]="path2";
 	json.stringify <<< "doc";
 	local received=$( json.string );
-	assert.equal '[127,null,true,false,"a string value"]' "$received";
+	echo "received: $received";
+	#assert.equal '[127,null,true,false,"a string value"]' "$received";
 }
 
 
