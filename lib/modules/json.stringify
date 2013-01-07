@@ -52,44 +52,46 @@ function json.stringify {
 		return 1;
 	fi
 	
-	#json_string="";
+	echo "testing existence of ${1:-}";
 	
-	if [ ! -z "$json_data" ]; then
-		local value;
-		# array.is.array? "$json_data";
-		# local isarray="$_result";
-		# array.is.assoc? "$json_data";
-		# local isassoc="$_result";
-		if array.is.array? "$json_data" || array.is.assoc? "$json_data"; then
-			__json.stringify.object "$json_data";
-		else
-			# if [ $isassoc -eq 0 ]; then
-			# 	eval length="\${#$json_data[@]}";
-			# 	if [ $length -gt 0 ]; then
-			# 		__json.stringify.object "$json_data";
-			# 	fi
-			# else
-				variable.get "$json_data";
-				value="$_result";
-				if [ ! -z "$value" ]; then
-					__json.stringify.value "$value";
-					json="$_result";
-				else
-					json="{}";
-				fi
-			# fi
+	$( array.is.array? "$json_data" );
+	local isarr=$?;
+	$( array.is.assoc? "$json_data" );	
+	local isassoc=$?;
+	
+	# echo "is arr: $isarr : $json_data";
+	# echo "is assoc: $isassoc : $json_data";
+	
+	#echo "got exists: $exists";
+	
+	# validate that plain variables are set
+	if [ $isarr -gt 0 ] && [ $isassoc -gt 0 ]; then
+		eval "[ \${${json_data}+a} ]";
+		local exists=$?;		
+		if [ $exists -gt 0 ]; then
+			#echo "variable has not been set!!!";
+			return 1;
 		fi
-	else
-		json="{}";
 	fi
+	
+	local value;
+	if array.is.array? "$json_data" || array.is.assoc? "$json_data"; then
+		__json.stringify.object "$json_data";
+	else
+		variable.get "$json_data";
+		value="$_result";
+		if [ ! -z "$value" ]; then
+			__json.stringify.value "$value";
+			json="$_result";
+		else
+			json="{}";
+		fi
+	fi
+		
 	if [ ! -z "$json" ]; then
 		json_str="$json";
 	fi
-}
-
-function json.string {
-	local str="${json_str:-}";
-	console.log "$str";
+	return 0;
 }
 
 ######################################################################

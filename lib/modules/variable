@@ -24,6 +24,11 @@ function variable.set {
 	#echo "$_result";
 }
 
+# determine if a variable has been set
+function variable.isset? {
+	eval '[ ${'$1'+a} ]';
+}
+
 function variable_declare {
 	local name="$1";
 	local value="$2";

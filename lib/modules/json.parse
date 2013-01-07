@@ -54,15 +54,6 @@ function json.parse {
 	done < <( __json.tokenize <&0 > >(__json.start) );
 }
 
-function json.print {
-	local key val;
-	for key in "${!json_doc[@]}"
-		do
-			val="${json_doc["$key"]}";
-			console.log "${key}=${val}";
-	done
-}
-
 function json.parse.clean {
 	local key;
 	# clean any existing data

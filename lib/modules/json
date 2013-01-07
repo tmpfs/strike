@@ -60,6 +60,24 @@ ronn:markdown
 require.once json.parse;
 require.once json.stringify;
 
+# cleans all parsed json data
 function json.clean {
 	json.parse.clean;
+}
+
+# prints key/value pairs from the last call
+# to json.parse
+function json.print {
+	local key val;
+	for key in "${!json_doc[@]}"
+		do
+			val="${json_doc["$key"]}";
+			console.log "${key}=${val}";
+	done
+}
+
+# prints the string value from
+# the last call to json.stringify
+function json.string {
+	console.log "${json_str:-}";
 }
