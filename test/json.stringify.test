@@ -247,6 +247,16 @@ function test.json.stringify.object {
 	assert.equal '{"key":"a key value"}' "$received";
 }
 
+# test for encoding an object with a key/value
+# that contains a leading dash
+function test.json.stringify.object.dash {
+	declare -A doc;
+	doc["-key"]="-value";
+	json.stringify <<< "doc";
+	local received="$json_str";
+	assert.equal '{"-key":"-value"}' "$received";
+}
+
 # test for encoding an object with multiple keys
 function test.json.stringify.object.keys {
 	declare -A doc;

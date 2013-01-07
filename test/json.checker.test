@@ -1,5 +1,10 @@
+# SEE: http://json.org
+# SEE: http://json.org/JSON_checker/
 # SEE: http://tools.ietf.org/html/rfc4627.html
 # SEE: http://www.ecma-international.org/ecma-262/5.1/#sec-15.12.1
+# SEE: http://json-schema.org/
+# SEE: https://github.com/akheron/jansson
+# SEE: https://github.com/zaach/jsonlint
 
 # test(s) to verify the test suite from: http://json.org/JSON_checker/
 function test.json.checker.testsuite {
