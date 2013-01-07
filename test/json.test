@@ -27,12 +27,12 @@ function test.json.parse {
 }
 
 # test for encoding an empty array
-function test.json.stringify.empty {
-	local doc;
-	json.stringify <<< "doc";
-	local received="$json_str";
-	assert.equal "{}" "$received";
-}
+# function test.json.stringify.empty {
+# 	local doc;
+# 	json.stringify <<< "doc";
+# 	local received="$json_str";
+# 	assert.equal "{}" "$received";
+# }
 
 # test for encoding a string value
 function test.json.stringify.string {
