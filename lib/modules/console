@@ -224,11 +224,13 @@ function console.colorize {
 #	$2-@	The remaining string replacements to be highlighted.
 ######################################################################
 function console.sprintf {
+	#echo "sprintf length : $#"
 	# escape hyphens
-	local var="$*";
-	var="${var//-/\-}";
-	_result=$(printf "$var");
-	_result="${_result//\\-/-}";
+	#local var="$@";
+	#var="${var//-/\-}";
+	#echo "var is: '''$var'''"
+	_result=$(printf "$@");
+	#_result="${_result//\\-/-}";
 }
 
 #TODO : integrate this logic so no highlighting is performed when not a terminal

@@ -69,6 +69,7 @@ function test.console.stdout.log {
 	# assert
 	local expected="[info] this is a message redirected to a stdout log file $logfile";
 	local received="`cat "$logfile"`";
+	
 	assert.equal "$expected" "$received";
 	
 	# clean up
@@ -76,6 +77,9 @@ function test.console.stdout.log {
 	
 	# revert the log file redirection
 	console.log.stdout.close;
+	
+	echo "got expected '''$expected'''"
+	echo "got received '''$received'''"	
 }
 
 # test for redirecting stderr to a log file
