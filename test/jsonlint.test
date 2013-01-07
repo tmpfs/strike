@@ -1,0 +1,27 @@
+# test(s) to verify out test documents are eiter
+# valid or invalid
+# uses `jsonlint` when available
+# install with: npm install jsonlint -g
+# see: https://github.com/zaach/jsonlint
+function test.json.jsonlint {
+	executable.validate --test node jsonlint;
+	# only run these tests if `jsonlint` is available
+	if [ -n "${executables[jsonlint]}" ]; then
+		local f;
+		# valid
+		for f in test/json/valid/*.json
+			do
+				# make path absolute
+				f="${root}/$f";
+				"${executables[jsonlint]}" "$f";
+				assert.eq "0" "$?";
+		done
+		# invalid
+		for f in test/json/invalid/*.json
+			do
+				f="${root}/$f";
+				"${executables[jsonlint]}" "$f";
+				assert.ne "0" "$?";
+		done
+	fi
+}

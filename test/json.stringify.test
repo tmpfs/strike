@@ -19,6 +19,7 @@ json_valid_strings=(
 	"that can't be so"
 	'an escaped newline\n\n value'	
 	'an escaped tab\t value'
+	"a literal tab				value"
 );
 
 # test(s) for encoding set and unset variables

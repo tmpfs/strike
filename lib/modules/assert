@@ -92,6 +92,18 @@ function assert.eq {
 	fi
 }
 
+# asserts that an integer is not equal to
+# an expected value
+function assert.ne {
+	local expected="${1:-}";
+	local received="${2:-}";
+	if [ "$received" -ne "$expected" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
 # FILE ASSERTIONS
 
 # assert with -f
