@@ -1,5 +1,5 @@
-# attempts to stringify set and unset variables
-function test.stringify.basic {
+# test(s) for encoding set and unset variables
+function test.json.stringify.basic {
 	local result;
 	
 	# test that an unset variable is detected
@@ -61,4 +61,65 @@ function test.stringify.basic {
 	assert.eq "0" "$?";
 	result=$( json.string );
 	assert.equal '{"key":"value"}' "$result";
+	
+	# TODO: null / numbers
+}
+
+# test(s) for encoding boolean values
+function test.json.stringify.boolean {
+	local result doc="true";
+	json.stringify <<< "doc";
+	result=$( json.string );	
+	assert.equal "true" "$result";
+	
+	doc="false";
+	json.stringify <<< "doc";
+	result=$( json.string );	
+	assert.equal "false" "$result";
+	
+	doc=true;
+	json.stringify <<< "doc";
+	result=$( json.string );	
+	assert.equal "true" "$result";
+	
+	doc=false;
+	json.stringify <<< "doc";
+	result=$( json.string );	
+	assert.equal "false" "$result";	
+}
+
+# test(s) for encoding null values
+function test.json.stringify.null {
+	local result doc="null";
+	json.stringify <<< "doc";
+	result=$( json.string );
+	assert.equal "null" "$result";
+	
+	doc=null;
+	json.stringify <<< "doc";
+	result=$( json.string );	
+	assert.equal "null" "$result";
+}
+
+# test(s) for encoding an integers
+function test.json.stringify.integer {
+	local result doc="127";
+	json.stringify <<< "doc";
+	result=$( json.string );
+	assert.equal "127" "$result";
+	
+	doc=127;
+	json.stringify <<< "doc";
+	result=$( json.string );
+	assert.equal "127" "$result";
+	
+	doc="-127";
+	json.stringify <<< "doc";
+	result=$( json.string );
+	assert.equal "-127" "$result";
+	
+	doc=-127;
+	json.stringify <<< "doc";
+	result=$( json.string );
+	assert.equal "-127" "$result";		
 }

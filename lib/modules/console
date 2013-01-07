@@ -224,7 +224,11 @@ function console.colorize {
 #	$2-@	The remaining string replacements to be highlighted.
 ######################################################################
 function console.sprintf {
-	_result=$(printf "${@}");
+	# escape hyphens
+	local var="$*";
+	var="${var//-/\-}";
+	_result=$(printf "$var");
+	_result="${_result//\\-/-}";
 }
 
 #TODO : integrate this logic so no highlighting is performed when not a terminal
@@ -554,5 +558,6 @@ alias "quit=console.quit";
 #quit 127;
 #quit 127 "this is an error message";
 #success "success";
+#success;
 
 #alias;
