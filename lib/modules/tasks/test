@@ -8,7 +8,7 @@ Unit test task(s) for bake(1).
 
 ## DESCRIPTION
 
-Adds task methods for unit testing bash(1) programs, unit tests are defined in files with a `.test` extension.
+Adds task methods for unit testing bash(1) programs, unit tests are defined in files with a `.test` extension or as standalone executables with the `test/bin` directory.
 
 ## REQUIRE
 
@@ -32,21 +32,21 @@ When no test suites are specified all test suites will be executed, otherwise pa
 	
 	If some tests have been excluded they are listed at the end with each test suite name preceeded by an exclamation mark '!'.
 	
-* `ant`:
+* `make`:
 
-	Attempts to run an ant(1) *test* target.
+	Attempts to run a make(1) *test* target.
 	
 * `rake`:
 
 	Attempts to run a rake(1) *test* task.
 	
-* `mvn`:
+* `ant`:
 
-	Attempts to run a mvn(1) *test* goal.
+	Attempts to run an ant(1) *test* target.	
 	
 * `mvn`:
 
-	Attempts to run a make(1) *test* rule.
+	Attempts to run a mvn(1) *test* goal.
 
 ## FILES
 
