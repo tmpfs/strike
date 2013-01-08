@@ -61,6 +61,7 @@ function test.project {
 	json_expected[added1]=$( < "$exedir/added.1.json" );
 	json_expected[added1meta]=$( < "$exedir/added.1.meta.json" );
 	json_expected[added2]=$( < "$exedir/added.2.json" );
+	json_expected[added2nometa]=$( < "$exedir/added.2.nometa.json" );	
 	json_expected[added3]=$( < "$exedir/added.3.json" );
 	
 	# last exit code
@@ -118,34 +119,24 @@ function test.project {
 	assert.equal "${test_project_path}" "${projects[1]}";
 
 	local count=$( tasks.project count );
-	assert.eq "1" "${count}";
+	assert.eq "1" "${count}";	
 	
 	# add some meta information to the first project
 	tasks.project set "${test_project_id}" "license" "MIT" "License";
 	tasks.project set "${test_project_id}" "author" "muji";
 	tasks.project set "${test_project_id}" "email" "<noop@xpm.io>";
-	
+
 	# check json output after adding the meta information
 	contents=$( tasks.project print );
 	assert.equal "${json_expected[added1meta]}" "$contents";
 	
-	# add a property to the second project
-	tasks.project set "${test_project_dup}" "license" "MIT" "License";	
+	# list all properties and assert on length
+	local properties=( $( tasks.project get ) );
+	assert.eq "10" "${#properties[@]}";
 	
-	# list all properties
-	tasks.project get;
-
-	# # list all meta properties for the first project
-	tasks.project get "${test_project_id}";
-	
-	# # list a specific property for the second project
-	tasks.project get "${test_project_dup}" "license";
-	
-	# delete all the properties from the first project
-	tasks.project del "${test_project_id}" "license" "author" "email";
-	
-	cat target/projects.json
-	exit 0;
+	# attempt to set property on non-existent project
+	tasks.project set "${test_project_dup}" "license" "MIT" "License" > /dev/null 2>&1 & wait %%;
+	assert.gt "0" "$?";
 	
 	# add another project
 	tasks.project add "${test_project_dup}" "${test_project_path}";
@@ -157,7 +148,37 @@ function test.project {
 	
 	# should have two projects now
 	count=$( tasks.project count );
-	assert.eq "2" "${count}";
+	assert.eq "2" "${count}";	
+	
+	# add a property to the second project
+	tasks.project set "${test_project_dup}" "license" "MIT" "License";
+	
+	# list all properties after adding property to second project
+	# and assert on length
+	properties=( $( tasks.project get ) );
+	assert.eq "14" "${#properties[@]}";
+
+	# list all meta properties for the first project
+	properties=( $( tasks.project get "${test_project_id}" ) );
+	assert.eq "10" "${#properties[@]}";
+	
+	# # list a specific property for the second project
+	properties=( $( tasks.project get "${test_project_dup}" "license" ) );
+	assert.eq "4" "${#properties[@]}";
+	
+	# delete all the properties from the first project
+	tasks.project del "${test_project_id}" "license" "author" "email";
+	
+	# should only have 4 entries now
+	properties=( $( tasks.project get ) );
+	assert.eq "4" "${#properties[@]}";
+	
+	# delete the property added to the duplicate
+	tasks.project del "${test_project_dup}" "license";
+	
+	# json output should be correct
+	contents=$( tasks.project print );
+	assert.equal "${json_expected[added2nometa]}" "$contents";
 	
 	# remove the second project added
 	tasks.project rm "${test_project_dup}";

@@ -110,6 +110,7 @@ require.once 'json';
 declare -g project_id_regexp="^[-a-zA-Z0-9]+$";
 declare -g project_path_regexp="^([a-zA-Z]+://|/|\./|\.\./)";
 declare -g project_remote_regexp="^[a-zA-Z]+://";
+declare -g project_file_name="projects.json";
 
 function tasks.project {
 	__project.file;
@@ -295,6 +296,12 @@ function prj.tasks.project.set {
 	shift;
 	__project.id.validate;
 	
+	# check the project exists before attempting to
+	# set and meta properties
+	if ! __project.exists?; then
+		__project.project.missing.quit;
+	fi
+	
 	prj_meta_name="${1:-}";
 	shift;
 	__project.id.validate "$prj_meta_name";
@@ -305,8 +312,6 @@ function prj.tasks.project.set {
 	
 	# gobble all remaining options as the value
 	prj_meta_value="$@";
-	
-	#echo "setting with : $prj_id : $prj_meta_name : $prj_meta_value";
 	
 	# read in the existing data
 	__project.file.read;
@@ -410,11 +415,11 @@ function prj.tasks.project.del {
 			shift;
 			__project.id.validate "$prj_meta_name";
 	
-			# echo "deleting with : $prj_id : $prj_meta_name";
+			#echo "deleting with : $prj_id : $prj_meta_name";
 	
 			# delete the property in the `meta` object for the project
 			local prop_key="projects.${prj_id}.meta.${prj_meta_name}";
-			# echo "deleting property with key: $prop_key";
+			#echo "deleting property with key: $prop_key";
 			unset prj_doc["$prop_key"];
 	done
 	
@@ -583,7 +588,7 @@ function __project.path.remote? {
 
 # retrieve the path to the projects file
 function __project.file {
-	_result="${root}/projects.json";
+	_result="${root}/${project_file_name}";
 }
 
 # read in the project file data
@@ -605,6 +610,15 @@ function __project.file.read {
 	done
 	# clean up json data
 	json.clean;
+}
+
+# quit on non-existent project
+function __project.project.missing.quit {
+	local id="${1:-}";
+	if [ -z "$id" ]; then 
+		id="${prj_id}";
+	fi
+	console.quit 1 "no project %s exists, use %s" "$id" "project add";
 }
 
 # quit on no identifier
@@ -630,7 +644,7 @@ function __project.file.exists.quit {
 
 # info on creating a project file
 function __project.file.missing.info {
-	console.info "use %s to create an empty projects.json file" "project init";
+	console.info "use %s to create an empty %s file" "project init" "${project_file_name}";
 }
 
 # quit if no project file is available
