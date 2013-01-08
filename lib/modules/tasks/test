@@ -28,7 +28,9 @@ When no test suites are specified all test suites will be executed, otherwise pa
 	
 * `ls`:
 
-	List test suites and test methods (if test methods have been specified).
+	List test suites and test methods (if test methods have been specified). Use this command to test which test suites would be matched by the commands passed to task-test(7).
+	
+	If some tests have been excluded they are listed at the end with each test suite name preceeded by an exclamation mark '!'.
 	
 * `ant`:
 
@@ -65,6 +67,14 @@ ronn:markdown
 
 # core assertion methods
 require 'assert';
+
+# list of configured test names to exclude when running
+# all tests
+declare -ag __test_excludes;
+__test_excludes=();
+
+# list of tests that have been excluded
+declare -Ag __test_excluded;
 
 function tasks.test {
 	local stdout="${target}/test.stdout.log";
@@ -139,6 +149,14 @@ function tasks.test {
 	fi
 }
 
+# adds a test as being excluded from the tests
+# executed when running all tests
+function tasks.test.exclude! {
+	if [ -n "${1:-}" ]; then
+		__test_excludes+=( "$1" );
+	fi
+}
+
 # invoke an ant(1) *test* target
 function tdd.tasks.test.ant {
 	require.once 'tasks/ext/build/ant';
@@ -169,6 +187,7 @@ function tdd.tasks.test.ls {
 	
 	# gather test suites
 	if [ $# -eq 0 ]; then
+		all=true;		
 		__assert_get_all;
 	else
 		__assert_get_suites "$@";
@@ -192,6 +211,12 @@ function tdd.tasks.test.ls {
 				done
 			fi
 	done
+	
+	for unit in ${!__test_excluded[@]}
+		do
+			path="${__test_excluded["$unit"]}";
+			console.log "!${unit} $path";
+	done	
 }
 
 function tdd.tasks.test.run {
@@ -227,16 +252,11 @@ function __assert.run {
 }
 
 function __assert.suite.add {
-	# NOTE: if we are running in the context
-	# NOTE: of the library code and the tast-test.test
-	# NOTE: file is found when running all tests we skip it.
-	# NOTE: this enables running: `bake run task-test`
-	# NOTE: to verify the output when a test fails
-	# NOTE: yet enable all test to pass when running `bake test`
-	# NOTE: on the library code
-	if process.lib? && $all && [ "$1" == "task-test" ]; then
-		return 0;
+	if $all && array.contains? "$1" "${__test_excludes[@]:-}"; then
+		__test_excluded["$1"]="$2";
+		builtin return 0;
 	fi
+	
 	if [ -f "$2" ]; then
 		suites+=( "$1" );
 		paths["$1"]="$2";

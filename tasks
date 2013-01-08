@@ -5,6 +5,12 @@ require 'tasks/ext/build/rake';
 require 'tasks/ext/build/ant';
 require 'tasks/ext/npm';
 
+# exclude these tasks from the default test runner
+# this test is used to force failure
+tasks.test.exclude! "task-test";
+# this test is slow and should be run manually
+tasks.test.exclude! "jsonlint";
+
 function tasks.json.checker.compile {
 	executable.validate gcc;
 	local exename="jsoncheck";
