@@ -49,6 +49,31 @@ When no test suites are specified all test suites will be executed, otherwise pa
 * `mvn`:
 
 	Attempts to run a mvn(1) *test* goal.
+	
+## EXAMPLES
+
+These examples are based on the unit tests in the `test` directory of the strike(7) repository.
+
+The following commands are equivalent for running all tests:
+
+	bake test
+	bake test run
+	
+Run an individual test suite:
+
+	bake test run json.stringify
+	
+Run a single method of a test suite:
+
+	bake test run json.stringify:basic
+	
+Note you omit the `test` prefix as well as the test suite prefix `json.stringify` when referencing method names.
+
+Run multiple methods of a test suite delimited by the colon ':' character:
+
+	bake test run json.stringify:basic:boolean
+	
+It is an error condition to have a leading or trailing colon and the exit code will be >0 in this situation.
 
 ## FILES
 
