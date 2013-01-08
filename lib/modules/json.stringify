@@ -25,7 +25,7 @@ function json.stringify {
 	local pretty=0;
 	local space=' ';
 	local indent="";
-	local depth=0;
+	local depth=-1;
 	
 	# echo "json.stringify"
 	
@@ -33,14 +33,18 @@ function json.stringify {
 		pretty=1;
 		local indent_repeat="${2:-2}";
 		space=${3:-$space};
-		string.repeat "${space}" "${indent_repeat}";
+		
+		# debug whitespace pretty printing using a dot!
+		string.repeat "." "${indent_repeat}";
+		
+		# string.repeat "${space}" "${indent_repeat}";
 		indent="$_result";
 		
-		objstart="${objstart}${newline}";
-		objend="${newline}${objend}";
-		
-		arrstart="${arrstart}${newline}";
-		arrend="${newline}${arrend}";
+		# objstart="${objstart}${newline}";
+		# objend="${newline}${objend}";
+		# 
+		# arrstart="${arrstart}${newline}";
+		# arrend="${newline}${arrend}";
 	fi
 	
 	# this allows us to accept options and read from stdin
@@ -130,6 +134,7 @@ function __json.stringify.array {
 		return 0;
 	fi
 	
+	: $((depth++));	
 	__json.stringify.array.start;
 	local json_data="$1";
 	local key value;
@@ -158,12 +163,7 @@ function __json.stringify.array {
 			# direct array property
 			if [[ ! "$key" =~ \. ]]; then
 				eval value="\${$json_data[$key]}";
-				# encode the value
-				__json.stringify.value "$value";
-				json="${json}${indent}${_result},";
-				if [ $pretty -eq 1 ]; then
-					json="${json}${newline}";
-				fi
+				__json.add.value;
 				unset arrkeys[$i];
 			# nested dot-style property
 			else
@@ -204,15 +204,40 @@ function __json.stringify.array {
 	# remove any trailing comma
 	json="${json%,}";
 	__json.stringify.array.end;
+	: $((depth--));
+}
+
+function __json.stringify.indent {
+	local add="${1:-0}";
+	local amount=$((depth+add));
+	string.repeat "${indent}" "${amount}";
 }
 
 function __json.stringify.array.start {
-	json="${json}${arrstart}";
+	local whitespace="";
+	if [ $pretty -eq 1 ]; then
+		__json.stringify.indent;
+		whitespace="$_result";		
+		if [ $depth -gt 0 ]; then
+			whitespace="${newline}${whitespace}";
+		fi
+	fi
+	json="${json}${whitespace}${arrstart}";
 }
 
 
 function __json.stringify.array.end {
-	json="${json}${arrend}";
+	local whitespace="";
+	if [ $pretty -eq 1 ]; then
+		__json.stringify.indent;
+		whitespace="$_result";
+		if [ $depth -gt 0 ]; then
+			whitespace="${newline}${whitespace}";
+		elif [ $depth -eq 0 ]; then
+			whitespace="${newline}";
+		fi
+	fi
+	json="${json}${whitespace}${arrend}";
 }
 
 function __json.stringify.object {
@@ -248,6 +273,7 @@ function __json.stringify.object {
 		return 0;
 	fi
 	
+	: $((depth++));	
 	__json.stringify.object.start;
 	
 	declare -A nested;
@@ -316,13 +342,11 @@ function __json.stringify.object {
 				
 				# echo "got keys: ${keys[*]}";
 				
-				# # FIXME: ensure key value is quoted using the shared method
-				__json.stringify.quote "$nk";
-				json="${json}${_result}:";
+				__json.stringify.object.start.nested "$nk";
+				
 				#echo "PROCESSING NESTED KEY ON: $nk";
-				: $((depth++));
-				__json.stringify.object "$nestedkey";
-				: $((depth--));				
+				
+				__json.stringify.object "$nestedkey";	
 				json="${json},";
 				
 				#echo "cleaning $nestedkey";
@@ -345,27 +369,83 @@ function __json.stringify.object {
 	json="${json%$newline}";
 	json="${json%,}";
 	__json.stringify.object.end;
+	: $((depth--));		
+}
+
+function __json.stringify.object.start.nested {
+	local whitespace="";
+	if [ $pretty -eq 1 ]; then
+		__json.stringify.indent;
+		whitespace="$_result";		
+		#if [ $depth -gt 0 ]; then
+			whitespace="${newline}${indent}";
+		#fi
+	fi
+	__json.stringify.quote "$nk";
+	json="${json}${whitespace}${_result}:";
 }
 
 function __json.stringify.object.start {
-	json="${json}${objstart}";	
+	local whitespace="";
+	if [ $pretty -eq 1 ]; then
+		if [ $depth -gt 0 ]; then
+			whitespace="${space}";
+		fi
+	fi
+	json="${json}${whitespace}${objstart}";	
 }
 
 function __json.stringify.object.end {
-	json="${json}${objend}";
+	local whitespace="";
+	if [ $pretty -eq 1 ]; then
+		__json.stringify.indent;
+		whitespace="$_result";
+		if [ $depth -gt 0 ]; then
+			whitespace="${newline}${indent}";
+		elif [ $depth -eq 0 ]; then
+			whitespace="${newline}";
+		fi
+	fi	
+	json="${json}${whitespace}${objend}";
 }
 
+# add an array value
+function __json.add.value {
+	local whitespace="";
+	if [ $pretty -eq 1 ]; then
+		# get indent at this level
+		__json.stringify.indent 1;
+		# newline preceeding any value
+		whitespace="${newline}${_result}";
+	fi
+	# encode the value
+	__json.stringify.value "$value";	
+	json="${json}${whitespace}${_result},";
+}
+
+# add an object key/value pair
 function __json.add.key.value {
+	local whitespace="";
+	if [ $pretty -eq 1 ]; then
+		whitespace="${newline}";
+		# get indent at this level
+		__json.stringify.indent 1;
+		# newline preceeding any value
+		whitespace="${newline}${_result}";		
+	fi	
+	
 	# quote the key
 	__json.stringify.quote "$1";
-	json="${json}${indent}${_result}:";
+	json="${json}${whitespace}${_result}:";
+	
+	# space between colon and value
+	if [ $pretty -eq 1 ]; then
+		json="${json}${space}";
+	fi
 	
 	# encode the value
 	__json.stringify.value "$2";
 	json="${json}${_result},";
-	if [ $pretty -eq 1 ]; then
-		json="${json}${newline}";
-	fi
 }
 
 function __json.stringify.quote {
