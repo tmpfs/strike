@@ -15,15 +15,11 @@ declare -g __assert_standalone=true;
 
 declare -g header;
 
-# declare -g __assert_pipe;
-
 # CONSTRUCTOR
 
 function assert.initialize {
 	string.repeat "+" 80;
 	header="$_result";
-	
-	#__assert_pipe="/tmp/strike-assert-pipe";
 }
 
 # MANUAL ASSERTIONS
@@ -190,23 +186,12 @@ function assert.parse {
 
 # output the assertion summary
 function assert.summary {
-	
-	#echo "summary called!!! $__assert_standalone"
-	
 	__assert.write.summary!;
-	
-	
-	#echo "after write!!! $__assert_standalone"	
-	
 	# if running standalone then
 	# we print the summary
 	if $__assert_standalone; then
-		echo "printing summary !!"
-		# close the pipe
-		# __assert.pipe.close;
 		__assert.print.summary;
 	fi
-	#echo "before return!!!"
 	return 0;
 }
 
@@ -240,14 +225,8 @@ function __assert.write.summary! {
 		name="${name}.${process_name}";
 	fi
 	local resultfile="${test_result_dir}/${name}.json";
-	
-	echo "result file is: $resultfile : ${!summary[@]} : ${summary[@]}"
-	
-	#echo "result file: $resultfile";
+	#echo "result file is: $resultfile : ${!summary[@]} : ${summary[@]}"
 	json.stringify <<< "summary" || quit 1 "could not create json result data";
-	
-	#echo "after stringify!!"
-	
 	json.string > "${resultfile}" || quit 1 "could not write test result file %s" "$resultfile";
 }
 

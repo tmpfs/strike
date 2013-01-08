@@ -452,6 +452,7 @@ function __assert_run_test {
 		__assert_run_test_executable "${file}";
 	# run test as a .test source file
 	else
+		# TODO: add json summaries for test suites invoked
 		: $((summary[suites]++));
 		
 		# TODO: unload the module after the test suite has completed
@@ -552,7 +553,7 @@ function __assert_run_test_executable {
 		if [ ! -f "$resultfile" ]; then
 			console.warn "could not find result file %s" "$resultfile";
 		else
-			echo "read summary file: $resultfile";
+			console.info "summary %s" "$resultfile";
 			json.parse < "$resultfile";
 			if [ -n "${!summary[*]}" ]; then
 				: $((summary[assertions]+=${json_doc[assertions]}));
