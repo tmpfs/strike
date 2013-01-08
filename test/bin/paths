@@ -58,7 +58,7 @@ function paths {
 				console.warn "%s is not executable" "$path";
 				exit 1;
 			fi
-			"$path" list && console.info "$msg (%s)" "$path";
+			"$path" ls && console.info "$msg (%s)" "$path";
 			if [ $? -ne 0 ]; then
 				console.quit 1 "path test failed for %s" "$path";
 			fi
