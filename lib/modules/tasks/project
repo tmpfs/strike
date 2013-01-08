@@ -80,7 +80,9 @@ Project identifiers must be unique and must consist solely of the hyphen '-' and
 	
 * `rm`:
 
-	Remove project(s) with the specified identifier.
+	Remove project(s) with the specified identifier(s).
+	
+	If any of the project identifiers do not exist this command will exit with a code >0 and no further project identifiers will be processed.
 	
 ## FLAG OPTIONS
 
