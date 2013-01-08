@@ -25,7 +25,7 @@ In your tasks(7) file `require` the `project` task(s) using:
 	bake project count
 	bake project set [id] [name] [value]
 	bake project get [id] [name]
-	bake project del [id] [name]
+	bake project del [id] [name...]
 	bake project rm [id]
 	
 ## IDENTIFIERS
@@ -48,7 +48,7 @@ Project identifiers must be unique and must consist solely of the hyphen '-' and
 	
 * `set`:
 
-	Set a meta data property for a project.
+	Set a meta data property for a project. Note that if multiple options are specified after the `name` option for the `value` then they are concatented into a single `value` using a space character as the delimiter.
 	
 * `get`:
 
@@ -56,7 +56,7 @@ Project identifiers must be unique and must consist solely of the hyphen '-' and
 	
 * `del`:
 
-	Delete a meta data property for a project.
+	Deletes meta data properties for a project.
 	
 * `ls`:
 
@@ -384,18 +384,21 @@ function prj.tasks.project.del {
 	shift;
 	__project.id.validate;
 	
-	prj_meta_name="${1:-}";
-	shift;
-	__project.id.validate "$prj_meta_name";
-	
-	# echo "deleting with : $prj_id : $prj_meta_name";
-	
 	# read in the existing data
 	__project.file.read;
 	
-	# delete the property in the `meta` object for the project
-	local prop_key="projects.${prj_id}.meta.${prj_meta_name}";
-	unset prj_doc["$prop_key"];
+	while [ $# -gt 0 ];
+		do
+			prj_meta_name="${1:-}";
+			shift;
+			__project.id.validate "$prj_meta_name";
+	
+			# echo "deleting with : $prj_id : $prj_meta_name";
+	
+			# delete the property in the `meta` object for the project
+			local prop_key="projects.${prj_id}.meta.${prj_meta_name}";
+			unset prj_doc["$prop_key"];
+	done
 	
 	# update the file
 	__project.file.write!;

@@ -129,16 +129,16 @@ function test.project {
 	contents=$( tasks.project print );
 	assert.equal "${json_expected[added1meta]}" "$contents";
 
-	# list all meta properties
+	# list all meta properties for the first project
 	tasks.project get "${test_project_id}";
 	
 	# list a specific property
 	tasks.project get "${test_project_id}" "license";
 	
 	# delete all the properties
-	tasks.project del "${test_project_id}" "license";
-	tasks.project del "${test_project_id}" "author";
-	tasks.project del "${test_project_id}" "email";
+	tasks.project del "${test_project_id}" "license" "author" "email";
+	# tasks.project del "${test_project_id}" "author";
+	# tasks.project del "${test_project_id}" "email";
 	
 	cat target/projects.json
 	exit 0;

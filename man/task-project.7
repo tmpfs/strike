@@ -36,6 +36,7 @@ bake project ls
 bake project count
 bake project set [id] [name] [value]
 bake project get [id] [name]
+bake project del [id] [name\.\.\.]
 bake project rm [id]
 .
 .fi
@@ -67,13 +68,19 @@ If the path specified is a filesystem path then it must point to a valid directo
 \fBset\fR:
 .
 .IP
-Set a meta data property for a project\.
+Set a meta data property for a project\. Note that if multiple options are specified after the \fBname\fR option for the \fBvalue\fR then they are concatented into a single \fBvalue\fR using a space character as the delimiter\.
 .
 .TP
 \fBget\fR:
 .
 .IP
 Get a meta data property for a project\. If no property name is specified all meta data for the project is output\.
+.
+.TP
+\fBdel\fR:
+.
+.IP
+Delete a meta data property for a project\.
 .
 .TP
 \fBls\fR:
