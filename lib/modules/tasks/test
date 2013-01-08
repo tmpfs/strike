@@ -63,6 +63,10 @@ Run an individual test suite:
 
 	bake test run json.stringify
 	
+Run multiple test suites:
+
+	bake test run json.stringify json.checker
+	
 Run a single method of a test suite:
 
 	bake test run json.stringify:basic
