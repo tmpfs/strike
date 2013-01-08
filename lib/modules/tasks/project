@@ -489,11 +489,11 @@ function prj.tasks.project.print {
 		__project.file.read;
 		json.stringify --pretty <<< "prj_doc";
 		json.string;
-		# add a tailing newline
-		echo "";
 	else
 		cat "$prjfile";
 	fi
+	# add a trailing newline
+	echo "";	
 }
 
 function prj.tasks.project.ls {
