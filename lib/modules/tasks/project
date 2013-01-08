@@ -26,6 +26,7 @@ In your tasks(7) file `require` the `project` task(s) using:
 	bake project set [id] [name] [value]
 	bake project get [id] [name]
 	bake project del [id] [name...]
+	bake project print [--pretty]
 	bake project rm [id...]
 	
 ## IDENTIFIERS
@@ -89,6 +90,10 @@ Project identifiers must be unique and must consist solely of the hyphen '-' and
 * `-f | --force`:
 
 	Add a project by force even if a project with the same identifier already exists.
+	
+* `--pretty`:
+
+	Use in conjunction with the `print` command to pretty print the JSON.
 	
 ## FILES
 
@@ -480,7 +485,15 @@ function prj.tasks.project.print {
 		__project.file.missing.info;
 		__project.file.missing.quit;
 	fi
-	cat "$prjfile";
+	if [ "${1:-}" == "--pretty" ]; then
+		__project.file.read;
+		json.stringify --pretty <<< "prj_doc";
+		json.string;
+		# add a tailing newline
+		echo "";
+	else
+		cat "$prjfile";
+	fi
 }
 
 function prj.tasks.project.ls {
