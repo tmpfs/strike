@@ -34,6 +34,7 @@ function json.stringify {
 		# string.repeat "." "${indent_repeat}";
 		
 		string.repeat "${space}" "${indent_repeat}";
+		
 		indent="$_result";
 	fi
 	
@@ -371,10 +372,11 @@ function __json.stringify.object {
 function __json.stringify.object.start.nested {
 	local whitespace="";
 	if $pretty; then
-		__json.stringify.indent;
+		__json.stringify.indent 1;
+		# echo "got nested whitespace ($nk): $_result";
 		whitespace="$_result";		
 		#if [ $depth -gt 0 ]; then
-			whitespace="${newline}${indent}";
+			whitespace="${newline}${whitespace}";
 		#fi
 	fi
 	__json.stringify.quote "$nk";
@@ -397,7 +399,7 @@ function __json.stringify.object.end {
 		__json.stringify.indent;
 		whitespace="$_result";
 		if [ $depth -gt 0 ]; then
-			whitespace="${newline}${indent}";
+			whitespace="${newline}${whitespace}";
 		elif [ $depth -eq 0 ]; then
 			whitespace="${newline}";
 		fi
