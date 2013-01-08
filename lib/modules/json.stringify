@@ -13,24 +13,20 @@ function json.stringify {
 	json.stringify.clean;
 	
 	local json="";
-	
 	local objstart="{";
 	local objend="}";
-	
 	local arrstart="[";
 	local arrend="]";
-	
+	local pretty=false;
+	local depth=-1;
+			
 	local newline="
 ";
-	local pretty=0;
 	local space=' ';
 	local indent="";
-	local depth=-1;
-	
-	# echo "json.stringify"
 	
 	if [ $# -gt 0 ] && [ "$1" == "--pretty" ]; then
-		pretty=1;
+		pretty=true;
 		local indent_repeat="${2:-2}";
 		space=${3:-$space};
 		
@@ -212,7 +208,7 @@ function __json.stringify.indent {
 function __json.stringify.array.start {
 	local whitespace="";
 	#echo "starting array with nested key: ${1:-}";
-	if [ $pretty -eq 1 ]; then
+	if $pretty; then
 		__json.stringify.indent;
 		whitespace="$_result";
 		if [ -n "${1:-}" ]; then
@@ -228,7 +224,7 @@ function __json.stringify.array.start {
 
 function __json.stringify.array.end {
 	local whitespace="";
-	if [ $pretty -eq 1 ]; then
+	if $pretty; then
 		__json.stringify.indent;
 		whitespace="$_result";
 		if [ $depth -gt 0 ]; then
@@ -374,7 +370,7 @@ function __json.stringify.object {
 
 function __json.stringify.object.start.nested {
 	local whitespace="";
-	if [ $pretty -eq 1 ]; then
+	if $pretty; then
 		__json.stringify.indent;
 		whitespace="$_result";		
 		#if [ $depth -gt 0 ]; then
@@ -387,7 +383,7 @@ function __json.stringify.object.start.nested {
 
 function __json.stringify.object.start {
 	local whitespace="";
-	if [ $pretty -eq 1 ]; then
+	if $pretty; then
 		if [ $depth -gt 0 ]; then
 			whitespace="${space}";
 		fi
@@ -397,7 +393,7 @@ function __json.stringify.object.start {
 
 function __json.stringify.object.end {
 	local whitespace="";
-	if [ $pretty -eq 1 ]; then
+	if $pretty; then
 		__json.stringify.indent;
 		whitespace="$_result";
 		if [ $depth -gt 0 ]; then
@@ -412,7 +408,7 @@ function __json.stringify.object.end {
 # add an array value
 function __json.add.value {
 	local whitespace="";
-	if [ $pretty -eq 1 ]; then
+	if $pretty; then
 		# get indent at this level
 		__json.stringify.indent 1;
 		# newline preceeding any value
@@ -426,7 +422,7 @@ function __json.add.value {
 # add an object key/value pair
 function __json.add.key.value {
 	local whitespace="";
-	if [ $pretty -eq 1 ]; then
+	if $pretty; then
 		whitespace="${newline}";
 		# get indent at this level
 		__json.stringify.indent 1;
@@ -439,7 +435,7 @@ function __json.add.key.value {
 	json="${json}${whitespace}${_result}:";
 	
 	# space between colon and value
-	if [ $pretty -eq 1 ]; then
+	if $pretty; then
 		json="${json}${space}";
 	fi
 	
