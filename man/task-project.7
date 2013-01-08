@@ -30,13 +30,18 @@ require \'tasks/project\';
 .nf
 
 bake project init
-bake project add id path|url [url\.\.\.]
-bake project exists id
+bake project add [flags\.\.\.] [id] [path|url] [url\.\.\.]
+bake project exists [id]
 bake project ls
 bake project count
-bake project rm id
+bake project set [id] [name] [value]
+bake project get [id] [name]
+bake project rm [id]
 .
 .fi
+.
+.SH "IDENTIFIERS"
+Project identifiers must be unique and must consist solely of the hyphen \'\-\' and alphanumeric characters\. They may not contain any other characters\. These rules for project identifiers also apply to meta property names specified using the \fBset\fR command\.
 .
 .SH "COMMANDS"
 .
@@ -53,10 +58,22 @@ Creates an empty projects file\. This command will exit with >0 exit code if a p
 Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url\. Subsequent options to \fBadd\fR are related URLs for the project\. Note that when specifying URLs they must be URL encoded so they do not contain any whitespace\.
 .
 .IP
-This command will create a projects file if it does not exist\.
+This command will create a projects file if it does not exist and overwrite any existing \fIprojects\.json\fR file\.
 .
 .IP
 If the path specified is a filesystem path then it must point to a valid directory\.
+.
+.TP
+\fBset\fR:
+.
+.IP
+Set a meta data property for a project\.
+.
+.TP
+\fBget\fR:
+.
+.IP
+Get a meta data property for a project\. If no property name is specified all meta data for the project is output\.
 .
 .TP
 \fBls\fR:
@@ -87,6 +104,14 @@ Print the raw JSON information\.
 .
 .IP
 Remove a project with the specified identifier\.
+.
+.SH "FLAG OPTIONS"
+.
+.TP
+\fB\-f | \-\-force\fR:
+.
+.IP
+Add a project by force even if a project with the same identifier already exists\.
 .
 .SH "FILES"
 The projects meta information is stored in a file named \fIprojects\.json\fR in the \fB${root}\fR of the current project\.

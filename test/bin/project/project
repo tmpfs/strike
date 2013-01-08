@@ -59,6 +59,7 @@ function test.project {
 	declare -A json_expected;
 	json_expected[init]=$( < "$exedir/init.json" );
 	json_expected[added1]=$( < "$exedir/added.1.json" );
+	json_expected[added1meta]=$( < "$exedir/added.1.meta.json" );
 	json_expected[added2]=$( < "$exedir/added.2.json" );
 	json_expected[added3]=$( < "$exedir/added.3.json" );
 	
@@ -118,6 +119,23 @@ function test.project {
 
 	local count=$( tasks.project count );
 	assert.eq "1" "${count}";
+	
+	# add some meta information to the first project
+	tasks.project set "${test_project_id}" "license" "MIT" "License";
+	tasks.project set "${test_project_id}" "author" "muji";
+	tasks.project set "${test_project_id}" "email" "<noop@xpm.io>";
+	
+	# check json output after adding the meta information
+	contents=$( tasks.project print );
+	assert.equal "${json_expected[added1meta]}" "$contents";
+	
+	# delete all the properties
+	tasks.project del "${test_project_id}" "license";
+	tasks.project del "${test_project_id}" "author";
+	tasks.project del "${test_project_id}" "email";
+	
+	# cat target/projects.json
+	# exit 0;
 	
 	# add another project
 	tasks.project add "${test_project_dup}" "${test_project_path}";
