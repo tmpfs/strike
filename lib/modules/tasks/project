@@ -50,6 +50,8 @@ Project identifiers must be unique and must consist solely of the hyphen '-' and
 
 	Set a meta data property for a project. Note that if multiple options are specified after the `name` option for the `value` then they are concatented into a single `value` using a space character as the delimiter. If the project property with the specified name exists it is overwritten.
 	
+	Attempting to set a property on a non-existent project will result in an error code >0.
+	
 * `get`:
 
 	Get a meta data property for a project. If no property name is specified all meta data for the project is output. If no project identifier is specified then all project properties are listed.

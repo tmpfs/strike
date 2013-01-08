@@ -73,15 +73,20 @@ function test.project {
 	local test_project_path="./target/test/${test_project_id}";
 	
 	# create the test project
-	mkdir -p "${test_project_path}";	
+	mkdir -p "${test_project_path}";
 	
 	# switch off errexit for these tests
-	set +o errexit;
+	set +o errexit;	
 	
 	# initialize an empty projects.json file
 	tasks.project init & wait %%;
 	assert.eq "0" "$?";
 	assert.file.exists? "${projectfile}";
+	
+	# attempt to call init with an existing projects file, exit code >0
+	set +o errexit;	
+	tasks.project init > /dev/null 2>&1 & wait %%;
+	assert.gt "0" "$?";
 	
 	# test print command
 	local contents=$( tasks.project print );

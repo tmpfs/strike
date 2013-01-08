@@ -68,19 +68,22 @@ If the path specified is a filesystem path then it must point to a valid directo
 \fBset\fR:
 .
 .IP
-Set a meta data property for a project\. Note that if multiple options are specified after the \fBname\fR option for the \fBvalue\fR then they are concatented into a single \fBvalue\fR using a space character as the delimiter\.
+Set a meta data property for a project\. Note that if multiple options are specified after the \fBname\fR option for the \fBvalue\fR then they are concatented into a single \fBvalue\fR using a space character as the delimiter\. If the project property with the specified name exists it is overwritten\.
+.
+.IP
+Attempting to set a property on a non\-existent project will result in an error code >0\.
 .
 .TP
 \fBget\fR:
 .
 .IP
-Get a meta data property for a project\. If no property name is specified all meta data for the project is output\.
+Get a meta data property for a project\. If no property name is specified all meta data for the project is output\. If no project identifier is specified then all project properties are listed\.
 .
 .TP
 \fBdel\fR:
 .
 .IP
-Delete a meta data property for a project\.
+Deletes meta data properties for a project\.
 .
 .TP
 \fBls\fR:

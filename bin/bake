@@ -14,7 +14,7 @@ bake(1) -- make for bash
 	
 # BUILTIN TASKS
 
-All bake(1) projects have the following tasks built in task-test(7), task-clean(7), task-list(7), task-doc(7) and task-semver(7).
+All bake(1) projects have the following tasks built in task-test(7), task-clean(7), task-ls(7), task-doc(7) and task-semver(7).
 
 # REQUIRE TASKS
 
@@ -64,7 +64,7 @@ It is recommended that task command implementations explicitly exit the program 
 
 ## SEE ALSO
 
-task-test(7), task-doc(7), task-clean(7), task-list(7)
+task-test(7), task-doc(7), task-clean(7), task-ls(7)
 ronn:markdown
 
 set -o errtrace;
