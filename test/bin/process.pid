@@ -24,7 +24,7 @@ boilerplate "$@";
 ######################################################################
 
 process.use 'strict';
-require 'assert';
+require.once 'assert';
 
 function pidfile {
 	# switch on pid file usage

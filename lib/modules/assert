@@ -1,3 +1,24 @@
+if [ -z "${!summary[@]:-}" ]; then
+	# the test summary must be global and exported for executables
+	# using inline assertions to be picked
+	declare -Ag summary;
+	summary[suites]=0;
+	summary[methods]=0;
+	summary[executables]=0;
+	summary[assertions]=0;
+	summary[assertions.pass]=0;
+	summary[assertions.fail]=0;
+fi
+
+declare -g header;
+
+# CONSTRUCTOR
+
+function assert.initialize {
+	string.repeat "+" 80;
+	header="$_result";
+}
+
 # MANUAL ASSERTIONS
 
 function assert.pass {
@@ -140,6 +161,15 @@ function assert.file.exists! {
 	fi
 }
 
+# function assert.inline {
+# 	
+# }
+
+# output the assertion summary
+function assert.summary {
+	__assert.print.summary;
+}
+
 ######################################################################
 #
 #	PRIVATE METHODS
@@ -149,9 +179,13 @@ function assert.file.exists! {
 function __assert_ok {
 	local ttyout="${ttyout:-}";
 	
+	# echo "got summary: ${!summary[@]}";
+	
 	if [ -n "${!summary[*]}" ]; then
 		: $((summary[assertions]++));
-		: $((summary[assertions.pass]++));		
+		: $((summary[assertions.pass]++));
+		
+		echo "adding assetions pass : ${summary[assertions]}";
 	fi
 	
 	local assertion="$1";
@@ -214,5 +248,73 @@ function __assert_err {
 	if [ ! -z "$ttyerr" ]; then
 		# restore stderr and close file descriptor #6
 		exec 1>&6 6>&-;
+	fi
+}
+
+function __assert.print.header {
+	local output="${1:-$output}";
+	if [ -z "$output" ]; then
+		output="console.log";
+	fi
+	$output "$header";
+}
+
+function __assert.print.summary {
+	
+	# switch output method for summary
+	# based on any assertions failing
+	local output="console.info";
+	
+	# some assertions failed
+	if [ ${summary[assertions.fail]} -gt 0 ]; then
+		output="console.warn";
+	fi
+	
+	echo "got summary information : ${!summary[@]} : ${summary[@]}";
+	
+	__assert.print.header $output;
+	
+	local testfiles=$(( ${summary[suites]} - ${summary[executables]} ));
+	
+	$output "suites (total): %s" "${summary[suites]}";
+	$output "suites (binary): %s" "${summary[executables]}";
+	$output "suites (test): %s" "$testfiles";
+	$output "methods: %s" "${summary[methods]}";
+	$output "assertions: %s" "${summary[assertions]}";
+	$output "assertions (pass): %s" "${summary[assertions.pass]}";
+	
+	if [ ${summary[assertions.fail]} -eq 0 ]; then
+		console.info "assertions (fail): %s" "${summary[assertions.fail]}";
+	else
+		console.warn "assertions (fail): %s" "${summary[assertions.fail]}";
+	fi
+	
+	if [ ${summary[assertions.fail]} -eq 0 ]; then
+		__assert.print.header;		
+		console.ok "test(s) passed %s" "✓";
+		exit 0;
+	else
+		
+		__assert.print.header;
+		console.warn "# FAILURES";
+		__assert.print.header;		
+		console.warn "# STDOUT: %s" "$stdout";
+		console.warn "# STDERR: %s" "$stderr";
+		__assert.print.header;
+		
+		local debuginfo;
+		for debuginfo in ${!failures[@]}
+			do
+				local assertion="${failures[$debuginfo]}";
+				local frame=${debuginfo%:*};
+				local method=${debuginfo##*:};
+				console.error "$assertion %s" "$method";
+				console.error "$frame";
+		done
+		
+		__assert.print.header;		
+		
+		console.error "test(s) failed %s" "✘";
+		exit ${summary[assertions.fail]};
 	fi
 }

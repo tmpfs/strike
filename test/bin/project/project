@@ -29,7 +29,7 @@ boilerplate "$@";
 
 process.use strict;
 
-require 'assert';
+require.once 'assert';
 require.once 'tasks/project';
 
 # tests for task-project(7)
@@ -254,6 +254,9 @@ function test.project {
 	# ls fails on no project file
 	tasks.project ls "${test_project_id}" > /dev/null 2>&1 & wait %%;
 	assert.gt "0" "$?";
+	
+	# print the summary
+	assert.summary;
 }
 
 test.project;

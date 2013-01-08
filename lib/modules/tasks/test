@@ -97,7 +97,7 @@ bake(1), assert(7)
 ronn:markdown
 
 # core assertion methods
-require 'assert';
+require.once 'assert';
 
 # list of configured test names to exclude when running
 # all tests
@@ -111,19 +111,8 @@ function tasks.test {
 	local stdout="${target}/test.stdout.log";
 	local stderr="${target}/test.stderr.log";
 	
-	string.repeat "+" 80;
-	local header="$_result";
-	
 	# are we running all available tests
 	local all=false;
-	
-	declare -A summary;
-	summary[suites]=0;
-	summary[methods]=0;
-	summary[executables]=0;
-	summary[assertions]=0;
-	summary[assertions.pass]=0;
-	summary[assertions.fail]=0;
 	
 	declare -A failures;
 	
@@ -333,7 +322,7 @@ function __assert.get.binary {
 	local bin binsuite;
 	if [ -d "$testbin" ]; then
 		# searching for binaries matching a suite name
-		if [ -n "$suite" ]; then
+		if ! $all; then
 			bin="${testbin}/${suite}";
 			binsuite="${bin#${testdir}/}";
 			# binary matching the suite name
@@ -343,7 +332,8 @@ function __assert.get.binary {
 				# do a greedy search for nested directories
 				# when not matched directly in the test/bin directory
 				#__assert.get.binary.all;
-				echo -ne '';
+				#echo -ne '';
+				__assert.get.binary.all "${suite}";
 			fi
 			# looking for suite.* binaries
 			for bin in ${testbin}/${suite}.*
@@ -360,14 +350,26 @@ function __assert.get.binary {
 }
 
 function __assert.get.binary.all {
+	# allow recursive globbing for this search
+	shopt -s globstar;
+	local suite="${1:-}";
+	local nm;
 	# looking for all binary tests
-	for bin in ${testbin}/**
+	for bin in "${testbin}"/**
 		do
-			if [ -f "$bin" ] && [ -x "$bin" ] ; then
-				binsuite="${bin#${testdir}/}";
-				__assert.suite.add "$binsuite" "$bin";
+			nm=$( basename "$bin" );
+			binsuite="${bin#${testdir}/}";	
+			if [ -f "$bin" ] && [ -x "$bin" ]; then
+				# add all binaries
+				if [ -z "$suite" ]; then
+					__assert.suite.add "$binsuite" "$bin";
+				elif [ -n "$suite" ] && [ "$nm" == "$suite" ]; then
+					__assert.suite.add "$binsuite" "$bin";					
+				fi
 			fi
-	done	
+	done
+	# switch off recursive globbing
+	shopt -u globstar;
 }
 
 # filter by suites specified on the command line
@@ -536,71 +538,5 @@ function __assert_run_test_executable {
 		assert.eq "0" "$binary_exit_code";
 	else
 		console.warn "test binary %s is not executable" "$binary";
-	fi
-}
-
-function __assert.print.header {
-	local output="${1:-$output}";
-	if [ -z "$output" ]; then
-		output="console.log";
-	fi
-	$output "$header";
-}
-
-function __assert.print.summary {
-	
-	# switch output method for summary
-	# based on any assertions failing
-	local output="console.info";
-	
-	# some assertions failed
-	if [ ${summary[assertions.fail]} -gt 0 ]; then
-		output="console.warn";
-	fi
-	
-	__assert.print.header $output;
-	
-	local testfiles=$(( ${summary[suites]} - ${summary[executables]} ));
-	
-	$output "suites (total): %s" "${summary[suites]}";
-	$output "suites (binary): %s" "${summary[executables]}";
-	$output "suites (test): %s" "$testfiles";
-	$output "methods: %s" "${summary[methods]}";
-	$output "assertions: %s" "${summary[assertions]}";
-	$output "assertions (pass): %s" "${summary[assertions.pass]}";
-	
-	if [ ${summary[assertions.fail]} -eq 0 ]; then
-		console.info "assertions (fail): %s" "${summary[assertions.fail]}";
-	else
-		console.warn "assertions (fail): %s" "${summary[assertions.fail]}";
-	fi
-	
-	if [ ${summary[assertions.fail]} -eq 0 ]; then
-		__assert.print.header;		
-		console.ok "test(s) passed %s" "✓";
-		exit 0;
-	else
-		
-		__assert.print.header;
-		console.warn "# FAILURES";
-		__assert.print.header;		
-		console.warn "# STDOUT: %s" "$stdout";
-		console.warn "# STDERR: %s" "$stderr";
-		__assert.print.header;
-		
-		local debuginfo;
-		for debuginfo in ${!failures[@]}
-			do
-				local assertion="${failures[$debuginfo]}";
-				local frame=${debuginfo%:*};
-				local method=${debuginfo##*:};
-				console.error "$assertion %s" "$method";
-				console.error "$frame";
-		done
-		
-		__assert.print.header;		
-		
-		console.error "test(s) failed %s" "✘";
-		exit ${summary[assertions.fail]};
 	fi
 }
