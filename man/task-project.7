@@ -37,7 +37,7 @@ bake project count
 bake project set [id] [name] [value]
 bake project get [id] [name]
 bake project del [id] [name\.\.\.]
-bake project rm [id]
+bake project rm [id\.\.\.]
 .
 .fi
 .
@@ -56,7 +56,7 @@ Creates an empty projects file\. This command will exit with >0 exit code if a p
 \fBadd\fR:
 .
 .IP
-Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote url\. Subsequent options to \fBadd\fR are related URLs for the project\. Note that when specifying URLs they must be URL encoded so they do not contain any whitespace\.
+Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote URL\. Subsequent options to \fBadd\fR are related URLs for the project\. Note that when specifying URLs they \fIshould\fR be URL encoded so they do not contain any whitespace (or quoted or escaped correctly)\.
 .
 .IP
 This command will create a projects file if it does not exist and overwrite any existing \fIprojects\.json\fR file\.
@@ -79,6 +79,9 @@ Attempting to set a property on a non\-existent project will result in an error 
 .IP
 Get a meta data property for a project\. If no property name is specified all meta data for the project is output\. If no project identifier is specified then all project properties are listed\.
 .
+.IP
+The output of this command is the project identifier than a space followed by the property name (a further space) and finally the property value\.
+.
 .TP
 \fBdel\fR:
 .
@@ -89,13 +92,13 @@ Deletes meta data properties for a project\.
 \fBls\fR:
 .
 .IP
-List projects\. The output of this command is the identifier followed by the path (or url) delimited by a space\.
+List projects\. The output of this command is the identifier followed by the path (or URL) delimited by a space\.
 .
 .TP
 \fBexists\fR:
 .
 .IP
-Determine whether a project with the specified id exists\.
+Determine whether a project with the specified identifier exists\.
 .
 .TP
 \fBcount\fR:
@@ -113,7 +116,7 @@ Print the raw JSON information\.
 \fBrm\fR:
 .
 .IP
-Remove a project with the specified identifier\.
+Remove project(s) with the specified identifier\.
 .
 .SH "FLAG OPTIONS"
 .
