@@ -109,13 +109,53 @@ function test.project {
 	tasks.project add "${test_project_dup}" "${test_project_path}";
 	assert.eq "0" "$?";
 	
-	cat target/projects.json;
-	exit 0;
+	# should have two projects now
+	count=$( tasks.project count );
+	assert.eq "2" "${count}";	
 	
-	tasks.project rm "${test_project_id}";
+	# cat target/projects.json;
+	# exit 0;
+	
+	# remove the second project added
+	tasks.project rm "${test_project_dup}";
+	
+	# back to only a single project
+	# after the call to rm
+	count=$( tasks.project count );
+	assert.eq "1" "${count}";
+	
+	# assert the original project data is present and correct
+	projects=( $( tasks.project ls ) );
+	assert.equal "${test_project_id}" "${projects[0]}";
+	assert.equal "${test_project_path}" "${projects[1]}";
+	
+	# and re-test the print command
+	contents=$( tasks.project print );
+	assert.equal "${json_expected[added1]}" "$contents";
+	
+	# add the second project again!
+	tasks.project add "${test_project_dup}" "${test_project_path}";
+	assert.eq "0" "$?";
+	
+	# should have two projects again
+	count=$( tasks.project count );
+	assert.eq "2" "${count}";
+	
+	#now remove them both
+	tasks.project rm "${test_project_id}" "${test_project_dup}";
+	
+	# no projects left
+	count=$( tasks.project count );
+	assert.eq "0" "${count}";
+	projects=( $( tasks.project ls ) );	
+	assert.eq "0" "${#projects[@]}";
+	
+	# json output should be equal to the original `init`
+	contents=$( tasks.project print );
+	assert.equal "${json_expected[init]}" "$contents";
 	
 	# clean up so subsequent test runs will succeed
-	{ rm "${projectfile}" && console.info "removed project file %s" "$projectfile"; };
+	{ rm "${projectfile}" && console.info "%s removed project file %s" "$FUNCNAME" "$projectfile"; };
 	
 	# exists fails on no project file
 	tasks.project exists "${test_project_id}" > /dev/null 2>&1 & wait %%;

@@ -164,8 +164,8 @@ function prj.tasks.project.add {
 	shift;
 	__project.path.validate;
 	
-	echo "adding project with id $prj_id";
-	echo "adding project with path $prj_path";
+	# echo "adding project with id $prj_id";
+	# echo "adding project with path $prj_path";
 	
 	# related URLs
 	declare -a urls;
@@ -209,7 +209,7 @@ function prj.tasks.project.add {
 		done
 	fi
 	
-	echo "got add keys: ${!prj_doc[@]}";
+	#echo "got add keys: ${!prj_doc[@]}";
 
 	__project.file.write!;
 }
@@ -253,18 +253,20 @@ function prj.tasks.project.rm {
 			prj_id="${1:-}";
 			shift;
 			__project.id.validate;
-			re="^projects\.${prj_id}";
+			re="^projects\.${prj_id}\.";
 			
-			echo "rm : $prj_id";
+			#echo "rm : $prj_id : ${!prj_doc[@]}";
 			
 			for k in "${!prj_doc[@]}"
 				do
 					if [[ "$k" =~ $re ]]; then
-						echo "got remove key: $k";
+						# echo "got remove key: $k";
 						unset prj_doc["$k"];
 					fi
 			done
 	done
+	
+	#echo "after remove got keys: ${!prj_doc[@]}";
 	
 	__project.file.write!;
 	
