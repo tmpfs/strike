@@ -165,12 +165,13 @@ function prj.tasks.project.add {
 	fi
 	
 	# flag options for this command
-	local flags=( "--force" );
+	local flags=( "--force" "-f" );
 	
-	# allow the force flag before the id/path
-	if [ "${1:-}" == "${flags[0]}" ]; then
-		shift;
-	fi
+	# allow the flag(s) before the id/path
+	while array.contains? "$1" "${flags[@]}";
+		do
+			shift;
+	done
 	
 	# get the id
 	prj_id="${1:-}";
@@ -209,11 +210,9 @@ function prj.tasks.project.add {
 	# now read in any existing information
 	__project.file.read;
 	
-	# TODO: implement --force option
-	
 	# test for id existence and prompt to overwrite?
 	if ! $force && __project.exists?; then
-		console.quit 1 "project %s exists use %s to overwrite" "$prj_id" "--force";
+		console.quit 1 "project %s exists use %s to overwrite" "$prj_id" "-f | --force";
 	fi
 	
 	prj_doc["projects.$prj_id.path"]="$prj_path";
@@ -324,7 +323,7 @@ function __project.options.parse {
 	# handle other options
 	while [ "${1:-}" != "" ]; do
 		case $1 in
-			--force )
+			-f | --force )
 				force=true;
 				;;
 		esac
