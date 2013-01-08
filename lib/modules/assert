@@ -1,3 +1,5 @@
+require.once json;
+
 if [ -z "${!summary[@]:-}" ]; then
 	# the test summary must be global and exported for executables
 	# using inline assertions to be picked
@@ -10,13 +12,24 @@ if [ -z "${!summary[@]:-}" ]; then
 	summary[assertions.fail]=0;
 fi
 
+# default to running as a standalone
+declare -g __assert_standalone=true;
+
 declare -g header;
+
+declare -g __assert_pipe;
 
 # CONSTRUCTOR
 
 function assert.initialize {
 	string.repeat "+" 80;
 	header="$_result";
+	
+	__assert_pipe="/tmp/strike-assert-pipe";
+	
+	if [[ ! -p $__assert_pipe ]]; then
+	    mkfifo $__assert_pipe;
+	fi
 }
 
 # MANUAL ASSERTIONS
@@ -161,13 +174,46 @@ function assert.file.exists! {
 	fi
 }
 
-# function assert.inline {
-# 	
-# }
+# parses command line options to see whether
+# this test is running standalone or from a test runner
+function assert.parse {
+	echo "assert.parse: $@";
+	local i opt;
+	for((i=1;i < $#+1;i++))
+		do
+			eval "opt=\"\${$i}\"";
+			case $opt in
+				--suite )
+					__assert_standalone=false;
+					;;
+				--standalone )
+					__assert_standalone=true;
+					;;
+			esac
+	done
+}
 
 # output the assertion summary
 function assert.summary {
-	__assert.print.summary;
+	# if running standalone then
+	# we just print the summary
+	if $__assert_standalone; then
+		# close the pipe
+		if [[ -p $__assert_pipe ]]; then
+		    echo "quit" >$__assert_pipe;
+		fi
+		__assert.print.summary;
+	else
+		if [[ -p $__assert_pipe ]]; then
+			json.stringify <<< "summary";
+			local json=$( json.string );
+		    echo "$json" >$__assert_pipe;
+			console.log "write $json > $__assert_pipe";
+			# reset standalone status
+			__assert_standalone=false;
+			console.success;
+		fi
+	fi
 }
 
 ######################################################################
@@ -179,13 +225,9 @@ function assert.summary {
 function __assert_ok {
 	local ttyout="${ttyout:-}";
 	
-	# echo "got summary: ${!summary[@]}";
-	
 	if [ -n "${!summary[*]}" ]; then
 		: $((summary[assertions]++));
 		: $((summary[assertions.pass]++));
-		
-		echo "adding assetions pass : ${summary[assertions]}";
 	fi
 	
 	local assertion="$1";
@@ -292,7 +334,7 @@ function __assert.print.summary {
 	if [ ${summary[assertions.fail]} -eq 0 ]; then
 		__assert.print.header;		
 		console.ok "test(s) passed %s" "✓";
-		exit 0;
+		console.success;
 	else
 		
 		__assert.print.header;

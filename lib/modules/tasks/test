@@ -99,6 +99,10 @@ ronn:markdown
 # core assertion methods
 require.once 'assert';
 
+# the test runner uses json to inter-process
+# communication with standalone executable tests
+require.once 'json';
+
 # list of configured test names to exclude when running
 # all tests
 declare -ag __test_excludes;
@@ -529,8 +533,23 @@ function __assert_run_test_executable {
 		: $((summary[executables]++));	
 		# execute the binary test file
 		# 1>> "$stdout" 2>> "$stderr" 
-		"$binary" 1>> "$stdout" 2>> "$stderr" &
-		wait %%;		
+		"$binary" --suite 1>> "$stdout" 2>> "$stderr" &
+		
+		# FIXME: add timeout attempting to read from test executable
+		# FIXME: add EXIT signal trap to close the named pipe on EXIT
+		if [[ -p $__assert_pipe ]]; then
+			console.info "reading summary from %s" "$__assert_pipe";
+			while true
+				do
+				    if read line <$__assert_pipe; then
+						echo "got line from named pipe: $line";
+						# break out of the loop on the first line of data
+						break;
+				    fi
+			done
+		fi
+		
+		wait %%;
 		local binary_exit_code="$?";
 		if [ $binary_exit_code -gt 0 ]; then
 			console.warn "binary test %s exited with non-zero code %s" "$binary_name" "$binary_exit_code";

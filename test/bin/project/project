@@ -32,6 +32,11 @@ process.use strict;
 require.once 'assert';
 require.once 'tasks/project';
 
+# let assert(3) know if this test
+# is being run standalone or as
+# part of a task-test(7) test suite
+assert.parse "$@";
+
 # tests for task-project(7)
 function test.project {
 	
