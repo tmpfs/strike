@@ -293,8 +293,13 @@ function __json.stringify.object {
 					do
 						if [[ "$nk" =~ ^$k ]]; then
 							nk="${nk#*.}";
-							# prevent duplicate key entries
-							if [[ ! "${nested[$k]:-}" == *"$nk"* ]]; then
+							
+							# FIXME: this test drops some keys, reinstate with better logic?
+							# FIXME: if was originally intended to reduce iterations and does
+							# FIXME: not appear to affect the output by not performing the test
+							
+							# XXX: this test is probably unnecessary as it doesn't reduce the iterations
+							if ! array.contains? "$nk" "${!nested[@]}"; then
 								nested["$k"]="${nested[$k]:-} $nk";
 							fi
 						fi
@@ -324,20 +329,29 @@ function __json.stringify.object {
 				# to prevent conflicts with internal names
 				nestedkey="__json__${nestedkey}";
 				
+				# echo "using nested key: $nestedkey";
+				
 				declare -A $nestedkey;
 				for ak in ${keys[@]}
 					do
 						# FIXME: work out why some data is lingering and causing unbound variable errors
+						# FIXME: create a document stringify it then delete some elements and re-stringify
+						# FIXME: to recreate the problem
+						
 						eval nv="\${$json_data[\"$nk.$ak\"]:-__json__null__}";
 						if [ "$nv" == "__json__null__" ]; then
 							continue;
 						fi
+						
+						# echo "adding key: $ak";
 						
 						eval "${nestedkey}[\"$ak\"]=\"$nv\"";
 						# unset keys["$ak"];
 				done
 				
 				# echo "got keys: ${keys[*]}";
+				# eval keys="(\${!$nestedkey[@]})";
+				# echo "keys are: ${keys[@]}";
 				
 				__json.stringify.object.start.nested "$nk";
 				
@@ -351,10 +365,11 @@ function __json.stringify.object {
 				# clean up the dynamic variable after recursion
 				unset $nestedkey;
 		done
+			
+		# clean up the list of nested objects
+		unset nested;		
 	fi
 	
-	# clean up the list of nested objects
-	unset nested;
 	# clean up the key information
 	unset keys;
 	
