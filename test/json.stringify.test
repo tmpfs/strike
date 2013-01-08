@@ -287,12 +287,12 @@ function test.json.stringify.object.multiple {
 	doc[null]=null;
 	doc[keys.name]="key name";
 	doc[keys.id]="key id";
-	json.stringify --pretty 2 <<< "doc";
+	json.stringify <<< "doc";
 	local received=$( json.string );
 	
-	echo "$received";
+	#echo "$received";
 	
-	# assert.equal '{"false":false,"key":"value","null":null,"true":true,"type":"test","obj1":{"path":"path1","id":"id1"},"obj2":{"path":"path2","id":"id2"},"arr":["a","b","c"],"keys":{"name":"key name","id":"key id"}}' "$received";
+	assert.equal '{"false":false,"key":"value","null":null,"true":true,"type":"test","obj1":{"path":"path1","id":"id1"},"obj2":{"path":"path2","id":"id2"},"arr":["a","b","c"],"keys":{"name":"key name","id":"key id"}}' "$received";
 }
 
 # ARRAY TESTS
@@ -347,12 +347,12 @@ function test.json.stringify.array.deep.arrays {
 	doc[3.0.2]="h";
 	doc[3.1.0]="i";
 	doc[3.1.1]="j";
-	json.stringify  --pretty 2 <<< "doc";
-	#json.stringify <<< "doc";
+	#json.stringify  --pretty 2 <<< "doc";
+	json.stringify <<< "doc";
 	#local str=$( json.string );
-	echo "$json_str";
-	# local received=$( json.string );
-	# assert.equal '["a",["b","c"],["d","e"],[["f","g","h"],["i","j"]]]' "$received";
+	#echo "$json_str";
+	local received=$( json.string );
+	assert.equal '["a",["b","c"],["d","e"],[["f","g","h"],["i","j"]]]' "$received";
 }
 
 # test for encoding an array of sparse indices
@@ -407,7 +407,10 @@ function test.json.stringify.object.pretty.space {
 	
 	local file="${testdir}/json/pretty/object.json";
 	local expected=$( < "$file" );
-	local received=$( json.string );	
+	local received=$( json.string );
+	
+	echo "$received";
+		
 	assert.equal "$expected" "$received";
 }
 
