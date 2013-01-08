@@ -34,6 +34,11 @@ process.use strict;
 require 'assert';
 require 'tasks/todo';
 
+# let assert(3) know if this test
+# is being run standalone or as
+# part of a task-test(7) test suite
+assert.parse "$@";
+
 # TODO: complete these tests
 function todo {
 	local file="$exedir/1.notes.todo";
@@ -69,13 +74,14 @@ function todo {
 	# done
 	
 	#echo "got file $file"
-	tasks.todo scan --file "$file";
+	tasks.todo scan --file "$file" & wait %%;
 	
 	# invoke the task function
 	#delegate "tasks" "todo" scan --file "$file" || quit $? "task %s failed" "$func";
 	
-	#echo "AFTER SCAN !!!! $output";
+	#echo "AFTER SCAN !!!! $?";
 }
 
 todo;
+assert.summary;
 exit 0;

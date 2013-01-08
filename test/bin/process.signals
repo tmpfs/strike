@@ -92,14 +92,13 @@ function signals {
 		sleep 2;
 		process.uptime;
 		console.info "uptime %s" "$_result";
+		assert.summary;	
 		exit 0;
 	}
 	
 	# start the process as a daemon
 	# with a custom method name
 	process.daemon.start! "loop";
-	
-	assert.summary;	
 }
 
 signals "$@";

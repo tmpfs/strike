@@ -15,7 +15,7 @@ declare -g __assert_standalone=true;
 
 declare -g header;
 
-declare -g __assert_pipe;
+# declare -g __assert_pipe;
 
 # CONSTRUCTOR
 
@@ -23,11 +23,7 @@ function assert.initialize {
 	string.repeat "+" 80;
 	header="$_result";
 	
-	__assert_pipe="/tmp/strike-assert-pipe";
-	
-	if [[ ! -p $__assert_pipe ]]; then
-	    mkfifo $__assert_pipe;
-	fi
+	#__assert_pipe="/tmp/strike-assert-pipe";
 }
 
 # MANUAL ASSERTIONS
@@ -194,26 +190,24 @@ function assert.parse {
 
 # output the assertion summary
 function assert.summary {
-	require.once json;
+	
+	#echo "summary called!!! $__assert_standalone"
+	
+	__assert.write.summary!;
+	
+	
+	#echo "after write!!! $__assert_standalone"	
 	
 	# if running standalone then
-	# we just print the summary
+	# we print the summary
 	if $__assert_standalone; then
+		echo "printing summary !!"
 		# close the pipe
-		__assert.pipe.close;
+		# __assert.pipe.close;
 		__assert.print.summary;
-	else
-		if [[ -p $__assert_pipe ]]; then
-			json.stringify <<< "summary";
-			local json=$( json.string );
-		    echo "$json" >$__assert_pipe;
-			__assert.pipe.close;	
-			console.log "wrote $json > $__assert_pipe";
-			# reset standalone status
-			__assert_standalone=false;
-			console.success;
-		fi
 	fi
+	#echo "before return!!!"
+	return 0;
 }
 
 ######################################################################
@@ -222,13 +216,39 @@ function assert.summary {
 #
 ######################################################################
 
-function __assert.pipe.close {
-	if [[ -p $__assert_pipe ]]; then	
-		$__assert_pipe>&- 2> /dev/null;
+function __assert.write.summary! {
+	require.once json;	
+	
+	fs.walk "tasks";
+	local base=$( dirname "$_result" );
+	local target="${target:-}";
+	if [ -z "${target}" ]; then
+		target="${base}/target";
 	fi
-	if [ -e "$__assert_pipe" ]; then
-		rm -rf "$__assert_pipe" 2> /dev/null;
+	local test_result_dir="${target}/test/result/bin";
+	if [ ! -d "$test_result_dir" ]; then
+		mkdir -p "$test_result_dir";
 	fi
+	local name="${process_dirs[root]}";
+	name="${name#${base}/test}";
+	name="${name#/}";
+	name="${name#bin/}";
+	name="${name//\//.}";
+	if [ -z "$name" ]; then
+		name="${process_name}";
+	else
+		name="${name}.${process_name}";
+	fi
+	local resultfile="${test_result_dir}/${name}.json";
+	
+	echo "result file is: $resultfile : ${!summary[@]} : ${summary[@]}"
+	
+	#echo "result file: $resultfile";
+	json.stringify <<< "summary" || quit 1 "could not create json result data";
+	
+	#echo "after stringify!!"
+	
+	json.string > "${resultfile}" || quit 1 "could not write test result file %s" "$resultfile";
 }
 
 function __assert_ok {

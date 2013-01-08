@@ -27,6 +27,8 @@ function json.stringify {
 	local indent="";
 	local depth=0;
 	
+	# echo "json.stringify"
+	
 	if [ $# -gt 0 ] && [ "$1" == "--pretty" ]; then
 		pretty=1;
 		local indent_repeat="${2:-2}";
@@ -51,6 +53,9 @@ function json.stringify {
 	fi
 	
 	local json_data="${1:-}";
+	
+	#echo "json_data: $json_data";
+	
 	if [ -z "$json_data" ]; then
 		console.warn "invalid json.stringify call, usage: json.stringify <<< \"varname\"";
 		return 1;
@@ -60,17 +65,18 @@ function json.stringify {
 	
 	$( array.is.array? "$json_data" );
 	local isarr=$?;
-	$( array.is.assoc? "$json_data" );	
+	$( array.is.assoc? "$json_data" );
 	local isassoc=$?;
 	
-	#echo "got exists: $exists";
+	#echo "after array tests ... ";
 	
 	# validate that plain variables are set
 	if [ $isarr -gt 0 ] && [ $isassoc -gt 0 ]; then
+		#echo "before eval ... "
 		eval "[ \${${json_data}+a} ]";
 		local exists=$?;		
 		if [ $exists -gt 0 ]; then
-			#echo "variable has not been set!!!";
+			# echo "variable has not been set!!!";
 			return 1;
 		fi
 	fi
