@@ -19,11 +19,11 @@ In your tasks(7) file `require` the `project` task(s) using:
 ## USAGE
 
 	bake project init
-	bake project add id path|url [url...]
-	bake project exists id
+	bake project add [id] [path|url] [url...]
+	bake project exists [id]
 	bake project ls
 	bake project count
-	bake project rm id
+	bake project rm [id]
 	
 ## COMMANDS
 
@@ -193,6 +193,7 @@ function prj.tasks.project.add {
 	__project.file.read;
 	
 	# TODO: implement --force option
+	
 	# test for id existence and prompt to overwrite?
 	if ! $force && __project.exists?; then
 		console.quit 1 "project %s exists use %s to overwrite" "$prj_id" "--force";

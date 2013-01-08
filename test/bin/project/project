@@ -88,6 +88,10 @@ function test.project {
 	tasks.project add "${test_project_id}" "${test_project_path}";
 	assert.eq "0" "$?";
 	
+	# try to add a project with an id that already exists, exit code >0
+	tasks.project add "${test_project_id}" "${test_project_path}" > /dev/null 2>&1 & wait %%;
+	assert.gt "0" "$?";
+	
 	# test print command
 	contents=$( tasks.project print );
 	assert.equal "${json_expected[added1]}" "$contents";
