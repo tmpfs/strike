@@ -59,6 +59,7 @@ function test.project {
 	declare -A json_expected;
 	json_expected[init]=$( < "$exedir/init.json" );
 	json_expected[added1]=$( < "$exedir/added.1.json" );
+	json_expected[added2]=$( < "$exedir/added.2.json" );
 	
 	# last exit code
 	local code=1;
@@ -109,12 +110,13 @@ function test.project {
 	tasks.project add "${test_project_dup}" "${test_project_path}";
 	assert.eq "0" "$?";
 	
+	# verify json after adding the second project
+	contents=$( tasks.project print );
+	assert.equal "${json_expected[added2]}" "$contents";
+	
 	# should have two projects now
 	count=$( tasks.project count );
-	assert.eq "2" "${count}";	
-	
-	# cat target/projects.json;
-	# exit 0;
+	assert.eq "2" "${count}";
 	
 	# remove the second project added
 	tasks.project rm "${test_project_dup}";
@@ -133,11 +135,19 @@ function test.project {
 	contents=$( tasks.project print );
 	assert.equal "${json_expected[added1]}" "$contents";
 	
+	# original project should still exist
+	tasks.project exists "${test_project_id}" > /dev/null 2>&1 & wait %%;
+	assert.eq "0" "$?";
+	
+	# but the removed project should not
+	tasks.project exists "${test_project_dup}" > /dev/null 2>&1 & wait %%;
+	assert.gt "0" "$?";	
+	
 	# add the second project again!
 	tasks.project add "${test_project_dup}" "${test_project_path}";
 	assert.eq "0" "$?";
 	
-	# should have two projects again
+	# should have two projects now
 	count=$( tasks.project count );
 	assert.eq "2" "${count}";
 	
