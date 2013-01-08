@@ -19,7 +19,7 @@ In your tasks(7) file `require` the `project` task(s) using:
 ## USAGE
 
 	bake project init
-	bake project add [id] [path|url] [url...]
+	bake project add [flags...] [id] [path|url] [url...]
 	bake project exists [id]
 	bake project ls
 	bake project count
@@ -58,6 +58,12 @@ In your tasks(7) file `require` the `project` task(s) using:
 * `rm`:
 
 	Remove a project with the specified identifier.
+	
+## FLAG OPTIONS
+
+* `-f | --force`:
+
+	Add a project by force even if a project with the same identifier already exists.
 	
 ## FILES
 
@@ -104,6 +110,9 @@ function tasks.project {
 	
 	# a map of project names to paths
 	declare -A projects;
+	
+	# process options
+	__project.options.parse "$@";
 	
 	# do command procesing via delegation
 	if [ $# -gt 0 ]; then
@@ -153,6 +162,14 @@ function prj.tasks.project.add {
 	#echo "$FUNCNAME : $# : $*";
 	if [ $# -lt 2 ]; then
 		quit 1 "too few options for %s" "project add";
+	fi
+	
+	# flag options for this command
+	local flags=( "--force" );
+	
+	# allow the force flag before the id/path
+	if [ "${1:-}" == "${flags[0]}" ]; then
+		shift;
 	fi
 	
 	# get the id
@@ -205,12 +222,14 @@ function prj.tasks.project.add {
 		local url i=0;
 		for url in ${urls[@]}
 			do
+				# got a flag rather than a url, don't add the url
+				if array.contains? "$url" "${flags[@]}"; then
+					continue;
+				fi
 				prj_doc["projects.$prj_id.urls.$i"]="${url}";
 				: $((i++));
 		done
 	fi
-	
-	#echo "got add keys: ${!prj_doc[@]}";
 
 	__project.file.write!;
 }
@@ -297,6 +316,26 @@ function prj.tasks.project.ls {
 #
 ######################################################################
 
+# parse options
+function __project.options.parse {
+	# remove command option
+	shift;
+	
+	# handle other options
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+			--force )
+				force=true;
+				;;
+		esac
+		if [ $# -ne 0 ]; then
+			shift;
+		else
+			break;
+		fi
+	done
+}
+
 # propagate the mapping between project id's and paths
 function __project.list {
 	local print="${1:-false}";
@@ -307,6 +346,10 @@ function __project.list {
 				v="${prj_doc[$k]}";
 				k="${k%.*}";
 				k="${k#*.}";
+				# nested property, don't include in the count
+				if [[ "$k" =~ \. ]]; then
+					continue;
+				fi
 				projects["$k"]="$v";
 				if $print; then
 					console.log "$k $v";

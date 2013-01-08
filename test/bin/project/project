@@ -60,6 +60,7 @@ function test.project {
 	json_expected[init]=$( < "$exedir/init.json" );
 	json_expected[added1]=$( < "$exedir/added.1.json" );
 	json_expected[added2]=$( < "$exedir/added.2.json" );
+	json_expected[added3]=$( < "$exedir/added.3.json" );
 	
 	# last exit code
 	local code=1;
@@ -88,11 +89,19 @@ function test.project {
 	tasks.project add "${test_project_id}" "${test_project_path}";
 	assert.eq "0" "$?";
 	
+	# test print command
+	contents=$( tasks.project print );
+	assert.equal "${json_expected[added1]}" "$contents";	
+	
 	# try to add a project with an id that already exists, exit code >0
 	tasks.project add "${test_project_id}" "${test_project_path}" > /dev/null 2>&1 & wait %%;
 	assert.gt "0" "$?";
 	
-	# test print command
+	# but using the --force flag we should overwrite it
+	tasks.project add --force "${test_project_id}" "${test_project_path}";
+	assert.eq "0" "$?";
+	
+	# json output should be identical after forcefully adding
 	contents=$( tasks.project print );
 	assert.equal "${json_expected[added1]}" "$contents";
 	
@@ -145,7 +154,16 @@ function test.project {
 	
 	# but the removed project should not
 	tasks.project exists "${test_project_dup}" > /dev/null 2>&1 & wait %%;
-	assert.gt "0" "$?";	
+	assert.gt "0" "$?";
+	
+	# use the --force flag to overwrite with some related urls
+	# this time we specify the flag at the end to ensure it's not added
+	# to the list of urls
+	tasks.project add "${test_project_id}" "${test_project_path}" "http://github.com/freeformsystems/strike" "http://github.com/freeformsystems/hosts" --force;
+	assert.eq "0" "$?";
+	
+	contents=$( tasks.project print );
+	assert.equal "${json_expected[added3]}" "$contents";
 	
 	# add the second project again!
 	tasks.project add "${test_project_dup}" "${test_project_path}";
