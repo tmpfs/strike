@@ -240,6 +240,10 @@ function test.project {
 	contents=$( tasks.project print );
 	assert.equal "${json_expected[init]}" "$contents";
 	
+	#attempt to remove non-existent project(s), exit code >0
+	tasks.project rm "${test_project_id}" "${test_project_dup}" > /dev/null 2>&1 & wait %%;
+	assert.gt "0" "$?";
+	
 	# clean up so subsequent test runs will succeed
 	{ rm "${projectfile}" && console.info "%s removed project file %s" "$FUNCNAME" "$projectfile"; };
 	

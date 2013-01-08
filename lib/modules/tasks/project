@@ -451,6 +451,9 @@ function prj.tasks.project.rm {
 			prj_id="${1:-}";
 			shift;
 			__project.id.validate;
+			if ! __project.exists?; then
+				__project.project.missing.quit;
+			fi
 			re="^projects\.${prj_id}\.";
 			
 			#echo "rm : $prj_id : ${!prj_doc[@]}";
