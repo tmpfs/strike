@@ -1,5 +1,3 @@
-require.once json;
-
 if [ -z "${!summary[@]:-}" ]; then
 	# the test summary must be global and exported for executables
 	# using inline assertions to be picked
@@ -195,6 +193,8 @@ function assert.parse {
 
 # output the assertion summary
 function assert.summary {
+	require.once json;
+	
 	# if running standalone then
 	# we just print the summary
 	if $__assert_standalone; then

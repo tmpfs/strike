@@ -99,10 +99,6 @@ ronn:markdown
 # core assertion methods
 require.once 'assert';
 
-# the test runner uses json to inter-process
-# communication with standalone executable tests
-require.once 'json';
-
 # list of configured test names to exclude when running
 # all tests
 declare -ag __test_excludes;
@@ -528,6 +524,11 @@ function __assert_run_test_method {
 function __assert_run_test_executable {
 	local binary="${1:-}";
 	if [ -n "$binary" ] && [ -x "$binary" ] ;then
+		
+		# the test runner uses json to inter-process
+		# communication with standalone executable tests
+		require.once json;		
+		
 		local binary_name="`basename $binary`";
 		console.info "binary test %s < %s" "$binary_name" "$binary";
 		: $((summary[executables]++));	
