@@ -1,5 +1,5 @@
 : <<'ronn:markdown'
-task-list(7) -- list task(s) for bake(1)
+task-ls(7) -- list task(s) for bake(1)
 =============================================
 
 ## SYNOPSIS
@@ -16,15 +16,15 @@ You do not need to require(3) this task as it is a builtin task.
 
 ## USAGE
 
-	bake list
+	bake ls
 
 ## BUGS
 
-**task-list** is written in bash and depends upon `bash` >= 4.
+**task-ls** is written in bash and depends upon `bash` >= 4.
 
 ## COPYRIGHT
 
-**task-list** is copyright (c) 2012 muji <http://xpm.io>
+**task-ls** is copyright (c) 2012 muji <http://xpm.io>
 
 ## SEE ALSO
 
@@ -32,7 +32,7 @@ bake(1)
 ronn:markdown
 
 # lists task methods
-function tasks.list {
+function tasks.ls {
 	executable.validate 'egrep';
 	local egrep="${executables[egrep]}";
 	local methods=( $( method.list | $egrep "^tasks\.[a-zA-Z]+" ) );

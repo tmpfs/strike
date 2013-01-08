@@ -405,7 +405,7 @@ fi
 # default builtin tasks
 require 'tasks/test';
 require 'tasks/clean';
-require 'tasks/list';
+require 'tasks/ls';
 require 'tasks/doc';
 require 'tasks/semver';
 
