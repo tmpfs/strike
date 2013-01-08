@@ -29,9 +29,9 @@ boilerplate "$@";
 
 require.once assert;
 
-# # let assert(3) know if this test
-# # is being run standalone or as
-# # part of a task-test(7) test suite
+# let assert(3) know if this test
+# is being run standalone or as
+# part of a task-test(7) test suite
 assert.parse "$@";
 
 function paths {

@@ -26,6 +26,11 @@ boilerplate "$@";
 process.use 'strict';
 require 'assert';
 
+# let assert(3) know if this test
+# is being run standalone or as
+# part of a task-test(7) test suite
+assert.parse "$@";
+
 function signals {
 	
 	# trap handlers
@@ -93,6 +98,8 @@ function signals {
 	# start the process as a daemon
 	# with a custom method name
 	process.daemon.start! "loop";
+	
+	assert.summary;	
 }
 
 signals "$@";

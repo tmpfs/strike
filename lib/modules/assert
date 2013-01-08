@@ -175,7 +175,8 @@ function assert.file.exists! {
 # parses command line options to see whether
 # this test is running standalone or from a test runner
 function assert.parse {
-	echo "assert.parse: $@";
+	#echo "assert.parse: $@";
+	: $((summary[executables]++));
 	local i opt;
 	for((i=1;i < $#+1;i++))
 		do
@@ -199,16 +200,15 @@ function assert.summary {
 	# we just print the summary
 	if $__assert_standalone; then
 		# close the pipe
-		if [[ -p $__assert_pipe ]]; then
-		    echo "quit" >$__assert_pipe;
-		fi
+		__assert.pipe.close;
 		__assert.print.summary;
 	else
 		if [[ -p $__assert_pipe ]]; then
 			json.stringify <<< "summary";
 			local json=$( json.string );
 		    echo "$json" >$__assert_pipe;
-			console.log "write $json > $__assert_pipe";
+			__assert.pipe.close;	
+			console.log "wrote $json > $__assert_pipe";
 			# reset standalone status
 			__assert_standalone=false;
 			console.success;
@@ -221,6 +221,15 @@ function assert.summary {
 #	PRIVATE METHODS
 #
 ######################################################################
+
+function __assert.pipe.close {
+	if [[ -p $__assert_pipe ]]; then	
+		$__assert_pipe>&- 2> /dev/null;
+	fi
+	if [ -e "$__assert_pipe" ]; then
+		rm -rf "$__assert_pipe" 2> /dev/null;
+	fi
+}
 
 function __assert_ok {
 	local ttyout="${ttyout:-}";
@@ -312,11 +321,12 @@ function __assert.print.summary {
 		output="console.warn";
 	fi
 	
-	echo "got summary information : ${!summary[@]} : ${summary[@]}";
-	
 	__assert.print.header $output;
 	
-	local testfiles=$(( ${summary[suites]} - ${summary[executables]} ));
+	local testfiles=0;
+	if [ ${summary[suites]} -gt 0 ]; then
+		testfiles=$(( ${summary[suites]} - ${summary[executables]} ));
+	fi
 	
 	$output "suites (total): %s" "${summary[suites]}";
 	$output "suites (binary): %s" "${summary[executables]}";

@@ -447,13 +447,13 @@ function __assert_run_test {
 	local name="`basename $file`";
 	local suite=${name%%.*};
 	
-	: $((summary[suites]++));
-	
 	# run test as an executable
 	if [ -x "$file" ]; then
 		__assert_run_test_executable "${file}";
 	# run test as a .test source file
 	else
+		: $((summary[suites]++));
+		
 		# TODO: unload the module after the test suite has completed
 
 		# require and generate a list of method definitions
@@ -531,25 +531,38 @@ function __assert_run_test_executable {
 		
 		local binary_name="`basename $binary`";
 		console.info "binary test %s < %s" "$binary_name" "$binary";
-		: $((summary[executables]++));	
 		# execute the binary test file
 		# 1>> "$stdout" 2>> "$stderr" 
 		"$binary" --suite 1>> "$stdout" 2>> "$stderr" &
-		
+
 		# FIXME: add timeout attempting to read from test executable
 		# FIXME: add EXIT signal trap to close the named pipe on EXIT
 		if [[ -p $__assert_pipe ]]; then
 			console.info "reading summary from %s" "$__assert_pipe";
-			while true
-				do
-				    if read line <$__assert_pipe; then
-						echo "got line from named pipe: $line";
-						# break out of the loop on the first line of data
-						break;
-				    fi
-			done
+			# while true
+			# 	do
+				    while read line;
+						do
+							echo "got line from named pipe: $line";
+							json.parse <<< "$line";
+							echo "${!json_doc[@]}";
+							# calculate the summary values returned from the executable
+						
+							if [ -n "${!summary[*]}" ]; then
+								: $((summary[assertions]+=${json_doc[assertions]}));
+								: $((summary[assertions.pass]+=${json_doc[assertions.pass]}));
+								: $((summary[assertions.fail]+=${json_doc[assertions.fail]}));
+								: $((summary[executables]+=${json_doc[executables]}));
+							fi
+						
+							# clean up json data
+							json.clean;
+						
+							# break out of the loop on the first line of data
+							break;
+				    done <$__assert_pipe
+			#done
 		fi
-		
 		wait %%;
 		local binary_exit_code="$?";
 		if [ $binary_exit_code -gt 0 ]; then

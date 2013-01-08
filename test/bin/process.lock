@@ -26,6 +26,11 @@ boilerplate "$@";
 process.use 'strict';
 require.once 'assert';
 
+# let assert(3) know if this test
+# is being run standalone or as
+# part of a task-test(7) test suite
+assert.parse "$@";
+
 function lockfile {
 	# switch on lock file usage - singleton process
 	process.lock.use!;
@@ -40,6 +45,8 @@ function lockfile {
 	# assert that the lock file does not exist
 	process.lock.file;
 	assert.file.exists! "$_result";
+	
+	assert.summary;	
 }
 lockfile "$@";
 exit 0;
