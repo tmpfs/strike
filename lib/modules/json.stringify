@@ -298,24 +298,47 @@ function __json.stringify.object {
 				declare -A $nestedkey;
 				for ak in ${keys[@]}
 					do
-						eval nv="\${$json_data[\"$nk.$ak\"]}";
+						# FIXME: work out why some data is lingering and causing unbound variable errors
+						eval nv="\${$json_data[\"$nk.$ak\"]:-__json__null__}";
+						if [ "$nv" == "__json__null__" ]; then
+							continue;
+						fi
+						
 						eval "${nestedkey}[\"$ak\"]=\"$nv\"";
+						# unset keys["$ak"];
 				done
 				
-				#echo "got keys: ${keys[*]}";
+				# echo "got keys: ${keys[*]}";
 				
 				# # FIXME: ensure key value is quoted using the shared method
 				__json.stringify.quote "$nk";
 				json="${json}${_result}:";
 				#echo "PROCESSING NESTED KEY ON: $nk";
+				: $((depth++));
 				__json.stringify.object "$nestedkey";
+				: $((depth--));				
 				json="${json},";
+				
+				#echo "cleaning $nestedkey";
+				
+				# clean up the dynamic variable after recursion
+				unset $nestedkey;
 		done
+	fi
+	
+	# clean up the list of nested objects
+	unset nested;
+	# clean up the key information
+	unset keys;
+	
+	# TODO: only do this for nested properties
+	if [ $depth -gt 0 ]; then
+		unset $json_data;
 	fi
 	
 	json="${json%$newline}";
 	json="${json%,}";
-	__json.stringify.object.end;	
+	__json.stringify.object.end;
 }
 
 function __json.stringify.object.start {

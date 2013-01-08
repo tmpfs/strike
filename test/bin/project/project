@@ -128,17 +128,21 @@ function test.project {
 	# check json output after adding the meta information
 	contents=$( tasks.project print );
 	assert.equal "${json_expected[added1meta]}" "$contents";
+	
+	# add a property to the second project
+	tasks.project set "${test_project_dup}" "license" "MIT" "License";	
+	
+	# list all properties
+	tasks.project get;
 
-	# list all meta properties for the first project
+	# # list all meta properties for the first project
 	tasks.project get "${test_project_id}";
 	
-	# list a specific property
-	tasks.project get "${test_project_id}" "license";
+	# # list a specific property for the second project
+	tasks.project get "${test_project_dup}" "license";
 	
-	# delete all the properties
+	# delete all the properties from the first project
 	tasks.project del "${test_project_id}" "license" "author" "email";
-	# tasks.project del "${test_project_id}" "author";
-	# tasks.project del "${test_project_id}" "email";
 	
 	cat target/projects.json
 	exit 0;

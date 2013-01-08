@@ -48,11 +48,11 @@ Project identifiers must be unique and must consist solely of the hyphen '-' and
 	
 * `set`:
 
-	Set a meta data property for a project. Note that if multiple options are specified after the `name` option for the `value` then they are concatented into a single `value` using a space character as the delimiter.
+	Set a meta data property for a project. Note that if multiple options are specified after the `name` option for the `value` then they are concatented into a single `value` using a space character as the delimiter. If the project property with the specified name exists it is overwritten.
 	
 * `get`:
 
-	Get a meta data property for a project. If no property name is specified all meta data for the project is output.
+	Get a meta data property for a project. If no property name is specified all meta data for the project is output. If no project identifier is specified then all project properties are listed.
 	
 * `del`:
 
@@ -129,7 +129,10 @@ function tasks.project {
 	
 	# meta information used by the set/get comamnds
 	local prj_meta_name;
-	local prj_meta_value;	
+	local prj_meta_value;
+	
+	# list of specific identifiers
+	local ids=();
 	
 	# a map of project names to paths
 	declare -A projects;
@@ -322,14 +325,13 @@ function prj.tasks.project.get {
 		__project.file.missing.quit;
 	fi
 	
-	if [ $# -eq 0 ]; then
-		__project.id.missing.quit;
+	prj_id="";
+	if [ $# -gt 0 ]; then
+		# get the id
+		prj_id="${1:-}";
+		shift;
+		__project.id.validate;
 	fi
-	
-	# get the id
-	prj_id="${1:-}";
-	shift;
-	__project.id.validate;
 	
 	prj_meta_name="";
 	# looking for a specified property
@@ -339,29 +341,44 @@ function prj.tasks.project.get {
 		__project.id.validate "$prj_meta_name";
 	fi
 	
-	# echo "getting props with : $prj_id : $prj_meta_name";
-	
 	# read in the existing data
 	__project.file.read;
 	
-	local p k v re="^projects\.${prj_id}\.meta\.";
+	local p k v re;
 	
-	# looking for a specific property
-	if [ -n "${prj_meta_name}" ]; then
-		re="${re}${prj_meta_name}";
+	# gather list of project identifiers
+	if [ -n "${prj_id}" ]; then
+		ids+=( "${prj_id}" );
+	else
+		# TODO: move to a shared method for gathering all project identifiers
+		re="^projects\.([^.]+)\.";
+		for k in "${!prj_doc[@]}"
+			do
+				if [[ "$k" =~ $re ]] && ! array.contains? "${BASH_REMATCH[1]}" "${ids[@]:-}"; then
+					ids+=( "${BASH_REMATCH[1]}" );
+				fi
+		done
 	fi
 	
-	# echo "got re: $re";
-	
-	for k in "${!prj_doc[@]}"
+	for prj_id in ${ids[@]}
 		do
-			if [[ "$k" =~ $re ]]; then
-				v="${prj_doc[$k]}";
-				k="${k#projects.}";
-				p="${k%%.*}";
-				k="${k##*.}";
-				console.log "$p $k $v";
+			re="^projects\.${prj_id}\.meta\.";
+				
+			# looking for a specific property
+			if [ -n "${prj_meta_name}" ]; then
+				re="${re}${prj_meta_name}";
 			fi
+				
+			for k in "${!prj_doc[@]}"
+				do
+					if [[ "$k" =~ $re ]]; then
+						v="${prj_doc[$k]}";
+						k="${k#projects.}";
+						p="${k%%.*}";
+						k="${k##*.}";
+						console.log "$p $k $v";
+					fi
+			done
 	done
 }
 
@@ -397,8 +414,11 @@ function prj.tasks.project.del {
 	
 			# delete the property in the `meta` object for the project
 			local prop_key="projects.${prj_id}.meta.${prj_meta_name}";
+			# echo "deleting property with key: $prop_key";
 			unset prj_doc["$prop_key"];
 	done
+	
+	# echo "after deletion : ${!prj_doc[@]}";
 	
 	# update the file
 	__project.file.write!;
