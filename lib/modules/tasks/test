@@ -256,7 +256,7 @@ function tdd.tasks.test.run {
 	__assert.run;
 	
 	# print the summary
-	__assert.print.summary;
+	assert.summary;
 }
 
 # run all test suites

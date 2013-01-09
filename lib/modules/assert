@@ -2,9 +2,10 @@ if [ -z "${!summary[@]:-}" ]; then
 	# the test summary must be global and exported for executables
 	# using inline assertions to be picked
 	declare -Ag summary;
+	summary[total]=0;	
 	summary[suites]=0;
-	summary[methods]=0;
 	summary[executables]=0;
+	summary[methods]=0;	
 	summary[assertions]=0;
 	summary[assertions.pass]=0;
 	summary[assertions.fail]=0;
@@ -186,7 +187,11 @@ function assert.parse {
 
 # output the assertion summary
 function assert.summary {
-	__assert.write.summary!;
+	local write="${1:-true}";
+	summary[total]=$(( ${summary[suites]} + ${summary[executables]} ));
+	if $write; then
+		__assert.write.summary!;
+	fi
 	# if running standalone then
 	# we print the summary
 	if $__assert_standalone; then
@@ -241,7 +246,9 @@ function __assert_ok {
 	local assertion="$1";
 	local stack=( $( caller 1 ) );
 	local method="${stack[1]}";
-	# FIXME: don't use fd 5, see: https://groups.google.com/forum/?fromgroups=#!topic/gnu.bash.bug/E5Vdqv3tO1w
+	
+	# FIXME: don't use fd 5
+	# SEE: https://groups.google.com/forum/?fromgroups=#!topic/gnu.bash.bug/E5Vdqv3tO1w
 	if [ ! -z "$ttyout" ]; then
 		# save stdout in file descriptor #5		
 		exec 5>&1;
@@ -322,14 +329,9 @@ function __assert.print.summary {
 	
 	__assert.print.header $output;
 	
-	local testfiles=0;
-	if [ ${summary[suites]} -gt 0 ]; then
-		testfiles=$(( ${summary[suites]} - ${summary[executables]} ));
-	fi
-	
-	$output "suites (total): %s" "${summary[suites]}";
+	$output "suites (total): %s" "${summary[total]}";
 	$output "suites (binary): %s" "${summary[executables]}";
-	$output "suites (test): %s" "$testfiles";
+	$output "suites (test): %s" "${summary[suites]}";
 	$output "methods: %s" "${summary[methods]}";
 	$output "assertions: %s" "${summary[assertions]}";
 	$output "assertions (pass): %s" "${summary[assertions.pass]}";
