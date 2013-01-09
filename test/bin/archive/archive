@@ -40,7 +40,16 @@ assert.parse "$@";
 # tests for task-archive(7)
 function test.archive {
 	# invalid command
-	#tasks.archive --x tar lipsum.txt;
+	# tasks.archive --x tar lipsum.txt;
+	
+	# invalid archive type
+	# tasks.archive -x rar lipsum.txt;	
+	
+	# attempt to extract a non-existent archive
+	# tasks.archive -x tar lipsum.txt.tar.gz;	
+	
+	#tasks.archive -c zip lipsum.txt;
+	
 	tasks.archive -c tar lipsum.txt;
 	
 	# print the summary

@@ -39,6 +39,10 @@ bake(1)
 ronn:markdown
 
 function tasks.archive {
+	
+	# the type of archive we are processing
+	local archive_type;
+	
 	# valid archive type identifiers
 	local types=( tar bz2 zip );
 	
@@ -64,8 +68,8 @@ function tasks.archive {
 	# zip and unzip even though it's
 	# *possible* an installation would
 	# have one and not the other
-	declare -A types;
-	types=(
+	declare -A binaries;
+	binaries=(
 		[tar]="tar"
 		[bz2]="bz2"
 		[zip]="zip unzip"
@@ -83,20 +87,35 @@ function tasks.archive {
 		if [ -z "$cmdmethod" ]; then
 			console.quit 1 "invalid archive command %s" "$1";
 		fi
-		delegate "arc.${FUNCNAME}" "$cmdmethod" ${@:2};
+		# remove the command option
+		shift;
+		
+		# validate the archive type
+		archive_type="${1:-}";
+		__arvhive.type.validate;
+		shift;
+		
+		# validate the required executables are present
+		__arvhive.binary.validate;
+		
+		delegate "arc.${FUNCNAME}" "$cmdmethod" $@;
 	fi	
 }
 
 function arc.tasks.archive.create {
-	local archive_type="${1:-}";
+	local files=( $@ );
 	
 	echo "$FUNCNAME: $*";
 }
 
 function arc.tasks.archive.extract {
-	local archive_type="${1:-}";
-		
-	echo "$FUNCNAME: $*";
+	local archive="${1:-}";
+	
+	if [ ! -f "$archive" ]; then
+		console.quit 1 "invalid archive %s" "$archive";
+	fi
+	
+	echo "$FUNCNAME: $* : $archive";
 }
 
 ######################################################################
@@ -134,6 +153,9 @@ function __archive.tar.extract {
 function __archive.tar.create {
 	local archive="${1:-}";
 	local target="${2:-}";
+	
+	echo "creating archive: $archive : $target";
+	
 	local dir=$( dirname "$target" );
 	local name=$( basename "$target" );
 	
@@ -146,4 +168,15 @@ function __archive.tar.create {
 	
 	#create the archive
 	tar czf "$archive" "$name";
+}
+
+function __arvhive.binary.validate {
+	local exes=( ${binaries[$archive_type]} );
+	executable.validate "${exes[@]}";
+}
+
+function __arvhive.type.validate {
+	if ! array.contains? "${archive_type:-}" "${types[@]}"; then
+		console.quit 1 "invalid archive type %s" "${archive_type}";
+	fi
 }
