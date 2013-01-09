@@ -264,15 +264,14 @@ function arc.tasks.archive.extract {
 # determine the executable to run
 function __archive.executable.get {
 	local create="${1:-true}";
-	if $create; then
-		archive_executable="${executables[$archive_type]}";
-	else
-		if [ "$archive_type" != "zip" ]; then
-			archive_executable="${executables[$archive_type]}";
-		else
-			archive_executable="${executables[unzip]}";
-		fi
+	local key="$archive_type";
+	if ! $create && [ "$archive_type" == "zip" ]; then
+		archive_executable="${executables[unzip]}";
 	fi
+	if [ $archive_type == bz2 ]; then
+		key="tar";
+	fi
+	archive_executable="${executables[$key]}";	
 }
 
 # determine the executable options
@@ -281,6 +280,7 @@ function __archive.executable.get.options {
 	if $create; then
 		case "$archive_type" in
 			tar ) archive_executable_options="czf" ;;
+			bz2 ) archive_executable_options="cjf" ;;
 		esac
 	else
 		case "$archive_type" in
@@ -491,7 +491,7 @@ function __archive.type.infer {
 
 function __archive.binary.validate {
 	local exes=( ${binaries[$archive_type]} );
-	executable.validate "${exes[@]}";
+	executable.validate ${exes[@]};
 }
 
 function __archive.name.validate {
