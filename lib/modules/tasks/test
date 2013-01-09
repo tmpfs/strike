@@ -321,6 +321,7 @@ function __assert_get_suites {
 	local opts=( "$@" );
 	local path file methods unit;
 	local suite targets=();
+	local excludes=();
 	
 	# handle test suites with a ':' method specification
 	if [ ${#opts[@]} -gt 0 ]; then
@@ -350,15 +351,32 @@ function __assert_get_suites {
 					#echo "got test methods: ${testmethods[@]} for suite: ${suite}";
 				fi
 				# echo "adding target suite: $suite";
-				targets+=( "$suite" );
+				
+				if [[ "$suite" =~ ^- ]]; then
+					# remove the hyphen exclude marker for comparison
+					suite="${suite#-}";
+					excludes+=( "$suite" );
+				else
+					targets+=( "$suite" );
+				fi
 		done
 	fi
 	
+	# echo "targets are :${targets[@]}";
+	# echo "excludes are :${excludes[@]}";
 	
-	include?()
-	{
+	exclude!() {
+		# echo "testing for exclude with $1 : $2";
+		if array.contains? "${1:-}" "${excludes[@]}"; then
+			__test_excluded["${1:-}"]="${2:-}";
+			return 0;
+		fi
+		return 1;
+	}
+	
+	include?() {
 		local target="${1:-}";
-		local path="${2:-}";		
+		local path="${2:-}";
 		# no specifc targets, always add it
 		if [ ${#targets[@]} -eq 0 ]; then
 			return 0;
@@ -402,11 +420,19 @@ function __assert_get_suites {
 	shopt -s globstar;
 	for path in ${searchpaths[@]}/**
 		do
+			# get the file name
+			fs.basename "$path" "unit";
+			
+			# test for excludes
+			if [ ${#excludes[@]} -gt 0 ]; then
+				if exclude! "$unit" "$path"; then
+					continue;
+				fi
+			fi
+			
 			if [ -d "$path" ]; then
 				continue;
 			elif [ -f "$path" ] && [ -x "$path" ] && [[ ! "$path" =~ \.test$ ]]; then
-				# get the file name
-				fs.basename "$path" "unit";
 								
 				#echo "add executable file $path";
 				
@@ -420,9 +446,6 @@ function __assert_get_suites {
 				continue;
 			# got a test suite
 			else
-				# get the file name
-				fs.basename "$path" "unit";
-				
 				# strip file extension
 				unit="${unit%.test}";
 				if include? "$unit" "$path"; then
