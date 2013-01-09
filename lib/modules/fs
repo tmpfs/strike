@@ -36,21 +36,19 @@ function fs.path.dash.escape {
 	fi
 }
 
-# retrieve a dirname, escaping any leading hyphens
-# that may be interpreted as options to `dirname`
+# retrieve a dirname and assign the result to a variable ($2)
 function fs.dirname {
 	local path="${1:-}";
 	local varname="${2:-_result}";
 	local stripdot="${3:-false}";
-	local result=$( dirname -- "${_result}" );
+	local result=$( dirname -- "${path}" );
 	if $stripdot && [ "${result}" == "." ]; then
 		result="";
 	fi
 	eval "$varname=\"$result\"";
 }
 
-# retrieve a basename, escaping any leading hyphens
-# that may be interpreted as options to `dirname`
+# retrieve a basename, and assign the result to a variable ($2)
 function fs.basename {
 	local path="${1:-}";
 	local varname="${2:-_result}";

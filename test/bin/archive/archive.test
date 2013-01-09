@@ -2,6 +2,40 @@ require.once 'tasks/archive';
 
 # test(s) for task-archive(7) type inference
 # relative to the current working directory
+function test.archive.create.tar {
+	# local program="tasks.archive";
+	# local cmd="-t";
+	# local files=(
+	# 	"lipsum.gz"
+	# 	"lipsum.tar.gz"
+	# 	"lipsum.tar"
+	# 	"lipsum.bz2"
+	# 	"lipsum.zip"
+	# );
+	# local expects=(
+	# 	"tar lipsum.gz ${root}"
+	# 	"tar lipsum.tar.gz ${root}"
+	# 	"tar lipsum.tar ${root}"
+	# 	"bz2 lipsum.bz2 ${root}"
+	# 	"zip lipsum.zip ${root}"
+	# );
+	#!test.archive.run;
+	
+	local files=(
+		"lipsum.txt"
+		"etiam.txt"
+	);
+	
+	local dir;
+	fs.dirname "${BASH_SOURCE[0]}" "dir";
+
+	echo "creating tar file (${BASH_SOURCE[0]}) with file : ${files[@]} : $dir";
+	
+	tasks.archive -c --dir "${dir}" lipsum.tar.gz "${files[@]}";
+}
+
+# test(s) for task-archive(7) type inference
+# relative to the current working directory
 function test.archive.path.name {
 	# these paths should resolve relative to ${root}
 	local program="tasks.archive";
@@ -116,9 +150,6 @@ function test.archive.dir {
 	);
 	!test.archive.run;
 }
-
-# # absolute file path spec
-# tasks.archive -t /etc/lipsum.zip;
 
 # test(s) to verify that a non-existent
 # directory causes a >0 exit code

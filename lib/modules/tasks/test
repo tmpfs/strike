@@ -44,7 +44,7 @@ When no test suites are specified all test suites will be executed, otherwise pa
 	
 * `ant`:
 
-	Attempts to run an ant(1) *test* target.	
+	Attempts to run an ant(1) *test* target.
 	
 * `mvn`:
 
@@ -274,7 +274,7 @@ function __assert.run {
 	
 	assert.header;
 	console.info "RUN";
-	assert.header;		
+	assert.header;
 
 	# print summary of what will be run
 	for unit in ${suites[@]}
@@ -522,7 +522,7 @@ function __assert_run_test {
 				console.info "methods (%s)" "${#methods[@]}";
 			else
 				console.info "methods (%s)" "${#filtermethods[@]}";
-			fi			
+			fi
 
 			# print method summary	
 			for m in "${methods[@]}"
