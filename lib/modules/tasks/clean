@@ -33,8 +33,10 @@ ronn:markdown
 
 # removes the temporary target directory
 function tasks.clean {
+	# TODO: add a prompt to ensure this is correct ?
 	if [ -d "${target}" ]; then
-		rmdir "${target}";
+		console.info "rm -rf %s" "${target}";
+		rm -rf "${target}";
 		return $?;
 	fi
 	return 0;

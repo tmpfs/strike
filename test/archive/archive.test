@@ -16,11 +16,16 @@ function test.archive.tar {
 		"lipsum"
 	);
 	local filename="lipsum.archive.test";
+	# local extensions=(
+	# 	".tar.gz"
+	# 	".tar"
+	# 	".gz"
+	# );
+	
 	local extensions=(
-		".tar.gz"
-		".tar"
-		".gz"
+		".bz2"
 	);
+		
 	local expected=(
 		"${target}/lipsum.txt"
 		"${target}/etiam.txt"
