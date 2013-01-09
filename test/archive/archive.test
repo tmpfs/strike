@@ -5,7 +5,7 @@ require.once 'tasks/archive';
 function test.archive.tar {
 	# archive files relative to this test
 	# and place the archives in ${target}
-	local dir;
+	local dir ext f;
 	fs.dirname "${BASH_SOURCE[0]}" "dir";	
 	
 	local program="tasks.archive";
@@ -21,7 +21,12 @@ function test.archive.tar {
 		".tar"
 		".gz"
 	);
-	local ext;
+	local expected=(
+		"${target}/lipsum.txt"
+		"${target}/etiam.txt"
+		"${target}/lipsum/lipsum.dir.txt"
+		"${target}/lipsum/etiam.dir.txt"
+	);
 	for ext in ${extensions[@]}
 		do
 			$program $cmd "${filename}${ext}" "${files[@]}";
@@ -29,14 +34,24 @@ function test.archive.tar {
 			assert.file.exists? "${target}/${filename}${ext}";
 	done
 	
-	# extract each created archive	
-	local cmd="-x --dir "${target}" -o "${target}"";
+	# extract each created archive
+	cmd="-x --dir "${target}" -o "${target}"";
 	for ext in ${extensions[@]}
 		do
-			$program $cmd "${filename}${ext}" "${files[@]}";
-			#assert.eq "0" "$?";
-			#assert.file.exists? "${target}/${filename}${ext}";
+			$program $cmd "${filename}${ext}";
+			assert.eq "0" "$?";
+			for f in "${expected[@]}"
+				do
+					assert.file.exists? "$f";
+					# clean extracted file data
+					rm "$f";
+			done
+			# clean archives
+			rm "${target}/${filename}${ext}";
 	done
+	
+	# finally clean the folder created during extraction
+	rmdir "${target}/lipsum";
 }
 
 # TODO: validate unknown extension generates exit code >0
