@@ -165,7 +165,7 @@ function test.project {
 	
 	# 
 	# tasks.project print --pretty;
-	# exit 0;	
+	# exit 0;
 	
 	# list all properties after adding property to second project
 	# and assert on length
@@ -253,7 +253,7 @@ function test.project {
 	tasks.project rm "${test_project_id}" "${test_project_dup}" > /dev/null 2>&1 & wait %%;
 	assert.gt "0" "$?";
 	
-	# clean up so subsequent test runs will succeed
+	# clean up the test file
 	{ rm "${projectfile}" && console.info "%s removed project file %s" "$FUNCNAME" "$projectfile"; };
 	
 	# exists fails on no project file
