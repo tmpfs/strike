@@ -288,10 +288,10 @@ function __assert.run {
 			console.info "suite %s < %s" "$unit" "$path";
 	done
 
-	console.info "suites (total): %s" "${#suites[@]}";
-	console.info "suites (binary): %s" "$binaries";
-	console.info "suites (test): %s" "$tests";
-	console.info "suites (excludes): %s" "${#__test_excluded[@]}";
+	console.info "suite (total): %s" "${#suites[@]}";
+	console.info "suite (binary): %s" "$binaries";
+	console.info "suite (test): %s" "$tests";
+	console.info "suite (excludes): %s" "${#__test_excluded[@]}";
 	assert.header;
 		
 	# run tests
@@ -499,7 +499,9 @@ function __assert_run_test {
 		# require and generate a list of method definitions
 		require.methods "$file" "^test\.";
 		local methods=( $_result );
+		assert.header;
 		console.info "test %s < %s" "$suite" "$file";
+		assert.header;		
 		if [ "${#methods[@]}" -eq 0 ]; then
 			console.warn "test %s does not declare any test methods" "$name";
 		else
@@ -515,6 +517,12 @@ function __assert_run_test {
 				filter=true;
 				filtermethods=( ${testmethods["$unit"]} );
 			fi
+			
+			if ! $filter; then
+				console.info "methods (%s)" "${#methods[@]}";
+			else
+				console.info "methods (%s)" "${#filtermethods[@]}";
+			fi			
 
 			# print method summary	
 			for m in "${methods[@]}"
@@ -528,6 +536,7 @@ function __assert_run_test {
 						fi
 					fi
 			done
+			assert.header;
 
 			# run method assertions
 			for m in "${methods[@]}"

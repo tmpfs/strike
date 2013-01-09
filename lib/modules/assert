@@ -267,10 +267,10 @@ function __assert_ok {
 	fi
 
 	if [ $# -eq 1 ]; then
-		console.ok "$assertion %s" "$method";
+		console.info "$assertion %s" "$method";
 	elif [ $# -gt 1 ]; then
 		# custom message
-		console.ok "${@:2}";
+		console.info "${@:2}";
 	fi
 	
 	if [ ! -z "$ttyout" ]; then	

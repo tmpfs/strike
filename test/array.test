@@ -20,10 +20,10 @@ function test.array.write {
 	# behaviour is equivalent
 	# array.read "$file";
 
-	assert.on.deserialized.array;
+	!test.deserialized.array;
 }
 
-function assert.on.deserialized.array {
+function !test.deserialized.array {
 	
 	# plain array
 	assert.eq "4" "${#arr[@]}";
