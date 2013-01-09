@@ -164,8 +164,8 @@ function test.project {
 	tasks.project set "${test_project_dup}" "license" "MIT" "License";
 	
 	# 
-	tasks.project print --pretty;
-	exit 0;	
+	# tasks.project print --pretty;
+	# exit 0;	
 	
 	# list all properties after adding property to second project
 	# and assert on length
