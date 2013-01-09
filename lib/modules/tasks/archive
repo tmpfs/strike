@@ -38,7 +38,7 @@ In your tasks(7) file `require` the `archive` task(s) using:
 	
 ## OPTIONS
 
-* `-t | --type [tar|bz2|zip]`:
+* `-a | --archive [tar|bz2|zip]`:
 
 	The type of archive to operate on, if none is specified then task-archive(7) attempts to infer the type from the file extension. If the specified type is unknown the program will exit with a code >0.
 
@@ -313,7 +313,7 @@ function __archive.parse {
 				fi
 				archive_dir="$value";
 				;;
-			 -t | --type )
+			 -a | --archive )
 				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then

@@ -184,7 +184,7 @@ function test.archive.directory.fail {
 # test(s) to verify that an unknown
 # type causes a >0 exit code
 function test.archive.unknown.type {
-	tasks.archive -t --type rar lipsum.tar.gz & wait %%;
+	tasks.archive -t --archive rar lipsum.tar.gz & wait %%;
 	assert.gt "0" "$?";
 }
 
