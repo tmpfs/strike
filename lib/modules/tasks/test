@@ -171,7 +171,9 @@ function tasks.test {
 
 # adds a test as being excluded from the tests
 # executed when running all tests
-function test.suite.exclude! {
+# only available from internal bash code in
+# a tasks file
+function tdd.suite.exclude! {
 	if [ -n "${1:-}" ]; then
 		__test_excludes+=( "$1" );
 	fi
@@ -559,7 +561,9 @@ function __assert_run_test_executable {
 		if [ ! -f "$resultfile" ]; then
 			console.warn "could not find result file %s" "$resultfile";
 		else
-			console.info "summary %s" "$resultfile";
+			# TODO: reinstate this when we have -v | --verbose flags etc.
+			# console.info "summary %s" "$resultfile";
+			
 			json.parse < "$resultfile";
 			if [ -n "${!summary[*]}" ]; then
 				: $((summary[assertions]+=${json_doc[assertions]}));

@@ -200,7 +200,6 @@ function assert.summary {
 	return 0;
 }
 
-
 function assert.header {
 	local method="${1:-}";
 	if [ -z "$method" ]; then
