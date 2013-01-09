@@ -1,0 +1,83 @@
+: <<'ronn:markdown'
+task-archive(7) -- archive task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+Archive task(s) for bake(1).
+
+## DESCRIPTION
+
+Creates and extracts archives using tar(1) for *tar.gz* and *bz2* files and zip(1) and unzip(1) for *zip* files.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `archive` task(s) using:
+
+	require 'tasks/archive';
+
+## USAGE
+
+	bake archive -c tar [files...]
+	bake archive -c bz2	[files...]
+	bake archive -c zip [files...]
+	bake archive -x tar [archive]
+	bake archive -x bz2 [archive]
+	bake archive -x zip [archive]
+
+## BUGS
+
+**task-archive** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**task-archive** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+ronn:markdown
+
+function tasks.archive {
+	# valid archive type identifiers
+	local types=( tar bz2 zip );
+	
+	declare -A extensions
+	extensions=(
+		[tar]="tar.gz"
+		[bz2]="bz2"
+		[zip]="zip"
+	);
+	
+	# map of options to command names
+	declare -A commands;
+	commands=(
+		[-c]="create"
+		[-x]="extract"
+		[create]="create"
+		[extract]="extract"
+	);
+	
+	# should always have at least 3 arguments
+	if [ $# -lt 3 ]; then
+		console.quit 1 "too few options";
+	fi
+	
+	# do command procesing via delegation
+	if [ $# -gt 0 ]; then
+		local cmd="${1:-}";
+		local cmdmethod="${commands[$cmd]:-}";
+		if [ -z "$cmdmethod" ]; then
+			console.quit 1 "invalid archive command %s" "$1";
+		fi
+		delegate "arc.${FUNCNAME}" "$cmdmethod" ${@:2};
+	fi	
+}
+
+function arc.tasks.archive.create {
+	echo "$FUNCNAME: $*";
+}
+
+function arc.tasks.archive.extract {
+	echo "$FUNCNAME: $*";
+}

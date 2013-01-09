@@ -12,12 +12,20 @@ bake(1)     	bake.1.ronn
 rest(1)     	rest.1.ronn
 
 # external manuals
-git(1)			http://git-scm.com/
 bash(1)   		http://man.cx/bash(1)
 curl(1)     	http://man.cx/curl(1)
 echo(1)     	http://man.cx/echo(1)
 find(1)     	http://man.cx/find(1)
 tee(1)     		http://man.cx/tee(1)
+tar(1)			http://man.cx/tar(1)
+zip(1)			http://man.cx/zip(1)
+unzip(1)		http://man.cx/unzip(1)
+sed(1)			http://man.cx/sed(1)
+printf(1)		http://man.cx/printf(1)
+source(1)		http://man.cx/source(1)
+
+# other external links
+git(1)			http://git-scm.com/
 ronn(1)			https://github.com/rtomayko/ronn
 github(7)     	http://github.com/
 json-sh(1)		https://github.com/dominictarr/JSON.sh
@@ -25,12 +33,8 @@ npm(1)			http://npmjs.org
 ruby(3)			http://www.ruby-lang.org/
 rake(1)			http://rake.rubyforge.org/
 semver(7)		http://semver.org/
-sed(1)			http://man.cx/sed(1)
 ant(1)			http://ant.apache.org/
 mvn(1)			http://maven.apache.org/
 make(1)			http://www.gnu.org/software/make/
 jsonlint(1)		https://github.com/zaach/jsonlint
 jsoncheck(1)	http://json.org/JSON_checker/
-
-printf(1)		http://man.cx/printf(1)
-source(1)		http://man.cx/source(1)

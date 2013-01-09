@@ -1,0 +1,51 @@
+#! /usr/bin/env bash
+
+set -o errtrace;
+set -o errexit;
+set -o nounset;
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+console_print_program_prefix="off";
+declare -gx exedir;
+function boilerplate {
+	local src="${BASH_SOURCE[0]}"
+	exedir="$( dirname "$src" )"
+	while [ -h "$src" ]
+		do 
+			src="$(readlink "$src")";
+			[[ $src != /* ]] && src="$exedir/$src";
+			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+	done
+	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+	unset src;
+	source "$exedir/../../../lib/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+process.use strict;
+
+require.once 'assert';
+require.once 'tasks/archive';
+
+# let assert(3) know if this test
+# is being run standalone or as
+# part of a task-test(7) test suite
+assert.parse "$@";
+
+# tests for task-archive(7)
+function test.archive {
+	# invalid command
+	#tasks.archive --x tar lipsum.txt;
+	tasks.archive -c tar lipsum.txt;
+	
+	# print the summary
+	assert.summary;
+}
+
+test.archive;
+exit 0;

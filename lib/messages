@@ -1,10 +1,4 @@
-#!/usr/bin/env bash
-
-######################################################################
-# 	messages
-#
-#	Variables containing program messages.
-######################################################################
+# TODO: remove this file
 
 #cleaning
 CLEANING="cleaning %s";
