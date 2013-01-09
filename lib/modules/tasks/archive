@@ -179,21 +179,22 @@ function arc.tasks.archive.create {
 	__archive.executable.get.options true;
 	
 	local wd=$( pwd );
-	
 	if [ "$wd" != "$archive_dir" ]; then
-		echo "CHANGE WORKING DIRECTORY ... "
 		cd "$archive_dir" || quit 1 "could not cd to %s" "$archive_dir";
 	fi
 	
-	echo "$FUNCNAME: $archive_type : $archive_name : $archive_dir : ${files[@]}";
-	echo "$FUNCNAME: using $archive_executable with options : ${archive_executable_options}";
-	echo "$FUNCNAME: using working directory: `pwd`";
+	# echo "$FUNCNAME: $archive_type : $archive_name : $archive_dir : ${files[@]}";
+	# echo "$FUNCNAME: using $archive_executable with options : ${archive_executable_options}";
+	# echo "$FUNCNAME: using working directory: `pwd`";
 	
-	"$archive_executable" "${archive_executable_options}" "${archive_name}" "${files[@]}";
+	local result=$( "$archive_executable" "${archive_executable_options}" "${archive_name}" "${files[@]}" 1> /dev/null );
+	if [ $? -gt 0 ]; then
+		console.error "$result";
+	fi
 	
 	# always switch back to the original working directory
 	cd "$wd" || quit 1 "could not cd to %s" "$wd";
-	
+
 	echo "$FUNCNAME: after execution: `pwd`";
 }
 

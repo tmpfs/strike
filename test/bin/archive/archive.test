@@ -32,6 +32,8 @@ function test.archive.create.tar {
 	echo "creating tar file (${BASH_SOURCE[0]}) with file : ${files[@]} : $dir";
 	
 	tasks.archive -c --dir "${dir}" lipsum.tar.gz "${files[@]}";
+	# tasks.archive -c --dir "${dir}" lipsum.tar "${files[@]}";
+	# tasks.archive -c --dir "${dir}" lipsum.gz "${files[@]}";
 }
 
 # test(s) for task-archive(7) type inference
