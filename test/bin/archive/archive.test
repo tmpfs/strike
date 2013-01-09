@@ -2,40 +2,36 @@ require.once 'tasks/archive';
 
 # test(s) for task-archive(7) type inference
 # relative to the current working directory
-function test.archive.create.tar {
-	# local program="tasks.archive";
-	# local cmd="-t";
-	# local files=(
-	# 	"lipsum.gz"
-	# 	"lipsum.tar.gz"
-	# 	"lipsum.tar"
-	# 	"lipsum.bz2"
-	# 	"lipsum.zip"
-	# );
-	# local expects=(
-	# 	"tar lipsum.gz ${root}"
-	# 	"tar lipsum.tar.gz ${root}"
-	# 	"tar lipsum.tar ${root}"
-	# 	"bz2 lipsum.bz2 ${root}"
-	# 	"zip lipsum.zip ${root}"
-	# );
-	#!test.archive.run;
+function test.archive.tar {
+	# archive files relative to this test
+	# and place the archives in ${target}
+	local dir;
+	fs.dirname "${BASH_SOURCE[0]}" "dir";	
 	
+	local program="tasks.archive";
+	local cmd="-c --dir "${dir}" -o "${target}"";
 	local files=(
 		"lipsum.txt"
 		"etiam.txt"
 		"lipsum"
 	);
-	
-	local dir;
-	fs.dirname "${BASH_SOURCE[0]}" "dir";
-
-	echo "creating tar file (${BASH_SOURCE[0]}) with file : ${files[@]} : $dir";
-	
-	tasks.archive -c --dir "${dir}" lipsum.tar.gz "${files[@]}";
-	# tasks.archive -c --dir "${dir}" lipsum.tar "${files[@]}";
-	# tasks.archive -c --dir "${dir}" lipsum.gz "${files[@]}";
+	local filename="lipsum.archive.test";
+	local extensions=(
+		".tar.gz"
+		".tar"
+		".gz"
+	);
+	local ext;
+	for ext in ${extensions[@]}
+		do
+			$program $cmd "${filename}${ext}" "${files[@]}";
+			assert.eq "0" "$?";
+			assert.file.exists? "${target}/${filename}${ext}";
+	done
 }
+
+# TODO: validate unknown extension generates exit code >0
+# TODO: validate forcing --type when using an unknown extension
 
 # test(s) for task-archive(7) type inference
 # relative to the current working directory
@@ -57,7 +53,7 @@ function test.archive.path.name {
 		"bz2 lipsum.bz2 ${root}"
 		"zip lipsum.zip ${root}"
 	);
-	!test.archive.run;
+	!test.archive.path.test;
 }
 
 # test(s) for task-archive(7) type inference
@@ -83,7 +79,7 @@ function test.archive.path.relative {
 		"zip lipsum.zip ${target}"
 		"tar lipsum.gz ${root}/./target"
 	);
-	!test.archive.run;
+	!test.archive.path.test;
 }
 
 # test(s) for task-archive(7) type inference
@@ -107,7 +103,7 @@ function test.archive.path.name.dash {
 		"bz2 --lipsum.bz2 ${root}"
 		"zip -lipsum.zip ${root}"
 	);
-	!test.archive.run;
+	!test.archive.path.test;
 }
 
 # test(s) to verify that an absolute path
@@ -129,7 +125,7 @@ function test.archive.absolute {
 		"bz2 lipsum.bz2 ${target}"
 		"zip lipsum.zip ${target}"
 	);
-	!test.archive.run;
+	!test.archive.path.test;
 }
 
 # test(s) to verify that the -d | --dir option
@@ -151,7 +147,7 @@ function test.archive.dir {
 		"bz2 lipsum.bz2 ${target}"
 		"zip lipsum.zip ${target}"		
 	);
-	!test.archive.run;
+	!test.archive.path.test;
 }
 
 # test(s) to verify that a non-existent
@@ -164,7 +160,7 @@ function test.archive.directory.fail {
 # prefix this internal method with an
 # exclamation mark to prevent it being picked
 # up by the test runner
-function !test.archive.run {
+function !test.archive.path.test {
 	local k v exe result;
 	for k in ${!files[@]}
 		do

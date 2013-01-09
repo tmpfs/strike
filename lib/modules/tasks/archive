@@ -34,13 +34,13 @@ In your tasks(7) file `require` the `archive` task(s) using:
 	
 * `-t | test`:
 
-	Tests a specified task-archive(7) command to determine the archive type and resulting archive file name.
+	Tests a specified task-archive(7) command to determine the archive type and resulting archive file name. The output of this command is the type followed by a space and the archive file name that will be used, a newline and then the working directory on the next line.
 	
 ## OPTIONS
 
 * `-t | --type`:
 
-	The type of archive to operate on, if none is specified when creating archives then the `tar` type is used. When extracting archives if this option is specified the type of archive will be inferred from a file extension.
+	The type of archive to operate on, if none is specified then task-archive(7) attempts to infer the type from the file extension. If the specified type is unknown the program will exit with a code >0.
 
 * `-d | --dir`:
 
@@ -78,7 +78,7 @@ function tasks.archive {
 	
 	# an output directory for archives (creation)
 	# or archive contents (extraction)
-	local archive_output;
+	local archive_output="";
 	
 	# the default archive type to use
 	# when no --type is specified and no
@@ -187,7 +187,18 @@ function arc.tasks.archive.create {
 	# echo "$FUNCNAME: using $archive_executable with options : ${archive_executable_options}";
 	# echo "$FUNCNAME: using working directory: `pwd`";
 	
-	local result=$( "$archive_executable" "${archive_executable_options}" "${archive_name}" "${files[@]}" 1> /dev/null );
+	# echo "got output directory: $archive_output";
+	
+	# make the archive name absolute so it is placed
+	# in the output directory
+	local archive="${archive_name}";
+	if [ -n "${archive_output}" ]; then
+		archive="${archive_output}/${archive_name}";
+	fi
+	
+	# echo "using archive : $archive";
+	
+	local result=$( "$archive_executable" "${archive_executable_options}" "$archive" "${files[@]}" 1> /dev/null );
 	if [ $? -gt 0 ]; then
 		console.error "$result";
 	fi
@@ -195,7 +206,7 @@ function arc.tasks.archive.create {
 	# always switch back to the original working directory
 	cd "$wd" || quit 1 "could not cd to %s" "$wd";
 
-	echo "$FUNCNAME: after execution: `pwd`";
+	# echo "$FUNCNAME: after execution: `pwd`";
 }
 
 function arc.tasks.archive.extract {
@@ -264,7 +275,11 @@ function __archive.parse {
 				if [ -z "$value" ]; then
 					console.quit 1 "no archive type specified for the %s option" "-t | --type";
 				fi
-				archive_type="$value";				
+				value="${extensions[$value]:-}";
+				if [ -z "$value" ]; then
+					console.quit 1 "invalid archive type %s, use %s" "$value" "${!extensions[*]}";
+				fi
+				archive_type="$value";
 				;;
 			 -o | --output )
 				shift;
@@ -275,6 +290,8 @@ function __archive.parse {
 				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
 					console.quit 1 "invalid output directory %s" "$value";
 				fi
+				# remove any trailing slash
+				value="${value%/}";
 				archive_output="$value";
 				;;
 			* )
@@ -295,11 +312,7 @@ function __archive.parse {
 # process which directory will be used to for
 # archive creation/extraction
 function __archive.dir.process {
-	
-	# echo "processing archive name: ${archive_name}";
-	# fs.path.dash "${archive_name}";
-	# local namedir=$( dirname "${_result}" );
-	
+	local namedir;
 	fs.dirname "${archive_name}" "namedir" true;
 	
 	# starts with a forward slash	
@@ -430,52 +443,52 @@ function __archive.type.infer {
 	fi
 }
 
-function __archive.tar.extract {
-	local archive="${1:-}";
-	local target="${2:-}";
-	
-	#change into the target directory for extraction
-	if [ `pwd` != "$target" ]; then
-		cdir "$target" > /dev/null;
-	fi
-	
-	local name=$( basename $archive );
-	local extension="${name##*.}";
-	local opts;
-	
-	if [ "$extension" == "gz" ]; then
-		opts="xzf";
-	elif [ "$extension" == "bz2" ]; then
-		opts="xjf";
-	else
-		console.quit 1 "invalid archive type found %s" "$extension";
-	fi
-	
-	#extract the archive
-	console.info "tar %s %s > %s" "$opts" "$name" "$target";
-	
-	# tar "$opts" "$archive" --directory="$target";
-}
+# function __archive.tar.extract {
+# 	local archive="${1:-}";
+# 	local target="${2:-}";
+# 	
+# 	#change into the target directory for extraction
+# 	if [ `pwd` != "$target" ]; then
+# 		cdir "$target" > /dev/null;
+# 	fi
+# 	
+# 	local name=$( basename $archive );
+# 	local extension="${name##*.}";
+# 	local opts;
+# 	
+# 	if [ "$extension" == "gz" ]; then
+# 		opts="xzf";
+# 	elif [ "$extension" == "bz2" ]; then
+# 		opts="xjf";
+# 	else
+# 		console.quit 1 "invalid archive type found %s" "$extension";
+# 	fi
+# 	
+# 	#extract the archive
+# 	console.info "tar %s %s > %s" "$opts" "$name" "$target";
+# 	
+# 	# tar "$opts" "$archive" --directory="$target";
+# }
 
-function __archive.tar.create {
-	local archive="${1:-}";
-	local target="${2:-}";
-	
-	echo "creating archive: $archive : $target";
-	
-	local dir=$( dirname "$target" );
-	local name=$( basename "$target" );
-	
-	#change into the target directory for extraction
-	if [ `pwd` != "$dir" ]; then
-		cdir "$dir" > /dev/null;
-	fi
-	
-	console.info "tar czf %s < %s" "$archive" "$target";
-	
-	#create the archive
-	# tar czf "$archive" "$name";
-}
+# function __archive.tar.create {
+# 	local archive="${1:-}";
+# 	local target="${2:-}";
+# 	
+# 	echo "creating archive: $archive : $target";
+# 	
+# 	local dir=$( dirname "$target" );
+# 	local name=$( basename "$target" );
+# 	
+# 	#change into the target directory for extraction
+# 	if [ `pwd` != "$dir" ]; then
+# 		cdir "$dir" > /dev/null;
+# 	fi
+# 	
+# 	console.info "tar czf %s < %s" "$archive" "$target";
+# 	
+# 	#create the archive
+# 	# tar czf "$archive" "$name";
+# }
 
 function __arvhive.binary.validate {
 	local exes=( ${binaries[$archive_type]} );
