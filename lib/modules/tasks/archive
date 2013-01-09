@@ -210,15 +210,21 @@ function arc.tasks.archive.create {
 }
 
 function arc.tasks.archive.extract {
-	local archive="${1:-}";
-	
-	if [ ! -f "$archive" ]; then
-		console.quit 1 "invalid archive %s" "$archive";
+	if [ $# -lt 1 ]; then
+		console.quit 1 "too few options, usage: %s" "-x [options...] [archive] [files...]";
 	fi
 	
-	# TODO: infer archive type from file extension
+	# process the archive name
+	archive_name="${1:-}";
+	shift;
 	
-	echo "$FUNCNAME: $* : $archive";
+	__archive.dir.process;
+	__archive.name.process;	
+	
+	__archive.executable.get false;
+	__archive.executable.get.options false;
+	
+	echo "$FUNCNAME : $archive_name : $archive_dir : $archive_output : $archive_executable";
 }
 
 ######################################################################
@@ -232,6 +238,13 @@ function __archive.executable.get {
 	local create="${1:-true}";
 	if $create; then
 		archive_executable="${executables[$archive_type]}";
+	else
+		echo "type is : $archive_type"
+		if [ "$archive_type" != "zip" ]; then
+			archive_executable="${executables[$archive_type]}";
+		else
+			archive_executable="${executables[unzip]}";
+		fi
 	fi
 }
 
@@ -239,9 +252,13 @@ function __archive.executable.get {
 function __archive.executable.get.options {
 	local create="${1:-true}";
 	if $create; then
-		# archive_executable_options
 		case "$archive_type" in
 			tar ) archive_executable_options="czf" ;;
+		esac
+	else
+		case "$archive_type" in
+			tar ) archive_executable_options="xzf" ;;
+			bz2 ) archive_executable_options="xjf" ;;
 		esac
 	fi
 }
@@ -394,7 +411,7 @@ function __archive.name.process {
 	__arvhive.type.validate;
 			
 	# validate the required executables are present
-	__arvhive.binary.validate;
+	__archive.binary.validate;
 	
 	# if we did not infer an archive type from
 	# the name then manipulate the file name to ensure
@@ -443,54 +460,7 @@ function __archive.type.infer {
 	fi
 }
 
-# function __archive.tar.extract {
-# 	local archive="${1:-}";
-# 	local target="${2:-}";
-# 	
-# 	#change into the target directory for extraction
-# 	if [ `pwd` != "$target" ]; then
-# 		cdir "$target" > /dev/null;
-# 	fi
-# 	
-# 	local name=$( basename $archive );
-# 	local extension="${name##*.}";
-# 	local opts;
-# 	
-# 	if [ "$extension" == "gz" ]; then
-# 		opts="xzf";
-# 	elif [ "$extension" == "bz2" ]; then
-# 		opts="xjf";
-# 	else
-# 		console.quit 1 "invalid archive type found %s" "$extension";
-# 	fi
-# 	
-# 	#extract the archive
-# 	console.info "tar %s %s > %s" "$opts" "$name" "$target";
-# 	
-# 	# tar "$opts" "$archive" --directory="$target";
-# }
-
-# function __archive.tar.create {
-# 	local archive="${1:-}";
-# 	local target="${2:-}";
-# 	
-# 	echo "creating archive: $archive : $target";
-# 	
-# 	local dir=$( dirname "$target" );
-# 	local name=$( basename "$target" );
-# 	
-# 	#change into the target directory for extraction
-# 	if [ `pwd` != "$dir" ]; then
-# 		cdir "$dir" > /dev/null;
-# 	fi
-# 	
-# 	console.info "tar czf %s < %s" "$archive" "$target";
-# 	
-# 	#create the archive
-# 	# tar czf "$archive" "$name";
-# }
-
-function __arvhive.binary.validate {
+function __archive.binary.validate {
 	local exes=( ${binaries[$archive_type]} );
 	executable.validate "${exes[@]}";
 }

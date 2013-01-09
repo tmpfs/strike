@@ -28,6 +28,15 @@ function test.archive.tar {
 			assert.eq "0" "$?";
 			assert.file.exists? "${target}/${filename}${ext}";
 	done
+	
+	# extract each created archive	
+	local cmd="-x --dir "${target}" -o "${target}"";
+	for ext in ${extensions[@]}
+		do
+			$program $cmd "${filename}${ext}" "${files[@]}";
+			#assert.eq "0" "$?";
+			#assert.file.exists? "${target}/${filename}${ext}";
+	done
 }
 
 # TODO: validate unknown extension generates exit code >0
