@@ -24,6 +24,7 @@ function test.archive.create.tar {
 	local files=(
 		"lipsum.txt"
 		"etiam.txt"
+		"lipsum"
 	);
 	
 	local dir;
