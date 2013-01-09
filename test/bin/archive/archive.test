@@ -1,3 +1,11 @@
-function test.archive.filepath {
-	echo -ne '';
+require.once 'tasks/archive';
+
+function test.archive.path.relative {
+	
+	# test archive type inference
+	tasks.archive -t lipsum.gz;
+	tasks.archive -t lipsum.tar.gz;
+	tasks.archive -t lipsum.tar;
+	tasks.archive -t lipsum.bz2;
+	tasks.archive -t lipsum.zip;
 }

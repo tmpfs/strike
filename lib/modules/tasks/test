@@ -349,6 +349,7 @@ function __assert_get_suites {
 				
 					#echo "got test methods: ${testmethods[@]} for suite: ${suite}";
 				fi
+				# echo "adding target suite: $suite";
 				targets+=( "$suite" );
 		done
 	fi
@@ -377,7 +378,25 @@ function __assert_get_suites {
 			return 1;
 		fi
 		#echo "testing include on $target : ${targets[@]}";
-		array.contains? "$target" "${targets[@]}";
+		#array.contains? "$target" "${targets[@]}";
+		
+		local k v;
+		for k in ${!targets[@]} 
+			do
+				v="${targets[$k]}";
+				# strip any file extension from suite target
+				# this allows test suites to be specified with the
+				# .test extension
+				# this allows for the situation where an executable
+				# and a .test file in the same directory have the same name
+				# you can run both by using the base name and just the test by
+				# specifying the .test extension
+				v=${v%.test};
+				if [ "$v" == "$target" ]; then
+					return 0;
+				fi
+		done
+		return 1;
 	}
 	
 	shopt -s globstar;
@@ -406,17 +425,6 @@ function __assert_get_suites {
 				
 				# strip file extension
 				unit="${unit%.test}";
-				
-				#echo "got unit: $unit : $path : suites: ${targets[@]}";
-				
-				# no specifc targets just add it
-				# if [ ${#targets[@]} -eq 0 ]; then
-				# 	#echo "adding all ... "
-				# 	
-				# 	# make suite id relative to test directory
-				# 	# unit="${path#${testdir}/}";
-				# 	__assert.suite.add "$unit" "${path}";
-				# # looking for a specific set of test suites
 				if include? "$unit" "$path"; then
 					__assert.suite.add "$unit" "${path}";
 				fi
