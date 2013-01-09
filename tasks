@@ -1,8 +1,14 @@
+# tasks we want to use/test
 require 'tasks/todo';
 require 'tasks/project';
 
+# external build tool wrappers
+# used for testing purposes
+require 'tasks/ext/build/make';
 require 'tasks/ext/build/rake';
 require 'tasks/ext/build/ant';
+require 'tasks/ext/build/mvn';
+
 require 'tasks/ext/npm';
 
 # exclude these tasks from the default test runner

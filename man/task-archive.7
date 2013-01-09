@@ -1,0 +1,48 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "TASK\-ARCHIVE" "7" "January 2013" "" ""
+.
+.SH "NAME"
+\fBtask\-archive\fR \- archive task(s) for bake(1)
+.
+.SH "SYNOPSIS"
+Archive task(s) for bake(1)\.
+.
+.SH "DESCRIPTION"
+Creates and extracts archives using tar(1) for \fItar\.gz\fR and \fIbz2\fR files and zip(1) and unzip(1) for \fIzip\fR files\.
+.
+.SH "REQUIRE"
+In your tasks(7) file \fBrequire\fR the \fBarchive\fR task(s) using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/archive\';
+.
+.fi
+.
+.IP "" 0
+.
+.SH "USAGE"
+.
+.nf
+
+bake archive \-c tar [files\.\.\.]
+bake archive \-c bz2 [files\.\.\.]
+bake archive \-c zip [files\.\.\.]
+bake archive \-x tar [archive]
+bake archive \-x bz2 [archive]
+bake archive \-x zip [archive]
+.
+.fi
+.
+.SH "BUGS"
+\fBtask\-archive\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBtask\-archive\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+bake(1)

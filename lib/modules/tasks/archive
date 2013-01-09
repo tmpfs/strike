@@ -58,6 +58,19 @@ function tasks.archive {
 		[extract]="extract"
 	);
 	
+	# mapping between archive types
+	# and the required executables
+	# for simplicity we validate both
+	# zip and unzip even though it's
+	# *possible* an installation would
+	# have one and not the other
+	declare -A types;
+	types=(
+		[tar]="tar"
+		[bz2]="bz2"
+		[zip]="zip unzip"
+	);
+	
 	# should always have at least 3 arguments
 	if [ $# -lt 3 ]; then
 		console.quit 1 "too few options";
@@ -75,9 +88,62 @@ function tasks.archive {
 }
 
 function arc.tasks.archive.create {
+	local archive_type="${1:-}";
+	
 	echo "$FUNCNAME: $*";
 }
 
 function arc.tasks.archive.extract {
+	local archive_type="${1:-}";
+		
 	echo "$FUNCNAME: $*";
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __archive.tar.extract {
+	local archive="${1:-}";
+	local target="${2:-}";
+	
+	#change into the target directory for extraction
+	if [ `pwd` != "$target" ]; then
+		cdir "$target" > /dev/null;
+	fi
+	
+	local name=$( basename $archive );
+	local extension="${name##*.}";
+	local opts;
+	
+	if [ "$extension" == "gz" ]; then
+		opts="xzf";
+	elif [ "$extension" == "bz2" ]; then
+		opts="xjf";
+	else
+		console.quit 1 "invalid archive type found %s" "$extension";
+	fi
+	
+	#extract the archive
+	console.info "tar %s %s > %s" "$opts" "$name" "$target";
+	tar "$opts" "$archive" --directory="$target";
+}
+
+function __archive.tar.create {
+	local archive="${1:-}";
+	local target="${2:-}";
+	local dir=$( dirname "$target" );
+	local name=$( basename "$target" );
+	
+	#change into the target directory for extraction
+	if [ `pwd` != "$dir" ]; then
+		cdir "$dir" > /dev/null;
+	fi
+	
+	console.info "tar czf %s < %s" "$archive" "$target";
+	
+	#create the archive
+	tar czf "$archive" "$name";
 }

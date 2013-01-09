@@ -37,6 +37,7 @@ bake project count
 bake project set [id] [name] [value]
 bake project get [id] [name]
 bake project del [id] [name\.\.\.]
+bake project print [\-\-pretty]
 bake project rm [id\.\.\.]
 .
 .fi
@@ -128,6 +129,12 @@ If any of the project identifiers do not exist this command will exit with a cod
 .
 .IP
 Add a project by force even if a project with the same identifier already exists\.
+.
+.TP
+\fB\-\-pretty\fR:
+.
+.IP
+Use in conjunction with the \fBprint\fR command to pretty print the JSON\.
 .
 .SH "FILES"
 The projects meta information is stored in a file named \fIprojects\.json\fR in the \fB${root}\fR of the current project\.
