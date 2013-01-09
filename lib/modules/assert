@@ -14,13 +14,13 @@ fi
 # default to running as a standalone
 declare -g __assert_standalone=true;
 
-declare -g header;
+declare -g assert_header;
 
 # CONSTRUCTOR
 
 function assert.initialize {
 	string.repeat "+" 80;
-	header="$_result";
+	assert_header="$_result";
 }
 
 # MANUAL ASSERTIONS
@@ -200,6 +200,18 @@ function assert.summary {
 	return 0;
 }
 
+
+function assert.header {
+	local method="${1:-}";
+	if [ -z "$method" ]; then
+		method="${output:-}";
+	fi
+	if [ -z "$method" ]; then
+		method="console.info";
+	fi
+	$method "$assert_header";
+}
+
 ######################################################################
 #
 #	PRIVATE METHODS
@@ -308,14 +320,6 @@ function __assert_err {
 	fi
 }
 
-function __assert.print.header {
-	local output="${1:-$output}";
-	if [ -z "$output" ]; then
-		output="console.log";
-	fi
-	$output "$header";
-}
-
 function __assert.print.summary {
 	
 	# switch output method for summary
@@ -324,10 +328,13 @@ function __assert.print.summary {
 	
 	# some assertions failed
 	if [ ${summary[assertions.fail]} -gt 0 ]; then
+		# TODO: ensure [warn] prefix is not displayed, after console(3) refactoring
 		output="console.warn";
 	fi
 	
-	__assert.print.header $output;
+	assert.header $output;
+	$output "RESULT";
+	assert.header $output;	
 	
 	$output "suites (total): %s" "${summary[total]}";
 	$output "suites (binary): %s" "${summary[executables]}";
@@ -343,17 +350,17 @@ function __assert.print.summary {
 	fi
 	
 	if [ ${summary[assertions.fail]} -eq 0 ]; then
-		__assert.print.header;		
+		assert.header;		
 		console.ok "test(s) passed %s" "✓";
 		console.success;
 	else
 		
-		__assert.print.header;
+		assert.header;
 		console.warn "# FAILURES";
-		__assert.print.header;		
+		assert.header;		
 		console.warn "# STDOUT: %s" "$stdout";
 		console.warn "# STDERR: %s" "$stderr";
-		__assert.print.header;
+		assert.header;
 		
 		local debuginfo;
 		for debuginfo in ${!failures[@]}
@@ -365,7 +372,7 @@ function __assert.print.summary {
 				console.error "$frame";
 		done
 		
-		__assert.print.header;		
+		assert.header;		
 		
 		console.error "test(s) failed %s" "✘";
 		exit ${summary[assertions.fail]};

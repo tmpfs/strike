@@ -269,6 +269,10 @@ function __assert.run {
 	
 	local tests=0;
 	local binaries=0;
+	
+	assert.header;
+	console.info "RUN";
+	assert.header;		
 
 	# print summary of what will be run
 	for unit in ${suites[@]}
@@ -286,7 +290,8 @@ function __assert.run {
 	console.info "suites (binary): %s" "$binaries";
 	console.info "suites (test): %s" "$tests";
 	console.info "suites (excludes): %s" "${#__test_excluded[@]}";
-	
+	assert.header;
+		
 	# run tests
 	for unit in ${suites[@]}
 		do
