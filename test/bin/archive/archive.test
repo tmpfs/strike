@@ -1,11 +1,142 @@
 require.once 'tasks/archive';
 
+# test(s) for task-archive(7) type inference
+# relative to the current working directory
+function test.archive.path.name {
+	# these paths should resolve relative to ${root}
+	local program="tasks.archive";
+	local cmd="-t";
+	local files=(
+		"lipsum.gz"
+		"lipsum.tar.gz"
+		"lipsum.tar"
+		"lipsum.bz2"
+		"lipsum.zip"
+	);
+	local expects=(
+		"tar lipsum.gz ${root}"
+		"tar lipsum.tar.gz ${root}"
+		"tar lipsum.tar ${root}"
+		"bz2 lipsum.bz2 ${root}"
+		"zip lipsum.zip ${root}"
+	);
+	!test.archive.run;
+}
+
+# test(s) for task-archive(7) type inference
+# relative to the current working directory
+# using a path portion in the filename specification
 function test.archive.path.relative {
-	
-	# test archive type inference
-	tasks.archive -t lipsum.gz;
-	tasks.archive -t lipsum.tar.gz;
-	tasks.archive -t lipsum.tar;
-	tasks.archive -t lipsum.bz2;
-	tasks.archive -t lipsum.zip;
+	# these paths should resolve relative to ${root}
+	local program="tasks.archive";
+	local cmd="-t";
+	local files=(
+		"target/lipsum.gz"
+		"target/lipsum.tar.gz"
+		"target/lipsum.tar"
+		"target/lipsum.bz2"
+		"target/lipsum.zip"
+		"./target/lipsum.gz"
+	);
+	local expects=(
+		"tar lipsum.gz ${target}"
+		"tar lipsum.tar.gz ${target}"
+		"tar lipsum.tar ${target}"
+		"bz2 lipsum.bz2 ${target}"
+		"zip lipsum.zip ${target}"
+		"tar lipsum.gz ${root}/./target"
+	);
+	!test.archive.run;
+}
+
+# test(s) for task-archive(7) type inference
+# relative to the current working directory
+# using leading hyphen characters in the filename
+function test.archive.path.name.dash {
+	# these paths should resolve relative to ${root}
+	local program="tasks.archive";
+	local cmd="-t";
+	local files=(
+		"-lipsum.gz"
+		"--lipsum.tar.gz"
+		"-lipsum.tar"
+		"--lipsum.bz2"
+		"-lipsum.zip"
+	);
+	local expects=(
+		"tar -lipsum.gz ${root}"
+		"tar --lipsum.tar.gz ${root}"
+		"tar -lipsum.tar ${root}"
+		"bz2 --lipsum.bz2 ${root}"
+		"zip -lipsum.zip ${root}"
+	);
+	!test.archive.run;
+}
+
+# test(s) to verify that an absolute path
+# starting with a leading / is treated correctly
+function test.archive.absolute {
+	local program="tasks.archive";
+	local cmd="-t";
+	local files=(
+		"${target}/lipsum.gz"
+		"${target}/lipsum.tar.gz"
+		"${target}/lipsum.tar"
+		"${target}/lipsum.bz2"
+		"${target}/lipsum.zip"
+	);
+	local expects=(
+		"tar lipsum.gz ${target}"
+		"tar lipsum.tar.gz ${target}"
+		"tar lipsum.tar ${target}"
+		"bz2 lipsum.bz2 ${target}"
+		"zip lipsum.zip ${target}"
+	);
+	!test.archive.run;
+}
+
+# test(s) to verify that the -d | --dir option
+# behaves as expected
+function test.archive.dir {
+	local program="tasks.archive";
+	local cmd="-t --dir";
+	local files=(
+		"${target} lipsum.gz"
+		"${target} lipsum.tar.gz"
+		"${target} lipsum.tar"
+		"${target} lipsum.bz2"
+		"${target} lipsum.zip"
+	);
+	local expects=(
+		"tar lipsum.gz ${target}"
+		"tar lipsum.tar.gz ${target}"
+		"tar lipsum.tar ${target}"
+		"bz2 lipsum.bz2 ${target}"
+		"zip lipsum.zip ${target}"		
+	);
+	!test.archive.run;
+}
+
+# # absolute file path spec
+# tasks.archive -t /etc/lipsum.zip;
+
+# test(s) to verify that a non-existent
+# directory causes a >0 exit code
+function test.archive.directory.fail {
+	tasks.archive -t ../non-existent-directory/lipsum.tar.gz & wait %%;
+	assert.gt "0" "$?";
+}
+
+# prefix this internal method with an
+# exclamation mark to prevent it being picked
+# up by the test runner
+function !test.archive.run {
+	local k v exe result;
+	for k in ${!files[@]}
+		do
+			v=( "${files[$k]}" );
+			console.info "$program %s %s" "$cmd" "${v[*]}";
+			result=( $( $program $cmd ${v[@]} ) );
+			assert.equal "${expects[$k]}" "${result[*]:-}";
+	done
 }

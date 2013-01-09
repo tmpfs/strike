@@ -82,7 +82,7 @@ function tasks.archive {
 	
 	# an output directory for archives (creation)
 	# or archive contents (extraction)
-	local output;
+	local archive_output;
 	
 	# the default archive type to use
 	# when no --type is specified and no
@@ -229,7 +229,7 @@ function __archive.parse {
 				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
 					console.quit 1 "invalid output directory %s" "$value";
 				fi
-				output="$value";
+				archive_output="$value";
 				;;
 			* )
 				options+=( "$1" );
