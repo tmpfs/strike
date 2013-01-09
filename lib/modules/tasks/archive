@@ -249,6 +249,7 @@ function __archive.parse {
 # process which directory will be used to for
 # archive creation/extraction
 function __archive.dir.process {
+	
 	# echo "processing archive name: ${archive_name}";
 	# fs.path.dash "${archive_name}";
 	# local namedir=$( dirname "${_result}" );

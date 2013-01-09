@@ -208,7 +208,9 @@ function tdd.tasks.test.ls {
 	# gather test suites
 	if [ $# -eq 0 ]; then
 		all=true;		
-		__assert_get_all;
+		# __assert_get_all;
+		
+		__assert_get_suites;
 	else
 		__assert_get_suites "$@";
 	fi
@@ -244,7 +246,8 @@ function tdd.tasks.test.run {
 	# gather test suites
 	if [ $# -eq 0 ]; then
 		all=true;
-		__assert_get_all;
+		# __assert_get_all;
+		__assert_get_suites;
 	else
 		__assert_get_suites "$@";
 	fi
@@ -258,12 +261,32 @@ function tdd.tasks.test.run {
 
 # run all test suites
 function __assert.run {
-	local path;
+	local unit path;
 	
 	if [ ${#suites[@]} -eq 0 ]; then
 		console.quit 1 "no test suites found";
 	fi
 	
+	local tests=0;
+	local binaries=0;
+
+	# print summary of what will be run
+	for unit in ${suites[@]}
+		do
+			path="${paths["$unit"]}";
+			if [ -x "$path" ]; then
+				: $((binaries++));
+			elif [[ "$path" =~ \.test$ ]]; then
+				: $((tests++));
+			fi
+			console.info "suite %s < %s" "$unit" "$path";
+	done
+
+	console.info "suites (total): %s" "${#suites[@]}";
+	console.info "suites (binary): %s" "$binaries";
+	console.info "suites (test): %s" "$tests";
+	
+	# run tests
 	for unit in ${suites[@]}
 		do
 			path="${paths["$unit"]}";
@@ -283,138 +306,211 @@ function __assert.suite.add {
 	fi
 }
 
-function __assert_get_all {
-	
-	# look for all .test suites
-	__assert_search_paths;
-	local searchpaths=( "$_result" );
-	local path file;
-	for path in ${searchpaths[@]}
-		do
-			if [ -d "$path" ]; then
-				__assert_get_dir "$path";
-			fi
-	done
-	
-	# find all binary tests (last)
-	__assert.get.binary;
-}
+# function __assert_get_all {
+# 	
+# 	# look for all .test suites
+# 	__assert_search_paths;
+# 	local searchpaths=( "$_result" );
+# 	local path file;
+# 	for path in ${searchpaths[@]}
+# 		do
+# 			if [ -d "$path" ]; then
+# 				__assert_get_dir "$path";
+# 			fi
+# 	done
+# 	
+# 	# find all binary tests (last)
+# 	__assert.get.binary;
+# }
+# 
+# function __assert_get_dir {
+# 	local dir="$1";
+# 	if [ -d "$dir" ]; then
+# 		for file in ${dir}/*
+# 			do
+# 				if [ -f "$file" ] && [[ "$file" =~ .test$ ]]; then
+# 					unit="`basename "$file"`";
+# 					unit="${unit%.test}";
+# 					__assert.suite.add "$unit" "$file";
+# 				# recurse into sub-directories
+# 				elif [ -d "$file" ]; then
+# 					__assert_get_dir "$file";
+# 				fi
+# 		done
+# 	fi
+# }
 
-function __assert_get_dir {
-	local dir="$1";
-	if [ -d "$dir" ]; then
-		for file in ${dir}/*
-			do
-				if [ -f "$file" ] && [[ "$file" =~ .test$ ]]; then
-					unit="`basename "$file"`";
-					unit="${unit%.test}";
-					__assert.suite.add "$unit" "$file";
-				# recurse into sub-directories
-				elif [ -d "$file" ]; then
-					__assert_get_dir "$file";
-				fi
-		done
-	fi
-}
-
-function __assert.get.binary {
-	local suite="${1:-}";
-	local bin binsuite;
-	if [ -d "$testbin" ]; then
-		# searching for binaries matching a suite name
-		if ! $all; then
-			bin="${testbin}/${suite}";
-			binsuite="${bin#${testdir}/}";
-			# binary matching the suite name
-			if [ -f "$bin" ] && [ -x "$bin" ]; then
-				__assert.suite.add "$binsuite" "$bin";
-			else
-				# do a greedy search for nested directories
-				# when not matched directly in the test/bin directory
-				#__assert.get.binary.all;
-				#echo -ne '';
-				__assert.get.binary.all "${suite}";
-			fi
-			# looking for suite.* binaries
-			for bin in ${testbin}/${suite}.*
-				do					
-					if [ -f "$bin" ] && [ -x "$bin" ]; then
-						binsuite="${bin#${testdir}/}";
-						__assert.suite.add "$binsuite" "$bin";								
-					fi
-			done
-		else
-			__assert.get.binary.all;
-		fi
-	fi
-}
-
-function __assert.get.binary.all {
-	# allow recursive globbing for this search
-	shopt -s globstar;
-	local suite="${1:-}";
-	local nm;
-	# looking for all binary tests
-	for bin in "${testbin}"/**
-		do
-			nm=$( basename "$bin" );
-			binsuite="${bin#${testdir}/}";	
-			if [ -f "$bin" ] && [ -x "$bin" ]; then
-				# add all binaries
-				if [ -z "$suite" ]; then
-					__assert.suite.add "$binsuite" "$bin";
-				elif [ -n "$suite" ] && [ "$nm" == "$suite" ]; then
-					__assert.suite.add "$binsuite" "$bin";					
-				fi
-			fi
-	done
-	# switch off recursive globbing
-	shopt -u globstar;
-}
+# function __assert.get.binary {
+# 	local suite="${1:-}";
+# 	local bin binsuite;
+# 	if [ -d "$testbin" ]; then
+# 		# searching for binaries matching a suite name
+# 		if ! $all; then
+# 			bin="${testbin}/${suite}";
+# 			binsuite="${bin#${testdir}/}";
+# 			# binary matching the suite name
+# 			if [ -f "$bin" ] && [ -x "$bin" ]; then
+# 				__assert.suite.add "$binsuite" "$bin";
+# 			else
+# 				# do a greedy search for nested directories
+# 				# when not matched directly in the test/bin directory
+# 				#__assert.get.binary.all;
+# 				#echo -ne '';
+# 				__assert.get.binary.all "${suite}";
+# 			fi
+# 			# looking for suite.* binaries
+# 			for bin in ${testbin}/${suite}.*
+# 				do					
+# 					if [ -f "$bin" ] && [ -x "$bin" ]; then
+# 						binsuite="${bin#${testdir}/}";
+# 						__assert.suite.add "$binsuite" "$bin";								
+# 					fi
+# 			done
+# 		else
+# 			__assert.get.binary.all;
+# 		fi
+# 	fi
+# }
+# 
+# function __assert.get.binary.all {
+# 	# allow recursive globbing for this search
+# 	shopt -s globstar;
+# 	local suite="${1:-}";
+# 	local nm;
+# 	# looking for all binary tests
+# 	for bin in "${testbin}"/**
+# 		do
+# 			nm=$( basename "$bin" );
+# 			binsuite="${bin#${testdir}/}";
+# 			if [ -f "$bin" ] && [ -x "$bin" ]; then
+# 				# add all binaries
+# 				if [ -z "$suite" ]; then
+# 					__assert.suite.add "$binsuite" "$bin";
+# 				elif [ -n "$suite" ] && [ "$nm" == "$suite" ]; then
+# 					__assert.suite.add "$binsuite" "$bin";
+# 				fi
+# 			fi
+# 	done
+# 	# switch off recursive globbing
+# 	shopt -u globstar;
+# }
 
 # filter by suites specified on the command line
 function __assert_get_suites {
 	__assert_search_paths;
 	local searchpaths=( "$_result" );
 	local opts=( "$@" );
-	local path file methods;
-	for path in ${searchpaths[@]}
-		do
-			for unit in ${opts[@]}
+	local path file methods unit;
+	local suite targets=();
+	
+	# handle test suites with a ':' method specification
+	if [ ${#opts[@]} -gt 0 ]; then
+		for suite in ${opts[@]}
+			do
+				if [[ "$suite" =~ : ]]; then
+					if [[ "$suite" =~ ^: ]] || [[ "$suite" =~ :$ ]]; then
+						console.quit 1 "invalid test suite %s, leading or trailing colon" "$suite";
+					fi
+					# remove method specifications
+					# suite="${suite%%:*}";
+				
+					# echo "checking for specific method(s) to test ... ";
+					local methods;
+					local IFS=":";
+					methods=( $suite );
+					# echo "got methods length: ${#methods[@]}";
+					# echo "got methods: ${methods[@]}";
+					unset IFS;
+				
+					suite="${methods[0]}";
+					unset methods[0];
+					if [ ${#methods[@]} -gt 0 ]; then
+						testmethods["${suite}"]="${methods[*]}";
+					fi
+				
+					#echo "got test methods: ${testmethods[@]} for suite: ${suite}";
+				fi
+				targets+=( "$suite" );
+		done
+	fi
+	
+	
+	include?()
+	{
+		local target="${1:-}";
+		local path="${2:-}";		
+		# no specifc targets, always add it
+		if [ ${#targets[@]} -eq 0 ]; then
+			return 0;
+		fi
+		# also pick up suite.* executable
+		if [ -x "$path" ]; then
+			local name="";
+			fs.basename "$path" "name";
+			local target;
+			for target in ${targets[@]}
 				do
-					# handle running specific test methods
-					if [[ "$unit" =~ : ]]; then
-						
-						if [[ "$unit" =~ ^: ]] || [[ "$unit" =~ :$ ]]; then
-							console.quit 1 "invalid test specification %s, leading or trailing colon" "$unit";
-						fi
-						
-						# echo "checking for specific method(s) to test ... ";
-						local methods;
-						local IFS=":";
-						methods=( $unit );
-						# echo "got methods length: ${#methods[@]}";
-						# echo "got methods: ${methods[@]}";
-						unset IFS;
-						
-						unit="${methods[0]}";
-						unset methods[0];
-						if [ ${#methods[@]} -gt 0 ]; then
-							testmethods["$unit"]="${methods[*]}";
-						fi
+					if [[ "$name" =~ ^$target\. ]]; then
+						return 0;
 					fi
-					
-					if [[ ! "$unit" =~ \.test$ ]]; then
-						__assert.suite.add "$unit" "${path}/${unit}.test";
-					# allow people to specify the .test extension if they
-					# really want to
-					else
-						__assert.suite.add "$unit" "${path}/${unit}";
-					fi
-					
-					__assert.get.binary "$unit";					
 			done
+		fi
+		array.contains? "$target" "${targets[@]}";
+	}
+	
+	shopt -s globstar;
+	for path in ${searchpaths[@]}/**
+		do
+			if [ -d "$path" ]; then
+				continue;
+			elif [ -f "$path" ] && [ -x "$path" ] && [[ ! "$path" =~ \.test$ ]]; then
+				# get the file name
+				fs.basename "$path" "unit";
+								
+				#echo "add executable file $path";
+				
+				if include? "$unit" "$path"; then
+					#echo "adding executable $unit";
+					
+					unit="${path#${testdir}/}";
+					__assert.suite.add "$unit" "$path";
+				fi
+			elif [ -f "$path" ] && [[ ! "$path" =~ \.test$ ]]; then
+				continue;
+			# got a test suite
+			else
+				# get the file name
+				fs.basename "$path" "unit";
+				
+				# strip file extension
+				unit="${unit%.test}";
+				
+				#echo "got unit: $unit : $path : suites: ${targets[@]}";
+				
+				# no specifc targets just add it
+				if [ ${#targets[@]} -eq 0 ]; then
+					#echo "adding all ... "
+					
+					# make suite id relative to test directory
+					# unit="${path#${testdir}/}";
+					__assert.suite.add "$unit" "${path}";
+				# looking for a specific set of test suites
+				elif include? "$unit" "$path"; then
+					# # not a test suite we are set to execute
+					# if ! array.contains? "$unit" "${targets[@]}"; then
+					# 	continue;
+					# fi
+					
+					# make suite id relative to test directory
+					#unit="${path#${testdir}/}";
+					
+					# strip test extension again, so methods are picked up
+					#unit="${unit%.test}";
+					__assert.suite.add "$unit" "${path}";
+				fi
+			fi
 	done
+	shopt -u globstar;
 }
 
 function __assert_run_suite {	
@@ -504,7 +600,7 @@ function __assert_run_test {
 							fi
 						fi
 					fi
-			done	
+			done
 		fi
 	fi
 }

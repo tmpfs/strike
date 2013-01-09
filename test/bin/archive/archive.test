@@ -1,0 +1,3 @@
+function test.archive.filepath {
+	echo -ne '';
+}

@@ -23,6 +23,8 @@ unzip(1)		http://man.cx/unzip(1)
 sed(1)			http://man.cx/sed(1)
 printf(1)		http://man.cx/printf(1)
 source(1)		http://man.cx/source(1)
+dirname(1)		http://man.cx/dirname(1)
+basename(1)		http://man.cx/basename(1)
 
 # other external links
 git(1)			http://git-scm.com/

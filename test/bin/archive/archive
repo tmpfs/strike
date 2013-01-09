@@ -53,10 +53,6 @@ function test.archive {
 	
 	# relative specifications
 	
-	tasks.archive -t -lipsum.gz;
-	
-	exit 0;
-	
 	# test archive type inference
 	tasks.archive -t lipsum.gz;
 	tasks.archive -t lipsum.tar.gz;
@@ -71,13 +67,21 @@ function test.archive {
 	tasks.archive -t target/lipsum.zip;
 	
 	tasks.archive -t ./target/lipsum.gz;
-	tasks.archive -t ../target/lipsum.tar.gz;
+	
+	# test with leading dashes
+	tasks.archive -t -lipsum.gz;
+	tasks.archive -t --lipsum.gz;
 	
 	# issues warning on redundant -d option
 	# tasks.archive -t -d "$HOME/git" /etc/lipsum.zip;
 	
+	# FAILURES
+	
+	# non-existent relative path
+	#tasks.archive -t ../non-existent-directory/lipsum.tar.gz;
+	
 	# create a .tar.gz from multiple files, specifying file extension
-	tasks.archive -c lipsum.gz lipsum.txt etiam.txt;
+	tasks.archive -c lipsum.gz lipsum.txt etiam.txt;	
 	
 	# print the summary
 	assert.summary;
