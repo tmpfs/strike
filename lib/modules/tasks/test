@@ -132,6 +132,8 @@ function tasks.test {
 	declare -A testmethods;
 	local unit;
 	
+	rm "$stdout" "$stderr" 2> /dev/null;
+	
 	echo -n "" > "$stdout" || quit 1 "could not create %s" "$stdout";
 	echo -n "" > "$stderr" || quit 1 "could not create %s" "$stderr";
 	

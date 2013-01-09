@@ -97,9 +97,12 @@ function process.use {
 			local val="${1:-}";
 			if [ "$val" == "strict" ]; then
 				process_strict="on";
+				# TODO: make these options an array
 				set -o errtrace;
 				set -o errexit;
 				set -o nounset;
+				set -o noclobber;
+				#set -o;
 			elif [ "$val" == "debug" ]; then
 				process_debug="on";
 			elif [ "$val" == "test" ]; then
@@ -143,6 +146,7 @@ function process.strict! {
 	set +o errtrace;
 	set +o errexit;
 	set +o nounset;
+	set +o noclobber;
 }
 
 # switch off test mode

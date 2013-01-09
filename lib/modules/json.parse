@@ -51,7 +51,7 @@ function json.parse {
 						json_doc["$key"]="$value";
 					fi
 			done <<< "$line";
-	done < <( __json.tokenize <&0 > >(__json.start) );
+	done < <( __json.tokenize <&0 >| >(__json.start) );
 }
 
 function json.parse.clean {

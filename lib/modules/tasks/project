@@ -273,7 +273,7 @@ function prj.tasks.project.add {
 
 function __project.file.write! {
 	json.stringify <<< "prj_doc";
-	json.string > "$prjfile" || __project.file.write.quit;	
+	json.string >| "$prjfile" || __project.file.write.quit;
 }
 
 # failed to write file
