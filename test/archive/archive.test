@@ -9,7 +9,7 @@ function test.archive.tar {
 	fs.dirname "${BASH_SOURCE[0]}" "dir";	
 	
 	local program="tasks.archive";
-	local cmd="-c --dir "${dir}" -o "${target}"";
+	local cmd="-c --debug --dir "${dir}" -o "${target}"";
 	local files=(
 		"lipsum.txt"
 		"etiam.txt"
@@ -35,7 +35,7 @@ function test.archive.tar {
 	done
 	
 	# extract each created archive
-	cmd="-x --dir "${target}" -o "${target}"";
+	cmd="-x --debug --dir "${target}" -o "${target}"";
 	for ext in ${extensions[@]}
 		do
 			$program $cmd "${filename}${ext}";

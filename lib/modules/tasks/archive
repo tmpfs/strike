@@ -63,6 +63,11 @@ In your tasks(7) file `require` the `archive` task(s) using:
 bake(1)
 ronn:markdown
 
+# TODO: add --debug flag to print commands as they are executed
+
+# TODO: add -l | list command to list either a) files that would
+# TODO: be placed in an archive with -c or b) files in the archive with -x
+
 function tasks.archive {
 	# a base working directory to resolve paths from
 	local archive_dir="";
@@ -95,6 +100,9 @@ function tasks.archive {
 	# the options being passed to the executable
 	# being used for the current operation
 	local archive_executable_options;
+	
+	# whether we are debugging the executed commands
+	local archive_debug=false;
 	
 	# mapping between archive types and file extensions
 	declare -A extensions;
@@ -183,19 +191,15 @@ function arc.tasks.archive.create {
 		cd "$archive_dir" || quit 1 "could not cd to %s" "$archive_dir";
 	fi
 	
-	# echo "$FUNCNAME: $archive_type : $archive_name : $archive_dir : ${files[@]}";
-	# echo "$FUNCNAME: using $archive_executable with options : ${archive_executable_options}";
-	# echo "$FUNCNAME: using working directory: `pwd`";
-	
-	# echo "got output directory: $archive_output";
-	
 	# make the archive name absolute so it is placed
 	# in the output directory
 	local archive="${archive_name}";
 	if [ -n "${archive_output}" ]; then
 		archive="${archive_output}/${archive_name}";
 	fi
-	
+	if $archive_debug; then
+		console.info "$archive_executable %s %s %s" "$archive_executable_options" "$archive" "${files[*]}";
+	fi	
 	local result=$( "$archive_executable" "${archive_executable_options}" "$archive" "${files[@]}" 1> /dev/null );
 	if [ $? -gt 0 ]; then
 		console.error "$result";
@@ -227,12 +231,6 @@ function arc.tasks.archive.extract {
 		cd "$archive_output" || quit 1 "could not cd to %s" "$archive_output";
 	fi
 	
-	# fs.basename "${archive_name}" "name";
-	# # just a file name specified
-	# if [ "$name" == "${archive_name}" ] && [ -n "$archive_output" ]; then
-	# 	archive="${archive_output}/${archive_name}";
-	# fi
-	
 	# TODO: quote archive_output so that spaces may be used
 	
 	if [ "$archive_type" == tar -o "$archive_type" == bz2 ]; then
@@ -240,8 +238,9 @@ function arc.tasks.archive.extract {
 		if [ -n "${archive_output}" ]; then		
 			archive_executable_options="${archive_executable_options} --directory="$archive_output"";
 		fi
-		echo "run: working directory `pwd`";
-		echo "run: $archive_executable" "${archive_executable_options}";
+		if $archive_debug; then
+			console.info "$archive_executable %s" "$archive_executable_options";
+		fi
 		local result=$( "$archive_executable" ${archive_executable_options} 1> /dev/null );
 		if [ $? -gt 0 ]; then
 			console.error "$result";
@@ -334,6 +333,9 @@ function __archive.parse {
 				# remove any trailing slash
 				value="${value%/}";
 				archive_output="$value";
+				;;
+			--debug )
+				archive_debug=true;
 				;;
 			* )
 				options+=( "$1" );
