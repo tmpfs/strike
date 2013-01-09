@@ -7,9 +7,9 @@ require 'tasks/ext/npm';
 
 # exclude these tasks from the default test runner
 # this test is used to force failure
-tasks.test.exclude! "task-test";
+test.suite.exclude! "task-test";
 # this test is slow and should be run manually
-tasks.test.exclude! "jsonlint";
+test.suite.exclude! "jsonlint";
 
 function tasks.json.checker.compile {
 	executable.validate gcc;

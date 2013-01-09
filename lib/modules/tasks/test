@@ -171,7 +171,7 @@ function tasks.test {
 
 # adds a test as being excluded from the tests
 # executed when running all tests
-function tasks.test.exclude! {
+function test.suite.exclude! {
 	if [ -n "${1:-}" ]; then
 		__test_excludes+=( "$1" );
 	fi
