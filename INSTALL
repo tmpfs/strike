@@ -1,9 +1,0 @@
-# Installation
-
-To install the library code as a dependency for a project into the `node_modules` sub-folder use:
-
-	npm install strike
-	
-If you want the supplied executables to be available in `$PATH` use the global flag:
-
-	npm install -g strike

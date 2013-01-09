@@ -8,7 +8,7 @@ Archive task(s) for bake(1).
 
 ## DESCRIPTION
 
-Creates and extracts archives using tar(1) for *tar.gz* and *bz2* files and zip(1) and unzip(1) for *zip* files.
+Creates and extracts archives using tar(1) for *tar* and *bz2* files and zip(1) and unzip(1) for *zip* files.
 
 ## REQUIRE
 
