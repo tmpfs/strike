@@ -1,8 +1,86 @@
 ######################################################################
-# 	fs
+#	Expands a path to an absolute representation of an existing
+#	directory.
 #
-#	Utilties for working with the filesystem.
+#	$1 		The path to the directory.
 ######################################################################
+function fs.path.expand {
+	local dir="$1";
+	if [  -d "$dir" ]; then
+		local owd=`pwd`;
+		cd "$dir" > /dev/null;
+		_result=`pwd`;
+		cd "$owd" > /dev/null;
+	elif [ ! -d "$dir" ]; then
+		local nm=`basename $dir`
+		dir=`dirname $dir`;
+		fs.path.expand "$dir";
+		_result="$_result/$nm";
+	fi
+	
+	if [ ! -e "$dir" -o ! -e "$_result" ]; then
+		error "unable to expand path %s" "$1";
+		_result="$1";
+	fi
+}
+
+# escapes leading dash characters
+function fs.path.dash.escape {
+	_result="${1:-}";
+	if [[ "${1:-}" =~ ^-+ ]]; then
+		local re="^-(.*)";
+		while [[ "$_result" =~ $re ]];
+			do
+				_result="\-${BASH_REMATCH[1]}";
+		done
+	fi
+}
+
+# retrieve a dirname, escaping any leading hyphens
+# that may be interpreted as options to `dirname`
+function fs.dirname {
+	local path="${1:-}";
+	local varname="${2:-_result}";
+	local stripdot="${3:-false}";
+	local result=$( dirname -- "${_result}" );
+	if $stripdot && [ "${result}" == "." ]; then
+		result="";
+	fi
+	eval "$varname=\"$result\"";
+}
+
+# retrieve a basename, escaping any leading hyphens
+# that may be interpreted as options to `dirname`
+function fs.basename {
+	local path="${1:-}";
+	local varname="${2:-_result}";
+	local stripdot="${3:-false}";
+	local result=$( basename -- "${path}" );
+	if $stripdot && [ "${result}" == "." ]; then
+		result="";
+	fi
+	eval "$varname=\"$result\"";
+}
+
+# walks the parent hierarchy looking for a file
+function fs.walk {
+	local name="${1:-}";
+	local flag="${2:-"-f"}";
+	local dir="$PWD";
+	local file="${dir}/${name}";
+	while ! test "$flag" "$file" && [ "$dir" != "/" ];
+		do
+			dir=$( dirname "$dir" );
+			file="${dir}/${name}";
+	done
+	if test "$flag" "$file"; then
+		_result="$file";
+	else
+		_result="";
+	fi
+}
+
+# DEPRECATED: all methods below are deprecated
 
 ######################################################################
 #	Tests if a path exists and is a directory.
@@ -85,50 +163,6 @@ function symlink {
 		else
 			error "$SYM_LINK_ERROR" "$src" "$dest";
 			return 1;
-	fi
-}
-
-######################################################################
-#	Expands a path to an absolute representation of an existing
-#	directory.
-#
-#	$1 		The path to the directory.
-######################################################################
-function fs.path.expand {
-	local dir="$1";
-	if [  -d "$dir" ]; then
-		local owd=`pwd`;
-		cd "$dir" > /dev/null;
-		_result=`pwd`;
-		cd "$owd" > /dev/null;
-	elif [ ! -d "$dir" ]; then
-		local nm=`basename $dir`
-		dir=`dirname $dir`;
-		fs.path.expand "$dir";
-		_result="$_result/$nm";
-	fi
-	
-	if [ ! -e "$dir" -o ! -e "$_result" ]; then
-		error "unable to expand path %s" "$1";
-		_result="$1";
-	fi
-}
-
-# walks the parent hierarchy looking for a file
-function fs.walk {
-	local name="${1:-}";
-	local flag="${2:-"-f"}";
-	local dir="$PWD";
-	local file="${dir}/${name}";
-	while ! test "$flag" "$file" && [ "$dir" != "/" ];
-		do
-			dir=$( dirname "$dir" );
-			file="${dir}/${name}";
-	done
-	if test "$flag" "$file"; then
-		_result="$file";
-	else
-		_result="";
 	fi
 }
 

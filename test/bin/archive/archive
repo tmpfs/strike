@@ -46,11 +46,38 @@ function test.archive {
 	# tasks.archive -x rar lipsum.txt;	
 	
 	# attempt to extract a non-existent archive
-	# tasks.archive -x tar lipsum.txt.tar.gz;	
+	# tasks.archive -x tar lipsum.txt.tar.gz;
 	
-	#tasks.archive -c zip lipsum.txt;
+	# absolute file path spec
+	tasks.archive -t /etc/lipsum.zip;
 	
-	tasks.archive -c tar lipsum.txt;
+	# relative specifications
+	
+	tasks.archive -t -lipsum.gz;
+	
+	exit 0;
+	
+	# test archive type inference
+	tasks.archive -t lipsum.gz;
+	tasks.archive -t lipsum.tar.gz;
+	tasks.archive -t lipsum.tar;
+	tasks.archive -t lipsum.bz2;
+	tasks.archive -t lipsum.zip;
+	
+	tasks.archive -t target/lipsum.gz;
+	tasks.archive -t target/lipsum.tar.gz;
+	tasks.archive -t target/lipsum.tar;
+	tasks.archive -t target/lipsum.bz2;
+	tasks.archive -t target/lipsum.zip;
+	
+	tasks.archive -t ./target/lipsum.gz;
+	tasks.archive -t ../target/lipsum.tar.gz;
+	
+	# issues warning on redundant -d option
+	# tasks.archive -t -d "$HOME/git" /etc/lipsum.zip;
+	
+	# create a .tar.gz from multiple files, specifying file extension
+	tasks.archive -c lipsum.gz lipsum.txt etiam.txt;
 	
 	# print the summary
 	assert.summary;

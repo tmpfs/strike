@@ -205,8 +205,9 @@ function console.colorize {
 	style_terminator;
 	local end="$_result";
 	
+	# TODO: use the shared console.sprintf message
 	#perform the replacement on the message template string
-	_result=$(printf "${output[@]}");	
+	_result=$(printf "${output[@]}");
 	
 	#wrap the replaced message with the start and end highlighting
 	local full="$start${_result[@]}$end";

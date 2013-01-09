@@ -18,12 +18,37 @@ In your tasks(7) file `require` the `archive` task(s) using:
 
 ## USAGE
 
-	bake archive -c tar [files...]
-	bake archive -c bz2	[files...]
-	bake archive -c zip [files...]
-	bake archive -x tar [archive]
-	bake archive -x bz2 [archive]
-	bake archive -x zip [archive]
+	bake archive -c [options...] [archive] [files...]
+	bake archive -x [options...] [archive]
+	bake archive -t [options...] [archive]
+	
+## COMMANDS
+
+* `-c | create`:
+
+	Creates an archive.
+	
+* `-x | extract`:
+
+	Extracts an archive.
+	
+* `-t | test`:
+
+	Tests a specified task-archive(7) command to determine the archive type and resulting archive file name.
+	
+## OPTIONS
+
+* `-t | --type`:
+
+	The type of archive to operate on, if none is specified when creating archives then the `tar` type is used. When extracting archives if this option is specified the type of archive will be inferred from a file extension.
+
+* `-d | --dir`:
+
+	A working directory to resolve paths from, if none is specified then the current working directory is used.
+	
+* `-o | --output`:
+
+	When creating archives this is a directory to place the created archives in, when extracting archives this option determines where extracted archive contents will be placed. Must be a valid directory.
 
 ## BUGS
 
@@ -40,15 +65,38 @@ ronn:markdown
 
 function tasks.archive {
 	
+	# store the original working directory
+	local owd="$PWD";
+	
+	# a base working directory to resolve paths from
+	local archive_dir="";
+	
 	# the type of archive we are processing
-	local archive_type;
+	local archive_type="";
+	
+	# the name of an archive
+	local archive_name;
 	
 	# valid archive type identifiers
 	local types=( tar bz2 zip );
 	
-	declare -A extensions
+	# an output directory for archives (creation)
+	# or archive contents (extraction)
+	local output;
+	
+	# the default archive type to use
+	# when no --type is specified and no
+	# type can be inferred from a file extension
+	local default_archive_type="tar";
+	
+	# whether an archive type was inferred from
+	# a file extension
+	local inferred=false;
+	
+	# mapping between archive types and file extensions
+	declare -A extensions;
 	extensions=(
-		[tar]="tar.gz"
+		[tar]="tar.gz tar gz"
 		[bz2]="bz2"
 		[zip]="zip"
 	);
@@ -58,8 +106,10 @@ function tasks.archive {
 	commands=(
 		[-c]="create"
 		[-x]="extract"
+		[-t]="test"		
 		[create]="create"
 		[extract]="extract"
+		[test]="test"
 	);
 	
 	# mapping between archive types
@@ -71,14 +121,9 @@ function tasks.archive {
 	declare -A binaries;
 	binaries=(
 		[tar]="tar"
-		[bz2]="bz2"
+		[bz2]="tar"
 		[zip]="zip unzip"
 	);
-	
-	# should always have at least 3 arguments
-	if [ $# -lt 3 ]; then
-		console.quit 1 "too few options";
-	fi
 	
 	# do command procesing via delegation
 	if [ $# -gt 0 ]; then
@@ -87,25 +132,43 @@ function tasks.archive {
 		if [ -z "$cmdmethod" ]; then
 			console.quit 1 "invalid archive command %s" "$1";
 		fi
+
 		# remove the command option
 		shift;
 		
-		# validate the archive type
-		archive_type="${1:-}";
-		__arvhive.type.validate;
-		shift;
-		
-		# validate the required executables are present
-		__arvhive.binary.validate;
-		
-		delegate "arc.${FUNCNAME}" "$cmdmethod" $@;
-	fi	
+		# parse remaining options
+		__archive.parse "$@";
+		local opts=( $_result );
+		delegate "arc.${FUNCNAME}" "$cmdmethod" "${opts[@]}";
+	fi
+}
+
+function arc.tasks.archive.test {
+	# process the archive name
+	archive_name="${1:-}";
+	shift;
+	__archive.dir.process;
+	__archive.name.process;
+	console.log "${archive_type} ${archive_name}";
+	console.log "${archive_dir}";
 }
 
 function arc.tasks.archive.create {
-	local files=( $@ );
 	
-	echo "$FUNCNAME: $*";
+	# should always have at least 3 arguments
+	if [ $# -lt 2 ]; then
+		console.quit 1 "too few options, usage: %s" "-c [options...] [archive] [files...]";
+	fi
+	
+	# process the archive name
+	archive_name="${1:-}";
+	shift;
+	
+	__archive.dir.process;
+	__archive.name.process;
+	
+	local files=( $@ );
+	echo "$FUNCNAME: $archive_name : ${files[@]}";
 }
 
 function arc.tasks.archive.extract {
@@ -115,6 +178,8 @@ function arc.tasks.archive.extract {
 		console.quit 1 "invalid archive %s" "$archive";
 	fi
 	
+	# TODO: infer archive type from file extension
+	
 	echo "$FUNCNAME: $* : $archive";
 }
 
@@ -123,6 +188,195 @@ function arc.tasks.archive.extract {
 #	PRIVATE METHODS
 #
 ######################################################################
+
+# parse command line options
+function __archive.parse {
+	# unprocessed options
+	local options=();
+	
+	local value;
+	# handle other options
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+			 -d | --dir )
+				shift;
+				value="${1:-}";
+				if [ -z "$value" ]; then
+					console.quit 1 "no directory specified for the %s option" "-d | --dir";
+				fi
+				if [ ! -d "$value" ]; then
+					console.quit 1 "%s not a directory" "$value";
+				fi
+				if [ ! -w "$value" ]; then
+					console.quit 1 "%s not writable" "$value";
+				fi
+				archive_dir="$value";
+				;;
+			 -t | --type )
+				shift;
+				value="${1:-}";
+				if [ -z "$value" ]; then
+					console.quit 1 "no archive type specified for the %s option" "-t | --type";
+				fi
+				archive_type="$value";				
+				;;
+			 -o | --output )
+				shift;
+				value="${1:-}";
+				if [ -z "$value" ]; then
+					console.quit 1 "no directory specified for the %s option" "-o | --output";
+				fi
+				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
+					console.quit 1 "invalid output directory %s" "$value";
+				fi
+				output="$value";
+				;;
+			* )
+				options+=( "$1" );
+				;;
+		esac
+		if [ $# -ne 0 ]; then
+			shift;
+		else
+			break;
+		fi
+	done
+	
+	# return remaining options back
+	_result="${options[@]}";
+}
+
+# process which directory will be used to for
+# archive creation/extraction
+function __archive.dir.process {
+	# echo "processing archive name: ${archive_name}";
+	# fs.path.dash "${archive_name}";
+	# local namedir=$( dirname "${_result}" );
+	
+	fs.dirname "${archive_name}" "namedir" true;
+	
+	# starts with a forward slash	
+	# treat as absolute specification
+	# overrides any dir specified with the -d | --dir option
+	if [[ "$namedir" =~ ^/ ]]; then
+		if [ -n "${archive_dir}" ]; then
+			console.warn "redundant %s value %s with absolute archive path %s" "-d | --dir" "${archive_dir}" "${namedir}";
+			console.warn "using %s" "${namedir}";
+		fi
+		archive_dir="${namedir}";
+		return 0;
+	fi
+	
+	# no custom directory specified so
+	# infer target directory
+	if [ -z "${archive_dir}" ]; then
+		local dir="$PWD";
+		# echo "got base directory... $dir";
+		# concatenate relative part of archive
+		# specification with the base working directory
+		if [ -n "${namedir}" ]; then
+			# echo "got relative part of archive name: $namedir";
+			dir="${dir}/${namedir}";
+		fi
+	
+		if [ -z "${dir}" ]; then
+			dir="$PWD";
+		fi
+	
+		archive_dir="${dir}";
+	# got a directory specification and a relative
+	# directory path on archive name, concatenate together
+	elif [ -n "${namedir}" ]; then
+		archive_dir="${archive_dir}/${namedir}";
+	fi
+	
+	if [ ! -d "${archive_dir}" ]; then
+		console.quit 1 "%s not a directory" "${archive_dir}";
+	fi
+	
+	if [ ! -w "${archive_dir}" ]; then
+		console.quit 1 "%s not writable" "${archive_dir}";
+	fi
+}
+
+# processes and archive name and/or archive type
+# and determines the file name and type that will
+# be used
+function __archive.name.process {
+	# validate that we have an archive name
+	__archive.name.validate;
+	
+	# always use `basename`
+	fs.basename "${archive_name}" "archive_name";
+	
+	# no archive type specified
+	# try to infer from the archive name
+	if [ -z "${archive_type}" ]; then
+		# echo "infer archive type from name $archive_name";
+		__archive.type.infer;
+		if ! $inferred; then
+			console.warn "could not infer archive type from %s, using %s" "${archive_name}" "${default_archive_type}";
+		fi
+	fi
+	
+	# use the default archive type for creation
+	if [ -z "${archive_type}" ]; then
+		archive_type="${default_archive_type}";
+	fi
+	
+	#echo "using binaries : ${binaries[@]}"
+	
+	# validate the archive type before proceeding
+	__arvhive.type.validate;
+			
+	# validate the required executables are present
+	__arvhive.binary.validate;
+	
+	# if we did not infer an archive type from
+	# the name then manipulate the file name to ensure
+	# it always uses an appropriate file extension
+	if ! $inferred; then
+		# all available extensions
+		local exts=( ${extensions[$archive_type]} );
+	
+		# always prefer the first extension in the list
+		local extension="${exts[0]}";
+		echo "got extension : $extension";
+	
+		# strip any matching extension from the name
+		archive_name="${archive_name%.$extension}";
+	
+		# append the built in extension for the archive
+		archive_name="${archive_name}.${extension}";
+	
+		echo "got name: $archive_name";
+		echo "got working directory $wd"
+	fi	
+}
+
+# attempt to infer an archive type from 
+# a file extension
+function __archive.type.infer {
+	local re="\.([a-z0-9]+)$";
+	local match;
+	# echo "inferring archive type using name: $archive_name : $re";	
+	if [[ "${archive_name}" =~ $re ]]; then
+		match="${BASH_REMATCH[1]}";
+		# echo "got infer match: $match";
+		local t exts;
+		# reverse lookup type from type => extension mapping
+		for t in ${!extensions[@]}
+			do
+				exts=( ${extensions[$t]} );
+				# echo "infer with exts: ${exts[@]} : $match";
+				if array.contains? "$match" "${exts[@]}"; then
+					archive_type="$t";
+					inferred=true;
+					break;
+				fi
+		done
+	fi
+}
 
 function __archive.tar.extract {
 	local archive="${1:-}";
@@ -147,7 +401,8 @@ function __archive.tar.extract {
 	
 	#extract the archive
 	console.info "tar %s %s > %s" "$opts" "$name" "$target";
-	tar "$opts" "$archive" --directory="$target";
+	
+	# tar "$opts" "$archive" --directory="$target";
 }
 
 function __archive.tar.create {
@@ -167,12 +422,18 @@ function __archive.tar.create {
 	console.info "tar czf %s < %s" "$archive" "$target";
 	
 	#create the archive
-	tar czf "$archive" "$name";
+	# tar czf "$archive" "$name";
 }
 
 function __arvhive.binary.validate {
 	local exes=( ${binaries[$archive_type]} );
 	executable.validate "${exes[@]}";
+}
+
+function __archive.name.validate {
+	if [ -z "${archive_name}" ];then
+		console.quit 1 "invalid archive name";
+	fi
 }
 
 function __arvhive.type.validate {
