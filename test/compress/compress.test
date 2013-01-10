@@ -11,7 +11,7 @@ function test.compress.cx.simple {
 	
 	# create the test files from the archive lipsum/etiam test
 	# files, repeating the contents n times
-	!test.compress.create.files;
+	!test.compress.files.create;
 	
 	local program="tasks.compress";
 	local cmd="-c --debug -o "${target}"";
@@ -44,11 +44,14 @@ function test.compress.cx.simple {
 	# 		assert.equal "$owd" "`pwd`";			
 	# 		assert.file.exists? "${target}/${filename}${ext}";
 	# done
+	
+	# clean up after test run
+	!test.compress.files.clean;
 }
 
 # gather test files from ../archive, repeat the contents
 # n times and write to this test directory
-function !test.compress.create.files {
+function !test.compress.files.create {
 	local f contents o output i num="${1:-10}";
 	
 	# map between file sources and output
@@ -58,17 +61,26 @@ function !test.compress.create.files {
 	for f in "${!sources[@]}"
 		do
 			o="${sources["$f"]}";
-			# echo "output is $o";
 			contents=$( cat "$f" );
-			# echo "got contents: $contents";
 			if [ ! -f "$o" ]; then
 				echo -ne "" >| "$o";
 			fi
 			for((i=0;i < $num;i++))
 				do
 					echo "$contents" >> "$o";
-					# spearate content entries with a newlin
+					# spearate content entries with a newline
 					echo "" >>| "$o";
 			done
 	done
+}
+
+# clean the test files
+function !test.compress.files.clean {
+	local f;
+	shopt -s extglob;
+	for f in ${dir}/*.txt
+		do
+			echo "cleaning $f";
+	done
+	shopt -u extglob;
 }
