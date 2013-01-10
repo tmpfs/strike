@@ -33,6 +33,11 @@ function test.compress.cx.simple {
 			assert.file.exists? "${f}.${ext}";
 	done
 	
+	# test the -l | ls command
+	cmd="-l";
+	local result=( $( "$program" "$cmd" "${files[@]}" "lipsum.txt.gz" "etiam.txt.gz" ) );
+	assert.equal "${files[*]}" "${result[*]}";
+	
 	# TODO: add decompression tests
 	
 	# clean up after test run

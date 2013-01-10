@@ -142,12 +142,10 @@ function cmp.tasks.compress.deflate {
 }
 
 function cmp.tasks.compress.list {
-	
 	if [ $# -eq 0 ]; then
 		__compress.missing.files;
 	fi
-	echo "$FUNCNAME";
-	__compress.get.files "$@";
+	__compress.get.files "__compress.print" "$@";
 }
 
 ######################################################################
@@ -167,7 +165,7 @@ function __compress.get.files {
 		for file in "$@"
 			do
 				# never compress .gz files
-				if [[ "$f" =~ \.gz$ ]]; then
+				if [[ "$file" =~ \.gz$ ]]; then
 					continue;
 				fi
 				"$callback";
@@ -194,6 +192,16 @@ function __compress.deflate {
 	# also touch the file to set modification time
 	# in case it already exists
 	touch "$out";
+}
+
+# print file information
+function __compress.print {
+	local size="";
+	if $compress_verbose && [ -f "$file" ]; then
+		size=( $( du -h "$file" ) );
+		size=" ${size[0]}";
+	fi
+	console.log "${file}%s" "$size";
 }
 
 # parse command line options
