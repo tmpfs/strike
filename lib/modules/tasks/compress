@@ -74,7 +74,7 @@ help.man.page "compress" "task-compress.7";
 # touch "$out";
 
 function tasks.compress.initialize {
-	executable.validate gzip;
+	executable.validate gzip gunzip;
 }
 
 function tasks.compress {
@@ -130,8 +130,7 @@ function cmp.tasks.compress.inflate {
 	if [ $# -eq 0 ]; then
 		__compress.missing.files;
 	fi
-	echo "$FUNCNAME";
-	__compress.get.files "$@";
+	__compress.get.files "__compress.inflate" "$@";
 }
 
 function cmp.tasks.compress.deflate {
@@ -172,6 +171,7 @@ function __compress.get.files {
 		done
 	fi
 }
+# -f --force
 
 function __compress.deflate {
 	local out="${file}.${compress_extension}";
