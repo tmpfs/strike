@@ -1,0 +1,79 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "TASK\-COMPRESS" "7" "January 2013" "" ""
+.
+.SH "NAME"
+\fBtask\-compress\fR \- compress task(s) for bake(1)
+.
+.SH "SYNOPSIS"
+Compression task(s) for bake(1)\.
+.
+.SH "DESCRIPTION"
+Compresses file(s) using gzip(1)\. This task is used to compress regular files, if you wish to compress directories use task\-archive(7)\.
+.
+.SH "REQUIRE"
+In your tasks(7) file \fBrequire\fR the \fBcompress\fR task(s) using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/compress\';
+.
+.fi
+.
+.IP "" 0
+.
+.SH "USAGE"
+.
+.nf
+
+bake \-c [options\.\.\.] [files\.\.\.]
+bake \-u [options\.\.\.] [files\.\.\.]
+bake \-l [options\.\.\.] [files\.\.\.]
+.
+.fi
+.
+.SH "COMMANDS"
+.
+.TP
+\fB\-c | compress\fR:
+.
+.IP
+Deflate file(s)\. This command creates a file with the same name as the source file appended with a \fBgz\fR file extension\. By default the original file is maintained, if you wish to overwrite the file(s) use the \fB\-\-overwrite\fR option\.
+.
+.TP
+\fB\-u | uncompress\fR:
+.
+.IP
+Inflate compressed file(s)\.
+.
+.TP
+\fB\-l | list\fR:
+.
+.IP
+List file(s) that would be matched with the current command options\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-o | \-\-overwrite\fR:
+.
+.IP
+The default behaviour is to keep the source files, specify this flag if you wish to overwrite the source files\.
+.
+.TP
+\fB\-r | \-\-recursive\fR:
+.
+.IP
+Recurse into sub\-directories\.
+.
+.SH "BUGS"
+\fBtask\-compress\fR is written in bash and depends upon \fBbash\fR >= 4\.
+.
+.SH "COPYRIGHT"
+\fBtask\-compress\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+bake(1)

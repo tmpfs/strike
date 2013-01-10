@@ -9,7 +9,7 @@ This work could not have been possible without the excellent work of many other 
 
 ## BASH
 
-None of this would be possible without Brian Fox's bash(1).
+None of this would be possible without Brian Fox's bash(1). Thanks to Chet Ramey for patiently answering my questions on the bash(1) mailing list.
 
 ## HTTP
 
