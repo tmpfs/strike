@@ -10,7 +10,9 @@
 #
 # make test: run the unit tests
 #
-# make doc: generates the documentation as markdown, man pages and html documents
+# make json-checker: builds the json-checker source files to an executable
+#
+# make doc: generates the documentation as markdown, man pages and html documents using ronn(1)
 #
 ################################################################################################
 
