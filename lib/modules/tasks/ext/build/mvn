@@ -33,6 +33,9 @@ In your tasks(7) file `require` the `mvn` task(s) using:
 bake(1)
 ronn:markdown
 
+# map help for this task
+help.man.page "mvn" "task-mvn.7";
+
 # constructor for the mvn build tasks
 function tasks.mvn.initialize {
 	executable.validate mvn;

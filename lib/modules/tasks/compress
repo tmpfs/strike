@@ -63,6 +63,9 @@ In your tasks(7) file `require` the `compress` task(s) using:
 bake(1)
 ronn:markdown
 
+# map help for this task
+help.man.page "compress" "task-compress.7";
+
 #redirect the gzip outout to the file so we keep the original
 #and redirect standard error output to an array
 # local results=( $( { gzip -c --best --force -v "$f" 1> "$out"; } 2>&1 ) );

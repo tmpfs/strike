@@ -33,6 +33,8 @@ function test.compress.cx.simple {
 			assert.file.exists? "${f}.${ext}";
 	done
 	
+	# TODO: add decompression tests
+	
 	# clean up after test run
 	!test.compress.files.clean;
 }
@@ -63,7 +65,7 @@ function !test.compress.files.create {
 				do
 					echo "$contents" >> "$o";
 					# spearate content entries with a newline
-					echo -e "" >> "$o";
+					echo "" >> "$o";
 			done
 	done
 }

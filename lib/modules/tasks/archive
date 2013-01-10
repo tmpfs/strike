@@ -82,6 +82,9 @@ ronn:markdown
 # file name listing, works for tar, tar.gz and bz2
 # NOTE: tar --list -f ./lipsum.archive.test.tar
 
+# map help for this task
+help.man.page "archive" "task-archive.7";
+
 function tasks.archive {
 	# a base working directory to resolve paths from
 	local archive_dir="";

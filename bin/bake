@@ -414,7 +414,6 @@ help.man.page "ls" "task-ls.7";
 help.man.page "doc" "task-doc.7";
 help.man.page "semver" "task-semver.7";
 help.man.page "test" "task-test.7";
-help.parse "$@";
 
 # TODO: add --version handling
 
@@ -447,6 +446,11 @@ function bake {
 		fi
 		
 		require "$f";
+		
+		# parse help information after requiring the tasks(7)
+		# file so that modules, may map their own help man pages
+		help.parse "$@";
+		
 		local cmd="$1";
 		shift;
 		local func="${nm}.${cmd}";

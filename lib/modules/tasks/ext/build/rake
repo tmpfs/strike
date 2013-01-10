@@ -33,6 +33,9 @@ In your tasks(7) file `require` the `rake` task(s) using:
 bake(1)
 ronn:markdown
 
+# map help for this task
+help.man.page "rake" "task-rake.7";
+
 # constructor for the rake build tasks
 function tasks.rake.initialize {
 	executable.validate rake;

@@ -1,9 +1,12 @@
 : <<'ronn:markdown'
-help(7) -- help module for strike(1)
+help(3) -- help module for strike(1)
 =============================================
 ronn:markdown
 
+# TODO: document this module!!!
+
 # TODO: include program name in this .tmp file, to prevent conflicts
+# TODO: or just redirect to /dev/null?
 declare -gx __help_stderr_file="$HOME/.help.stderr";
 declare -Agx __help_manpages;
 declare -agx __help_manpath;
@@ -47,14 +50,14 @@ function help.man.show {
 				file="${path}/${page}";
 				if [ -f "$file" ]; then
 					displayed=1;		
-					$man "$file" 2> "$__help_stderr_file";
+					$man "$file" 2>| "$__help_stderr_file";
 					return $?;
 				fi
 		done
 		if [ $displayed -eq 0 ]; then
 			array.join ":" "${__help_manpath[@]}";
 			local manpath="$_result";
-			$man -M "$manpath" "$name" 2> "$__help_stderr_file";
+			$man -M "$manpath" "$name" 2>| "$__help_stderr_file";
 			return $?;
 		fi
 	fi

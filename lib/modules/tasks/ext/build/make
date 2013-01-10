@@ -33,6 +33,9 @@ In your tasks(7) file `require` the `make` task(s) using:
 bake(1)
 ronn:markdown
 
+# map help for this task
+help.man.page "make" "task-make.7";
+
 # constructor for the make build tasks
 function tasks.make.initialize {
 	executable.validate make;

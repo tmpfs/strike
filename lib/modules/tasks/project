@@ -116,6 +116,9 @@ An exit code >0 indicates the operation failed, whilst 0 is success.
 bake(1)
 ronn:markdown
 
+# map help for this task
+help.man.page "project" "task-project.7";
+
 require.once 'json';
 
 declare -g project_id_regexp="^[-a-zA-Z0-9]+$";

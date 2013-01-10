@@ -1,5 +1,8 @@
 require.once 'json';
 
+# map help for this task
+#help.man.page "npm" "task-npm.7";
+
 function tasks.npm.print {
 	local descriptor="${root}/package.json";
 	
