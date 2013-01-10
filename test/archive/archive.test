@@ -43,25 +43,25 @@ function test.archive.cx {
 	done
 	
 	# extract each created archive
-	cmd="-x --debug --dir "${target}" -o "${target}"";
-	for ext in ${extensions[@]}
-		do
-			$program $cmd "${filename}${ext}";
-			assert.eq "0" "$?";
-			# verify the working directory is switched back correctly
-			assert.equal "$owd" "`pwd`";
-			for f in "${expected[@]}"
-				do
-					assert.file.exists? "$f";
-					# clean extracted file data
-					rm "$f";
-			done
-			# clean archives
-			rm "${target}/${filename}${ext}";
-	done
-	
-	# finally clean the folder created during extraction
-	rmdir "${target}/lipsum";
+	# cmd="-x --debug --dir "${target}" -o "${target}"";
+	# for ext in ${extensions[@]}
+	# 	do
+	# 		$program $cmd "${filename}${ext}";
+	# 		assert.eq "0" "$?";
+	# 		# verify the working directory is switched back correctly
+	# 		assert.equal "$owd" "`pwd`";
+	# 		for f in "${expected[@]}"
+	# 			do
+	# 				assert.file.exists? "$f";
+	# 				# clean extracted file data
+	# 				rm "$f";
+	# 		done
+	# 		# clean archives
+	# 		rm "${target}/${filename}${ext}";
+	# done
+	# 
+	# # finally clean the folder created during extraction
+	# rmdir "${target}/lipsum";
 }
 
 # TODO: validate unknown extension generates exit code >0

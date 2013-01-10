@@ -71,9 +71,14 @@ ronn:markdown
 # TODO: be placed in an archive with -c or b) files in the archive with -x
 
 # NOTE: unzip list: unzip -Z -1
+
+# verbose listing ls style
 # NOTE: tar: tar -tvf
 # NOTE: tar(gz): tar -ztvf
 # NOTE: tar(bz2): tar -jtvf
+
+# file name listing, works for tar, tar.gz and bz2
+# NOTE: tar --list -f ./lipsum.archive.test.tar
 
 function tasks.archive {
 	# a base working directory to resolve paths from
@@ -124,10 +129,12 @@ function tasks.archive {
 	commands=(
 		[-c]="create"
 		[-x]="extract"
-		[-t]="test"		
+		[-t]="test"	
+		[-l]="list"
 		[create]="create"
 		[extract]="extract"
 		[test]="test"
+		[list]="list"
 	);
 	
 	# mapping between archive types
@@ -218,6 +225,54 @@ function arc.tasks.archive.create {
 	cd "$wd" || quit 1 "could not cd to %s" "$wd";
 }
 
+function arc.tasks.archive.list {
+	
+	# should always have at least 3 arguments
+	if [ $# -lt 1 ]; then
+		console.quit 1 "too few options, usage: %s" "-l [options...] [archive] [files...]";
+	fi
+	
+	# process the archive name
+	archive_name="${1:-}";
+	shift;
+	
+	__archive.dir.process;
+	__archive.name.process;
+	
+	__archive.executable.get true true;
+	__archive.executable.get.options true true;
+	
+	# local wd=$( pwd );
+	# if [ "$wd" != "$archive_dir" ]; then
+	# 	cd "$archive_dir" || quit 1 "could not cd to %s" "$archive_dir";
+	# fi
+	
+	# echo "using $archive_name";
+	# echo "using $archive_output";
+	# echo "using $archive_dir";
+	
+	# make the archive name absolute so it is placed
+	# in the output directory
+	local archive="${archive_name}";
+	if [ -n "${archive_output}" ]; then
+		archive="${archive_output}/${archive_name}";
+	elif [ -n ]; then
+		archive="${archive_dir}/${archive_name}";
+	fi
+	archive_executable_options=( ${archive_executable_options} );
+	if $archive_debug; then
+		console.info "$archive_executable %s %s" "${archive_executable_options[*]}" "$archive";
+	fi
+	
+	"$archive_executable" ${archive_executable_options[@]} "$archive";
+	if [ $? -gt 0 ]; then
+		console.quit 1 "failed to list archive contents of %s" "$archive_name";
+	fi
+	
+	# always switch back to the original working directory
+	# cd "$wd" || quit 1 "could not cd to %s" "$wd";
+}
+
 function arc.tasks.archive.extract {
 	if [ $# -lt 1 ]; then
 		console.quit 1 "too few options, usage: %s" "-x [options...] [archive] [files...]";
@@ -287,17 +342,25 @@ function __archive.executable.get {
 # determine the executable options
 function __archive.executable.get.options {
 	local create="${1:-true}";
-	if $create; then
-		case "$archive_type" in
-			tar ) archive_executable_options="czf" ;;
-			bz2 ) archive_executable_options="cjf" ;;
-			zip ) archive_executable_options="-r" ;;
-		esac
+	local list="${2:-false}";
+	if ! $list; then
+		if $create; then
+			case "$archive_type" in
+				tar ) archive_executable_options="czf" ;;
+				bz2 ) archive_executable_options="cjf" ;;
+				zip ) archive_executable_options="-r" ;;
+			esac
+		else
+			case "$archive_type" in
+				tar ) archive_executable_options="xzf" ;;
+				bz2 ) archive_executable_options="xjf" ;;
+				zip ) archive_executable_options="" ;;
+			esac
+		fi
 	else
 		case "$archive_type" in
-			tar ) archive_executable_options="xzf" ;;
-			bz2 ) archive_executable_options="xjf" ;;
-			zip ) archive_executable_options="" ;;
+			tar | bz2 ) archive_executable_options="--list -f" ;;
+			zip ) archive_executable_options="-Z -1" ;;
 		esac
 	fi
 }
