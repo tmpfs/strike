@@ -1,16 +1,11 @@
 require.once 'tasks/compress';
 
-#set -o;
-#shopt -s;
-
 # test(s) for task-compress(7) compress/decompress
 function test.compress.cx.simple {
 	# compress files relative to this test
 	local self;
 	require.resolve "self";
 	local dir="${self[1]}";
-	
-	# echo "$FUNCNAME : ${self[@]} : $dir";
 	
 	# create the test files from the archive lipsum/etiam test
 	# files, repeating the contents n times
@@ -20,42 +15,33 @@ function test.compress.cx.simple {
 	#-o "${target}"
 	
 	local program="tasks.compress";
-	local cmd="-c --debug";
+	local cmd="-c --verbose --debug";
 	
 	local files=(
 		"${dir}/lipsum.txt"
 		"${dir}/etiam.txt"
 	);
 	
+	# execute the command
 	$program $cmd "${files[@]}";
 	
-	# local filename="lipsum.archive.test";
-	# local extensions=(
-	# 	".tar.gz"
-	# 	".tar"
-	# 	".gz"
-	# 	".bz2"
-	# 	".zip"		
-	# );
-	# 
-	# local expected=(
-	# 	"${target}/lipsum.txt"
-	# 	"${target}/etiam.txt"
-	# 	"${target}/lipsum/lipsum.dir.txt"
-	# 	"${target}/lipsum/etiam.dir.txt"
-	# );
-	# for ext in ${extensions[@]}
-	# 	do
-	# 		$program $cmd "${filename}${ext}" "${files[@]}";
-	# 		assert.eq "0" "$?";
-	# 		# verify the working directory is switched back correctly
-	# 		assert.equal "$owd" "`pwd`";			
-	# 		assert.file.exists? "${target}/${filename}${ext}";
-	# done
+	# check the test and compressed files exist
+	local f ext="gz";
+	for f in "${files[@]}"
+		do
+			assert.file.exists? "$f";
+			assert.file.exists? "${f}.${ext}";
+	done
 	
 	# clean up after test run
-	# !test.compress.files.clean;
+	!test.compress.files.clean;
 }
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
 
 # gather test files from ../archive, repeat the contents
 # n times and write to this test directory
