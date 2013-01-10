@@ -1,0 +1,158 @@
+: <<'ronn:markdown'
+task-compress(7) -- compress task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+Compression task(s) for bake(1).
+
+## DESCRIPTION
+
+Compresses file(s) using gzip(1). This task is used to compress regular files, if you wish to compress directories use task-archive(7).
+
+## REQUIRE
+
+In your tasks(7) file `require` the `compress` task(s) using:
+
+	require 'tasks/compress';
+
+## USAGE
+
+	bake -c [options...] [files...]
+	bake -u [options...] [files...]
+	bake -l [options...] [files...]
+	
+## COMMANDS
+
+* `-c | compress`:
+
+	Deflate file(s). This command creates a file with the same name as the source file appended with a `gz` file extension. By default the original file is maintained, if you wish to overwrite the file(s) use the `--overwrite` option.
+	
+* `-u | uncompress`:
+
+	Inflate compressed file(s).
+	
+* `-l | list`:
+
+	List file(s) that would be matched with the current command options.
+	
+## OPTIONS
+
+* `-o | --overwrite`:
+
+	The default behaviour is to keep the source files, specify this flag if you wish to overwrite the source files.
+	
+* `-r | --recursive`:
+
+	Recurse into sub-directories.
+
+## BUGS
+
+**task-compress** is written in bash and depends upon `bash` >= 4.
+
+## COPYRIGHT
+
+**task-compress** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+ronn:markdown
+
+#redirect the gzip outout to the file so we keep the original
+#and redirect standard error output to an array
+# local results=( $( { gzip -c --best --force -v "$f" 1> "$out"; } 2>&1 ) );
+# info "gzip %s -> %s (%s)" "$nm" "`basename $out`" "'${results[1]}'";
+# touch "$out";
+
+function tasks.compress.initialize {
+	executable.validate gzip;
+}
+
+function tasks.compress {
+	
+	# whether we recurse into sub-directories
+	local compress_recursive=false;	
+
+	# whether we overwrite files,
+	# the default is to keep files
+	local compress_overwrite=false;
+	
+	# map of options to command names
+	declare -A commands;
+	commands=(
+		[-c]="deflate"
+		[-u]="inflate"
+		[-l]="list"
+		[compress]="deflate"
+		[uncompress]="inflate"
+		[list]="list"
+	);
+	
+	# do command procesing via delegation
+	if [ $# -gt 0 ]; then
+		local cmd="${1:-}";
+		local cmdmethod="${commands[$cmd]:-}";
+		if [ -z "$cmdmethod" ]; then
+			console.quit 1 "invalid compress command %s" "$1";
+		fi
+
+		# remove the command option
+		shift;
+		
+		# parse remaining options
+		__compress.parse "$@";
+		local opts=( $_result );
+		delegate "cmp.${FUNCNAME}" "$cmdmethod" "${opts[@]:-}";
+	else
+		console.quit 1 "no compress command specified";
+	fi
+}
+
+function cmp.tasks.compress.inflate {
+	echo "$FUNCNAME";
+}
+
+function cmp.tasks.compress.deflate {
+	echo "$FUNCNAME";
+}
+
+function cmp.tasks.compress.list {
+	echo "$FUNCNAME";
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+# parse command line options
+function __compress.parse {
+	# unprocessed options
+	local options=();
+	
+	local value;
+	# handle other options
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+			-o | --overwrite )
+				compress_overwrite=true;
+				;;				
+			-r | --recursive )
+				compress_recursive=true;
+				;;
+			* )
+				options+=( "$1" );
+				;;
+		esac
+		if [ $# -ne 0 ]; then
+			shift;
+		else
+			break;
+		fi
+	done
+
+	# return remaining options back
+	_result="${options[@]:-}";
+}
