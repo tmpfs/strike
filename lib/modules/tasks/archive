@@ -154,7 +154,9 @@ function tasks.archive {
 		# parse remaining options
 		__archive.parse "$@";
 		local opts=( $_result );
-		delegate "arc.${FUNCNAME}" "$cmdmethod" "${opts[@]}";
+		delegate "arc.${FUNCNAME}" "$cmdmethod" "${opts[@]:-}";
+	else
+		console.quit 1 "no archive command specified";
 	fi
 }
 
@@ -350,9 +352,9 @@ function __archive.parse {
 			break;
 		fi
 	done
-	
+
 	# return remaining options back
-	_result="${options[@]}";
+	_result="${options[@]:-}";
 }
 
 # process which directory will be used to for
