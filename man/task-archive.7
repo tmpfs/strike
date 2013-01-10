@@ -31,6 +31,7 @@ require \'tasks/archive\';
 
 bake archive \-c [options\.\.\.] [archive] [files\.\.\.]
 bake archive \-x [options\.\.\.] [archive]
+bake archive \-l [options\.\.\.] [archive]
 bake archive \-t [options\.\.\.] [archive]
 .
 .fi
@@ -48,6 +49,12 @@ Creates an archive\.
 .
 .IP
 Extracts an archive\.
+.
+.TP
+\fB\-l | list\fR:
+.
+.IP
+List files in an archive\. This command is \fInot\fR verbose, it prints the files in the archive\.
 .
 .TP
 \fB\-t | test\fR:
