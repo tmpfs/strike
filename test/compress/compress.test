@@ -1,5 +1,8 @@
 require.once 'tasks/compress';
 
+#set -o;
+#shopt -s;
+
 # test(s) for task-compress(7) compress/decompress
 function test.compress.cx.simple {
 	# compress files relative to this test
@@ -69,7 +72,7 @@ function !test.compress.files.create {
 				do
 					echo "$contents" >> "$o";
 					# spearate content entries with a newline
-					echo "" >>| "$o";
+					echo -e "" >> "$o";
 			done
 	done
 }
@@ -77,10 +80,10 @@ function !test.compress.files.create {
 # clean the test files
 function !test.compress.files.clean {
 	local f;
-	shopt -s extglob;
-	for f in ${dir}/*.txt
+	for f in ${dir}/**
 		do
-			echo "cleaning $f";
+			if [[ "$f" =~ (\.txt|\.gz)$ ]]; then
+				rm "$f";
+			fi
 	done
-	shopt -u extglob;
 }
