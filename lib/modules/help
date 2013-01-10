@@ -36,7 +36,10 @@ function help.man.show {
 	local man="${executables[man]}";	
 	local page="${1:-}";
 	local name=${page%%.*};
-	# echo "got name: $name";	
+	# always prefer mapped help pages
+	if [ -n "${__help_manpages[$name]:-}" ]; then
+		page="${__help_manpages[$name]}";
+	fi
 	local path file displayed=0;
 	if [ ! -z "$page" ]; then
 		for path in ${__help_manpath[@]}
@@ -115,7 +118,7 @@ function help.parse {
 		else
 			set +o errexit;
 			help.man.show "$section";
-			help.exit "$?";	
+			help.exit "$?";
 			set -o errexit;
 		fi
 		;;

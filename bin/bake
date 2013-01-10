@@ -10,7 +10,9 @@ bake(1) -- make for bash
 
 ## DESCRIPTION
 
-**bake** is `make` for bash programs. It provides an extensible system for managing project tasks using modular code.
+**bake** is `make` for bash programs. It provides an extensible system for managing project tasks using modular code. If bake(1) is invoked with no command then the `man` page for bake(1) is displayed, which is the equivalent of `bake help`.
+
+It maps commands (the first option passed to bake(1)) to task method(s) declared by a tasks(7) file. A command is considered to be the first option passed to the `bake` executable, any other options specified on the command line are passed to the corresponding task method.
 	
 ## BUILTIN TASKS
 
@@ -21,12 +23,25 @@ All bake(1) projects have the following tasks built in task-test(7), task-clean(
 The convention is that task methods are not declared in tasks(7) but are placed in modules and then included using require(3). So to include the task-todo(7) functionality into your project all you need to do is require(3) it:
 
 	require 'tasks/todo';
+	
+## HELP
+
+To view the bake(1) `man` page, the following commands are equivalent:
+
+	bake
+	bake help
+	
+To view `man` pages for the built in tasks use:
+
+	bake help ls
+	bake help clean
+	bake help test
+	bake help doc
+	bake help semver	
 
 ## FILES
 
 The bake(1) program looks for a tasks(7) file in the current working directory. If no tasks(7) file is found in the current working directory then bake(1) will walk all parent directories looking for a tasks(7) file.
-
-It maps commands (the first option passed to bake(1)) to task method(s) declared by the tasks file. A command is considered to be the first option passed to the `bake` executable, any other options specified on the command line are passed to the corresponding task method.
 
 ## ENVIRONMENT
 
@@ -64,7 +79,7 @@ It is recommended that task command implementations explicitly exit the program 
 
 ## SEE ALSO
 
-require(3), task-semver(7), task-test(7), task-doc(7), task-clean(7), task-ls(7)
+require(3), tasks(7), task-semver(7), task-test(7), task-doc(7), task-clean(7), task-ls(7)
 ronn:markdown
 
 set -o errtrace;
@@ -393,6 +408,12 @@ process.use strict;
 # configure help
 require 'help';
 help.man.page "default" "bake.1";
+# register build in man pages
+help.man.page "clean" "task-clean.7";
+help.man.page "ls" "task-ls.7";
+help.man.page "doc" "task-doc.7";
+help.man.page "semver" "task-semver.7";
+help.man.page "test" "task-test.7";
 help.parse "$@";
 
 # TODO: add --version handling

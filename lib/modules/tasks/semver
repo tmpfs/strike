@@ -105,7 +105,7 @@ If a *package.json* file is available and sed(1) is available and used to replac
 
 ## SEE ALSO
 
-bake(1), semver(3), semver(7)
+bake(1), semver(3)
 ronn:markdown
 
 require.once 'semver';
