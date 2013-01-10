@@ -20,6 +20,7 @@ In your tasks(7) file `require` the `archive` task(s) using:
 
 	bake archive -c [options...] [archive] [files...]
 	bake archive -x [options...] [archive]
+	bake archive -l [options...] [archive]
 	bake archive -t [options...] [archive]
 	
 ## COMMANDS
@@ -31,6 +32,10 @@ In your tasks(7) file `require` the `archive` task(s) using:
 * `-x | extract`:
 
 	Extracts an archive.
+	
+* `-l | list`:
+
+	List files in an archive. This command is *not* verbose, it prints the files in the archive.
 	
 * `-t | test`:
 
@@ -66,9 +71,6 @@ In your tasks(7) file `require` the `archive` task(s) using:
 
 bake(1)
 ronn:markdown
-
-# TODO: add -l | list command to list either a) files that would
-# TODO: be placed in an archive with -c or b) files in the archive with -x
 
 # NOTE: unzip list: unzip -Z -1
 
@@ -242,15 +244,6 @@ function arc.tasks.archive.list {
 	__archive.executable.get false true;
 	__archive.executable.get.options true true;
 	
-	# local wd=$( pwd );
-	# if [ "$wd" != "$archive_dir" ]; then
-	# 	cd "$archive_dir" || quit 1 "could not cd to %s" "$archive_dir";
-	# fi
-	
-	# echo "using $archive_name";
-	# echo "using $archive_output";
-	# echo "using $archive_dir";
-	
 	# make the archive name absolute so it is placed
 	# in the output directory
 	local archive="${archive_name}";
@@ -276,9 +269,6 @@ function arc.tasks.archive.list {
 	if [ $? -gt 0 ]; then
 		console.quit 1 "failed to list archive contents of %s" "$archive_name";
 	fi
-	
-	# always switch back to the original working directory
-	# cd "$wd" || quit 1 "could not cd to %s" "$wd";
 }
 
 function arc.tasks.archive.extract {
