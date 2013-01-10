@@ -264,6 +264,14 @@ function arc.tasks.archive.list {
 		console.info "$archive_executable %s %s" "${archive_executable_options[*]}" "$archive";
 	fi
 	
+	if [ ! -f "$archive" ]; then
+		quit 1 "%s does not exist" "$archive";
+	fi
+	
+	if [ ! -r "$archive" ]; then
+		quit 1 "%s no readable" "$archive";
+	fi
+	
 	"$archive_executable" ${archive_executable_options[@]} "$archive";
 	if [ $? -gt 0 ]; then
 		console.quit 1 "failed to list archive contents of %s" "$archive_name";

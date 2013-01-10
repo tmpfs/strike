@@ -42,26 +42,47 @@ function test.archive.cx {
 			assert.file.exists? "${target}/${filename}${ext}";
 	done
 	
+	# expected output when listing archive contents
+	local listing=(
+		"lipsum.txt"
+		"etiam.txt"
+		"lipsum/"
+		"lipsum/etiam.dir.txt"
+		"lipsum/lipsum.dir.txt"	
+	);
+	
+	# verify archive file listing
+	# don't use --debug on this as
+	# if will affect the output and the
+	# assertions will fail
+	cmd="-l";
+	local archive_files;
+	for ext in ${extensions[@]}
+		do
+			archive_files=( $( $program $cmd "${target}/${filename}${ext}" ) );
+			assert.equal "${listing[*]}" "${archive_files[*]}";
+	done
+	
 	# extract each created archive
-	# cmd="-x --debug --dir "${target}" -o "${target}"";
-	# for ext in ${extensions[@]}
-	# 	do
-	# 		$program $cmd "${filename}${ext}";
-	# 		assert.eq "0" "$?";
-	# 		# verify the working directory is switched back correctly
-	# 		assert.equal "$owd" "`pwd`";
-	# 		for f in "${expected[@]}"
-	# 			do
-	# 				assert.file.exists? "$f";
-	# 				# clean extracted file data
-	# 				rm "$f";
-	# 		done
-	# 		# clean archives
-	# 		rm "${target}/${filename}${ext}";
-	# done
-	# 
-	# # finally clean the folder created during extraction
-	# rmdir "${target}/lipsum";
+	cmd="-x --debug --dir "${target}" -o "${target}"";
+	for ext in ${extensions[@]}
+		do
+			$program $cmd "${filename}${ext}";
+			assert.eq "0" "$?";
+			# verify the working directory is switched back correctly
+			assert.equal "$owd" "`pwd`";
+			for f in "${expected[@]}"
+				do
+					assert.file.exists? "$f";
+					# clean extracted file data
+					rm "$f";
+			done
+			# clean archives
+			rm "${target}/${filename}${ext}";
+	done
+	
+	# finally clean the folder created during extraction
+	rmdir "${target}/lipsum";
 }
 
 # TODO: validate unknown extension generates exit code >0
