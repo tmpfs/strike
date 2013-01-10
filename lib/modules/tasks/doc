@@ -59,7 +59,7 @@ bake(1)
 ronn:markdown
 
 function tasks.doc.initialize {
-	executable.validate ronn git;
+	executable.validate git;
 }
 
 # generates, compiles and imports man pages
@@ -123,20 +123,11 @@ function tasks.doc.man.import {
 # and attempts to push the gh-pages branch
 # before switching back to develop
 function tasks.doc.pages.push {
-	local ronn="${executables[ronn]}";
 	local git="${executables[git]}";
 	local man="${target}/doc";
 	
-	# __man_copy;
-	
-	# $git stash;
-	
-	#$git status; echo $?;
-	
 	# check out the gh-pages branch
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
-	
-	# $ronn -w -s toc -r5 --markdown ${man}/*.ronn;
 	
 	# copy over the temporary man pages
 	cmd="cp -rfv "${man}/*" "${root}"";
@@ -157,7 +148,7 @@ function tasks.doc.pages.push {
 
 # compiles generated .ronn files to markdown and html
 function tasks.doc.compile {
-	
+	executable.validate ronn;
 	# copy over assets
 	__tasks.doc.assets.copy;
 	
