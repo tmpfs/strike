@@ -117,6 +117,7 @@ bake(1)
 ronn:markdown
 
 # map help for this task
+require.once help;
 help.man.page "project" "task-project.7";
 
 require.once 'json';
