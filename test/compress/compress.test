@@ -14,7 +14,7 @@ function test.compress.cx.simple {
 	
 	# create the test files from the archive lipsum/etiam test
 	# files, repeating the contents n times
-	!test.compress.files.create;
+	!test.compress.files.create 20;
 	
 	local program="tasks.compress";
 	local cmd="-c --debug -o "${target}"";
@@ -80,10 +80,12 @@ function !test.compress.files.create {
 # clean the test files
 function !test.compress.files.clean {
 	local f;
+	shopt -s globstar;	
 	for f in ${dir}/**
 		do
 			if [[ "$f" =~ (\.txt|\.gz)$ ]]; then
 				rm "$f";
 			fi
 	done
+	shopt -u globstar;
 }
