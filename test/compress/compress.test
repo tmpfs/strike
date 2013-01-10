@@ -16,13 +16,18 @@ function test.compress.cx.simple {
 	# files, repeating the contents n times
 	!test.compress.files.create 20;
 	
+	# TODO: put compressed files in target
+	#-o "${target}"
+	
 	local program="tasks.compress";
-	local cmd="-c --debug -o "${target}"";
+	local cmd="-c --debug";
 	
 	local files=(
-		"lipsum.txt"
-		"etiam.txt"
+		"${dir}/lipsum.txt"
+		"${dir}/etiam.txt"
 	);
+	
+	$program $cmd "${files[@]}";
 	
 	# local filename="lipsum.archive.test";
 	# local extensions=(
@@ -49,7 +54,7 @@ function test.compress.cx.simple {
 	# done
 	
 	# clean up after test run
-	!test.compress.files.clean;
+	# !test.compress.files.clean;
 }
 
 # gather test files from ../archive, repeat the contents
