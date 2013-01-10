@@ -37,13 +37,9 @@ ronn:markdown
 require.once help;
 help.man.page "make" "task-make.7";
 
-# constructor for the make build tasks
-function tasks.make.initialize {
-	executable.validate make;
-}
-
 # wrapper for the make executable
 function tasks.make {
+	executable.validate make;	
 	local make="${executables[make]}";
 	$make $@;
 }

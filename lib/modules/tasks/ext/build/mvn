@@ -37,13 +37,9 @@ ronn:markdown
 require.once help;
 help.man.page "mvn" "task-mvn.7";
 
-# constructor for the mvn build tasks
-function tasks.mvn.initialize {
-	executable.validate mvn;
-}
-
 # wrapper for the mvn executable
 function tasks.mvn {
+	executable.validate mvn;	
 	local mvn="${executables[mvn]}";
 	$mvn $@;
 }

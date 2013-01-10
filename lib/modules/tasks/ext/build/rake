@@ -37,13 +37,9 @@ ronn:markdown
 require.once help;
 help.man.page "rake" "task-rake.7";
 
-# constructor for the rake build tasks
-function tasks.rake.initialize {
-	executable.validate rake;
-}
-
 # wrapper for the rake executable
 function tasks.rake {
+	executable.validate rake;	
 	local rake="${executables[rake]}";
 	$rake $@;
 }

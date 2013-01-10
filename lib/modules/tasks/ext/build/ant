@@ -37,13 +37,9 @@ ronn:markdown
 require.once help;
 help.man.page "ant" "task-ant.7";
 
-# constructor for the ant build tasks
-function tasks.ant.initialize {
-	executable.validate ant;
-}
-
 # wrapper for the ant build tool
 function tasks.ant {
+	executable.validate ant;	
 	local ant="${executables[ant]}";
 	$ant $@;
 }
