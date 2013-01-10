@@ -8,8 +8,9 @@ function test.archive.cx {
 	
 	# archive files relative to this test
 	# and place the archives in ${target}
-	local dir ext f;
-	fs.dirname "${BASH_SOURCE[0]}" "dir";	
+	local self ext f;
+	require.resolve "self";
+	local dir="${self[1]}";
 	
 	local program="tasks.archive";
 	local cmd="-c --debug --dir "${dir}" -o "${target}"";

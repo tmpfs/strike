@@ -54,6 +54,30 @@ function require.load {
 	require "$1";
 }
 
+# reslve the path, directory and file name
+# of the source file that invokes this method
+# $1 is the name of the variable to assign an array
+# result to with the following entries:
+# [0]=basename
+# [1]=dirname
+# [2]=path
+# [3]=function name
+# [4]=line number
+function require.resolve {
+	local varname="${1:-}";
+	if [ -n "$varname" ]; then
+		local offset="${2:-0}"
+		local data=( $( caller "$offset" ) );
+		local lineno="${data[0]}";
+		local method="${data[1]}";
+		local path="${data[2]}";
+		local name dir;
+		fs.basename "$path" "name";
+		fs.dirname "$path" "dir";
+		eval "$varname=( \"$name\" \"$dir\" \"$path\" \"$method\" \"$lineno\" )";
+	fi
+}
+
 function require.list {
 	local path name;
 	for path in "${!module_paths[@]}"

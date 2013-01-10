@@ -33,9 +33,9 @@ In your tasks(7) file `require` the `archive` task(s) using:
 
 	Extracts an archive.
 	
-* `-l | list`:
+* `-l | ls`:
 
-	List files in an archive. This command is *not* verbose, it prints the files in the archive.
+	List files in an archive. This command is *not* verbose, it only prints the files in the archive, no other information is included in the output.
 	
 * `-t | test`:
 
@@ -136,7 +136,7 @@ function tasks.archive {
 		[create]="create"
 		[extract]="extract"
 		[test]="test"
-		[list]="list"
+		[ls]="list"
 	);
 	
 	# mapping between archive types

@@ -19,20 +19,20 @@ In your tasks(7) file `require` the `compress` task(s) using:
 ## USAGE
 
 	bake -c [options...] [files...]
-	bake -u [options...] [files...]
+	bake -x [options...] [files...]
 	bake -l [options...] [files...]
 	
 ## COMMANDS
 
-* `-c | compress`:
+* `-c | create`:
 
 	Deflate file(s). This command creates a file with the same name as the source file appended with a `gz` file extension. By default the original file is maintained, if you wish to overwrite the file(s) use the `--overwrite` option.
 	
-* `-u | uncompress`:
+* `-x | extract`:
 
 	Inflate compressed file(s).
 	
-* `-l | list`:
+* `-l | ls`:
 
 	List file(s) that would be matched with the current command options.
 	
@@ -45,6 +45,10 @@ In your tasks(7) file `require` the `compress` task(s) using:
 * `-r | --recursive`:
 
 	Recurse into sub-directories.
+	
+* `--debug`:
+
+	Print the commands being executed.
 
 ## BUGS
 
@@ -78,15 +82,18 @@ function tasks.compress {
 	# the default is to keep files
 	local compress_overwrite=false;
 	
+	# debug commands as they are executed
+	local compress_debug=false;
+	
 	# map of options to command names
 	declare -A commands;
 	commands=(
 		[-c]="deflate"
-		[-u]="inflate"
+		[-x]="inflate"
 		[-l]="list"
-		[compress]="deflate"
-		[uncompress]="inflate"
-		[list]="list"
+		[create]="deflate"
+		[extract]="inflate"
+		[ls]="list"
 	);
 	
 	# do command procesing via delegation
@@ -110,14 +117,34 @@ function tasks.compress {
 }
 
 function cmp.tasks.compress.inflate {
+	
+	if [ $# -eq 0 ]; then
+		__compress.missing.files;
+	fi
+	
+	__compress.get.files "$@";
 	echo "$FUNCNAME";
 }
 
 function cmp.tasks.compress.deflate {
+	
+	if [ $# -eq 0 ]; then
+		__compress.missing.files;
+	fi	
+	
+	__compress.get.files "$@";	
+	
 	echo "$FUNCNAME";
 }
 
 function cmp.tasks.compress.list {
+	
+	if [ $# -eq 0 ]; then
+		__compress.missing.files;
+	fi
+	
+	__compress.get.files "$@";
+	
 	echo "$FUNCNAME";
 }
 
@@ -126,6 +153,11 @@ function cmp.tasks.compress.list {
 #	PRIVATE METHODS
 #
 ######################################################################
+
+# retrieves the list of files being processed
+function __compress.get.files {
+	echo "gathering files with $@"
+}
 
 # parse command line options
 function __compress.parse {
@@ -138,9 +170,12 @@ function __compress.parse {
 		case $1 in
 			-o | --overwrite )
 				compress_overwrite=true;
-				;;				
+				;;
 			-r | --recursive )
 				compress_recursive=true;
+				;;
+			--debug )
+				compress_debug=true;
 				;;
 			* )
 				options+=( "$1" );
@@ -155,4 +190,8 @@ function __compress.parse {
 
 	# return remaining options back
 	_result="${options[@]:-}";
+}
+
+function __compress.missing.files {
+	console.quit 1 "no files specified";
 }

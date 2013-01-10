@@ -1,0 +1,74 @@
+require.once 'tasks/compress';
+
+# test(s) for task-compress(7) compress/decompress
+function test.compress.cx.simple {
+	# compress files relative to this test
+	local self;
+	require.resolve "self";
+	local dir="${self[1]}";
+	
+	# echo "$FUNCNAME : ${self[@]} : $dir";
+	
+	# create the test files from the archive lipsum/etiam test
+	# files, repeating the contents n times
+	!test.compress.create.files;
+	
+	local program="tasks.compress";
+	local cmd="-c --debug -o "${target}"";
+	
+	local files=(
+		"lipsum.txt"
+		"etiam.txt"
+	);
+	
+	# local filename="lipsum.archive.test";
+	# local extensions=(
+	# 	".tar.gz"
+	# 	".tar"
+	# 	".gz"
+	# 	".bz2"
+	# 	".zip"		
+	# );
+	# 
+	# local expected=(
+	# 	"${target}/lipsum.txt"
+	# 	"${target}/etiam.txt"
+	# 	"${target}/lipsum/lipsum.dir.txt"
+	# 	"${target}/lipsum/etiam.dir.txt"
+	# );
+	# for ext in ${extensions[@]}
+	# 	do
+	# 		$program $cmd "${filename}${ext}" "${files[@]}";
+	# 		assert.eq "0" "$?";
+	# 		# verify the working directory is switched back correctly
+	# 		assert.equal "$owd" "`pwd`";			
+	# 		assert.file.exists? "${target}/${filename}${ext}";
+	# done
+}
+
+# gather test files from ../archive, repeat the contents
+# n times and write to this test directory
+function !test.compress.create.files {
+	local f contents o output i num="${1:-10}";
+	
+	# map between file sources and output
+	declare -A sources;
+	sources["${dir}/../archive/lipsum.txt"]="${dir}/lipsum.txt";
+	sources["${dir}/../archive/etiam.txt"]="${dir}/etiam.txt";
+	for f in "${!sources[@]}"
+		do
+			o="${sources["$f"]}";
+			# echo "output is $o";
+			contents=$( cat "$f" );
+			# echo "got contents: $contents";
+			if [ ! -f "$o" ]; then
+				echo -ne "" >| "$o";
+			fi
+			for((i=0;i < $num;i++))
+				do
+					echo "$contents" >> "$o";
+					# spearate content entries with a newlin
+					echo "" >>| "$o";
+			done
+	done
+}
