@@ -239,7 +239,7 @@ function arc.tasks.archive.list {
 	__archive.dir.process;
 	__archive.name.process;
 	
-	__archive.executable.get true true;
+	__archive.executable.get false true;
 	__archive.executable.get.options true true;
 	
 	# local wd=$( pwd );
@@ -328,8 +328,9 @@ function arc.tasks.archive.extract {
 # determine the executable to run
 function __archive.executable.get {
 	local create="${1:-true}";
+	local list="${2:-false}";	
 	local key="$archive_type";
-	if ! $create && [ "$archive_type" == "zip" ]; then
+	if ! $create || $list && [ "$archive_type" == "zip" ]; then
 		key="unzip";
 	fi
 	if [ $archive_type == bz2 ]; then
