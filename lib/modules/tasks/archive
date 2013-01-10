@@ -67,10 +67,10 @@ In your tasks(7) file `require` the `archive` task(s) using:
 bake(1)
 ronn:markdown
 
-# TODO: add --debug flag to print commands as they are executed
-
 # TODO: add -l | list command to list either a) files that would
 # TODO: be placed in an archive with -c or b) files in the archive with -x
+
+# NOTE: unzip list: unzip -Z -1
 
 function tasks.archive {
 	# a base working directory to resolve paths from
@@ -239,19 +239,23 @@ function arc.tasks.archive.extract {
 	
 	# TODO: quote archive_output so that spaces may be used
 	
+	archive_executable_options="${archive_executable_options} ${archive}";	
+	
 	if [ "$archive_type" == tar -o "$archive_type" == bz2 ]; then
-		archive_executable_options="${archive_executable_options} ${archive}";
 		if [ -n "${archive_output}" ]; then		
 			archive_executable_options="${archive_executable_options} --directory="$archive_output"";
-		fi
-		if $archive_debug; then
-			console.info "$archive_executable %s" "$archive_executable_options";
-		fi
-		local result=$( "$archive_executable" ${archive_executable_options} 1> /dev/null );
-		if [ $? -gt 0 ]; then
-			console.error "$result";
-		fi
+		fi	
 	fi
+	
+	#echo "got executable: $archive_executable $archive_executable_options"
+	
+	if $archive_debug; then
+		console.info "$archive_executable %s" "$archive_executable_options";
+	fi
+	local result=$( "$archive_executable" ${archive_executable_options} 1> /dev/null );
+	if [ $? -gt 0 ]; then
+		console.error "$result";
+	fi	
 	
 	# always switch back to the original working directory
 	cd "$wd" || quit 1 "could not cd to %s" "$wd";	
@@ -268,11 +272,12 @@ function __archive.executable.get {
 	local create="${1:-true}";
 	local key="$archive_type";
 	if ! $create && [ "$archive_type" == "zip" ]; then
-		archive_executable="${executables[unzip]}";
+		key="unzip";
 	fi
 	if [ $archive_type == bz2 ]; then
 		key="tar";
 	fi
+	# echo "using executable key: $key"
 	archive_executable="${executables[$key]}";	
 }
 
@@ -283,11 +288,13 @@ function __archive.executable.get.options {
 		case "$archive_type" in
 			tar ) archive_executable_options="czf" ;;
 			bz2 ) archive_executable_options="cjf" ;;
+			zip ) archive_executable_options="-r" ;;
 		esac
 	else
 		case "$archive_type" in
 			tar ) archive_executable_options="xzf" ;;
 			bz2 ) archive_executable_options="xjf" ;;
+			zip ) archive_executable_options="" ;;
 		esac
 	fi
 }

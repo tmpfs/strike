@@ -1,8 +1,11 @@
 require.once 'tasks/archive';
 
-# test(s) for task-archive(7) type inference
-# relative to the current working directory
-function test.archive.tar {
+# test(s) for task-archive(7) compress/extract
+# functionality
+function test.archive.cx {
+	
+	local owd=$( pwd );
+	
 	# archive files relative to this test
 	# and place the archives in ${target}
 	local dir ext f;
@@ -21,8 +24,9 @@ function test.archive.tar {
 		".tar"
 		".gz"
 		".bz2"
+		".zip"		
 	);
-		
+	
 	local expected=(
 		"${target}/lipsum.txt"
 		"${target}/etiam.txt"
@@ -33,6 +37,8 @@ function test.archive.tar {
 		do
 			$program $cmd "${filename}${ext}" "${files[@]}";
 			assert.eq "0" "$?";
+			# verify the working directory is switched back correctly
+			assert.equal "$owd" "`pwd`";			
 			assert.file.exists? "${target}/${filename}${ext}";
 	done
 	
@@ -42,6 +48,8 @@ function test.archive.tar {
 		do
 			$program $cmd "${filename}${ext}";
 			assert.eq "0" "$?";
+			# verify the working directory is switched back correctly
+			assert.equal "$owd" "`pwd`";
 			for f in "${expected[@]}"
 				do
 					assert.file.exists? "$f";
