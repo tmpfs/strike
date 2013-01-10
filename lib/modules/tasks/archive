@@ -71,6 +71,9 @@ ronn:markdown
 # TODO: be placed in an archive with -c or b) files in the archive with -x
 
 # NOTE: unzip list: unzip -Z -1
+# NOTE: tar: tar -tvf
+# NOTE: tar(gz): tar -ztvf
+# NOTE: tar(bz2): tar -jtvf
 
 function tasks.archive {
 	# a base working directory to resolve paths from
