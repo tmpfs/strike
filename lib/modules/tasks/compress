@@ -180,12 +180,12 @@ function __compress.deflate {
 	local nm name;
 	fs.basename "$file" "nm";	
 	fs.basename "$out" "name";
-	local compress_options=( -c --best --force -v "$file" ">1" "$out" );
+	local compress_options=( -c --best --force -v "$file" );
 	if $compress_debug; then
 		console.info "${executables[gzip]} %s 1> %s" "${compress_options[*]}" "$out";
 	fi
 	
-	local results=( $( { "${executables[gzip]}" ${compress_options[@]}; } 2>&1 ) );
+	local results=( $( { "${executables[gzip]}" "${compress_options[@]}" 1> "$out"; } 2>&1 ) );
 	if [ $? -gt 0 ]; then
 		console.quit 1 "failed to compress %s" "";
 	fi
