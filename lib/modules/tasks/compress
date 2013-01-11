@@ -41,6 +41,14 @@ In your tasks(7) file `require` the `compress` task(s) using:
 
 	Recurse into sub-directories.
 	
+* `-i | --include`:
+
+	Pattern(s) that a file name must match to be included. Must be a valid extended regular expression, see ere(7). Repeatable.
+	
+* `-e | --exclude`:
+
+	Pattern(s) that will when matched against a file name will cause it to be excluded. Must be a valid extended regular expression, see ere(7). Repeatable.
+	
 * `--noop`:
 
 	Do not perform any action, print information about the source and/or compressed files. The `--debug` option has no effect when this option is specified.
