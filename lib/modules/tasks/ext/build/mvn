@@ -22,7 +22,7 @@ In your tasks(7) file `require` the `mvn` task(s) using:
 
 ## BUGS
 
-**task-mvn** is written in bash and depends upon `bash` >= 4.
+**task-mvn** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

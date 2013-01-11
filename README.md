@@ -1,6 +1,6 @@
 # Strike
 
-Modular `bash` using [require(3)](http://freeformsystems.github.com/strike/require.3.html) for *NIX systems. Depends upon `bash >= 4` for associative arrays.
+Modular `bash` using [require(3)](http://freeformsystems.github.com/strike/require.3.html) for *NIX systems. Depends upon `bash >= 4.2` for associative arrays.
 
 ## Synopsis
 

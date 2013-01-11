@@ -105,7 +105,7 @@ An exit code >0 indicates the operation failed, whilst 0 is success.
 
 ## BUGS
 
-**task-project** is written in bash and depends upon `bash` >= 4.
+**task-project** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

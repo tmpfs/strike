@@ -104,7 +104,7 @@ The number of replacement parameters must match exactly the number of `%s` occur
 
 A leading hyphen in a replacement parameter or message will cause printf to fail.
 
-**console** is written in bash and depends upon `bash` >= 4.
+**console** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 
@@ -115,8 +115,8 @@ A leading hyphen in a replacement parameter or message will cause printf to fail
 globals-api(3)
 ronn:markdown
 
-declare -gx __stdout_log_file="";
-declare -gx __stderr_log_file="";
+declare __stdout_log_file="";
+declare __stderr_log_file="";
 
 function console.log.stdout {
 	touch "$1" || warn "could not create stdout log file %s" "$1";

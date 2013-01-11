@@ -47,7 +47,7 @@ When writing and reading arrays, the variable declarations *must be global*.
 
 Attempting to write and read associative arrays with spaces in the *keys* will result in unexpected behaviour.
 
-**array** is written in bash and depends upon `bash` >= 4.
+**array** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

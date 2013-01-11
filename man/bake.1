@@ -12,16 +12,7 @@
 .br
 .
 .SH "DESCRIPTION"
-\fBbake\fR is \fBmake\fR for bash programs\. It provides an extensible system for managing project tasks using modular code\. If bake(1) is invoked with no command then the \fBman\fR page for bake(1) is displayed, which is the equivalent of \fBbake help\fR\.
-.
-.P
-It maps commands (the first option passed to bake(1)) to task method(s) declared by a tasks(7) file\. A command is considered to be the first option passed to the \fBbake\fR executable, any other options specified on the command line are passed to the corresponding task method\.
-.
-.SH "BUILTIN TASKS"
-All bake(1) projects have the following tasks built in task\-test(7), task\-clean(7), task\-ls(7), task\-doc(7) and task\-semver(7)\.
-.
-.SH "REQUIRE TASKS"
-The convention is that task methods are not declared in tasks(7) but are placed in modules and then included using require(3)\. So to include the task\-todo(7) functionality into your project all you need to do is require(3) it:
+\fBbake\fR is \fBmake\fR for bash programs\. It provides an extensible system for managing project tasks using modular code\.All bake(1) projects have the following tasks built in task\-test(7), task\-clean(7), task\-list(7), task\-doc(7) and task\-semver(7)\.The convention is that task methods are not declared in tasks(7) but are placed in modules and then included using require(3)\. So to include the task\-todo(7) functionality into your project all you need to do is require(3) it:
 .
 .IP "" 4
 .
@@ -33,39 +24,11 @@ require \'tasks/todo\';
 .
 .IP "" 0
 .
-.SH "HELP"
-To view the bake(1) \fBman\fR page, the following commands are equivalent:
-.
-.IP "" 4
-.
-.nf
-
-bake
-bake help
-.
-.fi
-.
-.IP "" 0
-.
-.P
-To view \fBman\fR pages for the built in tasks use:
-.
-.IP "" 4
-.
-.nf
-
-bake help ls
-bake help clean
-bake help test
-bake help doc
-bake help semver
-.
-.fi
-.
-.IP "" 0
-.
 .SH "FILES"
 The bake(1) program looks for a tasks(7) file in the current working directory\. If no tasks(7) file is found in the current working directory then bake(1) will walk all parent directories looking for a tasks(7) file\.
+.
+.P
+It maps commands (the first option passed to bake(1)) to task method(s) declared by the tasks file\. A command is considered to be the first option passed to the \fBbake\fR executable, any other options specified on the command line are passed to the corresponding task method\.
 .
 .SH "ENVIRONMENT"
 The following variables are available to each command method:
@@ -101,10 +64,10 @@ The task command invocation returned a non\-zero exit code but did not explicitl
 It is recommended that task command implementations explicitly exit the program using the \fBquit\fR and \fBsuccess\fR commands declared by console(3)\.
 .
 .SH "BUGS"
-\fBbake\fR is written in bash and depends upon \fBbash\fR >= 4\.
+\fBbake\fR is written in bash and depends upon \fBbash\fR >= 4.2\.
 .
 .SH "COPYRIGHT"
 \fBbake\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-require(3), tasks(7), task\-semver(7), task\-test(7), task\-doc(7), task\-clean(7), task\-ls(7)
+task\-test(7), task\-doc(7), task\-clean(7), task\-list(7)

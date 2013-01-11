@@ -10,7 +10,7 @@
 Archive task(s) for bake(1)\.
 .
 .SH "DESCRIPTION"
-Creates and extracts archives using tar(1) for \fItar\fR and \fIbz2\fR files and zip(1) and unzip(1) for \fIzip\fR files\.
+Creates and extracts archives using tar(1) for \fItar\.gz\fR and \fIbz2\fR files and zip(1) and unzip(1) for \fIzip\fR files\.
 .
 .SH "REQUIRE"
 In your tasks(7) file \fBrequire\fR the \fBarchive\fR task(s) using:
@@ -29,67 +29,17 @@ require \'tasks/archive\';
 .
 .nf
 
-bake archive \-c [options\.\.\.] [archive] [files\.\.\.]
-bake archive \-x [options\.\.\.] [archive]
-bake archive \-l [options\.\.\.] [archive]
-bake archive \-t [options\.\.\.] [archive]
+bake archive \-c tar [files\.\.\.]
+bake archive \-c bz2 [files\.\.\.]
+bake archive \-c zip [files\.\.\.]
+bake archive \-x tar [archive]
+bake archive \-x bz2 [archive]
+bake archive \-x zip [archive]
 .
 .fi
 .
-.SH "COMMANDS"
-.
-.TP
-\fB\-c | create\fR:
-.
-.IP
-Creates an archive\.
-.
-.TP
-\fB\-x | extract\fR:
-.
-.IP
-Extracts an archive\.
-.
-.TP
-\fB\-l | ls\fR:
-.
-.IP
-List files in an archive\. This command is \fInot\fR verbose, it only prints the files in the archive, no other information is included in the output\.
-.
-.TP
-\fB\-t | test\fR:
-.
-.IP
-Tests a specified task\-archive(7) command to determine the archive type and resulting archive file name\. The output of this command is the type followed by a space and the archive file name that will be used, a newline and then the working directory on the next line\.
-.
-.SH "OPTIONS"
-.
-.TP
-\fB\-a | \-\-archive [tar|bz2|zip]\fR:
-.
-.IP
-The type of archive to operate on, if none is specified then task\-archive(7) attempts to infer the type from the file extension\. If the specified type is unknown the program will exit with a code >0\.
-.
-.TP
-\fB\-d | \-\-dir [directory]\fR:
-.
-.IP
-A working directory to resolve paths from, if none is specified then the current working directory is used\.
-.
-.TP
-\fB\-o | \-\-output [directory]\fR:
-.
-.IP
-When creating archives this is a directory to place the created archives in, when extracting archives this option determines where extracted archive contents will be placed\. Must be a valid directory\.
-.
-.TP
-\fB\-\-debug\fR:
-.
-.IP
-Print the commands being executed\.
-.
 .SH "BUGS"
-\fBtask\-archive\fR is written in bash and depends upon \fBbash\fR >= 4\.
+\fBtask\-archive\fR is written in bash and depends upon \fBbash\fR >= 4.2\.
 .
 .SH "COPYRIGHT"
 \fBtask\-archive\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR

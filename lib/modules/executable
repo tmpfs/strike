@@ -44,7 +44,7 @@ Sometimes it can be useful to test for an executable but do not quit the program
 
 ## BUGS
 
-**executable** is written in bash and depends upon `bash` >= 4.
+**executable** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

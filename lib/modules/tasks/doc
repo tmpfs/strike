@@ -47,7 +47,7 @@ The following commands are then available to bake(1):
 
 ## BUGS
 
-**task-doc** is written in bash and depends upon `bash` >= 4.
+**task-doc** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

@@ -97,7 +97,7 @@ If a *package.json* file is available and sed(1) is available and used to replac
 
 ## BUGS
 
-**task-semver** is written in bash and depends upon `bash` >= 4.
+**task-semver** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 
@@ -267,7 +267,7 @@ function sv.tasks.semver.generate {
 # increment or decrement a major version
 function sv.tasks.semver.major {
 	# TODO: add --force flag to prevent prompt for programmatic control
-	declare -g sv_prefix="bump";
+	declare sv_prefix="bump";
 	# decrement
 	if [ "${1:-}" == "-" ]; then
 		semver.major! - "$version";
@@ -277,7 +277,7 @@ function sv.tasks.semver.major {
 		semver.major! "$version";
 	fi
 	local newversion="$_result";
-	declare -g sv_msg="$sv_prefix major version";
+	declare sv_msg="$sv_prefix major version";
 	
 	# TODO: test if version == newversion for decrement, nothing to be done
 	# TODO: add rollback warning on decrement
@@ -295,7 +295,7 @@ function sv.tasks.semver.major {
 function sv.tasks.semver.minor {
 	# TODO: add --force flag to prevent prompt for programmatic control
 	
-	declare -g sv_prefix="bump";
+	declare sv_prefix="bump";
 	# decrement
 	if [ "${1:-}" == "-" ]; then
 		semver.minor! - "$version";
@@ -305,7 +305,7 @@ function sv.tasks.semver.minor {
 		semver.minor! "$version";
 	fi
 	local newversion="$_result";
-	declare -g sv_msg="$sv_prefix minor version";	
+	declare sv_msg="$sv_prefix minor version";	
 	
 	# TODO: test if version == newversion for decrement, nothing to be done	
 	# TODO: add rollback warning on decrement	
@@ -318,7 +318,7 @@ function sv.tasks.semver.minor {
 function sv.tasks.semver.patch {
 	# TODO: add --force flag to prevent prompt for programmatic control
 	
-	declare -g sv_prefix="bump";
+	declare sv_prefix="bump";
 	# decrement
 	if [ "${1:-}" == "-" ]; then
 		semver.patch! - "$version";
@@ -328,7 +328,7 @@ function sv.tasks.semver.patch {
 		semver.patch! "$version";
 	fi
 	local newversion="$_result";
-	declare -g sv_msg="$sv_prefix patch version";
+	declare sv_msg="$sv_prefix patch version";
 	
 	# TODO: test if version == newversion for decrement, nothing to be done	
 	# TODO: add rollback warning on decrement	

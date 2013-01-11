@@ -13,7 +13,17 @@ Clean task(s) for bake(1)\.
 Removes the \fB${target}\fR directory\.
 .
 .SH "REQUIRE"
-You do not need to require(3) this task as it is a builtin task\.
+In your tasks(7) file \fBrequire\fR the \fBclean\fR task(s) using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/clean\';
+.
+.fi
+.
+.IP "" 0
 .
 .SH "USAGE"
 .
@@ -24,7 +34,7 @@ bake clean
 .fi
 .
 .SH "BUGS"
-\fBtask\-clean\fR is written in bash and depends upon \fBbash\fR >= 4\.
+\fBtask\-clean\fR is written in bash and depends upon \fBbash\fR >= 4.2\.
 .
 .SH "COPYRIGHT"
 \fBtask\-clean\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR

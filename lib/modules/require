@@ -19,7 +19,7 @@ Loads modules by name or filesystem path and adds delegate(3) functionality to m
 
 ## BUGS
 
-**require** is written in bash and depends upon `bash` >= 4.
+**require** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

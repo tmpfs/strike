@@ -116,7 +116,7 @@ The `--print-*` options control what is output after a request has been made.
 
 ## BUGS
 
-**rest** is written in bash and depends upon `bash` >= 4.
+**rest** is written in bash and depends upon `bash` >= 4.2.
 
 * `--print-env`:
 	The output of this option does not output array values correctly, only the first array entry is available.

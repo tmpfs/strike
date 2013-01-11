@@ -40,7 +40,7 @@ The strike(1) supports the following commands:
 
 ## BUGS
 
-**strike** is written in bash and depends upon `bash` >= 4 for associative arrays.
+**strike** is written in bash and depends upon `bash` >= 4.2 for associative arrays.
 
 ## COPYRIGHT
 
@@ -64,7 +64,7 @@ set -o nounset;
 #
 ######################################################################
 console_print_program_prefix="off";
-declare -gx exedir;
+declare exedir;
 function boilerplate {
 	local src="${BASH_SOURCE[0]}"
 	exedir="$( dirname "$src" )"

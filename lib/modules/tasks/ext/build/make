@@ -22,7 +22,7 @@ In your tasks(7) file `require` the `make` task(s) using:
 
 ## BUGS
 
-**task-make** is written in bash and depends upon `bash` >= 4.
+**task-make** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

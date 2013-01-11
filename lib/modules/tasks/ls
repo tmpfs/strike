@@ -20,7 +20,7 @@ You do not need to require(3) this task as it is a builtin task.
 
 ## BUGS
 
-**task-ls** is written in bash and depends upon `bash` >= 4.
+**task-ls** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

@@ -22,7 +22,7 @@ In your tasks(7) file `require` the `ant` task(s) using:
 
 ## BUGS
 
-**task-ant** is written in bash and depends upon `bash` >= 4.
+**task-ant** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

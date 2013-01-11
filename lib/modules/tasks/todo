@@ -163,7 +163,7 @@ find(1)
 
 ## BUGS
 
-**task-todo** is written in bash and depends upon `bash` >= 4.
+**task-todo** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 
@@ -228,7 +228,9 @@ todo_tags[changed]="CHANGED[ 	,:]+[ 	]*(.*)";
 
 # tasks for working with todo tags
 function tasks.todo {
-	executable.validate find;	
+	executable.validate find;
+	
+	echo "$FUNCNAME";
 	
 	# list of files to scan
 	declare -a files;
@@ -250,8 +252,7 @@ function tasks.todo {
 	
 	# list of all tag keys
 	# used internally
-	declare -a all_tags;
-	all_tags=( ${!todo_tags[@]} );	
+	declare -a all_tags=( ${!todo_tags[@]} );
 	
 	local include_symlinks=false;
 	local silent=false;

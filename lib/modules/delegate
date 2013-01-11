@@ -19,9 +19,9 @@ A module may declare a `main` method which should have the same name as the modu
 Suppose you had a `say` module with the following code:
 
 	# allow delegation for this module
-	declare -g delegate=true;
+	declare delegate=true;
 
-	declare -gx say_greeting="world";
+	declare say_greeting="world";
 	say.hello() {
 		console.info "hello %s" "$say_greeting";
 	}
@@ -40,7 +40,7 @@ The `say` module would automatically have a dynamic delegate(3) method created (
 
 ## BUGS
 
-**delegate** is written in bash and depends upon `bash` >= 4.
+**delegate** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

@@ -27,7 +27,7 @@ Note that the `semver.parse` method will not perform any operations on invalid s
 
 ## BUGS
 
-**semver** is written in bash and depends upon `bash` >= 4.
+**semver** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

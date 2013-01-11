@@ -71,7 +71,7 @@ It is recommended that task command implementations explicitly exit the program 
 
 ## BUGS
 
-**bake** is written in bash and depends upon `bash` >= 4.
+**bake** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

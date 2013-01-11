@@ -51,7 +51,7 @@ In your tasks(7) file `require` the `compress` task(s) using:
 
 ## BUGS
 
-**task-compress** is written in bash and depends upon `bash` >= 4.
+**task-compress** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

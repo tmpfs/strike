@@ -22,7 +22,7 @@ In your tasks(7) file `require` the `rake` task(s) using:
 
 ## BUGS
 
-**task-rake** is written in bash and depends upon `bash` >= 4.
+**task-rake** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

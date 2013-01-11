@@ -44,7 +44,7 @@ Converting to JSON is achieved using references to variable names and afterwards
 
 ## BUGS
 
-**json** is written in bash and depends upon `bash` >= 4.
+**json** is written in bash and depends upon `bash` >= 4.2.
 
 The json(3) module is derived from json-sh(1).
 

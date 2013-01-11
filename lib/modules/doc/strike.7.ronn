@@ -19,7 +19,7 @@ The method(3) module provides utility functions for determining whether function
 
 ## BUGS
 
-**strike** is written in bash and depends upon `bash` >= 4 for associative arrays.
+**strike** is written in bash and depends upon `bash` >= 4.2 for associative arrays.
 
 ## COPYRIGHT
 

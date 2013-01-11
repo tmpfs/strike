@@ -61,7 +61,7 @@ In your tasks(7) file `require` the `archive` task(s) using:
 
 ## BUGS
 
-**task-archive** is written in bash and depends upon `bash` >= 4.
+**task-archive** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 

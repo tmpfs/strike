@@ -41,7 +41,7 @@ The http(3) module is dependent upon curl(1) and tee(1).
 
 ## BUGS
 
-**http** is written in `bash` and depends upon `bash` >= 4.
+**http** is written in `bash` and depends upon `bash` >= 4.2.
 
 This module not been tested when multiple URLs are specified (eg: `http://site.{one,two,three}.com`), unexpected behaviour may occur.
 
@@ -55,7 +55,7 @@ curl(1), tee(1), rest(1)
 ronn:markdown
 
 # allow delegation for this module
-declare -g delegate=true;
+declare delegate=true;
 
 require 'url';
 
@@ -87,17 +87,17 @@ export http_print_stderr="";
 # determines whether to quit when curl(1)
 # returns a non-zero exit code, set to a
 # non-blank string to switch on
-declare -gx http_strict="";
+declare http_strict="";
 
-declare -Agx http_request_headers;
+declare -Ax http_request_headers;
 
-declare -agx http_command_options;
+declare -ax http_command_options;
 http_command_options=();
 
 # have to do this in two steps for arrays as
 # direct assignment will cause the http_files array not
 # to be available inside function definitions
-declare -agx http_files;
+declare -ax http_files;
 http_files=(
 	"$http_output_file"
 	"$http_head_file"

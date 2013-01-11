@@ -35,7 +35,7 @@ Retrieve the hash of the last commit in the current branch or a specific branch.
 
 ## BUGS
 
-**git** is written in bash and depends upon `bash` >= 4.
+**git** is written in bash and depends upon `bash` >= 4.2.
 
 ## COPYRIGHT
 
