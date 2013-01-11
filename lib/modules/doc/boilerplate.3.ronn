@@ -9,7 +9,7 @@ Before using the strike(1) modules and functions you need to include some boiler
 
 If you have installed the `strike` library as a node module and your executable is in a `bin` directory (sibling of the `node_modules` directory) the boilerplate would look like:
 
-	declare -gx exedir;
+	declare -g exedir;
 	function boilerplate {
 		local src="${BASH_SOURCE[0]}"
 		exedir="$( dirname "$src" )"

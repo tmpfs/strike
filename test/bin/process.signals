@@ -6,7 +6,7 @@
 #
 ######################################################################
 console_print_program_prefix="off";
-declare -gx exedir;
+declare -g exedir;
 function boilerplate {
 	local src="${BASH_SOURCE[0]}"
 	exedir="$( dirname "$src" )"
