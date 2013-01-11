@@ -10,7 +10,7 @@
 Compression task(s) for bake(1)\.
 .
 .SH "DESCRIPTION"
-Compresses file(s) using gzip(1) and gunzip(1)\. This task is used to compress regular files, if you wish to compress directories use task\-archive(7)\.
+Compresses file(s) using gzip(1) and gunzip(1)\. This task is used to compress regular files, if you wish to compress directories use task\-archive(7)\. The primary difference between gzip(1) and task\-compress(7) is that source files or compressed files are maintained on disc by default\. This is useful for web applications that wish to inspect an \fIAccept\-Encoding\fR header and serve the appropriate file\.
 .
 .SH "REQUIRE"
 In your tasks(7) file \fBrequire\fR the \fBcompress\fR task(s) using:
@@ -29,9 +29,8 @@ require \'tasks/compress\';
 .
 .nf
 
-bake \-c [options\.\.\.] [files\.\.\.]
-bake \-x [options\.\.\.] [files\.\.\.]
-bake \-l [options\.\.\.] [files\.\.\.]
+bake compress \-c [options\.\.\.] [files\.\.\.]
+bake compress \-x [options\.\.\.] [files\.\.\.]
 .
 .fi
 .
@@ -49,12 +48,6 @@ Deflate file(s)\. This command creates a file with the same name as the source f
 .IP
 Inflate compressed file(s)\.
 .
-.TP
-\fB\-l | ls\fR:
-.
-.IP
-List file(s) that would be matched with the current command options\.
-.
 .SH "OPTIONS"
 .
 .TP
@@ -68,6 +61,12 @@ The default behaviour is to keep the source files, specify this flag if you wish
 .
 .IP
 Recurse into sub\-directories\.
+.
+.TP
+\fB\-\-noop\fR:
+.
+.IP
+Do not perform any action, print information about the source and/or compressed files\. The \fB\-\-debug\fR option has no effect when this option is specified\.
 .
 .TP
 \fB\-\-debug\fR:
