@@ -180,7 +180,7 @@ function __compress.get.files {
 
 function __compress.deflate {
 	local out="${file}.${compress_extension}";
-	local nm name compress_options results;
+	local nm name compress_options results status;
 	fs.basename "$file" "nm";	
 	fs.basename "$out" "name";
 	compress_options=( -c --best --force -v "$file" );
@@ -188,7 +188,11 @@ function __compress.deflate {
 		console.info "${executables[gzip]} %s 1>| %s" "${compress_options[*]}" "$out";
 	fi
 	results=( $( { "${executables[gzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
-	if [ $? -gt 0 ]; then
+	status=$?;	
+	if $compress_delete && [ $status -eq 0 ]; then
+		rm "$file" || quit 1 "could not delete %s" "$file";
+	fi
+	if [ $status -gt 0 ]; then
 		console.quit 1 "failed to compress %s" "$file";
 	fi
 	if $compress_verbose; then
@@ -196,7 +200,9 @@ function __compress.deflate {
 	fi
 	# also touch the file to set modification time
 	# in case it already exists
-	touch "$out";
+	if [ -f "$out" ]; then
+		touch "$out";
+	fi
 }
 
 function __compress.inflate {	
@@ -212,7 +218,15 @@ function __compress.inflate {
 	fi
 	
 	results=( $( { "${executables[gunzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
-	if [ $? -gt 0 ]; then
+	status=$?;
+	if $compress_delete && [ $status -eq 0 ]; then
+		echo "got delete option on inflate !!!!! $file";
+		rm "$file" || quit 1 "could not delete %s" "$file";
+		if [ -f "$file" ]; then
+			echo "FILE STILL EXISTS";
+		fi
+	fi
+	if [ $status -gt 0 ]; then
 		console.quit 1 "failed to extract %s" "$file";
 	fi
 	if $compress_verbose; then
@@ -220,7 +234,7 @@ function __compress.inflate {
 	fi
 	# also touch the file to set modification time
 	# in case it already exists
-	touch "$file";
+	touch "$out";
 	
 	# --list 
 	

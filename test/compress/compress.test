@@ -1,7 +1,7 @@
 require.once 'tasks/compress';
 
 # test(s) for task-compress(7) compress/decompress
-function test.compress.cx.simple {
+function test.compress.cx {
 	# compress files relative to this test
 	local self result;
 	require.resolve "self";
@@ -14,12 +14,10 @@ function test.compress.cx.simple {
 	
 	# create the test files from the archive lipsum/etiam test
 	# files, repeating the contents n times
-	!test.compress.files.create 20;
+	!test.compress.files.create 15;
 	
 	# TODO: compress files to -o | --output
-	# TODO: extract files to -o | --output	
-	
-	#-o "${target}"
+	# TODO: extract files to -o | --output
 	
 	local program="tasks.compress";
 	local cmd="-c --verbose --debug";
@@ -61,7 +59,7 @@ function test.compress.cx.simple {
 	for f in "${files[@]}"
 		do
 			assert.file.exists! "$f";
-	done	
+	done
 	
 	# extract compressed versions
 	$program $cmd "${compressed[@]}";
@@ -81,9 +79,44 @@ function test.compress.cx.simple {
 	result=( $( "$program" $cmd "${compressed[@]}" "${files[@]}" ) );
 	assert.equal "${compressed[*]}" "${result[*]}";
 	
-	# 
-	# # clean up after test run
-	# !test.compress.files.clean;
+	# clean up after test run
+	!test.compress.files.clean;
+	
+	# recreate test files
+	!test.compress.files.create 15;
+	
+	# now run with the delete option so that
+	# we don't keep the source files
+	cmd="-c --delete --verbose --debug";
+	$program $cmd "${files[@]}";
+	
+	# should only have the compressed versions now
+	for f in "${compressed[@]}"
+		do
+			assert.file.exists? "$f";			
+	done
+	# not the original source files
+	for f in "${files[@]}";
+		do
+			assert.file.exists! "$f";
+	done
+	
+	# inverted --delete test on extraction
+	cmd="-x --delete --verbose --debug";
+	$program $cmd "${compressed[@]}";
+	# should only have the source versions now
+	for f in "${files[@]}"
+		do
+			assert.file.exists? "$f";			
+	done
+	# not the compressed files
+	for f in "${compressed[@]}";
+		do
+			assert.file.exists! "$f";
+	done
+	
+	# final clean up
+	#!test.compress.files.clean;	
 }
 
 ######################################################################
@@ -96,6 +129,16 @@ function test.compress.cx.simple {
 # n times and write to this test directory
 function !test.compress.files.create {
 	local f contents o output i num="${1:-10}";
+	
+	# clean any existing entries if re-creating
+	# the test files
+	if [ ${#entries[@]} -gt 0 ]; then
+		local k;
+		for k in "${!entries[@]}"
+			do
+				unset entries["$k"];
+		done
+	fi
 	
 	# map between file sources and output
 	declare -A sources;
