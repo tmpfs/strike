@@ -3,7 +3,7 @@ require.once 'tasks/compress';
 # test(s) for task-compress(7) compress/decompress
 function test.compress.cx.simple {
 	# compress files relative to this test
-	local self;
+	local self result;
 	require.resolve "self";
 	local dir="${self[1]}";
 	
@@ -40,9 +40,11 @@ function test.compress.cx.simple {
 			assert.file.exists? "${f}.${ext}";
 	done
 	
-	# test the --noop option
+	# test the --noop option not that 
+	# we add a couple of .gz files that should not
+	# be located using the -c | create command
 	cmd="-c --noop";
-	local result=( $( "$program" $cmd "${files[@]}" "lipsum.txt.gz" "etiam.txt.gz" ) );
+	result=( $( "$program" $cmd "${files[@]}" "lipsum.txt.gz" "etiam.txt.gz" ) );
 	assert.equal "${files[*]}" "${result[*]}";
 	
 	# test the -x | extract command
@@ -63,13 +65,21 @@ function test.compress.cx.simple {
 	
 	# extract compressed versions
 	$program $cmd "${compressed[@]}";
-	
 	# assert that all files exist again after deflation
 	for f in "${files[@]}"
 		do
 			assert.file.exists? "$f";
 			assert.file.exists? "${f}.${ext}";
+			# assert on extracted file contents
+			assert.equal "${entries["$f"]}" "`cat "$f"`";
 	done
+	
+	# test the --noop option with the -x | extract command
+	# we add a couple of source files that should not
+	# be located using the -x | extract command
+	cmd="-x --noop";
+	result=( $( "$program" $cmd "${compressed[@]}" "${files[@]}" ) );
+	assert.equal "${compressed[*]}" "${result[*]}";
 	
 	# 
 	# # clean up after test run

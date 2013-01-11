@@ -25,7 +25,7 @@ In your tasks(7) file `require` the `compress` task(s) using:
 
 * `-c | create`:
 
-	Deflate file(s). This command creates a file with the same name as the source file appended with a `gz` file extension. By default the original file is maintained, if you wish to overwrite the file(s) use the `--overwrite` option.
+	Deflate file(s). This command creates a file with the same name as the source file appended with a `gz` file extension. By default the original file is maintained, if you wish to delete the file(s) use the `--delete` option.
 	
 * `-x | extract`:
 
@@ -84,7 +84,7 @@ function tasks.compress {
 	# whether we recurse into sub-directories
 	local compress_recursive=false;	
 
-	# whether we overwrite files,
+	# whether we delete files,
 	# the default is to keep files
 	local compress_delete=false;
 	
@@ -249,15 +249,11 @@ function __compress.inflate {
 # print file information
 function __compress.print {
 	local size="";
-	# skipping .gz files which means we are compressing
-	if $skip; then
-		if $compress_verbose && [ -f "$file" ]; then
-			size=( $( du -h "$file" ) );
-			size=" ${size[0]}";
-		fi
-		console.log "${file}%s" "$size";
-	# TODO: implement --noop logic when extracting
+	if $compress_verbose && [ -f "$file" ]; then
+		size=( $( du -h "$file" ) );
+		size=" ${size[0]}";
 	fi
+	console.log "${file}%s" "$size";
 }
 
 # parse command line options
