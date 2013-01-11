@@ -127,55 +127,6 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
-function method()
-{
-	inner()
-	{
-		echo "an inner method ... ";
-	}
-	local var="nice to be here";
-	echo "$var";
-	local result=( $( ls . ) );
-	echo "files are ${result[*]}";
-	eval "new=\"$var\"";
-	echo "$new";
-	inner;
-}
-
-function aspect {
-	local newline="
-";
-	local contents=$( declare -f $1 );
-	local newfunc="";
-	while IFS= read -r line
-		do
-			if [[ "$line" =~ }$ ]]; then
-				newfunc="${newfunc}${3:-}${newline}";
-			fi
-			newfunc="${newfunc}${line}${newline}";
-			if [[ "$line" =~ ^{ ]]; then
-				newfunc="${newfunc}${2:-}${newline}";
-			fi
-	done <<< "$contents";
-	eval "$newfunc";
-}
-
-method.before()
-{
-	echo "hello world";
-}
-
-method.after()
-{
-	echo "goodbye world";
-}
-
-#aspect method 'echo "skipped this function"; builtin return' method.after;
-aspect method method.before method.after;
-method;
-
-exit 0;
-
 # keys="c
 # b
 # a";
