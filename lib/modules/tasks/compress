@@ -130,21 +130,21 @@ function cmp.tasks.compress.inflate {
 	if [ $# -eq 0 ]; then
 		__compress.missing.files;
 	fi
-	__compress.get.files "__compress.inflate" "$@";
+	__compress.get.files "__compress.inflate" false "$@";
 }
 
 function cmp.tasks.compress.deflate {
 	if [ $# -eq 0 ]; then
 		__compress.missing.files;
 	fi
-	__compress.get.files "__compress.deflate" "$@";
+	__compress.get.files "__compress.deflate" true "$@";
 }
 
 function cmp.tasks.compress.list {
 	if [ $# -eq 0 ]; then
 		__compress.missing.files;
 	fi
-	__compress.get.files "__compress.print" "$@";
+	__compress.get.files "__compress.print" true "$@";
 }
 
 ######################################################################
@@ -159,12 +159,14 @@ function cmp.tasks.compress.list {
 function __compress.get.files {
 	local callback="${1:-}";
 	shift;
+	local skip="${1:-true}";
+	shift;
 	if [ -n "$callback" ]; then
 		local file;
 		for file in "$@"
 			do
 				# never compress .gz files
-				if [[ "$file" =~ \.gz$ ]]; then
+				if $skip && [[ "$file" =~ \.gz$ ]]; then
 					continue;
 				fi
 				"$callback";
@@ -180,18 +182,58 @@ function __compress.deflate {
 	fs.basename "$out" "name";
 	local compress_options=( -c --best --force -v "$file" );
 	if $compress_debug; then
-		console.info "${executables[gzip]} %s 1> %s" "${compress_options[*]}" "$out";
+		console.info "${executables[gzip]} %s 1>| %s" "${compress_options[*]}" "$out";
 	fi
 	local results=( $( { "${executables[gzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
 	if [ $? -gt 0 ]; then
-		console.quit 1 "failed to compress %s" "";
+		console.quit 1 "failed to compress %s" "$file";
 	fi
 	if $compress_verbose; then
-		console.info "gzip %s -> %s (%s)" "$nm" "$name" "${results[${#results[@]}-1]}";
+		console.info "%s > %s (%s)" "$nm" "$name" "${results[${#results[@]}-1]}";
 	fi
 	# also touch the file to set modification time
 	# in case it already exists
 	touch "$out";
+}
+
+function __compress.inflate {	
+	local out="${file%.gz}";
+	
+	local compress_options=( -c "$file" );
+	
+	if $compress_debug; then
+		console.info "${executables[gunzip]} %s 1>| %s" "${compress_options[*]}" "$out";
+	fi
+	
+	local results=( $( { "${executables[gunzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
+	if [ $? -gt 0 ]; then
+		console.quit 1 "failed to extract %s" "$file";
+	fi
+
+	#echo "got results: ${results[*]}";	
+	
+	# --list 
+	
+	# # gather result information
+	# local out="${results[${#results[@]}-1]}";
+	# unset results[${#results[@]}-1];
+	# local ratio="${results[${#results[@]}-1]}";
+	# unset results[${#results[@]}-1];
+	# local osize="${results[${#results[@]}-1]}";	
+	# unset results[${#results[@]}-1];
+	# local csize="${results[${#results[@]}-1]}";
+	# 
+	# local nm name;
+	# fs.basename "$file" "nm";
+	# fs.basename "$out" "name";	
+	# 
+	# if $compress_verbose; then
+	#  	console.info "%s < %s %s %s %s" "$name" "$nm" "$osize" "$csize" "$ratio";
+	# fi
+	
+	# # also touch the file to set modification time
+	# # in case it already exists
+	# touch "$out";
 }
 
 # print file information

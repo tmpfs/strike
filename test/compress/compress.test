@@ -7,11 +7,18 @@ function test.compress.cx.simple {
 	require.resolve "self";
 	local dir="${self[1]}";
 	
+	# map between file name and file contents
+	# so we can also assert on file contents
+	# after decompression
+	declare -A entries;
+	
 	# create the test files from the archive lipsum/etiam test
 	# files, repeating the contents n times
 	!test.compress.files.create 20;
 	
-	# TODO: put compressed files in target
+	# TODO: compress files to -o | --output
+	# TODO: extract files to -o | --output	
+	
 	#-o "${target}"
 	
 	local program="tasks.compress";
@@ -38,10 +45,22 @@ function test.compress.cx.simple {
 	local result=( $( "$program" "$cmd" "${files[@]}" "lipsum.txt.gz" "etiam.txt.gz" ) );
 	assert.equal "${files[*]}" "${result[*]}";
 	
-	# TODO: add decompression tests
+	# test the -x | extract command
+	cmd="-x --verbose --debug";
+	local compressed=(
+		"${files[0]}.${ext}"
+		"${files[1]}.${ext}"
+	);
 	
-	# clean up after test run
-	!test.compress.files.clean;
+	# remove source files before decompression
+	rm "${files[@]}";
+	
+	# extract compressed versions
+	$program $cmd "${compressed[@]}";
+	
+	# 
+	# # clean up after test run
+	# !test.compress.files.clean;
 }
 
 ######################################################################
@@ -72,6 +91,7 @@ function !test.compress.files.create {
 					# spearate content entries with a newline
 					echo "" >> "$o";
 			done
+			entries["$o"]=$( cat "$o" );
 	done
 }
 
