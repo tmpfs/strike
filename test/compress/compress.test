@@ -40,9 +40,9 @@ function test.compress.cx.simple {
 			assert.file.exists? "${f}.${ext}";
 	done
 	
-	# test the -l | ls command
-	cmd="-l";
-	local result=( $( "$program" "$cmd" "${files[@]}" "lipsum.txt.gz" "etiam.txt.gz" ) );
+	# test the --noop option
+	cmd="-c --noop";
+	local result=( $( "$program" $cmd "${files[@]}" "lipsum.txt.gz" "etiam.txt.gz" ) );
 	assert.equal "${files[*]}" "${result[*]}";
 	
 	# test the -x | extract command
@@ -55,8 +55,21 @@ function test.compress.cx.simple {
 	# remove source files before decompression
 	rm "${files[@]}";
 	
+	# verify that the source files have gone
+	for f in "${files[@]}"
+		do
+			assert.file.exists! "$f";
+	done	
+	
 	# extract compressed versions
 	$program $cmd "${compressed[@]}";
+	
+	# assert that all files exist again after deflation
+	for f in "${files[@]}"
+		do
+			assert.file.exists? "$f";
+			assert.file.exists? "${f}.${ext}";
+	done
 	
 	# 
 	# # clean up after test run
