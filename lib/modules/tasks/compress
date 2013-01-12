@@ -47,7 +47,7 @@ In your tasks(7) file `require` the `compress` task(s) using:
 	
 * `-e | --exclude`:
 
-	Pattern(s) that will when matched against a file name will cause it to be excluded. Must be a valid extended regular expression, see ere(7). Repeatable.
+	Pattern(s) that when matched against a file name will cause it to be excluded. Must be a valid extended regular expression, see ere(7). Repeatable. If include and exclude pattern(s) are specified that match both match a file name the file will be excluded.
 	
 * `--noop`:
 
@@ -74,12 +74,6 @@ ronn:markdown
 require.once help;
 help.man.page "compress" "task-compress.7";
 
-#redirect the gzip outout to the file so we keep the original
-#and redirect standard error output to an array
-# local results=( $( { gzip -c --best --force -v "$f" 1> "$out"; } 2>&1 ) );
-# info "gzip %s -> %s (%s)" "$nm" "`basename $out`" "'${results[1]}'";
-# touch "$out";
-
 function tasks.compress.initialize {
 	executable.validate gzip gunzip;
 }
@@ -104,6 +98,12 @@ function tasks.compress {
 	
 	# noop
 	local compress_noop=false;
+	
+	# include patterns
+	local compress_include_patterns=();
+	
+	# exclude patterns
+	local compress_exclude_patterns=();	
 	
 	# map of options to command names
 	declare -A commands;
@@ -139,9 +139,9 @@ function cmp.tasks.compress.inflate {
 		__compress.missing.files;
 	fi
 	if ! $compress_noop; then
-		__compress.get.files "__compress.inflate" false "$@";
+		__compress.files.get "__compress.inflate" false "$@";
 	else
-		__compress.get.files "__compress.print" false "$@";
+		__compress.files.get "__compress.print" false "$@";
 	fi
 }
 
@@ -150,9 +150,9 @@ function cmp.tasks.compress.deflate {
 		__compress.missing.files;
 	fi
 	if ! $compress_noop; then
-		__compress.get.files "__compress.deflate" true "$@";
+		__compress.files.get "__compress.deflate" true "$@";
 	else
-		__compress.get.files "__compress.print" true "$@";
+		__compress.files.get "__compress.print" true "$@";
 	fi
 }
 
@@ -165,7 +165,7 @@ function cmp.tasks.compress.deflate {
 # iterates the list of files being processed
 # and invokes a callback function for each
 # file being processed
-function __compress.get.files {
+function __compress.files.get {
 	local callback="${1:-}";
 	shift;
 	local skip="${1:-true}";
@@ -181,9 +181,50 @@ function __compress.get.files {
 				elif ! $skip && [[ ! "$file" =~ \.gz$ ]]; then
 					continue;
 				fi
+				
+				# check patterns
+				if ! __compress.files.include? "$file"; then
+					continue;
+				fi
 				"$callback";
 		done
 	fi
+}
+
+function __compress.files.include? {
+	local file="${1:-}";
+	local ptn name;
+	fs.basename "$file" "name";
+	if [ ${#compress_exclude_patterns[@]} -gt 0 ]; then
+		for ptn in ${compress_exclude_patterns[@]}
+			do
+				# matches an exclude pattern
+				if [[ "$name" =~ $ptn ]]; then
+					return 1;
+				fi
+		done
+	fi
+	
+	if [ ${#compress_include_patterns[@]} -gt 0 ]; then
+		for ptn in ${compress_include_patterns[@]}
+			do
+				# echo "testing against include pattern: $ptn";
+				
+				# matches an include pattern
+				if [[ "$name" =~ $ptn ]]; then
+					return 0;
+				fi
+		done
+	fi
+	
+	# got some include patterns and no exclude patterns
+	# so it must match the include pattern to be included
+	if [ ${#compress_exclude_patterns[@]} -eq 0 ] && [ ${#compress_include_patterns[@]} -gt 0 ]; then
+		return 1;
+	fi
+	
+	# include by default
+	return 0;
 }
 
 function __compress.deflate {
@@ -228,11 +269,7 @@ function __compress.inflate {
 	results=( $( { "${executables[gunzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
 	status=$?;
 	if $compress_delete && [ $status -eq 0 ]; then
-		echo "got delete option on inflate !!!!! $file";
 		rm "$file" || quit 1 "could not delete %s" "$file";
-		if [ -f "$file" ]; then
-			echo "FILE STILL EXISTS";
-		fi
 	fi
 	if [ $status -gt 0 ]; then
 		console.quit 1 "failed to extract %s" "$file";
@@ -299,6 +336,14 @@ function __compress.parse {
 			-v | --verbose )
 				compress_verbose=true;
 				;;
+			-i | --include )
+				shift;
+				compress_include_patterns+=( "${1:-}" );
+				;;
+			-e | --exclude )
+				shift;
+				compress_exclude_patterns+=( "${1:-}" );
+				;;				
 			--noop )
 				compress_noop=true;
 				;;							

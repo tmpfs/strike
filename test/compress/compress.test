@@ -1,6 +1,6 @@
 require.once 'tasks/compress';
 
-# test(s) for task-compress(7) compress/decompress
+# test(s) for task-compress(7) create/extract
 function test.compress.cx {
 	# compress files relative to this test
 	local self result;
@@ -115,8 +115,36 @@ function test.compress.cx {
 			assert.file.exists! "$f";
 	done
 	
-	# final clean up
-	#!test.compress.files.clean;	
+	# clean up again
+	!test.compress.files.clean;	
+	
+	# recreate test files
+	!test.compress.files.create 10;	
+	
+	# create file(s) that should never be matched
+	touch "${dir}/test.js";
+	
+	# test pattern matching
+	
+	# match the .txt files only
+	cmd="-c --noop --include (\.txt)$";
+	result=( $( "$program" $cmd "${files[@]}" ) );
+	assert.eq "2" "${#result[@]}";
+	assert.equal "${files[*]}" "${result[*]}";
+	
+	# match both .txt files (not the .js file)
+	# and then skip etiam.txt with the --exclude pattern
+	cmd="-c --noop --include (\.txt)$ --exclude ^e";
+	result=( $( "$program" $cmd "${files[@]}" ) );
+	assert.eq "1" "${#result[@]}";
+	
+	# echo "got result: ${!result[@]} : ${result[@]}";
+	
+	# clean pattern matching test file(s)
+	rm "${dir}/test.js";
+	
+	# clean up again
+	!test.compress.files.clean;	
 }
 
 ######################################################################
