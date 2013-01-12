@@ -21,6 +21,8 @@ In your tasks(7) file `require` the `compress` task(s) using:
 	bake compress -c [options...] [files...]
 	bake compress -x [options...] [files...]
 	
+Note any files specified that do not exist are skipped from processing and a warning is printed.
+	
 ## COMMANDS
 
 * `-c | create`:
@@ -70,7 +72,7 @@ In your tasks(7) file `require` the `compress` task(s) using:
 	A >0 exit code indicates failure while a 0 exit code indicates success.
 	
 	If any file is encountered that is not a regular file (determined using
-	the -f file test flag) then the exit code is >0.
+	the -f file test operator) then the exit code is >0.
 	
 	Exit code 2 is used when an invalid pattern is specified using either
 	the --include or --exclude option.
@@ -203,6 +205,7 @@ function __compress.files.get {
 		local file;
 		for file in "$@"
 			do
+				
 				if [ -d "$file" ]; then
 					if ! $compress_recursive && [ $compress_depth -eq 0 ]; then
 						__compress.files.get "$callback" "$skip" $( find "$file" -depth 1 -type f );
@@ -217,6 +220,11 @@ function __compress.files.get {
 					continue;
 				# ignore anything but .gz files when extracting
 				elif ! $skip && [[ ! "$file" =~ \.gz$ ]]; then
+					continue;
+				fi
+				
+				if [ ! -e "$file" ]; then
+					console.warn "skipping non-existent file %s" "$file";
 					continue;
 				fi
 				
