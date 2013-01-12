@@ -123,9 +123,9 @@ function test.compress.cx {
 function test.compress.cx.pattern {
 	
 	# compress files relative to this test
-	local self result;
+	local self dir result;
 	require.resolve "self";
-	local dir="${self[1]}";	
+	dir="${self[1]}";
 	
 	# map between file name and file contents
 	# so we can also assert on file contents
@@ -204,9 +204,19 @@ function test.compress.cx.pattern {
 function test.compress.cx.recursive {
 	
 	# compress files relative to this test
-	local self result;
+	local self testname dir outputdir result;
 	require.resolve "self";
-	local dir="${self[1]}";	
+	testname="${self[0]}";	
+	dir="${self[1]}";
+	
+	#echo "got test name: $testname";
+	
+	# create an output directory for
+	# testing the --output option
+	outputdir="${target}/${testname}";
+	if [ ! -d "$outputdir" ]; then
+		mkdir -p "$outputdir";
+	fi
 	
 	# map between file name and file contents
 	# so we can also assert on file contents
@@ -256,8 +266,58 @@ function test.compress.cx.recursive {
 	result=( $( "$program" $cmd "$nested" ) );
 	assert.eq "3" "${#result[@]}";
 	
+	# compress to an output directory
+	cmd="-c --output $outputdir";
+	"$program" $cmd "$nested";
+	assert.file.exists? "${outputdir}/lipsum.txt.gz";
+	assert.file.exists? "${outputdir}/etiam.txt.gz";
+	
+	# clean up from last test run
+	rm "${outputdir}/lipsum.txt.gz" "${outputdir}/etiam.txt.gz";
+	
+	# extract to an output directory
+	# first we compress as siblings
+	# then extract to the output
+	cmd="-c";
+	"$program" $cmd "$nested";
+	cmd="-x --output $outputdir";
+	"$program" $cmd "$nested";	
+	assert.file.exists? "${outputdir}/lipsum.txt";
+	assert.file.exists? "${outputdir}/etiam.txt";
+	
+	# clean up from last test run
+	rm "${outputdir}/lipsum.txt" "${outputdir}/etiam.txt";
+	
+	# verify that multiple conflicting file names
+	# overwrite previous files
+	cmd="-c -r --output $outputdir";
+	"$program" $cmd "$nested";
+ 	result=( $( ls "$outputdir" ) );
+	assert.eq "2" "${#result[@]}";
+	
+	# clean up from last test run
+	rm "${outputdir}/lipsum.txt.gz" "${outputdir}/etiam.txt.gz";	
+	
+	# same test as above with --recursive option
+	cmd="-c -r";
+	"$program" $cmd "$nested";
+	cmd="-x -r --output $outputdir";
+	"$program" $cmd "$nested";
+	assert.file.exists? "${outputdir}/lipsum.txt";
+	assert.file.exists? "${outputdir}/etiam.txt";
+	
+	# still only two files, even though we actually
+	# deflated and inflated multiple times
+ 	result=( $( ls "$outputdir" ) );
+	assert.eq "2" "${#result[@]}";
+	
+	# clean up from last test run
+	rm "${outputdir}/lipsum.txt" "${outputdir}/etiam.txt";	
+	
 	# clean up
 	rm -rf "${nested}";
+	
+	rmdir "${outputdir}";
 }
 
 ######################################################################

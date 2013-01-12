@@ -85,6 +85,10 @@ In your tasks(7) file `require` the `compress` task(s) using:
 bake(1)
 ronn:markdown
 
+# TODO: implement --output option
+# TODO: implement --dir option for creating matching fs structure
+# TODO: allow file list to be read from stdin using - 
+
 # map help for this task
 require.once help;
 help.man.page "compress" "task-compress.7";
@@ -259,6 +263,7 @@ function __compress.deflate {
 	local nm name compress_options results status;
 	fs.basename "$file" "nm";	
 	fs.basename "$out" "name";
+	__compress.output;	
 	compress_options=( -c --best --force -v "$file" );
 	if $compress_debug; then
 		console.info "${executables[gzip]} %s 1>| %s" "${compress_options[*]}" "$out";
@@ -286,7 +291,7 @@ function __compress.inflate {
 	local nm name compress_options results;
 	fs.basename "$file" "nm";
 	fs.basename "$out" "name";
-	
+	__compress.output;
 	compress_options=( -c -v "$file" );
 	
 	if $compress_debug; then
@@ -340,6 +345,15 @@ function __compress.print {
 		size=" ${size[0]}";
 	fi
 	console.log "${file}%s" "$size";
+}
+
+# massage $out depending upon the --output and --dir options
+function __compress.output {
+	if [ -n "$compress_output" ]; then
+		# TODO: take --dir into account
+		out="${compress_output}/$name";
+		echo "set output to $out";
+	fi
 }
 
 # parse command line options
