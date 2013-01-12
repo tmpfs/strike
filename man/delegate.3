@@ -28,9 +28,9 @@ Suppose you had a \fBsay\fR module with the following code:
 .nf
 
 # allow delegation for this module
-declare \-g delegate=true;
+declare delegate=true;
 
-declare \-gx say_greeting="world";
+declare say_greeting="world";
 say\.hello() {
     console\.info "hello %s" "$say_greeting";
 }
@@ -70,7 +70,7 @@ say hello && say goodbye;
 .IP "" 0
 .
 .SH "BUGS"
-\fBdelegate\fR is written in bash and depends upon \fBbash\fR >= 4.2\.
+\fBdelegate\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
 .
 .SH "COPYRIGHT"
 \fBdelegate\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR

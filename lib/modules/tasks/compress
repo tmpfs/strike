@@ -47,7 +47,7 @@ In your tasks(7) file `require` the `compress` task(s) using:
 	
 * `-e | --exclude`:
 
-	Pattern(s) that when matched against a file name will cause it to be excluded. Must be a valid extended regular expression, see ere(7). Repeatable. If include and exclude pattern(s) are specified that match both match a file name the file will be excluded.
+	Pattern(s) that when matched against a file name will cause it to be excluded. Must be a valid extended regular expression, see ere(7). Repeatable. If include and exclude pattern(s) are specified that both match a file name the file will be excluded.
 	
 * `--noop`:
 

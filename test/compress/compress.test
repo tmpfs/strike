@@ -170,6 +170,17 @@ function test.compress.cx.pattern {
 	result=( $( "$program" $cmd "${files[@]}" "${ptnfiles[@]}" ) );
 	assert.eq "3" "${#result[@]}";
 	
+	# include just .txt and .js file(s)
+	# with multiple patterns
+	cmd="-c --noop --include \.js$ --include \.txt$";
+	result=( $( "$program" $cmd "${files[@]}" "${ptnfiles[@]}" ) );
+	assert.eq "3" "${#result[@]}";
+	
+	# just exclude the .css file
+	cmd="-c --noop --exclude \.css$";
+	result=( $( "$program" $cmd "${files[@]}" "${ptnfiles[@]}" ) );
+	assert.eq "3" "${#result[@]}";	
+	
 	# echo "got result: ${!result[@]} : ${result[@]}";
 	
 	# clean pattern matching test file(s)

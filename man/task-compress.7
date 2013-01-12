@@ -10,7 +10,7 @@
 Compression task(s) for bake(1)\.
 .
 .SH "DESCRIPTION"
-Compresses file(s) using gzip(1)\. This task is used to compress regular files, if you wish to compress directories use task\-archive(7)\.
+Compresses file(s) using gzip(1) and gunzip(1)\. This task is used to compress regular files, if you wish to compress directories use task\-archive(7)\. The primary difference between gzip(1) and task\-compress(7) is that source files or compressed files are maintained on disc by default\. This is useful for web applications that wish to inspect an \fIAccept\-Encoding\fR header and serve the appropriate file\.
 .
 .SH "REQUIRE"
 In your tasks(7) file \fBrequire\fR the \fBcompress\fR task(s) using:
@@ -29,39 +29,32 @@ require \'tasks/compress\';
 .
 .nf
 
-bake \-c [options\.\.\.] [files\.\.\.]
-bake \-u [options\.\.\.] [files\.\.\.]
-bake \-l [options\.\.\.] [files\.\.\.]
+bake compress \-c [options\.\.\.] [files\.\.\.]
+bake compress \-x [options\.\.\.] [files\.\.\.]
 .
 .fi
 .
 .SH "COMMANDS"
 .
 .TP
-\fB\-c | compress\fR:
+\fB\-c | create\fR:
 .
 .IP
-Deflate file(s)\. This command creates a file with the same name as the source file appended with a \fBgz\fR file extension\. By default the original file is maintained, if you wish to overwrite the file(s) use the \fB\-\-overwrite\fR option\.
+Deflate file(s)\. This command creates a file with the same name as the source file appended with a \fBgz\fR file extension\. By default the original file is maintained, if you wish to delete the file(s) use the \fB\-\-delete\fR option\.
 .
 .TP
-\fB\-u | uncompress\fR:
+\fB\-x | extract\fR:
 .
 .IP
 Inflate compressed file(s)\.
 .
-.TP
-\fB\-l | list\fR:
-.
-.IP
-List file(s) that would be matched with the current command options\.
-.
 .SH "OPTIONS"
 .
 .TP
-\fB\-o | \-\-overwrite\fR:
+\fB\-d | \-\-delete\fR:
 .
 .IP
-The default behaviour is to keep the source files, specify this flag if you wish to overwrite the source files\.
+The default behaviour is to keep the source files, specify this flag if you wish to delete the source files\. This mimics the default behaviour of gzip(1) and gunzip(1) whereby source files are deleted when deflating and compressed files are deleted when inflating\.
 .
 .TP
 \fB\-r | \-\-recursive\fR:
@@ -69,8 +62,32 @@ The default behaviour is to keep the source files, specify this flag if you wish
 .IP
 Recurse into sub\-directories\.
 .
+.TP
+\fB\-i | \-\-include\fR:
+.
+.IP
+Pattern(s) that a file name must match to be included\. Must be a valid extended regular expression, see ere(7)\. Repeatable\.
+.
+.TP
+\fB\-e | \-\-exclude\fR:
+.
+.IP
+Pattern(s) that when matched against a file name will cause it to be excluded\. Must be a valid extended regular expression, see ere(7)\. Repeatable\. If include and exclude pattern(s) are specified that both match a file name the file will be excluded\.
+.
+.TP
+\fB\-\-noop\fR:
+.
+.IP
+Do not perform any action, print information about the source and/or compressed files\. The \fB\-\-debug\fR option has no effect when this option is specified\.
+.
+.TP
+\fB\-\-debug\fR:
+.
+.IP
+Print the commands being executed\.
+.
 .SH "BUGS"
-\fBtask\-compress\fR is written in bash and depends upon \fBbash\fR >= 4.2\.
+\fBtask\-compress\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
 .
 .SH "COPYRIGHT"
 \fBtask\-compress\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
