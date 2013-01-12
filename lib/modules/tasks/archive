@@ -47,7 +47,7 @@ In your tasks(7) file `require` the `archive` task(s) using:
 
 	The type of archive to operate on, if none is specified then task-archive(7) attempts to infer the type from the file extension. If the specified type is unknown the program will exit with a code >0.
 
-* `-d | --dir [directory]`:
+* `--dir [directory]`:
 
 	A working directory to resolve paths from, if none is specified then the current working directory is used.
 	
@@ -377,7 +377,7 @@ function __archive.parse {
 	# handle other options
 	while [ "${1:-}" != "" ]; do
 		case $1 in
-			 -d | --dir )
+			 --dir )
 				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then

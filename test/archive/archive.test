@@ -183,7 +183,7 @@ function test.archive.absolute {
 	!test.archive.path.test;
 }
 
-# test(s) to verify that the -d | --dir option
+# test(s) to verify that the --dir option
 # behaves as expected
 function test.archive.dir {
 	local program="tasks.archive";
