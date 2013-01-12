@@ -121,9 +121,7 @@ function tasks.latex {
 		# parse remaining options
 		__latex.parse "$@";
 		local opts=( $_result );
-		
 		__latex.defaults;
-		
 		delegate "ltx.${FUNCNAME}" "compile" "${opts[@]:-}";
 	else
 		__latex.defaults;
@@ -132,7 +130,10 @@ function tasks.latex {
 }
 
 function ltx.tasks.latex.compile {
-	echo "$FUNCNAME : $*";
+	if [ -z "$1" ]; then
+		shift;
+	fi
+	echo "$FUNCNAME : $* : $#";
 	# just the output format specified
 	# pass on to the all behaviour
 	if [ $# -eq 0 ]; then
@@ -145,7 +146,7 @@ function ltx.tasks.latex.compile {
 # compile everything we find in doc/latex
 # to ${target}
 function ltx.tasks.latex.all {
-	#echo "$FUNCNAME";
+	echo "$FUNCNAME";
 	__latex.files.get;
 	if [ ${#latex_files[@]} -eq 0 ]; then
 		console.quit 1 "no %s files in %s" ".tex" "$latex_default_dir";
@@ -170,6 +171,7 @@ function __latex.defaults {
 		mkdir -p "$latex_output" || quit 1 "could not create latex output directory %s" "$latex_output";
 	fi
 	latex_options+=( "-output-directory=$latex_output" );
+	latex_options+=( "-output-format=$latex_output_format" );
 }
 
 function __latex.files.get {
