@@ -190,6 +190,46 @@ function test.compress.cx.pattern {
 	!test.compress.files.clean;	
 }
 
+# test recursive find functionality
+function test.compress.cx.recursive {
+	
+	# compress files relative to this test
+	local self result;
+	require.resolve "self";
+	local dir="${self[1]}";	
+	
+	# map between file name and file contents
+	# so we can also assert on file contents
+	# after decompression
+	declare -A entries;
+	
+	local nested="${dir}/nested";
+	local deep="${nested}/deep";
+	
+	local program="tasks.compress";
+	# just specify a directory
+	local cmd="-c --noop $nested";
+	
+	local files=(
+		"${dir}/lipsum.txt"
+		"${dir}/etiam.txt"
+	);
+	
+	# recreate test files
+	!test.compress.files.create 10;	
+	
+	# create the nested directory
+	# and move test files into it
+	mkdir -p "${deep}";
+	# move files into nested
+	mv "${files[@]}" "$nested";
+	# copy files into deep
+	cp $( find "$nested" -depth 1 -type f ) "${deep}";
+	
+	# clean up
+	rm -rf "${nested}";
+}
+
 ######################################################################
 #
 #	PRIVATE METHODS

@@ -112,6 +112,22 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# function list {
+# 	echo "$FUNCNAME: $*";
+# }
+# 
+# list a b c $( ls . );
+# 
+# exit 0;
+
+# function command_not_found_handle {
+# 	echo "$FUNCNAME: $*";
+# }
+
+#missing a b c d e f;
+
+#exit 0;
+
 # keys="c
 # b
 # a";

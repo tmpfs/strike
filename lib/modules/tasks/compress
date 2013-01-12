@@ -105,6 +105,9 @@ function tasks.compress {
 	# exclude patterns
 	local compress_exclude_patterns=();	
 	
+	# internal variable for recursion
+	local compress_depth=-1;
+	
 	# map of options to command names
 	declare -A commands;
 	commands=(
@@ -171,9 +174,18 @@ function __compress.files.get {
 	local skip="${1:-true}";
 	shift;
 	if [ -n "$callback" ]; then
+		: $((compress_depth++));
 		local file;
 		for file in "$@"
 			do
+				if [ -d "$file" ]; then
+					if ! $compress_recursive && [ $compress_depth -eq 0 ]; then
+						__compress.files.get "$callback" "$skip" $( find "$file" -depth 1 -type f );
+					elif $compress_recursive; then
+						__compress.files.get "$callback" "$skip" $( find "$file" -type f );
+					fi
+				fi
+				
 				# ignore .gz files when compressing
 				if $skip && [[ "$file" =~ \.gz$ ]]; then
 					continue;
