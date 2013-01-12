@@ -312,7 +312,24 @@ function test.compress.cx.recursive {
 	assert.eq "2" "${#result[@]}";
 	
 	# clean up from last test run
-	rm "${outputdir}/lipsum.txt" "${outputdir}/etiam.txt";	
+	rm "${outputdir}/lipsum.txt" "${outputdir}/etiam.txt";
+	
+	# recreate test files relative to this test
+	cmd="-c -r";
+	"$program" $cmd "$nested";
+	# extract and maintain directory structure
+	cmd="-x -r --dir ${dir} --output $outputdir";
+	"$program" $cmd "$nested";
+	# validate all the files exist in the correct structure
+	assert.file.exists? "${outputdir}/nested/lipsum.txt";
+	assert.file.exists? "${outputdir}/nested/etiam.txt";
+	assert.file.exists? "${outputdir}/nested/deep/lipsum.txt";
+	assert.file.exists? "${outputdir}/nested/deep/etiam.txt";
+	assert.file.exists? "${outputdir}/nested/deep/deeper/lipsum.txt";
+	assert.file.exists? "${outputdir}/nested/deep/deeper/etiam.txt";
+	
+	# clean up after test run
+	rm -rf "${outputdir}/nested";
 	
 	# clean up
 	rm -rf "${nested}";

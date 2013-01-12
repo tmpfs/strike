@@ -360,9 +360,25 @@ function __compress.print {
 # massage $out depending upon the --output and --dir options
 function __compress.output {
 	if [ -n "$compress_output" ]; then
-		# TODO: take --dir into account
-		out="${compress_output}/$name";
-		echo "set output to $out";
+		if [ -n "$compress_dir" ]; then
+			local parent;
+			fs.dirname "$out" "parent";
+			local relative="${parent#$compress_dir}";
+			if [ "$relative" == "$out" ]; then
+				console.warn "output file %s is not relative to %s" "$out" "$compress_dir";
+			fi
+			relative="${relative#/}";
+			relative="${compress_output}/${relative}";
+			relative="${relative%/}";			
+			if [ ! -d "$relative" ]; then
+				mkdir -p "$relative";
+			fi
+			out="${relative}/${name}";
+			# echo "set relative output to $out";
+		else
+			out="${compress_output}/$name";
+		fi
+		# echo "set output to $out";
 	fi
 }
 
