@@ -113,7 +113,7 @@ You may use the \'\-\' convention to specify that the file list should be read f
 .
 .nf
 
-ls \. | bake compress \-c \-;
+find \. \-depth 1 \-type f | bake compress \-c \-;
 .
 .fi
 .
