@@ -21,8 +21,6 @@ In your tasks(7) file `require` the `compress` task(s) using:
 	bake compress -c [options...] [files...]
 	bake compress -x [options...] [files...]
 	
-Note any files specified that do not exist are skipped from processing and a warning is printed.
-	
 ## COMMANDS
 
 * `-c | create`:
@@ -35,29 +33,35 @@ Note any files specified that do not exist are skipped from processing and a war
 	
 ## OPTIONS
 
-* `-o | --output`:
+* `-o | --output [directory]`:
 
 	An existing writable directory to place files in. When use in conjunction with the `create` command then the deflated files will be placed in this directory. When used in conjunction with the `extract` command then the inflated files will be placed in this directory. By default when this option is used the output is a flat structure, which means that if multiple files with the same name exist in the list of files being processed then the last one processed will overwrite any previously created file.
-
-* `-d | --delete`:
-
-	The default behaviour is to keep the source files, specify this flag if you wish to delete the source files. This mimics the default behaviour of gzip(1) and gunzip(1) whereby source files are deleted when deflating and compressed files are deleted when inflating.
 	
-* `-r | --recursive`:
+* `-d | --dir [directory]`:
 
-	Recurse into sub-directories. When this option is not specified and a directory is passed as a file then the contents of that directory are included in the list of files used for compression or extraction, but no sub-directories will be searched. Specify this option if you also wish to search sub-directories for files to compress.
+	The absolute path to the root directory where files are being resolved from. Use in conjunction with the `--output` and `--recursive` option so that files may be created with a directory structure that matches the source directory structure.
 	
-* `-i | --include`:
+* `-i | --include [pattern]`:
 
 	Pattern(s) that a file name must match to be included. Must be a valid extended regular expression, see ere(7). Repeatable. An exit code of 2 is used if a pattern is invalid.
 	
-* `-e | --exclude`:
+* `-e | --exclude [pattern]`:
 
 	Pattern(s) that when matched against a file name will cause it to be excluded. Must be a valid extended regular expression, see ere(7). Repeatable. If include and exclude pattern(s) are specified that both match a file name the file will be excluded. An exit code of 2 is used if a pattern is invalid.
+	
+## FLAG OPTIONS
+	
+* `-r | --recursive`:
+
+	Recurse into sub-directories. When this option is not specified and a directory is passed as a file then the contents of that directory are included in the list of files used for compression or extraction, but no sub-directories will be searched. Specify this option if you also wish to search sub-directories for files to deflate/inflate.
 	
 * `-v | --verbose`:
 
 	Output more information. When used in conjunction with the `create` and `extract` commands then this option will also include compression ratio information. When specified in conjunction with the `--noop` option the file size will be output after the file path.
+	
+* `--delete`:
+
+	The default behaviour is to keep the source files, specify this flag if you wish to delete the source files. This mimics the default behaviour of gzip(1) and gunzip(1) whereby source files are deleted when deflating and compressed files are deleted when inflating.
 	
 * `--noop`:
 
@@ -65,7 +69,13 @@ Note any files specified that do not exist are skipped from processing and a war
 	
 * `--debug`:
 
-	Print the commands being executed.
+	Print the commands being executed. This option has no effect when the `--noop` option is specified.
+	
+## NOTES
+
+Any files specified that *do not exist* are skipped from processing and a warning is printed.
+
+When the `create` command is executed files that end in the `.gz` file extension are automatically ignored.
 	
 ## EXIT CODES
 
@@ -90,7 +100,6 @@ Note any files specified that do not exist are skipped from processing and a war
 bake(1)
 ronn:markdown
 
-# TODO: implement --output option
 # TODO: implement --dir option for creating matching fs structure
 # TODO: allow file list to be read from stdin using - 
 
@@ -134,6 +143,12 @@ function tasks.compress {
 	
 	# an output directory when deflating/extracting
 	local compress_output="";
+	
+	# a base directory to use in conjunction
+	# with the --output and --recursive options
+	# so that output hierarchies can match
+	# input hierarchies
+	local compress_dir="";
 	
 	# map of options to command names
 	declare -A commands;
@@ -327,30 +342,9 @@ function __compress.inflate {
 	fi
 	# also touch the file to set modification time
 	# in case it already exists
-	touch "$out";
-	
-	# --list 
-	
-	# # gather result information
-	# local out="${results[${#results[@]}-1]}";
-	# unset results[${#results[@]}-1];
-	# local ratio="${results[${#results[@]}-1]}";
-	# unset results[${#results[@]}-1];
-	# local osize="${results[${#results[@]}-1]}";	
-	# unset results[${#results[@]}-1];
-	# local csize="${results[${#results[@]}-1]}";
-	# 
-	# local nm name;
-	# fs.basename "$file" "nm";
-	# fs.basename "$out" "name";	
-	# 
-	# if $compress_verbose; then
-	#  	console.info "%s < %s %s %s %s" "$name" "$nm" "$osize" "$csize" "$ratio";
-	# fi
-	
-	# # also touch the file to set modification time
-	# # in case it already exists
-	# touch "$out";
+	if [ -f "$out" ]; then	
+		touch "$out";
+	fi
 }
 
 # print file information
@@ -381,7 +375,7 @@ function __compress.parse {
 	# handle other options
 	while [ "${1:-}" != "" ]; do
 		case $1 in
-			-d | --delete )
+			--delete )
 				compress_delete=true;
 				;;
 			-r | --recursive )
@@ -401,8 +395,22 @@ function __compress.parse {
 				shift;
 				compress_exclude_patterns+=( "${1:-}" );
 				;;
+			-d | --dir )
+				shift;
+				value="${1:-}";
+				if [ -z "$value" ]; then
+					console.quit 1 "no directory specified for the %s option" "-d | --dir";
+				fi
+				if [ ! -d "$value" ]; then
+					console.quit 1 "%s not a directory" "$value";
+				fi
+				if [ ! -w "$value" ]; then
+					console.quit 1 "%s not writable" "$value";
+				fi
+				compress_dir="$value";
+				;;
 			-o | --output )
-			shift;
+				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then
 					console.quit 1 "no directory specified for the %s option" "-o | --output";

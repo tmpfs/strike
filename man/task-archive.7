@@ -71,7 +71,7 @@ Tests a specified task\-archive(7) command to determine the archive type and res
 The type of archive to operate on, if none is specified then task\-archive(7) attempts to infer the type from the file extension\. If the specified type is unknown the program will exit with a code >0\.
 .
 .TP
-\fB\-\-dir [directory]\fR:
+\fB\-d | \-\-dir [directory]\fR:
 .
 .IP
 A working directory to resolve paths from, if none is specified then the current working directory is used\.
@@ -81,6 +81,8 @@ A working directory to resolve paths from, if none is specified then the current
 .
 .IP
 When creating archives this is a directory to place the created archives in, when extracting archives this option determines where extracted archive contents will be placed\. Must be a valid directory\.
+.
+.SH "FLAG OPTIONS"
 .
 .TP
 \fB\-\-debug\fR:
