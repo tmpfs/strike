@@ -71,15 +71,17 @@ In your tasks(7) file `require` the `compress` task(s) using:
 
 	Print the commands being executed. This option has no effect when the `--noop` option is specified.
 	
-## NOTES
+## STDIN
 
 You may use the '-' convention to specify that the file list should be read from stdin. For example to compress all the files in the current directory:
 
-	ls . | bake compress -c -;
+	find . -depth 1 -type f | bake compress -c -;
 	
 In addition, you can combine reading a file list from stdin with files specified after the '-', for example to compress all files with a .css file extension in the ./css directory and a file named README in the current working directory:
 
 	find ./css -depth 1 -name *.css | bake compress -c - README;
+	
+## NOTES	
 
 Any files specified that *do not exist* are skipped from processing and a warning is printed.
 
@@ -87,13 +89,11 @@ When the `create` command is executed files that end in the `.gz` file extension
 	
 ## EXIT CODES
 
-	A >0 exit code indicates failure while a 0 exit code indicates success.
-	
-	If any file is encountered that is not a regular file (determined using
-	the -f file test operator) then the exit code is >0.
-	
-	Exit code 2 is used when an invalid pattern is specified using either
-	the --include or --exclude option.
+A >0 exit code indicates failure while a 0 exit code indicates success.
+
+If any file is encountered that is not a regular file (determined using the -f file test operator) then the exit code is >0.
+
+If an invalid pattern is specified using either the --include or --exclude option then an exit code of 2 is used.
 
 ## BUGS
 

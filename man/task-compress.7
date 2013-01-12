@@ -106,6 +106,32 @@ Do not perform any action, print information about the source and/or compressed 
 .IP
 Print the commands being executed\. This option has no effect when the \fB\-\-noop\fR option is specified\.
 .
+.SH "STDIN"
+You may use the \'\-\' convention to specify that the file list should be read from stdin\. For example to compress all the files in the current directory:
+.
+.IP "" 4
+.
+.nf
+
+ls \. | bake compress \-c \-;
+.
+.fi
+.
+.IP "" 0
+.
+.P
+In addition, you can combine reading a file list from stdin with files specified after the \'\-\', for example to compress all files with a \.css file extension in the \./css directory and a file named README in the current working directory:
+.
+.IP "" 4
+.
+.nf
+
+find \./css \-depth 1 \-name *\.css | bake compress \-c \- README;
+.
+.fi
+.
+.IP "" 0
+.
 .SH "NOTES"
 Any files specified that \fIdo not exist\fR are skipped from processing and a warning is printed\.
 .
@@ -113,18 +139,13 @@ Any files specified that \fIdo not exist\fR are skipped from processing and a wa
 When the \fBcreate\fR command is executed files that end in the \fB\.gz\fR file extension are automatically ignored\.
 .
 .SH "EXIT CODES"
-.
-.nf
-
 A >0 exit code indicates failure while a 0 exit code indicates success\.
-
-If any file is encountered that is not a regular file (determined using
-the \-f file test operator) then the exit code is >0\.
-
-Exit code 2 is used when an invalid pattern is specified using either
-the \-\-include or \-\-exclude option\.
 .
-.fi
+.P
+If any file is encountered that is not a regular file (determined using the \-f file test operator) then the exit code is >0\.
+.
+.P
+If an invalid pattern is specified using either the \-\-include or \-\-exclude option then an exit code of 2 is used\.
 .
 .SH "BUGS"
 \fBtask\-compress\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
