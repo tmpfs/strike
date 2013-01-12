@@ -184,6 +184,7 @@ function __compress.files.get {
 					elif $compress_recursive; then
 						__compress.files.get "$callback" "$skip" $( find "$file" -type f );
 					fi
+					continue;
 				fi
 				
 				# ignore .gz files when compressing

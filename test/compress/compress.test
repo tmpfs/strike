@@ -190,7 +190,7 @@ function test.compress.cx.pattern {
 	!test.compress.files.clean;	
 }
 
-# test recursive find functionality
+# test recursive functionality
 function test.compress.cx.recursive {
 	
 	# compress files relative to this test
@@ -205,10 +205,10 @@ function test.compress.cx.recursive {
 	
 	local nested="${dir}/nested";
 	local deep="${nested}/deep";
+	local deeper="${deep}/deeper";
 	
 	local program="tasks.compress";
-	# just specify a directory
-	local cmd="-c --noop $nested";
+	local cmd="-c --noop";
 	
 	local files=(
 		"${dir}/lipsum.txt"
@@ -220,11 +220,31 @@ function test.compress.cx.recursive {
 	
 	# create the nested directory
 	# and move test files into it
-	mkdir -p "${deep}";
+	mkdir -p "${deeper}";
 	# move files into nested
 	mv "${files[@]}" "$nested";
-	# copy files into deep
+	# copy files into deep and deeper
 	cp $( find "$nested" -depth 1 -type f ) "${deep}";
+	cp $( find "$nested" -depth 1 -type f ) "${deeper}";
+	
+	# first command should only list files in ${dir}/nested
+	result=( $( "$program" $cmd "$nested" ) );
+	assert.eq "2" "${#result[@]}";
+	
+	# add recursive option to find all files from ${nested}
+	cmd="-c --noop -r";
+	result=( $( "$program" $cmd "$nested" ) );
+	assert.eq "6" "${#result[@]}";
+	
+	# use recursive option with an --include pattern 
+	cmd="-c --noop -r -i ^e";
+	result=( $( "$program" $cmd "$nested" ) );
+	assert.eq "3" "${#result[@]}";
+	
+	# use recursive option with an --exclude pattern 
+	cmd="-c --noop -r -e ^lipsum";
+	result=( $( "$program" $cmd "$nested" ) );
+	assert.eq "3" "${#result[@]}";
 	
 	# clean up
 	rm -rf "${nested}";
