@@ -112,6 +112,15 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# ptn="[^]\+?\s??.?";
+# 
+# [[ "abc" =~ $ptn ]] && {
+# 	echo "pattern ok!";
+# 	exit 0;
+# }
+# echo "ptn exit: $?";
+# exit 0;
+
 # function list {
 # 	echo "$FUNCNAME: $*";
 # }

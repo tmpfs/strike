@@ -56,6 +56,10 @@ In your tasks(7) file `require` the `compress` task(s) using:
 * `--debug`:
 
 	Print the commands being executed.
+	
+## EXIT CODES
+
+	A >0 exit code indicates failure while a 0 exit code indicates success. Exit code 2 is used when an invalid pattern is specified using either the --include or --exclude option.
 
 ## BUGS
 
@@ -212,9 +216,8 @@ function __compress.files.include? {
 		for ptn in ${compress_exclude_patterns[@]}
 			do
 				# matches an exclude pattern
-				if [[ "$name" =~ $ptn ]]; then
-					return 1;
-				fi
+				[[ "$name" =~ $ptn ]] && { return 1; }
+				if [ $? -eq 2 ]; then __compress.invalid.pattern; fi
 		done
 	fi
 	
@@ -222,9 +225,8 @@ function __compress.files.include? {
 		for ptn in ${compress_include_patterns[@]}
 			do
 				# matches an include pattern
-				if [[ "$name" =~ $ptn ]]; then
-					return 0;
-				fi
+				[[ "$name" =~ $ptn ]] && { return 0; }
+				if [ $? -eq 2 ]; then __compress.invalid.pattern; fi
 		done
 	fi
 	
@@ -371,6 +373,10 @@ function __compress.parse {
 
 	# return remaining options back
 	_result="${options[@]:-}";
+}
+
+function __compress.invalid.pattern {
+	console.quit 2 "invalid pattern %s" "$ptn";
 }
 
 function __compress.missing.files {

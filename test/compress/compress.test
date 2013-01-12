@@ -183,6 +183,16 @@ function test.compress.cx.pattern {
 	
 	# echo "got result: ${!result[@]} : ${result[@]}";
 	
+	# test for invalid pattern(s)
+	local invalid="[^]\+?\s??.?"
+	cmd="-c --noop -e $invalid";
+	"$program" $cmd "${files[@]}" "${ptnfiles[@]}" & wait %%;
+	assert.gt "0" "$?";
+	
+	cmd="-c --noop -i $invalid";
+	"$program" $cmd "${files[@]}" "${ptnfiles[@]}" & wait %%;
+	assert.gt "0" "$?";
+	
 	# clean pattern matching test file(s)
 	rm "${dir}/test.js" "${dir}/test.css";
 	
