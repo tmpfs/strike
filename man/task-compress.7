@@ -104,6 +104,9 @@ Print the commands being executed\.
 
 A >0 exit code indicates failure while a 0 exit code indicates success\.
 
+If any file is encountered that is not a regular file (determined using
+the \-f file test flag) then the exit code is >0\.
+
 Exit code 2 is used when an invalid pattern is specified using either
 the \-\-include or \-\-exclude option\.
 .

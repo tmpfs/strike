@@ -69,6 +69,9 @@ In your tasks(7) file `require` the `compress` task(s) using:
 
 	A >0 exit code indicates failure while a 0 exit code indicates success.
 	
+	If any file is encountered that is not a regular file (determined using
+	the -f file test flag) then the exit code is >0.
+	
 	Exit code 2 is used when an invalid pattern is specified using either
 	the --include or --exclude option.
 
@@ -221,6 +224,11 @@ function __compress.files.get {
 				if ! __compress.files.include? "$file"; then
 					continue;
 				fi
+				
+				if [ ! -f "$file" ]; then
+					console.quit 1 "invalid file %s" "$f";
+				fi
+				
 				"$callback";
 		done
 	fi
