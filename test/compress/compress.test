@@ -331,6 +331,20 @@ function test.compress.cx.recursive {
 	# clean up after test run
 	rm -rf "${outputdir}/nested";
 	
+	# inverse test for creating .gz files and maintaining the directory hierarchy
+	cmd="-c -r --dir ${dir} --output $outputdir";
+	"$program" $cmd "$nested";
+	# validate all the files exist in the correct structure
+	assert.file.exists? "${outputdir}/nested/lipsum.txt.gz";
+	assert.file.exists? "${outputdir}/nested/etiam.txt.gz";
+	assert.file.exists? "${outputdir}/nested/deep/lipsum.txt.gz";
+	assert.file.exists? "${outputdir}/nested/deep/etiam.txt.gz";
+	assert.file.exists? "${outputdir}/nested/deep/deeper/lipsum.txt.gz";
+	assert.file.exists? "${outputdir}/nested/deep/deeper/etiam.txt.gz";
+	
+	# clean up after test run
+	rm -rf "${outputdir}/nested";
+	
 	# clean up
 	rm -rf "${nested}";
 	
