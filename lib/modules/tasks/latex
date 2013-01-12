@@ -106,6 +106,8 @@ function tasks.latex {
 	# list of source files
 	local latex_files=();
 	
+	local latex_output="";
+	
 	# do command procesing via delegation
 	if [ $# -gt 0 ]; then
 		local cmd="${1:-}";
@@ -119,8 +121,12 @@ function tasks.latex {
 		# parse remaining options
 		__latex.parse "$@";
 		local opts=( $_result );
+		
+		__latex.defaults;
+		
 		delegate "ltx.${FUNCNAME}" "compile" "${opts[@]:-}";
 	else
+		__latex.defaults;
 		ltx.tasks.latex.all;
 	fi
 }
@@ -154,6 +160,18 @@ function ltx.tasks.latex.all {
 #
 ######################################################################
 
+# configures default options
+function __latex.defaults {
+	if [ -z "$latex_output" ]; then
+		latex_output="${target}/$latex_output_format";
+	fi
+	#echo "using output $latex_output";
+	if [ ! -d "$latex_output" ]; then
+		mkdir -p "$latex_output" || quit 1 "could not create latex output directory %s" "$latex_output";
+	fi
+	latex_options+=( "-output-directory=$latex_output" );
+}
+
 function __latex.files.get {
 	local dir="${1:-$latex_default_dir}";
 	if [ -d "$dir" ]; then
@@ -172,7 +190,9 @@ function __latex.compile.all {
 
 # attempts to compile a single .tex source file
 function __latex.compile {
-	echo "$FUNCNAME : $file";
+	console.log "${executables[pdflatex]} ${latex_options[@]:-} %s" "$file";
+	# TODO: quote options passed to latex to allow spaces in file paths
+	"${executables[pdflatex]}" "${latex_options[@]:-}" "$file";
 }
 
 # parse command line options
