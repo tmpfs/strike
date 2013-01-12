@@ -28,7 +28,7 @@ In your tasks(7) file `require` the `latex` task(s) using:
 
 * `pdf`:
 
-	Sets the output format to pdf.
+	Sets the output format to pdf. This is the default output format used.
 	
 * `dvi`:
 
