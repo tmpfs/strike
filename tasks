@@ -3,6 +3,7 @@ require 'tasks/archive';
 require 'tasks/todo';
 require 'tasks/project';
 require 'tasks/compress';
+require 'tasks/latex';
 
 # external build tool wrappers
 # used for testing purposes

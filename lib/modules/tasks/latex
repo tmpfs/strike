@@ -1,0 +1,257 @@
+: <<'ronn:markdown'
+task-latex(7) -- latex task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+Latex task(s) for bake(1).
+
+## DESCRIPTION
+
+Compile `.tex` source files to `.pdf` or `.dvi` files. When no options are specified this task searches the `doc/latex` directory relative to the tasks(7) file and compiles all `.tex` files found into `.pdf` files within the `${target}` for the project.
+
+Any option not recognised by this task is passed to pdflatex(1) so that you may set more advanced compilation options.
+
+In addition, this task will change into the directory containing the source `.tex` file so that graphics or any other external files can be resolved relative to the `.tex` file without specifying `\\graphicspath` or other similar macros that may be required to resolve external files.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `latex` task(s) using:
+
+	require 'tasks/latex';
+
+## USAGE
+
+	bake latex [pdf|dvi] [options...] [files...]
+	
+## COMMANDS
+
+* `pdf`:
+
+	Sets the output format to pdf.
+	
+* `dvi`:
+
+	Sets the output format to dvi.
+	
+## DEPENDENCIES
+
+pdflatex(1), find(1)
+
+## BUGS
+
+This task does not support passing commands after the file specification to pdflatex(1).
+
+**task-latex** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-latex** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+ronn:markdown
+
+# -draftmode              switch on draft mode (generates no output PDF)
+# -enc                    enable encTeX extensions such as \mubyte
+# -etex                   enable e-TeX extensions
+# [-no]-file-line-error   disable/enable file:line:error style messages
+# -fmt=FMTNAME            use FMTNAME instead of program name or a %& line
+# -halt-on-error          stop processing at the first error
+# -ini                    be pdfinitex, for dumping formats; this is implicitly
+#                           true if the program name is `pdfinitex'
+# -interaction=STRING     set interaction mode (STRING=batchmode/nonstopmode/
+#                           scrollmode/errorstopmode)
+# -ipc                    send DVI output to a socket as well as the usual
+#                           output file
+# -ipc-start              as -ipc, and also start the server at the other end
+# -jobname=STRING         set the job name to STRING
+# -kpathsea-debug=NUMBER  set path searching debugging flags according to
+#                           the bits of NUMBER
+# [-no]-mktex=FMT         disable/enable mktexFMT generation (FMT=tex/tfm/pk)
+# -mltex                  enable MLTeX extensions such as \charsubdef
+# -output-comment=STRING  use STRING for DVI file comment instead of date
+#                           (no effect for PDF)
+# -output-directory=DIR   use DIR as the directory to write files to
+# -output-format=FORMAT   use FORMAT for job output; FORMAT is `dvi' or `pdf'
+# [-no]-parse-first-line  disable/enable parsing of the first line of the
+#                           input file
+# -progname=STRING        set program (and fmt) name to STRING
+# -recorder               enable filename recorder
+# [-no]-shell-escape      disable/enable \write18{SHELL COMMAND}
+# -shell-restricted       enable restricted \write18
+# -src-specials           insert source specials into the DVI file
+# -src-specials=WHERE     insert source specials in certain places of
+#                           the DVI file. WHERE is a comma-separated value
+#                           list: cr display hbox math par parend vbox
+# -synctex=NUMBER         generate SyncTeX data for previewers if nonzero
+# -translate-file=TCXNAME use the TCX file TCXNAME
+# -8bit                   make all characters printable by default
+# -help                   display this help and exit
+# -version                output version information and exit
+
+function tasks.latex {
+	executable.validate pdflatex;
+	
+	# default directory used to search for files
+	local latex_default_dir="./doc/latex";
+	
+	# default output format
+	local latex_output_format="pdf";
+	
+	# options passed to pdflatex(1)
+	local latex_options=();
+	
+	# list of source files
+	local latex_files=();
+	
+	# do command procesing via delegation
+	if [ $# -gt 0 ]; then
+		local cmd="${1:-}";
+
+		if [ "$cmd" == "pdf" ] || [ "$cmd" == "dvi" ]; then
+			# remove the command option
+			shift;
+			latex_output_format="$cmd";
+		fi
+		
+		# parse remaining options
+		__latex.parse "$@";
+		local opts=( $_result );
+		delegate "ltx.${FUNCNAME}" "compile" "${opts[@]:-}";
+	else
+		ltx.tasks.latex.all;
+	fi
+}
+
+function ltx.tasks.latex.compile {
+	echo "$FUNCNAME : $*";
+	# just the output format specified
+	# pass on to the all behaviour
+	if [ $# -eq 0 ]; then
+		ltx.tasks.latex.all;
+	else
+		__latex.compile;
+	fi
+}
+
+# compile everything we find in doc/latex
+# to ${target}
+function ltx.tasks.latex.all {
+	#echo "$FUNCNAME";
+	__latex.files.get;
+	if [ ${#latex_files[@]} -eq 0 ]; then
+		console.quit 1 "no %s files in %s" ".tex" "$latex_default_dir";
+	else
+		__latex.compile.all;
+	fi
+}
+
+######################################################################
+#
+#	PRIVATE METHODS
+#
+######################################################################
+
+function __latex.files.get {
+	local dir="${1:-$latex_default_dir}";
+	if [ -d "$dir" ]; then
+		latex_files+=( $( find "$dir" -name *.tex ) );
+	fi
+}
+
+# attempts to compile multiple .tex files
+function __latex.compile.all {
+	local file;
+	for file in "${latex_files[@]}"
+		do
+			__latex.compile "$file";
+	done
+}
+
+# attempts to compile a single .tex source file
+function __latex.compile {
+	echo "$FUNCNAME : $file";
+}
+
+# parse command line options
+function __latex.parse {
+	# unprocessed options
+	local options=();
+	
+	# listing the pdflatex options
+	# allows us to add our own options
+	# and validate the options parsed before
+	# invoking pdflatex, will need a resync
+	# when new versions of pdflatex are released
+	# the boolean value indicates whether the pdflatex
+	# option expects a value using the = operator
+	declare -A latex_options=(
+		[-draftmode]=false
+		[-enc]=false
+		[-etex]=false
+		[file-line-error]=false
+		[-no-file-line-error]=false
+		[-fmt]=true
+		[-halt-on-error]=false
+		[-ini]=false
+		[-interaction]=true
+		[-ipc]=false
+		[-ipc-start]=false
+		[-jobname]=true
+		[-kpathsea-debug]=true
+		[mktex]=true
+		[-no-mktex]=true		
+		[-mltex]=false
+		[-output-comment]=true
+		[-output-directory]=true
+		[-output-format]=true
+		[-no-parse-first-line]=false
+		[-progname]=true
+		[-recorder]=false
+		[-shell-escape]=false
+		[-no-shell-escape]=false
+		[-shell-restricted]=false
+		[-src-specials]=false
+		[-src-specials]=true
+		[-synctex]=true
+		[-translate-file]=true
+		[-8bit]=false
+	);
+
+	# unsupported pdflatex(1) options
+	# -help
+	# -version
+	
+	local value;
+	# handle other options
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+			-o | --output )
+				shift;
+				value="${1:-}";
+				if [ -z "$value" ]; then
+					console.quit 1 "no directory specified for the %s option" "-o | --output";
+				fi
+				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
+					console.quit 1 "invalid output directory %s" "$value";
+				fi
+				# remove any trailing slash
+				value="${value%/}";
+				latex_output="$value";
+				;;						
+			* )
+				options+=( "$1" );
+				;;
+		esac
+		if [ $# -ne 0 ]; then
+			shift;
+		else
+			break;
+		fi
+	done
+
+	# return remaining options back
+	_result="${options[@]:-}";
+}

@@ -28,6 +28,7 @@ unzip(1)		http://man.cx/unzip(1)
 compress(1)		http://man.cx/compress(1)
 gzip(1)			http://man.cx/gzip(1)
 gunzip(1)		http://man.cx/gunzip(1)
+pdflatex(1)		http://man.cx/pdflatex(1)
 
 # other external links
 git(1)			http://git-scm.com/
