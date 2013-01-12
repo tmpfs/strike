@@ -208,8 +208,6 @@ function __compress.files.include? {
 	if [ ${#compress_include_patterns[@]} -gt 0 ]; then
 		for ptn in ${compress_include_patterns[@]}
 			do
-				# echo "testing against include pattern: $ptn";
-				
 				# matches an include pattern
 				if [[ "$name" =~ $ptn ]]; then
 					return 0;
@@ -217,9 +215,9 @@ function __compress.files.include? {
 		done
 	fi
 	
-	# got some include patterns and no exclude patterns
-	# so it must match the include pattern to be included
-	if [ ${#compress_exclude_patterns[@]} -eq 0 ] && [ ${#compress_include_patterns[@]} -gt 0 ]; then
+	# got some include patterns and matching failed
+	# we don't include it
+	if [ ${#compress_include_patterns[@]} -gt 0 ]; then
 		return 1;
 	fi
 	

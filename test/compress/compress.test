@@ -116,32 +116,64 @@ function test.compress.cx {
 	done
 	
 	# clean up again
-	!test.compress.files.clean;	
+	!test.compress.files.clean;		
+}
+
+# test pattern matching
+function test.compress.cx.pattern {
+	
+	# compress files relative to this test
+	local self result;
+	require.resolve "self";
+	local dir="${self[1]}";	
+	
+	# map between file name and file contents
+	# so we can also assert on file contents
+	# after decompression
+	declare -A entries;
+	
+	local program="tasks.compress";
+	local cmd="";
+	
+	local files=(
+		"${dir}/lipsum.txt"
+		"${dir}/etiam.txt"
+	);	
 	
 	# recreate test files
 	!test.compress.files.create 10;	
 	
+	local ptnfiles=(
+		"${dir}/test.js"
+		"${dir}/test.css"
+	);
+	
 	# create file(s) that should never be matched
-	touch "${dir}/test.js";
+	touch "${ptnfiles[@]}";
 	
 	# test pattern matching
 	
 	# match the .txt files only
 	cmd="-c --noop --include (\.txt)$";
-	result=( $( "$program" $cmd "${files[@]}" ) );
+	result=( $( "$program" $cmd "${files[@]}" "${ptnfiles[@]}" ) );
 	assert.eq "2" "${#result[@]}";
 	assert.equal "${files[*]}" "${result[*]}";
 	
 	# match both .txt files (not the .js file)
 	# and then skip etiam.txt with the --exclude pattern
 	cmd="-c --noop --include (\.txt)$ --exclude ^e";
-	result=( $( "$program" $cmd "${files[@]}" ) );
+	result=( $( "$program" $cmd "${files[@]}" "${ptnfiles[@]}" ) );	
 	assert.eq "1" "${#result[@]}";
+	
+	# include just .txt and .js file(s)
+	cmd="-c --noop --include \.(txt|js)$";
+	result=( $( "$program" $cmd "${files[@]}" "${ptnfiles[@]}" ) );
+	assert.eq "3" "${#result[@]}";
 	
 	# echo "got result: ${!result[@]} : ${result[@]}";
 	
 	# clean pattern matching test file(s)
-	rm "${dir}/test.js";
+	rm "${dir}/test.js" "${dir}/test.css";
 	
 	# clean up again
 	!test.compress.files.clean;	
