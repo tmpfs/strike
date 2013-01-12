@@ -8,7 +8,7 @@ Compression task(s) for bake(1).
 
 ## DESCRIPTION
 
-Compresses file(s) using gzip(1) and gunzip(1). This task is used to compress regular files, if you wish to compress directories use task-archive(7). The primary difference between gzip(1) and task-compress(7) is that source files or compressed files are maintained on disc by default. This is useful for web applications that wish to inspect an *Accept-Encoding* header and serve the appropriate file.
+Deflate and inflate file(s) using gzip(1) and gunzip(1). This task is used to compress regular files, if you wish to compress directories use task-archive(7). The primary difference between gzip(1) and task-compress(7) is that source files or compressed files are maintained on disc by default. This is useful for web applications that wish to inspect an *Accept-Encoding* header and serve the appropriate file.
 
 ## REQUIRE
 
@@ -33,21 +33,29 @@ In your tasks(7) file `require` the `compress` task(s) using:
 	
 ## OPTIONS
 
+* `-o | --output`:
+
+	An existing writable directory to place files in. When use in conjunction with the `create` command then the deflated files will be placed in this directory. When used in conjunction with the `extract` command then the inflated files will be placed in this directory. By default when this option is used the output is a flat structure, which means that if multiple files with the same name exist in the list of files being processed then the last one processed will overwrite any previously created file.
+
 * `-d | --delete`:
 
 	The default behaviour is to keep the source files, specify this flag if you wish to delete the source files. This mimics the default behaviour of gzip(1) and gunzip(1) whereby source files are deleted when deflating and compressed files are deleted when inflating.
 	
 * `-r | --recursive`:
 
-	Recurse into sub-directories.
+	Recurse into sub-directories. When this option is not specified and a directory is passed as a file then the contents of that directory are included in the list of files used for compression or extraction, but no sub-directories will be searched. Specify this option if you also wish to search sub-directories for files to compress.
 	
 * `-i | --include`:
 
-	Pattern(s) that a file name must match to be included. Must be a valid extended regular expression, see ere(7). Repeatable.
+	Pattern(s) that a file name must match to be included. Must be a valid extended regular expression, see ere(7). Repeatable. An exit code of 2 is used if a pattern is invalid.
 	
 * `-e | --exclude`:
 
-	Pattern(s) that when matched against a file name will cause it to be excluded. Must be a valid extended regular expression, see ere(7). Repeatable. If include and exclude pattern(s) are specified that both match a file name the file will be excluded.
+	Pattern(s) that when matched against a file name will cause it to be excluded. Must be a valid extended regular expression, see ere(7). Repeatable. If include and exclude pattern(s) are specified that both match a file name the file will be excluded. An exit code of 2 is used if a pattern is invalid.
+	
+* `-v | --verbose`:
+
+	Output more information. When used in conjunction with the `create` and `extract` commands then this option will also include compression ratio information. When specified in conjunction with the `--noop` option the file size will be output after the file path.
 	
 * `--noop`:
 
@@ -59,7 +67,10 @@ In your tasks(7) file `require` the `compress` task(s) using:
 	
 ## EXIT CODES
 
-	A >0 exit code indicates failure while a 0 exit code indicates success. Exit code 2 is used when an invalid pattern is specified using either the --include or --exclude option.
+	A >0 exit code indicates failure while a 0 exit code indicates success.
+	
+	Exit code 2 is used when an invalid pattern is specified using either
+	the --include or --exclude option.
 
 ## BUGS
 
@@ -107,10 +118,13 @@ function tasks.compress {
 	local compress_include_patterns=();
 	
 	# exclude patterns
-	local compress_exclude_patterns=();	
+	local compress_exclude_patterns=();
 	
 	# internal variable for recursion
 	local compress_depth=-1;
+	
+	# an output directory when deflating/extracting
+	local compress_output="";
 	
 	# map of options to command names
 	declare -A commands;
@@ -356,7 +370,20 @@ function __compress.parse {
 			-e | --exclude )
 				shift;
 				compress_exclude_patterns+=( "${1:-}" );
-				;;				
+				;;
+			-o | --output )
+			shift;
+				value="${1:-}";
+				if [ -z "$value" ]; then
+					console.quit 1 "no directory specified for the %s option" "-o | --output";
+				fi
+				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
+					console.quit 1 "invalid output directory %s" "$value";
+				fi
+				# remove any trailing slash
+				value="${value%/}";
+				compress_output="$value";
+				;;
 			--noop )
 				compress_noop=true;
 				;;							

@@ -10,7 +10,7 @@
 Compression task(s) for bake(1)\.
 .
 .SH "DESCRIPTION"
-Compresses file(s) using gzip(1) and gunzip(1)\. This task is used to compress regular files, if you wish to compress directories use task\-archive(7)\. The primary difference between gzip(1) and task\-compress(7) is that source files or compressed files are maintained on disc by default\. This is useful for web applications that wish to inspect an \fIAccept\-Encoding\fR header and serve the appropriate file\.
+Deflate and inflate file(s) using gzip(1) and gunzip(1)\. This task is used to compress regular files, if you wish to compress directories use task\-archive(7)\. The primary difference between gzip(1) and task\-compress(7) is that source files or compressed files are maintained on disc by default\. This is useful for web applications that wish to inspect an \fIAccept\-Encoding\fR header and serve the appropriate file\.
 .
 .SH "REQUIRE"
 In your tasks(7) file \fBrequire\fR the \fBcompress\fR task(s) using:
@@ -51,6 +51,12 @@ Inflate compressed file(s)\.
 .SH "OPTIONS"
 .
 .TP
+\fB\-o | \-\-output\fR:
+.
+.IP
+An existing writable directory to place files in\. When use in conjunction with the \fBcreate\fR command then the deflated files will be placed in this directory\. When used in conjunction with the \fBextract\fR command then the inflated files will be placed in this directory\. By default when this option is used the output is a flat structure, which means that if multiple files with the same name exist in the list of files being processed then the last one processed will overwrite any previously created file\.
+.
+.TP
 \fB\-d | \-\-delete\fR:
 .
 .IP
@@ -60,19 +66,25 @@ The default behaviour is to keep the source files, specify this flag if you wish
 \fB\-r | \-\-recursive\fR:
 .
 .IP
-Recurse into sub\-directories\.
+Recurse into sub\-directories\. When this option is not specified and a directory is passed as a file then the contents of that directory are included in the list of files used for compression or extraction, but no sub\-directories will be searched\. Specify this option if you also wish to search sub\-directories for files to compress\.
 .
 .TP
 \fB\-i | \-\-include\fR:
 .
 .IP
-Pattern(s) that a file name must match to be included\. Must be a valid extended regular expression, see ere(7)\. Repeatable\.
+Pattern(s) that a file name must match to be included\. Must be a valid extended regular expression, see ere(7)\. Repeatable\. An exit code of 2 is used if a pattern is invalid\.
 .
 .TP
 \fB\-e | \-\-exclude\fR:
 .
 .IP
-Pattern(s) that when matched against a file name will cause it to be excluded\. Must be a valid extended regular expression, see ere(7)\. Repeatable\. If include and exclude pattern(s) are specified that both match a file name the file will be excluded\.
+Pattern(s) that when matched against a file name will cause it to be excluded\. Must be a valid extended regular expression, see ere(7)\. Repeatable\. If include and exclude pattern(s) are specified that both match a file name the file will be excluded\. An exit code of 2 is used if a pattern is invalid\.
+.
+.TP
+\fB\-v | \-\-verbose\fR:
+.
+.IP
+Output more information\. When used in conjunction with the \fBcreate\fR and \fBextract\fR commands then this option will also include compression ratio information\. When specified in conjunction with the \fB\-\-noop\fR option the file size will be output after the file path\.
 .
 .TP
 \fB\-\-noop\fR:
@@ -85,6 +97,17 @@ Do not perform any action, print information about the source and/or compressed 
 .
 .IP
 Print the commands being executed\.
+.
+.SH "EXIT CODES"
+.
+.nf
+
+A >0 exit code indicates failure while a 0 exit code indicates success\.
+
+Exit code 2 is used when an invalid pattern is specified using either
+the \-\-include or \-\-exclude option\.
+.
+.fi
 .
 .SH "BUGS"
 \fBtask\-compress\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
