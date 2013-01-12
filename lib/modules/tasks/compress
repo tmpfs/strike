@@ -73,6 +73,14 @@ In your tasks(7) file `require` the `compress` task(s) using:
 	
 ## NOTES
 
+You may use the '-' convention to specify that the file list should be read from stdin. For example to compress all the files in the current directory:
+
+	ls . | bake compress -c -;
+	
+In addition, you can combine reading a file list from stdin with files specified after the '-', for example to compress all files with a .css file extension in the ./css directory and a file named README in the current working directory:
+
+	find ./css -depth 1 -name *.css | bake compress -c - README;
+
 Any files specified that *do not exist* are skipped from processing and a warning is printed.
 
 When the `create` command is executed files that end in the `.gz` file extension are automatically ignored.
@@ -215,10 +223,26 @@ function __compress.files.get {
 	shift;
 	local skip="${1:-true}";
 	shift;
+	local files=( "$@" );
 	if [ -n "$callback" ]; then
 		: $((compress_depth++));
+		if [ "$1" == "-" ]; then
+			shift;
+			unset files[0];
+			if [ ! -t 0 ]; then
+				while IFS= read -r line
+					do
+						files+=( "$line" );
+				done
+			fi
+		fi
+		
+		if [ ${#files[@]} -eq 0 ]; then
+			console.quit 1 "no files specified";
+		fi
+		
 		local file;
-		for file in "$@"
+		for file in "${files[@]}"
 			do
 				
 				if [ -d "$file" ]; then
@@ -374,11 +398,9 @@ function __compress.output {
 				mkdir -p "$relative";
 			fi
 			out="${relative}/${name}";
-			# echo "set relative output to $out";
 		else
 			out="${compress_output}/$name";
 		fi
-		# echo "set output to $out";
 	fi
 }
 

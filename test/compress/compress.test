@@ -351,6 +351,62 @@ function test.compress.cx.recursive {
 	rmdir "${outputdir}";
 }
 
+# test reading file list from stdin
+function test.compress.cx.stdin {
+	
+	# compress files relative to this test
+	local self dir ext="gz";
+	require.resolve "self";
+	dir="${self[1]}";
+	
+	# map between file name and file contents
+	# so we can also assert on file contents
+	# after decompression
+	declare -A entries;
+	
+	local program="tasks.compress";
+	local cmd="-c";
+	
+	local files=(
+		"${dir}/lipsum.txt"
+		"${dir}/etiam.txt"
+	);
+	
+	local compressed=(
+		"${files[0]}.${ext}"
+		"${files[1]}.${ext}"
+	);	
+	
+	# recreate test files
+	!test.compress.files.create 10;
+	
+	assert.file.exists? "${files[0]}";
+	assert.file.exists? "${files[1]}";	
+	
+	# invalid - nothing passed to stdin, exit >0
+	#$program $cmd -;
+	
+	# valid - nothing passed to stdin but a file found
+	# after the hyphen option
+	#$program $cmd - lipsum.txt;
+	
+	# valid - pipe output of command as file list
+	find "$dir" -depth 1 -name *.txt | $program $cmd -;
+	assert.file.exists? "${compressed[0]}";
+	assert.file.exists? "${compressed[1]}";
+	
+	#clean up after test run
+	rm "${compressed[@]}";
+	
+	# valid - pipe output and specify files after stdin option
+	find "$dir" -depth 1 -name lipsum.txt | $program $cmd - "${dir}/etiam.txt";
+	assert.file.exists? "${compressed[0]}";
+	assert.file.exists? "${compressed[1]}";
+	
+	#clean up after test run
+	rm "${files[@]}" "${compressed[@]}";
+}
+
 ######################################################################
 #
 #	PRIVATE METHODS
