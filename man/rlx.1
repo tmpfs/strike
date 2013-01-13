@@ -23,6 +23,12 @@ rlx shell [options\.\.\.] [host]
 .SH "FILES"
 The rlx(1) program stores various configuration files in \fB$HOME/\.rlx\fR\.
 .
+.SS "AUTHENTICATION"
+Cached authentication information is stored in \fB$HOME/\.rlx/auth\.json\fR this file is encrypted using AES\-256\-CBC when the program is first run and a valid master password is supplied\.
+.
+.SS "RESPONSE"
+The JSON document containing the last database response is stored in \fB$HOME/\.rlx/log/response\.json\fR\.
+.
 .SH "DEPENDENCIES"
 openssl(1), curl(1), tee(1)
 .

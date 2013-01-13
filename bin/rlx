@@ -19,6 +19,14 @@ Allows manipulation and querying of couchdb(7) databases from the command line.
 ## FILES
 
 The rlx(1) program stores various configuration files in `$HOME/.rlx`.
+
+### AUTHENTICATION
+
+Cached authentication information is stored in `$HOME/.rlx/auth.json` this file is encrypted using AES-256-CBC when the program is first run and a valid master password is supplied.
+
+### RESPONSE
+
+The JSON document containing the last database response is stored in `$HOME/.rlx/log/response.json`.
 	
 ## DEPENDENCIES
 
@@ -100,18 +108,20 @@ function rlx {
 	
 	# credentials used for authentication
 	local username;
-	local password;	
+	local password;
 	# the master password for auth.json
 	local master;
 	
-	# NOTE: initialize $HOME/.rlx and
-	# NOTE: sub-directories including
-	# NOTE: openssl keypair generation
+	# NOTE: initialize $HOME/.rlx and sub-directories
 	if ! rlx.firstrun?; then
 		rlx.init;
 	fi
 	
-	# https://ffsys.cloudant.com/rlx-world-writable/
+	# the document containing the last JSON response
+	local response_json="$HOME/.rlx/log/response.json";
+	
+	# update the location where http(3) stores response documents
+	http_body_file="$response_json";
 	
 	delegate "rlx" "$cmd" "$@" || quit $? "command %s failed" "$cmd";
 }

@@ -156,6 +156,9 @@ function http.curl.execute {
 	#so we don't leave any previous request data
 	#around when a request fails
 	http.clean > /dev/null;	
+
+	# create an empty body file
+	echo -ne "" >| "$http_body_file";
 	
 	#ensure we unset all variables before the next request
 	#TODO: move to a method for unsetting by group
@@ -271,7 +274,6 @@ function http.curl {
 	);
 	
 	if [ -n "$http_auth_user" ] && [ -n "$http_auth_pass" ]; then
-		echo "adding http auth option!!!"
 		runopts+=( "--user" "${http_auth_user}:${http_auth_pass}" );
 	fi
 	

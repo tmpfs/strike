@@ -109,6 +109,17 @@ function rlx.response {
 		fi
 	else
 		echo "got rlx response code: $http_response_status";
+		
+		cat "$response_json";
+		
+		json.parse < "$response_json";
+		
+		local k v;
+		for k in ${!json_doc[@]}
+			do
+				v="${json_doc["$k"]}";
+				echo "$k : $v";
+		done
 	fi
 }
 
