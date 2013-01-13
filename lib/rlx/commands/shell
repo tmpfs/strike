@@ -21,3 +21,17 @@ function rlx.shell {
 	
 	rlx.run couchdb.db.list "$host";
 }
+
+function rlx.shell.help {
+	echo "shell help called ... $@";
+}
+
+# quit the shell
+function rlx.shell.quit {
+	console.success;
+}
+
+# alias for the `quit` command
+function rlx.shell.exit {
+	console.success;
+}

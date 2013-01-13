@@ -112,6 +112,20 @@ function rlx {
 	# the master password for auth.json
 	local master;
 	
+	# a flag indicating whether we are in the process
+	# of authenticating
+	local authenticating=false;
+	
+	# list of databases for the current server
+	local databases=();
+	
+	# change console output to always be the process name
+	local k;
+	for k in ${!console_prefixes[@]}
+		do
+			console_prefixes["$k"]="[$process_name]";
+	done
+	
 	# NOTE: initialize $HOME/.rlx and sub-directories
 	if ! rlx.firstrun?; then
 		rlx.init;

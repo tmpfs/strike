@@ -60,9 +60,24 @@ function rlx.prompt {
 }
 
 function rlx.prompt.cmd {
-	rlx.prompt;
+	rlx.prompt "@ ${host}";
 	read -p "${prompt}" cmd;
-	echo "got command: $cmd";
+	if [ -z "$cmd" ]; then
+		rlx.prompt.cmd;
+		return 0;
+	fi
+	local cmdline=( $cmd );
+	cmd="${cmdline[0]}";
+	if ! method.exists? "rlx.shell.$cmd"; then
+		console.info "unknown command %s, type %s" "$cmd" "help";
+		rlx.prompt.cmd;
+		return 0;
+	fi
+	# echo "execute command: $cmd";
+	# echo "execute command options: ${cmdline[@]:1}";
+	
+	# execute the shell command method
+	"rlx.shell.$cmd" "${cmdline[@]:1}";
 	rlx.prompt.cmd;
 }
 
@@ -101,11 +116,13 @@ function rlx.authenticate {
 
 # handle a server response
 function rlx.response {
+	
 	if [ $http_response_status -eq 401 ]; then
 		console.info "authorization required for %s" "$host";
 		if [ -v PS1 ]; then
 			console.quit 1 "not a tty, cannot prompt for authentication credentials";
 		else
+			authenticating=true;
 			rlx.authenticate;
 			# TODO: update couchdb(3) auth settings
 			# echo "username: $username, password: $password";
@@ -118,16 +135,21 @@ function rlx.response {
 		# echo "got rlx response code: $http_response_status";
 		# cat "$response_json";
 		
+		# successful authentication
+		if $authenticating; then
+			# TODO: save authentication information upon succesful auth
+			authenticating=false;
+		fi
+
 		json.parse < "$response_json";
 		
-		# local k v;
-		# for k in ${!json_doc[@]}
-		# 	do
-		# 		v="${json_doc["$k"]}";
-		# 		echo "$k : $v";
-		# done
+		# update the list of databases
+		if [ "$rlx_command" == "couchdb.db.list" ]; then
+			databases=( "${json_doc[@]}" );
+			# echo "set databases to ${databases[@]}";
+		fi
 		
-		rlx.prompt.cmd;		
+		rlx.prompt.cmd;
 	fi
 }
 
