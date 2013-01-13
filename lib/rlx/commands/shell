@@ -1,0 +1,22 @@
+function rlx.shell {
+	echo "$FUNCNAME : $*";
+	
+	host="${1:-}";
+	
+	# TODO: add prompt to specify the host?
+	if [ $# -eq 0 ]; then
+		console.quit 1 "no host specified";
+	fi
+	
+	# TODO: test if db-name has been specified
+	
+	# /_all_dbs
+	# ["fastdrop","hosts","rlx-world-writable"]
+	
+	console.info "host %s" "$host";
+	couchdb.db.list "$host";
+	
+	rlx.response;
+	
+	#echo "got response status: $http_response_status";
+}

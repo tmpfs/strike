@@ -1,0 +1,72 @@
+declare -g rlx_prompt_prefix="[rlx]";
+declare -g rlx_prompt="${rlx_prompt_prefix} %s";
+declare -g rlx_prompt_suffix=" ⚡ ";
+
+declare -g rlx_home="$HOME/.rlx";
+
+function rlx.init {
+	local db="db";
+	local keys="keys";
+	local log="log";
+	local dir subdirs=( "$keys" "$db" "$log" );
+	# create main storage directory
+	mkdir -p "$rlx_home" \
+		|| console.quit 1 "could not create %s" "$rlx_home";
+	if [ -d "$rlx_home" ]; then
+		console.info "created %s" "$rlx_home";
+	fi
+	# create required sub-directories
+	for dir in "${subdirs[@]}"
+		do
+			dir="${rlx_home}/${dir}";
+			mkdir -p "$dir" \
+				|| console.quit 1 "could not create %s" "$dir";
+			if [ -d "$dir" ]; then
+				console.info "created %s" "$dir";
+			fi
+	done
+	local keylogfile="${rlx_home}/${log}/keygen.log";
+	local keydir="${rlx_home}/$keys";
+	local keypair="${keydir}/rlx.pem";
+	local keypublic="${keydir}/rlx.pub";
+	# generate the keypair and public key
+	crypto.rsa.generate false 2048 "$keypair" "$keypublic" "$keylogfile" \
+		|| console.quit 1 "failed to generate private/public key pair";
+	chmod -R 700 "$keydir" || console.quit 1 "could not change permissions on %s" "$keydir";
+	if [ -f "$keypair" ]; then
+		console.info "generated public/private keypair %s" "$keypair";
+	fi
+	if [ -f "$keypublic" ]; then
+		console.info "generated public key file %s" "$keypublic";
+	fi
+	return 0;
+}
+
+function rlx.firstrun? {
+	test -d "$rlx_home";
+}
+
+function rlx.prompt {
+	local replace="${1:-}";
+	local ps1=$( printf "$rlx_prompt" "$replace" );
+	#echo -n "${ps1}${rlx_prompt_suffix}";
+	prompt="${ps1}${rlx_prompt_suffix}";
+}
+
+# handle a server response
+function rlx.response {
+	if [ $http_response_status -eq 401 ]; then
+		console.warn "authorization required for %s" "$host";
+		if [ -v PS1 ]; then
+			console.quit 1 "not a tty, cannot prompt for authentication credentials";
+		else
+			rlx.prompt "username";
+			read -p "${prompt}" username;
+			rlx.prompt "password";
+			read -s -p "${prompt}" password;
+			# create the newline
+			echo "";
+			echo "username: $username, password: $password";
+		fi
+	fi
+}
