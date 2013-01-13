@@ -69,7 +69,18 @@ if [ $# -eq 0 ]; then
 	exit 0;
 fi
 
+require inet;
+
 function rlx {
+	
+	# TODO: only run this test when the host is not
+	# TODO: localhost or 127.0.0.1
+	set +e;
+	inet.up?;
+	echo "exit code in rlx: $?";
+	set -e;
+	exit 0;
+	
 	local cmd="${1:-}";
 	delegate "couchdb" "$cmd" "$@" || quit $? "task %s failed" "$func";
 }
