@@ -44,7 +44,7 @@ In your tasks(7) file `require` the `latex` task(s) using:
 
 * `--debug`:
 
-	Print the commands being executed. If execution of pdflatex(1) fails with a >0 exit code then the contents of the log file are printed when this option is present.
+	Print the commands being executed. If execution of pdflatex(1) fails with a >0 exit code then the contents of the log file are printed to stderr when this option is present.
 	
 ## FILES
 
@@ -56,7 +56,7 @@ pdflatex(1), find(1)
 
 ## BUGS
 
-This task does not support passing commands after the file specification to pdflatex(1).
+This task does not support passing commands after the file specification to pdflatex(1). If you need this functionality, execute pdflatex(1) directly.
 
 **task-latex** is written in bash and depends upon `bash` >= 4.2.
 
@@ -218,6 +218,7 @@ function __latex.compile {
 		console.log "${executables[pdflatex]} ${latex_options[*]} %s" "$file";
 	fi
 
+	# TODO: change working directory so relative file references are resolved correctly
 	local logfile="${latex_output}/${nm}.compile.log";
 	# TODO: quote options passed to latex to allow spaces in file paths
 	"${executables[pdflatex]}" "${latex_options[@]:-}" "$file" >| "$logfile" 2>&1;
@@ -225,9 +226,9 @@ function __latex.compile {
 		if $latex_debug; then
 			if [ -f "${latex_output}/${nm}.log" ]; then
 				# latex generated log file, more verbose/informative
-				cat "${latex_output}/${nm}.log";
+				cat "${latex_output}/${nm}.log" >&2;
 			else
-				cat "$logfile";
+				cat "$logfile" >&2;
 			fi
 		fi
 		console.warn "log file %s" "${latex_output}/${nm}.log";
