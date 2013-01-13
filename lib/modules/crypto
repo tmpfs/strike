@@ -65,6 +65,7 @@ function crypto.dec.aes256cbc {
 		if [ -n "$password" ]; then
 			opts+=( "-pass" "pass:${password}" );
 		fi
+		#echo "$FUNCNAME: ${opts[@]}";
 		"${executables[openssl]}" "${opts[@]}";
 		return $?;
 	fi
