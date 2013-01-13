@@ -1,0 +1,6 @@
+require.once 'tasks/latex';
+
+# test(s) for task-latex(7) compile
+function test.latex.compile {
+	echo "$FUNCNAME";
+}

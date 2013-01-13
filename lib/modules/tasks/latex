@@ -36,6 +36,10 @@ In your tasks(7) file `require` the `latex` task(s) using:
 	
 ## OPTIONS
 
+* `-d | --dir [directory]`:
+
+	Specifies an alternative directory to search for source `.tex` files. Default is `./doc/latex`.
+
 * `-o | --output [directory]`:
 
 	The output directory when compiling the source `.tex` file(s).
@@ -111,7 +115,7 @@ function tasks.latex {
 	executable.validate pdflatex;
 	
 	# default directory used to search for files
-	local latex_default_dir="./doc/latex";
+	local latex_dir="./doc/latex";
 	
 	# default output format
 	local latex_output_format="pdf";
@@ -168,7 +172,7 @@ function ltx.tasks.latex.compile {
 function ltx.tasks.latex.all {
 	__latex.files.get;
 	if [ ${#latex_files[@]} -eq 0 ]; then
-		console.quit 1 "no %s files in %s" ".tex" "$latex_default_dir";
+		console.quit 1 "no %s files in %s" ".tex" "$latex_dir";
 	else
 		__latex.compile.all;
 	fi
@@ -194,7 +198,7 @@ function __latex.defaults {
 }
 
 function __latex.files.get {
-	local dir="${1:-$latex_default_dir}";
+	local dir="${1:-$latex_dir}";
 	if [ -d "$dir" ]; then
 		latex_files+=( $( find "$dir" -name *.tex ) );
 	fi
@@ -256,7 +260,6 @@ function __latex.parse {
 		[file-line-error]=false
 		[-no-file-line-error]=false
 		[-fmt]=true
-		[-halt-on-error]=false
 		[-ini]=false
 		[-interaction]=true
 		[-ipc]=false
@@ -267,8 +270,6 @@ function __latex.parse {
 		[-no-mktex]=true		
 		[-mltex]=false
 		[-output-comment]=true
-		[-output-directory]=true
-		[-output-format]=true
 		[-no-parse-first-line]=false
 		[-progname]=true
 		[-recorder]=false
@@ -283,6 +284,10 @@ function __latex.parse {
 	);
 
 	# unsupported pdflatex(1) options
+	
+	# [-output-directory]=true
+	# [-output-format]=true
+	# [-halt-on-error]=false
 	# -help
 	# -version
 	
@@ -290,6 +295,20 @@ function __latex.parse {
 	# handle other options
 	while [ "${1:-}" != "" ]; do
 		case $1 in
+			-d | --dir )
+				shift;
+				value="${1:-}";
+				if [ -z "$value" ]; then
+					console.quit 1 "no directory specified for the %s option" "-d | --dir";
+				fi
+				if [ ! -d "$value" ]; then
+					console.quit 1 "%s not a directory" "$value";
+				fi
+				if [ ! -r "$value" ]; then
+					console.quit 1 "%s not readable" "$value";
+				fi
+				latex_dir="$value";
+				;;
 			-o | --output )
 				shift;
 				value="${1:-}";
