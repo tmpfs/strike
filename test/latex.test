@@ -36,3 +36,17 @@ function test.latex.compile.dvi {
 	# clean up
 	rm -rf "${target}/dvi";
 }
+
+# test(s) for task-latex(7) .pdf compile failure
+function test.latex.compile.pdf.fail {
+	local invalid="${root}/test/files/latex/invalid";
+	local program="tasks.latex";
+	# test compiling with a single valid file
+	# and the default output logic: ${target}/pdf
+	"$program" --dir "${invalid}" & wait %%;
+	assert.gt "0" "$?";
+	assert.file.exists! "${target}/pdf/test.pdf";
+	
+	# clean up
+	rm -rf "${target}/pdf";
+}
