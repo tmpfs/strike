@@ -16,23 +16,26 @@ declare -g couchdb_result_status="";
 
 declare -g couchdb_module_name="couchdb";
 
-#declare -A couchdb_view_options;
-
-#function couchdb_initialize {
-#	echo "couchdb_initialize";
-#}
-
 #function rest_result_parse {
 #	local opts=( "${@}" );
 #	echo "got rest_result_parse opts ${opts[@]}";
 #}
 
+function couchdb.auth.update {
+	if [ -n "$couchdb_user" ] && [ -n "$couchdb_pass" ]; then
+		http_auth_user="${couchdb_user}";
+		http_auth_pass="${couchdb_pass}";
+	fi
+}
+
 function couchdb.db.list {
 	local host="${1:-}";
-	echo "listing with $couchdb_user : $couchdb_pass";
+	couchdb.auth.update;
 	http.curl "GET" "${host}/_all_dbs";
 }
 
+
+# DEPRECATED
 function couchdb_print {
 	info "[%s] %s %s" "$couchdb_result_status" "$couchdb_result_method" "$couchdb_result_url";
 }
@@ -116,18 +119,4 @@ function couchdb_view {
 	
 	#reset the view options
 	#couchdb_view_options="";
-}
-
-# TODO: remove this and let the delegate handle it
-function couchdb {
-	local module="$couchdb_module_name";
-	local method="$1";
-	shift;
-	local options=( "${@:-}" );
-	local func="${module}_${method}";
-	if method.exists? "$func"; then
-		$func "${options[@]}";
-	else
-		quit 1 "%s method %s does not exist" "$module" "$method";
-	fi
 }

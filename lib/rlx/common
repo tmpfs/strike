@@ -29,9 +29,6 @@ function rlx.init {
 	done
 	
 	local auth="${rlx_home}/auth.json";
-	# create an empty json document
-	echo "{}" >| "${auth}";
-	# echo "contents are: `cat $auth`";
 	rlx.password.read;
 	master="$password";
 	crypto.enc.aes256cbc - "${auth}" "$password" <<< "{}";
@@ -110,6 +107,8 @@ function rlx.response {
 			# run the last command again
 			rlx.repeat;
 		fi
+	else
+		echo "got rlx response code: $http_response_status";
 	fi
 }
 
