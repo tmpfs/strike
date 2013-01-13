@@ -1,0 +1,60 @@
+\documentclass[a4paper,oneside,twocolumns]{article}
+% Palatino for rm and math | Helvetica for ss | Courier for tt
+\usepackage{mathpazo}
+% tt
+\normalfont
+\usepackage{graphicx}
+% \usepackage[T1]{fontenc}
+\usepackage{helvet}
+\usepackage[utf8]{inputenc}
+% give us some more vertical space
+\usepackage{geometry}
+\usepackage[parfill]{parskip} 
+\usepackage{url}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks,
+	linkcolor=black,
+	bookmarks=true,
+	unicode=true,
+	urlcolor=blue,
+	pdftitle={Test Latex Document},
+	pdfsubject={Test Latex Document},
+	pdfkeywords={bash(1), task-latex(1), pdflatex(1)},
+	pdfauthor={muji},
+	pdfdisplaydoctitle=true
+}
+
+\urlstyle{rm}
+\pdfpagewidth=\paperwidth
+\pdfpageheight=\paperheight
+
+%custom styles
+\renewcommand{\paragraph}{\large}
+%end custom styles
+
+\title{Test Latex Document}
+\author{muji}
+
+\begin{document}
+
+\fancyhead{}
+\fancyfoot{}
+
+\lhead{\textbf{\textsc{muji}}}
+\lfoot{\thepage}
+\rfoot{\textsc{Last updated \today}}
+
+\clearpage
+
+%
+%	INTRODUCTION
+%
+
+\paragraph{\normalsize{This is a test latex document, it doesn't really do say anything interesting. It is used to test task-latex(7).}}
+
+\end{document}
