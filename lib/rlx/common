@@ -90,6 +90,7 @@ function rlx.authenticate {
 	read -p "${prompt}" username;
 	if [ -z "$username" ]; then
 		rlx.authenticate;
+		return 0;
 	fi
 	rlx.password.read false;
 }
@@ -103,7 +104,9 @@ function rlx.response {
 		else
 			rlx.authenticate;
 			# TODO: update couchdb(3) auth settings
-			echo "username: $username, password: $password";
+			# echo "username: $username, password: $password";
+			couchdb_user="$username";
+			couchdb_pass="$password";
 			# run the last command again
 			rlx.repeat;
 		fi
@@ -120,6 +123,7 @@ function rlx.run {
 	rlx_command="${cmd}";
 	rlx_command_options=( "$@" );
 	"$cmd" "$@";
+	rlx.response;
 }
 
 # attempt to run the last command again

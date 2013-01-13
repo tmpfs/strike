@@ -1,21 +1,20 @@
 require "http";
 require "json";
 
-# modules must *export* global variables
-export couchdb_url;
-export couchdb_dbname;
-export couchdb_user;
-export couchdb_pass;
+declare -g couchdb_url;
+declare -g couchdb_dbname;
+declare -g couchdb_user="";
+declare -g couchdb_pass="";
 
 #default write out
 #write out the data as non-json
-export couchdb_expects="";
+declare -g couchdb_expects="";
 
-export couchdb_result_method="";
-export couchdb_result_url="";
-export couchdb_result_status="";
+declare -g couchdb_result_method="";
+declare -g couchdb_result_url="";
+declare -g couchdb_result_status="";
 
-export couchdb_module_name="couchdb";
+declare -g couchdb_module_name="couchdb";
 
 #declare -A couchdb_view_options;
 
@@ -30,6 +29,7 @@ export couchdb_module_name="couchdb";
 
 function couchdb.db.list {
 	local host="${1:-}";
+	echo "listing with $couchdb_user : $couchdb_pass";
 	http.curl "GET" "${host}/_all_dbs";
 }
 

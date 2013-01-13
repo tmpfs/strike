@@ -20,8 +20,4 @@ function rlx.shell {
 	#couchdb.db.list "$host";
 	
 	rlx.run couchdb.db.list "$host";
-	
-	rlx.response;
-	
-	#echo "got response status: $http_response_status";
 }
