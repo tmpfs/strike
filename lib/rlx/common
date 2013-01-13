@@ -1,7 +1,6 @@
 declare -g rlx_prompt_prefix="[rlx]";
 declare -g rlx_prompt="${rlx_prompt_prefix} %s";
 declare -g rlx_prompt_suffix=" ⚡ ";
-
 declare -g rlx_home="$HOME/.rlx";
 
 function rlx.init {
@@ -28,11 +27,17 @@ function rlx.init {
 	local auth="${rlx_home}/auth.json";
 	# create an empty 
 	echo "{}" >| "${auth}";
-	crypto.enc.aes256cbc "$auth" "$auth" \
+	rlx.password.read;
+	master="$password";
+	crypto.enc.aes256cbc "$auth" "$auth" "$password" \
 		&& chmod -R 700 "$auth" || console.quit 1 "could not change permissions on %s" "$auth";
 	if [ -f "$auth" ]; then
 		console.info "generated encrypted auth file %s" "$auth";
 	fi
+	
+	# test decryption
+	crypto.dec.aes256cbc "$auth" "-" "$master";
+	
 	return 0;
 }
 
@@ -47,6 +52,12 @@ function rlx.prompt {
 	prompt="${ps1}${rlx_prompt_suffix}";
 }
 
+# read in password information
+function rlx.password.read {
+	rlx.prompt "password";
+	read -s -p "${prompt}" password;
+}
+
 # handle a server response
 function rlx.response {
 	if [ $http_response_status -eq 401 ]; then
@@ -56,8 +67,7 @@ function rlx.response {
 		else
 			rlx.prompt "username";
 			read -p "${prompt}" username;
-			rlx.prompt "password";
-			read -s -p "${prompt}" password;
+			rlx.password.read;
 			# create the newline
 			echo "";
 			

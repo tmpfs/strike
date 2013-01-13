@@ -91,14 +91,7 @@ function rlx {
 	# dependencies
 	require 'couchdb';
 	require 'crypto';
-	
-	# NOTE: initialize $HOME/.rlx and
-	# NOTE: sub-directories including
-	# NOTE: openssl keypair generation
-	if ! rlx.firstrun?; then
-		rlx.init;
-	fi
-	
+
 	# the current host being used
 	local host="";
 	
@@ -107,7 +100,16 @@ function rlx {
 	
 	# credentials used for authentication
 	local username;
-	local password;
+	local password;	
+	# the master password for auth.json
+	local master;
+	
+	# NOTE: initialize $HOME/.rlx and
+	# NOTE: sub-directories including
+	# NOTE: openssl keypair generation
+	if ! rlx.firstrun?; then
+		rlx.init;
+	fi
 	
 	# https://ffsys.cloudant.com/rlx-world-writable/
 	

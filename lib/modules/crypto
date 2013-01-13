@@ -37,15 +37,36 @@ function crypto.rsa.public.generate {
 	return 1;
 }
 
-function crypto.enc.aes256cbc {	
+function crypto.enc.aes256cbc {
 	local infile="${1:-}";
 	local outfile="${2:-}";
 	local password="${3:-}";
 	if [ -n "$infile" ] && [ -n "$outfile" ]; then
 		local opts=( "aes-256-cbc" "-salt" "-in" "${infile}" "-out" "${outfile}" );
+		if [ -n "$password" ]; then
+			opts+=( "-pass" "pass:${password}" );
+		fi
 		"${executables[openssl]}" "${opts[@]}";
 		return $?;
 	fi
 	return 1;
-	# openssl aes-256-cbc -salt -in file-test -out file-test.aes
+}
+
+function crypto.dec.aes256cbc {
+	local infile="${1:-}";
+	local outfile="${2:-}";
+	local password="${3:-}";
+	if [ -n "$infile" ] && [ -n "$outfile" ]; then
+		# openssl des3 -d -in encrypted.txt -out normal.txt
+		local opts=( "aes-256-cbc" "-d" "-in" "${infile}" );
+		if [ -n "$outfile" ] && [ "${outfile}" != "-" ]; then
+			opts+=( "-out" "${outfile}" );
+		fi
+		if [ -n "$password" ]; then
+			opts+=( "-pass" "pass:${password}" );
+		fi
+		"${executables[openssl]}" "${opts[@]}";
+		return $?;
+	fi
+	return 1;
 }
