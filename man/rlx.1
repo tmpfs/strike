@@ -20,6 +20,41 @@ rlx shell [options\.\.\.] [host]
 .
 .fi
 .
+.SH "COMMANDS"
+.
+.TP
+\fBshell\fR:
+.
+.IP
+Runs an interactive shell\.
+.
+.SH "SHELL COMMANDS"
+These commands apply when running as an interactive shell\.
+.
+.TP
+\fBdb\fR:
+.
+.IP
+When called with no options, this shell command will list available databases for the current database server\.
+.
+.TP
+\fBdb create [database]\fR:
+.
+.IP
+Create a database with the specified database name\. The database name must match the pattern ^[\-a\-zA\-Z0\-9]+$\.
+.
+.TP
+\fBhelp\fR:
+.
+.IP
+Display this man page\.
+.
+.TP
+\fBquit | exit\fR:
+.
+.IP
+Quit the interactive shell\.
+.
 .SH "FILES"
 The rlx(1) program stores various configuration files in \fB$HOME/\.rlx\fR\.
 .

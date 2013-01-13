@@ -18,6 +18,42 @@ function rlx.shell {
 	rlx.run couchdb.db.list "$host";
 }
 
+function rlx.shell.db {
+	# list available databases
+	if [ $# -eq 0 ]; then
+		local db;
+		for db in "${databases[@]}"
+			do
+				console.info "$db";
+		done
+	else
+		local cmd="${1:-}";
+		shift;
+		if ! method.exists? "rlx.shell.db.${cmd}"; then
+			console.warn "invalid db command %s" "$cmd";
+		fi
+		"rlx.shell.db.${cmd}" "$@";
+	fi
+}
+
+function rlx.shell.db.add {
+	local name="${1:-}";
+	if ! couchdb.db.name.valid? "$name"; then
+		console.warn "invalid database name %s" "$name";
+		return 0;
+	fi
+	
+	# histappend     	off
+	# histreedit     	off
+	# histverify     	off	
+	
+	echo "$FUNCNAME : $*";
+}
+
+function rlx.shell.db.rm {
+	echo "$FUNCNAME : $*";
+}
+
 function rlx.shell.help {
 	help.man.show "default";
 }

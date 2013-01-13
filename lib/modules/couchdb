@@ -34,6 +34,14 @@ function couchdb.db.list {
 	http.curl "GET" "${host}/_all_dbs";
 }
 
+function couchdb.db.name.valid? {
+	local name="${1:-}";
+	if [[ "$name" =~ ^[-a-zA-Z0-9]+$ ]]; then
+		return 0;
+	fi
+	return 1;
+}
+
 
 # DEPRECATED
 function couchdb_print {

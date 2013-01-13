@@ -62,6 +62,8 @@ function rlx.prompt {
 function rlx.prompt.cmd {
 	rlx.prompt "@ ${host}";
 	read -p "${prompt}" cmd;
+	# PS1="${prompt}";
+	# ( bash );
 	if [ -z "$cmd" ]; then
 		rlx.prompt.cmd;
 		return 0;
@@ -75,6 +77,10 @@ function rlx.prompt.cmd {
 	fi
 	# echo "execute command: $cmd";
 	# echo "execute command options: ${cmdline[@]:1}";
+	
+	#echo "exec: history -s "${cmdline[@]}" "$rlx_history"";	
+	
+	#history -s "${cmdline[@]}" "$rlx_history";
 	
 	# execute the shell command method
 	"rlx.shell.$cmd" "${cmdline[@]:1}";

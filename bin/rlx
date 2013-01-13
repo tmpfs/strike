@@ -16,6 +16,36 @@ Allows manipulation and querying of couchdb(7) databases from the command line.
 
 	rlx shell [options...] [host]
 	
+## COMMANDS
+
+* `shell`:
+
+	Runs an interactive shell.
+	
+## SHELL COMMANDS
+
+These commands apply when running as an interactive shell.
+
+* `db`:
+
+	When called with no options, this shell command will list available databases for the current database server.
+	
+* `db add [database]`:
+
+	Create a database with the specified database name. The database name must match the pattern ^[-a-zA-Z0-9]+$.
+	
+* `db rm [database]`:
+
+	Delete a database with the specified database name.
+
+* `help`:
+
+	Display this man page.
+	
+* `quit | exit`:
+
+	Quit the interactive shell.
+	
 ## FILES
 
 The rlx(1) program stores various configuration files in `$HOME/.rlx`.
@@ -129,6 +159,12 @@ function rlx {
 	# NOTE: initialize $HOME/.rlx and sub-directories
 	if ! rlx.firstrun?; then
 		rlx.init;
+	fi
+	
+	# set up the history file
+	rlx_history="$HOME/.rlx/.history";
+	if [ ! -f "$rlx_history" ]; then
+		touch "$rlx_history";
 	fi
 	
 	# the document containing the last JSON response
