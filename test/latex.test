@@ -1,6 +1,38 @@
 require.once 'tasks/latex';
 
-# test(s) for task-latex(7) compile
-function test.latex.compile {
-	echo "$FUNCNAME";
+# test(s) for task-latex(7) .pdf compile success
+function test.latex.compile.pdf {
+	local valid="${root}/test/files/latex/valid";
+	local program="tasks.latex";
+	# test compiling with a single valid file
+	# and the default output logic: ${target}/pdf
+	"$program" --debug --dir "${valid}";
+	assert.eq "0" "$?";	
+	assert.file.exists? "${target}/pdf/test.pdf";
+	
+	# clean up
+	rm -rf "${target}/pdf";
+	
+	# same test but explicitly declaring pdf
+	# as the output format
+	"$program" pdf --debug --dir "${valid}";
+	assert.eq "0" "$?";
+	assert.file.exists? "${target}/pdf/test.pdf";
+	
+	# clean up
+	rm -rf "${target}/pdf";
+}
+
+# test(s) for task-latex(7) .dvi compile success
+function test.latex.compile.dvi {
+	local valid="${root}/test/files/latex/valid";
+	local program="tasks.latex";
+	# test compiling with a single valid file
+	# and the default output logic: ${target}/dvi
+	"$program" dvi --debug --dir "${valid}";
+	assert.eq "0" "$?";	
+	assert.file.exists? "${target}/dvi/test.dvi";
+	
+	# clean up
+	rm -rf "${target}/dvi";
 }
