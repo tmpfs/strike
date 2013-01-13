@@ -275,11 +275,12 @@ function http.curl {
 			runopts+=( "--header" "${hname}: $hvalue" );
 	done
 	
+	# "--trace"
+	# "$http_trace_file"
+	
 	runopts+=(
 		"--dump-header"
 		"$http_head_dump_file"
-		"--trace"
-		"$http_trace_file"
 		"--trace-ascii"
 		"$http_trace_ascii_file"
 		"--write-out"

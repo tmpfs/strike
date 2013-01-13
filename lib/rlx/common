@@ -1,7 +1,11 @@
-declare -g rlx_prompt_prefix="[rlx]";
+declare -g rlx_prompt_prefix="\033[1m[rlx]\033[0m";
 declare -g rlx_prompt="${rlx_prompt_prefix} %s";
 declare -g rlx_prompt_suffix=" ⚡ ";
 declare -g rlx_home="$HOME/.rlx";
+
+# information on the last command executed
+declare -g rlx_command="";
+declare -g rlx_command_options=();
 
 function rlx.init {
 	local db="db";
@@ -61,15 +65,20 @@ function rlx.prompt {
 # read in password information
 function rlx.password.read {
 	local validate="${1:-true}";
+	local minimum="${2:-8}";
 	rlx.prompt "password";
 	read -s -p "${prompt}" password;
 	# create a newline
 	echo "";
 	if [ -z "$password" ]; then
+		console.warn "enter a password";
 		rlx.password.read;
 	elif $validate; then
-		if [ ${#password} -lt 8 ]; then
-			console.info "minimum 8 characters for a password";
+		if [ ${#password} -lt $minimum ]; then
+			console.warn "minimum 8 characters";
+			rlx.password.read;
+		elif [[ "$password" =~ ^[a-zA-Z]+$ ]] || [[ "$password" =~ ^[0-9]+$ ]]; then
+			console.warn "must contain letters %s numbers" "and";
 			rlx.password.read;
 		fi
 	fi
@@ -79,8 +88,10 @@ function rlx.password.read {
 function rlx.authenticate {
 	rlx.prompt "username";
 	read -p "${prompt}" username;
+	if [ -z "$username" ]; then
+		rlx.authenticate;
+	fi
 	rlx.password.read false;
-	echo "username: $username, password: $password";
 }
 
 # handle a server response
@@ -91,6 +102,31 @@ function rlx.response {
 			console.quit 1 "not a tty, cannot prompt for authentication credentials";
 		else
 			rlx.authenticate;
+			# TODO: update couchdb(3) auth settings
+			echo "username: $username, password: $password";
+			# run the last command again
+			rlx.repeat;
 		fi
+	fi
+}
+
+# runs a command using the couchdb(3) module
+# this is used so that when authentication is
+# required we can re-run the last command after
+# capturing the username/password pair
+function rlx.run {
+	local cmd="${1:-}";
+	shift;
+	rlx_command="${cmd}";
+	rlx_command_options=( "$@" );
+	"$cmd" "$@";
+}
+
+# attempt to run the last command again
+# potentially after suppliying authentication
+# information
+function rlx.repeat {
+	if [ -n "$rlx_command" ]; then
+		rlx.run "${rlx_command}" "${rlx_command_options[@]}";
 	fi
 }

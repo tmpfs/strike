@@ -17,7 +17,9 @@ function rlx.shell {
 	
 	console.info "host %s" "$host";
 	console.info "fetching database list from %s" "$host";
-	couchdb.db.list "$host";
+	#couchdb.db.list "$host";
+	
+	rlx.run couchdb.db.list "$host";
 	
 	rlx.response;
 	
