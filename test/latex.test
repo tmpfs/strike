@@ -49,7 +49,7 @@ function test.latex.compile.pdf.fail {
 	if [ -n "${executables[pdflatex]}" ]; then	
 		local invalid="${root}/test/files/latex/invalid";
 		local program="tasks.latex";
-		# test compiling with a single valid file
+		# test compiling with a single invalid file
 		# and the default output logic: ${target}/pdf
 		"$program" --dir "${invalid}" & wait %%;
 		assert.gt "0" "$?";
@@ -57,5 +57,21 @@ function test.latex.compile.pdf.fail {
 	
 		# clean up
 		rm -rf "${target}/pdf";
+	fi
+}
+
+# test(s) for task-latex(7) .pdf compile directory structure
+function test.latex.compile.pdf.structure {
+	executable.validate --test pdflatex;
+	if [ -n "${executables[pdflatex]}" ]; then	
+		local structure="${root}/test/files/latex/structure";
+		local program="tasks.latex";
+		"$program" --dir "${structure}";
+		assert.eq "0" "$?";
+		
+		#assert.file.exists! "${target}/pdf/test.pdf";
+	
+		# clean up
+		#rm -rf "${target}/pdf";
 	fi
 }

@@ -192,9 +192,14 @@ function __latex.defaults {
 	if [ ! -d "$latex_output" ]; then
 		mkdir -p "$latex_output" || quit 1 "could not create latex output directory %s" "$latex_output";
 	fi
+	
+	#  -output-directory should always be index 0
 	latex_options+=( "-output-directory=$latex_output" );
+	
 	latex_options+=( "-output-format=$latex_output_format" );
 	latex_options+=( "-halt-on-error" );
+	
+	# TODO: add custom latex options here
 }
 
 function __latex.files.get {
@@ -215,9 +220,32 @@ function __latex.compile.all {
 
 # attempts to compile a single .tex source file
 function __latex.compile {
-	local name nm;
+	local name nm parent output="$latex_output";
 	fs.basename "$file" "name";
 	nm="${name%.tex}";
+	
+	fs.dirname "$file" "parent";
+	
+	# make parent realtive to latex_dir
+	parent="${parent#$latex_dir}";
+	
+	echo "compiling with dir: $latex_dir";
+	echo "compiling with file: $file";
+	echo "compiling with parent: $parent";
+	
+	# if parent is empty the output is the root
+	if [ -n "$parent" ]; then
+		output="${output}${parent}";
+		
+		if [ ! -d "$output" ]; then
+			mkdir -p "$output" || console.quit 1 "could not create output directory %s" "$output";
+		fi
+	fi
+	
+	latex_options[0]="-output-directory=$output";
+	
+	echo "using output: $output";
+	
 	if $latex_debug; then
 		console.log "${executables[pdflatex]} ${latex_options[*]} %s" "$file";
 	fi
