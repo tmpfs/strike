@@ -1,5 +1,8 @@
+function crypto.initialize {
+	executable.validate openssl;	
+}
+
 function crypto.rsa.generate {
-	executable.validate openssl;
 	local passphrase="${1:-true}";
 	local bits="${2:-2048}";
 	local out="${3:-}";
@@ -32,4 +35,17 @@ function crypto.rsa.public.generate {
 		return $?;
 	fi
 	return 1;
+}
+
+function crypto.enc.aes256cbc {	
+	local infile="${1:-}";
+	local outfile="${2:-}";
+	local password="${3:-}";
+	if [ -n "$infile" ] && [ -n "$outfile" ]; then
+		local opts=( "aes-256-cbc" "-salt" "-in" "${infile}" "-out" "${outfile}" );
+		"${executables[openssl]}" "${opts[@]}";
+		return $?;
+	fi
+	return 1;
+	# openssl aes-256-cbc -salt -in file-test -out file-test.aes
 }

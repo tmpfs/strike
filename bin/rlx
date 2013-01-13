@@ -64,7 +64,6 @@ function boilerplate {
 boilerplate "$@";
 ######################################################################
 
-# switch on strict mode
 process.use strict;
 
 # configure help
@@ -78,21 +77,24 @@ function rlx {
 	
 	local cmd="${1:-}";
 	shift;
-	
 	local rlxlib="${exedir}/../lib/rlx";
 	local commands="${rlxlib}/commands";
 	if [ ! -f "${commands}/${cmd}" ]; then
 		console.quit 1 "invalid %s command %s" "$process_name" "$cmd";
 	fi
+	
+	# common code
 	source "${rlxlib}/common";
+	# command specific code
 	source "${commands}/${cmd}";
 	
 	# dependencies
 	require 'couchdb';
 	require 'crypto';
 	
-	# initialize $HOME/.rlx and
-	# sub-directories including keypair generation
+	# NOTE: initialize $HOME/.rlx and
+	# NOTE: sub-directories including
+	# NOTE: openssl keypair generation
 	if ! rlx.firstrun?; then
 		rlx.init;
 	fi
