@@ -1,0 +1,35 @@
+function crypto.rsa.generate {
+	executable.validate openssl;
+	local passphrase="${1:-true}";
+	local bits="${2:-2048}";
+	local out="${3:-}";
+	local pub="${4:-}";
+	local logfile="${5:-/dev/null}";
+	if [ -n "$out" ]; then
+		local opts=( genrsa );
+		if $passphrase; then
+			opts+=( "-des3" );
+		fi
+		opts+=( -out "${out}" );
+		opts+=( $bits );
+		#echo "${executables[openssl]} ${opts[@]}";
+		"${executables[openssl]}" "${opts[@]}" 1> "$logfile" 2>&1;
+		if [ $? -eq 0 ] && [ -n "$pub" ]; then
+			crypto.rsa.public.generate "$out" "$pub";
+			return $?;
+		fi
+	fi
+	return 1;
+}
+
+function crypto.rsa.public.generate {
+	local pem="${1:-}";
+	local pub="${2:-}";
+	local logfile="${3:-/dev/null}";
+	if [ -n "$pem" ] && [ -n "$pub" ]; then
+		local opts=( "rsa" "-in" "${pem}" "-pubout" "-out" "$pub" );
+		"${executables[openssl]}" "${opts[@]}" 1> "$logfile" 2>&1;
+		return $?;
+	fi
+	return 1;
+}

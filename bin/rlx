@@ -16,9 +16,13 @@ Allows manipulation and querying of couchdb(7) databases from the command line.
 
 	rlx command [options...]
 	
+## FILES
+
+The rlx(1) program stores various configuration files in `$HOME/.rlx`.
+	
 ## DEPENDENCIES
 
-curl(1), tee(1)
+openssl(1), curl(1), tee(1)
 
 ## BUGS
 
@@ -73,13 +77,62 @@ help.parse "$@";
 # 	exit 0;
 # fi
 
+rlx_home="$HOME/.rlx";
+
+function rlx.init {
+	local db="db";
+	local keys="keys";
+	local log="log";
+	local dir subdirs=( "$keys" "$db" "$log" );
+	# create main storage directory
+	mkdir -p "$rlx_home" \
+		|| console.quit 1 "could not create %s" "$rlx_home";
+	if [ -d "$rlx_home" ]; then
+		console.info "created %s" "$rlx_home";
+	fi
+	# create required sub-directories
+	for dir in "${subdirs[@]}"
+		do
+			dir="${rlx_home}/${dir}";
+			mkdir -p "$dir" \
+				|| console.quit 1 "could not create %s" "$dir";
+			if [ -d "$dir" ]; then
+				console.info "created %s" "$dir";
+			fi
+	done
+	local keylogfile="${rlx_home}/${log}/keygen.log";
+	local keydir="${rlx_home}/$keys";
+	local keypair="${keydir}/rlx.pem";
+	local keypublic="${keydir}/rlx.pub";
+	# generate the keypair and public key
+	crypto.rsa.generate false 2048 "$keypair" "$keypublic" "$keylogfile" \
+		|| console.quit 1 "failed to generate private/public key pair";
+	chmod -R 700 "$keydir" || console.quit 1 "could not change permissions on %s" "$keydir";
+	if [ -f "$keypair" ]; then
+		console.info "generated public/private keypair %s" "$keypair";
+	fi
+	if [ -f "$keypublic" ]; then
+		console.info "generated public key file %s" "$keypublic";
+	fi
+	return 0;
+}
+
+function rlx.firstrun? {
+	test -d "$rlx_home";
+}
+
 function rlx {
-	# we need curl so test early
-	executable.validate curl tee;
+	# we need these executables so test early
+	executable.validate openssl curl tee;
 	
 	# dependencies
 	require 'inet';
 	require 'couchdb';
+	require 'crypto';
+	
+	if ! rlx.firstrun?; then
+		rlx.init;
+	fi
 	
 	# TODO: get this from a --host option
 	local host="ffsys.cloudant.com";
