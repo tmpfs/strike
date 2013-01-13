@@ -27,7 +27,7 @@ function json.parse {
 				do
 					#strip out the double quotes from string values
 					value=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$value" );
-					key=${key##json_};
+					#key=${key##json_};
 					
 					# if [ "$key" == "root_type" ]; then
 					# 	
@@ -118,11 +118,11 @@ function __json.parse.value {
 	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
 		local key=${jpath};
 		local val=${value};
-		#echo "got key: $key" >&2;
-		eval key=json_\$$key;
+		#eval key=json_\$$key;
+		echo "got key: $key" >&2;
 		#switch the commas for dot-style notation
 		key=${key//,/.};
-		if [ "$key" != 'json_$' ]; then
+		if [ "$key" != '$' ]; then
 			echo "${key}=${val}";
 		fi
 	fi

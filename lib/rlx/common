@@ -59,6 +59,13 @@ function rlx.prompt {
 	prompt="${ps1}${rlx_prompt_suffix}";
 }
 
+function rlx.prompt.cmd {
+	rlx.prompt;
+	read cmd;
+	echo "got command: $cmd";
+	rlx.prompt.cmd;
+}
+
 # read in password information
 function rlx.password.read {
 	local validate="${1:-true}";
@@ -120,6 +127,8 @@ function rlx.response {
 				v="${json_doc["$k"]}";
 				echo "$k : $v";
 		done
+		
+		rlx.prompt.cmd;		
 	fi
 }
 
