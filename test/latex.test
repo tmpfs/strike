@@ -66,13 +66,13 @@ function test.latex.compile.pdf.structure {
 	if [ -n "${executables[pdflatex]}" ]; then	
 		local structure="${root}/test/files/latex/structure";
 		local program="tasks.latex";
-		"$program" --dir "${structure}";
+		"$program" --debug --dir "${structure}";
 		assert.eq "0" "$?";
 		# should have one compiled document in the output root
 		assert.file.exists? "${target}/pdf/document.pdf";
 		# should also have one compiled document in the `info` directory
 		assert.file.exists? "${target}/pdf/info/document.pdf";
 		# clean up
-		rm -rf "${target}/pdf";
+		# rm -rf "${target}/pdf";
 	fi
 }

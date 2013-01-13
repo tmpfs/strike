@@ -227,12 +227,14 @@ function __latex.compile.all {
 
 # attempts to compile a single .tex source file
 function __latex.compile {
-	local name nm parent output="$latex_output";
+	local name nm parent target output="$latex_output";
 	fs.basename "$file" "name";
 	nm="${name%.tex}";
 	
 	fs.dirname "$file" "parent";
-	
+	# target used to cd into so that external files
+	# are resolved relative to the source .tex file
+	target="${parent}";
 	# make parent realtive to latex_dir
 	parent="${parent#$latex_dir}";
 
@@ -257,8 +259,13 @@ function __latex.compile {
 		console.log "${executables[pdflatex]} ${latex_options[*]} %s" "$file";
 	fi
 
-	# TODO: change working directory so relative file references are resolved correctly
 	local logfile="${output}/${nm}.compile.log";
+	
+	# exit code from compilation
+	local owd=$( pwd );
+	# run in subshell so the `cd` does no affect working
+	# directory of the parent shell
+	cd "${target}" || console.quit 1 "could not cd to %s" "${target}";
 	# TODO: quote options passed to latex to allow spaces in file paths
 	"${executables[pdflatex]}" "${latex_options[@]:-}" "$file" >| "$logfile" 2>&1;
 	if [ $? -gt 0 ]; then
@@ -274,6 +281,7 @@ function __latex.compile {
 		console.warn "log file %s" "$logfile";
 		console.quit 1 "failed to compile %s" "$file";
 	fi
+	cd "$owd" || console.quit 1 "could not cd to %s" "${owd}";
 }
 
 # parse command line options
