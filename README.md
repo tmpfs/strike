@@ -83,8 +83,6 @@ If you prefer [mvn(1)](http://maven.apache.org/) use the `test` goal:
 To verify all build tools are executing tests correctly use this one-liner:
 
 	npm test && rake test && ant test && mvn test && ./bake test
-	
-It is recommended (for additional tests to run that validate the valid and invalid JSON documents) that you install [jsonlint(1)](https://github.com/zaach/jsonlint).
 
 #### Dependencies
 
@@ -94,6 +92,12 @@ Some dependencies required to run the tests that may not be available on very mi
 * unzip(1)
 * tar(1)
 * man(1)
+
+In addition it is recommended for all tests to run that you have the following executables:
+
+* gcc(1)
+* pdflatex(1)
+* [jsonlint(1)](https://github.com/zaach/jsonlint)
 
 ### Generating Documentation
 
