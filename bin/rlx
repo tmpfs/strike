@@ -14,8 +14,7 @@ Allows manipulation and querying of couchdb(7) databases from the command line.
 
 ## USAGE
 
-	rlx command [options...]
-	rlx shell host
+	rlx shell [options...] [host]
 	
 ## FILES
 

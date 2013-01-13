@@ -16,9 +16,15 @@ Allows manipulation and querying of couchdb(7) databases from the command line\.
 .
 .nf
 
-rlx command [options\.\.\.]
+rlx shell [options\.\.\.] [host]
 .
 .fi
+.
+.SH "FILES"
+The rlx(1) program stores various configuration files in \fB$HOME/\.rlx\fR\.
+.
+.SH "DEPENDENCIES"
+openssl(1), curl(1), tee(1)
 .
 .SH "BUGS"
 \fBrlx\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
