@@ -78,7 +78,8 @@ help.parse "$@";
 # 	exit 0;
 # fi
 
-declare -g rlx_prompt="rlx %s";
+declare -g rlx_prompt_prefix="[rlx]";
+declare -g rlx_prompt="${rlx_prompt_prefix} %s";
 declare -g rlx_prompt_suffix=" ⚡ ";
 
 declare -g rlx_home="$HOME/.rlx";
@@ -128,7 +129,8 @@ function rlx.firstrun? {
 function rlx.prompt {
 	local replace="${1:-}";
 	local ps1=$( printf "$rlx_prompt" "$replace" );
-	echo -n "${ps1}${rlx_prompt_suffix}";
+	#echo -n "${ps1}${rlx_prompt_suffix}";
+	prompt="${ps1}${rlx_prompt_suffix}";
 }
 
 function rlx.shell {
@@ -158,23 +160,16 @@ function rlx.shell {
 function rlx.response {
 	if [ $http_response_status -eq 401 ]; then
 		console.warn "authorization required for %s" "$host";
-		
-		#if [ -n "$PS1" ]
-		if [ -v PS1 ]   # On Bash 4.2+ ...
-		then
-		  # non-interactive
-			echo "got non-interactive ..."
+		if [ -v PS1 ]; then
+			console.quit 1 "not a tty, cannot prompt for authentication credentials";
 		else
-		  # interactive
-			#echo "got interactive ..."
-			#echo -n "$rlx_prompt";
 			rlx.prompt "username";
-			read username;
-			#echo "got username: $username";
-			#echo -n "$rlx_prompt";
+			read -p "${prompt}" username;
 			rlx.prompt "password";
-			read -s password;
-			#echo "got password: $password";
+			read -s -p "${prompt}" password;
+			# create the newline
+			echo "";
+			echo "username: $username, password: $password";
 		fi
 	fi
 }
@@ -185,6 +180,13 @@ function rlx {
 	
 	# the current host being used
 	local host="";
+	
+	# the current prompt
+	local prompt="${rlx_prompt_prefix}${rlx_prompt_suffix}";
+	
+	# credentials used for authentication
+	local username;
+	local password;
 	
 	# dependencies
 	require 'inet';
