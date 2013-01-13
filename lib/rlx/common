@@ -25,18 +25,16 @@ function rlx.init {
 	done
 	
 	local auth="${rlx_home}/auth.json";
-	local aes="${rlx_home}/auth.json.aes";
 	# create an empty json document
 	echo "{}" >| "${auth}";
 	# echo "contents are: `cat $auth`";
 	rlx.password.read;
 	master="$password";
-	crypto.enc.aes256cbc "$auth" "${aes}" "$password";
-	if [ ! -f "${aes}" ]; then
+	crypto.enc.aes256cbc - "${auth}" "$password" <<< "{}";
+	if [ ! -f "${auth}" ]; then
 		console.quit 1 "could not generate encrypted authentication file";
 	fi
 	# switch the encrypted to the plain json extension
-	rm "${auth}" && mv "${aes}" "${auth}";
 	chmod -R 700 "$auth" || console.quit 1 "could not change permissions on %s" "$auth";
 	
 	if [ -f "$auth" ]; then
@@ -44,7 +42,7 @@ function rlx.init {
 	fi
 	
 	# test decryption
-	crypto.dec.aes256cbc "${auth}" "-" "$master";
+	# crypto.dec.aes256cbc "${auth}" "-" "$master";
 	
 	return 0;
 }
@@ -62,30 +60,37 @@ function rlx.prompt {
 
 # read in password information
 function rlx.password.read {
+	local validate="${1:-true}";
 	rlx.prompt "password";
 	read -s -p "${prompt}" password;
 	# create a newline
 	echo "";
 	if [ -z "$password" ]; then
 		rlx.password.read;
-	elif [ ${#password} -lt 8 ]; then
-		console.info "minimum 8 characters for a password";
-		rlx.password.read;		
+	elif $validate; then
+		if [ ${#password} -lt 8 ]; then
+			console.info "minimum 8 characters for a password";
+			rlx.password.read;
+		fi
 	fi
+}
+
+# capture authentication information from stdin
+function rlx.authenticate {
+	rlx.prompt "username";
+	read -p "${prompt}" username;
+	rlx.password.read false;
+	echo "username: $username, password: $password";
 }
 
 # handle a server response
 function rlx.response {
 	if [ $http_response_status -eq 401 ]; then
-		console.warn "authorization required for %s" "$host";
+		console.info "authorization required for %s" "$host";
 		if [ -v PS1 ]; then
 			console.quit 1 "not a tty, cannot prompt for authentication credentials";
 		else
-			rlx.prompt "username";
-			read -p "${prompt}" username;
-			rlx.password.read;
-			
-			echo "username: $username, password: $password";
+			rlx.authenticate;
 		fi
 	fi
 }

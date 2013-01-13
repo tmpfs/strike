@@ -1,5 +1,7 @@
 function rlx.shell {
-	#echo "$FUNCNAME : $*";
+	if [ ! -t 0 ] || [ ! -t 1 ] || [ ! -t 2 ]; then
+		console.quit 1 "$process_name shell must be run from a tty";
+	fi
 	
 	host="${1:-}";
 	

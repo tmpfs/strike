@@ -42,7 +42,13 @@ function crypto.enc.aes256cbc {
 	local outfile="${2:-}";
 	local password="${3:-}";
 	if [ -n "$infile" ] && [ -n "$outfile" ]; then
-		local opts=( "aes-256-cbc" "-salt" "-in" "${infile}" "-out" "${outfile}" );
+		local opts=( "aes-256-cbc" "-salt" );
+		if [ -n "$infile" ] && [ "${infile}" != "-" ]; then
+			opts+=( "-in" "${infile}" );
+		fi		
+		if [ -n "$outfile" ] && [ "${outfile}" != "-" ]; then
+			opts+=( "-out" "${outfile}" );
+		fi
 		if [ -n "$password" ]; then
 			opts+=( "-pass" "pass:${password}" );
 		fi
