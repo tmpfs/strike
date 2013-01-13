@@ -67,40 +67,40 @@ require 'url';
 # is available at: ${executables[curl]}
 executable.validate curl tee;
 
-export http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
-export http_home="$HOME/.http";
-export http_output_file="$http_home/http.out";
-export http_head_file="$http_home/http.head";
-export http_body_file="$http_home/http.body";
-export http_trace_file="$http_home/http.trace";
-export http_exit_file="$http_home/http.exit";
-export http_trace_ascii_file="$http_home/http.trace.ascii";
-export http_head_dump_file="$http_home/http.head.dump";
-export http_config_dir="$http_home/config";
-export http_config_file="$http_home/http.config";
-export http_stderr_file="$http_home/http.stderr";
-export http_stdout_file="$http_home/http.stdout";
-export http_config_name="";
-export http_base_url="";
+declare -g http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
+declare -g http_home="$HOME/.http";
+declare -g http_output_file="$http_home/http.out";
+declare -g http_head_file="$http_home/http.head";
+declare -g http_body_file="$http_home/http.body";
+declare -g http_trace_file="$http_home/http.trace";
+declare -g http_exit_file="$http_home/http.exit";
+declare -g http_trace_ascii_file="$http_home/http.trace.ascii";
+declare -g http_head_dump_file="$http_home/http.head.dump";
+declare -g http_config_dir="$http_home/config";
+declare -g http_config_file="$http_home/http.config";
+declare -g http_stderr_file="$http_home/http.stderr";
+declare -g http_stdout_file="$http_home/http.stdout";
+declare -g http_config_name="";
+declare -g http_base_url="";
 
 # determines whether curl(1) stderr output is also
 # printed to the screen
-export http_print_stderr="";
+declare -g http_print_stderr="";
 
 # determines whether to quit when curl(1)
 # returns a non-zero exit code, set to a
 # non-blank string to switch on
 declare http_strict="";
 
-declare -Ax http_request_headers;
+declare -Ag http_request_headers;
 
-declare -ax http_command_options;
+declare -ag http_command_options;
 http_command_options=();
 
 # have to do this in two steps for arrays as
 # direct assignment will cause the http_files array not
 # to be available inside function definitions
-declare -ax http_files;
+declare -ag http_files;
 http_files=(
 	"$http_output_file"
 	"$http_head_file"
@@ -166,11 +166,11 @@ function http.curl.execute {
 	# redirect stderr with tee, useful for also
 	# displaying file download progress
 	if [ ! -z "$http_print_stderr" ]; then
-		$cmd "${runopts[@]}" 2> >($tee "$http_stderr_file" >&2) 1> "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";	
+		$cmd "${runopts[@]}" 2>| >($tee "$http_stderr_file" >&2) 1>| "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";	
 	# not redirecting stderr to screen as well
 	# so just send to the file
 	else
-		$cmd "${runopts[@]}" 2> "$http_stderr_file" 1> "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";
+		$cmd "${runopts[@]}" 2>| "$http_stderr_file" 1>| "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";
 	fi
 	
 	# >(tee stderr.log >&2)
@@ -316,7 +316,7 @@ function http.curl {
 	# alias;
 	# echo "has http alias : `command -v http`";
 	
-	http curl.execute "${runopts[@]}";
+	http.curl.execute "${runopts[@]}";
 }
 
 ######################################################################
@@ -370,7 +370,7 @@ function __http_write_config {
 	local f="$http_config_file";
 	
 	#empty the config file
-	echo -n > "$f";
+	echo -n >| "$f";
 	
 	local opts=( "$@" );
 	

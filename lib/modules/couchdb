@@ -28,6 +28,11 @@ export couchdb_module_name="couchdb";
 #	echo "got rest_result_parse opts ${opts[@]}";
 #}
 
+function couchdb.db.list {
+	local host="${1:-}";
+	http.curl "GET" "${host}/_all_dbs";
+}
+
 function couchdb_print {
 	info "[%s] %s %s" "$couchdb_result_status" "$couchdb_result_method" "$couchdb_result_url";
 }
