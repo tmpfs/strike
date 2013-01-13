@@ -193,6 +193,13 @@ function __latex.defaults {
 		mkdir -p "$latex_output" || quit 1 "could not create latex output directory %s" "$latex_output";
 	fi
 	
+	# always expand path so that nested directory
+	# structure are correct when using the ./doc/latex path
+	if [ -d "$latex_output" ]; then
+		fs.path.expand "$latex_output";
+		latex_output="$_result";
+	fi
+	
 	#  -output-directory should always be index 0
 	latex_options+=( "-output-directory=$latex_output" );
 	
@@ -228,10 +235,10 @@ function __latex.compile {
 	
 	# make parent realtive to latex_dir
 	parent="${parent#$latex_dir}";
-	
-	echo "compiling with dir: $latex_dir";
-	echo "compiling with file: $file";
-	echo "compiling with parent: $parent";
+
+	# echo "compiling with dir: $latex_dir";
+	# echo "compiling with file: $file";
+	# echo "compiling with parent: $parent";
 	
 	# if parent is empty the output is the root
 	if [ -n "$parent" ]; then
@@ -244,26 +251,26 @@ function __latex.compile {
 	
 	latex_options[0]="-output-directory=$output";
 	
-	echo "using output: $output";
+	# echo "using output: $output";
 	
 	if $latex_debug; then
 		console.log "${executables[pdflatex]} ${latex_options[*]} %s" "$file";
 	fi
 
 	# TODO: change working directory so relative file references are resolved correctly
-	local logfile="${latex_output}/${nm}.compile.log";
+	local logfile="${output}/${nm}.compile.log";
 	# TODO: quote options passed to latex to allow spaces in file paths
 	"${executables[pdflatex]}" "${latex_options[@]:-}" "$file" >| "$logfile" 2>&1;
 	if [ $? -gt 0 ]; then
 		if $latex_debug; then
-			if [ -f "${latex_output}/${nm}.log" ]; then
+			if [ -f "${output}/${nm}.log" ]; then
 				# latex generated log file, more verbose/informative
-				cat "${latex_output}/${nm}.log" >&2;
+				cat "${output}/${nm}.log" >&2;
 			else
 				cat "$logfile" >&2;
 			fi
 		fi
-		console.warn "log file %s" "${latex_output}/${nm}.log";
+		console.warn "log file %s" "${output}/${nm}.log";
 		console.warn "log file %s" "$logfile";
 		console.quit 1 "failed to compile %s" "$file";
 	fi
