@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+
+: <<'ronn:markdown'
+rlx(1) -- couchdb command line interface
+=============================================
+
+## SYNOPSIS
+
+A command line interface for couchdb(7).
+
+## DESCRIPTION
+
+Allows manipulation and querying of couchdb(7) databases from the command line.
+
+## USAGE
+
+	rlx command [options...]
+
+## BUGS
+
+**rlx** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**rlx** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+couchdb(3), http(3), json(3), curl(1)
+ronn:markdown
+
+set -o errtrace;
+set -o errexit;
+set -o nounset;
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+console_print_program_prefix="off";
+declare -g exedir;
+function boilerplate {
+	local src="${BASH_SOURCE[0]}"
+	exedir="$( dirname "$src" )"
+	while [ -h "$src" ]
+		do 
+			src="$(readlink "$src")";
+			[[ $src != /* ]] && src="$exedir/$src";
+			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+	done
+	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+	unset src;
+	source "$exedir/../lib/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+# switch on strict mode
+process.use strict;
+
+# configure help
+require 'help';
+help.man.page "default" "rlx.1";
+help.parse "$@";
+
+if [ $# -eq 0 ]; then
+	help.man.show.default;
+	exit 0;
+fi
+
+function rlx {
+	local cmd="${1:-}";
+	delegate "couchdb" "$cmd" "$@" || quit $? "task %s failed" "$func";
+}
+
+rlx "$@";

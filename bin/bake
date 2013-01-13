@@ -112,14 +112,14 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
-require inet;
-
-set +o errexit;
-inet.up?;
-echo "exit code in bake: $?";
-#set -e;
-
-exit 0;
+# require inet;
+# 
+# set +o errexit;
+# inet.up?;
+# echo "exit code in bake: $?";
+# #set -e;
+# 
+# exit 0;
 
 # ptn="[^]\+?\s??.?";
 # 
@@ -433,7 +433,7 @@ help.parse "$@";
 
 if [ $# -eq 0 ]; then
 	help.man.show.default;
-	exit 1;
+	exit 0;
 fi
 
 # default builtin tasks

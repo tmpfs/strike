@@ -13,6 +13,7 @@
 # 	inner;
 # }
 
+# TODO: test and document this module
 function aspect {
 	local newline="
 ";
