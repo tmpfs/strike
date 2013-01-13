@@ -112,6 +112,15 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+require inet;
+
+set +o errexit;
+inet.up?;
+echo "exit code in bake: $?";
+#set -e;
+
+exit 0;
+
 # ptn="[^]\+?\s??.?";
 # 
 # [[ "abc" =~ $ptn ]] && {
