@@ -59,6 +59,9 @@ declare delegate=true;
 
 require 'url';
 
+# TODO: validate that these executable later
+# TODO: just before we wish to use them
+
 # validate the curl executable is available
 # after validation the executable path
 # is available at: ${executables[curl]}

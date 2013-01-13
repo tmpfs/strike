@@ -15,6 +15,10 @@ Allows manipulation and querying of couchdb(7) databases from the command line.
 ## USAGE
 
 	rlx command [options...]
+	
+## DEPENDENCIES
+
+curl(1), tee(1)
 
 ## BUGS
 
@@ -64,25 +68,39 @@ require 'help';
 help.man.page "default" "rlx.1";
 help.parse "$@";
 
-if [ $# -eq 0 ]; then
-	help.man.show.default;
-	exit 0;
-fi
-
-require inet;
+# if [ $# -eq 0 ]; then
+# 	help.man.show.default;
+# 	exit 0;
+# fi
 
 function rlx {
+	# we need curl so test early
+	executable.validate curl tee;
+	
+	# dependencies
+	require 'inet';
+	require 'couchdb';
+	
+	# TODO: get this from a --host option
+	local host="ffsys.cloudant.com";
+	local protocol="http://";
 	
 	# TODO: only run this test when the host is not
 	# TODO: localhost or 127.0.0.1
+	
 	set +e;
-	inet.up?;
-	echo "exit code in rlx: $?";
+	# TODO: change this to use curl(1) for inet validation
+	inet.up? "$host";
+	if [ $? -gt 0 ]; then
+		console.quit 1 "could not connect to %s %s" "$host" "✘";
+	fi
 	set -e;
-	exit 0;
+
+	console.info "%s ok %s" "$host" "✓";
 	
 	local cmd="${1:-}";
-	delegate "couchdb" "$cmd" "$@" || quit $? "task %s failed" "$func";
+	
+	#delegate "couchdb" "$cmd" "$@" || quit $? "task %s failed" "$func";
 }
 
 rlx "$@";

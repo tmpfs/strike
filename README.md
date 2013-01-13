@@ -93,9 +93,10 @@ Some dependencies required to run the tests that may not be available on very mi
 * tar(1)
 * man(1)
 
-In addition it is recommended for all tests to run that you have the following executables:
+In addition it is recommended for all tests to run that you have the following executables and an active internet connection:
 
 * gcc(1)
+* curl(1)
 * pdflatex(1)
 * [jsonlint(1)](https://github.com/zaach/jsonlint)
 
