@@ -12,18 +12,14 @@ function rlx.shell {
 	
 	# TODO: test if db-name has been specified
 	
-	# /_all_dbs
-	# ["fastdrop","hosts","rlx-world-writable"]
-	
 	console.info "host %s" "$host";
 	console.info "fetching database list from %s" "$host";
-	#couchdb.db.list "$host";
 	
 	rlx.run couchdb.db.list "$host";
 }
 
 function rlx.shell.help {
-	echo "shell help called ... $@";
+	help.man.show "default";
 }
 
 # quit the shell
