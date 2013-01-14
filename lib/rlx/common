@@ -59,6 +59,58 @@ function rlx.prompt {
 	prompt="${ps1}${rlx_prompt_suffix}";
 }
 
+# save authentication credentials
+function rlx.auth.save {
+	if [ -z "${master:-}" ]; then
+		console.info "enter the master password: ";
+		rlx.password.read false;
+		master="$password";
+	fi
+	if [ -n "${username:-}" ] && [ -n "${password:-}" ] && [ -n "${host:-}" ]; then
+		declare -A auth_doc;
+		local auth="${rlx_home}/auth.json";
+		local plain="${rlx_home}/auth.plain.json";
+		local contents="";
+		crypto.dec.aes256cbc "${auth}" "${plain}" "$master" 2>| "${rlx_home}/log/openssl.log";
+		local code=$?;
+		if [ $code -gt 0 ]; then
+			console.error "openssl(%s) could not decrypt %s, bad password" "$code" "${auth}";
+			master="";
+			rlx.auth.save.clean;
+			rlx.auth.save;
+		else
+			json.parse < "${plain}";
+			
+			# empty document, first entry
+			if [ -z "${!json_doc[@]}" ]; then
+				auth_doc[auth.0.user]="$couchdb_user";
+				auth_doc[auth.0.pass]="$couchdb_pass";
+				auth_doc[auth.0.host]="$host";
+			# TODO: append entries to the document
+			fi
+			
+			# convert to json and encrypt
+			json.stringify <<< "auth_doc";
+			json.string >| "${plain}";
+			crypto.enc.aes256cbc "${plain}" "${auth}" "$master";
+			code=$?;
+			if [ $code -gt 0 ]; then
+				console.error "openssl(%s) could not encrypt to %s" "${auth}";
+			fi
+			rlx.auth.save.clean;
+			
+			# test decryption
+			#crypto.dec.aes256cbc "${auth}" - "$master";
+		fi
+	fi
+}
+
+# clean up plain text version
+# TODO: add an exit handler to remove this file if it exists!
+function rlx.auth.save.clean {
+	rm "${plain}" || console.error "could not delete %s" "${plain}";
+}
+
 function rlx.prompt.cmd {
 	rlx.prompt "@ ${host}";
 	read -p "${prompt}" cmd;
@@ -157,8 +209,8 @@ function rlx.response {
 		
 		# successful authentication
 		if $authenticating; then
-			# TODO: save authentication information upon succesful auth
 			authenticating=false;
+			rlx.auth.save;
 		fi
 
 		json.parse < "$response_json";

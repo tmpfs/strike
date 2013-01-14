@@ -109,6 +109,17 @@ require 'help';
 help.man.page "default" "rlx.1";
 help.parse "$@";
 
+
+# the current host being used
+declare -g host="";
+	
+# credentials used for authentication
+declare -g username;
+declare -g password;
+
+# the master password for auth.json
+declare -g master;
+
 function rlx {
 	# we need these executables so test early
 	executable.validate openssl curl tee;
@@ -129,18 +140,9 @@ function rlx {
 	# dependencies
 	require 'couchdb';
 	require 'crypto';
-
-	# the current host being used
-	local host="";
 	
 	# the current prompt
 	local prompt="${rlx_prompt_prefix}${rlx_prompt_suffix}";
-	
-	# credentials used for authentication
-	local username;
-	local password;
-	# the master password for auth.json
-	local master;
 	
 	# a flag indicating whether we are in the process
 	# of authenticating
