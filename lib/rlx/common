@@ -76,8 +76,8 @@ function rlx.prompt.cmd {
 	# 	# echo -ne "$prompt";
 	# 	bash 1> /dev/null;
 	# );
-	local cmd=$( tail -n 1 "$rlx_history" );
-	echo "got command : $cmd";
+	#local cmd=$( tail -n 1 "$rlx_history" );
+	#echo "got command : $cmd";
 	if [ -z "$cmd" ]; then
 		rlx.prompt.cmd;
 		return 0;
