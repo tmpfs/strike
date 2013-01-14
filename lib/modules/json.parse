@@ -59,7 +59,7 @@ function json.parse.clean {
 	# clean any existing data
 	for key in "${!json_doc[@]}";
 		do
-			unset json_doc["$key"];
+			unset json_doc[$key];
 	done
 }
 

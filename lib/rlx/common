@@ -87,6 +87,8 @@ function rlx.auth.save {
 				auth_doc[auth.0.pass]="$couchdb_pass";
 				auth_doc[auth.0.host]="$host";
 			# TODO: append entries to the document
+			else
+				echo "append to auth file with existing entries...";
 			fi
 			
 			# convert to json and encrypt
@@ -96,6 +98,8 @@ function rlx.auth.save {
 			code=$?;
 			if [ $code -gt 0 ]; then
 				console.error "openssl(%s) could not encrypt to %s" "${auth}";
+			else
+				console.info "saved %s @ %s" "$couchdb_user" "$host";
 			fi
 			rlx.auth.save.clean;
 			

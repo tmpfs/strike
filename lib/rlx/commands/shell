@@ -4,6 +4,7 @@ function rlx.shell {
 	fi
 	
 	host="${1:-}";
+	host="${host%/}";
 	
 	# TODO: add prompt to specify the host?
 	if [ $# -eq 0 ]; then
