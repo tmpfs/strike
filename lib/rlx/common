@@ -117,13 +117,8 @@ function rlx.auth.save.clean {
 
 function rlx.prompt.cmd {
 	rlx.prompt "@ ${host}";
-	while HISTFILE="$rlx_history" read -ep "${prompt}" cmd;
+	while HISTFILE="$rlx_history"; history -r "$rlx_history"; read -ep "${prompt}" cmd;
 		do
-			#export HISTFILE="$rlx_history";
-			#echo "histfile: $rlx_history";
-			history -s "$cmd";
-			#echo "got command $cmd"
-			
 			if [ -z "$cmd" ]; then
 				rlx.prompt.cmd;
 				return 0;
@@ -135,6 +130,9 @@ function rlx.prompt.cmd {
 				rlx.prompt.cmd;
 				return 0;
 			fi
+			
+			history -s "$cmd";
+			history -w "$rlx_history";	
 			
 			"rlx.shell.$cmd" "${cmdline[@]:1}";
 			rlx.prompt.cmd;
