@@ -117,44 +117,45 @@ function rlx.auth.save.clean {
 
 function rlx.prompt.cmd {
 	rlx.prompt "@ ${host}";
-	read -p "${prompt}" cmd;
+	#read -p "${prompt}" cmd;
 	#PS1="${prompt}";
 
-	# (
-	# 	export HISTFILE="$rlx_history";
-	# 	export PS1="${prompt}";
-	# 	# function command_not_found_handle {
-	# 	# 	echo "$FUNCNAME: $*";
-	# 	# }
-	# 	function command_not_found_handle {
-	# 		echo "$FUNCNAME: $*";
-	# 	}
-	# 	# echo -ne "$prompt";
-	# 	bash 1> /dev/null;
-	# );
-	#local cmd=$( tail -n 1 "$rlx_history" );
-	#echo "got command : $cmd";
-	if [ -z "$cmd" ]; then
-		rlx.prompt.cmd;
-		return 0;
-	fi
-	local cmdline=( $cmd );
-	cmd="${cmdline[0]}";
-	if ! method.exists? "rlx.shell.$cmd"; then
-		console.info "unknown command %s, type %s" "$cmd" "help";
-		rlx.prompt.cmd;
-		return 0;
-	fi
-	# echo "execute command: $cmd";
-	# echo "execute command options: ${cmdline[@]:1}";
+	(
+		export HISTFILE="$rlx_history";
+		export PS1="${prompt}";
+		# function command_not_found_handle {
+		# 	echo "$FUNCNAME: $*";
+		# }
+		# function command_not_found_handle {
+		# 	echo "$FUNCNAME: $*";
+		# }
+		# echo -ne "$prompt";
+		bash -i -r --noprofile --dump-strings;
+	);
 	
-	#echo "exec: history -s "${cmdline[@]}" "$rlx_history"";	
-	
-	#history -s "${cmdline[@]}" "$rlx_history";
-	
-	# execute the shell command method
-	"rlx.shell.$cmd" "${cmdline[@]:1}";
-	rlx.prompt.cmd;
+	local cmd=$( tail -n 1 "$rlx_history" );
+	echo "got command : $cmd";
+	# if [ -z "$cmd" ]; then
+	# 	rlx.prompt.cmd;
+	# 	return 0;
+	# fi
+	# local cmdline=( $cmd );
+	# cmd="${cmdline[0]}";
+	# if ! method.exists? "rlx.shell.$cmd"; then
+	# 	console.info "unknown command %s, type %s" "$cmd" "help";
+	# 	rlx.prompt.cmd;
+	# 	return 0;
+	# fi
+	# # echo "execute command: $cmd";
+	# # echo "execute command options: ${cmdline[@]:1}";
+	# 
+	# #echo "exec: history -s "${cmdline[@]}" "$rlx_history"";	
+	# 
+	# #history -s "${cmdline[@]}" "$rlx_history";
+	# 
+	# # execute the shell command method
+	# "rlx.shell.$cmd" "${cmdline[@]:1}";
+	# rlx.prompt.cmd;
 }
 
 # read in password information
