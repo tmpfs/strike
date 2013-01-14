@@ -132,15 +132,20 @@ function rlx.prompt.cmd {
 	bind 'set show-all-if-ambiguous on';
 	bind 'set completion-ignore-case on';
 	#COMP_WORDBREAKS=${COMP_WORDBREAKS//:}
-	# bind 'TAB:menu-complete';
+	#bind 'TAB: menu-complete';
 	# bind 'TAB:dynamic-complete-history';
 	#bind 'TAB:dynamic-complete-history';
-	bind -u 'dynamic-complete-history';
-	bind 'TAB:dynamic-complete-history';
-	#bind -x 'TAB:rlx.prompt.complete';
+	#bind -u 'dynamic-complete-history';
+	bind 'TAB: complete-filename';
+	bind 'TAB: dynamic-complete-history';
+	#bind -x '"TAB": rlx.prompt.complete';
+	
 	#compgen -W "directory db help info" "${cmd}";
 	
-	# compgen -F rlx.prompt.complete;
+	#complete -E -F rlx.prompt.complete;
+	
+	
+	#compgen -E -F rlx.prompt.complete;
 	
 	# shopt -s histappend;
 	# PROMPT_COMMAND="history -a"	
@@ -161,15 +166,15 @@ function rlx.prompt.cmd {
 			local cmdline=( $cmd );
 			cmd="${cmdline[0]}";
 			# complete -F "rlx.prompt.complete" -o "default" "${cmd}";
+						
+			history -s "$cmd";
+			history -w "$rlx_history";			
 			
 			if ! method.exists? "rlx.shell.$cmd"; then
 				console.info "unknown command %s, type %s" "$cmd" "help";
 				rlx.prompt.cmd;
 				return 0;
 			fi
-			
-			history -s "$cmd";
-			history -w "$rlx_history";
 			
 			"rlx.shell.$cmd" "${cmdline[@]:1}";
 			rlx.prompt.cmd;
