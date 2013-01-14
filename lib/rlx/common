@@ -62,8 +62,22 @@ function rlx.prompt {
 function rlx.prompt.cmd {
 	rlx.prompt "@ ${host}";
 	read -p "${prompt}" cmd;
-	# PS1="${prompt}";
-	# ( bash );
+	#PS1="${prompt}";
+
+	# (
+	# 	export HISTFILE="$rlx_history";
+	# 	export PS1="${prompt}";
+	# 	# function command_not_found_handle {
+	# 	# 	echo "$FUNCNAME: $*";
+	# 	# }
+	# 	function command_not_found_handle {
+	# 		echo "$FUNCNAME: $*";
+	# 	}
+	# 	# echo -ne "$prompt";
+	# 	bash 1> /dev/null;
+	# );
+	local cmd=$( tail -n 1 "$rlx_history" );
+	echo "got command : $cmd";
 	if [ -z "$cmd" ]; then
 		rlx.prompt.cmd;
 		return 0;
