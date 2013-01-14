@@ -1,5 +1,5 @@
 # global json document
-declare -Agx json_doc;
+declare -Ag json_doc;
 
 function json.parse {
 	
@@ -55,12 +55,16 @@ function json.parse {
 }
 
 function json.parse.clean {
-	local key;
-	# clean any existing data
-	for key in "${!json_doc[@]}";
-		do
-			unset json_doc[$key];
-	done
+	# local key;
+	# # clean any existing data
+	# for key in "${!json_doc[@]}";
+	# 	do
+	# 		echo "unset key is: $key";
+	# 		unset json_doc[$key];
+	# done
+	
+	unset json_doc;
+	declare -Ag json_doc;
 }
 
 ######################################################################

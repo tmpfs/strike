@@ -82,7 +82,7 @@ function rlx.auth.save {
 			json.parse < "${plain}";
 			
 			# empty document, first entry
-			if [ -z "${!json_doc[@]}" ]; then
+			if [ -z "${!json_doc[*]}" ]; then
 				auth_doc[auth.0.user]="$couchdb_user";
 				auth_doc[auth.0.pass]="$couchdb_pass";
 				auth_doc[auth.0.host]="$host";
@@ -117,24 +117,50 @@ function rlx.auth.save.clean {
 
 function rlx.prompt.cmd {
 	rlx.prompt "@ ${host}";
-	#read -p "${prompt}" cmd;
+	while HISTFILE="$rlx_history" read -ep "${prompt}" cmd;
+		do
+			#export HISTFILE="$rlx_history";
+			#echo "histfile: $rlx_history";
+			history -s "$cmd";
+			#echo "got command $cmd"
+			
+			if [ -z "$cmd" ]; then
+				rlx.prompt.cmd;
+				return 0;
+			fi
+			local cmdline=( $cmd );
+			cmd="${cmdline[0]}";
+			if ! method.exists? "rlx.shell.$cmd"; then
+				console.info "unknown command %s, type %s" "$cmd" "help";
+				rlx.prompt.cmd;
+				return 0;
+			fi
+			
+			"rlx.shell.$cmd" "${cmdline[@]:1}";
+			rlx.prompt.cmd;
+			return 0;
+	done
 	#PS1="${prompt}";
-
-	(
-		export HISTFILE="$rlx_history";
-		export PS1="${prompt}";
-		# function command_not_found_handle {
-		# 	echo "$FUNCNAME: $*";
-		# }
-		# function command_not_found_handle {
-		# 	echo "$FUNCNAME: $*";
-		# }
-		# echo -ne "$prompt";
-		bash -i -r --noprofile --dump-strings;
-	);
 	
-	local cmd=$( tail -n 1 "$rlx_history" );
-	echo "got command : $cmd";
+	# echo "showing command prompt ... ";
+	# 
+	# (
+	# 	export HISTFILE="$rlx_history";
+	# 	export PS1="${prompt} (bash)";
+	# 	# function command_not_found_handle {
+	# 	# 	echo "$FUNCNAME: $*";
+	# 	# }
+	# 	# function command_not_found_handle {
+	# 	# 	echo "$FUNCNAME: $*";
+	# 	# }
+	# 	# echo -ne "$prompt";
+	# 	(
+	# 		bash --noprofile --dump-strings -i && tail -n 1 "$rlx_history";
+	# 	)
+	# 	local cmd=$( tail -n 1 "$rlx_history" );
+	# 	echo "got command : $cmd";
+	# );
+	
 	# if [ -z "$cmd" ]; then
 	# 	rlx.prompt.cmd;
 	# 	return 0;
