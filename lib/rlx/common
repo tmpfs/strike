@@ -115,12 +115,13 @@ function rlx.auth.save.clean {
 	rm "${plain}" || console.error "could not delete %s" "${plain}";
 }
 
-# function rlx.prompt.complete {
-# 	COMPREPLY=()
-# 	local cur="${COMP_WORDS[COMP_CWORD]}"
-# 	local opts="Whatever sort of tabbing options you want to have!"
-# 	COMPREPLY=($(compgen -W "${opts}" -- ${cur}));
-# }
+function rlx.prompt.complete {
+	# COMPREPLY=()
+	# local cur="${COMP_WORDS[COMP_CWORD]}"
+	# local opts="Whatever sort of tabbing options you want to have!"
+	# COMPREPLY=($(compgen -W "${opts}" -- ${cur}));
+	echo "$FUNCNAME : $COMP_CWORD";
+}
 
 function rlx.prompt.cmd {
 	rlx.prompt "@ ${host}";
@@ -133,13 +134,21 @@ function rlx.prompt.cmd {
 	#COMP_WORDBREAKS=${COMP_WORDBREAKS//:}
 	# bind 'TAB:menu-complete';
 	# bind 'TAB:dynamic-complete-history';
+	#bind 'TAB:dynamic-complete-history';
+	bind -u 'dynamic-complete-history';
 	bind 'TAB:dynamic-complete-history';
-	compgen -W "directory db help info" "${cmd}";
+	#bind -x 'TAB:rlx.prompt.complete';
+	#compgen -W "directory db help info" "${cmd}";
+	
+	# compgen -F rlx.prompt.complete;
+	
+	# shopt -s histappend;
+	# PROMPT_COMMAND="history -a"	
 	
 	while
 		HISTSIZE=500;
 		HISTFILESIZE=500;
-		HISTCONTROL=erasedups;
+		HISTCONTROL=erasedups:ignoredups;
 		HISTFILE="$rlx_history";
 		history -r "$rlx_history";
 		read -ep "${prompt}" cmd;
