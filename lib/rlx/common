@@ -115,26 +115,31 @@ function rlx.auth.save.clean {
 	rm "${plain}" || console.error "could not delete %s" "${plain}";
 }
 
-function rlx.prompt.complete {
-	COMPREPLY=()
-	local cur="${COMP_WORDS[COMP_CWORD]}"
-	local opts="Whatever sort of tabbing options you want to have!"
-	COMPREPLY=($(compgen -W "${opts}" -- ${cur}));
-}
+# function rlx.prompt.complete {
+# 	COMPREPLY=()
+# 	local cur="${COMP_WORDS[COMP_CWORD]}"
+# 	local opts="Whatever sort of tabbing options you want to have!"
+# 	COMPREPLY=($(compgen -W "${opts}" -- ${cur}));
+# }
 
 function rlx.prompt.cmd {
 	rlx.prompt "@ ${host}";
 	
+	export HISTFILE="$rlx_history";
 	# set up tab completion for shell commands
 	set -o emacs;
 	bind 'set show-all-if-ambiguous on';
 	bind 'set completion-ignore-case on';
 	#COMP_WORDBREAKS=${COMP_WORDBREAKS//:}
 	# bind 'TAB:menu-complete';
+	# bind 'TAB:dynamic-complete-history';
 	bind 'TAB:dynamic-complete-history';
 	compgen -W "directory db help info" "${cmd}";
 	
-	while HISTFILE="$rlx_history";
+	while
+		HISTSIZE=100;
+		HISTFILESIZE=100;
+		HISTFILE="$rlx_history";
 		history -r "$rlx_history";
 		read -ep "${prompt}" cmd;
 		do
