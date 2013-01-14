@@ -137,8 +137,9 @@ function rlx.prompt.cmd {
 	compgen -W "directory db help info" "${cmd}";
 	
 	while
-		HISTSIZE=100;
-		HISTFILESIZE=100;
+		HISTSIZE=500;
+		HISTFILESIZE=500;
+		HISTCONTROL=erasedups;
 		HISTFILE="$rlx_history";
 		history -r "$rlx_history";
 		read -ep "${prompt}" cmd;
