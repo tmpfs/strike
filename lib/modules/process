@@ -17,6 +17,7 @@ declare -g process_tmp_dir="";
 
 # man signal
 # NOTE: signal `emt` is not available on centos 6.3
+# NOTE: signal `info` is not available on centos 6.3
 declare -ag process_signals;
 process_signals=(
 	hup
@@ -46,7 +47,6 @@ process_signals=(
 	vtalrm
 	prof
 	winch
-	info
 	usr1
 	usr2
 );
