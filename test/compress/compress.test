@@ -244,8 +244,9 @@ function test.compress.cx.recursive {
 	# move files into nested
 	mv "${files[@]}" "$nested";
 	# copy files into deep and deeper
-	cp $( find "$nested" -depth 1 -type f ) "${deep}";
-	cp $( find "$nested" -depth 1 -type f ) "${deeper}";
+	local nested_files=( $( find "$nested" -depth 1 -type f ) );
+	cp "${nested_files[@]}" "${deep}";
+	cp "${nested_files[@]}" "${deeper}";
 	
 	# first command should only list files in ${dir}/nested
 	result=( $( "$program" $cmd "$nested" ) );
