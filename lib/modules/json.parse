@@ -3,21 +3,14 @@ declare -Ag json_doc;
 
 function json.parse {
 	
-	# TODO: remove this?
-	#set +o errexit;
-	#set +o nounset;
-	
+	# clean up any previously parsed data
 	json.parse.clean;
 	
 	# the default delimiter for key values
 	local delimiter=".";
 	
-	# unset json_doc;
-	# declare -Agx json_doc;	
-	
-	#local key value;
-	##local root_type;
-	
+	# use process substitution so that parsed
+	# data is available globally
 	__json.start < <(__json.tokenize <&0);
 	
 	# while read;
@@ -81,14 +74,6 @@ function json.parse {
 }
 
 function json.parse.clean {
-	# local key;
-	# # clean any existing data
-	# for key in "${!json_doc[@]}";
-	# 	do
-	# 		echo "unset key is: $key";
-	# 		unset json_doc[$key];
-	# done
-	
 	unset json_doc;
 	declare -Ag json_doc;
 }
@@ -136,8 +121,6 @@ function __json.parse.value {
 		#''|[^0-9]) __json.throw "EXPECTED value GOT ${token:-EOF}" ;;
 		* ) value=${token} ;;
 	esac
-
-	# printf "[%s]\t%s\n" "$jpath" "$value";
 	
 	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
 		local key=${jpath};
@@ -157,7 +140,6 @@ function __json.parse.value {
 
 function __json.parse.object {
 	local key index=0;
-	#local obj=''
 	read -r token;
 	case "$token" in
 		'}' ) ;;
@@ -180,7 +162,6 @@ function __json.parse.object {
 					esac
 					read -r token;
 					__json.parse.value "$1" "$key"
-					#obj="$obj$key:$value"
 					read -r token;
 					case "$token" in
 						'}') break ;;
@@ -191,26 +172,21 @@ function __json.parse.object {
 			done
 		;;
 	esac
-	#value=`printf '{%s}' "$obj"`;
 }
 
 function __json.parse.array {
 	local index=0;
-	#local ary=''
-	read -r token
+	read -r token;
 	case "$token" in
 		']' ) ;;
 		* )
 			while :
 				do				
 					__json.parse.value "$1" "$index";
-					# let index=$index+1;
-					#ary="$ary""$value";
 					read -r token;
 					case "$token" in
 						']') break ;;
 						',') : $((index++)); ;;
-						#',') read -r token ;;
 						*) __json.throw "EXPECTED , or ] GOT ${token:-EOF}" ;;
 					esac
 					read -r token;
@@ -220,10 +196,8 @@ function __json.parse.array {
 			done
 		;;
 	esac
-	#value=`printf '[%s]' "$ary"`;
 }
 
 function __json.throw {
 	console.throw "$*";
-	#exit 1;
 }
