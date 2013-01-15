@@ -161,10 +161,15 @@ function __json.parse.object {
 			while :
 				do
 					case "$token" in
-						'"'*'"') key=$token ;;
+						'"'*'"')
+							key="$token";
+							# strip quotes
+							key="${key#\"}";
+							key="${key%\"}";
+							;;
 						*) __json.throw "EXPECTED string GOT ${token:-EOF}" ;;
 					esac
-					read -r token
+					read -r token;
 					case "$token" in
 						':') ;;
 						*) __json.throw "EXPECTED : GOT ${token:-EOF}" ;;
