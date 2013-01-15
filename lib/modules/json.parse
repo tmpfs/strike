@@ -1,18 +1,18 @@
 # global json document
-declare -Agx json_doc;
+declare -Ag json_doc;
 
 function json.parse {
 	
 	# TODO: remove this?
-	set +o errexit;
+	#set +o errexit;
 	#set +o nounset;
 	
-	#json.parse.clean;
+	json.parse.clean;
 	
-	unset json_doc;
-	declare -Agx json_doc;	
+	# unset json_doc;
+	# declare -Agx json_doc;	
 	
-	local key value;
+	#local key value;
 	##local root_type;
 	
 	__json.start < <(__json.tokenize <&0);
@@ -23,7 +23,7 @@ function json.parse {
 	# 		#break;
 	# done < <( __json.tokenize <&0 >| >(__json.start) );	
 	
-	echo "after loop : ${#json_doc[@]}";
+	#echo "after loop : ${#json_doc[@]}";
 	
 	#declare -Agx json_data;
 	#json_data[a]="b";
@@ -87,7 +87,7 @@ function json.parse.clean {
 	# done
 	
 	unset json_doc;
-	declare -Agx json_doc;
+	declare -Ag json_doc;
 }
 
 ######################################################################
@@ -109,25 +109,11 @@ function __json.tokenize {
 function __json.start {
 	local value token;
 	read -r token;
-	
-	##echo "got root token: $token" >&2;
-	
-	# local json_root_type="object";
-	# 
-	# if [ "$token" == "[" ]; then
-	# 	json_root_type="array";
-	# elif [[ "$token" =~ ^[0-9]+$ ]]; then
-	# 	## echo "setting number root type!!!: $token" >&2;
-	# 	json_root_type="number";
-	# fi
-	# 
-	# echo "json_root_type=\"$json_root_type\"";	
-	
 	__json.parse.value;
-	read -r token
+	read -r token;
 	case "$token" in
-		'') ;;
-		*) __json.throw "EXPECTED EOF GOT $token" ;;
+		'' ) ;;
+		* ) __json.throw "EXPECTED EOF GOT $token" ;;
 	esac
 }
 
@@ -140,74 +126,72 @@ function __json.parse.value {
 	token="${token%\"}";
 	#echo "k, v : ${jpath} = ${token}";
 	case "$token" in
-		'{') __json.parse.object "$jpath"; return 0 ;;
-		'[') __json.parse.array  "$jpath"; return 0 ;;
+		'{' ) __json.parse.object "$jpath"; return 0; ;;
+		'[' ) __json.parse.array  "$jpath"; return 0; ;;
 		# At this point, the only valid single-character tokens are digits.
 		#''|[^0-9]) __json.throw "EXPECTED value GOT ${token:-EOF}" ;;
-		*) value=${token} ;;
+		* ) value=${token} ;;
 	esac
 
 	# printf "[%s]\t%s\n" "$jpath" "$value";
 	
 	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
 		local key=${jpath};
-		local val=${value};
+		#local val=${value};
 		#eval key=json_\$$key;
 		#echo "got key: $key" >&2;
 		#switch the commas for dot-style notation
 		key=${key//,/.};
 		if [ "$key" != '$' ] && [ -n "$key" ]; then
-			#val=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$val" );
-			#echo "${key}=${val}";
 			echo "using key: $key" >&2;
-			echo "using val: $val" >&2;
-			json_doc["$key"]="${val}";
+			echo "using value: $value" >&2;
+			json_doc["$key"]="${value}";
 			echo "got json data (${#json_doc[@]}) : '${!json_doc[@]}'" >&2;
 		fi
 	fi
 }
 
 function __json.parse.object {
-	local key
-	local obj=''
-	read -r token
+	local key index=0;
+	#local obj=''
+	read -r token;
 	case "$token" in
-		'}') ;;
-		*)
-		while :
-			do
-				case "$token" in
-					'"'*'"') key=$token ;;
-					*) __json.throw "EXPECTED string GOT ${token:-EOF}" ;;
-				esac
-				read -r token
-				case "$token" in
-					':') ;;
-					*) __json.throw "EXPECTED : GOT ${token:-EOF}" ;;
-				esac
-				read -r token
-				__json.parse.value "$1" "$key"
-				obj="$obj$key:$value"		 
-				read -r token
-				case "$token" in
-					'}') break ;;
-					',') obj="$obj," ;;
-					*) __json.throw "EXPECTED , or } GOT ${token:-EOF}" ;;
-				esac
-				read -r token
-		done
+		'}' ) ;;
+		* )
+			while :
+				do
+					case "$token" in
+						'"'*'"') key=$token ;;
+						*) __json.throw "EXPECTED string GOT ${token:-EOF}" ;;
+					esac
+					read -r token
+					case "$token" in
+						':') ;;
+						*) __json.throw "EXPECTED : GOT ${token:-EOF}" ;;
+					esac
+					read -r token;
+					__json.parse.value "$1" "$key"
+					#obj="$obj$key:$value"
+					read -r token;
+					case "$token" in
+						'}') break ;;
+						',') : $((index++)); ;;
+						*) __json.throw "EXPECTED , or } GOT ${token:-EOF}" ;;
+					esac
+					read -r token;
+			done
 		;;
 	esac
 	#value=`printf '{%s}' "$obj"`;
 }
 
 function __json.parse.array {
-	local index=0
-	local ary=''
+	local index=0;
+	#local ary=''
 	read -r token
 	case "$token" in
-		']') ;;
-		*)
+		']' ) ;;
+		* )
 			while :
 				do				
 					__json.parse.value "$1" "$index";
