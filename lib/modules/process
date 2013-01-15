@@ -16,6 +16,7 @@ declare -g process_tmp_dir="";
 # a stack trace
 
 # man signal
+# NOTE: signal `emt` is not available on centos 6.3
 declare -ag process_signals;
 process_signals=(
 	hup
@@ -24,7 +25,6 @@ process_signals=(
 	ill
 	trap
 	abrt
-	emt
 	fpe
 	kill
 	bus

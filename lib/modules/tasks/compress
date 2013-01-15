@@ -226,7 +226,7 @@ function __compress.files.get {
 	local files=( "$@" );
 	if [ -n "$callback" ]; then
 		: $((compress_depth++));
-		if [ "$1" == "-" ]; then
+		if [ "${1:-}" == "-" ]; then
 			shift;
 			unset files[0];
 			if [ ! -t 0 ]; then
