@@ -115,40 +115,86 @@ function rlx.auth.save.clean {
 	rm "${plain}" || console.error "could not delete %s" "${plain}";
 }
 
-function rlx.prompt.complete {
-	# COMPREPLY=()
-	# local cur="${COMP_WORDS[COMP_CWORD]}"
-	# local opts="Whatever sort of tabbing options you want to have!"
-	# COMPREPLY=($(compgen -W "${opts}" -- ${cur}));
-	echo "$FUNCNAME : $COMP_CWORD";
+# -o comp-option
+# The comp-option controls several aspects of the compspec’s behavior beyond the simple generation of completions. comp-option may be one of:
+# 
+# bashdefault
+# Perform the rest of the default Bash completions if the compspec generates no matches.
+# 
+# default
+# Use Readline’s default filename completion if the compspec generates no matches.
+# 
+# dirnames
+# Perform directory name completion if the compspec generates no matches.
+# 
+# filenames
+# Tell Readline that the compspec generates filenames, so it can perform any filename-specific processing (like adding a slash to directory names quoting special characters, or suppressing trailing spaces). This option is intended to be used with shell functions specified with -F.
+# 
+# nospace
+# Tell Readline not to append a space (the default) to words completed at the end of the line.
+# 
+# plusdirs
+# After any matches defined by the compspec are generated, directory name completion is attempted and any matches are added to the results of the other actions.
+
+# function rlx.prompt.complete {
+# 	# COMPREPLY=()
+# 	# local cur="${COMP_WORDS[COMP_CWORD]}"
+# 	# local opts="Whatever sort of tabbing options you want to have!"
+# 	# COMPREPLY=($(compgen -W "${opts}" -- ${cur}));
+# 	echo "$FUNCNAME : $cmd";	
+# 	compgen -W "db directory" -- "d";
+# 	#complete -o dirnames "/";
+# 
+# }
+
+#declare -gx rlx_cmdline;
+
+function sd
+{
+# 'local' can only be used within a function, exclude it if not using a function
+  COMPREPLY=()
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+	echo "cur: $cur"
+  local opts="Whatever sort of tabbing options you want to have!"
+  COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
 }
 
 function rlx.prompt.cmd {
 	rlx.prompt "@ ${host}";
 	
 	export HISTFILE="$rlx_history";
+	
 	# set up tab completion for shell commands
-	set -o emacs;
-	bind 'set show-all-if-ambiguous on';
-	bind 'set completion-ignore-case on';
+	# set -o emacs;
+	# bind 'set show-all-if-ambiguous on';
+	# bind 'set completion-ignore-case on';
+	
 	#COMP_WORDBREAKS=${COMP_WORDBREAKS//:}
 	#bind 'TAB: menu-complete';
 	# bind 'TAB:dynamic-complete-history';
 	#bind 'TAB:dynamic-complete-history';
 	#bind -u 'dynamic-complete-history';
-	bind 'TAB: complete-filename';
-	bind 'TAB: dynamic-complete-history';
-	#bind -x '"TAB": rlx.prompt.complete';
+	#bind 'TAB: complete-filename';
+	#bind 'TAB: dynamic-complete-history';
 	
-	#compgen -W "directory db help info" "${cmd}";
+	#bind -x '"\t":"rlx.prompt.complete"';
 	
-	#complete -E -F rlx.prompt.complete;
+	#complete -F "rlx.prompt.complete" "db";
+	#complete -p;
 	
+	# complete -r;
+	# complete -E -F "sd" "db";
 	
-	#compgen -E -F rlx.prompt.complete;
+	#complete -D -F rlx.prompt.complete;
+	
+	# _completion_loader()
+	# {
+	# 	echo "$FUNCNAME";
+	# }
+	#complete -D -F _completion_loader;
 	
 	# shopt -s histappend;
-	# PROMPT_COMMAND="history -a"	
+	# PROMPT_COMMAND="history -a"
 	
 	while
 		HISTSIZE=500;
@@ -168,7 +214,7 @@ function rlx.prompt.cmd {
 			# complete -F "rlx.prompt.complete" -o "default" "${cmd}";
 						
 			history -s "$cmd";
-			history -w "$rlx_history";			
+			history -w "$rlx_history";	
 			
 			if ! method.exists? "rlx.shell.$cmd"; then
 				console.info "unknown command %s, type %s" "$cmd" "help";

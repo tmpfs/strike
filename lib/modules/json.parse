@@ -26,6 +26,7 @@ function json.parse {
 			while read key value
 				do
 					#strip out the double quotes from string values
+					#key=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$key" );
 					value=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$value" );
 					#key=${key##json_};
 					
@@ -108,7 +109,10 @@ function __json.start {
 }
 
 function __json.parse.value {
-	local jpath="${1:+$1,}${2:-}"
+	#local key="${1#\"}";
+	local key="${1:+${1},}";
+	echo "key is : $key";
+	local jpath="${key}${2:-}";
 	case "$token" in
 		'{') __json.parse.object "$jpath" ;;
 		'[') __json.parse.array  "$jpath" ;;
@@ -121,12 +125,14 @@ function __json.parse.value {
 	
 	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
 		local key=${jpath};
+		#key=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$key" );
 		local val=${value};
 		#eval key=json_\$$key;
 		#echo "got key: $key" >&2;
 		#switch the commas for dot-style notation
-		key=${key//,/.};
+		#key=${key//,/.};
 		if [ "$key" != '$' ]; then
+			val=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$val" );
 			echo "${key}=${val}";
 		fi
 	fi

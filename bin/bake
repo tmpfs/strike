@@ -112,6 +112,35 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# declare -gx cmdline="";
+# 
+# #complete -F "sd" -o "default" "sd"
+# 
+# #complete -F "tab" -o "dirname" "db";
+# 
+# function tab
+# {
+# 	echo "$FUNCNAME";
+# }
+# 
+# set -o emacs;
+# #bind -x '"\t":"tab"';
+# 
+# complete -F tab -o filenames "$0";
+# 
+# #newlinr
+# 
+# while read -r -e line;
+# 	do
+# 		cmdline="$line";
+# 		#echo "got line: $line"
+# 		#line="${line}${char}";
+# 		#echo "got line: $line";
+# 		#echo -ne "";
+# done
+
+#exit 0;
+
 # require inet;
 # 
 # set +o errexit;

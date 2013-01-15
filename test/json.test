@@ -8,24 +8,25 @@ function test.json.parse {
 	local file parsed name dir;
 	
 	# FIXME: reinstate these tests based on json-checker files
-	# for file in ${valid}/pass*.json
-	# 	do
-	# 		dir=`dirname "$file"`;
-	# 		name=`basename "$file"`;
-	# 		name=${name%%.json};
-	# 		parsed="${dir}/${name}.parsed";
-	# 		json.parse < "$file";
-	# 		
-	# 		# look for a parsed file to assert on
-	# 		if [ -f "$parsed" ]; then
-	# 			#echo "got parsed `cat $parsed`";
-	# 			assert.equal "`cat "$parsed"`" "`json.print`";
-	# 		else
-	# 			echo "json.parse, missing parsed : $parsed";
-	# 		fi
-	# 		
-	# 		json.print;
-	# done
+	for file in ${valid}/pass*.json
+		do
+			dir=`dirname "$file"`;
+			name=`basename "$file"`;
+			name=${name%%.json};
+			parsed="${dir}/${name}.parsed";
+			json.parse < "$file";
+			
+			# look for a parsed file to assert on
+			if [ -f "$parsed" ]; then
+				#echo "got parsed `cat $parsed`";
+				assert.equal "`cat "$parsed"`" "`json.print`";
+			else
+				echo "json.parse, missing parsed : $parsed";
+			fi
+			
+			json.print;
+			break;
+	done
 }
 
 # test for serializing an array of objects
