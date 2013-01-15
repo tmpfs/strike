@@ -609,12 +609,12 @@ function __assert_run_test_executable {
 			json.parse < "$resultfile";
 			if [ -n "${!summary[*]}" ]; then
 				
-				echo "${!json_doc[@]}";
+				#echo "${!json_doc[@]}";
 				
-				# : $((summary[assertions]+=${json_doc[assertions]}));
-				# : $((summary[assertions.pass]+=${json_doc[assertions.pass]}));
-				# : $((summary[assertions.fail]+=${json_doc[assertions.fail]}));
-				# : $((summary[executables]+=${json_doc[executables]}));
+				: $((summary[assertions]+=${json_doc[assertions]}));
+				: $((summary[assertions.pass]+=${json_doc[assertions.pass]}));
+				: $((summary[assertions.fail]+=${json_doc[assertions.fail]}));
+				: $((summary[executables]+=${json_doc[executables]}));
 			fi
 			# clean up json data
 			json.clean;
