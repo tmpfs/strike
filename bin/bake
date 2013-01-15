@@ -112,6 +112,17 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# value="\"a quoted value\"";
+# 
+# echo "$value";
+# 
+# value="${value#\"}";
+# value="${value%\"}";
+# 
+# echo "$value";
+# 
+# exit 0;
+
 # declare -gx cmdline="";
 # 
 # #complete -F "sd" -o "default" "sd"
