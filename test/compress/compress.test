@@ -244,6 +244,7 @@ function test.compress.cx.recursive {
 	# move files into nested
 	mv "${files[@]}" "$nested";
 	# copy files into deep and deeper
+	echo "using find command: find "$nested" -depth 1 -type f" >&2;
 	local nested_files=( $( find "$nested" -depth 1 -type f ) );
 	cp "${nested_files[@]}" "${deep}";
 	cp "${nested_files[@]}" "${deeper}";
