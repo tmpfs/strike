@@ -1,5 +1,6 @@
 require.once 'json';
 
+# test a simple array
 function test.json.parse.array {
 	json.parse <<< '[ "value", "another value", "some other value" ]';
 	assert.equal "0 1 2" "${!json_doc[*]}";
@@ -9,6 +10,7 @@ function test.json.parse.array {
 	!test.json.parse.print;
 }
 
+# test a multi-dimensional array
 function test.json.parse.array.multi {
 	json.parse <<< '[ "a", [ "b", "c", "d" ], "e", [ "f", [ "g", "h", "i" ], "j" ] ]';
 	assert.equal "a" "${json_doc[0]}";
@@ -24,11 +26,20 @@ function test.json.parse.array.multi {
 	!test.json.parse.print;
 }
 
+# test a simple object
 function test.json.parse.object {
 	json.parse <<< '{ "value1": "value", "value2" : "another value", "value3" :	"some other value" }';
 	assert.equal "value" "${json_doc[value1]}";
 	assert.equal "another value" "${json_doc[value2]}";	
 	assert.equal "some other value" "${json_doc[value3]}";
+	!test.json.parse.print;
+}
+
+# test a nested object structure
+function test.json.parse.object.deep {
+	json.parse <<< '{ "data": { "id": "myid", "path": "mypath" } }';
+	assert.equal "myid" "${json_doc[data.id]}";
+	assert.equal "mypath" "${json_doc[data.path]}";
 	!test.json.parse.print;
 }
 
