@@ -108,28 +108,20 @@ function __json.start {
 function __json.parse.value {
 
 	# configure the key with a period '.' delimiter
-	local key="${1:+${1}${delimiter}}";
-	local jpath="${key}${2:-}";
+	local key="${1:+${1}${delimiter}}${2:-}";
+	
 	# strip quotes from token values
 	token="${token#\"}";
 	token="${token%\"}";
-	#echo "k, v : ${jpath} = ${token}";
 	case "$token" in
-		'{' ) __json.parse.object "$jpath"; return 0; ;;
-		'[' ) __json.parse.array  "$jpath"; return 0; ;;
+		'{' ) __json.parse.object "$key"; return 0; ;;
+		'[' ) __json.parse.array  "$key"; return 0; ;;
 		# At this point, the only valid single-character tokens are digits.
 		#''|[^0-9]) __json.throw "EXPECTED value GOT ${token:-EOF}" ;;
 		* ) value=${token} ;;
 	esac
 	
 	#echo "USING VALUE: $value";
-	
-	local key=${jpath};
-	#local val=${value};
-	#eval key=json_\$$key;
-	#echo "got key: $key" >&2;
-	#switch the commas for dot-style notation
-	#key=${key//,/.};
 	if [ "$key" != '$' ] && [ -n "$key" ]; then
 		echo "using key: $key" >&2;
 		echo "using value: $value" >&2;
