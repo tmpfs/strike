@@ -54,8 +54,6 @@ function __json.parse.value {
 	case "$token" in
 		'{' ) __json.parse.object "$key"; return 0; ;;
 		'[' ) __json.parse.array  "$key"; return 0; ;;
-		# At this point, the only valid single-character tokens are digits.
-		#''|[^0-9]) __json.throw "EXPECTED value GOT ${token:-EOF}" ;;
 		* ) value=${token} ;;
 	esac
 	
@@ -63,11 +61,8 @@ function __json.parse.value {
 	if [ -z "$key" ]; then
 		__json.throw "empty key encountered";
 	else
-		#echo "USING KEY: $key";
-		#echo "using key: $key" >&2;
-		#echo "using value: $value" >&2;
 		json_doc["$key"]="${value}";
-		#echo "got json data (${#json_doc[@]}) : '${!json_doc[@]}'" >&2;
+		# __json.parse.debug;
 	fi
 }
 
@@ -129,6 +124,12 @@ function __json.parse.array {
 			done
 		;;
 	esac
+}
+
+function __json.parse.debug {
+	echo "json_doc key: $key" >&2;
+	echo "json_doc value: $value" >&2;	
+	echo "json_doc (${#json_doc[@]}): '${!json_doc[@]}'" >&2;	
 }
 
 function __json.throw {
