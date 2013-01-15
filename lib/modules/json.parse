@@ -1,69 +1,16 @@
-# global json document
-declare -Ag json_doc;
-
 function json.parse {
-	
-	# TODO: remove this?
-	set +o errexit;
-	#set +o nounset;
-	
+	# clean up any previously parsed data
 	json.parse.clean;
 	
-	local key value;
-	##local root_type;
+	# the default delimiter for key values
+	local delimiter=".";
 	
-	# run the process subsititution in this manner
-	# to block until the parsing is complete
-	while read line
-		do
-			# echo "line: $line";
-			
-			#echo "got root type: $json_root_type";
-			
-			# available outside the loop
-			# because it does NOT run in a subshell
-			local IFS="=";
-			while read key value
-				do
-					#strip out the double quotes from string values
-					#key=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$key" );
-					value=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$value" );
-					#key=${key##json_};
-					
-					# if [ "$key" == "root_type" ]; then
-					# 	
-					# 	root_type="$value";
-					# 	continue;
-					# fi
-					
-					#echo "got root type: $root_type";
-					
-					# skip any array/object definitions
-					# as child elements should already by parsed
-					if [[ "$value" =~ ^(\[|{) ]]; then
-						continue;
-					fi
-					
-					# echo "got key: $key";
-					# echo "got value: $value";
-					
-					if [ ! -z "$key" ]; then
-						# store the value in the json_doc associative array
-						json_doc["$key"]="$value";
-					fi
-			done <<< "$line";
-	done < <( __json.tokenize <&0 >| >(__json.start) );
+	# use process substitution so that parsed
+	# data is available globally
+	__json.start < <(__json.tokenize <&0);
 }
 
 function json.parse.clean {
-	# local key;
-	# # clean any existing data
-	# for key in "${!json_doc[@]}";
-	# 	do
-	# 		echo "unset key is: $key";
-	# 		unset json_doc[$key];
-	# done
-	
 	unset json_doc;
 	declare -Ag json_doc;
 }
@@ -85,119 +32,106 @@ function __json.tokenize {
 }
 
 function __json.start {
-	read -r token
-	
-	##echo "got root token: $token" >&2;
-	
-	# local json_root_type="object";
-	# 
-	# if [ "$token" == "[" ]; then
-	# 	json_root_type="array";
-	# elif [[ "$token" =~ ^[0-9]+$ ]]; then
-	# 	## echo "setting number root type!!!: $token" >&2;
-	# 	json_root_type="number";
-	# fi
-	# 
-	# echo "json_root_type=\"$json_root_type\"";
-	
+	local token;
+	read -r token;
 	__json.parse.value;
-	read -r token
+	read -r token;
 	case "$token" in
-		'') ;;
-		*) __json.throw "EXPECTED EOF GOT $token" ;;
+		'' ) ;;
+		* ) __json.throw "EXPECTED EOF GOT $token" ;;
 	esac
 }
 
 function __json.parse.value {
-	#local key="${1#\"}";
-	local key="${1:+${1},}";
-	echo "key is : $key";
-	local jpath="${key}${2:-}";
-	case "$token" in
-		'{') __json.parse.object "$jpath" ;;
-		'[') __json.parse.array  "$jpath" ;;
-		# At this point, the only valid single-character tokens are digits.
-		''|[^0-9]) __json.throw "EXPECTED value GOT ${token:-EOF}" ;;
-		*) value=${token} ;;
-	esac
 
-	# printf "[%s]\t%s\n" "$jpath" "$value";
+	# configure the key with a period '.' delimiter
+	local value key="${1:+${1}${delimiter}}${2:-}";
 	
-	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
-		local key=${jpath};
-		#key=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$key" );
-		local val=${value};
-		#eval key=json_\$$key;
-		#echo "got key: $key" >&2;
-		#switch the commas for dot-style notation
-		#key=${key//,/.};
-		if [ "$key" != '$' ]; then
-			val=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$val" );
-			echo "${key}=${val}";
-		fi
+	# strip quotes from token values
+	token="${token#\"}";
+	token="${token%\"}";
+	
+	case "$token" in
+		'{' ) __json.parse.object "$key"; return 0; ;;
+		'[' ) __json.parse.array  "$key"; return 0; ;;
+		* ) value=${token} ;;
+	esac
+	
+	# enountered an empty key: ""
+	if [ -z "$key" ]; then
+		__json.throw "empty key encountered";
+	else
+		json_doc["$key"]="${value}";
+		# __json.parse.debug;
 	fi
 }
 
 function __json.parse.object {
-	local key
-	local obj=''
-	read -r token
+	local key index=0;
+	read -r token;
 	case "$token" in
-		'}') ;;
-		*)
-		while :
-			do
-				case "$token" in
-					'"'*'"') key=$token ;;
-					*) __json.throw "EXPECTED string GOT ${token:-EOF}" ;;
-				esac
-				read -r token
-				case "$token" in
-					':') ;;
-					*) __json.throw "EXPECTED : GOT ${token:-EOF}" ;;
-				esac
-				read -r token
-				__json.parse.value "$1" "$key"
-				obj="$obj$key:$value"		 
-				read -r token
-				case "$token" in
-					'}') break ;;
-					',') obj="$obj," ;;
-					*) __json.throw "EXPECTED , or } GOT ${token:-EOF}" ;;
-				esac
-				read -r token
-		done
-		;;
-	esac
-	value=`printf '{%s}' "$obj"`;
-}
-
-function __json.parse.array {
-	local index=0
-	local ary=''
-	read -r token
-	case "$token" in
-		']') ;;
-		*)
+		'}' ) ;;
+		* )
 			while :
 				do
-					__json.parse.value "$1" "$index";
-					let index=$index+1;
-					ary="$ary""$value";
+					case "$token" in
+						'"'*'"')
+							key="$token";
+							# strip quotes
+							key="${key#\"}";
+							key="${key%\"}";
+							;;
+						*) __json.throw "EXPECTED string GOT ${token:-EOF}" ;;
+					esac
 					read -r token;
 					case "$token" in
-						']') break ;;
-						',') ary="$ary," ;;
-						*) __json.throw "EXPECTED , or ] GOT ${token:-EOF}" ;;
+						':') ;;
+						*) __json.throw "EXPECTED : GOT ${token:-EOF}" ;;
+					esac
+					read -r token;
+					__json.parse.value "$1" "$key"
+					read -r token;
+					case "$token" in
+						'}') break ;;
+						',') : $((index++)); ;;
+						*) __json.throw "EXPECTED , or } GOT ${token:-EOF}" ;;
 					esac
 					read -r token;
 			done
 		;;
 	esac
-	value=`printf '[%s]' "$ary"`;
+}
+
+function __json.parse.array {
+	local index=0;
+	read -r token;
+	case "$token" in
+		']' ) ;;
+		* )
+			while :
+				do				
+					__json.parse.value "$1" "$index";
+					read -r token;
+					case "$token" in
+						']') break ;;
+						',') : $((index++)); ;;
+						*) __json.throw "EXPECTED , or ] GOT ${token:-EOF}" ;;
+					esac
+					read -r token;
+					case "$token" in
+						']') break ;;
+					esac
+			done
+		;;
+	esac
+}
+
+function __json.parse.debug {
+	echo "json_doc key: $key" >&2;
+	echo "json_doc value: $value" >&2;	
+	echo "json_doc (${#json_doc[@]}): '${!json_doc[@]}'" >&2;	
 }
 
 function __json.throw {
 	console.throw "$*";
-	exit 1;
 }
