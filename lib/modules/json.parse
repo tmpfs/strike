@@ -113,6 +113,7 @@ function __json.parse.value {
 	# strip quotes from token values
 	token="${token#\"}";
 	token="${token%\"}";
+	
 	case "$token" in
 		'{' ) __json.parse.object "$key"; return 0; ;;
 		'[' ) __json.parse.array  "$key"; return 0; ;;
@@ -121,8 +122,11 @@ function __json.parse.value {
 		* ) value=${token} ;;
 	esac
 	
-	#echo "USING VALUE: $value";
-	if [ "$key" != '$' ] && [ -n "$key" ]; then
+	# enountered an empty key: ""
+	if [ -z "$key" ]; then
+		__json.throw "empty key encountered";
+	else
+		#echo "USING KEY: $key";
 		echo "using key: $key" >&2;
 		echo "using value: $value" >&2;
 		json_doc["$key"]="${value}";
