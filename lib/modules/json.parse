@@ -122,19 +122,19 @@ function __json.parse.value {
 		* ) value=${token} ;;
 	esac
 	
-	if [[ ! "$value" =~ /^{/ ]] && [[ ! "$value" =~ /^[/ ]]; then
-		local key=${jpath};
-		#local val=${value};
-		#eval key=json_\$$key;
-		#echo "got key: $key" >&2;
-		#switch the commas for dot-style notation
-		#key=${key//,/.};
-		if [ "$key" != '$' ] && [ -n "$key" ]; then
-			echo "using key: $key" >&2;
-			echo "using value: $value" >&2;
-			json_doc["$key"]="${value}";
-			echo "got json data (${#json_doc[@]}) : '${!json_doc[@]}'" >&2;
-		fi
+	#echo "USING VALUE: $value";
+	
+	local key=${jpath};
+	#local val=${value};
+	#eval key=json_\$$key;
+	#echo "got key: $key" >&2;
+	#switch the commas for dot-style notation
+	#key=${key//,/.};
+	if [ "$key" != '$' ] && [ -n "$key" ]; then
+		echo "using key: $key" >&2;
+		echo "using value: $value" >&2;
+		json_doc["$key"]="${value}";
+		echo "got json data (${#json_doc[@]}) : '${!json_doc[@]}'" >&2;
 	fi
 }
 
