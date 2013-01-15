@@ -12,65 +12,6 @@ function json.parse {
 	# use process substitution so that parsed
 	# data is available globally
 	__json.start < <(__json.tokenize <&0);
-	
-	# while read;
-	# 	do
-	# 		echo "GOT LINE FROM INTERNAL PARSER ... ${#json_doc[@]}";
-	# 		#break;
-	# done < <( __json.tokenize <&0 >| >(__json.start) );	
-	
-	#echo "after loop : ${#json_doc[@]}";
-	
-	#declare -Agx json_data;
-	#json_data[a]="b";
-	
-	#__json.tokenize <&0 >| >(__json.start);
-	
-	
-	
-	# run the process subsititution in this manner
-	# to block until the parsing is complete
-	# while read line;
-	# 	do
-	# 		# echo "line: $line";
-	# 		
-	# 		echo "GOT LINE FROM INTERNAL PARSER ... ";
-	# 		
-	# 		#echo "got root type: $json_root_type";
-	# 		
-	# 		# available outside the loop
-	# 		# because it does NOT run in a subshell
-	# 		local IFS="=";
-	# 		while read key value
-	# 			do
-	# 				#strip out the double quotes from string values
-	# 				#key=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$key" );
-	# 				#value=$( sed "s/^\([\"']\)\(.*\)\1\$/\2/g" <<< "$value" );
-	# 				#key=${key##json_};
-	# 				
-	# 				# if [ "$key" == "root_type" ]; then
-	# 				# 	
-	# 				# 	root_type="$value";
-	# 				# 	continue;
-	# 				# fi
-	# 				
-	# 				#echo "got root type: $root_type";
-	# 				
-	# 				# skip any array/object definitions
-	# 				# as child elements should already by parsed
-	# 				if [[ "$value" =~ ^(\[|{) ]]; then
-	# 					continue;
-	# 				fi
-	# 				
-	# 				# echo "got key: $key";
-	# 				# echo "got value: $value";
-	# 				
-	# 				if [ ! -z "$key" ]; then
-	# 					# store the value in the json_doc associative array
-	# 					json_doc["$key"]="$value";
-	# 				fi
-	# 		done <<< "$line";
-	# done < <( __json.tokenize <&0 >| >(__json.start) );
 }
 
 function json.parse.clean {
