@@ -111,6 +111,17 @@ boilerplate "$@";
 
 # switch on strict mode
 process.use strict;
+# 
+# require.once 'command/find';
+# 
+# if find.gnu?; then
+# 	echo "got gnu find";
+# else
+# 	echo "got bsd find";
+# fi
+# 
+# echo "after find test ... ";
+# exit 0;
 
 # value="\"a quoted value\"";
 # 
