@@ -111,6 +111,7 @@ boilerplate "$@";
 
 # switch on strict mode
 process.use strict;
+
 # 
 # require.once 'command/find';
 # 

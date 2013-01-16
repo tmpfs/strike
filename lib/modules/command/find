@@ -4,3 +4,35 @@ function find.gnu? {
 	( find -version > /dev/null 2>&1; );
 	return $?;
 }
+
+# NOTE: experimental wrapper for find(1) - way too slow!
+
+# function find {
+# 	#echo "find wrapper command called..." >&2;
+# 	
+# 	local opt opts=( "$@" );
+# 	
+# 	# local findopts=( "-O1" "$nested" "-type" "f" );
+# 	# if [[ "$OSTYPE" =~ ^darwin ]]; then
+# 	# 	findopts=( "$nested" "-depth" "1" "-type" "f" );
+# 	# fi
+# 	
+# 	if ! find.gnu? && [[ "$OSTYPE" =~ ^darwin ]]; then
+# 		# switch -O[0-9] for -depth [0-9]
+# 		
+# 		local index=0;
+# 		for opt in "${opts[@]}"
+# 			do
+# 				#echo "testing opt: "
+# 				if [[ "$opt" =~ ^-O([0-9]+) ]]; then
+# 					#echo "got -O opt : ${BASH_REMATCH[1]}";
+# 					unset opts[$index];
+# 					opts+=( "-depth" "${BASH_REMATCH[1]}" );
+# 					break;
+# 				fi
+# 				: $((index++));
+# 		done
+# 	fi
+# 	
+# 	command find "${opts[@]}";
+# }

@@ -250,9 +250,9 @@ function test.compress.cx.recursive {
 	# TODO: move this to a wrapper for switching find commands
 	# TODO: based on operating system
 	local findopts=( "-O1" "$nested" "-type" "f" );
-	if [[ "$OSTYPE" =~ ^darwin ]]; then
-		findopts=( "$nested" "-depth" "1" "-type" "f" );
-	fi
+	# if [[ "$OSTYPE" =~ ^darwin ]]; then
+	# 	findopts=( "$nested" "-depth" "1" "-type" "f" );
+	# fi
 	
 	#echo "using find command: find ${findopts[@]}" >&2;
 	
@@ -406,9 +406,9 @@ function test.compress.cx.stdin {
 	# TODO: move this to a wrapper for switching find commands
 	# TODO: based on operating system
 	local findopts=( "-O1" "$dir" "-name" "*.txt" );
-	if [[ "$OSTYPE" =~ ^darwin ]]; then
-		findopts=( "$dir" "-depth" "1" "-name" "*.txt" );
-	fi	
+	# if [[ "$OSTYPE" =~ ^darwin ]]; then
+	# 	findopts=( "$dir" "-depth" "1" "-name" "*.txt" );
+	# fi	
 	
 	# echo "find: ${findopts[@]}";
 	# find "${findopts[@]}";
@@ -424,9 +424,9 @@ function test.compress.cx.stdin {
 	# TODO: move this to a wrapper for switching find commands
 	# TODO: based on operating system
 	findopts=( "-O1" "$dir" "-name" "lipsum.txt" );
-	if [[ "$OSTYPE" =~ ^darwin ]]; then
-		findopts=( "$dir" "-depth" "1" "-name" "lipsum.txt" );
-	fi
+	# if [[ "$OSTYPE" =~ ^darwin ]]; then
+	# 	findopts=( "$dir" "-depth" "1" "-name" "lipsum.txt" );
+	# fi
 	
 	# valid - pipe output and specify files after stdin option
 	find "${findopts[@]}" | $program $cmd - "${dir}/etiam.txt";
