@@ -67,7 +67,7 @@ function rlx.auth.save {
 		master="$password";
 	fi
 	if [ -n "${username:-}" ] && [ -n "${password:-}" ] && [ -n "${host:-}" ]; then
-		declare -A auth_doc;
+		json.parse.clean;
 		local auth="${rlx_home}/auth.json";
 		local plain="${rlx_home}/auth.plain.json";
 		local contents="";
@@ -81,18 +81,22 @@ function rlx.auth.save {
 		else
 			json.parse < "${plain}";
 			
+			echo "got auth keys: ${!json_doc[*]}";
+			
 			# empty document, first entry
-			if [ -z "${!json_doc[*]}" ]; then
-				auth_doc[auth.0.user]="$couchdb_user";
-				auth_doc[auth.0.pass]="$couchdb_pass";
-				auth_doc[auth.0.host]="$host";
+			if [ "${#json_doc[@]}" -eq 0 ]; then
+				json_doc[auth.0.user]="$couchdb_user";
+				json_doc[auth.0.pass]="$couchdb_pass";
+				json_doc[auth.0.host]="$host";
 			# TODO: append entries to the document
 			else
-				echo "append to auth file with existing entries...";
+				echo "append to auth file with existing entries... ${!json_doc[@]}";
+				#local length;
+				#json.array.length "auth" "length";
 			fi
 			
 			# convert to json and encrypt
-			json.stringify <<< "auth_doc";
+			json.stringify <<< "json_doc";
 			json.string >| "${plain}";
 			crypto.enc.aes256cbc "${plain}" "${auth}" "$master";
 			code=$?;
@@ -214,7 +218,7 @@ function rlx.prompt.cmd {
 			# complete -F "rlx.prompt.complete" -o "default" "${cmd}";
 						
 			history -s "$cmd";
-			history -w "$rlx_history";	
+			history -w "$rlx_history";
 			
 			if ! method.exists? "rlx.shell.$cmd"; then
 				console.info "unknown command %s, type %s" "$cmd" "help";

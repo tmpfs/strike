@@ -5,6 +5,9 @@ function json.parse {
 	# the default delimiter for key values
 	local delimiter=".";
 	
+	# current nesting depth
+	local depth=-1;
+	
 	# use process substitution so that parsed
 	# data is available globally
 	__json.start < <(__json.tokenize <&0);
@@ -33,6 +36,7 @@ function __json.tokenize {
 
 function __json.start {
 	local token;
+	: $((depth++));
 	read -r token;
 	__json.parse.value;
 	read -r token;
@@ -52,8 +56,8 @@ function __json.parse.value {
 	token="${token%\"}";
 	
 	case "$token" in
-		'{' ) __json.parse.object "$key"; return 0; ;;
-		'[' ) __json.parse.array  "$key"; return 0; ;;
+		'{' ) : $((depth++)); __json.parse.object "$key"; return 0; ;;
+		'[' ) : $((depth++)); __json.parse.array  "$key"; return 0; ;;
 		* ) value=${token} ;;
 	esac
 	
@@ -70,7 +74,7 @@ function __json.parse.object {
 	local key index=0;
 	read -r token;
 	case "$token" in
-		'}' ) ;;
+		'}' ) : $((depth--)); ;;
 		* )
 			while :
 				do
@@ -92,7 +96,7 @@ function __json.parse.object {
 					__json.parse.value "$1" "$key"
 					read -r token;
 					case "$token" in
-						'}') break ;;
+						'}') : $((depth--)); break ;;
 						',') : $((index++)); ;;
 						*) __json.throw "EXPECTED , or } GOT ${token:-EOF}" ;;
 					esac
@@ -106,20 +110,20 @@ function __json.parse.array {
 	local index=0;
 	read -r token;
 	case "$token" in
-		']' ) ;;
+		']' ) : $((depth--)); ;;
 		* )
 			while :
 				do				
 					__json.parse.value "$1" "$index";
 					read -r token;
 					case "$token" in
-						']') break ;;
+						']') : $((depth--)); echo "got end of array with length: $index and key: $1"; break ;;
 						',') : $((index++)); ;;
 						*) __json.throw "EXPECTED , or ] GOT ${token:-EOF}" ;;
 					esac
 					read -r token;
 					case "$token" in
-						']') break ;;
+						']') : $((depth--)); break ;;
 					esac
 			done
 		;;
