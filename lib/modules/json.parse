@@ -8,6 +8,17 @@ function json.parse {
 	# current nesting depth
 	local depth=-1;
 	
+	# keep track of array element counts,
+	# so that we can add a `length` property for
+	# parsed arrays
+	unset array_count;
+	declare -A array_count;
+	
+	# keep track of the current array
+	local current_array=();
+	
+	local array_length_property_name="length";
+	
 	# use process substitution so that parsed
 	# data is available globally
 	__json.start < <(__json.tokenize <&0);
@@ -108,26 +119,52 @@ function __json.parse.object {
 
 function __json.parse.array {
 	local index=0;
+	echo "parsing array with key: $key : $depth";
+	current_array+=( "$key" );
 	read -r token;
 	case "$token" in
 		']' ) : $((depth--)); ;;
 		* )
 			while :
-				do				
+				do
 					__json.parse.value "$1" "$index";
 					read -r token;
 					case "$token" in
-						']') : $((depth--)); echo "got end of array with length: $index and key: $1"; break ;;
-						',') : $((index++)); ;;
-						*) __json.throw "EXPECTED , or ] GOT ${token:-EOF}" ;;
+						']' )
+							#echo "finishing array first check $current_array";
+							__json.parse.array.finish;
+							break;
+							;;
+						',' ) : $((index++)); ;;
+						* ) __json.throw "EXPECTED , or ] GOT ${token:-EOF}" ;;
 					esac
 					read -r token;
 					case "$token" in
-						']') : $((depth--)); break ;;
+						']' )
+							#echo "finishing array second check ${!current_array[@]}";	
+							#__json.parse.array.finish;
+							break;
+							;;
 					esac
 			done
 		;;
 	esac
+}
+
+function __json.parse.array.finish {
+	: $((depth--));
+	local length=$((index+1));
+	local lenkey="";
+	# top-level array
+	if [ "${#current_array[@]}" -eq 0 ]; then
+		lenkey="$array_length_property_name";
+	else
+		lenkey="${current_array[-1]}${delimiter}${array_length_property_name}";
+		unset current_array[${#current_array[@]}-1];
+	fi
+	lenkey="${lenkey#.}";
+	json_doc["$lenkey"]="$length";
+	#echo "got end of array with length: $length and current array: ${!current_array[@]} and length key: $lenkey";
 }
 
 function __json.parse.debug {
