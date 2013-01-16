@@ -90,7 +90,7 @@ function rlx.auth.save {
 				json_doc[auth.0.host]="$host";
 			# TODO: append entries to the document
 			else
-				echo "append to auth file with existing entries... ${!json_doc[@]}";
+				echo "append to auth file with existing entries... ${json_doc[auth.length]}";
 				#local length;
 				#json.array.length "auth" "length";
 			fi

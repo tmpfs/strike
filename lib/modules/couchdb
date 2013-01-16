@@ -16,10 +16,61 @@ declare -g couchdb_result_status="";
 
 declare -g couchdb_module_name="couchdb";
 
+declare -g couchdb_session_login_auth_token="";
+
 #function rest_result_parse {
 #	local opts=( "${@}" );
 #	echo "got rest_result_parse opts ${opts[@]}";
 #}
+
+# > HOST="https://ffsys.cloudant.com"
+# > curl -vX POST $HOST/_session -H 'Content-Type: application/x-www-form-urlencoded' -d 'name=anna&password=secret'
+
+# > curl -vX PUT $HOST/_all_dbs --cookie AuthSession=ZmZzeXM6NTBGNjdEOTY6vAyRr5A7XWPxDum-jkXglKKXgxU -H "X-CouchDB-WWW-Authenticate: Cookie" -H "Content-Type: application/x-www-form-urlencoded"
+# {"ok":true}
+
+# Set-Cookie: AuthSession=ZmZzeXM6NTBGNjdEOTY6vAyRr5A7XWPxDum-jkXglKKXgxU; Version=1; Path=/; HttpOnly
+
+# centralized entry point for couchdb(3)
+# http(3) requests so that it's easier to
+# add before/after debugging statements
+function couchdb.run {
+	local opts=( "$@" );
+	
+	# add session cookie authentication information
+	if [ -n "${couchdb_session_login_auth_token:-}" ]; then
+		opts+=( "-H" "X-CouchDB-WWW-Authenticate: Cookie" );
+		opts+=( "-H" "Content-Type: application/x-www-form-urlencoded" );
+		opts+=( "--cookie" "$couchdb_session_login_auth_token" );
+	fi
+	
+	echo "$FUNCNAME : using opts : ${#opts[@]} : ${opts[@]}";
+	
+	http.curl "${opts[@]}";
+}
+
+function couchdb.session.login {
+	local host="${1:-}";
+	local user="${2:-}";
+	local pass="${3:-}";
+	if [ -n "$host" ] && [ -n "$user" ] && [ -n "$pass" ]; then
+		couchdb.run "POST" "${host}/_session" \
+			"-H" "Content-Type: application/x-www-form-urlencoded" \
+			"-d" "name=${user}&password=${pass}";
+			
+		local cookie="${http_header_0_set_cookie:-}";
+		if [ -z "$cookie" ]; then
+			console.warn "could not retrieve cookie header information for couchdb session login";
+		else
+			#AuthSession=ZmZzeXM6NTBGNjgwOEM6ROf3Gcfux_kfV_x3VDmRPCGaQ84; Version=1; Path=/; HttpOnly
+			couchdb_session_login_auth_token="${cookie%%;*}";
+			#couchdb_session_login_auth_token="${couchdb_session_login_auth_token#AuthSession=}";
+			echo "got auth session token: $couchdb_session_login_auth_token";
+		fi
+		
+		#echo "got set cookie header: $http_header_0_set_cookie";
+	fi
+}
 
 function couchdb.auth.update {
 	if [ -n "$couchdb_user" ] && [ -n "$couchdb_pass" ]; then
@@ -30,8 +81,8 @@ function couchdb.auth.update {
 
 function couchdb.db.list {
 	local host="${1:-}";
-	couchdb.auth.update;
-	http.curl "GET" "${host}/_all_dbs";
+	#couchdb.auth.update;
+	couchdb.run "GET" "${host}/_all_dbs";
 }
 
 function couchdb.db.name.valid? {

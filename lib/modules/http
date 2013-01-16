@@ -90,7 +90,7 @@ declare -g http_print_stderr="";
 # determines whether to quit when curl(1)
 # returns a non-zero exit code, set to a
 # non-blank string to switch on
-declare http_strict="";
+declare -g http_strict="";
 
 declare -Ag http_request_headers;
 
@@ -168,6 +168,8 @@ function http.curl.execute {
 	done
 	
 	set +o errexit;	
+	
+	#echo "$FUNCNAME: ${#runopts[@]} : ${runopts[@]}";
 		
 	# redirect stderr with tee, useful for also
 	# displaying file download progress
@@ -310,7 +312,8 @@ function http.curl {
 
 	#pass in custom opts
 	if [ ${#opts[@]} -gt 0 ]; then
-		runopts=( "${runopts[@]}" "${opts[@]}" );
+		echo "adding custom options... ${opts[@]}";
+		runopts+=( "${opts[@]}" );
 	fi
 	
 	runopts=( "${runopts[@]}" "$url" );
@@ -462,8 +465,8 @@ function __http_parse_header {
 	string.ltrim "$value";
 	value="$_result";
 	
-	#echo "got name: $name";
-	#echo "got value: $value";
+	echo "got name: $name";
+	echo "got value: $value";
 	
 	#TODO: only export on the last header set received
 	export "http_header_${index}_${name}=${value}";

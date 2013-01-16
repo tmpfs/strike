@@ -119,7 +119,7 @@ function __json.parse.object {
 
 function __json.parse.array {
 	local index=0;
-	echo "parsing array with key: $key : $depth";
+	#echo "parsing array with key: $key : $depth";
 	current_array+=( "$key" );
 	read -r token;
 	case "$token" in
