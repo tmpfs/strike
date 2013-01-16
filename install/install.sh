@@ -1,5 +1,45 @@
 export PATH=".:$PATH";
 
+noop=false;
+prefix="/usr/local";
+man="/usr/local/share/man";
+name="strike";
+
+# yum install -y, --assumeyes
+
+parse() {
+	while [ "$1" != "" ]; do
+		case $1 in
+			--prefix )
+				shift;
+				if test -z "$1"; then
+					printf "no prefix specified\n";
+					exit 1;
+				fi
+				prefix="$1";
+				if ! test -d "$prefix"; then
+					printf "prefix $1 is not a directory\n";
+					exit 1;
+				fi
+				;;
+			--noop )
+				noop=true;
+				;;							
+			* )
+				printf "invalid option $1\n";
+				exit 1;
+				;;
+		esac
+		if [ $# -ne 0 ]; then
+			shift;
+		else
+			break;
+		fi
+	done
+}
+
+parse "$@";
+
 fatal() {
 	printf "$1\n";
 	exit 1;
@@ -36,19 +76,24 @@ check_command() {
 	return $ske_result_code;
 }
 
-check_command "env";
-if test $? -gt 1; then
-	fatal "env command not found";
-fi
+# prefix information
+printf "using prefix\t\t\t... %s\n" "$prefix";
+printf "using install\t\t\t... %s\n" "${prefix}/${name}";
+printf "using man\t\t\t... %s\n" "${man}";
+printf "using noop\t\t\t... %s\n" "${noop}";
+
+check_command "env" || fatal "env(1) command not found";
 check_command "gpg";
 check_command "grep";
 check_command "sed";
-check_command "awk";
 check_command "tee";
 check_command "egrep";
 check_command "gcc";
-check_command "bash";
-#check_bash_version $?;
 check_command "curl";
-check_command "find";
+check_command "find" || fatal "find(1) command not found";
 check_command "wget";
+{ check_command "bash" && check_bash_version $?; }
+
+if ! $noop; then
+	printf "check if everything is ok ... ";
+fi

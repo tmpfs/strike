@@ -11,7 +11,7 @@ test_install() {
 			if test -n "$path"; then
 				printf "\n";
 				printf "testing shell $sh ($path)\n\n";
-				"$path" "./install.sh";
+				"$path" "./install.sh" --noop;
 			else
 				printf "no shell $sh available\n";
 			fi
