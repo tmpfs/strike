@@ -245,12 +245,28 @@ function __compress.files.get {
 		for file in "${files[@]}"
 			do
 				
+				local target_files=();
 				if [ -d "$file" ]; then
 					if ! $compress_recursive && [ $compress_depth -eq 0 ]; then
-						__compress.files.get "$callback" "$skip" $( find "$file" -depth 1 -type f );
+						#__compress.files.get "$callback" "$skip" $( find "$file" -depth 1 -type f );
+						
+						# local findopts=( "-O1" "$file" "-type" "f" );
+						# if [[ "$OSTYPE" =~ ^darwin ]]; then
+						# 	findopts=( "$file" "-depth" "1" "-type" "f" );
+						# fi
+						# target_files=( $( find "${fileopts[@]}" ) );
+						
+						local nf;
+						for nf in "${file}"/*
+							do
+								target_files+=( "$nf" );
+						done
+						
 					elif $compress_recursive; then
-						__compress.files.get "$callback" "$skip" $( find "$file" -type f );
+						#__compress.files.get "$callback" "$skip" $( find "$file" -type f );
+						target_files=( $( find "$file" -type f ) );
 					fi
+					__compress.files.get "$callback" "$skip" "${target_files[@]:-}";
 					continue;
 				fi
 				
