@@ -135,7 +135,7 @@ function assert.ne {
 
 # FILE ASSERTIONS
 
-# assert with -f
+# assert that a file is a regular file with -f
 function assert.file.exists? {
 	# TODO: add custom error message
 	local expected="0";
@@ -156,6 +156,36 @@ function assert.file.exists! {
 	local expected="1";
 	set +o errexit;
 	`test -f "$1"`;
+	local received="$?";
+	set -o errexit;
+	if [ "$expected" == "$received" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
+# assert that a file is a directory with -d
+function assert.dir.exists? {
+	# TODO: add custom error message
+	local expected="0";
+	set +o errexit;
+	`test -d "$1"`;
+	local received="$?";
+	set -o errexit;
+	if [ "$expected" == "$received" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
+# assert that a file is not a directory
+function assert.dir.exists! {
+	# TODO: add custom error message
+	local expected="1";
+	set +o errexit;
+	`test -d "$1"`;
 	local received="$?";
 	set -o errexit;
 	if [ "$expected" == "$received" ]; then
