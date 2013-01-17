@@ -1,0 +1,67 @@
+: <<'ronn:markdown'
+version(3) -- print version information
+=============================================
+
+## SYNOPSIS
+
+Parses options and attempts to print version information.
+
+## DESCRIPTION
+
+The version(3) module inspects the options passed to the `version.parse` method and if it encounters a *--version* option it attempts to print version information using the `version.show` method. If no *--version* option is found then nothing is done.
+
+## USAGE
+
+	require 'opts/version';
+	version.parse "$@";
+	
+## FILES
+
+The version(3) module uses version information in a file named `version` in the root of the project.
+
+## EXIT CODES
+
+If a *--version* option is encountered but no version information is available then the exit code is *>0*. Alternatively, if a *--version* option exists and version information is found then the version information is printed and version(3) exits with a *0* code.
+
+## BUGS
+
+**version** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**version** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+semver(3), task-semver(7)
+ronn:markdown
+
+# display version information and exit with code 0
+# if version information is available or >0 if no
+# version information is available
+version.show() {
+	local versionfile="${process_dirs[root]}/version";
+	if [ ! -f "$versionfile" ] || [ ! -r "$versionfile" ]; then
+		console.quit 1 "no version information available";
+	fi
+	local version=$( cat "$versionfile" );
+	# TODO: use --no-prefix when it is implemented
+	console.info "%s version %s" "$process_name" "$version";
+	console.success;
+}
+
+# parse options looking for a --version
+# option and display version information when possible
+version.parse() {
+	# parse options in a non-destructive manner
+	local opt;
+	for((i=1;i < $#+1;i++))
+		do
+			eval "opt=\"\${$i}\"";
+			case $opt in
+				--version )
+					version.show;
+					;;
+			esac
+	done
+}

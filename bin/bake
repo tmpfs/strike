@@ -481,12 +481,13 @@ require 'help';
 help.man.page "default" "bake.1";
 help.parse "$@";
 
-# TODO: add --version handling
-
 if [ $# -eq 0 ]; then
 	help.man.show.default;
 	exit 0;
 fi
+
+require 'opts/version';
+version.parse "$@";
 
 # default builtin tasks
 require 'tasks/test';
