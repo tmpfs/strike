@@ -1,6 +1,6 @@
 {
 	"name": "strike",
-	"description": "Suite of bash library modules",
+	"description": "Modular bash using require(3) for *NIX systems",
 	"homepage": "https://github.com/freeformsystems/strike",
 	"version": "0.1.2",
 	"author": "muji <muji@xpm.io>",
