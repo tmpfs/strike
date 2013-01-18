@@ -6,7 +6,22 @@
 
 #set -o pipefail;
 
-function __initialize__ {
+__check_version__() {
+	local tshell="bash";
+	local required=( 4 2 );
+	local major="${BASH_VERSINFO[0]}";
+	local minor="${BASH_VERSINFO[1]}";
+	if { test "$major" -lt "${required[0]}"; } \
+		|| { test "$major" -eq "${required[0]}" && test "$minor" -lt "${required[1]}"; }; then
+		local version="${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}.${BASH_VERSINFO[2]}";
+		printf "$tshell >= ${required[0]}.${required[1]} is required, got %s\n" "$version";
+		exit 1;
+	fi
+}
+
+__initialize__() {
+	__check_version__;
+	
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
 
 	# global variable declarations
