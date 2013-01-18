@@ -12,7 +12,13 @@
 .br
 .
 .SH "DESCRIPTION"
-\fBbake\fR is \fBmake\fR for bash programs\. It provides an extensible system for managing project tasks using modular code\.All bake(1) projects have the following tasks built in task\-test(7), task\-clean(7), task\-ls(7), task\-doc(7) and task\-semver(7)\.The convention is that task methods are not declared in tasks(7) but are placed in modules and then included using require(3)\. So to include the task\-todo(7) functionality into your project all you need to do is require(3) it:
+\fBbake\fR is \fBmake\fR for bash programs\. It provides an extensible system for managing project tasks using modular code\.
+.
+.SH "BUILTIN TASKS"
+All bake(1) projects have the following tasks built in task\-test(7), task\-clean(7), task\-ls(7), task\-doc(7) and task\-semver(7)\.
+.
+.SH "REQUIRE TASKS"
+The convention is that task methods are not declared in tasks(7) but are placed in modules and then included using require(3)\. So to include the task\-todo(7) functionality into your project all you need to do is require(3) it:
 .
 .IP "" 4
 .
