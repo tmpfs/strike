@@ -1,0 +1,35 @@
+: <<'ronn:markdown'
+task-devel(7) -- develelopment task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+Development task(s) for bake(1).
+
+## DESCRIPTION
+
+Integrated with tasks-project(7) to copy dependencies during local develelopment.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `devel` task(s) using:
+
+	require 'tasks/devel';
+
+## USAGE
+
+	bake devel
+
+## BUGS
+
+**task-devel** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-devel** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1), tasks-project(7)
+ronn:markdown
+
