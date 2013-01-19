@@ -34,7 +34,7 @@ declare -g couchdb_session_login_auth_token="";
 # centralized entry point for couchdb(3)
 # http(3) requests so that it's easier to
 # add before/after debugging statements
-function couchdb.run {
+couchdb.run() {
 	local opts=( "$@" );
 	
 	# add session cookie authentication information
@@ -49,7 +49,7 @@ function couchdb.run {
 	http.curl "${opts[@]}";
 }
 
-function couchdb.session.login {
+couchdb.session.login() {
 	local host="${1:-}";
 	local user="${2:-}";
 	local pass="${3:-}";
@@ -72,20 +72,20 @@ function couchdb.session.login {
 	fi
 }
 
-function couchdb.auth.update {
+couchdb.auth.update() {
 	if [ -n "$couchdb_user" ] && [ -n "$couchdb_pass" ]; then
 		http_auth_user="${couchdb_user}";
 		http_auth_pass="${couchdb_pass}";
 	fi
 }
 
-function couchdb.db.list {
+couchdb.db.list() {
 	local host="${1:-}";
 	#couchdb.auth.update;
 	couchdb.run "GET" "${host}/_all_dbs";
 }
 
-function couchdb.db.name.valid? {
+couchdb.db.name.valid?() {
 	local name="${1:-}";
 	if [[ "$name" =~ ^[-a-zA-Z0-9]+$ ]]; then
 		return 0;
