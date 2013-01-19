@@ -93,6 +93,25 @@ couchdb.db.name.valid?() {
 	return 1;
 }
 
+# query a view document
+couchdb.view() {
+	local viewdoc="${1:-views}";
+	local view="${2:-}";
+	local querystring="${3:-}";
+	local path="_design/${viewdoc}/_view/${view}";
+	
+	if [ ! -z "$querystring" ]; then
+		path="${path}${querystring}";
+	fi
+	
+	#if [ ! -z "$couchdb_view_options" ]; then
+	#	echo "got view options...";
+	#fi
+	http_curl "GET" "${path}";
+	
+	#reset the view options
+	#couchdb_view_options="";
+}
 
 # DEPRECATED
 function couchdb_print {
@@ -159,23 +178,4 @@ function couchdb_auth {
 	
 	#echo "$couchdb_url";
 	#echo "$couchdb_dbname";	
-}
-
-function couchdb_view {
-	local viewdoc="${1:-views}";
-	local view="${2:-}";
-	local querystring="${3:-}";
-	local path="_design/${viewdoc}/_view/${view}";
-	
-	if [ ! -z "$querystring" ]; then
-		path="${path}${querystring}";
-	fi
-	
-	#if [ ! -z "$couchdb_view_options" ]; then
-	#	echo "got view options...";
-	#fi
-	http_curl "GET" "${path}";
-	
-	#reset the view options
-	#couchdb_view_options="";
 }
