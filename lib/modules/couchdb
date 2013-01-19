@@ -72,6 +72,8 @@ couchdb.session.login() {
 	fi
 }
 
+# updates the http(3) authentication information
+# based on the current couchdb(3) authentication
 couchdb.auth.update() {
 	if [ -n "$couchdb_user" ] && [ -n "$couchdb_pass" ]; then
 		http_auth_user="${couchdb_user}";
