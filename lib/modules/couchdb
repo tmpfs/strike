@@ -44,7 +44,7 @@ function couchdb.run {
 		opts+=( "--cookie" "$couchdb_session_login_auth_token" );
 	fi
 	
-	echo "$FUNCNAME : using opts : ${#opts[@]} : ${opts[@]}";
+	#echo "$FUNCNAME : using opts : ${#opts[@]} : ${opts[@]}";
 	
 	http.curl "${opts[@]}";
 }
