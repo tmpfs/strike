@@ -482,6 +482,7 @@ help.man.page "default" "bake.1";
 help.man.page "ls" "task-ls.7";
 help.man.page "doc" "task-doc.7";
 help.man.page "clean" "task-clean.7";
+help.man.page "semver" "task-semver.7";
 help.man.page "project" "task-project.7";
 help.parse "$@";
 
