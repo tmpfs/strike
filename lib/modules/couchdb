@@ -5,6 +5,7 @@ declare -g couchdb_url;
 declare -g couchdb_dbname;
 declare -g couchdb_user="";
 declare -g couchdb_pass="";
+declare -g couchdb_path="";
 
 #default write out
 #write out the data as non-json
@@ -79,6 +80,16 @@ couchdb.auth.update() {
 		http_auth_user="${couchdb_user}";
 		http_auth_pass="${couchdb_pass}";
 	fi
+}
+
+# sets the host and database name in use
+couchdb.db() {
+    local host="${1:-}";
+    local dbname="${2:-}";
+    host="${host%/}";
+    couchdb_host="${host}";
+    couchdb_dbname="${dbname}";
+    couchdb_path="${host}/${dbname}";
 }
 
 couchdb.db.list() {

@@ -33,3 +33,6 @@ In your tasks(7) file `require` the `devel` task(s) using:
 bake(1), tasks-project(7)
 ronn:markdown
 
+tasks.devel() {
+    echo "$FUNCNAME";
+}
