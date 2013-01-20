@@ -480,6 +480,7 @@ process.use strict;
 require 'help';
 help.man.page "default" "bake.1";
 help.man.page "ls" "task-ls.7";
+help.man.page "test" "task-test.7";
 help.man.page "doc" "task-doc.7";
 help.man.page "clean" "task-clean.7";
 help.man.page "semver" "task-semver.7";
@@ -501,7 +502,7 @@ require 'tasks/ls';
 require 'tasks/doc';
 require 'tasks/semver';
 
-function bake {
+bake() {
 	local nm="tasks";
 	fs.walk "$nm";
 	local f="$_result";
