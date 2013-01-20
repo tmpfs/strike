@@ -30,16 +30,20 @@ It maps commands (the first option passed to bake(1)) to task method(s) declared
 
 ## ENVIRONMENT
 
-The following variables are available to each command method:
+The following variables are available to each task command:
 
 * `root`:
-	The directory where the `tasks` file is located.
+  The directory where the `tasks` file is located.
 
 * `target`:
-	A temporary `target` directory corresponding to `${root}/target`.
+  A temporary `target` directory corresponding to `${root}/target`.
 	
 * `tasks`:
-	The file system path to the tasks file, eg: `${root}/tasks`.
+  The file system path to the tasks file, eg: `${root}/tasks`.
+
+* `bake_file_name`:
+
+  Determines the name of the file that bake(1) looks for to load task command methods from, default is *tasks*. 
 	
 ## EXIT CODES
 
@@ -64,7 +68,7 @@ It is recommended that task command implementations explicitly exit the program 
 
 ## SEE ALSO
 
-task-test(7), task-doc(7), task-clean(7), task-ls(7)
+task-test(7), task-doc(7), task-clean(7), task-ls(7), task-semver(7)
 ronn:markdown
 
 set -o errtrace;
@@ -503,7 +507,7 @@ require 'tasks/doc';
 require 'tasks/semver';
 
 bake() {
-	local nm="tasks";
+	local nm="${bake_file_name:-tasks}";
 	fs.walk "$nm";
 	local f="$_result";
 	if [ ! -f "$f" ]; then

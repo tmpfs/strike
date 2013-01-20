@@ -37,7 +37,7 @@ The bake(1) program looks for a tasks(7) file in the current working directory\.
 It maps commands (the first option passed to bake(1)) to task method(s) declared by the tasks file\. A command is considered to be the first option passed to the \fBbake\fR executable, any other options specified on the command line are passed to the corresponding task method\.
 .
 .SH "ENVIRONMENT"
-The following variables are available to each command method:
+The following variables are available to each task command:
 .
 .TP
 \fBroot\fR
@@ -50,6 +50,12 @@ A temporary \fBtarget\fR directory corresponding to \fB${root}/target\fR\.
 .TP
 \fBtasks\fR
 The file system path to the tasks file, eg: \fB${root}/tasks\fR\.
+.
+.TP
+\fBbake_file_name\fR:
+.
+.IP
+Determines the name of the file that bake(1) looks for to load task command methods from, default is \fItasks\fR\.
 .
 .SH "EXIT CODES"
 A >0 exit code is used when no task(7) file could be located or no command is available, otherwise the exit code is deferred to the task being executed\.
