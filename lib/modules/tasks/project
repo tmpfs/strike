@@ -128,7 +128,7 @@ declare -g project_remote_regexp="^[a-zA-Z]+://";
 declare -g project_file_name="projects.json";
 
 function tasks.project {
-	__project.file;
+	!project.file;
 	local prjfile="$_result";
 	
 	# force overwrite
@@ -154,7 +154,7 @@ function tasks.project {
 	declare -A projects;
 	
 	# process options
-	__project.options.parse "$@";
+	!project.options.parse "$@";
 	
 	# do command procesing via delegation
 	if [ $# -gt 0 ]; then
@@ -172,28 +172,28 @@ function tasks.project {
 
 function prj.tasks.project.init {
 	if [ -f "$prjfile" ]; then
-		__project.file.exists.quit;
+		!project.file.exists.quit;
 	fi
-	__project.generator;
-	__project.write!
+	!project.generator;
+	!project.write!
 	if [ ! -f "$prjfile" ]; then
-		__project.file.missing.quit;
+		!project.file.missing.quit;
 	fi
 	console.success "project file %s created %s" "$prjfile" "✓";
 }
 
 function prj.tasks.project.exists {
 	if [ ! -f "$prjfile" ]; then
-		__project.file.missing.info;
-		__project.file.missing.quit;
+		!project.file.missing.info;
+		!project.file.missing.quit;
 	fi
 	
 	if [ $# -eq 0 ]; then
-		__project.id.missing.quit;
+		!project.id.missing.quit;
 	fi
 	prj_id="${1:-}";
-	__project.id.validate;
-	if __project.exists?; then
+	!project.id.validate;
+	if !project.exists?; then
 		console.success "project %s %s" "$prj_id" "✓";
 	else
 		console.quit 1 "no project %s %s" "$prj_id" "✘";
@@ -218,11 +218,11 @@ function prj.tasks.project.add {
 	# get the id
 	prj_id="${1:-}";
 	shift;
-	__project.id.validate;
+	!project.id.validate;
 	
 	prj_path="${1:-}";
 	shift;
-	__project.path.validate;
+	!project.path.validate;
 	
 	# echo "adding project with id $prj_id";
 	# echo "adding project with path $prj_path";
@@ -241,7 +241,7 @@ function prj.tasks.project.add {
 		prj.tasks.project.init;
 	fi
 	
-	if ! __project.path.remote?; then
+	if ! !project.path.remote?; then
 		if [ ! -d "$prj_path" ]; then
 			quit 1 "project path %s must be a directory" "$prj_path";
 		fi
@@ -250,10 +250,10 @@ function prj.tasks.project.add {
 	# TODO: convert relative paths to absolute ???
 	
 	# now read in any existing information
-	__project.file.read;
+	!project.file.read;
 	
 	# test for id existence and prompt to overwrite?
-	if ! $force && __project.exists?; then
+	if ! $force && !project.exists?; then
 		console.quit 1 "project %s exists use %s to overwrite" "$prj_id" "-f | --force";
 	fi
 	
@@ -272,54 +272,54 @@ function prj.tasks.project.add {
 		done
 	fi
 
-	__project.file.write!;
+	!project.file.write!;
 }
 
-function __project.file.write! {
+function !project.file.write! {
 	json.stringify <<< "prj_doc";
-	json.string >| "$prjfile" || __project.file.write.quit;
+	json.string >| "$prjfile" || !project.file.write.quit;
 }
 
 # failed to write file
-function __project.file.write.quit {
+function !project.file.write.quit {
 	console.quit 1 "coult not write project file %s" "$prjfile";
 }
 
 function prj.tasks.project.count {
 	if [ ! -f "$prjfile" ]; then
-		__project.file.missing.info;
-		__project.file.missing.quit;
+		!project.file.missing.info;
+		!project.file.missing.quit;
 	fi	
-	__project.file.read;
-	__project.list;
+	!project.file.read;
+	!project.list;
 	console.log "${#projects[@]}";
 	console.success;
 }
 
 function prj.tasks.project.set {
 	if [ ! -f "$prjfile" ]; then
-		__project.file.missing.info;
-		__project.file.missing.quit;
+		!project.file.missing.info;
+		!project.file.missing.quit;
 	fi
 	
 	if [ $# -eq 0 ]; then
-		__project.id.missing.quit;
+		!project.id.missing.quit;
 	fi
 	
 	# get the id
 	prj_id="${1:-}";
 	shift;
-	__project.id.validate;
+	!project.id.validate;
 	
 	# check the project exists before attempting to
 	# set and meta properties
-	if ! __project.exists?; then
-		__project.project.missing.quit;
+	if ! !project.exists?; then
+		!project.project.missing.quit;
 	fi
 	
 	prj_meta_name="${1:-}";
 	shift;
-	__project.id.validate "$prj_meta_name";
+	!project.id.validate "$prj_meta_name";
 	
 	if [ $# -eq 0 ]; then
 		console.quit 1 "no property value specified";
@@ -329,20 +329,20 @@ function prj.tasks.project.set {
 	prj_meta_value="$@";
 	
 	# read in the existing data
-	__project.file.read;
+	!project.file.read;
 	
 	# set the property in the `meta` object for the project
 	local prop_key="projects.${prj_id}.meta.${prj_meta_name}";
 	prj_doc["$prop_key"]="${prj_meta_value}";
 	
 	# update the file
-	__project.file.write!;
+	!project.file.write!;
 }
 
 function prj.tasks.project.get {
 	if [ ! -f "$prjfile" ]; then
-		__project.file.missing.info;
-		__project.file.missing.quit;
+		!project.file.missing.info;
+		!project.file.missing.quit;
 	fi
 	
 	prj_id="";
@@ -350,7 +350,7 @@ function prj.tasks.project.get {
 		# get the id
 		prj_id="${1:-}";
 		shift;
-		__project.id.validate;
+		!project.id.validate;
 	fi
 	
 	prj_meta_name="";
@@ -358,11 +358,11 @@ function prj.tasks.project.get {
 	if [ $# -gt 0 ]; then
 		prj_meta_name="${1:-}";
 		shift;
-		__project.id.validate "$prj_meta_name";
+		!project.id.validate "$prj_meta_name";
 	fi
 	
 	# read in the existing data
-	__project.file.read;
+	!project.file.read;
 	
 	local p k v re;
 	
@@ -404,12 +404,12 @@ function prj.tasks.project.get {
 
 function prj.tasks.project.del {
 	if [ ! -f "$prjfile" ]; then
-		__project.file.missing.info;
-		__project.file.missing.quit;
+		!project.file.missing.info;
+		!project.file.missing.quit;
 	fi
 	
 	if [ $# -eq 0 ]; then
-		__project.id.missing.quit;
+		!project.id.missing.quit;
 	fi
 	
 	if [ $# -lt 2 ]; then
@@ -419,16 +419,16 @@ function prj.tasks.project.del {
 	# get the id
 	prj_id="${1:-}";
 	shift;
-	__project.id.validate;
+	!project.id.validate;
 	
 	# read in the existing data
-	__project.file.read;
+	!project.file.read;
 	
 	while [ $# -gt 0 ];
 		do
 			prj_meta_name="${1:-}";
 			shift;
-			__project.id.validate "$prj_meta_name";
+			!project.id.validate "$prj_meta_name";
 	
 			#echo "deleting with : $prj_id : $prj_meta_name";
 	
@@ -441,29 +441,29 @@ function prj.tasks.project.del {
 	# echo "after deletion : ${!prj_doc[@]}";
 	
 	# update the file
-	__project.file.write!;
+	!project.file.write!;
 }
 
 function prj.tasks.project.rm {
 	if [ ! -f "$prjfile" ]; then
-		__project.file.missing.info;
-		__project.file.missing.quit;
+		!project.file.missing.info;
+		!project.file.missing.quit;
 	fi
 	
 	if [ $# -eq 0 ]; then
-		__project.id.missing.quit;
+		!project.id.missing.quit;
 	fi
 	
 	local k re length=$#;
 	
-	__project.file.read;
+	!project.file.read;
 	while [ $# -gt 0 ];
 		do
 			prj_id="${1:-}";
 			shift;
-			__project.id.validate;
-			if ! __project.exists?; then
-				__project.project.missing.quit;
+			!project.id.validate;
+			if ! !project.exists?; then
+				!project.project.missing.quit;
 			fi
 			re="^projects\.${prj_id}\.";
 			
@@ -479,18 +479,18 @@ function prj.tasks.project.rm {
 	
 	#echo "after remove got keys: ${!prj_doc[@]}";
 	
-	__project.file.write!;
+	!project.file.write!;
 	
 	#console.success "removed %s projects" "${length}";
 }
 
 function prj.tasks.project.print {
 	if [ ! -f "$prjfile" ]; then
-		__project.file.missing.info;
-		__project.file.missing.quit;
+		!project.file.missing.info;
+		!project.file.missing.quit;
 	fi
 	if [ "${1:-}" == "--pretty" ]; then
-		__project.file.read;
+		!project.file.read;
 		json.stringify --pretty <<< "prj_doc";
 		json.string;
 	else
@@ -502,11 +502,11 @@ function prj.tasks.project.print {
 
 function prj.tasks.project.ls {
 	if [ ! -f "$prjfile" ]; then
-		__project.file.missing.info;
-		__project.file.missing.quit;
+		!project.file.missing.info;
+		!project.file.missing.quit;
 	fi
-	__project.file.read;
-	__project.list true;
+	!project.file.read;
+	!project.list true;
 }
 
 ######################################################################
@@ -516,7 +516,7 @@ function prj.tasks.project.ls {
 ######################################################################
 
 # parse options
-function __project.options.parse {
+function !project.options.parse {
 	# remove command option
 	shift;
 	
@@ -536,7 +536,7 @@ function __project.options.parse {
 }
 
 # propagate the mapping between project id's and paths
-function __project.list {
+function !project.list {
 	local print="${1:-false}";
 	local k v;
 	for k in ${!prj_doc[@]}
@@ -558,7 +558,7 @@ function __project.list {
 }
 
 # determine if a project exists
-function __project.exists? {
+function !project.exists? {
 	if [ ! -f "$prjfile" ]; then
 		return 1;
 	fi
@@ -573,7 +573,7 @@ function __project.exists? {
 	
 	# not document information, try to read it in
 	if [ ${#prj_doc[@]} -eq 0 ]; then
-		__project.file.read;
+		!project.file.read;
 	fi
 	
 	local k;
@@ -587,7 +587,7 @@ function __project.exists? {
 }
 
 # validate a project identifier
-function __project.id.validate {
+function !project.id.validate {
 	local id="${1:-}";
 	if [ -z "$id" ]; then
 		id="$prj_id";
@@ -598,14 +598,14 @@ function __project.id.validate {
 }
 
 # validate a project path
-function __project.path.validate {
+function !project.path.validate {
 	if [[ ! "$prj_path" =~ $project_path_regexp ]]; then
 		console.quit 1 "invalid path %s, mush match %s" "$prj_path" "$project_path_regexp";
 	fi
 }
 
 # determine if a path is a remote path
-function __project.path.remote? {
+function !project.path.remote? {
 	if [[ "$prj_path" =~ $project_remote_regexp ]]; then
 		return 0;
 	fi
@@ -613,12 +613,12 @@ function __project.path.remote? {
 }
 
 # retrieve the path to the projects file
-function __project.file {
+function !project.file {
 	_result="${root}/${project_file_name}";
 }
 
 # read in the project file data
-function __project.file.read {
+function !project.file.read {
 	local k;	
 	json.parse < "$prjfile";
 	
@@ -639,7 +639,7 @@ function __project.file.read {
 }
 
 # quit on non-existent project
-function __project.project.missing.quit {
+function !project.project.missing.quit {
 	local id="${1:-}";
 	if [ -z "$id" ]; then 
 		id="${prj_id}";
@@ -648,37 +648,37 @@ function __project.project.missing.quit {
 }
 
 # quit on no identifier
-function __project.id.missing.quit {
+function !project.id.missing.quit {
 	console.quit 1 "no project identifier specified";
 }
 
 # add generator information to project.json
-function __project.generator {
+function !project.generator {
 	prj_doc[generator]="task-project(7), do not edit this file manually use bake(1) with task-project(7)";
 }
 
 # write an empty project file
-function __project.write! {
+function !project.write! {
 	json.stringify <<< "prj_doc";
-	json.string > "${prjfile}" || __project.file.write.quit;
+	json.string > "${prjfile}" || !project.file.write.quit;
 }
 
 # quit if project file exists
-function __project.file.exists.quit {
+function !project.file.exists.quit {
 	console.quit 1 "project file %s exists" "$prjfile";
 }
 
 # info on creating a project file
-function __project.file.missing.info {
+function !project.file.missing.info {
 	console.info "use %s to create an empty %s file" "project init" "${project_file_name}";
 }
 
 # quit if no project file is available
-function __project.file.missing.quit {
+function !project.file.missing.quit {
 	console.quit 1 "no project file %s" "$prjfile";
 }
 
 # quit if we could not write the project file
-function __project.file.write.quit {
+function !project.file.write.quit {
 	console.quit 1 "could not write project file %s" "$prjfile";
 }
