@@ -57,9 +57,17 @@ ronn:markdown
 require.once 'tasks/project';
 
 tasks.devel() {
-    echo "$FUNCNAME";
+    if [ $# -eq 0  ]; then
+        console.quit 1 "no %s command specified" "devel";
+    fi
+    local cmd="${1:-}";
+    shift;
+    if ! method.exists? "devel.$cmd"; then
+        console.quit 1 "invalid %s command %s" "devel" "$cmd";
+    fi
+    delegate "devel" "$cmd" "$@";
 }
 
-tasks.devel.push() {
+devel.push() {
     echo "$FUNCNAME";
 }
