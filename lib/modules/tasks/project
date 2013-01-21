@@ -571,15 +571,16 @@ function !project.exists? {
 		id="$prj_id";
 	fi
 	
-	# not document information, try to read it in
+	# no document information, try to read it in
 	if [ ${#prj_doc[@]} -eq 0 ]; then
 		!project.file.read;
 	fi
 	
 	local k;
+    local re="^projects\.${id}";
 	for k in ${!prj_doc[@]}
 		do
-			if [[ "$k" =~ ^projects.$id ]]; then
+			if [[ "$k" =~ $re ]]; then
 				return 0;
 			fi
 	done

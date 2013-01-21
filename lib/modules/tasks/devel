@@ -18,8 +18,8 @@ In your tasks(7) file `require` the `devel` task(s) using:
 
 ## USAGE
 
-	bake devel push [options...]
-    bake devel pull [options...]
+	bake devel push [options...] [id]
+    bake devel pull [options...] [id]
 
 ## COMMANDS
 
@@ -33,13 +33,17 @@ In your tasks(7) file `require` the `devel` task(s) using:
 
 ## OPTIONS
 
+* `--force`:
+
+    Force overwriting of an existing dependency.
+
 * `--test`:
 
     Run tests after a push or pull command.
 
 * `--revert`:
 
-    Revert to the version in use prior to a push or pull if running tests fails.
+    Revert to the version in use prior to a push or pull if tests fails.
 
 ## BUGS
 
@@ -56,6 +60,13 @@ ronn:markdown
 
 require.once 'tasks/project';
 
+declare -a devel_excludes=(
+    "^\.git"
+    "^\.svn"
+    "target"
+    "tmp"
+);
+
 tasks.devel() {
     if [ $# -eq 0  ]; then
         console.quit 1 "no %s command specified" "devel";
@@ -65,10 +76,53 @@ tasks.devel() {
     if ! method.exists? "devel.$cmd"; then
         console.quit 1 "invalid %s command %s" "devel" "$cmd";
     fi
+
+    declare -A prj_doc;
+    # ensure we have a project file path
+	!project.file;
+	local prjfile="$_result";
+
+    local force=false;
+
     delegate "devel" "$cmd" "$@";
 }
 
 devel.push() {
-    echo "$FUNCNAME";
+    local id="${1:-}";
+    if [ -z "${id}"  ]; then
+        console.quit 1 "no id specified";
+    fi
+
+    if ! !project.exists? "${id}"; then
+        console.quit 1 "project %s does not exist" "${id}";
+    fi
+
+    #TODO: check whether a devel-target has been set for the project
+
+    local path="${prj_doc[projects.$id.path]}";
+
+    if [ ! -d "${path}"  ] || [ ! -e "${path}" ]; then
+        console.quit 1 "project path %s does not exist or is not a directory" "${path}";
+    fi
+
+    local name;
+    # use the directory name for the moment
+    # should be able to use a configured name
+    # in package.json
+    fs.basename "${root}" "name";
+
+    local subfolder="node_modules/${name}";
+    local destination="${path%/}";
+    destination="${destination}/${subfolder}";
+
+    echo "copy project to target ... with id $id : $path : $destination"
+    
+    local f;
+    for f in ${root}/*
+        do
+            echo "copy file $f";
+    done
+
+    #cp -Riv "${root}" "${destination}";
 }
 
