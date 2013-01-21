@@ -8,7 +8,7 @@ Development task(s) for bake(1).
 
 ## DESCRIPTION
 
-Integrated with tasks-project(7) to copy dependencies during local develelopment.
+Integrates with tasks-project(7) to copy dependencies during local develelopment.
 
 ## REQUIRE
 
@@ -18,7 +18,28 @@ In your tasks(7) file `require` the `devel` task(s) using:
 
 ## USAGE
 
-	bake devel
+	bake devel push [options...]
+    bake devel pull [options...]
+
+## COMMANDS
+
+* `push`:
+
+    Push this project to other project dependencies.
+
+* `pull`:
+
+    Pull project dependencies into this project.
+
+## OPTIONS
+
+* `--test`:
+
+    Run tests after a push or pull command.
+
+* `--revert`:
+
+    Revert to the version in use prior to a push or pull if running tests fails.
 
 ## BUGS
 
@@ -33,6 +54,12 @@ In your tasks(7) file `require` the `devel` task(s) using:
 bake(1), tasks-project(7)
 ronn:markdown
 
+require.once 'tasks/project';
+
 tasks.devel() {
+    echo "$FUNCNAME";
+}
+
+tasks.devel.push() {
     echo "$FUNCNAME";
 }
