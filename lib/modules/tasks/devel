@@ -60,11 +60,12 @@ ronn:markdown
 
 require.once 'tasks/project';
 
-declare -a devel_excludes=(
-    "^\.git"
-    "^\.svn"
-    "target"
-    "tmp"
+declare -ag devel_excludes;
+devel_excludes=(
+    "\.git$"
+    "\.svn$"
+    "target$"
+    "tmp$"
 );
 
 tasks.devel() {
@@ -88,6 +89,7 @@ tasks.devel() {
 }
 
 devel.push() {
+
     local id="${1:-}";
     if [ -z "${id}"  ]; then
         console.quit 1 "no id specified";
@@ -120,9 +122,24 @@ devel.push() {
     local f;
     for f in ${root}/*
         do
+            if !devel.exclude?; then
+                continue;
+            fi
             echo "copy file $f";
     done
 
-    #cp -Riv "${root}" "${destination}";
+}
+
+!devel.exclude?() {
+    local re;
+    for re in ${devel_excludes[@]}
+        do
+            #echo "testing $f with $re"
+            if [[ "$f" =~ $re ]]; then
+                echo "excluding $f"
+                return 0;
+            fi
+    done
+    return 1;
 }
 
