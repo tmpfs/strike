@@ -1,9 +1,11 @@
 # tasks we want to use/test
 require 'tasks/archive';
 require 'tasks/todo';
-require 'tasks/project';
 require 'tasks/compress';
 require 'tasks/latex';
+# task-devel(7) depends upon
+# task-project(7) so it is
+# automatically available
 require 'tasks/devel';
 
 # external build tool wrappers
