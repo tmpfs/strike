@@ -223,12 +223,6 @@ function http.curl.execute {
 	fi
 	
 	if [ -f "$http_output_file" ] && [ "$http_exit_code" == "0" ]; then
-		
-		# ensure that there is always a trailing newline
-		# otherwise the body will not be parsed correctly
-		# for servers that do not terminate the body with a newline
-		# eg, json REST services
-		echo "" >> "$http_output_file";
 		__http_response_parse "${http_output_file}";
 	else
 		# TODO: remove this warning or prevent for the `rest dl` command?
