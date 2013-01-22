@@ -465,8 +465,8 @@ function __http_parse_header {
 	string.ltrim "$value";
 	value="$_result";
 	
-	echo "got name: $name";
-	echo "got value: $value";
+	# echo "got name: $name";
+	# echo "got value: $value";
 	
 	#TODO: only export on the last header set received
 	export "http_header_${index}_${name}=${value}";
