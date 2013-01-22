@@ -172,11 +172,6 @@ function tasks.test {
 	echo -n "" > "$stdout" || quit 1 "could not create %s" "$stdout";
 	echo -n "" > "$stderr" || quit 1 "could not create %s" "$stderr";
 	
-	local ttyout="";
-	local ttyerr="";
-	if [ -t 1 ]; then ttyout="on"; fi
-	if [ -t 2 ]; then ttyerr="on"; fi
-	
 	local testbin="${testdir}/bin";
 	
 	# do command procesing via delegation
