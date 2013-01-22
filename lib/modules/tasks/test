@@ -50,6 +50,10 @@ When no test suites are specified all test suites will be executed, otherwise pa
 
 	Attempts to run a mvn(1) *test* goal.
 	
+## GLOBALS
+
+If you want to declare variables or methods global to all test suites place them in `lib/globals` relative to the test directory. They will be sourced prior to running any tests (and prior to running any declared global setup command).
+	
 ## SETUP & TEARDOWN
 
 This section describes how to configure *setup* and *teardown* for all test suites or for individual test suites.
@@ -286,6 +290,12 @@ function tdd.tasks.test.run {
 # invoke a global setup method `tdd.setup`
 # when the test runner starts if possible
 tdd.runner.global.setup() {
+	# source in global common variables from `lib/globals`
+	local globals="${root}/test/lib/globals";
+	if [ -f "${globals}" ]; then
+		. "$globals" || console.quit 1 "failed to source globals %s" "${globals}";
+	fi
+	
 	# TODO: allow for this to be done
 	# TODO: specific to each test search path
 	# TODO: when multiple search paths are allowed
