@@ -545,7 +545,7 @@ function __assert_run_test {
 			
 			# invoke a setup method if it exists
 			if method.exists? "tdd.setup"; then
-				tdd.setup;
+				tdd.setup 1>> "$stdout" 2>> "$stderr";
 			fi
 
 			# run method assertions
@@ -566,7 +566,7 @@ function __assert_run_test {
 			
 			# invoke a teardown method if it exists
 			if method.exists? "tdd.teardown"; then
-				tdd.teardown;
+				tdd.teardown 1>> "$stdout" 2>> "$stderr";
 			fi
 		fi
 	fi
