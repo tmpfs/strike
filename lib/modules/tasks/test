@@ -126,8 +126,25 @@ __test_excludes=();
 declare -Ag __test_excluded;
 
 function tasks.test {
-	local stdout="${target}/test.stdout.log";
-	local stderr="${target}/test.stderr.log";
+	
+	# TODO: put all related directories in this array	
+	declare -A files;
+	files[root]="${root}";
+	files[test]="${root}/test";
+	files[testbin]="${files[test]}/bin";
+	files[testlib]="${files[test]}/lib";
+	files[target]="${target}";
+	files[testout]="${target}/test";
+	
+	if [ ! -d "${files[testout]}" ]; then
+		mkdir -p "${files[testout]}";
+	fi
+	
+	local stdout="${files[testout]}/test.stdout.log";
+	local stderr="${files[testout]}/test.stderr.log";
+	
+	files[stdout]="${stdout}";
+	files[stderr]="${stderr}";
 	
 	# are we running all available tests
 	local all=false;
