@@ -497,6 +497,9 @@ function __assert_run_test {
 		: $((summary[suites]++));
 		
 		# TODO: unload the module after the test suite has completed
+		
+		# clean up any existing setup/teardown methods
+		method.remove "tdd.setup" "tdd.teardown";
 
 		# require and generate a list of method definitions
 		require.methods "$file" "^test\.";
@@ -539,6 +542,11 @@ function __assert_run_test {
 					fi
 			done
 			assert.header;
+			
+			# invoke a setup method if it exists
+			if method.exists? "tdd.setup"; then
+				tdd.setup;
+			fi
 
 			# run method assertions
 			for m in "${methods[@]}"
@@ -555,6 +563,11 @@ function __assert_run_test {
 						fi
 					fi
 			done
+			
+			# invoke a teardown method if it exists
+			if method.exists? "tdd.teardown"; then
+				tdd.teardown;
+			fi
 		fi
 	fi
 }
