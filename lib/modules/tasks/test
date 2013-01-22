@@ -303,7 +303,7 @@ tdd.runner.global.setup() {
 	if [ -f "${global_setup}" ]; then
 		. "$global_setup" || console.quit 1 "failed to source global setup %s" "${global_setup}";
 		if method.exists? "tdd.setup"; then
-			tdd.setup;
+			tdd.setup 1>> "$stdout" 2>> "$stderr";
 			method.remove tdd.setup;
 		fi
 	fi
@@ -319,7 +319,7 @@ tdd.runner.global.teardown() {
 	if [ -f "${global_teardown}" ]; then
 		. "$global_teardown" || console.quit 1 "failed to source global teardown %s" "${global_teardown}";
 		if method.exists? "tdd.teardown"; then
-			tdd.teardown;
+			tdd.teardown 1>> "$stdout" 2>> "$stderr";
 			method.remove tdd.teardown;
 		fi
 	fi
