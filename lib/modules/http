@@ -222,11 +222,24 @@ function http.curl.execute {
 		fi
 	fi
 	
-	if [ -f "$http_output_file" ] && [ "$http_exit_code" == "0" ]; then
-		__http_response_parse "${http_output_file}";
+	if [ -f "$http_body_file" ] && [ "$http_exit_code" == "0" ]; then
+		
+		# cat "${http_head_dump_file}";
+		# echo "BODY"
+		# cat "${http_output_file}";
+		
+		# ensure that there is always a trailing newline
+		# otherwise the body will not be parsed correctly
+		# for servers that do not terminate the body with a newline
+		# eg, json REST services
+		# echo "" >> "$http_output_file";
+		
+		# parse response headers into variable data
+		__http_response_parse "${http_head_dump_file}";
 	else
 		# TODO: remove this warning or prevent for the `rest dl` command?
-		warn "no rest output file %s after request" "$http_output_file";
+		# TODO: don't show this if the request is HEAD
+		console.warn "no http output file %s after request" "$http_body_file";
 	fi
 	
 	set -o errexit;	
@@ -266,8 +279,9 @@ function http.curl {
 		"--silent"
 		"--show-error"
 		"--location"
-		"--include"
 	);
+	
+	# "--include"	
 	
 	if [ -n "$http_auth_user" ] && [ -n "$http_auth_pass" ]; then
 		runopts+=( "--user" "${http_auth_user}:${http_auth_pass}" );
@@ -292,7 +306,7 @@ function http.curl {
 		"--write-out"
 		"${curl_writeout:-"$http_curl_writeout"}"
 		"--output"
-		"$http_output_file"
+		"$http_body_file"
 	);
 	
 	# add additional command options
@@ -478,40 +492,12 @@ function __http_response_parse {
 	local output="$1";
 	#cat "$output";
 	local head=0;
-	while read line
+	while IFS= read -r line
 		do
-			#echo "parsing http line $line";
-			#parse the HTTP declaration
-			if [[ "$line" =~ ^HTTP/1.[01] ]]; then
-				#echo "parsing http response line...";
-				__http_response_parse_status "$index" "${line}";
-			#parsing header lines
-			elif [ $head -eq 0 ]; then
-				#strip the carriage return and line feeds
-				line=`echo "$line" | tr -d "\r"`;
-				line=`echo "$line" | tr -d "\n"`;
-				if [[ -z "$line" ]] && [[ $redirects -eq 0 ]]; then
-					#echo "got end of head...";
-					head=1;
-					echo "" >> "$http_head_file";					
-				elif [[ -z "$line" ]] && [[ $redirects -gt 0 ]]; then
-					#echo "parsing next header...";
-					index=$[index + 1];
-					redirects=$[redirects - 1];
-					#echo "parsing next header after let... $redirects";
-					echo "" >> "$http_head_file";
-				else
-					#append to the header file
-					echo "$line" >> "$http_head_file";
-					__http_parse_header "$index" "$line";
-				fi
-			#parsing the body content
-			elif [ $head -eq 1 ]; then
-				#echo "parsing body line $line";
-				#append to the body file
-				echo "$line" >> "$http_body_file";
-			fi
+			__http.line;
 	done < "$output";
+	# process last line
+	if [ -n "$line" ]; then __http.line; fi
 	
 	# for opt in ${!http_header_*}
 	# 	do
@@ -523,4 +509,38 @@ function __http_response_parse {
 	# 	do
 	# 		echo "got response header opt: $opt";
 	# done
+}
+
+__http.line() {
+	#echo "parsing http line $line";
+	#parse the HTTP declaration
+	if [[ "$line" =~ ^HTTP/1.[01] ]]; then
+		#echo "parsing http response line...";
+		__http_response_parse_status "$index" "${line}";
+	#parsing header lines
+	elif [ $head -eq 0 ]; then
+		#strip the carriage return and line feeds
+		line=`echo "$line" | tr -d "\r"`;
+		line=`echo "$line" | tr -d "\n"`;
+		if [[ -z "$line" ]] && [[ $redirects -eq 0 ]]; then
+			#echo "got end of head...";
+			head=1;
+			echo "" >> "$http_head_file";					
+		elif [[ -z "$line" ]] && [[ $redirects -gt 0 ]]; then
+			#echo "parsing next header...";
+			index=$[index + 1];
+			redirects=$[redirects - 1];
+			#echo "parsing next header after let... $redirects";
+			echo "" >> "$http_head_file";
+		else
+			#append to the header file
+			echo "$line" >> "$http_head_file";
+			__http_parse_header "$index" "$line";
+		fi
+	# #parsing the body content
+	# elif [ $head -eq 1 ]; then
+	# 	echo "parsing body line $line";
+	# 	#append to the body file
+	# 	printf "${line}\n" >> "$http_body_file";
+	fi
 }
