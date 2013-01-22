@@ -70,6 +70,18 @@ Attempts to run an ant(1) \fItest\fR target\.
 .IP
 Attempts to run a mvn(1) \fItest\fR goal\.
 .
+.SH "SETUP & TEARDOWN"
+This section describes how to configure \fIsetup\fR and \fIteardown\fR for all test suites or for individual test suites\.
+.
+.SS "Global"
+Global \fIsetup\fR and \fIteardown\fR commands are executed before and after the test runner runs all suites or specific suites\.
+.
+.P
+To configure global \fIsetup\fR and \fIteardown\fR methods create the files \fBlib/setup\fR and \fBlib/teardown\fR relative to the test directory and within each file declare the \fBtdd\.setup\fR and \fBtdd\.teardown\fR commands respectively\.
+.
+.SS "Suite"
+To declare \fIsetup\fR and \fIteardown\fR commands specific to a test suite declare the \fBtdd\.setup\fR and \fBtdd\.teardown\fR commands within the test suite and they will be invoked before and after all \fBtest\.*\fR commands for that suite\.
+.
 .SH "EXAMPLES"
 These examples are based on the unit tests in the \fBtest\fR directory of the strike(7) repository\.
 .

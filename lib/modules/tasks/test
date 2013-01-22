@@ -50,6 +50,20 @@ When no test suites are specified all test suites will be executed, otherwise pa
 
 	Attempts to run a mvn(1) *test* goal.
 	
+## SETUP & TEARDOWN
+
+This section describes how to configure *setup* and *teardown* for all test suites or for individual test suites.
+
+### Global
+
+Global *setup* and *teardown* commands are executed before and after the test runner runs all suites or specific suites.
+
+To configure global *setup* and *teardown* methods create the files `lib/setup` and `lib/teardown` relative to the test directory and within each file declare the `tdd.setup` and `tdd.teardown` commands respectively.
+
+### Suite
+
+To declare *setup* and *teardown* commands specific to a test suite declare the `tdd.setup` and `tdd.teardown` commands within the test suite and they will be invoked before and after all `test.*` commands for that suite.
+	
 ## EXAMPLES
 
 These examples are based on the unit tests in the `test` directory of the strike(7) repository.
@@ -256,11 +270,49 @@ function tdd.tasks.test.run {
 		__assert_get_suites "$@";
 	fi
 	
+	# global setup invocation
+	tdd.runner.global.setup;
+	
 	# run tests
 	__assert.run;
 	
+	# global teardown invocation
+	tdd.runner.global.teardown;
+	
 	# print the summary
 	assert.summary;
+}
+
+# invoke a global setup method `tdd.setup`
+# when the test runner starts if possible
+tdd.runner.global.setup() {
+	# TODO: allow for this to be done
+	# TODO: specific to each test search path
+	# TODO: when multiple search paths are allowed
+	local global_setup="${root}/test/lib/setup";
+	if [ -f "${global_setup}" ]; then
+		. "$global_setup" || console.quit 1 "failed to source global setup %s" "${global_setup}";
+		if method.exists? "tdd.setup"; then
+			tdd.setup;
+			method.remove tdd.setup;
+		fi
+	fi
+}
+
+# invoke a global teardown method `tdd.teardown`
+# when the test runner completes if possible
+tdd.runner.global.teardown() {
+	# TODO: allow for this to be done
+	# TODO: specific to each test search path
+	# TODO: when multiple search paths are allowed
+	local global_teardown="${root}/test/lib/teardown";
+	if [ -f "${global_teardown}" ]; then
+		. "$global_teardown" || console.quit 1 "failed to source global teardown %s" "${global_teardown}";
+		if method.exists? "tdd.teardown"; then
+			tdd.teardown;
+			method.remove tdd.teardown;
+		fi
+	fi
 }
 
 # run all test suites

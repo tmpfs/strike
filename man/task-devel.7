@@ -29,8 +29,8 @@ require \'tasks/devel\';
 .
 .nf
 
-bake devel push [options\.\.\.]
-bake devel pull [options\.\.\.]
+bake devel push [options\.\.\.] [id]
+bake devel pull [options\.\.\.] [id]
 .
 .fi
 .
@@ -51,6 +51,12 @@ Pull project dependencies into this project\.
 .SH "OPTIONS"
 .
 .TP
+\fB\-\-force\fR:
+.
+.IP
+Force overwriting of an existing dependency\.
+.
+.TP
 \fB\-\-test\fR:
 .
 .IP
@@ -60,7 +66,7 @@ Run tests after a push or pull command\.
 \fB\-\-revert\fR:
 .
 .IP
-Revert to the version in use prior to a push or pull if running tests fails\.
+Revert to the version in use prior to a push or pull if tests fails\.
 .
 .SH "BUGS"
 \fBtask\-devel\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
