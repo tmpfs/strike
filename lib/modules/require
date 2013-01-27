@@ -30,6 +30,10 @@ Loads modules by name or filesystem path and adds delegate(3) functionality to m
 delegate(3)
 ronn:markdown
 
+# custom require paths added using
+# require.path!
+declare -g __require_paths=();
+
 function require {
 	force=${force:-false};
 	local name="${1:-}";
@@ -52,6 +56,17 @@ function require.once {
 function require.load {
 	local force=true;
 	require "$1";
+}
+
+# add a custom require path
+function require.path! {
+	local path="${1:-}";
+	if [ -n "${path}" ]; then
+		if [ ! -d "${path}" ]; then
+			console.quit 1 "require path %s is not a directory" "${path}";
+		fi
+		__require_paths+=( "${path}" );
+	fi
 }
 
 # reslve the path, directory and file name
@@ -349,27 +364,8 @@ function __require_dirs {
 		"${exemodules}"
 		"${libmodules}"
 	);
+	if [ ${#__require_paths[@]} -gt 0 ]; then
+		searchpaths+=( ${__require_paths[@]} );
+	fi
 	_result="${searchpaths[@]}";
 }
-
-#require 'couchdb';
-#couchdb "auth" "https://ffsys.cloudant.com" "hosts";
-#url_query_string 'include_docs=true' 'reduce=false';
-#echo "got query string: $_result";
-#couchdb_view "views" "users" "$_result";
-
-#echo "got content type: $rest_header_content_type"
-
-#for opt in ${!rest_response_*}
-#	do
-#		eval value="$"$opt;
-#		echo "got rest response opt : $opt : $value";
-#done
-
-#couchdb "info";
-#couchdb "head" "cyberfunk" && couchdb_print;
-#couchdb "get" "cyberfunk-abc";
-#echo "got rev: ${json_rev}";
-#couchdb "put_file" "package" "/Users/cyberfunk/git/hosts/package.json";
-#couchdb "put_data" "test" '{ "test": "value" }' && couchdb_print;
-#module_list;
