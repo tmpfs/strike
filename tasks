@@ -8,6 +8,8 @@ require 'tasks/latex';
 # automatically available
 require 'tasks/devel';
 
+require 'tasks/module';
+
 # external build tool wrappers
 # used for testing purposes
 require 'tasks/ext/build/make';
@@ -29,3 +31,8 @@ function tasks.json.checker.compile {
 	"${executables[gcc]}" lib/json-checker/*.c lib/json-checker/*.h -o "target/$exename" \
 		|| quit 1 "could not compile json-checker source";
 }
+
+# test module delegation
+# tasks.module_delegate_test() {
+# 	tasks.module delegate "$@";
+# }

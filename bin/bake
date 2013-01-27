@@ -44,6 +44,9 @@ The following variables are available to each task command:
 * `bake_file_name`:
 
   Determines the name of the file that bake(1) looks for to load task command methods from, default is *tasks*. 
+
+* `tasks_file_name`:
+  The name of the `tasks` file, if `bake_file_name` has been set this will equal that value, otherwise the default *tasks* is used.
 	
 ## EXIT CODES
 
@@ -507,14 +510,16 @@ require 'tasks/doc';
 require 'tasks/semver';
 
 bake() {
-	local nm="${bake_file_name:-tasks}";
-	fs.walk "$nm";
+	# method namespace
+	local namespace="tasks";
+	local tasks_file_name="${bake_file_name:-tasks}";
+	fs.walk "$tasks_file_name";
 	local f="$_result";
 	if [ ! -f "$f" ]; then
-		quit 1 "no %s file in %s (or any of the parent directories)" "$nm" "${PWD}";
+		quit 1 "no %s file in %s (or any of the parent directories)" "$tasks_file_name" "${PWD}";
 	else
 		# variables to expose to the task(s)
-		local root=`dirname $f`;
+		local root=$( dirname $f );
 		local target="${root}/target";
 		local tasks="$f";
 		
@@ -525,13 +530,13 @@ bake() {
 		require "$f";
 		local cmd="$1";
 		shift;
-		local func="${nm}.${cmd}";
+		local func="${namespace}.${cmd}";
 		if ! method.exists? "$func"; then
 			quit 2 "task %s not found" "$cmd";
 		fi
 		
 		# invoke the task function
-		delegate "tasks" "$cmd" "$@" || quit $? "task %s failed" "$func";
+		delegate "${namespace}" "$cmd" "$@" || quit $? "task %s failed" "$func";
 	fi
 }
 

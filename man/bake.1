@@ -57,6 +57,10 @@ The file system path to the tasks file, eg: \fB${root}/tasks\fR\.
 .IP
 Determines the name of the file that bake(1) looks for to load task command methods from, default is \fItasks\fR\.
 .
+.TP
+\fBtasks_file_name\fR
+The name of the \fBtasks\fR file, if \fBbake_file_name\fR has been set this will equal that value, otherwise the default \fItasks\fR is used\.
+.
 .SH "EXIT CODES"
 A >0 exit code is used when no task(7) file could be located or no command is available, otherwise the exit code is deferred to the task being executed\.
 .
