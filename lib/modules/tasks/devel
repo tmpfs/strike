@@ -89,7 +89,9 @@ tasks.devel() {
 }
 
 devel.push() {
-
+	
+	local log="${target}/push.log";
+	printf "" >| "${log}";
     local id="${1:-}";
     if [ -z "${id}"  ]; then
         console.quit 1 "no id specified";
@@ -116,8 +118,15 @@ devel.push() {
     local subfolder="node_modules/${name}";
     local destination="${path%/}";
     destination="${destination}/${subfolder}";
+	fs.path.expand "${destination}";
+	destination="$_result";
+	if [ ! -d "${destination}" ]; then
+		mkdir -p "${destination}" \
+			|| console.quit 1 "could not create %s" "${destination}";
+	fi
 
-    echo "copy project to target ... with id $id : $path : $destination"
+    #echo "copy project to target ... with id $id : $path : $destination"
+	console.info "push %s > %s" "${root}" "${destination}";
     
     local f;
     for f in ${root}/*
@@ -125,18 +134,21 @@ devel.push() {
             if !devel.exclude?; then
                 continue;
             fi
-            echo "copy file $f";
+            #echo "copy file $f to $destination";
+			console.info "push %s" "$f";
+			cp -Rfv "${f}" "${destination}" >> "${log}" 2>&1;
     done
 
 }
 
+# TODO: make this obey .gitignore / .npmignore
 !devel.exclude?() {
     local re;
     for re in ${devel_excludes[@]}
         do
             #echo "testing $f with $re"
             if [[ "$f" =~ $re ]]; then
-                echo "excluding $f"
+                # echo "excluding $f"
                 return 0;
             fi
     done

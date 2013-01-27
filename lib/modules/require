@@ -379,6 +379,7 @@ function __require_dirs {
 		local dir;
 		for dir in ./node_modules/*
 			do
+				# echo "testing for node_modules lib : ${dir}"
 				if [ -d "${dir}" ] && [ -f "${dir}/tasks" ]; then
 					if [ -d "${dir}/lib/modules" ]; then
 						searchpaths+=( "${dir}/lib/modules" );
