@@ -70,6 +70,9 @@ Attempts to run an ant(1) \fItest\fR target\.
 .IP
 Attempts to run a mvn(1) \fItest\fR goal\.
 .
+.SH "GLOBALS"
+If you want to declare variables or methods global to all test suites place them in \fBlib/globals\fR relative to the test directory\. They will be sourced prior to running any tests (and prior to running any declared global setup command)\.
+.
 .SH "SETUP & TEARDOWN"
 This section describes how to configure \fIsetup\fR and \fIteardown\fR for all test suites or for individual test suites\.
 .
