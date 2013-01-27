@@ -51,6 +51,13 @@ ronn:markdown
 tasks.module() {
 	# list of modules
 	local modules=();
+	
+	# list of patterns to ignore when searching for
+	# sub modules
+	local ignores=(
+		"node_modules$"
+	);
+	
 	if [ $# -eq 0 ]; then
 		console.quit 1 "no %s command specififed" "module";
 	fi
@@ -120,6 +127,18 @@ tasks.module() {
 	fi
 }
 
+# determines if an ignore pattern matches
+:module.ignores?() {
+	local ptn;
+	for ptn in "${ignores[@]}"
+		do
+			if [[ "$d" =~ $ptn ]]; then
+				return 0;
+			fi
+	done
+	return 1;
+}
+
 # find submodules
 :module.find() {
 	local d scan;
@@ -127,6 +146,9 @@ tasks.module() {
 		do
 			# never look in target
 			if [ "${d}" == "${target}" ]; then
+				continue;
+			fi
+			if :module.ignores?; then
 				continue;
 			fi
 			if [ -d "$d" ]; then
