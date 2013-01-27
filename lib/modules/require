@@ -32,7 +32,7 @@ ronn:markdown
 
 # custom require paths added using
 # require.path!
-declare -g __require_paths=();
+# declare -ag __require_paths=();
 
 function require {
 	force=${force:-false};
@@ -59,15 +59,16 @@ function require.load {
 }
 
 # add a custom require path
-function require.path! {
-	local path="${1:-}";
-	if [ -n "${path}" ]; then
-		if [ ! -d "${path}" ]; then
-			console.quit 1 "require path %s is not a directory" "${path}";
-		fi
-		__require_paths+=( "${path}" );
-	fi
-}
+#TODO: get this working correctly!!!
+# function require.path! {
+# 	local path="${1:-}";
+# 	if [ -n "${path}" ]; then
+# 		if [ ! -d "${path}" ]; then
+# 			console.quit 1 "require path %s is not a directory" "${path}";
+# 		fi
+# 		__require_paths+=( "${path}" );
+# 	fi
+# }
 
 # reslve the path, directory and file name
 # of the source file that invokes this method
@@ -364,8 +365,26 @@ function __require_dirs {
 		"${exemodules}"
 		"${libmodules}"
 	);
-	if [ ${#__require_paths[@]} -gt 0 ]; then
-		searchpaths+=( ${__require_paths[@]} );
+	# if [ -n "${__require_paths[*]}" ]; then
+	# 	if [ ${#__require_paths[@]} -gt 0 ]; then
+	# 		searchpaths+=( ${__require_paths[@]} );
+	# 	fi
+	# fi
+	
+	# look for node_modules that may contain
+	# files to include, must have a `tasks`
+	# file present in the root and must have a
+	# nested lib/modules folder to be included
+	if [ -d "./node_modules" ]; then
+		local dir;
+		for dir in ./node_modules/*
+			do
+				if [ -d "${dir}" ] && [ -f "${dir}/tasks" ]; then
+					if [ -d "${dir}/lib/modules" ]; then
+						searchpaths+=( "${dir}/lib/modules" );
+					fi
+				fi
+		done
 	fi
 	_result="${searchpaths[@]}";
 }
