@@ -91,8 +91,6 @@ tasks.module() {
 	require.resolve "info" "3";
 	local task_command="${info[3]}";
 	
-	#echo "got task_command: $task_command : $*";
-	
 	# remove the method declaration from
 	# the main `tasks` file
 	method.remove "$task_command";

@@ -523,6 +523,13 @@ bake() {
 		local target="${root}/target";
 		local tasks="$f";
 		
+		# expose project variable pointing to the 
+		# root so that submodules may access the root
+		# of the project using this variable
+		# this is because ${root} is changed when submodules
+		# are used
+		local project="${root}";
+		
 		if [ ! -d "${target}" ]; then
 			mkdir -p "${target}";
 		fi
