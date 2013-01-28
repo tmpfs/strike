@@ -18,6 +18,12 @@ You do not need to require(3) this task as it is a builtin task.
 
 	bake deploy
 
+## ENVIRONMENT
+
+* `bake_deploy_shell`:
+
+The shell used on the remote server, defaults to `bash` if none is specified.
+
 ## BUGS
 
 **task-deploy** is written in bash and depends upon `bash` >= 4.2.
@@ -32,12 +38,29 @@ bake(1)
 ronn:markdown
 
 require.once 'json';
+require.once 'git';
 
 # deploy delegate
 tasks.deploy() {
 	local deploy_descriptor="${root}/deploy.json";
 
 	:tasks.deploy.parse;
+
+	local shell=${bake_deploy_shell:-bash};
+	local script="${target}/${project_name}-${project_version}-deploy.sh";
+	local profile="${1:-default}";
+	local remote_working_dir="${2:-~/}";
+	local git_remote_url git_branch_current;
+	git.remote.url;
+	git.branch.current;
+
+	console.info "deploy %s" "${project_name}@${project_version}";
+	console.info "shell %s" "${shell}";
+	console.info "script %s" "${script}";
+	console.info "profile %s" "${profile}";
+	console.info "remote working directory %s" "${remote_working_dir}";
+	console.info "git remote %s" "${git_remote_url}";
+	console.info "git branch %s" "${git_branch_current}";
 }
 
 # DEPLOY PRIVATE COMMANDS

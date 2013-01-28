@@ -79,28 +79,46 @@ function git.exists? {
 
 # get the current branch name
 function git.branch.current {
+	local varname="${1:-git_branch_current}";
 	if git.exists?; then
 		local branch=$( "${executables[git]}" rev-parse --abbrev-ref HEAD );
-		_result="$branch";
+		eval "$varname=\"$branch\"";
 	fi
 }
 
 # get the hash of the last commit in a branch
 function git.branch.hash {
-	if git.exists?; then	
-		git.branch.current;
-		local branch="${1:-$_result}";
-		local hash=$( "${executables[git]}" rev-parse "$branch" );
-		_result="$hash";
+	local varname="${1:-git_branch_hash}";
+	if git.exists?; then
+		local git_branch="${1:-}";
+		if [ -z "${git_branch}" ]; then
+			git.branch.current;
+		fi
+		local hash=$( "${executables[git]}" rev-parse "$git_branch" );
+		eval "$varname=\"$hash\"";
 	fi
 }
 
 # get the message of the last commit in a branch
 function git.branch.message {
+	local varname="${1:-git_branch_message}";
 	if git.exists?; then
-		git.branch.current;
-		local branch="${1:-$_result}";
-		local msg=$( "${executables[git]}" log -n 1 "$branch" --format=format:%s );
-		_result="$msg";
+		local git_branch="${1:-}";		
+		if [ -z "${git_branch}" ]; then
+			git.branch.current;
+		fi
+		local msg=$( "${executables[git]}" log -n 1 "$git_branch" --format=format:%s );
+		eval "$varname=\"$msg\"";
+	fi
+}
+
+# retrieve the remote url for <name> a git repository
+# and assign to variable name defined by $2
+function git.remote.url {
+	local name="${1:-origin}";
+	local varname="${2:-git_remote_url}";
+	if git.exists?; then
+		local url=$( "${executables[git]}" config --get "remote.${name}.url" );
+		eval "$varname=\"$url\"";
 	fi
 }

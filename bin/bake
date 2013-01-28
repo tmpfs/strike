@@ -28,7 +28,7 @@ The bake(1) program looks for a tasks(7) file in the current working directory. 
 
 It maps commands (the first option passed to bake(1)) to task method(s) declared by the tasks file. A command is considered to be the first option passed to the `bake` executable, any other options specified on the command line are passed to the corresponding task method.
 
-## ENVIRONMENT
+## VARIABLES
 
 The following variables are available to each task command:
 
@@ -44,6 +44,10 @@ The name of the project as determined by the name of the `${root}` directory.
 
 This is the root of the project. For most projects this will be equivalent to `${root}` but is useful for multi-module projects where `${root}` points to the directory for the module and `${project}` is the root of the project.
 
+* `project_version`:
+
+The project version number, if no version information is available the value *0.0.0* is used.
+
 * `target`:
 
 A temporary `target` directory corresponding to `${root}/target`.
@@ -52,13 +56,15 @@ A temporary `target` directory corresponding to `${root}/target`.
 
 The file system path to the tasks file, eg: `${root}/tasks`.
 
-* `bake_file_name`:
-
-Determines the name of the file that bake(1) looks for to load task command methods from, default is *tasks*. 
-
 * `tasks_file_name`:
 
 The name of the `tasks` file, if `bake_file_name` has been set this will equal that value, otherwise the default *tasks* is used.
+
+## ENVIRONMENT
+
+* `bake_file_name`:
+
+Determines the name of the file that bake(1) looks for to load task command methods from, default is *tasks*. 
 
 ## EXIT CODES
 
@@ -556,6 +562,12 @@ bake() {
 
         local project_name;
         fs.basename "${root}" "project_name";
+
+        local project_version="0.0.0";
+        # TODO: use task/semver to retrieve version information
+        if [ -f "${root}/version" ]; then
+            project_version=$( cat "${root}/version" );
+        fi
 		
 		# set the temporary directory to `target`
 		# for bake(1) processes
