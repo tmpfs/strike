@@ -146,18 +146,12 @@ EOF
 
 # write the script to the remote server
 :tasks.deploy.script.push!() {
-	# "[ ! -d "~/.deploy" ] && mkdir -p "~/.deploy"";
-	local test_staging='[ -d "'${staging}'" ]; echo $?;';
+	local test_staging='test -d '${staging}'; echo $?;';
 	local mk_staging='mkdir -p '${staging}'';
-
-	#echo "ssh ${host} \"${test_staging}\"";
-	echo "ssh ${host} \"${mk_staging}\"";
 
 	# test if the staging directory exists
 	console.info "${executables[ssh]} %s %s" "${host}" "${test_staging}";
 	local exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
-
-	echo "staging exists : $exists";
 
 	# create remote staging directory if it does not exist
 	if [ $exists -gt 0 ]; then
