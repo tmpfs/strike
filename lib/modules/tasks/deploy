@@ -50,6 +50,18 @@ The directory used on the remote server for staging deployment scripts, default 
 
 ## OPTIONS
 
+* `--staging [path]`:
+
+Sets the path to the staging directory.
+
+* `--local`:
+
+Perform a deployment locally.
+
+* `--json`:
+
+Dump all profile configuration settings that would be used by a deployment as a JSON document. This implies `--noop` and no deployment is performed. This is useful to determine what settings would be used when running a deployment.
+
 * `--noop`:
 
 Print commands but do not execute them.
@@ -121,6 +133,12 @@ tasks.deploy() {
 	
 	# determine if we are deploying locally
 	local local_deploy=false;
+	
+	# determines whether we are generating json
+	local print_json=false;
+	# array used to store properties to be
+	# dumped as json
+	declare -A json_dump;
 
 	# default to git deployment
 	local deploy_type="git";
@@ -152,18 +170,6 @@ tasks.deploy() {
 	# validate whitespace on the staging property
 	:tasks.whitespace.validate "${staging}" "staging";
 
-	# override variables from user defined deploy.json
-	:tasks.deploy.json.read;
-
-	# verify deployment type is valid
-	if ! array.contains? "${deploy_type:-}" "${types[@]}"; then
-		console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
-	fi
-
-	if [ -z "${host}" ]; then
-		console.quit 1 "no remote host information available for deploy";
-	fi
-
 	# assume failure
 	local success=false;
 
@@ -175,6 +181,19 @@ tasks.deploy() {
 	
 	# parse options
 	:tasks.deploy.options.parse "$@";
+	
+	# override variables from user defined deploy.json
+	:tasks.deploy.json.read;
+
+	# TODO: reinstate this test for each profile
+	# verify deployment type is valid
+	# if ! array.contains? "${deploy_type:-}" "${types[@]}"; then
+	# 	console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
+	# fi
+
+	if ! $local_deploy && [ -z "${host}" ]; then
+		console.quit 1 "no remote host information available for deploy";
+	fi
 
 	local default_profile="default";
 	# attempt to deploy the default profile
@@ -206,7 +225,6 @@ tasks.deploy() {
 	local profile;
 	for profile in "${profiles[@]}"
 		do
-			echo "deploy profile $profile";
 			if [ "${profile}" != "${default_profile}" ]; then
 				if ! :tasks.profile.valid?; then
 					console.warn "skipping invalid profile %s" "${profile}";
@@ -215,13 +233,17 @@ tasks.deploy() {
 			fi
 			:tasks.deploy.profile;
 	done
+	# dump json information
+	if $print_json; then
+		json.stringify <<< "json_dump";
+		json.string;
+	fi
 }
 
 # test whether a profile name is valid
 # validity is determined by the existence of a
 # host property for the profile
 :tasks.profile.valid?() {
-	echo "testing profile for validity: $profile";
 	local key="profiles.${profile}.host";
 	local value="${json_doc[$key]:-}";
 	test -n "${value}";
@@ -229,29 +251,61 @@ tasks.deploy() {
 
 # deploy a single profile
 :tasks.deploy.profile() {
-	console.info "deploy %s" "${project_name}@${project_version}";	
-	console.info "profile %s" "${profile}";	
-	console.info "noop %s" "${noop}";
-	if [ -n "${shell}" ]; then
-		console.info "shell %s" "${shell}";
-	fi
-	console.info "script %s" "${script}";
-	console.info "remote working directory %s" "${directory}";
-	console.info "remote staging directory %s" "${staging}";
-	console.info "remote log file %s" "${log_file}";
-	console.info "git remote %s" "${git_remote_url}";
-	console.info "git branch %s" "${git_branch_current}";
-	console.info "host %s" "${host}";
-
+	:tasks.deploy.info;
+	
 	# write the deploy script file
-	:tasks.deploy.script.write!;
+	# :tasks.deploy.script.write!;
 
 	# local debug testing
 	# :tasks.script.debug;
 	#exit 0;
 
 	# scp the script to the remote server
-	# :tasks.deploy.script.push!;	
+	# :tasks.deploy.script.push!;
+}
+
+# either outputs configuration information
+# for the profile being processed or prints
+# a json document 
+:tasks.deploy.info() {
+	local shell_info="${shell:-sh}";
+	if $print_json; then
+		# variable names to stash for
+		# each profile being processed
+		local var key vars=(
+			deploy_name
+			profile
+			noop
+			shell_info
+			script			
+			directory			
+			staging
+			log_file						
+			git_remote_url			
+			git_branch_current			
+			host			
+		);
+		for var in "${vars[@]}"
+			do
+				key="${var//_/-}";
+				# echo "processing json var $var : $key"
+				variable.get "$var";
+				# echo "value: $_result";
+				json_dump["profiles.${profile}.$key"]="$_result";
+		done
+	else
+		console.info "deploy %s" "${deploy_name}";	
+		console.info "profile %s" "${profile}";	
+		console.info "noop %s" "${noop}";
+		console.info "shell %s" "${shell_info}";
+		console.info "script %s" "${script}";
+		console.info "remote working directory %s" "${directory}";
+		console.info "remote staging directory %s" "${staging}";
+		console.info "remote log file %s" "${log_file}";
+		console.info "git remote %s" "${git_remote_url}";
+		console.info "git branch %s" "${git_branch_current}";
+		console.info "host %s" "${host}";
+	fi
 }
 
 # validate variable value does not contain
@@ -408,6 +462,13 @@ EOF
 
 # attempts to notify via `growlnotify` when available
 :tasks.deploy.complete.notify() {
+	
+	# don't send growl notifications for
+	# json dumps or noop
+	if $noop; then
+		return 0;
+	fi
+	
 	if [ -n "${executables[growlnotify]}" ]; then
 		local message;
 		local priority="${2:-Normal}";
@@ -432,8 +493,12 @@ EOF
 	# output success information
 	if $success; then
 		:tasks.deploy.complete.notify;
-		console.success "deploy %s complete %s" \
-			"${deploy_name}" "${characters[tick]}";
+		if $print_json; then
+			console.success;
+		else
+			console.success "deploy %s complete %s" \
+				"${deploy_name}" "${characters[tick]}";
+		fi
 	else
 		:tasks.deploy.fail;
 	fi
@@ -453,7 +518,11 @@ EOF
 				;;
 			--local )
 				local_deploy=true;
-				;;				
+				;;
+			--json )
+				print_json=true;
+				noop=true;
+				;;
 			* )
 				profiles+=( "$1" );
 				;;

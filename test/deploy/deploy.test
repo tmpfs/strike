@@ -1,11 +1,25 @@
-# test running with the --noop and --local options
-test.deploy.noop() {
+# test running with the --json option, implies --noop
+test.deploy.json.dump() {
 	local staging="~/.deploy-test"
 	
 	# clean up before we start
 	:test.deploy.local.clean;
 	
-	( tasks.deploy --noop --local --staging "${staging}" );
+	# get the configuration setting as a json document
+	local json=$( tasks.deploy --local --json --staging "${staging}" );
+	
+	printf "${json}\n";
+
+	# parse the output
+	json.parse <<< "${json}";
+	
+	# should not have the staging directory
+	assert.dir.exists! "${staging}";
+	
+	# check json dump properties
+	assert.equal "${staging}" "${json_doc[profiles.default.staging]}";
+	# noop should be true
+	assert.equal "true" "${json_doc[profiles.default.noop]}";
 }
 
 # clean the local ~/.deploy directory
