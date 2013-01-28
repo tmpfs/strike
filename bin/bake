@@ -534,6 +534,10 @@ bake() {
 			mkdir -p "${target}";
 		fi
 		
+		# set the temporary directory to `target`
+		# for bake(1) processes
+		process.tmp.dir "${target}";
+		
 		require "$f";
 		local cmd="$1";
 		shift;
