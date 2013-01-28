@@ -8,8 +8,6 @@ require 'tasks/latex';
 # automatically available
 require 'tasks/devel';
 
-require 'tasks/module';
-
 # external build tool wrappers
 # used for testing purposes
 require 'tasks/ext/build/make';

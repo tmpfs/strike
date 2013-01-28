@@ -520,6 +520,7 @@ help.man.page "semver" "task-semver.7";
 help.man.page "project" "task-project.7";
 help.man.page "deploy" "task-deploy.7";
 help.man.page "deploy-json" "task-deploy-json.7";
+help.man.page "module" "task-module.7";
 help.parse "$@";
 
 if [ $# -eq 0 ]; then
@@ -537,6 +538,7 @@ require 'tasks/ls';
 require 'tasks/doc';
 require 'tasks/semver';
 require 'tasks/deploy';
+require 'tasks/module';
 
 bake() {
 	# method namespace
