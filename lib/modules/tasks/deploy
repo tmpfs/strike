@@ -67,6 +67,13 @@ tasks.deploy() {
 	git.remote.url;
 	git.branch.current;
 
+	# staging directory cannot contain whitespace
+	# so that we can perform tilde expansion
+	local re="[ 	]";
+	if [[ "${staging}" =~ $re ]]; then
+		console.quit 1 "invalid staging directory, cannot contain whitespace";
+	fi
+
 	# override variables from user defined deploy.json
 	:tasks.deploy.json.read;
 

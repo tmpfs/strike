@@ -142,6 +142,9 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# ( cd -P ~/"git" && pwd );
+# exit 0;
+
 # 
 # require.once 'command/find';
 # 
