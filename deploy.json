@@ -2,8 +2,9 @@
 	"host": "cyberfunk@jet.freeformsystems.com",
 	"directory": "~/git",
 	"profiles": {
-		"default": {
-			"host": "cyberfunk@jet.freeformsystems.com"
-		}
+		"test":{ "type": "git" },
+		"stage":{ "type": "git" },
+		"development":{ "type": "git" },
+		"production":{ "type": "git" }
 	}
 }

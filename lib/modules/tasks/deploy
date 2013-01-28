@@ -227,7 +227,7 @@ tasks.deploy() {
 	local default_profile="default";
 	# attempt to deploy the default profile
 	if [ ${#profiles[*]} -eq 0 ]; then
-		profiles+=( "${default_profile}" "default" );
+		profiles+=( "${default_profile}" );
 	fi
 	
 	:tasks.deploy.profiles.uniq!;
@@ -236,7 +236,7 @@ tasks.deploy() {
 	json_dump["descriptor"]="${descriptor}";
 	json_dump["noop"]="${noop}";	
 	local i;
-	for i in "${!profiles[@]}"
+	for i in ${!profiles[@]}
 		do
 			json_dump["targets.$i"]="${profiles[$i]}";
 	done
@@ -264,9 +264,9 @@ tasks.deploy() {
 # make profile list unique
 :tasks.deploy.profiles.uniq!() {
 	local IFS=$'\n';
-	local lines=( ${profiles[@]} );	
+	local lines=( ${profiles[*]} );
 	unset IFS;
-	profiles=( $( printf "${lines[@]}" | sort | uniq ) );
+	profiles=( $( printf "${lines[*]}" | sort | uniq ) );
 }
 
 # deploy a series of profiles
@@ -298,13 +298,15 @@ tasks.deploy() {
 # validity is determined by the existence of a
 # host property for the profile
 :tasks.profile.valid?() {
-	local key="profiles.${profile}.host";
+	local key="profiles.${profile}.type";
 	local value="${json_doc[$key]:-}";
 	test -n "${value}";
 }
 
 # deploy a single profile
 :tasks.deploy.profile() {
+	local deploy_target="${directory}/${project_name}";	
+	
 	:tasks.deploy.info;
 	
 	# write the deploy script file
@@ -322,6 +324,7 @@ tasks.deploy() {
 # for the profile being processed or prints
 # a json document 
 :tasks.deploy.info() {
+	
 	local shell_info="${shell:-sh}";
 	if $print_json; then
 		# variable names to stash for
@@ -330,6 +333,7 @@ tasks.deploy() {
 			deploy_name
 			deploy_file_name
 			deploy_type
+			deploy_target
 			shell_info
 			script			
 			directory			
