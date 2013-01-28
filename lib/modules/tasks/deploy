@@ -31,6 +31,8 @@ You do not need to require(3) this task as it is a builtin task.
 bake(1)
 ronn:markdown
 
+require.once 'json';
+
 # deploy delegate
 tasks.deploy() {
 	local deploy_descriptor="${root}/deploy.json";
@@ -44,4 +46,6 @@ tasks.deploy() {
 	if [ ! -f "${deploy_descriptor}" ]; then
 		console.quit 1 "no deploy descriptor %s" "${deploy_descriptor}";
 	fi
+
+	json.parse < "${deploy_descriptor}";
 }
