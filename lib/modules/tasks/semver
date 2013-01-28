@@ -579,8 +579,8 @@ function __semver.parse {
 	semver[major]="${json_doc[semver.major]}";
 	semver[minor]="${json_doc[semver.minor]}";
 	semver[patch]="${json_doc[semver.patch]}";
-	semver[release]="${json_doc[semver.release]}";
-	semver[build]="${json_doc[semver.build]}";
+	semver[release]="${json_doc[semver.release]:-}";
+	semver[build]="${json_doc[semver.build]:-}";
 	semver.stringify;
 }
 
