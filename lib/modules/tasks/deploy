@@ -16,7 +16,23 @@ You do not need to require(3) this task as it is a builtin task.
 
 ## USAGE
 
-	bake deploy
+	bake deploy [options...] [profiles...]
+	
+## PROFILES
+
+You may specify one or more profiles to deploy after any options. If no profiles are specified then a deploy is attempted using the *default* profile.
+
+## DEFAULT PROFILE
+
+The default profile uses a *git* deployment type and the current branch and git remote URL for deployment on the remote host.
+
+## STRICT
+
+The deployment process is strict. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed.
+
+## FILES
+
+A *deploy.json* file must be present in the root of the project and must be valid JSON. This file may just contain '{}' if you wish to use the *default* profile and configure deployment parameters via environment variables.
 
 ## ENVIRONMENT
 
@@ -26,11 +42,35 @@ The remote host used for deployment when none is specified in *deploy.json*.
 
 * `bake_deploy_shell`:
 
-The shell used on the remote server, defaults to `bash` if none is specified.
+The shell used on the remote server, defaults to `/bin/sh` if none is specified.
 
 * `bake_deploy_staging`:
 
 The directory used on the remote server for staging deployment scripts, default is `~/.deploy`.
+
+## OPTIONS
+
+* `--noop`:
+
+Print commands but do not execute them.
+
+## EXAMPLES
+
+Deploy using the default profile:
+
+	bake deploy
+	
+Inspect deployment commands with `--noop`:
+
+	bake deploy --noop
+	
+Deploy the profile *stage*:
+
+	bake deploy stage
+		
+Deploy the profiles *test*, *stage* and *production*:
+
+	bake deploy test stage production
 
 ## BUGS
 
@@ -53,13 +93,21 @@ tasks.deploy() {
 	executable.validate scp ssh;
 
 	local deploy_descriptor="${root}/deploy.json";
+	if [ ! -f "${deploy_descriptor}" ]; then
+		console.quit 1 "no deploy descriptor %s" "${deploy_descriptor}";
+	fi	
 
 	executable.validate --test growlnotify;
+	
+	# non-operation
+	local noop=false;
 
 	# valid deployment types
 	local types=( git tar );
 
 	:tasks.deploy.parse;
+	
+	local profiles=();
 
 	# default to git deployment
 	local deploy_type="git";
@@ -87,7 +135,7 @@ tasks.deploy() {
 	fi
 
 	# validate whitespace on the project name
-	:tasks.whitepace.validate "${project_name}" "project name";
+	:tasks.whitespace.validate "${project_name}" "project name";
 	# validate whitespace on the staging property
 	:tasks.whitespace.validate "${staging}" "staging";
 
@@ -111,11 +159,70 @@ tasks.deploy() {
 	# messages sent via `growlnotify`
 	messages[success]="deploy ${deploy_name} complete";
 	messages[fail]="deploy ${deploy_name} failed";
+	
+	# parse options
+	:tasks.deploy.options.parse "$@";
 
-	console.info "deploy %s" "${project_name}@${project_version}";
-	console.info "shell %s" "${shell}";
+	local default_profile="default";
+	# attempt to deploy the default profile
+	if [ ${#profiles[*]} -eq 0 ]; then
+		profiles+=( "${default_profile}" "default" );
+	fi
+	
+	:tasks.deploy.profiles.uniq!;
+	
+	# deploy all profiles
+	:tasks.deploy.profiles;
+
+	# show the complete message
+	:tasks.deploy.complete;
+}
+
+# DEPLOY PRIVATE COMMANDS
+
+# make profile list unique
+:tasks.deploy.profiles.uniq!() {
+	local IFS=$'\n';
+	local lines=( ${profiles[@]} );	
+	unset IFS;
+	profiles=( $( printf "${lines[@]}" | sort | uniq ) );
+}
+
+# deploy a series of profiles
+:tasks.deploy.profiles() {
+	local profile;
+	for profile in "${profiles[@]}"
+		do
+			echo "deploy profile $profile";
+			if [ "${profile}" != "${default_profile}" ]; then
+				if ! :tasks.profile.valid?; then
+					console.warn "skipping invalid profile %s" "${profile}";
+					continue;
+				fi
+			fi
+			:tasks.deploy.profile;
+	done
+}
+
+# test whether a profile name is valid
+# validity is determined by the existence of a
+# host property for the profile
+:tasks.profile.valid?() {
+	echo "testing profile for validity: $profile";
+	local key="profiles.${profile}.host";
+	local value="${json_doc[$key]:-}";
+	test -n "${value}";
+}
+
+# deploy a single profile
+:tasks.deploy.profile() {
+	console.info "deploy %s" "${project_name}@${project_version}";	
+	console.info "profile %s" "${profile}";	
+	console.info "noop %s" "${noop}";
+	if [ -n "${shell}" ]; then
+		console.info "shell %s" "${shell}";
+	fi
 	console.info "script %s" "${script}";
-	console.info "profile %s" "${profile}";
 	console.info "remote working directory %s" "${directory}";
 	console.info "remote staging directory %s" "${staging}";
 	console.info "remote log file %s" "${log_file}";
@@ -127,17 +234,12 @@ tasks.deploy() {
 	:tasks.deploy.script.write!;
 
 	# local debug testing
-	:tasks.script.debug;
+	# :tasks.script.debug;
 	#exit 0;
 
 	# scp the script to the remote server
-	:tasks.deploy.script.push!;
-
-	# show the complete message
-	:tasks.deploy.complete;
+	# :tasks.deploy.script.push!;	
 }
-
-# DEPLOY PRIVATE COMMANDS
 
 # validate variable value does not contain
 # whitespace: space or tab character
@@ -154,10 +256,6 @@ tasks.deploy() {
 }
 
 :tasks.deploy.parse() {
-	if [ ! -f "${deploy_descriptor}" ]; then
-		console.quit 1 "no deploy descriptor %s" "${deploy_descriptor}";
-	fi
-
 	json.parse < "${deploy_descriptor}";
 }
 
@@ -263,18 +361,26 @@ EOF
 
 	# test if the staging directory exists
 	console.info "${executables[ssh]} %s %s" "${host}" "${test_staging}";
-	local exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
+	local exists=0;
+	if ! $noop; then
+		exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
+	fi
 
 	# create remote staging directory if it does not exist
 	if [ $exists -gt 0 ]; then
 		console.info "${executables[ssh]} %s %s" "${host}" "${mk_staging}";
-		( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
-			|| :tasks.deploy.fail "could not create remote staging directory %s" \
-				"${staging}";
+		if ! $noop; then
+			( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
+				|| :tasks.deploy.fail "could not create remote staging directory %s" \
+					"${staging}";
+		fi
 	fi
 
 	local remote="${host}:${staging}/${script_name}";
 	console.info "scp -p %s %s" "${script}" "${remote}";
+	if ! $noop; then
+		echo "SCP SCRIPT";
+	fi	
 }
 
 # failure
@@ -311,4 +417,20 @@ EOF
 	else
 		:tasks.deploy.fail;
 	fi
+}
+
+# parse options
+:tasks.deploy.options.parse() {
+	while test -n "${1:-}"; do
+		echo "testing option $1"
+		case $1 in
+			--noop )
+				noop=true;
+				;;
+			* )
+				profiles+=( "$1" );
+				;;
+		esac
+		shift;
+	done
 }

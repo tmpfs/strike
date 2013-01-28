@@ -19,9 +19,105 @@ You do not need to require(3) this task as it is a builtin task\.
 .
 .nf
 
+bake deploy [options\.\.\.] [profiles\.\.\.]
+.
+.fi
+.
+.SH "PROFILES"
+You may specify one or more profiles to deploy after any options\. If no profiles are specified then a deploy is attempted using the \fIdefault\fR profile\.
+.
+.SH "DEFAULT PROFILE"
+The default profile uses a \fIgit\fR deployment type and the current branch and git remote URL for deployment on the remote host\.
+.
+.SH "STRICT"
+The deployment process is strict\. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed\.
+.
+.SH "FILES"
+A \fIdeploy\.json\fR file must be present in the root of the project and must be valid JSON\. This file may just contain \'{}\' if you wish to use the \fIdefault\fR profile and configure deployment parameters via environment variables\.
+.
+.SH "ENVIRONMENT"
+.
+.TP
+\fBbake_deploy_remote\fR:
+
+.
+.P
+The remote host used for deployment when none is specified in \fIdeploy\.json\fR\.
+.
+.TP
+\fBbake_deploy_shell\fR:
+
+.
+.P
+The shell used on the remote server, defaults to \fB/bin/sh\fR if none is specified\.
+.
+.TP
+\fBbake_deploy_staging\fR:
+
+.
+.P
+The directory used on the remote server for staging deployment scripts, default is \fB~/\.deploy\fR\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-\-noop\fR:
+
+.
+.P
+Print commands but do not execute them\.
+.
+.SH "EXAMPLES"
+Deploy using the default profile:
+.
+.IP "" 4
+.
+.nf
+
 bake deploy
 .
 .fi
+.
+.IP "" 0
+.
+.P
+Inspect deployment commands with \fB\-\-noop\fR:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-noop
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Deploy the profile \fIstage\fR:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy stage
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Deploy the profiles \fItest\fR, \fIstage\fR and \fIproduction\fR:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy test stage production
+.
+.fi
+.
+.IP "" 0
 .
 .SH "BUGS"
 \fBtask\-deploy\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.

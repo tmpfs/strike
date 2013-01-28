@@ -36,7 +36,7 @@ The bake(1) program looks for a tasks(7) file in the current working directory\.
 .P
 It maps commands (the first option passed to bake(1)) to task method(s) declared by the tasks file\. A command is considered to be the first option passed to the \fBbake\fR executable, any other options specified on the command line are passed to the corresponding task method\.
 .
-.SH "ENVIRONMENT"
+.SH "VARIABLES"
 The following variables are available to each task command:
 .
 .TP
@@ -61,6 +61,13 @@ The name of the project as determined by the name of the \fB${root}\fR directory
 This is the root of the project\. For most projects this will be equivalent to \fB${root}\fR but is useful for multi\-module projects where \fB${root}\fR points to the directory for the module and \fB${project}\fR is the root of the project\.
 .
 .TP
+\fBproject_version\fR:
+
+.
+.P
+The project version number, if no version information is available the value \fI0\.0\.0\fR is used\.
+.
+.TP
 \fBtarget\fR:
 
 .
@@ -75,18 +82,20 @@ A temporary \fBtarget\fR directory corresponding to \fB${root}/target\fR\.
 The file system path to the tasks file, eg: \fB${root}/tasks\fR\.
 .
 .TP
-\fBbake_file_name\fR:
-
-.
-.P
-Determines the name of the file that bake(1) looks for to load task command methods from, default is \fItasks\fR\.
-.
-.TP
 \fBtasks_file_name\fR:
 
 .
 .P
 The name of the \fBtasks\fR file, if \fBbake_file_name\fR has been set this will equal that value, otherwise the default \fItasks\fR is used\.
+.
+.SH "ENVIRONMENT"
+.
+.TP
+\fBbake_file_name\fR:
+
+.
+.P
+Determines the name of the file that bake(1) looks for to load task command methods from, default is \fItasks\fR\.
 .
 .SH "EXIT CODES"
 A >0 exit code is used when no task(7) file could be located or no command is available, otherwise the exit code is deferred to the task being executed\.
