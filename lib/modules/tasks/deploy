@@ -59,7 +59,8 @@ tasks.deploy() {
 	local shell=${bake_deploy_shell:-bash};
 	local host="${bake_deploy_remote:-}";
 	local staging="${bake_deploy_staging:-~/.deploy}";
-	local script="${target}/${project_name}-${project_version}-deploy.sh";
+	local script_name="${project_name}-${project_version}-deploy.sh";
+	local script="${target}/${script_name}";
 	local profile="${1:-default}";
 	local directory="${2:-~/}";
 	local git_remote_url git_branch_current;
@@ -85,6 +86,9 @@ tasks.deploy() {
 
 	# write the deploy script file
 	:tasks.deploy.script.write!;
+
+	# sftp the script to the remote server
+	:tasks.deploy.script.push!;
 }
 
 # DEPLOY PRIVATE COMMANDS
@@ -138,4 +142,31 @@ EOF
 
 	chmod +x "${script}" \
 		|| console.quit 1 "could not set permissions on %s" "${script}";
+}
+
+# write the script to the remote server
+:tasks.deploy.script.push!() {
+	# "[ ! -d "~/.deploy" ] && mkdir -p "~/.deploy"";
+	local test_staging='[ -d "'${staging}'" ]; echo $?;';
+	local mk_staging='mkdir -p '${staging}'';
+
+	#echo "ssh ${host} \"${test_staging}\"";
+	echo "ssh ${host} \"${mk_staging}\"";
+
+	# test if the staging directory exists
+	console.info "${executables[ssh]} %s %s" "${host}" "${test_staging}";
+	local exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
+
+	echo "staging exists : $exists";
+
+	# create remote staging directory if it does not exist
+	if [ $exists -gt 0 ]; then
+		console.info "${executables[ssh]} %s %s" "${host}" "${mk_staging}";
+		( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
+			|| console.quit 1 "could not create remote staging directory %s" \
+				"${staging}";
+	fi
+
+	local remote="${host}:${staging}/${script_name}";
+	console.info "scp -p %s %s" "${script}" "${remote}";
 }
