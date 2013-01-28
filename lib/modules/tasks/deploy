@@ -28,7 +28,7 @@ This deployment type will clone if the deployment directory does not exist and f
 
 ### TAR
 
-This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to target directory.
+This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory.
 	
 ## PROFILES
 
@@ -42,7 +42,7 @@ Note that a profile must declare at a minimum the *type* property for it to be r
 		}
 	}
 	
-Therefore the profile will not be available. You *must* specify at least the profile *type*:
+Therefore the profile will not be available. You `must` specify at least the profile *type*:
 
 	{
 		"profiles": {
@@ -84,11 +84,15 @@ The directory used on the remote server for staging deployment scripts, default 
 
 ## OPTIONS
 
-* `-d | --descriptor [path]`:
+* `--directory [directory]`:
+
+The deployment directory. When this option is specified it overrides any directory values specified in *deploy.json* for *all* profiles.
+
+* `-d | --descriptor [file]`:
 
 Sets the *deploy.json* descriptor to use for this deployment.
 
-* `--staging [path]`:
+* `--staging [directory]`:
 
 Sets the path to the staging directory.
 
@@ -171,7 +175,7 @@ tasks.deploy() {
 	local profiles=();
 	
 	# determine if we are deploying locally
-	local local_deploy=false;
+	local deploy_local=false;
 
 	# default to git deployment
 	local deploy_type="git";
@@ -189,9 +193,9 @@ tasks.deploy() {
 	local log_dir="${staging}/log";
 	local log_file="${log_dir}/${log_name}";
 	local directory="${2:-~/}";
-	local git_remote_url git_branch_current;
+	local git_remote_url git_branch;
 	git.remote.url;
-	git.branch.current;
+	git.branch.current "git_branch";
 	
 	# JSON PROPERTIES
 	# determines whether we are generating json
@@ -223,14 +227,15 @@ tasks.deploy() {
 	messages[success]="deploy ${deploy_name} complete";
 	messages[fail]="deploy ${deploy_name} failed";
 	
+	
+	# override default settings from user defined deploy.json
+	:tasks.deploy.json.read;	
+	
 	# parse options
 	:tasks.deploy.options.parse "$@";
 	
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;	
-	
-	# override default settings from user defined deploy.json
-	:tasks.deploy.json.read;
 
 	# TODO: reinstate this test for each profile
 	# verify deployment type is valid
@@ -238,7 +243,7 @@ tasks.deploy() {
 	# 	console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
 	# fi
 
-	if ! $local_deploy && [ -z "${host}" ]; then
+	if ! $deploy_local && [ -z "${host}" ]; then
 		console.quit 1 "no remote host information available for deploy";
 	fi
 
@@ -252,7 +257,8 @@ tasks.deploy() {
 	
 	# update some json dump properties after option parsing
 	json_dump["descriptor"]="${descriptor}";
-	json_dump["noop"]="${noop}";	
+	json_dump["noop"]="${noop}";
+	json_dump["local"]="${deploy_local}";
 	local i;
 	for i in ${!profiles[@]}
 		do
@@ -359,7 +365,7 @@ tasks.deploy() {
 			log_file
 			log_dir								
 			git_remote_url			
-			git_branch_current			
+			git_branch			
 			host			
 		);
 		for var in "${vars[@]}"
@@ -383,7 +389,7 @@ tasks.deploy() {
 		console.info "remote staging directory %s" "${staging}";
 		console.info "remote log file %s" "${log_file}";
 		console.info "git remote %s" "${git_remote_url}";
-		console.info "git branch %s" "${git_branch_current}";
+		console.info "git branch %s" "${git_branch}";
 		console.info "host %s" "${host}";
 	fi
 }
@@ -597,7 +603,7 @@ EOF
 				staging="${1:-}";
 				;;
 			--local )
-				local_deploy=true;
+				deploy_local=true;
 				;;
 			--json )
 				print_json=true;
@@ -606,9 +612,19 @@ EOF
 			--pretty )
 				pretty=true;
 				;;
+				--directory )
+				shift;
+				directory="${1:-}";
+				if [ -z "${directory}" ]; then
+					console.quit 1 "no directory specified";
+				fi
+				;;
 			-d | --descriptor )
 				shift;
 				descriptor="${1:-}";
+				if [ -z "${descriptor}" ]; then
+					console.quit 1 "no descriptor specified";
+				fi				
 				;;
 			-* | --* )
 				console.quit 1 "invalid option %s" "$1";

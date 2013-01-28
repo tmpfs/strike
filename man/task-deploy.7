@@ -30,7 +30,7 @@ The deploy tasks support the \fIgit\fR and \fItar\fR deployment types\.
 This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository\.
 .
 .SS "TAR"
-This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to target directory\.
+This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory\.
 .
 .SH "PROFILES"
 You may specify one or more profiles to deploy after any options\. If no profiles are specified then a deploy is attempted using the \fIdefault\fR profile\.
@@ -53,7 +53,7 @@ Note that a profile must declare at a minimum the \fItype\fR property for it to 
 .IP "" 0
 .
 .P
-Therefore the profile will not be available\. You \fImust\fR specify at least the profile \fItype\fR:
+Therefore the profile will not be available\. You \fBmust\fR specify at least the profile \fItype\fR:
 .
 .IP "" 4
 .
@@ -109,14 +109,21 @@ The directory used on the remote server for staging deployment scripts, default 
 .SH "OPTIONS"
 .
 .TP
-\fB\-d | \-\-descriptor [path]\fR:
+\fB\-\-directory [directory]\fR:
+
+.
+.P
+The deployment directory\. When this option is specified it overrides any directory values specified in \fIdeploy\.json\fR for \fIall\fR profiles\.
+.
+.TP
+\fB\-d | \-\-descriptor [file]\fR:
 
 .
 .P
 Sets the \fIdeploy\.json\fR descriptor to use for this deployment\.
 .
 .TP
-\fB\-\-staging [path]\fR:
+\fB\-\-staging [directory]\fR:
 
 .
 .P
