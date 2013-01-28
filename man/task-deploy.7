@@ -35,6 +35,42 @@ This deployment type will fetch a tarball from a filesystem path or remote URL a
 .SH "PROFILES"
 You may specify one or more profiles to deploy after any options\. If no profiles are specified then a deploy is attempted using the \fIdefault\fR profile\.
 .
+.P
+Note that a profile must declare at a minimum the \fItype\fR property for it to be recognised, for example the following is invalid:
+.
+.IP "" 4
+.
+.nf
+
+{
+    "profiles": {
+        "stage": {}
+    }
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Therefore the profile will not be available\. You \fImust\fR specify at least the profile \fItype\fR:
+.
+.IP "" 4
+.
+.nf
+
+{
+    "profiles": {
+        "stage": {
+            "type": "git"
+        }
+    }
+}
+.
+.fi
+.
+.IP "" 0
+.
 .SH "DEFAULT PROFILE"
 The default profile uses a \fIgit\fR deployment type and the current branch and git remote URL for deployment on the remote host\.
 .

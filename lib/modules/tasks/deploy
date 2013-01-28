@@ -34,6 +34,24 @@ This deployment type will fetch a tarball from a filesystem path or remote URL a
 
 You may specify one or more profiles to deploy after any options. If no profiles are specified then a deploy is attempted using the *default* profile.
 
+Note that a profile must declare at a minimum the *type* property for it to be recognised, for example the following is invalid:
+
+	{
+		"profiles": {
+			"stage": {}
+		}
+	}
+	
+Therefore the profile will not be available. You *must* specify at least the profile *type*:
+
+	{
+		"profiles": {
+			"stage": {
+				"type": "git"
+			}
+		}
+	}
+
 ## DEFAULT PROFILE
 
 The default profile uses a *git* deployment type and the current branch and git remote URL for deployment on the remote host.
