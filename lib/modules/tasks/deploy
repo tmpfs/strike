@@ -62,6 +62,10 @@ Perform a deployment locally.
 
 Dump all profile configuration settings that would be used by a deployment as a JSON document. This implies `--noop` and no deployment is performed. This is useful to determine what settings would be used when running a deployment.
 
+* `--pretty`:
+
+Use in conjunction with the `--json` option to pretty print the JSON document.
+
 * `--noop`:
 
 Print commands but do not execute them.
@@ -133,12 +137,6 @@ tasks.deploy() {
 	
 	# determine if we are deploying locally
 	local local_deploy=false;
-	
-	# determines whether we are generating json
-	local print_json=false;
-	# array used to store properties to be
-	# dumped as json
-	declare -A json_dump;
 
 	# default to git deployment
 	local deploy_type="git";
@@ -159,7 +157,18 @@ tasks.deploy() {
 	local git_remote_url git_branch_current;
 	git.remote.url;
 	git.branch.current;
+	
+	# JSON PROPERTIES
+	# determines whether we are generating json
+	local print_json=false;
+	local pretty=false;
+	# array used to store properties to be
+	# dumped as json
+	declare -A json_dump;
+	json_dump["project-name"]="${project_name}";
+	json_dump["project-version"]="${project_version}";	
 
+	# SHELL PROPERTIES
 	local shell_options=();
 	if [ "${shell}" == "bash" ]; then
 		shell_options+=( --posix );
@@ -235,8 +244,13 @@ tasks.deploy() {
 	done
 	# dump json information
 	if $print_json; then
-		json.stringify <<< "json_dump";
+		if ! $pretty; then
+			json.stringify <<< "json_dump";
+		else
+			json.stringify --pretty 2 <<< "json_dump";
+		fi
 		json.string;
+		printf "\n";
 	fi
 }
 
@@ -523,6 +537,9 @@ EOF
 				print_json=true;
 				noop=true;
 				;;
+			--pretty )
+				pretty=true;
+				;;				
 			* )
 				profiles+=( "$1" );
 				;;
