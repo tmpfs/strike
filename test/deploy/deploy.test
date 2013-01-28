@@ -19,7 +19,7 @@ test.deploy.json.dump() {
 	# check json dump properties
 	assert.equal "${staging}" "${json_doc[profiles.default.staging]}";
 	# noop should be true
-	assert.equal "true" "${json_doc[profiles.default.noop]}";
+	assert.equal "true" "${json_doc[noop]}";
 }
 
 # clean the local ~/.deploy directory

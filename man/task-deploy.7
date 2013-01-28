@@ -61,6 +61,41 @@ The directory used on the remote server for staging deployment scripts, default 
 .SH "OPTIONS"
 .
 .TP
+\fB\-d | \-\-descriptor [path]\fR:
+
+.
+.P
+Sets the \fIdeploy\.json\fR descriptor to use for this deployment\.
+.
+.TP
+\fB\-\-staging [path]\fR:
+
+.
+.P
+Sets the path to the staging directory\.
+.
+.TP
+\fB\-\-local\fR:
+
+.
+.P
+Perform a deployment locally\.
+.
+.TP
+\fB\-\-json\fR:
+
+.
+.P
+Dump all profile configuration settings that would be used by a deployment as a JSON document\. This implies \fB\-\-noop\fR and no deployment is performed\. This is useful to determine what settings would be used when running a deployment\.
+.
+.TP
+\fB\-\-pretty\fR:
+
+.
+.P
+Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON document\.
+.
+.TP
 \fB\-\-noop\fR:
 
 .

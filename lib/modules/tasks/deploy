@@ -26,6 +26,10 @@ You may specify one or more profiles to deploy after any options. If no profiles
 
 The default profile uses a *git* deployment type and the current branch and git remote URL for deployment on the remote host.
 
+## PROFILE NAMES
+
+Profile names may not start with a hyphen and should match the pattern ^[-a-zA-Z0-9]+.
+
 ## STRICT
 
 The deployment process is strict. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed.
@@ -49,6 +53,10 @@ The shell used on the remote server, defaults to `/bin/sh` if none is specified.
 The directory used on the remote server for staging deployment scripts, default is `~/.deploy`.
 
 ## OPTIONS
+
+* `-d | --descriptor [path]`:
+
+Sets the *deploy.json* descriptor to use for this deployment.
 
 * `--staging [path]`:
 
@@ -118,10 +126,7 @@ require.once 'git';
 tasks.deploy() {
 	executable.validate scp ssh;
 
-	local deploy_descriptor="${root}/deploy.json";
-	if [ ! -f "${deploy_descriptor}" ]; then
-		console.quit 1 "no deploy descriptor %s" "${deploy_descriptor}";
-	fi	
+	local descriptor="${root}/deploy.json";
 
 	executable.validate --test growlnotify;
 	
@@ -140,19 +145,19 @@ tasks.deploy() {
 
 	# default to git deployment
 	local deploy_type="git";
-	local shell=${bake_deploy_shell:-};
+	local profile="default";
+	local shell="${bake_deploy_shell:-}";
 	local host="${bake_deploy_remote:-}";
 	local staging="${bake_deploy_staging:-~/.deploy}";
 	# human readable name using @ delimiter
 	local deploy_name="${project_name}@${project_version}";
-	# file name using a - delimiter
+	# file name using a - delimiter	
 	local deploy_file_name="${project_name}-${project_version}";
-	local script_name="${deploy_file_name}-deploy.sh";
+	local script_name="${deploy_file_name}-${profile}.sh";
 	local script="${target}/${script_name}";
-	local log_name="${deploy_file_name}-deploy.log";
+	local log_name="${deploy_file_name}-${profile}.log";
 	local log_dir="${staging}/log";
 	local log_file="${log_dir}/${log_name}";
-	local profile="${1:-default}";
 	local directory="${2:-~/}";
 	local git_remote_url git_branch_current;
 	git.remote.url;
@@ -165,8 +170,8 @@ tasks.deploy() {
 	# array used to store properties to be
 	# dumped as json
 	declare -A json_dump;
-	json_dump["project-name"]="${project_name}";
 	json_dump["project-version"]="${project_version}";	
+	json_dump["project-name"]="${project_name}";
 
 	# SHELL PROPERTIES
 	local shell_options=();
@@ -191,7 +196,10 @@ tasks.deploy() {
 	# parse options
 	:tasks.deploy.options.parse "$@";
 	
-	# override variables from user defined deploy.json
+	# validate the descriptor after option parsing
+	:tasks.deploy.descriptor.validate;	
+	
+	# override default settings from user defined deploy.json
 	:tasks.deploy.json.read;
 
 	# TODO: reinstate this test for each profile
@@ -212,6 +220,15 @@ tasks.deploy() {
 	
 	:tasks.deploy.profiles.uniq!;
 	
+	# update some json dump properties after option parsing
+	json_dump["descriptor"]="${descriptor}";
+	json_dump["noop"]="${noop}";	
+	local i;
+	for i in "${!profiles[@]}"
+		do
+			json_dump["targets.$i"]="${profiles[$i]}";
+	done
+	
 	# deploy all profiles
 	:tasks.deploy.profiles;
 
@@ -220,6 +237,17 @@ tasks.deploy() {
 }
 
 # DEPLOY PRIVATE COMMANDS
+
+# validate a descriptor file
+:tasks.deploy.descriptor.validate() {
+	if [[ ! "${descriptor}" =~ \.json$ ]]; then
+		console.quit 1 "descriptor %s does not have a .json file extension" \
+			"${descriptor}";
+	fi
+	if [ ! -f "${descriptor}" ]; then
+		console.quit 1 "no deploy descriptor %s" "${descriptor}";
+	fi
+}
 
 # make profile list unique
 :tasks.deploy.profiles.uniq!() {
@@ -236,7 +264,7 @@ tasks.deploy() {
 		do
 			if [ "${profile}" != "${default_profile}" ]; then
 				if ! :tasks.profile.valid?; then
-					console.warn "skipping invalid profile %s" "${profile}";
+					console.warn "profile %s does not exist" "${profile}";
 					continue;
 				fi
 			fi
@@ -288,20 +316,24 @@ tasks.deploy() {
 		# each profile being processed
 		local var key vars=(
 			deploy_name
-			profile
-			noop
+			deploy_file_name
+			deploy_type
 			shell_info
 			script			
 			directory			
 			staging
-			log_file						
+			log_file
+			log_dir								
 			git_remote_url			
 			git_branch_current			
 			host			
 		);
 		for var in "${vars[@]}"
 			do
-				key="${var//_/-}";
+				# replace first underscore with a dot to group
+				# as object on variable names with the same prefix
+				key="${var/_/.}";
+				key="${key//_/-}";
 				# echo "processing json var $var : $key"
 				variable.get "$var";
 				# echo "value: $_result";
@@ -337,7 +369,7 @@ tasks.deploy() {
 }
 
 :tasks.deploy.parse() {
-	json.parse < "${deploy_descriptor}";
+	json.parse < "${descriptor}";
 }
 
 # reads in the json data overrriding
@@ -520,7 +552,7 @@ EOF
 
 # parse options
 :tasks.deploy.options.parse() {
-	local value;
+	local value re="^[-a-zA-Z0-9]+$";
 	while test -n "${1:-}"; do
 		case $1 in
 			--noop )
@@ -539,8 +571,18 @@ EOF
 				;;
 			--pretty )
 				pretty=true;
-				;;				
+				;;
+			-d | --descriptor )
+				shift;
+				descriptor="${1:-}";
+				;;
+			-* | --* )
+				console.quit 1 "invalid option %s" "$1";
+				;;
 			* )
+				if [[ ! "$1" =~ $re ]]; then
+					console.quit 1 "invalid profile name %s must match %s" "$1" "$re";
+				fi
 				profiles+=( "$1" );
 				;;
 		esac
