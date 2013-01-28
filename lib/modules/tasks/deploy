@@ -20,9 +20,17 @@ You do not need to require(3) this task as it is a builtin task.
 
 ## ENVIRONMENT
 
+* `bake_deploy_remote`:
+
+The remote host used for deployment when none is specified in *deploy.json*.
+
 * `bake_deploy_shell`:
 
 The shell used on the remote server, defaults to `bash` if none is specified.
+
+* `bake_deploy_staging`:
+
+The directory used on the remote server for staging deployment scripts, default is `~/.deploy`.
 
 ## BUGS
 
@@ -42,25 +50,41 @@ require.once 'git';
 
 # deploy delegate
 tasks.deploy() {
+	executable.validate sftp ssh;
+
 	local deploy_descriptor="${root}/deploy.json";
 
 	:tasks.deploy.parse;
 
 	local shell=${bake_deploy_shell:-bash};
+	local host="${bake_deploy_remote:-}";
+	local staging="${bake_deploy_staging:-~/.deploy}";
 	local script="${target}/${project_name}-${project_version}-deploy.sh";
 	local profile="${1:-default}";
-	local remote_working_dir="${2:-~/}";
+	local directory="${2:-~/}";
 	local git_remote_url git_branch_current;
 	git.remote.url;
 	git.branch.current;
+
+	# override variables from user defined deploy.json
+	:tasks.deploy.json.read;
+
+	if [ -z "${host}" ]; then
+		console.quit 1 "no remote host information available for deploy";
+	fi
 
 	console.info "deploy %s" "${project_name}@${project_version}";
 	console.info "shell %s" "${shell}";
 	console.info "script %s" "${script}";
 	console.info "profile %s" "${profile}";
-	console.info "remote working directory %s" "${remote_working_dir}";
+	console.info "remote working directory %s" "${directory}";
+	console.info "remote staging directory %s" "${staging}";
 	console.info "git remote %s" "${git_remote_url}";
 	console.info "git branch %s" "${git_branch_current}";
+	console.info "host %s" "${host}";
+
+	# write the deploy script file
+	:tasks.deploy.script.write!;
 }
 
 # DEPLOY PRIVATE COMMANDS
@@ -71,4 +95,47 @@ tasks.deploy() {
 	fi
 
 	json.parse < "${deploy_descriptor}";
+}
+
+# reads in the json data overrriding
+# default values where appropriate
+:tasks.deploy.json.read() {
+	# always prefer the default host in deploy.json
+	if [ -n "${json_doc[host]:-}" ]; then
+		host="${json_doc[host]}";
+	fi
+
+	# try a host specified in a profile
+	if [ -n "${json_doc[profiles.${profile}.host]:-}" ];then
+		host="${json_doc[profiles.${profile}.host]}";
+	fi
+
+	# lookup any custom working directory
+	if [ -n "${json_doc[directory]:-}" ]; then
+		directory="${json_doc[directory]}";
+	fi
+
+	# try a directory specified in a profile
+	if [ -n "${json_doc[profiles.${profile}.directory]:-}" ];then
+		directory="${json_doc[profiles.${profile}.directory]}";
+	fi
+}
+
+:tasks.deploy.script.write!() {
+	# delete any existing deploy script
+	if [ -f "${script}" ]; then
+		rm "${script}" \
+			|| console.quit 1 "could not delete %s" "${script}";
+	fi
+
+	touch "${script}" \
+		|| console.quit 1 "could not create %s" "${script}";
+
+# write the script file
+cat <<EOF >> "${script}"
+ls -la
+EOF
+
+	chmod +x "${script}" \
+		|| console.quit 1 "could not set permissions on %s" "${script}";
 }
