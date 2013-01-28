@@ -519,6 +519,7 @@ help.man.page "clean" "task-clean.7";
 help.man.page "semver" "task-semver.7";
 help.man.page "project" "task-project.7";
 help.man.page "deploy" "task-deploy.7";
+help.man.page "deploy-json" "task-deploy-json.7";
 help.parse "$@";
 
 if [ $# -eq 0 ]; then

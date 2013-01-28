@@ -67,6 +67,22 @@ The directory used on the remote server for staging deployment scripts, default 
 .P
 Print commands but do not execute them\.
 .
+.SH "NOTIFICATIONS"
+If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\.
+.
+.SH "JSON FORMAT"
+The format of the \fIdeploy\.json\fR document is described in the task\-deploy\-json(7) man page, to view this man page run:
+.
+.IP "" 4
+.
+.nf
+
+bake help deploy\-json
+.
+.fi
+.
+.IP "" 0
+.
 .SH "EXAMPLES"
 Deploy using the default profile:
 .
@@ -126,4 +142,4 @@ bake deploy test stage production
 \fBtask\-deploy\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-bake(1)
+bake(1), task\-deploy\-json(7)

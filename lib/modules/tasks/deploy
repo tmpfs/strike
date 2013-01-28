@@ -54,6 +54,16 @@ The directory used on the remote server for staging deployment scripts, default 
 
 Print commands but do not execute them.
 
+## NOTIFICATIONS
+
+If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*.
+
+## JSON FORMAT
+
+The format of the *deploy.json* document is described in the task-deploy-json(7) man page, to view this man page run:
+
+	bake help deploy-json
+
 ## EXAMPLES
 
 Deploy using the default profile:
@@ -82,7 +92,7 @@ Deploy the profiles *test*, *stage* and *production*:
 
 ## SEE ALSO
 
-bake(1)
+bake(1), task-deploy-json(7)
 ronn:markdown
 
 require.once 'json';
