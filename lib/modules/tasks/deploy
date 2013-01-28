@@ -67,12 +67,8 @@ tasks.deploy() {
 	git.remote.url;
 	git.branch.current;
 
-	# staging directory cannot contain whitespace
-	# so that we can perform tilde expansion
-	local re="[ 	]";
-	if [[ "${staging}" =~ $re ]]; then
-		console.quit 1 "invalid staging directory, cannot contain whitespace";
-	fi
+	# validate whitespace on the staging property
+	:tasks.whitespace.validate "${staging}" "staging";
 
 	# override variables from user defined deploy.json
 	:tasks.deploy.json.read;
@@ -99,6 +95,20 @@ tasks.deploy() {
 }
 
 # DEPLOY PRIVATE COMMANDS
+
+# validate variable value does not contain
+# whitespace: space or tab character
+:tasks.whitespace.validate() {
+	local value="${1:-}";
+	local name="${2:-}";
+	# staging directory cannot contain whitespace
+	# so that we can perform tilde expansion
+	local re="[ 	]+";
+	if [[ "${value}" =~ $re ]]; then
+		console.quit 1 "invalid %s value %s, cannot contain whitespace" \
+			"${name}" "${value}";
+	fi
+}
 
 :tasks.deploy.parse() {
 	if [ ! -f "${deploy_descriptor}" ]; then
