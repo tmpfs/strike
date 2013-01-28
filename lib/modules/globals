@@ -167,6 +167,7 @@ console_prefixes['console.error']="[not ok]";
 console_prefixes['console.warn']="[warn]";
 console_prefixes['console.ok']="[ok]";
 console_prefixes['console.success']="[ok]";
+console_prefixes['console.prompt']="[prompt]";
 
 ######################################################################
 #

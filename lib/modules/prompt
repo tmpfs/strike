@@ -1,10 +1,10 @@
-declare -A prompt_data;
-declare -A prompt_boolean;
+declare -Ag prompt_data;
+declare -Ag prompt_boolean;
 
 # callback lists
-declare prompt_accepted;
-declare prompt_rejected;
-declare prompt_invalid;
+declare -g prompt_accepted;
+declare -g prompt_rejected;
+declare -g prompt_invalid;
 
 # add a boolean prompt
 # $1 id

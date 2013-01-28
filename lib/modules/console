@@ -115,8 +115,8 @@ A leading hyphen in a replacement parameter or message will cause printf to fail
 globals-api(3)
 ronn:markdown
 
-declare __stdout_log_file="";
-declare __stderr_log_file="";
+declare -g __stdout_log_file="";
+declare -g __stderr_log_file="";
 
 function console.log.stdout {
 	touch "$1" || warn "could not create stdout log file %s" "$1";
@@ -327,6 +327,8 @@ function console.ok {
 }
 
 function console.prompt {
+	local status="${console_prefixes[$FUNCNAME]}";
+	local prefix="$status";	
 	local msg="";
 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
 		#get the message prefix

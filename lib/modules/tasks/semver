@@ -16,12 +16,12 @@ You do not need to require(3) this task as it is a builtin task.
 
 ## COMMANDS
 
-* `semver`:
-	
-Use the `semver` command to generate task-semver(7) files.
+If no command is specified then `init` is assumed.
 
-	bake semver
+* `semver init`:
 	
+Generates the initial task-semver(7) files.
+
 If no files are available you will be prompted to enter a semver(7) compatible version to initialize the files with.
 	
 If a *package.json* file is available then the semver(7) string is read from the `version` field and the `version` and `semver.json` files are generated.
@@ -169,8 +169,8 @@ function tasks.semver {
 			delegate "sv.${FUNCNAME}" "$1" ${@:2};
 		fi
 	else
-		# no options specified generate files
-		sv.tasks.semver.generate;
+		# no options specified init files
+		sv.tasks.semver.init;
 	fi
 }
 
@@ -244,8 +244,8 @@ function sv.tasks.semver.sync {
 	fi
 }
 
-# generate semver files
-function sv.tasks.semver.generate {	
+# init semver files
+function sv.tasks.semver.init {	
 	if ! __semver.version.file.exists?; then
 		console.info "creating %s" "${files[version]}";
 		# create the version file
@@ -373,6 +373,7 @@ function __semver.change.confirm {
 function __semver.confirm {
 	ok() {
 		console.info "$sv_msg %s" "$newversion";
+		sv.tasks.semver.write "$newversion";
 	}
 	__semver.change.confirm "ok" "$sv_msg";	
 }
@@ -637,7 +638,7 @@ function __semver.package.write! {
 # writes a semver to `version`
 function __semver.version.write! {
 	local version="${1:-}";
-	echo -ne "$version" > "${files[version]}" || __semver.file.write.quit "${files[version]}";
+	echo -ne "$version" >| "${files[version]}" || __semver.file.write.quit "${files[version]}";
 	return 0;
 }
 
@@ -663,7 +664,7 @@ function __semver.file.write! {
 		# encoded the semver data to a JSON document
 		json.stringify <<< "semverdoc";
 		# create the semver.json file
-		json.string > "${files[semver]}" || __semver.file.write.quit "${files[semver]}";
+		json.string >| "${files[semver]}" || __semver.file.write.quit "${files[semver]}";
 	}
 	
 	# parse the current semver
