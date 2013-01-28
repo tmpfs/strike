@@ -120,12 +120,7 @@ declare -g process_loop=false;
 
 function process.initialize {
 	
-	# check for an existing lock file
-	process.lock.file;
-	local file="$_result";
-	if [ -f "$file" ]; then
-		console.quit 1 "lock file %s exists" "$file";
-	fi
+	process.lock.test;
 	
 	# initialize registry of signal
 	# callback methods
@@ -448,6 +443,16 @@ function process.lock.file {
 	local process="$_result";
 	process.lock.name;
 	_result="${process}/${_result}";
+}
+
+# check for an existing lock file
+# and quit if it exists
+function process.lock.test {
+	process.lock.file;
+	local file="$_result";
+	if [ -f "$file" ]; then
+		console.quit 1 "lock file %s exists" "$file";
+	fi	
 }
 
 # flag this program as using a lock file
