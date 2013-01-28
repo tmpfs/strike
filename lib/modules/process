@@ -581,7 +581,7 @@ function __process.daemonize {
 function __process.pid.write {
 	process.pid.file;
 	local file="$_result";
-	process.pid > "$file" || quit 1 "could not write pid ($$) to file %s" "$file";
+	process.pid >| "$file" || quit 1 "could not write pid ($$) to file %s" "$file";
 }
 
 # remove the pid file
@@ -589,7 +589,7 @@ function __process.pid.clean {
 	process.pid.file;
 	local file="$_result";
 	if test -f "$file"; then
-		rm "$file" > /dev/null 2>&1 || console.warn "could not remove pid file %s" "$file";
+		rm "$file" >| /dev/null 2>&1 || console.warn "could not remove pid file %s" "$file";
 	fi
 }
 
@@ -597,7 +597,7 @@ function __process.pid.clean {
 function __process.lock.write {
 	process.lock.file;
 	local file="$_result";
-	process.pid > "$file" || quit 1 "could not write lock file %s" "$file";
+	process.pid >| "$file" || quit 1 "could not write lock file %s" "$file";
 }
 
 # remove the lock file
@@ -605,6 +605,6 @@ function __process.lock.clean {
 	process.lock.file;
 	local file="$_result";
 	if test -f "$file"; then
-		rm "$file" > /dev/null 2>&1 || console.warn "could not remove lock file %s" "$file";
+		rm "$file" >| /dev/null 2>&1 || console.warn "could not remove lock file %s" "$file";
 	fi
 }
