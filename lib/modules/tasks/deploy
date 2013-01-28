@@ -54,24 +54,41 @@ tasks.deploy() {
 
 	local deploy_descriptor="${root}/deploy.json";
 
+	# valid deployment types
+	local types=( git tar );
+
 	:tasks.deploy.parse;
 
-	local shell=${bake_deploy_shell:-bash};
+	# default to git deployment
+	local deploy_type="git";
+	local shell=${bake_deploy_shell:-};
 	local host="${bake_deploy_remote:-}";
 	local staging="${bake_deploy_staging:-~/.deploy}";
 	local script_name="${project_name}-${project_version}-deploy.sh";
 	local script="${target}/${script_name}";
+	local log_name="${project_name}-${project_version}-deploy.log";
+	local log_dir="${staging}/log";
+	local log_file="${log_dir}/${log_name}";
 	local profile="${1:-default}";
 	local directory="${2:-~/}";
 	local git_remote_url git_branch_current;
 	git.remote.url;
 	git.branch.current;
 
+	local shell_options=();
+	if [ "${shell}" == "bash" ]; then
+		shell_options+=( --posix );
+	fi
+
 	# validate whitespace on the staging property
 	:tasks.whitespace.validate "${staging}" "staging";
 
 	# override variables from user defined deploy.json
 	:tasks.deploy.json.read;
+
+	if ! array.contains? "${deploy_type:-}" "${types[@]}"; then
+		console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
+	fi
 
 	if [ -z "${host}" ]; then
 		console.quit 1 "no remote host information available for deploy";
@@ -83,12 +100,16 @@ tasks.deploy() {
 	console.info "profile %s" "${profile}";
 	console.info "remote working directory %s" "${directory}";
 	console.info "remote staging directory %s" "${staging}";
+	console.info "remote log file %s" "${log_file}";
 	console.info "git remote %s" "${git_remote_url}";
 	console.info "git branch %s" "${git_branch_current}";
 	console.info "host %s" "${host}";
 
 	# write the deploy script file
 	:tasks.deploy.script.write!;
+
+	# local debug testing
+	:tasks.script.debug;
 
 	# sftp the script to the remote server
 	:tasks.deploy.script.push!;
@@ -140,6 +161,16 @@ tasks.deploy() {
 	if [ -n "${json_doc[profiles.${profile}.directory]:-}" ];then
 		directory="${json_doc[profiles.${profile}.directory]}";
 	fi
+
+	# lookup any custom deployment type
+	if [ -n "${json_doc[type]:-}" ]; then
+		deploy_type="${json_doc[type]}";
+	fi
+
+	# try a deploy type specified in the profile
+	if [ -n "${json_doc[profiles.${profile}.type]:-}" ];then
+		deploy_type="${json_doc[profiles.${profile}.type]}";
+	fi
 }
 
 :tasks.deploy.script.write!() {
@@ -152,13 +183,53 @@ tasks.deploy() {
 	touch "${script}" \
 		|| console.quit 1 "could not create %s" "${script}";
 
+	local shebang="#!/bin/sh";
+	if [ -n "${shell}" ]; then
+		shebang="#!/usr/bin/env ${shell} ${shell_options[@]:-}";
+	fi
+
 # write the script file
 cat <<EOF >> "${script}"
-ls -la
+${shebang}
+log_dir="${log_dir}"; export log_dir;
+log_file="${log_file}"; export log_file;
+deploy_log() {
+	echo "\$log_dir";
+	echo "\$log_file";
+	# create the log directory
+	if ! test -d $log_dir; then
+		printf "creating %s\n" "$log_dir";
+		mkdir -p ${log_dir} \
+			|| { echo "could not create $log_dir"; exit 1; }
+	fi
+	if test -f $log_file; then
+		rm $log_file \
+			|| { echo "could not remove log file $log_file"; exit 1; }
+	fi
+	# create the log file
+	printf "creating %s\n" "$log_file";
+	touch $log_file \
+		|| { echo "could not create log file $log_file"; exit 1; }
+}
+deploy() {
+	deploy_log;
+}
+deploy "\$@";
 EOF
 
 	chmod +x "${script}" \
 		|| console.quit 1 "could not set permissions on %s" "${script}";
+}
+
+# runs script locally for debugging
+:tasks.script.debug() {
+	# output sscipt contents
+	cat "${script}";
+	# utility to verify the script is not bash only
+	checkbashisms "${script}";
+	# run script locally
+	"${script}";
+	exit 0;
 }
 
 # write the script to the remote server
