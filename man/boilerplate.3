@@ -17,7 +17,7 @@ If you have installed the \fBstrike\fR library as a node module and your executa
 .nf
 
 export exedir;
-function boilerplate {
+boilerplate() {
     local src="${BASH_SOURCE[0]}"
     exedir="$( dirname "$src" )"
     while [ \-h "$src" ]

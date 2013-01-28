@@ -40,40 +40,76 @@ It maps commands (the first option passed to bake(1)) to task method(s) declared
 The following variables are available to each task command:
 .
 .TP
-\fBroot\fR
+\fBroot\fR:
+
+.
+.P
 The directory where the \fBtasks\fR file is located\.
 .
 .TP
-\fBtarget\fR
+\fBproject_name\fR:
+
+.
+.P
+The name of the project as determined by the name of the \fB${root}\fR directory\.
+.
+.TP
+\fBproject\fR:
+
+.
+.P
+This is the root of the project\. For most projects this will be equivalent to \fB${root}\fR but is useful for multi\-module projects where \fB${root}\fR points to the directory for the module and \fB${project}\fR is the root of the project\.
+.
+.TP
+\fBtarget\fR:
+
+.
+.P
 A temporary \fBtarget\fR directory corresponding to \fB${root}/target\fR\.
 .
 .TP
-\fBtasks\fR
+\fBtasks\fR:
+
+.
+.P
 The file system path to the tasks file, eg: \fB${root}/tasks\fR\.
 .
 .TP
 \fBbake_file_name\fR:
+
 .
-.IP
+.P
 Determines the name of the file that bake(1) looks for to load task command methods from, default is \fItasks\fR\.
 .
 .TP
-\fBtasks_file_name\fR
+\fBtasks_file_name\fR:
+
+.
+.P
 The name of the \fBtasks\fR file, if \fBbake_file_name\fR has been set this will equal that value, otherwise the default \fItasks\fR is used\.
 .
 .SH "EXIT CODES"
 A >0 exit code is used when no task(7) file could be located or no command is available, otherwise the exit code is deferred to the task being executed\.
 .
 .TP
-\fB1\fR
+\fB1\fR:
+
+.
+.P
 No task(7) file available in the current working directory (or any parent directories)\.
 .
 .TP
-\fB2\fR
+\fB2\fR:
+
+.
+.P
 No task command available\.
 .
 .TP
-\fB>0\fR
+\fB>0\fR:
+
+.
+.P
 The task command invocation returned a non\-zero exit code but did not explicitly call \fBexit\fR\.
 .
 .P

@@ -1,0 +1,32 @@
+: <<'ronn:markdown'
+task-deploy(7) -- deploy task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+Deploy task(s) for bake(1).
+
+## DESCRIPTION
+
+Performs a deployment for a project.
+
+## REQUIRE
+
+You do not need to require(3) this task as it is a builtin task.
+
+## USAGE
+
+	bake deploy
+
+## BUGS
+
+**task-deploy** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-deploy** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+ronn:markdown

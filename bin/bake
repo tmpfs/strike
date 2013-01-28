@@ -33,32 +33,49 @@ It maps commands (the first option passed to bake(1)) to task method(s) declared
 The following variables are available to each task command:
 
 * `root`:
-  The directory where the `tasks` file is located.
+
+The directory where the `tasks` file is located.
+
+* `project_name`:
+
+The name of the project as determined by the name of the `${root}` directory.
+
+* `project`:
+
+This is the root of the project. For most projects this will be equivalent to `${root}` but is useful for multi-module projects where `${root}` points to the directory for the module and `${project}` is the root of the project.
 
 * `target`:
-  A temporary `target` directory corresponding to `${root}/target`.
-	
+
+A temporary `target` directory corresponding to `${root}/target`.
+
 * `tasks`:
-  The file system path to the tasks file, eg: `${root}/tasks`.
+
+The file system path to the tasks file, eg: `${root}/tasks`.
 
 * `bake_file_name`:
 
-  Determines the name of the file that bake(1) looks for to load task command methods from, default is *tasks*. 
+Determines the name of the file that bake(1) looks for to load task command methods from, default is *tasks*. 
 
 * `tasks_file_name`:
-  The name of the `tasks` file, if `bake_file_name` has been set this will equal that value, otherwise the default *tasks* is used.
-	
+
+The name of the `tasks` file, if `bake_file_name` has been set this will equal that value, otherwise the default *tasks* is used.
+
 ## EXIT CODES
 
 A >0 exit code is used when no task(7) file could be located or no command is available, otherwise the exit code is deferred to the task being executed.
 
 * `1`:
-	No task(7) file available in the current working directory (or any parent directories).
+
+No task(7) file available in the current working directory (or any parent directories).
+
 * `2`:
-	No task command available.
+
+No task command available.
+
 * `>0`:
-	The task command invocation returned a non-zero exit code but did not explicitly call `exit`.
-	
+
+The task command invocation returned a non-zero exit code but did not explicitly call `exit`.
+
 It is recommended that task command implementations explicitly exit the program using the `quit` and `success` commands declared by console(3).
 
 ## BUGS
@@ -516,7 +533,8 @@ bake() {
 	fs.walk "$tasks_file_name";
 	local f="$_result";
 	if [ ! -f "$f" ]; then
-		quit 1 "no %s file in %s (or any of the parent directories)" "$tasks_file_name" "${PWD}";
+		quit 1 "no %s file in %s (or any of the parent directories)" \
+            "$tasks_file_name" "${PWD}";
 	else
 		# variables to expose to the task(s)
 		local root=$( dirname $f );
@@ -532,7 +550,10 @@ bake() {
 		
 		if [ ! -d "${target}" ]; then
 			mkdir -p "${target}";
-		fi
+        fi
+
+        local project_name;
+        fs.basename "${root}" "project_name";
 		
 		# set the temporary directory to `target`
 		# for bake(1) processes
