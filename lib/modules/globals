@@ -208,3 +208,8 @@ declare -Agx module_private_methods;
 
 executable(3), system(3), console(3), options(3), require(3)
 api:ronn:markdown
+
+# utility characters
+declare -Ag characters;
+characters[tick]="✓";
+characters[cross]="✘";

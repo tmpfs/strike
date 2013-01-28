@@ -50,9 +50,11 @@ require.once 'git';
 
 # deploy delegate
 tasks.deploy() {
-	executable.validate sftp ssh;
+	executable.validate scp ssh;
 
 	local deploy_descriptor="${root}/deploy.json";
+
+	executable.validate --test growlnotify;
 
 	# valid deployment types
 	local types=( git tar );
@@ -64,9 +66,13 @@ tasks.deploy() {
 	local shell=${bake_deploy_shell:-};
 	local host="${bake_deploy_remote:-}";
 	local staging="${bake_deploy_staging:-~/.deploy}";
-	local script_name="${project_name}-${project_version}-deploy.sh";
+	# human readable name using @ delimiter
+	local deploy_name="${project_name}@${project_version}";
+	# file name using a - delimiter
+	local deploy_file_name="${project_name}-${project_version}";
+	local script_name="${deploy_file_name}-deploy.sh";
 	local script="${target}/${script_name}";
-	local log_name="${project_name}-${project_version}-deploy.log";
+	local log_name="${deploy_file_name}-deploy.log";
 	local log_dir="${staging}/log";
 	local log_file="${log_dir}/${log_name}";
 	local profile="${1:-default}";
@@ -80,12 +86,15 @@ tasks.deploy() {
 		shell_options+=( --posix );
 	fi
 
+	# validate whitespace on the project name
+	:tasks.whitepace.validate "${project_name}" "project name";
 	# validate whitespace on the staging property
 	:tasks.whitespace.validate "${staging}" "staging";
 
 	# override variables from user defined deploy.json
 	:tasks.deploy.json.read;
 
+	# verify deployment type is valid
 	if ! array.contains? "${deploy_type:-}" "${types[@]}"; then
 		console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
 	fi
@@ -93,6 +102,15 @@ tasks.deploy() {
 	if [ -z "${host}" ]; then
 		console.quit 1 "no remote host information available for deploy";
 	fi
+
+	# assume failure
+	local success=false;
+
+	# messages
+	declare -A messages;
+	# messages sent via `growlnotify`
+	messages[success]="deploy ${deploy_name} complete";
+	messages[fail]="deploy ${deploy_name} failed";
 
 	console.info "deploy %s" "${project_name}@${project_version}";
 	console.info "shell %s" "${shell}";
@@ -110,9 +128,13 @@ tasks.deploy() {
 
 	# local debug testing
 	:tasks.script.debug;
+	#exit 0;
 
-	# sftp the script to the remote server
+	# scp the script to the remote server
 	:tasks.deploy.script.push!;
+
+	# show the complete message
+	:tasks.deploy.complete;
 }
 
 # DEPLOY PRIVATE COMMANDS
@@ -229,7 +251,6 @@ EOF
 	checkbashisms "${script}";
 	# run script locally
 	"${script}";
-	exit 0;
 }
 
 # write the script to the remote server
@@ -245,10 +266,46 @@ EOF
 	if [ $exists -gt 0 ]; then
 		console.info "${executables[ssh]} %s %s" "${host}" "${mk_staging}";
 		( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
-			|| console.quit 1 "could not create remote staging directory %s" \
+			|| :tasks.deploy.fail "could not create remote staging directory %s" \
 				"${staging}";
 	fi
 
 	local remote="${host}:${staging}/${script_name}";
 	console.info "scp -p %s %s" "${script}" "${remote}";
+}
+
+# failure
+:tasks.deploy.fail() {
+	:tasks.deploy.complete.notify;
+	if [ $# -gt 0 ]; then
+		console.error "$@";
+	fi
+	console.quit 1 "deploy %s failed %s" \
+			"${deploy_name}" "${characters[cross]}";
+}
+
+# attempts to notify via `growlnotify` when available
+:tasks.deploy.complete.notify() {
+	if [ -n "${executables[growlnotify]}" ]; then
+		local message;
+		local priority="${2:-Normal}";
+		if $success; then
+			message="${messages[success]}";
+		else
+			priority="Emergency";
+			message="${messages[fail]}";
+		fi
+		"${executables[growlnotify]}" -m "$message" --priority "$priority";
+	fi
+}
+
+# output the complete message
+:tasks.deploy.complete() {
+	if $success; then
+		:tasks.deploy.complete.notify;
+		console.success "deploy %s complete %s" \
+			"${deploy_name}" "${characters[tick]}";
+	else
+		:tasks.deploy.fail;
+	fi
 }
