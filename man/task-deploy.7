@@ -23,11 +23,23 @@ bake deploy [options\.\.\.] [profiles\.\.\.]
 .
 .fi
 .
+.SH "TYPES"
+The deploy tasks support the \fIgit\fR and \fItar\fR deployment types\.
+.
+.SS "GIT"
+This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository\.
+.
+.SS "TAR"
+This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to target directory\.
+.
 .SH "PROFILES"
 You may specify one or more profiles to deploy after any options\. If no profiles are specified then a deploy is attempted using the \fIdefault\fR profile\.
 .
 .SH "DEFAULT PROFILE"
 The default profile uses a \fIgit\fR deployment type and the current branch and git remote URL for deployment on the remote host\.
+.
+.SH "PROFILE NAMES"
+Profile names may not start with a hyphen and should match the pattern ^[\-a\-zA\-Z0\-9]+\.
 .
 .SH "STRICT"
 The deployment process is strict\. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed\.

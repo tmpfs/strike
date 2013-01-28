@@ -18,6 +18,18 @@ You do not need to require(3) this task as it is a builtin task.
 
 	bake deploy [options...] [profiles...]
 	
+## TYPES
+
+The deploy tasks support the *git* and *tar* deployment types.
+
+### GIT
+
+This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository.
+
+### TAR
+
+This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to target directory.
+	
 ## PROFILES
 
 You may specify one or more profiles to deploy after any options. If no profiles are specified then a deploy is attempted using the *default* profile.
