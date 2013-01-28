@@ -88,7 +88,7 @@ The directory used on the remote server for staging deployment scripts, default 
 
 The deployment directory. When this option is specified it overrides any directory values specified in *deploy.json* for *all* profiles.
 
-* `-d | --descriptor [file]`:
+* `--descriptor [file]`:
 
 Sets the *deploy.json* descriptor to use for this deployment.
 
@@ -204,8 +204,7 @@ tasks.deploy() {
 	# array used to store properties to be
 	# dumped as json
 	declare -A json_dump;
-	json_dump["project-version"]="${project_version}";	
-	json_dump["project-name"]="${project_name}";
+	json_dump["project-version"]="${project_version}";
 
 	# SHELL PROPERTIES
 	local shell_options=();
@@ -256,6 +255,7 @@ tasks.deploy() {
 	:tasks.deploy.profiles.uniq!;
 	
 	# update some json dump properties after option parsing
+	json_dump["project-name"]="${project_name}";	
 	json_dump["descriptor"]="${descriptor}";
 	json_dump["noop"]="${noop}";
 	json_dump["local"]="${deploy_local}";
@@ -612,19 +612,32 @@ EOF
 			--pretty )
 				pretty=true;
 				;;
-				--directory )
+			--name )
 				shift;
-				directory="${1:-}";
-				if [ -z "${directory}" ]; then
+				value="${1:-}";
+				if [ -z "${value}" ]; then
+					console.quit 1 "no name specified";
+				fi
+				if [[ ! "$value" =~ $re ]]; then
+					console.quit 1 "invalid project name %s must match %s" "$value" "$re";
+				fi
+				project_name="${value}";
+				;;
+			--directory )
+				shift;
+				value="${1:-}";
+				if [ -z "${value}" ]; then
 					console.quit 1 "no directory specified";
 				fi
+				directory="${value}";
 				;;
-			-d | --descriptor )
+			--descriptor )
 				shift;
-				descriptor="${1:-}";
-				if [ -z "${descriptor}" ]; then
+				value="${1:-}";
+				if [ -z "${value}" ]; then
 					console.quit 1 "no descriptor specified";
-				fi				
+				fi
+				descriptor="${value}";		
 				;;
 			-* | --* )
 				console.quit 1 "invalid option %s" "$1";
