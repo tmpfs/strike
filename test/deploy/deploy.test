@@ -1,0 +1,16 @@
+# test running with the --noop and --local options
+test.deploy.noop() {
+	local staging="~/.deploy-test"
+	
+	# clean up before we start
+	:test.deploy.local.clean;
+	
+	( tasks.deploy --noop --local --staging "${staging}" );
+}
+
+# clean the local ~/.deploy directory
+:test.deploy.local.clean() {
+	if [ -d "${staging}" ]; then
+		rm -rfv $staging;
+	fi
+}

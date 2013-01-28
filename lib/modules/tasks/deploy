@@ -118,6 +118,9 @@ tasks.deploy() {
 	:tasks.deploy.parse;
 	
 	local profiles=();
+	
+	# determine if we are deploying locally
+	local local_deploy=false;
 
 	# default to git deployment
 	local deploy_type="git";
@@ -420,6 +423,13 @@ EOF
 
 # output the complete message
 :tasks.deploy.complete() {
+	
+	# noop should always succeed
+	if $noop; then
+		success=true;
+	fi
+	
+	# output success information
 	if $success; then
 		:tasks.deploy.complete.notify;
 		console.success "deploy %s complete %s" \
@@ -431,12 +441,19 @@ EOF
 
 # parse options
 :tasks.deploy.options.parse() {
+	local value;
 	while test -n "${1:-}"; do
-		echo "testing option $1"
 		case $1 in
 			--noop )
 				noop=true;
 				;;
+			--staging )
+				shift;
+				staging="${1:-}";
+				;;
+			--local )
+				local_deploy=true;
+				;;				
 			* )
 				profiles+=( "$1" );
 				;;
