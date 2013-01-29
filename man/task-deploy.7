@@ -32,6 +32,19 @@ This deployment type will clone if the deployment directory does not exist and f
 .SS "TAR"
 This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory\.
 .
+.SH "JSON FORMAT"
+The format of the \fIdeploy\.json\fR descriptor is described in the task\-deploy\-json(7) man page, to view this man page run:
+.
+.IP "" 4
+.
+.nf
+
+bake help deploy\-json
+.
+.fi
+.
+.IP "" 0
+.
 .SH "PROFILES"
 You may specify one or more profiles to deploy after any options\. If no profiles are specified then a deploy is attempted using the \fIdefault\fR profile\.
 .
@@ -53,7 +66,7 @@ Note that a profile must declare at a minimum the \fItype\fR property for it to 
 .IP "" 0
 .
 .P
-Therefore the profile will not be available\. You \fBmust\fR specify at least the profile \fItype\fR:
+Therefore the profile will not be available\. You \fBmust\fR specify at least the deployment \fItype\fR:
 .
 .IP "" 4
 .
@@ -72,16 +85,16 @@ Therefore the profile will not be available\. You \fBmust\fR specify at least th
 .IP "" 0
 .
 .SH "DEFAULT PROFILE"
-The default profile uses a \fIgit\fR deployment type and the current branch and git remote URL for deployment on the remote host\.
+The default profile uses a \fIgit\fR deployment type and the current branch and git remote URL for deployment to the target host\.
 .
-.SH "PROFILE NAMES"
-Profile names may not start with a hyphen and should match the pattern ^[\-a\-zA\-Z0\-9]+\.
+.SH "NAMES"
+Profile and project names may not start with a hyphen and should match the pattern ^[\-a\-zA\-Z0\-9]+\.
 .
 .SH "STRICT"
 The deployment process is strict\. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed\.
 .
 .SH "FILES"
-A \fIdeploy\.json\fR file must be present in the root of the project and must be valid JSON\. This file may just contain \'{}\' if you wish to use the \fIdefault\fR profile and configure deployment parameters via environment variables\.
+A \fIdeploy\.json\fR file must be present in the root of the project and must be valid JSON\. This file may just contain \'{}\' if you wish to use the \fIdefault\fR profile and configure deployment parameters via environment variables or command line options\.
 .
 .SH "ENVIRONMENT"
 .
@@ -116,18 +129,25 @@ The directory used on the remote server for staging deployment scripts, default 
 The deployment directory\. When this option is specified it overrides any directory values specified in \fIdeploy\.json\fR for \fIall\fR profiles\.
 .
 .TP
-\fB\-d | \-\-descriptor [file]\fR:
+\fB\-\-host [user@host]\fR:
 
 .
 .P
-Sets the \fIdeploy\.json\fR descriptor to use for this deployment\.
+The scp(1) and ssh(1) \fIuser@host\fR specification\. When this option is specified it overrides any host properties in \fIdeploy\.json\fR\. This is useful if you wish to deploy everything using the profile(s) in \fIdeploy\.json\fR to a different host\.
+.
+.TP
+\fB\-\-descriptor [file]\fR:
+
+.
+.P
+The \fIdeploy\.json\fR descriptor to use for this deployment\.
 .
 .TP
 \fB\-\-staging [directory]\fR:
 
 .
 .P
-Sets the path to the staging directory\.
+The path to the staging directory\.
 .
 .TP
 \fB\-\-local\fR:
@@ -158,20 +178,7 @@ Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON docum
 Print commands but do not execute them\.
 .
 .SH "NOTIFICATIONS"
-If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\.
-.
-.SH "JSON FORMAT"
-The format of the \fIdeploy\.json\fR document is described in the task\-deploy\-json(7) man page, to view this man page run:
-.
-.IP "" 4
-.
-.nf
-
-bake help deploy\-json
-.
-.fi
-.
-.IP "" 0
+If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent when the \fB\-\-json\fR or \fB\-\-noop\fR options are specified\.
 .
 .SH "EXAMPLES"
 Deploy using the default profile:
@@ -220,6 +227,23 @@ Deploy the profiles \fItest\fR, \fIstage\fR and \fIproduction\fR:
 .nf
 
 bake deploy test stage production
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Inspect the settings used for a \fIdefault\fR deployment:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-json \-\-pretty \e
+    \-\-local \e
+    \-\-staging ~/project\-staging \e
+    \-\-name project \e
+    \-\-directory ~/project\-deployment
 .
 .fi
 .

@@ -30,6 +30,8 @@ gzip(1)			http://man.cx/gzip(1)
 gunzip(1)		http://man.cx/gunzip(1)
 pdflatex(1)		http://man.cx/pdflatex(1)
 openssl(1)		http://man.cx/openssl(1)
+scp(1)			http://man.cx/scp(1)
+ssh(1)			http://man.cx/ssh(1)
 
 # other external links
 git(1)			http://git-scm.com/

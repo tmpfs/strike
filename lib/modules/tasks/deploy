@@ -29,6 +29,12 @@ This deployment type will clone if the deployment directory does not exist and f
 ### TAR
 
 This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory.
+
+## JSON FORMAT
+
+The format of the *deploy.json* descriptor is described in the task-deploy-json(7) man page, to view this man page run:
+
+	bake help deploy-json
 	
 ## PROFILES
 
@@ -42,7 +48,7 @@ Note that a profile must declare at a minimum the *type* property for it to be r
 		}
 	}
 	
-Therefore the profile will not be available. You `must` specify at least the profile *type*:
+Therefore the profile will not be available. You `must` specify at least the deployment *type*:
 
 	{
 		"profiles": {
@@ -54,11 +60,11 @@ Therefore the profile will not be available. You `must` specify at least the pro
 
 ## DEFAULT PROFILE
 
-The default profile uses a *git* deployment type and the current branch and git remote URL for deployment on the remote host.
+The default profile uses a *git* deployment type and the current branch and git remote URL for deployment to the target host.
 
-## PROFILE NAMES
+## NAMES
 
-Profile names may not start with a hyphen and should match the pattern ^[-a-zA-Z0-9]+.
+Profile and project names may not start with a hyphen and should match the pattern ^[-a-zA-Z0-9]+.
 
 ## STRICT
 
@@ -66,7 +72,7 @@ The deployment process is strict. Failure is always assumed and when deploying m
 
 ## FILES
 
-A *deploy.json* file must be present in the root of the project and must be valid JSON. This file may just contain '{}' if you wish to use the *default* profile and configure deployment parameters via environment variables.
+A *deploy.json* file must be present in the root of the project and must be valid JSON. This file may just contain '{}' if you wish to use the *default* profile and configure deployment parameters via environment variables or command line options.
 
 ## ENVIRONMENT
 
@@ -88,13 +94,17 @@ The directory used on the remote server for staging deployment scripts, default 
 
 The deployment directory. When this option is specified it overrides any directory values specified in *deploy.json* for *all* profiles.
 
+* `--host [user@host]`:
+
+The scp(1) and ssh(1) *user@host* specification. When this option is specified it overrides any host properties in *deploy.json*. This is useful if you wish to deploy everything using the profile(s) in *deploy.json* to a different host.
+
 * `--descriptor [file]`:
 
-Sets the *deploy.json* descriptor to use for this deployment.
+The *deploy.json* descriptor to use for this deployment.
 
 * `--staging [directory]`:
 
-Sets the path to the staging directory.
+The path to the staging directory.
 
 * `--local`:
 
@@ -114,13 +124,7 @@ Print commands but do not execute them.
 
 ## NOTIFICATIONS
 
-If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*.
-
-## JSON FORMAT
-
-The format of the *deploy.json* document is described in the task-deploy-json(7) man page, to view this man page run:
-
-	bake help deploy-json
+If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are not sent when the `--json` or `--noop` options are specified.
 
 ## EXAMPLES
 
@@ -128,7 +132,7 @@ Deploy using the default profile:
 
 	bake deploy
 	
-Inspect deployment commands with `--noop`:
+Inspect deployment commands:
 
 	bake deploy --noop
 	
@@ -139,6 +143,14 @@ Deploy the profile *stage*:
 Deploy the profiles *test*, *stage* and *production*:
 
 	bake deploy test stage production
+	
+Inspect the settings used for a *default* deployment:
+
+	bake deploy --json --pretty \\
+		--local \\
+		--staging ~/project-staging \\
+		--name project \\
+		--directory ~/project-deployment
 
 ## BUGS
 
@@ -351,10 +363,9 @@ tasks.deploy() {
 # for the profile being processed or prints
 # a json document 
 :tasks.deploy.info() {
-	
 	local shell_info="${shell:-sh}";
 	if $print_json; then
-		# variable names to stash for
+		# variable names to inspect for
 		# each profile being processed
 		local var key vars=(
 			deploy_name
@@ -366,10 +377,10 @@ tasks.deploy() {
 			directory			
 			staging
 			log_file
-			log_dir								
-			git_remote_url			
+			log_dir
+			git_remote_url
 			git_branch			
-			host			
+			host	
 		);
 		for var in "${vars[@]}"
 			do
@@ -377,11 +388,10 @@ tasks.deploy() {
 				# as object on variable names with the same prefix
 				key="${var/_/.}";
 				key="${key//_/-}";
-				# echo "processing json var $var : $key"
 				variable.get "$var";
-				# echo "value: $_result";
 				json_dump["profiles.${profile}.$key"]="$_result";
 		done
+	# otherwise print out information to stdout
 	else
 		console.info "deploy %s" "${deploy_name}";	
 		console.info "profile %s" "${profile}";	
@@ -651,6 +661,14 @@ EOF
 					console.quit 1 "no directory specified";
 				fi
 				directory="${value}";
+				;;
+			--host )
+				shift;
+				value="${1:-}";
+				if [ -z "${value}" ]; then
+					console.quit 1 "no host specified";
+				fi
+				host="${value}";
 				;;
 			--descriptor )
 				shift;
