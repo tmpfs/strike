@@ -247,6 +247,8 @@ So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may
 
 Commands executing in a *local* context have access to the entire bake(1) variable scope chain which means that there are some useful variables exposed to your commands.
 
+If you reference a variable that is unbound in a command the program will exit immediately with a >0 exit code and an error message.
+
 * `project_name`:
 
 The name of the project.
@@ -408,6 +410,8 @@ tasks.deploy() {
 	executable.validate scp ssh;
 
 	local descriptor="${root}/deploy.json";
+	
+	local newline=$'\n';
 
 	executable.validate --test growlnotify;
 	
@@ -929,10 +933,13 @@ ${opt}";
 			done
 			
 			if [ -n "${cmd}" ]; then
-				# echo "ADDING COMMAND ($varname) : ${cmd}";
-				#local IFS=$'\n';
+				# set an exit trap to handle
+				# the situation when an undefined variable
+				# is referenced 
+				
+				trap :tasks.deploy.unbound.variable EXIT
 				eval "${varname}+=( \"${cmd}\" )";
-				#unset IFS;
+				trap - EXIT
 
 				# DEBUG
 				# local keys;
@@ -951,6 +958,15 @@ ${opt}";
 	# if array.is.array? "commands_local_pre"; then
 	# 	echo "commands_local_pre (read group) is an array :)";
 	# fi
+}
+
+# handles the situation when a command *probably*
+# references an unbound variable
+:tasks.deploy.unbound.variable()
+{
+	# console.throw "probable reference to unbound variable";
+	console.error "probable reference to unbound variable";
+	:tasks.deploy.fail "invalid command %s" "${cmd//$newline/ }";
 }
 
 # either outputs configuration information

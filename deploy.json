@@ -11,7 +11,7 @@
 			"post": [
 				{
 					"command": "echo",
-					"options": [ "deployment complete $noop $flat $include_version" ]
+					"options": [ "deployment complete $noop $flat $include_version $undefined" ]
 				}
 			]
 		}
