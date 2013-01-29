@@ -5,13 +5,13 @@
 		"local": {
 			"pre": [								
 				{
-					"command": "pwd"
+					"command": ""
 				}
 			],
 			"post": [
 				{
 					"command": "echo",
-					"options": [ "deployment complete $noop $flat $include_version $undefined" ]
+					"options": [ "deployment complete $noop $flat $include_version" ]
 				}
 			]
 		}

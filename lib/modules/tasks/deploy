@@ -903,7 +903,8 @@ tasks.deploy() {
 			cmd="";
 			exe="${json_doc[${group}.$i.command]:-}";
 			if [ -z "$exe" ]; then
-				continue;
+				console.error "invalid command in %s" "$descriptor";
+				console.quit 1 "command may not be a blank string";
 			fi
 			
 			jl="${json_doc[${group}.$i.options.length]:-0}";
