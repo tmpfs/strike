@@ -45,6 +45,35 @@ bake help deploy\-json
 .
 .IP "" 0
 .
+.SH "TARGET"
+The final deploy target is a combination of the \fIdirectory\fR, \fIname\fR and \fIprofile\fR by default\. Assuming a \fIdirectory\fR of \fB~/www\fR and the project name \fBproject\fR with a deployment profile of \fBstage\fR the target used for deployment is:
+.
+.IP "" 4
+.
+.nf
+
+~/www/project/stage
+.
+.fi
+.
+.IP "" 0
+.
+.P
+If you do not wish to include the profile name in the target directory specify the \fB\-\-flat\fR option which results in:
+.
+.IP "" 4
+.
+.nf
+
+~/www/project
+.
+.fi
+.
+.IP "" 0
+.
+.P
+It depends upon your deployment requirements as to which strategy you wish to use\. Generally, if you are deploying to the same host then it makes sense to separate the deployment profiles, whereas if each deployment profile is using a different host then it is more consistent to have the same directory structure across the different hosts\.
+.
 .SH "PROFILES"
 You may specify one or more profiles to deploy after any options\. If no profiles are specified then a deploy is attempted using the \fIdefault\fR profile\.
 .
