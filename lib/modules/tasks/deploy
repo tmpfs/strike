@@ -18,96 +18,6 @@ You do not need to require(3) this task as it is a builtin task.
 
 	bake deploy [options...] [profiles...]
 	
-## TYPES
-
-The deploy tasks support the *git* and *tar* deployment types.
-
-### GIT
-
-This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository.
-
-### TAR
-
-This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory.
-
-## JSON FORMAT
-
-The format of the *deploy.json* descriptor is described in the task-deploy-json(7) man page, to view this man page run:
-
-	bake help deploy-json
-	
-## TARGET
-
-The final deploy target is a combination of the *directory*, *name* and *profile* by default. Assuming a *directory* of `~/www` and the project name `project` with a deployment profile of `stage` the target used for deployment is:
-
-	~/www/project/stage
-	
-If you do not wish to include the profile name in the target directory specify the `--flat` option which results in:
-
-	~/www/project
-	
-It depends upon your deployment requirements as to which strategy you wish to use. Generally, if you are deploying to the same host then it makes sense to separate the deployment profiles, whereas if each deployment profile is using a different host then it is more consistent to have the same directory structure across the different hosts.
-
-You may also create separate deployment targets based on the project version using the `--include-version` option. Continuing the above example with a version of `0.0.1` and the default behaviour (no `--flat` option specified) then the target becomes:
-
-	~/www/project-0.0.1/stage
-	
-Or alternatively in conjunction with the `--flat` option the target directory becomes:
-
-	~/www/project-0.0.1
-	
-## PROFILES
-
-You may specify one or more profiles to deploy after any options. If no profiles are specified then a deploy is attempted using the *default* profile.
-
-Note that a profile must declare at a minimum the *type* property for it to be recognised, for example the following is invalid:
-
-	{
-		"profiles": {
-			"stage": {}
-		}
-	}
-	
-Therefore the profile will not be available. You `must` specify at least the deployment *type*:
-
-	{
-		"profiles": {
-			"stage": {
-				"type": "git"
-			}
-		}
-	}
-
-## DEFAULT PROFILE
-
-The default profile uses a *git* deployment type and the current branch and git remote URL for deployment to the target host.
-
-## NAMES
-
-Profile and project names may not start with a hyphen and should match the pattern ^[-a-zA-Z0-9]+.
-
-## STRICT
-
-The deployment process is strict. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed.
-
-## FILES
-
-A *deploy.json* file must be present in the root of the project and must be valid JSON. This file may just contain '{}' if you wish to use the *default* profile and configure deployment parameters via environment variables or command line options.
-
-## ENVIRONMENT
-
-* `bake_deploy_remote`:
-
-The remote host used for deployment when none is specified in *deploy.json*.
-
-* `bake_deploy_shell`:
-
-The shell used on the remote server, defaults to `/bin/sh` if none is specified.
-
-* `bake_deploy_staging`:
-
-The directory used on the remote server for staging deployment scripts, default is `~/.deploy`.
-
 ## OPTIONS
 
 * `--directory [directory]`:
@@ -195,6 +105,143 @@ Do not quote command options. When this options is set parameter expansion is pe
 * `--noop`:
 
 Print commands but do not execute them.
+	
+## TYPES
+
+The deploy tasks support the *git* and *tar* deployment types.
+
+### GIT
+
+This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository.
+
+### TAR
+
+This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory.
+
+## JSON FORMAT
+
+The format of the *deploy.json* descriptor is described in the task-deploy-json(7) man page, to view this man page run:
+
+	bake help deploy-json
+	
+## TARGET
+
+The final deploy target is a combination of the *directory*, *name* and *profile* by default. Assuming a *directory* of `~/www` and the project name `project` with a deployment profile of `stage` the target used for deployment is:
+
+	~/www/project/stage
+	
+If you do not wish to include the profile name in the target directory specify the `--flat` option which results in:
+
+	~/www/project
+	
+It depends upon your deployment requirements as to which strategy you wish to use. Generally, if you are deploying to the same host then it makes sense to separate the deployment profiles, whereas if each deployment profile is using a different host then it is more consistent to have the same directory structure across the different hosts.
+
+You may also create separate deployment targets based on the project version using the `--include-version` option. Continuing the above example with a version of `0.0.1` and the default behaviour (no `--flat` option specified) then the target becomes:
+
+	~/www/project-0.0.1/stage
+	
+Or alternatively in conjunction with the `--flat` option the target directory becomes:
+
+	~/www/project-0.0.1
+	
+## PROFILES
+
+You may specify one or more profiles to deploy after any options. If no profiles are specified then a deploy is attempted using the *default* profile.
+
+Note that a profile must declare at a minimum the *type* property for it to be recognised, for example the following is invalid:
+
+	{
+		"profiles": {
+			"stage": {}
+		}
+	}
+	
+Therefore the profile will not be available. You `must` specify at least the deployment *type*:
+
+	{
+		"profiles": {
+			"stage": {
+				"type": "git"
+			}
+		}
+	}
+
+## DEFAULT PROFILE
+
+The default profile uses a *git* deployment type and the current branch and git remote URL for deployment to the target host.
+
+## NAMES
+
+Profile and project names may not start with a hyphen and should match the pattern ^[-a-zA-Z0-9]+.
+
+## STRICT
+
+The deployment process is strict. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed.
+
+## FILES
+
+A *deploy.json* file must be present in the root of the project and must be valid JSON. This file may just contain '{}' if you wish to use the *default* profile and configure deployment parameters via environment variables or command line options.
+
+## ENVIRONMENT
+
+* `bake_deploy_remote`:
+
+The remote host used for deployment when none is specified in *deploy.json*.
+
+* `bake_deploy_shell`:
+
+The shell used on the remote server, defaults to `sh` if none is specified.
+
+* `bake_deploy_staging`:
+
+The directory used on the remote server for staging deployment scripts, default is `~/.deploy`.
+
+## COMMAND EXECUTION
+
+The deployment process can optionally execute arbitrary simple commands on the local and remote host. For each host, command execution is split into the pre-deployment and post-deployment execution phases.
+
+If any command exits with an exit code *>0* then the deployment is aborted. This is useful for running tests prior to performing a deployment or other tasks such as creating a tarball package.
+
+The general syntax for declaring commands is:
+
+	"commands": {
+		"local": {
+			"pre": [
+				{
+					"command": "ls",
+					"options": [ "-la", "lib", "man" ]
+				}
+			],
+			"post": [
+				{
+					"command": "echo",
+					"options": [ "deployment complete" ]
+				}
+			]
+		}
+	}
+	
+All commands are encapsulated by the *commands* object which can contain *local* and *remote* properties indicating whether the commands should be executed on the local or remote host. The *pre* and *post* properties are arrays of commands to execute for the deployment phase(s).
+
+A *commands* object may be declared at the top-level of the JSON descriptor document, in which case the commands will be executed for *all* profiles. A *commands* object may also be declared in a profile to execute commands specific to that profile. When *commands* are declared at the top-level of the document and in a profile then they are concatenated together and all commands are executed.
+
+### PARAMETER EXPANSION
+
+By default parameters are not expanded - whitespace in a parameter is preserved and passed as a single argument to the command being executed. For example, imagine you wanted to list the contents of the *lib* and *man* directories, this would fail (with the default settings) if you specified both directories in a single option (`ls` would be looking for a directory named "lib man" rather than attempting to list two separate directories):
+
+	{
+		"command": "ls",
+		"options": [ "-la", "lib man" ]
+	}
+	
+You have two options to remedy this scenario. You may either decide to separate the parameters:
+
+	{
+		"command": "ls",
+		"options": [ "-la", "lib", "man" ]
+	}
+	
+So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may use the `--expand` option to allow parameter expansion on command options. You should only use the `--expand` option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed.	
 
 ## NOTIFICATIONS
 

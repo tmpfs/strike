@@ -23,6 +23,158 @@ bake deploy [options\.\.\.] [profiles\.\.\.]
 .
 .fi
 .
+.SH "OPTIONS"
+.
+.TP
+\fB\-\-directory [directory]\fR:
+
+.
+.P
+Use \fIdirectory\fR for deployment\. When this option is specified it overrides any directory specified in \fIdeploy\.json\fR for all profiles\.
+.
+.TP
+\fB\-\-host [user@host]\fR:
+
+.
+.P
+The scp(1) and ssh(1) \fIuser@host\fR specification\. When this option is specified it overrides any host properties in \fIdeploy\.json\fR\. This is useful if you wish to deploy everything using the profile(s) in \fIdeploy\.json\fR to a different host\.
+.
+.TP
+\fB\-\-descriptor [file]\fR:
+
+.
+.P
+Use \fIfile\fR as the deployment descriptor\.
+.
+.TP
+\fB\-\-staging [directory]\fR:
+
+.
+.P
+Use \fIdirectory\fR as the staging directory\.
+.
+.TP
+\fB\-\-shell [shell]\fR:
+
+.
+.P
+Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \fIzsh\fR or \fIdash\fR\.
+.
+.TP
+\fB\-\-log\fR:
+
+.
+.P
+Redirect \fIstdout\fR messages to \fBtarget/deploy/deploy\.log\fR\. Note that when using the \fB\-\-json\fR option that the JSON document is always sent to \fIstdout\fR\.
+.
+.TP
+\fB\-\-flat\fR:
+
+.
+.P
+Do not include the profile name in the target directory\.
+.
+.TP
+\fB\-\-include\-version\fR:
+
+.
+.P
+Include version information in the target directory\.
+.
+.TP
+\fB\-\-local\fR:
+
+.
+.P
+Perform a deployment on the local host\.
+.
+.TP
+\fB\-\-json\fR:
+
+.
+.P
+Dump all profile configuration settings that would be used by a deployment as a JSON document to \fIstdout\fR, implies \fB\-\-noop\fR\. This is useful to determine the settings that would be used when running a deployment\.
+.
+.P
+If this option is used in conjunction with \fB\-\-script\fR the last option will take preference\.
+.
+.TP
+\fB\-\-pretty\fR:
+
+.
+.P
+Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON document\. Uses two spaces as the indentation\.
+.
+.TP
+\fB\-\-write\-json\fR:
+
+.
+.P
+Write the deployment settings to \fBtarget/deploy/settings\.json\fR\. If used in conjunction with the \fB\-\-json\fR option then the settings will be printed to \fIstdout\fR and written to disc\. The generated document will be formatted if the \fB\-\-pretty\fR flag has been set\.
+.
+.TP
+\fB\-\-script\fR:
+
+.
+.P
+Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
+.
+.TP
+\fB\-\-no\-local\fR:
+
+.
+.P
+Shortcut for combining \fB\-\-no\-local\-pre\fR and \fB\-\-no\-local\-post\fR\.
+.
+.TP
+\fB\-\-no\-local\-pre\fR:
+
+.
+.P
+Do not execute the pre\-deployment commands on the local host\.
+.
+.TP
+\fB\-\-no\-local\-post\fR:
+
+.
+.P
+Do not execute the post\-deployment commands on the local host\.
+.
+.TP
+\fB\-\-no\-remote\fR:
+
+.
+.P
+Shortcut for combining \fB\-\-no\-remote\-pre\fR and \fB\-\-no\-remote\-post\fR\.
+.
+.TP
+\fB\-\-no\-remote\-pre\fR:
+
+.
+.P
+Do not execute the pre\-deployment commands on the remote host\.
+.
+.TP
+\fB\-\-no\-remote\-post\fR:
+
+.
+.P
+Do not execute the post\-deployment commands on the remote host\.
+.
+.TP
+\fB\-\-expand\fR:
+
+.
+.P
+Do not quote command options\. When this options is set parameter expansion is performed on command options declared in a deployment descriptor\.
+.
+.TP
+\fB\-\-noop\fR:
+
+.
+.P
+Print commands but do not execute them\.
+.
 .SH "TYPES"
 The deploy tasks support the \fIgit\fR and \fItar\fR deployment types\.
 .
@@ -165,7 +317,7 @@ The remote host used for deployment when none is specified in \fIdeploy\.json\fR
 
 .
 .P
-The shell used on the remote server, defaults to \fB/bin/sh\fR if none is specified\.
+The shell used on the remote server, defaults to \fBsh\fR if none is specified\.
 .
 .TP
 \fBbake_deploy_staging\fR:
@@ -174,150 +326,80 @@ The shell used on the remote server, defaults to \fB/bin/sh\fR if none is specif
 .P
 The directory used on the remote server for staging deployment scripts, default is \fB~/\.deploy\fR\.
 .
-.SH "OPTIONS"
+.SH "COMMAND EXECUTION"
+The deployment process can optionally execute arbitrary simple commands on the local and remote host\. For each host, command execution is split into the pre\-deployment and post\-deployment execution phases\.
 .
-.TP
-\fB\-\-directory [directory]\fR:
+.P
+If any command exits with an exit code \fI>0\fR then the deployment is aborted\. This is useful for running tests prior to performing a deployment or other tasks such as creating a tarball package\.
+.
+.P
+The general syntax for declaring commands is:
+.
+.IP "" 4
+.
+.nf
 
+"commands": {
+    "local": {
+        "pre": [
+            {
+                "command": "ls",
+                "options": [ "\-la", "lib", "man" ]
+            }
+        ],
+        "post": [
+            {
+                "command": "echo",
+                "options": [ "deployment complete" ]
+            }
+        ]
+    }
+}
+.
+.fi
+.
+.IP "" 0
 .
 .P
-Use \fIdirectory\fR for deployment\. When this option is specified it overrides any directory specified in \fIdeploy\.json\fR for all profiles\.
+All commands are encapsulated by the \fIcommands\fR object which can contain \fIlocal\fR and \fIremote\fR properties indicating whether the commands should be executed on the local or remote host\. The \fIpre\fR and \fIpost\fR properties are arrays of commands to execute for the deployment phase(s)\.
 .
-.TP
-\fB\-\-host [user@host]\fR:
+.P
+A \fIcommands\fR object may be declared at the top\-level of the JSON descriptor document, in which case the commands will be executed for \fIall\fR profiles\. A \fIcommands\fR object may also be declared in a profile to execute commands specific to that profile\. When \fIcommands\fR are declared at the top\-level of the document and in a profile then they are concatenated together and all commands are executed\.
+.
+.SS "PARAMETER EXPANSION"
+By default parameters are not expanded \- whitespace in a parameter is preserved and passed as a single argument to the command being executed\. For example, imagine you wanted to list the contents of the \fIlib\fR and \fIman\fR directories, this would fail (with the default settings) if you specified both directories in a single option (\fBls\fR would be looking for a directory named "lib man" rather than attempting to list two separate directories):
+.
+.IP "" 4
+.
+.nf
 
+{
+    "command": "ls",
+    "options": [ "\-la", "lib man" ]
+}
+.
+.fi
+.
+.IP "" 0
 .
 .P
-The scp(1) and ssh(1) \fIuser@host\fR specification\. When this option is specified it overrides any host properties in \fIdeploy\.json\fR\. This is useful if you wish to deploy everything using the profile(s) in \fIdeploy\.json\fR to a different host\.
+You have two options to remedy this scenario\. You may either decide to separate the parameters:
 .
-.TP
-\fB\-\-descriptor [file]\fR:
+.IP "" 4
+.
+.nf
 
+{
+    "command": "ls",
+    "options": [ "\-la", "lib", "man" ]
+}
+.
+.fi
+.
+.IP "" 0
 .
 .P
-Use \fIfile\fR as the deployment descriptor\.
-.
-.TP
-\fB\-\-staging [directory]\fR:
-
-.
-.P
-Use \fIdirectory\fR as the staging directory\.
-.
-.TP
-\fB\-\-shell [shell]\fR:
-
-.
-.P
-Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \fIzsh\fR or \fIdash\fR\.
-.
-.TP
-\fB\-\-log\fR:
-
-.
-.P
-Redirect \fIstdout\fR messages to \fBtarget/deploy/deploy\.log\fR\. Note that when using the \fB\-\-json\fR option that the JSON document is always sent to \fIstdout\fR\.
-.
-.TP
-\fB\-\-flat\fR:
-
-.
-.P
-Do not include the profile name in the target directory\.
-.
-.TP
-\fB\-\-include\-version\fR:
-
-.
-.P
-Include version information in the target directory\.
-.
-.TP
-\fB\-\-local\fR:
-
-.
-.P
-Perform a deployment on the local host\.
-.
-.TP
-\fB\-\-json\fR:
-
-.
-.P
-Dump all profile configuration settings that would be used by a deployment as a JSON document to \fIstdout\fR, implies \fB\-\-noop\fR\. This is useful to determine the settings that would be used when running a deployment\.
-.
-.P
-If this option is used in conjunction with \fB\-\-script\fR the last option will take preference\.
-.
-.TP
-\fB\-\-pretty\fR:
-
-.
-.P
-Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON document\. Uses two spaces as the indentation\.
-.
-.TP
-\fB\-\-write\-json\fR:
-
-.
-.P
-Write the deployment settings to \fBtarget/deploy/settings\.json\fR\. If used in conjunction with the \fB\-\-json\fR option then the settings will be printed to \fIstdout\fR and written to disc\. The generated document will be formatted if the \fB\-\-pretty\fR flag has been set\.
-.
-.TP
-\fB\-\-script\fR:
-
-.
-.P
-Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
-.
-.TP
-\fB\-\-no\-local\fR:
-
-.
-.P
-Shortcut for combining \fB\-\-no\-local\-pre\fR and \fB\-\-no\-local\-post\fR\.
-.
-.TP
-\fB\-\-no\-local\-pre\fR:
-
-.
-.P
-Do not execute the pre\-deployment commands on the local host\.
-.
-.TP
-\fB\-\-no\-local\-post\fR:
-
-.
-.P
-Do not execute the post\-deployment commands on the local host\.
-.
-.TP
-\fB\-\-no\-remote\fR:
-
-.
-.P
-Shortcut for combining \fB\-\-no\-remote\-pre\fR and \fB\-\-no\-remote\-post\fR\.
-.
-.TP
-\fB\-\-no\-remote\-pre\fR:
-
-.
-.P
-Do not execute the pre\-deployment commands on the remote host\.
-.
-.TP
-\fB\-\-no\-remote\-post\fR:
-
-.
-.P
-Do not execute the post\-deployment commands on the remote host\.
-.
-.TP
-\fB\-\-noop\fR:
-
-.
-.P
-Print commands but do not execute them\.
+So that the \fIlib\fR and \fIman\fR are passed as separate arguments to \fIls\fR\. Or you may use the \fB\-\-expand\fR option to allow parameter expansion on command options\. You should only use the \fB\-\-expand\fR option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed\.
 .
 .SH "NOTIFICATIONS"
 If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent for a \fBnoop\fR which is the case if the \fB\-\-noop\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
