@@ -142,6 +142,13 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+#opts=( -la "man target" );
+#echo "opts length ${#opts[@]}";
+
+#ls "${opts[@]}";
+
+#exit 0;
+
 # ( cd -P ~/"git" && pwd );
 # exit 0;
 

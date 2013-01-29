@@ -9,7 +9,7 @@
 				},
 				{
 					"command": "ls",
-					"options": [ "-la" ]
+					"options": [ "-la", "man target" ]
 				}				
 			],
 			"post": [

@@ -280,6 +280,9 @@ tasks.deploy() {
 	# non-operation
 	local noop=false;
 	
+	# quote command options by default
+	local quote=true;
+	
 	# stores flags used to skip command
 	# execution phases
 	declare -A skip;
@@ -630,8 +633,10 @@ tasks.deploy() {
 	eval commands="( \"\${$varname[@]:-}\" )";
 	for cmd in "${commands[@]:-}"
 		do
+			#echo "cmd is : ${cmd}";
 			arr=( ${cmd} );
 			if [ ${#arr[@]} -gt 0 ]; then
+				#echo "arr length is :: ${#arr[@]}";
 				exe="${arr[0]}";
 				opt=( ${arr[@]:1} );
 				:tasks.deploy.out.info "run %s %s" "${exe}" "${opt[*]:-}";
@@ -644,15 +649,15 @@ tasks.deploy() {
 					:tasks.deploy.fail "executable %s is not available" "$exe";
 				fi
 				
-				# echo "run command (after validation) : ${exe} : ${opt[@]:-}";				
+				#echo "run command (after validation) : ${exe} : ${opt[@]:-} : length:  ${#opt[@]}";	
 				
 				# execute the command
 				if ! $noop; then
 					if ! $logging; then
-						"${exe}" ${opt[@]:-} \
+						${exe} ${opt[@]:-} \
 							|| :tasks.deploy.fail "execution error %s" "$cmd";
 					else
-						"${exe}" ${opt[@]:-} >> "${log}" 2>&1 \
+						${exe} ${opt[@]:-} >> "${log}" 2>&1 \
 							|| :tasks.deploy.fail "execution error %s" "$cmd";
 					fi
 				fi
@@ -735,7 +740,18 @@ tasks.deploy() {
 			for((j = 0;j < $jl;j++))
 				do
 					opt="${json_doc[${group}.$i.options.$j]}";
+					
+					# quote options
+					# if $quote; then
+					# 	opt=$( printf %q "${opt}" );
+					# 	# opt="\\\"$opt\\\"";
+					# fi
+					
+					#opt="\\\"$opt\\\"";
+
 					cmd="${cmd} ${opt}";
+					
+					#cmd="${cmd} ${opt}";
 			done
 			
 			if [ -n "${cmd}" ]; then
