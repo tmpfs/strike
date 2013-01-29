@@ -158,7 +158,7 @@ Use in conjunction with the `--json` option to pretty print the JSON document.
 
 * `--script`:
 
-Dump script(s) to *stdout*, implies `--noop`. If this option is used in conjunction with `--json` the last option will take preference.
+Dump script(s) to *stdout*, implies `--noop`. If this option is used in conjunction with `--json` the last option will take preference. Note that when this option is used the script(s) are still written to `target/deploy`.
 
 * `--noop`:
 
@@ -236,7 +236,13 @@ tasks.deploy() {
 	# name validation regex
 	local re="^[-a-zA-Z0-9]+$";
 	
-	local log="${target}/deploy.log";
+	local deploy_target_directory="${target}/deploy";
+	if [ ! -d "${deploy_target_directory}" ]; then
+		mkdir -p "${deploy_target_directory}" \
+			|| console.quit 1 "could not create %s" "${deploy_target_directory}";
+	fi
+	
+	local log="${deploy_target_directory}/deploy.log";
 	local logging=false;
 	
 	# non-operation
@@ -434,13 +440,13 @@ tasks.deploy() {
 	
 	:tasks.deploy.out.info "%s" "${start_time}";
 	
-	
 	# commands to execute on local and remote
 	declare -A local_commands;
 	declare -A remote_commands;
 		
 	local script_name="${deploy_file_name}-${profile}.sh";
-	local script="${target}/${script_name}";
+	local script_dir="${deploy_target_directory}";
+	local script="${script_dir}/${script_name}";
 	local log_name="${deploy_file_name}-${profile}.log";
 	local log_dir="${staging}/log";
 	local log_file="${log_dir}/${log_name}";
@@ -464,9 +470,11 @@ tasks.deploy() {
 	# ready to start, output useful settings information
 	:tasks.deploy.info;	
 	
-	# write the deploy script file
-	:tasks.deploy.script.write!;
-	
+	if ! $dump_json; then
+		# write the deploy script file
+		:tasks.deploy.script.write!;
+	fi
+
 	if ! $dump_script && ! $dump_json; then
 		echo "perform deployment !!!";
 		# local debug testing
@@ -551,6 +559,7 @@ tasks.deploy() {
 			script_shell
 			script_shebang			
 			script_file
+			script_dir
 			directory
 			staging
 			log_file
