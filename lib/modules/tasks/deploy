@@ -47,6 +47,14 @@ If you do not wish to include the profile name in the target directory specify t
 	~/www/project
 	
 It depends upon your deployment requirements as to which strategy you wish to use. Generally, if you are deploying to the same host then it makes sense to separate the deployment profiles, whereas if each deployment profile is using a different host then it is more consistent to have the same directory structure across the different hosts.
+
+You may also create separate deployment targets based on the project version using the `--include-version` option. Continuing the above example with a version of `0.0.1` and the default behaviour (no `--flat` option specified) then the target becomes:
+
+	~/www/project-0.0.1/stage
+	
+Or alternatively in conjunction with the `--flat` option the target directory becomes:
+
+	~/www/project-0.0.1
 	
 ## PROFILES
 
@@ -122,6 +130,10 @@ The path to the staging directory.
 
 Do not include the profile name in the deployment target directory.
 
+* `--include-version`:
+
+Include version information in the target directory.
+
 * `--local`:
 
 Perform a deployment locally.
@@ -166,7 +178,7 @@ Inspect the settings used for a *default* deployment:
 		--local \\
 		--staging ~/project-staging \\
 		--name project \\
-		--directory ~/project-deployment
+		--directory ~/www
 
 ## BUGS
 
@@ -207,6 +219,9 @@ tasks.deploy() {
 	
 	# determine if we are deploying locally
 	local deploy_local=false;
+	
+	# include version information in the target
+	local deploy_version=false;
 
 	# strategy used to determine the target
 	# directory. the default is to include
@@ -225,15 +240,6 @@ tasks.deploy() {
 	local shell="${bake_deploy_shell:-}";
 	local host="${bake_deploy_remote:-}";
 	local staging="${bake_deploy_staging:-~/.deploy}";
-	# human readable name using @ delimiter
-	local deploy_name="${project_name}@${project_version}";
-	# file name using a - delimiter	
-	local deploy_file_name="${project_name}-${project_version}";
-	local script_name="${deploy_file_name}-${profile}.sh";
-	local script="${target}/${script_name}";
-	local log_name="${deploy_file_name}-${profile}.log";
-	local log_dir="${staging}/log";
-	local log_file="${log_dir}/${log_name}";	
 	local git_remote_url git_branch;
 	git.remote.url;
 	git.branch.current "git_branch";
@@ -253,22 +259,23 @@ tasks.deploy() {
 		shell_options+=( --posix );
 	fi
 
-	# validate whitespace on the project name
-	:tasks.whitespace.validate "${project_name}" "project name";
-	# validate whitespace on the staging property
-	:tasks.whitespace.validate "${staging}" "staging";
-
 	# assume failure
 	local success=false;
-
-	# messages
-	declare -A messages;
-	# messages sent via `growlnotify`
-	messages[success]="deploy ${deploy_name} complete";
-	messages[fail]="deploy ${deploy_name} failed";
 	
 	# parse options
 	:tasks.deploy.options.parse "$@";
+	
+	# human readable name using @ delimiter
+	# must be set after option parsing in case a --name
+	# option has been specified
+	local deploy_name="${project_name}@${project_version}";
+	# file name using a - delimiter	
+	local deploy_file_name="${project_name}-${project_version}";
+	local script_name="${deploy_file_name}-${profile}.sh";
+	local script="${target}/${script_name}";
+	local log_name="${deploy_file_name}-${profile}.log";
+	local log_dir="${staging}/log";
+	local log_file="${log_dir}/${log_name}";	
 	
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;	
@@ -297,6 +304,17 @@ tasks.deploy() {
 		do
 			json_dump["targets.$i"]="${profiles[$i]}";
 	done
+	
+	# messages
+	declare -A messages;
+	# messages sent via `growlnotify`
+	messages[success]="deploy ${deploy_name} complete";
+	messages[fail]="deploy ${deploy_name} failed";	
+	
+	# validate whitespace on the project name
+	:tasks.whitespace.validate "${project_name}" "project name";
+	# validate whitespace on the staging property
+	:tasks.whitespace.validate "${staging}" "staging";	
 	
 	# deploy all profiles
 	:tasks.deploy.profiles;
@@ -377,6 +395,9 @@ tasks.deploy() {
 	
 	# TODO: allow for the version to be included in the target directory
 	local target_name="${project_name}";
+	if $deploy_version; then
+		target_name="${deploy_file_name}";
+	fi
 	# set up the full deployment target directory
 	local deploy_target="${directory}/${target_name}";
 	if ! $flat; then
@@ -691,7 +712,10 @@ EOF
 				;;
 			--flat )
 				flat=true;
-				;;				
+				;;	
+			--include-version )
+				deploy_version=true;
+				;;
 			--name )
 				shift;
 				value="${1:-}";
