@@ -246,12 +246,22 @@ Perform a deployment locally\.
 .P
 Dump all profile configuration settings that would be used by a deployment as a JSON document\. This implies \fB\-\-noop\fR and no deployment is performed\. This is useful to determine the settings that would be used when running a deployment\.
 .
+.P
+If this option is used in conjunction with \fB\-\-script\fR the last option will take preference\.
+.
 .TP
 \fB\-\-pretty\fR:
 
 .
 .P
 Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON document\.
+.
+.TP
+\fB\-\-script\fR:
+
+.
+.P
+Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\.
 .
 .TP
 \fB\-\-noop\fR:

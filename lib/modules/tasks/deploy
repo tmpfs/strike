@@ -150,9 +150,15 @@ Perform a deployment locally.
 
 Dump all profile configuration settings that would be used by a deployment as a JSON document. This implies `--noop` and no deployment is performed. This is useful to determine the settings that would be used when running a deployment.
 
+If this option is used in conjunction with `--script` the last option will take preference.
+
 * `--pretty`:
 
 Use in conjunction with the `--json` option to pretty print the JSON document.
+
+* `--script`:
+
+Dump script(s) to *stdout*, implies `--noop`. If this option is used in conjunction with `--json` the last option will take preference.
 
 * `--noop`:
 
@@ -227,10 +233,6 @@ tasks.deploy() {
 
 	executable.validate --test growlnotify;
 	
-	# commands to execute on local and remote
-	declare -A local_commands;
-	declare -A remote_commands;
-	
 	# name validation regex
 	local re="^[-a-zA-Z0-9]+$";
 	
@@ -250,6 +252,9 @@ tasks.deploy() {
 	
 	# include version information in the target
 	local deploy_version=false;
+	
+	# dump script contents to stdout
+	local dump_script=false;
 
 	# strategy used to determine the target
 	# directory. the default is to include
@@ -277,7 +282,7 @@ tasks.deploy() {
 	
 	# JSON PROPERTIES
 	# determines whether we are generating json
-	local print_json=false;
+	local dump_json=false;
 	local pretty=false;
 	# array used to store properties to be
 	# dumped as json
@@ -400,7 +405,7 @@ tasks.deploy() {
 			:tasks.deploy.profile;
 	done
 	# dump json information
-	if $print_json; then
+	if $dump_json; then
 		if ! $pretty; then
 			json.stringify <<< "json_dump";
 		else
@@ -429,6 +434,11 @@ tasks.deploy() {
 	
 	:tasks.deploy.out.info "%s" "${start_time}";
 	
+	
+	# commands to execute on local and remote
+	declare -A local_commands;
+	declare -A remote_commands;
+		
 	local script_name="${deploy_file_name}-${profile}.sh";
 	local script="${target}/${script_name}";
 	local log_name="${deploy_file_name}-${profile}.log";
@@ -455,21 +465,77 @@ tasks.deploy() {
 	:tasks.deploy.info;	
 	
 	# write the deploy script file
-	# :tasks.deploy.script.write!;
+	:tasks.deploy.script.write!;
+	
+	if ! $dump_script && ! $dump_json; then
+		echo "perform deployment !!!";
+		# local debug testing
+		# :tasks.script.debug;
+		#exit 0;
 
-	# local debug testing
-	# :tasks.script.debug;
-	#exit 0;
+		# scp the script to the remote server
+		# :tasks.deploy.script.push!;		
+	fi
+	
+	# clean up
+	unset host;
+	unset directory;
+	unset local_commands;
+	unset remote_commands;
+}
 
-	# scp the script to the remote server
-	# :tasks.deploy.script.push!;
+# reads in the json data overrriding
+# default values where appropriate
+:tasks.deploy.json.read() {
+	
+	# USE DOCUMENT ROOT SETTINGS
+	
+	# always prefer the default host in deploy.json
+	if [ -n "${json_doc[host]:-}" ]; then
+		host="${json_doc[host]}";
+	fi
+	
+	# lookup any custom working directory
+	if [ -n "${json_doc[directory]:-}" ]; then
+		directory="${json_doc[directory]}";
+	fi	
+	
+	# USE PROFILE SPECIFIC SETTINGS
+	
+	# try a host specified in a profile
+	if [ -n "${json_doc[profiles.${profile}.host]:-}" ];then
+		host="${json_doc[profiles.${profile}.host]}";
+	fi
+
+	# try a directory specified in a profile
+	if [ -n "${json_doc[profiles.${profile}.directory]:-}" ];then
+		directory="${json_doc[profiles.${profile}.directory]}";
+	fi
+
+	# try a deploy type specified in the profile
+	if [ -n "${json_doc[profiles.${profile}.type]:-}" ];then
+		deploy_type="${json_doc[profiles.${profile}.type]}";
+	fi
+	
+	# USE COMMNAD LINE OPTIONS
+	
+	# command line options that override deploy.json settings
+	if [ -n "${overrides[host]:-}" ]; then
+		host="${overrides[host]}";
+	fi
+	if [ -n "${overrides[directory]:-}" ]; then
+		directory="${overrides[directory]}";
+	fi
+	if [ -n "${overrides[noop]:-}" ]; then
+		noop="${overrides[noop]}";
+	fi
 }
 
 # either outputs configuration information
 # for the profile being processed or prints
 # a json document 
 :tasks.deploy.info() {
-	if $print_json; then
+	if $dump_json; then
 		
 		local script_file="${script}";
 		local script_shell="${shell}";		
@@ -521,6 +587,10 @@ tasks.deploy() {
 # output an info message to stdout or
 # the log file if logging
 :tasks.deploy.out.info() {
+	if $dump_json || $dump_script; then
+		return 0;
+	fi
+	
 	if ! $logging; then
 		console.info "$@";
 	else
@@ -546,50 +616,6 @@ tasks.deploy() {
 	json.parse < "${descriptor}";	
 }
 
-# reads in the json data overrriding
-# default values where appropriate
-:tasks.deploy.json.read() {
-	
-	# USE DOCUMENT ROOT SETTINGS
-	
-	# always prefer the default host in deploy.json
-	if [ -n "${json_doc[host]:-}" ]; then
-		host="${json_doc[host]}";
-	fi
-	
-	# lookup any custom working directory
-	if [ -n "${json_doc[directory]:-}" ]; then
-		directory="${json_doc[directory]}";
-	fi	
-	
-	# USE PROFILE SPECIFIC SETTINGS
-	
-	# try a host specified in a profile
-	if [ -n "${json_doc[profiles.${profile}.host]:-}" ];then
-		host="${json_doc[profiles.${profile}.host]}";
-	fi
-
-	# try a directory specified in a profile
-	if [ -n "${json_doc[profiles.${profile}.directory]:-}" ];then
-		directory="${json_doc[profiles.${profile}.directory]}";
-	fi
-
-	# try a deploy type specified in the profile
-	if [ -n "${json_doc[profiles.${profile}.type]:-}" ];then
-		deploy_type="${json_doc[profiles.${profile}.type]}";
-	fi
-	
-	# USE COMMNAD LINE OPTIONS
-	
-	# command line options that override deploy.json
-	if [ -n "${overrides[host]:-}" ]; then
-		host="${overrides[host]}";
-	fi
-	if [ -n "${overrides[directory]:-}" ]; then
-		directory="${overrides[directory]}";
-	fi
-}
-
 :tasks.deploy.script.write!() {
 	# delete any existing deploy script
 	if [ -f "${script}" ]; then
@@ -604,6 +630,13 @@ tasks.deploy() {
 cat <<EOF >> "${script}"
 ${shebang}
 
+# generated by task-deploy(7)
+# do not edit this file manually
+# use bake(1) with task-deploy(7)
+
+# script: ${script_name}
+# file: ${script}
+
 set +e;
 
 log_dir="${log_dir}"; export log_dir;
@@ -614,16 +647,16 @@ deploy_log() {
 	# create the log directory
 	if ! test -d $log_dir; then
 		printf "creating %s\n" "$log_dir";
-		mkdir -p ${log_dir} \
+		mkdir -p ${log_dir} \\
 			|| { echo "could not create $log_dir"; exit 1; }
 	fi
 	if test -f $log_file; then
-		rm $log_file \
+		rm $log_file \\
 			|| { echo "could not remove log file $log_file"; exit 1; }
 	fi
 	# create the log file
 	printf "creating %s\n" "$log_file";
-	touch $log_file \
+	touch $log_file \\
 		|| { echo "could not create log file $log_file"; exit 1; }
 }
 deploy() {
@@ -633,7 +666,10 @@ deploy "\$@";
 EOF
 
 	chmod +x "${script}" \
-		|| console.quit 1 "could not set permissions on %s" "${script}";
+		|| console.quit 1 "could not set permissions on %s" "${script}";	
+	if $dump_script; then
+		cat "${script}";
+	fi
 }
 
 # runs script locally for debugging
@@ -722,7 +758,7 @@ EOF
 	# output success information
 	if $success; then
 		:tasks.deploy.complete.notify;
-		if $print_json; then
+		if $dump_json || $dump_script; then
 			console.success;
 		else
 			console.success "deploy %s complete %s" \
@@ -733,6 +769,7 @@ EOF
 	fi
 }
 
+# validate a name follows the convention
 :tasks.name.valid?() {
 	local name="${1:-}";
 	# may not start with a hyphen
@@ -743,6 +780,7 @@ EOF
 	return 0;
 }
 
+# quit if an invalid name is encountered
 :tasks.name.quit() {
 	local var="$1";
 	local value="$2";
@@ -758,6 +796,7 @@ EOF
 		case $1 in
 			--noop )
 				noop=true;
+				overrides[noop]=true;				
 				;;
 			--staging )
 				shift;
@@ -767,8 +806,16 @@ EOF
 				deploy_local=true;
 				;;
 			--json )
-				print_json=true;
+				dump_json=true;
 				noop=true;
+				overrides[noop]=true;
+				dump_script=false;				
+				;;
+			--script )
+				dump_script=true;
+				noop=true;
+				overrides[noop]=true;
+				dump_json=false;
 				;;
 			--pretty )
 				pretty=true;
