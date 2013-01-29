@@ -267,13 +267,21 @@ The root directory for multi-module projects, when bake(1) is executing at the r
 
 The `target` directory relative to `${root}` used by bake(1) for staging files.
 
-* `log`:
+* `profile`:
 
-The path to the log file used by task-deploy(7).
+The name of the profile currently being deployed.
+
+* `deploy_target`:
+
+The final target directory used for the deployment.
 
 * `deploy_name`:
 
-The human readable name used by task-deploy(7), for example: project@0.0.1.
+The human readable name used by task-deploy(7). This is the project name and version delimited by @, for example: project@0.0.1.
+
+* `deploy_file_name`:
+
+The prefix used when defining file names. Uses - as the delimiter, for example: project-0.0.1.
 
 * `script_name`:
 
@@ -281,7 +289,21 @@ The name of the script that will be used by task-deploy(7) for deployment.
 
 * `script`:
 
-The path to the script that will be used for deployment.
+The path to the script that will be used to perform deployment.
+
+* `log`:
+
+The path to the log file used by task-deploy(7).
+
+* `logging`:
+
+A boolean indicating whether output is being redirected to the file defined by the *log* variable.
+
+* `deploy_type`:
+
+The type of deployment being performed.
+
+### EXAMPLE
 
 An example that uses npm(1) to create a tarball, moves it to the `target` directory and copies the tarball to a remote host:
 

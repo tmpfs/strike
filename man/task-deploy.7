@@ -350,7 +350,7 @@ The general syntax for declaring commands is:
         "post": [
             {
                 "command": "echo",
-                "options": [ "deployment complete" ]
+                "options": [ "deployment complete $deploy_name" ]
             }
         ]
     }
@@ -400,6 +400,137 @@ You have two options to remedy this scenario\. You may either decide to separate
 .
 .P
 So that the \fIlib\fR and \fIman\fR are passed as separate arguments to \fIls\fR\. Or you may use the \fB\-\-expand\fR option to allow parameter expansion on command options\. You should only use the \fB\-\-expand\fR option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed\.
+.
+.SS "COMMAND ENVIRONMENT"
+Commands executing in a \fIlocal\fR context have access to the entire bake(1) variable scope chain which means that there are some useful variables exposed to your commands\.
+.
+.TP
+\fBproject_name\fR:
+
+.
+.P
+The name of the project\.
+.
+.TP
+\fBproject_version\fR:
+
+.
+.P
+The project version\.
+.
+.TP
+\fBroot\fR:
+
+.
+.P
+The project root directory\.
+.
+.TP
+\fBproject\fR:
+
+.
+.P
+The root directory for multi\-module projects, when bake(1) is executing at the root of a multi\-module project then \fBroot\fR and \fBproject\fR point to the same directory\.
+.
+.TP
+\fBtarget\fR:
+
+.
+.P
+The \fBtarget\fR directory relative to \fB${root}\fR used by bake(1) for staging files\.
+.
+.TP
+\fBprofile\fR:
+
+.
+.P
+The name of the profile currently being deployed\.
+.
+.TP
+\fBdeploy_target\fR:
+
+.
+.P
+The final target directory used for the deployment\.
+.
+.TP
+\fBdeploy_name\fR:
+
+.
+.P
+The human readable name used by task\-deploy(7)\. This is the project name and version delimited by @, for example: project@0\.0\.1\.
+.
+.TP
+\fBdeploy_file_name\fR:
+
+.
+.P
+The prefix used when defining file names\. Uses \- as the delimiter, for example: project\-0\.0\.1\.
+.
+.TP
+\fBscript_name\fR:
+
+.
+.P
+The name of the script that will be used by task\-deploy(7) for deployment\.
+.
+.TP
+\fBscript\fR:
+
+.
+.P
+The path to the script that will be used to perform deployment\.
+.
+.TP
+\fBlog\fR:
+
+.
+.P
+The path to the log file used by task\-deploy(7)\.
+.
+.TP
+\fBlogging\fR:
+
+.
+.P
+A boolean indicating whether output is being redirected to the file defined by the \fIlog\fR variable\.
+.
+.TP
+\fBdeploy_type\fR:
+
+.
+.P
+The type of deployment being performed\.
+.
+.SS "EXAMPLE"
+An example that uses npm(1) to create a tarball, moves it to the \fBtarget\fR directory and copies the tarball to a remote host:
+.
+.IP "" 4
+.
+.nf
+
+"commands": {
+    "local": {
+        "pre": [
+            {
+                "command": "npm",
+                "options": [ "pack" ]
+            },
+            {
+                "command": "mv",
+                "options": [ "$project_name\-$project_version\.tgz", "target" ]
+            },
+            {
+                "command": "scp",
+                "options": [ "target/$project_name\-$project_version\.tgz", "user@example\.com:~/" ]
+            }
+        ]
+    }
+}
+.
+.fi
+.
+.IP "" 0
 .
 .SH "NOTIFICATIONS"
 If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent for a \fBnoop\fR which is the case if the \fB\-\-noop\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
