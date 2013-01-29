@@ -760,8 +760,6 @@ tasks.deploy() {
 		deploy_target="${deploy_target}/${profile}";
 	fi
 	
-	echo "set deploy_target to $deploy_target";	
-	
 	# NOTE: this reading commands should be done
 	# NOTE: after setting all relevant variables
 	# NOTE: so that all variables are available to commands being
@@ -910,14 +908,14 @@ tasks.deploy() {
 			exe="${json_doc[${group}.$i.command]:-}";
 			if [ -z "$exe" ]; then
 				console.error "invalid command in %s" "$descriptor";
-				console.quit 1 "%s may not be a blank string" "command";
+				:tasks.deploy.fail "%s may not be a blank string" "command";
 			fi
 			
 			# echo "got exe: $exe";
 			
 			if [[ "$exe" =~ $whitespace ]]; then
 				console.error "invalid command in %s" "$descriptor";
-				console.quit 1 "%s may not contain whitespace" "command";
+				:tasks.deploy.fail "%s may not contain whitespace" "command";
 			fi
 			
 			jl="${json_doc[${group}.$i.options.length]:-0}";
