@@ -101,7 +101,7 @@ The projects meta information is stored in a file named *projects.json* in the `
 
 ## EXIT CODES
 
-An exit code >0 indicates the operation failed, whilst 0 is success.
+A >0 exit code indicates failure while a 0 exit code indicates success.
 
 ## BUGS
 

@@ -130,6 +130,10 @@ The path to the staging directory.
 
 Use *shell* for the script shebang. Must be one of *sh*, *bash*, *zsh* or *dash*.
 
+* `--log`:
+
+Redirect *stdout* to `target/deploy.log`.
+
 * `--flat`:
 
 Do not include the profile name in the deployment target directory.
@@ -157,6 +161,18 @@ Print commands but do not execute them.
 ## NOTIFICATIONS
 
 If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are not sent when the `--json` or `--noop` options are specified.
+
+## FILES
+
+When the `--log` option is specified *stdout* is redirected to `target/deploy.log`.
+
+The script file is written to `target` using the following naming strategy:
+
+	${name}-${version}-${profile}.sh
+
+## EXIT CODES
+
+A >0 exit code indicates failure while a 0 exit code indicates success.
 
 ## EXAMPLES
 
@@ -214,13 +230,14 @@ tasks.deploy() {
 	# name validation regex
 	local re="^[-a-zA-Z0-9]+$";
 	
+	local log="${target}/deploy.log";
+	local logging=false;
+	
 	# non-operation
 	local noop=false;
 
 	# valid deployment types
 	local types=( git tar );
-
-	:tasks.deploy.parse;
 	
 	local profiles=();
 	
@@ -298,6 +315,8 @@ tasks.deploy() {
 	
 	:tasks.deploy.profiles.uniq!;
 	
+	:tasks.deploy.parse;	
+	
 	# update some json dump properties after option parsing
 	json_dump["project-name"]="${project_name}";	
 	json_dump["descriptor"]="${descriptor}";
@@ -316,9 +335,9 @@ tasks.deploy() {
 	messages[fail]="deploy ${deploy_name} failed";	
 	
 	# validate whitespace on the project name
-	:tasks.whitespace.validate "${project_name}" "project name";
+	:tasks.deploy.whitespace.validate "${project_name}" "project name";
 	# validate whitespace on the staging property
-	:tasks.whitespace.validate "${staging}" "staging";
+	:tasks.deploy.whitespace.validate "${staging}" "staging";
 	
 	# validate the shell in use
 	if ! array.contains? "$shell" "${shells[@]}"; then
@@ -402,6 +421,10 @@ tasks.deploy() {
 	# override default settings from user defined deploy.json
 	:tasks.deploy.json.read;
 	
+	local start_time=$( date )
+	
+	:tasks.deploy.out.info "%s" "${start_time}";
+	
 	local script_name="${deploy_file_name}-${profile}.sh";
 	local script="${target}/${script_name}";
 	local log_name="${deploy_file_name}-${profile}.log";
@@ -477,23 +500,33 @@ tasks.deploy() {
 		done
 	# otherwise print out information to stdout
 	else
-		console.info "deploy %s" "${deploy_name}";	
-		console.info "profile %s" "${profile}";	
-		console.info "noop %s" "${noop}";
-		console.info "shell %s" "${shell_info}";
-		console.info "script %s" "${script}";
-		console.info "remote working directory %s" "${directory}";
-		console.info "remote staging directory %s" "${staging}";
-		console.info "remote log file %s" "${log_file}";
-		console.info "git remote %s" "${git_remote_url}";
-		console.info "git branch %s" "${git_branch}";
-		console.info "host %s" "${host}";
+		:tasks.deploy.out.info "deploy %s" "${deploy_name}";	
+		:tasks.deploy.out.info "profile %s" "${profile}";	
+		:tasks.deploy.out.info "noop %s" "${noop}";
+		:tasks.deploy.out.info "shell %s" "${shell}";
+		:tasks.deploy.out.info "script %s" "${script}";
+		:tasks.deploy.out.info "remote working directory %s" "${directory}";
+		:tasks.deploy.out.info "remote staging directory %s" "${staging}";
+		:tasks.deploy.out.info "remote log file %s" "${log_file}";
+		:tasks.deploy.out.info "git remote %s" "${git_remote_url}";
+		:tasks.deploy.out.info "git branch %s" "${git_branch}";
+		:tasks.deploy.out.info "host %s" "${host}";
+	fi
+}
+
+# output an info message to stdout or
+# the log file if logging
+:tasks.deploy.out.info() {
+	if ! $logging; then
+		console.info "$@";
+	else
+		console.info "$@" >> "${log}" 2>&1;
 	fi
 }
 
 # validate variable value does not contain
 # whitespace: space or tab character
-:tasks.whitespace.validate() {
+:tasks.deploy.whitespace.validate() {
 	local value="${1:-}";
 	local name="${2:-}";
 	# staging directory cannot contain whitespace
@@ -608,7 +641,8 @@ EOF
 	local mk_staging='mkdir -p '${staging}'';
 
 	# test if the staging directory exists
-	console.info "${executables[ssh]} %s %s" "${host}" "${test_staging}";
+	:tasks.deploy.out.info "${executables[ssh]} %s %s" \
+		"${host}" "${test_staging}";
 	local exists=0;
 	if ! $noop; then
 		exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
@@ -616,16 +650,19 @@ EOF
 
 	# create remote staging directory if it does not exist
 	if [ $exists -gt 0 ]; then
-		console.info "${executables[ssh]} %s %s" "${host}" "${mk_staging}";
+		:tasks.deploy.out.info "${executables[ssh]} %s %s" \
+			"${host}" "${mk_staging}";
 		if ! $noop; then
 			( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
-				|| :tasks.deploy.fail "could not create remote staging directory %s" \
-					"${staging}";
+				|| :tasks.deploy.fail \
+				"could not create remote staging directory %s" \
+				"${staging}";
 		fi
 	fi
 
 	local remote="${host}:${staging}/${script_name}";
-	console.info "scp -p %s %s" "${script}" "${remote}";
+	:tasks.deploy.out.info "scp -p %s %s" \
+		"${script}" "${remote}";
 	if ! $noop; then
 		echo "SCP SCRIPT";
 	fi	
@@ -730,6 +767,11 @@ EOF
 				;;	
 			--include-version )
 				deploy_version=true;
+				;;
+			--log )
+				logging=true;
+				# clear the log file
+				printf "" >| "${log}";
 				;;
 			--shell )
 				shift;

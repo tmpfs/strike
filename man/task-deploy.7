@@ -212,6 +212,13 @@ The path to the staging directory\.
 Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \fIzsh\fR or \fIdash\fR\.
 .
 .TP
+\fB\-\-log\fR:
+
+.
+.P
+Redirect \fIstdout\fR to \fBtarget/deploy\.log\fR\.
+.
+.TP
 \fB\-\-flat\fR:
 
 .
@@ -255,6 +262,25 @@ Print commands but do not execute them\.
 .
 .SH "NOTIFICATIONS"
 If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent when the \fB\-\-json\fR or \fB\-\-noop\fR options are specified\.
+.
+.SH "FILES"
+When the \fB\-\-log\fR option is specified \fIstdout\fR is redirected to \fBtarget/deploy\.log\fR\.
+.
+.P
+The script file is written to \fBtarget\fR using the following naming strategy:
+.
+.IP "" 4
+.
+.nf
+
+${name}\-${version}\-${profile}\.sh
+.
+.fi
+.
+.IP "" 0
+.
+.SH "EXIT CODES"
+A >0 exit code indicates failure while a 0 exit code indicates success\.
 .
 .SH "EXAMPLES"
 Deploy using the default profile:
