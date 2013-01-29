@@ -430,6 +430,8 @@ tasks.deploy() {
 	
 	local log="${deploy_target_directory}/deploy.log";
 	local logging=false;
+	# clear the log file
+	printf "" >| "${log}";	
 	
 	# non-operation
 	local noop=false;
@@ -498,7 +500,7 @@ tasks.deploy() {
 	local success=false;
 	
 	# parse options
-	:tasks.deploy.options.parse "$@";
+	:tasks.deploy.options.parse "$@";	
 	
 	# human readable name using @ delimiter
 	# must be set after option parsing in case a --name
@@ -511,6 +513,12 @@ tasks.deploy() {
 	local log_name="${deploy_file_name}-${profile}.log";
 	local log_dir="${staging}/log";
 	local log_file="${log_dir}/${log_name}";	
+	
+	# messages
+	declare -A messages;
+	# messages sent via `growlnotify`
+	messages[success]="deploy ${deploy_name} complete";
+	messages[fail]="deploy ${deploy_name} failed";	
 	
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;
@@ -535,12 +543,6 @@ tasks.deploy() {
 		do
 			json_dump["targets.$i"]="${profiles[$i]}";
 	done
-	
-	# messages
-	declare -A messages;
-	# messages sent via `growlnotify`
-	messages[success]="deploy ${deploy_name} complete";
-	messages[fail]="deploy ${deploy_name} failed";	
 	
 	# validate whitespace on the project name
 	:tasks.deploy.whitespace.validate "${project_name}" "project name";
@@ -1093,8 +1095,14 @@ ${opt}";
 	fi
 }
 
+# parse the deploy descriptor as JSON
 :tasks.deploy.parse() {
-	json.parse < "${descriptor}";	
+	json_exit=false;
+	json.parse < "${descriptor}" >> "$log" 2>&1;
+	if [ $json_exit_code -gt 0 ]; then
+		console.error "invalid json in %s" "$descriptor";
+		:tasks.deploy.fail "stack trace in %s" "$log";
+	fi
 }
 
 :tasks.deploy.script.write!() {
@@ -1343,8 +1351,6 @@ EOF
 				;;
 			--log )
 				logging=true;
-				# clear the log file
-				printf "" >| "${log}";
 				;;
 			--shell )
 				shift;
