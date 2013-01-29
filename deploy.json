@@ -5,7 +5,7 @@
 		"local": {
 			"pre": [								
 				{
-					"command": ""
+					"command": "pwd"
 				}
 			],
 			"post": [

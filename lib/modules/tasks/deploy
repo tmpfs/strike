@@ -247,8 +247,6 @@ So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may
 
 Commands executing in a *local* context have access to the entire bake(1) variable scope chain which means that there are some useful variables exposed to your commands.
 
-If you reference a variable that is unbound in a command the program will exit immediately with a >0 exit code and an error message.
-
 * `project_name`:
 
 The name of the project.
@@ -339,6 +337,12 @@ An example that uses npm(1) to create a tarball, moves it to the `target` direct
 			]
 		}
 	}
+	
+### COMMAND ERRORS
+
+Commands (declared by the *command* property) may not contain any whitespace (space, tab or newline). It is a JSON error to declare literal whitespace characters such as \\n or \\t, if these are specified using the escaped values (allowed by JSON) the program will exit with a whitespace error.
+
+If you reference a variable that is unbound in a command the program will exit immediately with a >0 exit code and an error message.
 
 ## NOTIFICATIONS
 
@@ -895,6 +899,8 @@ tasks.deploy() {
 	local varname="$4";
 	local i j jl exe opt cmd;
 	
+	local whitespace="[ 	"'\n'"]";
+	
 	# echo "GROUP READ !!! : $group";
 	# echo "GROUP READ !!! : ${!json_doc[*]}";
 	
@@ -904,7 +910,14 @@ tasks.deploy() {
 			exe="${json_doc[${group}.$i.command]:-}";
 			if [ -z "$exe" ]; then
 				console.error "invalid command in %s" "$descriptor";
-				console.quit 1 "command may not be a blank string";
+				console.quit 1 "%s may not be a blank string" "command";
+			fi
+			
+			# echo "got exe: $exe";
+			
+			if [[ "$exe" =~ $whitespace ]]; then
+				console.error "invalid command in %s" "$descriptor";
+				console.quit 1 "%s may not contain whitespace" "command";
 			fi
 			
 			jl="${json_doc[${group}.$i.options.length]:-0}";

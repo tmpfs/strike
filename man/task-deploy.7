@@ -553,6 +553,12 @@ An example that uses npm(1) to create a tarball, moves it to the \fBtarget\fR di
 .
 .IP "" 0
 .
+.SS "COMMAND ERRORS"
+If you reference a variable that is unbound in a command the program will exit immediately with a >0 exit code and an error message\.
+.
+.P
+Commands (declared by the \fIcommand\fR property) may not contain any whitespace\. It is a JSON error to declare literal whitespace characters such as \en or \et\.
+.
 .SH "NOTIFICATIONS"
 If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent for a \fBnoop\fR which is the case if the \fB\-\-noop\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
 .
