@@ -635,14 +635,25 @@ tasks.deploy() {
 				exe="${arr[0]}";
 				opt=( ${arr[@]:1} );
 				:tasks.deploy.out.info "run %s %s" "${exe}" "${opt[*]:-}";
-				#echo "run command : ${exe} : ${opt[@]:-}";
+				
+				# echo "run command : ${exe} : ${opt[@]:-}";
+				
+				# # validate the executable being executed
+				executable.validate --test "${exe}";
+				if [ -z "${executables[$exe]}" ]; then
+					:tasks.deploy.fail "executable %s is not available" "$exe";
+				fi
+				
+				# echo "run command (after validation) : ${exe} : ${opt[@]:-}";				
 				
 				# execute the command
 				if ! $noop; then
 					if ! $logging; then
-						"${exe}" ${opt[*]:-};
+						"${exe}" ${opt[@]:-} \
+							|| :tasks.deploy.fail "execution error %s" "$cmd";
 					else
-						"${exe}" ${opt[*]:-} >> "${log}" 2>&1;
+						"${exe}" ${opt[@]:-} >> "${log}" 2>&1 \
+							|| :tasks.deploy.fail "execution error %s" "$cmd";
 					fi
 				fi
 			fi

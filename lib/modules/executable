@@ -56,7 +56,7 @@ require(3)
 ronn:markdown
 
 function executable.validate {
-	local cmd="";
+	local opt cmd="";
 	local strict=true;
 	if [ "$1" == "--test" ]; then
 		strict=false;
