@@ -164,6 +164,30 @@ Write the deployment settings to `target/deploy/settings.json`. If used in conju
 
 Dump script(s) to *stdout*, implies `--noop`. If this option is used in conjunction with `--json` the last option will take preference. Note that when this option is used the script(s) are still written to `target/deploy`.
 
+* `--no-local`:
+
+Shortcut for combining `--no-local-pre` and `--no-local-post`.
+
+* `--no-local-pre`:
+
+Do not execute the pre-deployment commands on the local host.
+
+* `--no-local-post`:
+
+Do not execute the post-deployment commands on the local host.
+
+* `--no-remote`:
+
+Shortcut for combining `--no-remote-pre` and `--no-remote-post`.
+
+* `--no-remote-pre`:
+
+Do not execute the pre-deployment commands on the remote host.
+
+* `--no-remote-post`:
+
+Do not execute the post-deployment commands on the remote host.
+
 * `--noop`:
 
 Print commands but do not execute them.
@@ -255,6 +279,14 @@ tasks.deploy() {
 	
 	# non-operation
 	local noop=false;
+	
+	# stores flags used to skip command
+	# execution phases
+	declare -A skip;
+	skip["local.pre"]=false;
+	skip["local.post"]=false;
+	skip["remote.pre"]=false;
+	skip["remote.post"]=false;
 
 	# valid deployment types
 	local types=( git tar );
@@ -507,6 +539,10 @@ tasks.deploy() {
 	fi
 
 	if ! $dump_script && ! $dump_json; then
+
+		# run local pre-deployment command execution
+		:tasks.deploy.run.pre;
+		
 		echo "perform deployment !!!";
 		# local debug testing
 		# :tasks.script.debug;
@@ -514,6 +550,9 @@ tasks.deploy() {
 
 		# scp the script to the remote server
 		# :tasks.deploy.script.push!;		
+		
+		# run local post-deployment command execution
+		:tasks.deploy.run.post;
 	fi
 	
 	# clean up
@@ -564,6 +603,50 @@ tasks.deploy() {
 	if [ -n "${overrides[directory]:-}" ]; then
 		directory="${overrides[directory]}";
 	fi
+}
+
+# run pre-deployment local commands
+:tasks.deploy.run.pre() {
+	if "${skip["local.pre"]}"; then
+		return 0;
+	fi
+	# echo "run local pre-deployment commands:  ${commands_local_pre[@]:-}";
+	:tasks.deploy.run "commands_local_pre";
+}
+
+# run post-deployment local commands
+:tasks.deploy.run.post() {
+	if "${skip["local.post"]}"; then
+		return 0;
+	fi
+	# echo "run local post-deployment commands: ${commands_local_post[@]:-}";
+	:tasks.deploy.run "commands_local_post";
+}
+
+# run a set of local commands
+:tasks.deploy.run() {
+	local varname="$1";
+	local cmd commands arr exe opt;
+	eval commands="( \"\${$varname[@]:-}\" )";
+	for cmd in "${commands[@]:-}"
+		do
+			arr=( ${cmd} );
+			if [ ${#arr[@]} -gt 0 ]; then
+				exe="${arr[0]}";
+				opt=( ${arr[@]:1} );
+				:tasks.deploy.out.info "run %s %s" "${exe}" "${opt[*]:-}";
+				#echo "run command : ${exe} : ${opt[@]:-}";
+				
+				# execute the command
+				if ! $noop; then
+					if ! $logging; then
+						"${exe}" ${opt[*]:-};
+					else
+						"${exe}" ${opt[*]:-} >> "${log}" 2>&1;
+					fi
+				fi
+			fi
+	done
 }
 
 # read in commands
@@ -741,9 +824,10 @@ tasks.deploy() {
 		:tasks.deploy.out.info "noop %s" "${noop}";
 		:tasks.deploy.out.info "shell %s" "${shell}";
 		:tasks.deploy.out.info "script %s" "${script}";
-		:tasks.deploy.out.info "remote working directory %s" "${directory}";
-		:tasks.deploy.out.info "remote staging directory %s" "${staging}";
-		:tasks.deploy.out.info "remote log file %s" "${log_file}";
+		:tasks.deploy.out.info "working directory %s" "${directory}";
+		:tasks.deploy.out.info "staging directory %s" "${staging}";
+		:tasks.deploy.out.info "target %s" "${deploy_target}";
+		:tasks.deploy.out.info "log file %s" "${log_file}";
 		:tasks.deploy.out.info "git url %s" "${git_url}";
 		:tasks.deploy.out.info "git branch %s" "${git_branch}";
 		:tasks.deploy.out.info "host %s" "${host}";
@@ -1002,6 +1086,26 @@ EOF
 				;;	
 			--include-version )
 				deploy_version=true;
+				;;
+			--no-local )
+				skip["local.pre"]=true;
+				skip["local.post"]=true;
+				;;
+			--no-local-pre )
+				skip["local.pre"]=true;
+				;;
+			--no-local-post )
+				skip["local.post"]=true;
+				;;
+			--no-remote )
+				skip["remote.pre"]=true;
+				skip["remote.post"]=true;
+				;;
+			--no-remote-pre )
+				skip["remote.pre"]=true;
+				;;
+			--no-remote-post )
+				skip["remote.post"]=true;
 				;;
 			--log )
 				logging=true;

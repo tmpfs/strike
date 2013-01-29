@@ -5,8 +5,17 @@
 		"local": {
 			"pre": [
 				{
-					"command": "./bake",
-					"options": [ "test" ]
+					"command": "pwd"
+				},
+				{
+					"command": "ls",
+					"options": [ "-la" ]
+				}				
+			],
+			"post": [
+				{
+					"command": "echo",
+					"options": [ "deployment complete (command)" ]
 				}
 			]
 		}
