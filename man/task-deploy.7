@@ -181,7 +181,7 @@ The directory used on the remote server for staging deployment scripts, default 
 
 .
 .P
-The deployment directory\. When this option is specified it overrides any directory values specified in \fIdeploy\.json\fR for all profiles\.
+Use \fIdirectory\fR for deployment\. When this option is specified it overrides any directory specified in \fIdeploy\.json\fR for all profiles\.
 .
 .TP
 \fB\-\-host [user@host]\fR:
@@ -216,7 +216,7 @@ Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \f
 
 .
 .P
-Redirect \fIstdout\fR message to \fBtarget/deploy/deploy\.log\fR\. Note that when using with the \fB\-\-json\fR option that the JSON document is always sent to \fIstdout\fR\.
+Redirect \fIstdout\fR messages to \fBtarget/deploy/deploy\.log\fR\. Note that when using the \fB\-\-json\fR option that the JSON document is always sent to \fIstdout\fR\.
 .
 .TP
 \fB\-\-flat\fR:
@@ -237,7 +237,7 @@ Include version information in the target directory\.
 
 .
 .P
-Perform a deployment locally\.
+Perform a deployment on the local host\.
 .
 .TP
 \fB\-\-json\fR:
@@ -269,6 +269,48 @@ Write the deployment settings to \fBtarget/deploy/settings\.json\fR\. If used in
 .
 .P
 Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
+.
+.TP
+\fB\-\-no\-local\fR:
+
+.
+.P
+Shortcut for combining \fB\-\-no\-local\-pre\fR and \fB\-\-no\-local\-post\fR\.
+.
+.TP
+\fB\-\-no\-local\-pre\fR:
+
+.
+.P
+Do not execute the pre\-deployment commands on the local host\.
+.
+.TP
+\fB\-\-no\-local\-post\fR:
+
+.
+.P
+Do not execute the post\-deployment commands on the local host\.
+.
+.TP
+\fB\-\-no\-remote\fR:
+
+.
+.P
+Shortcut for combining \fB\-\-no\-remote\-pre\fR and \fB\-\-no\-remote\-post\fR\.
+.
+.TP
+\fB\-\-no\-remote\-pre\fR:
+
+.
+.P
+Do not execute the pre\-deployment commands on the remote host\.
+.
+.TP
+\fB\-\-no\-remote\-post\fR:
+
+.
+.P
+Do not execute the post\-deployment commands on the remote host\.
 .
 .TP
 \fB\-\-noop\fR:

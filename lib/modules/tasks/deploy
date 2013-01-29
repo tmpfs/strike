@@ -112,7 +112,7 @@ The directory used on the remote server for staging deployment scripts, default 
 
 * `--directory [directory]`:
 
-The deployment directory. When this option is specified it overrides any directory values specified in *deploy.json* for all profiles.
+Use *directory* for deployment. When this option is specified it overrides any directory specified in *deploy.json* for all profiles.
 
 * `--host [user@host]`:
 
@@ -132,7 +132,7 @@ Use *shell* for the script shebang. Must be one of *sh*, *bash*, *zsh* or *dash*
 
 * `--log`:
 
-Redirect *stdout* message to `target/deploy/deploy.log`. Note that when using with the `--json` option that the JSON document is always sent to *stdout*.
+Redirect *stdout* messages to `target/deploy/deploy.log`. Note that when using the `--json` option that the JSON document is always sent to *stdout*.
 
 * `--flat`:
 
@@ -144,7 +144,7 @@ Include version information in the target directory.
 
 * `--local`:
 
-Perform a deployment locally.
+Perform a deployment on the local host.
 
 * `--json`:
 
