@@ -188,6 +188,10 @@ Do not execute the pre-deployment commands on the remote host.
 
 Do not execute the post-deployment commands on the remote host.
 
+* `--expand`:
+
+Do not quote command options. When this options is set parameter expansion is performed on command options declared in a deployment descriptor.
+
 * `--noop`:
 
 Print commands but do not execute them.
@@ -1124,9 +1128,9 @@ EOF
 			--pretty )
 				pretty=true;
 				;;
-			--no-quote )
+			--expand )
 				quote=false;
-				;;				
+				;;
 			--flat )
 				flat=true;
 				;;	
