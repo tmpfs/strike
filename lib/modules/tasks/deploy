@@ -324,13 +324,7 @@ tasks.deploy() {
 	local log_file="${log_dir}/${log_name}";	
 	
 	# validate the descriptor after option parsing
-	:tasks.deploy.descriptor.validate;	
-
-	# TODO: reinstate this test for each profile
-	# verify deployment type is valid
-	# if ! array.contains? "${deploy_type:-}" "${types[@]}"; then
-	# 	console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
-	# fi
+	:tasks.deploy.descriptor.validate;
 
 	local default_profile="default";
 	# attempt to deploy the default profile
@@ -450,16 +444,31 @@ tasks.deploy() {
 
 # deploy a single profile
 :tasks.deploy.profile() {
+	# commands to execute on local and remote
+	declare -a commands_local_pre;
+	declare -a commands_local_post;
+	declare -a commands_remote_pre;
+	declare -a commands_remote_post;
+	
+	commands_local_pre=();
+	commands_local_post=();
+	commands_remote_pre=();
+	commands_remote_post=();
+	
 	# override default settings from user defined deploy.json
 	:tasks.deploy.json.read;
+	
+	# echo "commands_local_pre (length) : ${#commands_local_pre[@]:-}";
+	# echo "commands_local_pre (keys) : ${!commands_local_pre[@]:-}";
+	# echo "commands_local_pre (values) : ${commands_local_pre[@]:-}";	
+	
+	# if array.is.array? "commands_local_pre"; then
+	# 	echo "commands_local_pre is an array :)";
+	# fi	
 	
 	local start_time=$( date )
 	
 	:tasks.deploy.out.info "%s" "${start_time}";
-	
-	# commands to execute on local and remote
-	declare -A local_commands;
-	declare -A remote_commands;
 		
 	local script_name="${deploy_file_name}-${profile}.sh";
 	local script_dir="${deploy_target_directory}";
@@ -487,6 +496,11 @@ tasks.deploy() {
 	# ready to start, output useful settings information
 	:tasks.deploy.info;	
 	
+	# verify deployment type is valid
+	if ! array.contains? "${deploy_type:-}" "${types[@]}"; then
+		console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
+	fi
+	
 	if ! $dump_json; then
 		# write the deploy script file
 		:tasks.deploy.script.write!;
@@ -503,10 +517,13 @@ tasks.deploy() {
 	fi
 	
 	# clean up
+	unset deploy_type;
 	unset host;
 	unset directory;
-	unset local_commands;
-	unset remote_commands;
+	unset commands_local_pre;
+	unset commands_local_post;	
+	unset commands_remote_pre;
+	unset commands_remote_post;
 }
 
 # reads in the json data overrriding
@@ -515,34 +532,30 @@ tasks.deploy() {
 	
 	# USE DOCUMENT ROOT SETTINGS
 	
-	# always prefer the default host in deploy.json
 	if [ -n "${json_doc[host]:-}" ]; then
 		host="${json_doc[host]}";
 	fi
-	
-	# lookup any custom working directory
 	if [ -n "${json_doc[directory]:-}" ]; then
 		directory="${json_doc[directory]}";
-	fi	
+	fi
+	# read in default commands
+	:tasks.deploy.commands.read;
 	
 	# USE PROFILE SPECIFIC SETTINGS
 	
-	# try a host specified in a profile
 	if [ -n "${json_doc[profiles.${profile}.host]:-}" ];then
 		host="${json_doc[profiles.${profile}.host]}";
 	fi
-
-	# try a directory specified in a profile
 	if [ -n "${json_doc[profiles.${profile}.directory]:-}" ];then
 		directory="${json_doc[profiles.${profile}.directory]}";
 	fi
-
-	# try a deploy type specified in the profile
 	if [ -n "${json_doc[profiles.${profile}.type]:-}" ];then
 		deploy_type="${json_doc[profiles.${profile}.type]}";
 	fi
+	# read in profile specific commands
+	:tasks.deploy.commands.read "profiles.${profile}";
 	
-	# USE COMMNAD LINE OPTIONS
+	# USE COMMAND LINE OPTION OVERRIDES
 	
 	# command line options that override deploy.json settings
 	if [ -n "${overrides[host]:-}" ]; then
@@ -551,6 +564,107 @@ tasks.deploy() {
 	if [ -n "${overrides[directory]:-}" ]; then
 		directory="${overrides[directory]}";
 	fi
+}
+
+# read in commands
+:tasks.deploy.commands.read() {
+	local prefix="${1:-}";
+	if [ -z "$prefix" ]; then
+		prefix="commands";
+	else
+		prefix="${prefix}.commands";
+	fi
+	
+	# echo "reading commands with prefix: $prefix";
+	
+	local local_pre_length="${json_doc[${prefix}.local.pre.length]:-0}";
+	local local_post_length="${json_doc[${prefix}.local.post.length]:-0}";
+	local remote_pre_length="${json_doc[${prefix}.remote.pre.length]:-0}";
+	local remote_post_length="${json_doc[${prefix}.remote.post.length]:-0}";
+	if [ $local_pre_length -gt 0 ]; then
+		:tasks.deploy.commands.read.group \
+			"$prefix" \
+			"${prefix}.local.pre" \
+			$local_pre_length \
+			"commands_local_pre"
+	fi
+	if [ $local_post_length -gt 0 ]; then
+		:tasks.deploy.commands.read.group \
+			"$prefix" \
+			"${prefix}.local.post" \
+			$local_post_length \
+			"commands_local_post"
+	fi
+	if [ $remote_pre_length -gt 0 ]; then
+		:tasks.deploy.commands.read.group \
+			"$prefix" \
+			"${prefix}.remote.pre" \
+			$remote_pre_length \
+			"commands_remote_pre"
+	fi
+	if [ $remote_post_length -gt 0 ]; then
+		:tasks.deploy.commands.read.group \
+			"$prefix" \
+			"${prefix}.remote.post" \
+			$remote_post_length \
+			"commands_remote_post"
+	fi	
+}
+
+# read in a group of commands
+:tasks.deploy.commands.read.group() {
+	local prefix="$1";
+	local group="$2";
+	local length="$3";
+	local varname="$4";
+	local i j jl exe opt cmd;
+	
+	# echo "GROUP READ !!! : $group";
+	# echo "GROUP READ !!! : ${!json_doc[*]}";
+	
+	for((i = 0;i < $length;i++))
+		do
+			cmd="";
+			exe="${json_doc[${group}.$i.command]:-}";
+			if [ -z "$exe" ]; then
+				continue;
+			fi
+			
+			jl="${json_doc[${group}.$i.options.length]:-0}";
+			
+			# echo "read command at index $i : $group : $exe"
+			
+			if [ -n "$exe" ]; then
+				cmd="${exe}";
+			fi
+			
+			for((j = 0;j < $jl;j++))
+				do
+					opt="${json_doc[${group}.$i.options.$j]}";
+					cmd="${cmd} ${opt}";
+			done
+			
+			if [ -n "${cmd}" ]; then
+				# echo "ADDING COMMAND ($varname) : ${cmd}";
+				eval "${varname}+=( \"${cmd}\" )";
+
+				# DEBUG
+				# local keys;
+				# eval keys="\${!$varname[*]}";
+				# echo "keys after add: $keys";
+				# local values;
+				# eval values="\${$varname[*]}";
+				# echo "values after add: $values";
+			fi
+	done
+	
+	# echo "commands_local_pre (read group) (length) : ${#commands_local_pre[@]:-}";
+	# echo "commands_local_pre (read group) (keys) : ${!commands_local_pre[@]:-}";
+	# echo "commands_local_pre (read group) (values) : ${commands_local_pre[@]:-}";
+	# 
+	# if array.is.array? "commands_local_pre"; then
+	# 	echo "commands_local_pre (read group) is an array :)";
+	# fi
 }
 
 # either outputs configuration information
@@ -583,15 +697,41 @@ tasks.deploy() {
 		git_url
 		git_branch
 		host
+		commands_local_pre
+		commands_local_post
+		commands_remote_pre
+		commands_remote_post
 	);
+	local value k len;
 	for var in "${vars[@]}"
 		do
 			# replace first underscore with a dot to group
 			# as object on variable names with the same prefix
 			key="${var/_/.}";
-			key="${key//_/-}";
-			variable.get "$var";
-			json_dump["profiles.${profile}.$key"]="$_result";
+			if ! array.is.array? "${var}" && ! array.is.assoc? "${var}"; then
+				key="${key//_/-}";
+				variable.get "${var}";
+				value="${_result:-}";
+				if [ -n "${value}" ]; then
+					json_dump["profiles.${profile}.$key"]="$value";
+				fi
+			else
+				key="${var//_/.}";
+				#echo "ADD ARRAY CONTENTS:::!!! $key : $var"
+				eval "keys=( \${!$var[@]} )";
+				eval len="\${#$var[@]}";
+				if [ $len -gt 0 ]; then
+					# echo "add with array length : ${len}";
+					for k in "${keys[@]:-}"
+						do
+							eval value="\${$var[$k]}";
+							# echo "adding array element : $k : $value"
+							if [ -n "${value}" ]; then
+								json_dump["profiles.${profile}.${key}.${k}"]="$value";
+							fi
+					done
+				fi
+			fi
 	done
 	
 	# otherwise print out information to stdout

@@ -1,12 +1,32 @@
 {
 	"host": "cyberfunk@jet.freeformsystems.com",
 	"directory": "~/www",
+	"commands": {
+		"local": {
+			"pre": [
+				{
+					"command": "./bake",
+					"options": [ "test" ]
+				}
+			]
+		}
+	},
 	"profiles": {
 		"test":{ "type": "git" },
 		"stage":{ "type": "git" },
 		"development":{
 			"type": "git",
-			"local": true
+			"local": true,
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "echo",
+							"options": [ "hi" ]
+						}
+					]
+				}
+			}			
 		},
 		"production":{ "type": "git" }
 	}
