@@ -9,7 +9,7 @@
 				},
 				{
 					"command": "ls",
-					"options": [ "-la", "man target" ]
+					"options": [ "-la", "lib man" ]
 				}				
 			],
 			"post": [

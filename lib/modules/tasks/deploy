@@ -629,36 +629,49 @@ tasks.deploy() {
 # run a set of local commands
 :tasks.deploy.run() {
 	local varname="$1";
-	local cmd commands arr exe opt;
+	local cmd commands arr exe opt exit_code;
 	eval commands="( \"\${$varname[@]:-}\" )";
 	for cmd in "${commands[@]:-}"
 		do
 			#echo "cmd is : ${cmd}";
+			local IFS=$'\n';
 			arr=( ${cmd} );
+			unset IFS;
 			if [ ${#arr[@]} -gt 0 ]; then
 				#echo "arr length is :: ${#arr[@]}";
 				exe="${arr[0]}";
-				opt=( ${arr[@]:1} );
+				local IFS=$'\n';
+				opt=( "${arr[@]:1}" );
+				unset IFS;
 				:tasks.deploy.out.info "run %s %s" "${exe}" "${opt[*]:-}";
 				
 				# echo "run command : ${exe} : ${opt[@]:-}";
 				
-				# # validate the executable being executed
+				# validate the executable being executed
 				executable.validate --test "${exe}";
 				if [ -z "${executables[$exe]}" ]; then
 					:tasks.deploy.fail "executable %s is not available" "$exe";
 				fi
 				
-				#echo "run command (after validation) : ${exe} : ${opt[@]:-} : length:  ${#opt[@]}";	
+				#echo "run command (after validation) : ${exe} : ${opt[@]:-} : length:  ${#opt[@]}";
 				
 				# execute the command
 				if ! $noop; then
 					if ! $logging; then
-						${exe} ${opt[@]:-} \
-							|| :tasks.deploy.fail "execution error %s" "$cmd";
+						if $quote; then
+							${exe} "${opt[@]:-}"; exit_code=$?;
+						else
+							${exe} ${opt[@]:-}; exit_code=$?;
+						fi
 					else
-						${exe} ${opt[@]:-} >> "${log}" 2>&1 \
-							|| :tasks.deploy.fail "execution error %s" "$cmd";
+						if $quote; then
+							${exe} "${opt[@]:-}" >> "${log}" 2>&1; exit_code=$?;
+						else
+							${exe} ${opt[@]:-} >> "${log}" 2>&1; exit_code=$?;
+						fi
+					fi
+					if [ $exit_code -gt 0 ]; then
+						:tasks.deploy.fail "execution error %s %s" "$exe" "${opt[*]:-}";
 					fi
 				fi
 			fi
@@ -749,14 +762,17 @@ tasks.deploy() {
 					
 					#opt="\\\"$opt\\\"";
 
-					cmd="${cmd} ${opt}";
+					cmd="${cmd}
+${opt}";
 					
 					#cmd="${cmd} ${opt}";
 			done
 			
 			if [ -n "${cmd}" ]; then
 				# echo "ADDING COMMAND ($varname) : ${cmd}";
+				#local IFS=$'\n';
 				eval "${varname}+=( \"${cmd}\" )";
+				#unset IFS;
 
 				# DEBUG
 				# local keys;
@@ -1108,6 +1124,9 @@ EOF
 			--pretty )
 				pretty=true;
 				;;
+			--no-quote )
+				quote=false;
+				;;				
 			--flat )
 				flat=true;
 				;;	
