@@ -1,6 +1,6 @@
 {
 	"host": "cyberfunk@jet.freeformsystems.com",
-	"directory": "~/git",
+	"directory": "~/www",
 	"profiles": {
 		"test":{ "type": "git" },
 		"stage":{ "type": "git" },
