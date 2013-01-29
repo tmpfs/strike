@@ -534,51 +534,51 @@ tasks.deploy() {
 	if [ -n "${overrides[directory]:-}" ]; then
 		directory="${overrides[directory]}";
 	fi
-	if [ -n "${overrides[noop]:-}" ]; then
-		noop="${overrides[noop]}";
-	fi
 }
 
 # either outputs configuration information
 # for the profile being processed or prints
 # a json document 
 :tasks.deploy.info() {
-	if $dump_json; then
-		
-		local script_file="${script}";
-		local script_shell="${shell}";		
-		local script_shebang="${shebang}";	
-		
-		# variable names to inspect for
-		# each profile being processed
-		local var key vars=(
-			deploy_name
-			deploy_file_name
-			deploy_type
-			deploy_target
-			script_shell
-			script_shebang			
-			script_file
-			script_dir
-			directory
-			staging
-			log_file
-			log_dir
-			git_url
-			git_branch
-			host
-		);
-		for var in "${vars[@]}"
-			do
-				# replace first underscore with a dot to group
-				# as object on variable names with the same prefix
-				key="${var/_/.}";
-				key="${key//_/-}";
-				variable.get "$var";
-				json_dump["profiles.${profile}.$key"]="$_result";
-		done
+
+	# always build up the json settings so that
+	# this data can be written to a file when
+	# performing a deployment
+	local script_file="${script}";
+	local script_shell="${shell}";
+	local script_shebang="${shebang}";
+	
+	# variable names to inspect for
+	# each profile being processed
+	local var key vars=(
+		deploy_name
+		deploy_file_name
+		deploy_type
+		deploy_target
+		script_shell
+		script_shebang			
+		script_file
+		script_dir
+		directory
+		staging
+		log_file
+		log_dir
+		git_url
+		git_branch
+		host
+	);
+	for var in "${vars[@]}"
+		do
+			# replace first underscore with a dot to group
+			# as object on variable names with the same prefix
+			key="${var/_/.}";
+			key="${key//_/-}";
+			variable.get "$var";
+			json_dump["profiles.${profile}.$key"]="$_result";
+	done
+	
 	# otherwise print out information to stdout
-	else
+	if ! $dump_json && ! $dump_script; then
 		:tasks.deploy.out.info "deploy %s" "${deploy_name}";	
 		:tasks.deploy.out.info "profile %s" "${profile}";	
 		:tasks.deploy.out.info "noop %s" "${noop}";
@@ -805,7 +805,6 @@ EOF
 		case $1 in
 			--noop )
 				noop=true;
-				overrides[noop]=true;				
 				;;
 			--staging )
 				shift;
@@ -817,13 +816,11 @@ EOF
 			--json )
 				dump_json=true;
 				noop=true;
-				overrides[noop]=true;
 				dump_script=false;				
 				;;
 			--script )
 				dump_script=true;
 				noop=true;
-				overrides[noop]=true;
 				dump_json=false;
 				;;
 			--pretty )
