@@ -205,6 +205,13 @@ Use \fIfile\fR as the deployment descriptor\.
 The path to the staging directory\.
 .
 .TP
+\fB\-\-shell [shell]\fR:
+
+.
+.P
+Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \fIzsh\fR or \fIdash\fR\.
+.
+.TP
 \fB\-\-flat\fR:
 
 .
@@ -263,6 +270,19 @@ bake deploy
 .IP "" 0
 .
 .P
+Deploy using the default profile locally:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-local
+.
+.fi
+.
+.IP "" 0
+.
+.P
 Inspect deployment commands:
 .
 .IP "" 4
@@ -309,7 +329,6 @@ Inspect the settings used for a \fIdefault\fR deployment:
 .nf
 
 bake deploy \-\-json \-\-pretty \e
-    \-\-local \e
     \-\-staging ~/project\-staging \e
     \-\-name project \e
     \-\-directory ~/www

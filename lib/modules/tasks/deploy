@@ -126,6 +126,10 @@ Use *file* as the deployment descriptor.
 
 The path to the staging directory.
 
+* `--shell [shell]`:
+
+Use *shell* for the script shebang. Must be one of *sh*, *bash*, *zsh* or *dash*.
+
 * `--flat`:
 
 Do not include the profile name in the deployment target directory.
@@ -160,6 +164,10 @@ Deploy using the default profile:
 
 	bake deploy
 	
+Deploy using the default profile locally:
+
+	bake deploy --local
+	
 Inspect deployment commands:
 
 	bake deploy --noop
@@ -175,7 +183,6 @@ Deploy the profiles *test*, *stage* and *production*:
 Inspect the settings used for a *default* deployment:
 
 	bake deploy --json --pretty \\
-		--local \\
 		--staging ~/project-staging \\
 		--name project \\
 		--directory ~/www
@@ -232,12 +239,15 @@ tasks.deploy() {
 	# command line options that override
 	# properties set in deploy.json
 	declare -A overrides;
+	
+	# list of supported shells
+	local shells=( sh bash zsh dash );
 
 	# default to git deployment
 	local deploy_type="git";
 	local profile="default";
 	local directory="";
-	local shell="${bake_deploy_shell:-}";
+	local shell="${bake_deploy_shell:-sh}";
 	local host="${bake_deploy_remote:-}";
 	local staging="${bake_deploy_staging:-~/.deploy}";
 	local git_remote_url git_branch;
@@ -252,12 +262,6 @@ tasks.deploy() {
 	# dumped as json
 	declare -A json_dump;
 	json_dump["project-version"]="${project_version}";
-
-	# SHELL PROPERTIES
-	local shell_options=();
-	if [ "${shell}" == "bash" ]; then
-		shell_options+=( --posix );
-	fi
 
 	# assume failure
 	local success=false;
@@ -314,7 +318,13 @@ tasks.deploy() {
 	# validate whitespace on the project name
 	:tasks.whitespace.validate "${project_name}" "project name";
 	# validate whitespace on the staging property
-	:tasks.whitespace.validate "${staging}" "staging";	
+	:tasks.whitespace.validate "${staging}" "staging";
+	
+	# configure the shebang
+	local shebang="#!/bin/sh";
+	if [ "${shell}" != "sh" ]; then
+		shebang="#!/usr/bin/env ${shell}";
+	fi
 	
 	# deploy all profiles
 	:tasks.deploy.profiles;
@@ -427,8 +437,12 @@ tasks.deploy() {
 # for the profile being processed or prints
 # a json document 
 :tasks.deploy.info() {
-	local shell_info="${shell:-sh}";
 	if $print_json; then
+		
+		local script_file="${script}";
+		local script_shell="${shell}";		
+		local script_shebang="${shebang}";	
+		
 		# variable names to inspect for
 		# each profile being processed
 		local var key vars=(
@@ -436,15 +450,16 @@ tasks.deploy() {
 			deploy_file_name
 			deploy_type
 			deploy_target
-			shell_info
-			script			
-			directory			
+			script_shell
+			script_shebang			
+			script_file
+			directory
 			staging
 			log_file
 			log_dir
 			git_remote_url
-			git_branch			
-			host	
+			git_branch
+			host
 		);
 		for var in "${vars[@]}"
 			do
@@ -535,11 +550,6 @@ tasks.deploy() {
 
 	touch "${script}" \
 		|| console.quit 1 "could not create %s" "${script}";
-
-	local shebang="#!/bin/sh";
-	if [ -n "${shell}" ]; then
-		shebang="#!/usr/bin/env ${shell} ${shell_options[@]:-}";
-	fi
 
 # write the script file
 cat <<EOF >> "${script}"
@@ -715,6 +725,17 @@ EOF
 				;;	
 			--include-version )
 				deploy_version=true;
+				;;
+			--shell )
+				shift;
+				value="${1:-}";
+				if [ -z "${value}" ]; then
+					console.quit 1 "no shell specified";
+				fi
+				if ! array.contains? "$value" "${shells[@]}"; then
+					console.quit 1 "unknown shell %s" "$value";
+				fi
+				shell="${value}";
 				;;
 			--name )
 				shift;
