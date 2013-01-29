@@ -136,7 +136,7 @@ Redirect *stdout* message to `target/deploy/deploy.log`. Note that when using wi
 
 * `--flat`:
 
-Do not include the profile name in the deployment target directory.
+Do not include the profile name in the target directory.
 
 * `--include-version`:
 
@@ -148,13 +148,17 @@ Perform a deployment locally.
 
 * `--json`:
 
-Dump all profile configuration settings that would be used by a deployment as a JSON document. This implies `--noop` and no deployment is performed. This is useful to determine the settings that would be used when running a deployment.
+Dump all profile configuration settings that would be used by a deployment as a JSON document to *stdout*, implies `--noop`. This is useful to determine the settings that would be used when running a deployment.
 
 If this option is used in conjunction with `--script` the last option will take preference.
 
 * `--pretty`:
 
-Use in conjunction with the `--json` option to pretty print the JSON document.
+Use in conjunction with the `--json` option to pretty print the JSON document. Uses two spaces as the indentation.
+
+* `--write-json`:
+
+Write the deployment settings to `target/deploy/settings.json`. If used in conjunction with the `--json` option then the settings will be printed to *stdout* and written to disc. The generated document will be formatted if the `--pretty` flag has been set.
 
 * `--script`:
 
@@ -166,7 +170,7 @@ Print commands but do not execute them.
 
 ## NOTIFICATIONS
 
-If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are not sent when the `--json` or `--noop` options are specified.
+If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are not sent for a `noop` which is the case if the `--noop`, `--json` or `--script` options are specified.
 
 ## FILES
 
@@ -174,9 +178,11 @@ All generated files are written to `target/deploy`.
 
 When the `--log` option is specified *stdout* messages are redirected to `target/deploy/deploy.log`.
 
-The generated script file is written to `target/deploy` using the following naming strategy:
+The generated script file(s) are written to `target/deploy` using the following naming strategy:
 
 	${name}-${version}-${profile}.sh
+	
+If the `--write-json` option is specified then the deployment settings are written to `target/deploy/settings.json`.
 
 ## EXIT CODES
 
@@ -291,6 +297,8 @@ tasks.deploy() {
 	# JSON PROPERTIES
 	# determines whether we are generating json
 	local dump_json=false;
+	local write_json=false;
+	local json_settings_file="${deploy_target_directory}/settings.json";
 	local pretty=false;
 	# array used to store properties to be
 	# dumped as json
@@ -412,15 +420,22 @@ tasks.deploy() {
 			fi
 			:tasks.deploy.profile;
 	done
-	# dump json information
-	if $dump_json; then
+	# dump/write json information
+	if $dump_json || $write_json; then
 		if ! $pretty; then
 			json.stringify <<< "json_dump";
 		else
 			json.stringify --pretty 2 <<< "json_dump";
 		fi
-		json.string;
-		printf "\n";
+		if $dump_json; then
+			json.string;
+			printf "\n";
+		fi
+		if $write_json; then
+			printf "" >| "$json_settings_file";
+			json.string >> "$json_settings_file";
+			printf "\n" >> "$json_settings_file";
+		fi
 	fi
 }
 
@@ -830,6 +845,9 @@ EOF
 				dump_json=true;
 				noop=true;
 				dump_script=false;				
+				;;
+			--write-json )
+				write_json=true;
 				;;
 			--script )
 				dump_script=true;

@@ -216,14 +216,14 @@ Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \f
 
 .
 .P
-Redirect \fIstdout\fR message to \fBtarget/deploy\.log\fR\. Note that when using with the \fB\-\-json\fR option that the JSON document is always sent to \fIstdout\fR\.
+Redirect \fIstdout\fR message to \fBtarget/deploy/deploy\.log\fR\. Note that when using with the \fB\-\-json\fR option that the JSON document is always sent to \fIstdout\fR\.
 .
 .TP
 \fB\-\-flat\fR:
 
 .
 .P
-Do not include the profile name in the deployment target directory\.
+Do not include the profile name in the target directory\.
 .
 .TP
 \fB\-\-include\-version\fR:
@@ -244,7 +244,7 @@ Perform a deployment locally\.
 
 .
 .P
-Dump all profile configuration settings that would be used by a deployment as a JSON document\. This implies \fB\-\-noop\fR and no deployment is performed\. This is useful to determine the settings that would be used when running a deployment\.
+Dump all profile configuration settings that would be used by a deployment as a JSON document to \fIstdout\fR, implies \fB\-\-noop\fR\. This is useful to determine the settings that would be used when running a deployment\.
 .
 .P
 If this option is used in conjunction with \fB\-\-script\fR the last option will take preference\.
@@ -254,14 +254,21 @@ If this option is used in conjunction with \fB\-\-script\fR the last option will
 
 .
 .P
-Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON document\.
+Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON document\. Uses two spaces as the indentation\.
+.
+.TP
+\fB\-\-write\-json\fR:
+
+.
+.P
+Write the deployment settings to \fBtarget/deploy/settings\.json\fR\. If used in conjunction with the \fB\-\-json\fR option then the settings will be printed to \fIstdout\fR and written to disc\. The generated document will be formatted if the \fB\-\-pretty\fR flag has been set\.
 .
 .TP
 \fB\-\-script\fR:
 
 .
 .P
-Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\.
+Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
 .
 .TP
 \fB\-\-noop\fR:
@@ -271,13 +278,16 @@ Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used 
 Print commands but do not execute them\.
 .
 .SH "NOTIFICATIONS"
-If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent when the \fB\-\-json\fR or \fB\-\-noop\fR options are specified\.
+If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent for a \fBnoop\fR which is the case if the \fB\-\-noop\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
 .
 .SH "FILES"
-When the \fB\-\-log\fR option is specified \fIstdout\fR is redirected to \fBtarget/deploy\.log\fR\.
+All generated files are written to \fBtarget/deploy\fR\.
 .
 .P
-The script file is written to \fBtarget\fR using the following naming strategy:
+When the \fB\-\-log\fR option is specified \fIstdout\fR messages are redirected to \fBtarget/deploy/deploy\.log\fR\.
+.
+.P
+The generated script file(s) are written to \fBtarget/deploy\fR using the following naming strategy:
 .
 .IP "" 4
 .
@@ -288,6 +298,9 @@ ${name}\-${version}\-${profile}\.sh
 .fi
 .
 .IP "" 0
+.
+.P
+If the \fB\-\-write\-json\fR option is specified then the deployment settings are written to \fBtarget/deploy/settings\.json\fR\.
 .
 .SH "EXIT CODES"
 A >0 exit code indicates failure while a 0 exit code indicates success\.
