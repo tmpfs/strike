@@ -115,8 +115,8 @@ function git.branch.message {
 # retrieve the remote url for <name> a git repository
 # and assign to variable name defined by $2
 function git.remote.url {
-	local name="${1:-origin}";
-	local varname="${2:-git_remote_url}";
+	local varname="${1:-git_remote_url}";
+	local name="${2:-origin}";
 	if git.exists?; then
 		local url=$( "${executables[git]}" config --get "remote.${name}.url" );
 		eval "$varname=\"$url\"";

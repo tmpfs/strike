@@ -267,8 +267,8 @@ tasks.deploy() {
 	local shell="${bake_deploy_shell:-sh}";
 	local host="${bake_deploy_remote:-}";
 	local staging="${bake_deploy_staging:-~/.deploy}";
-	local git_remote_url git_branch;
-	git.remote.url;
+	local git_url git_branch;
+	git.remote.url "git_url";
 	git.branch.current "git_branch";
 	
 	# JSON PROPERTIES
@@ -485,7 +485,7 @@ tasks.deploy() {
 			staging
 			log_file
 			log_dir
-			git_remote_url
+			git_url
 			git_branch
 			host
 		);
@@ -508,7 +508,7 @@ tasks.deploy() {
 		:tasks.deploy.out.info "remote working directory %s" "${directory}";
 		:tasks.deploy.out.info "remote staging directory %s" "${staging}";
 		:tasks.deploy.out.info "remote log file %s" "${log_file}";
-		:tasks.deploy.out.info "git remote %s" "${git_remote_url}";
+		:tasks.deploy.out.info "git url %s" "${git_url}";
 		:tasks.deploy.out.info "git branch %s" "${git_branch}";
 		:tasks.deploy.out.info "host %s" "${host}";
 	fi
