@@ -572,12 +572,15 @@ bake() {
 		if [ ! -d "${target}" ]; then
 			mkdir -p "${target}";
         fi
-
+		
+		# TODO: extract name/version from package.json
+		# if bake_use_npm is set and package.json exists
+		
         local project_name;
         fs.basename "${root}" "project_name";
 
-        local project_version="0.0.0";
         # TODO: use task/semver to retrieve version information
+        local project_version="0.0.0";
         if [ -f "${root}/version" ]; then
             project_version=$( cat "${root}/version" );
         fi

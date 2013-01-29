@@ -3,19 +3,15 @@
 	"directory": "~/www",
 	"commands": {
 		"local": {
-			"pre": [
+			"pre": [								
 				{
 					"command": "pwd"
-				},
-				{
-					"command": "ls",
-					"options": [ "-la", "lib man" ]
-				}				
+				}
 			],
 			"post": [
 				{
 					"command": "echo",
-					"options": [ "deployment complete (command)" ]
+					"options": [ "deployment complete $deploy_name $target $staging $script $deploy_target" ]
 				}
 			]
 		}

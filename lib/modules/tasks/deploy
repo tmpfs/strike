@@ -215,7 +215,7 @@ The general syntax for declaring commands is:
 			"post": [
 				{
 					"command": "echo",
-					"options": [ "deployment complete" ]
+					"options": [ "deployment complete $deploy_name" ]
 				}
 			]
 		}
@@ -241,7 +241,68 @@ You have two options to remedy this scenario. You may either decide to separate 
 		"options": [ "-la", "lib", "man" ]
 	}
 	
-So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may use the `--expand` option to allow parameter expansion on command options. You should only use the `--expand` option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed.	
+So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may use the `--expand` option to allow parameter expansion on command options. You should only use the `--expand` option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed.
+
+### COMMAND ENVIRONMENT
+
+Commands executing in a *local* context have access to the entire bake(1) variable scope chain which means that there are some useful variables exposed to your commands.
+
+* `project_name`:
+
+The name of the project.
+
+* `project_version`:
+
+The project version.
+
+* `root`:
+
+The project root directory.
+
+* `project`:
+
+The root directory for multi-module projects, when bake(1) is executing at the root of a multi-module project then `root` and `project` point to the same directory.
+
+* `target`:
+
+The `target` directory relative to `${root}` used by bake(1) for staging files.
+
+* `log`:
+
+The path to the log file used by task-deploy(7).
+
+* `deploy_name`:
+
+The human readable name used by task-deploy(7), for example: project@0.0.1.
+
+* `script_name`:
+
+The name of the script that will be used by task-deploy(7) for deployment.
+
+* `script`:
+
+The path to the script that will be used for deployment.
+
+An example that uses npm(1) to create a tarball, moves it to the `target` directory and copies the tarball to a remote host:
+
+	"commands": {
+		"local": {
+			"pre": [
+				{
+					"command": "npm",
+					"options": [ "pack" ]
+				},
+				{
+					"command": "mv",
+					"options": [ "$project_name-$project_version.tgz", "target" ]
+				},
+				{
+					"command": "scp",
+					"options": [ "target/$project_name-$project_version.tgz", "user@example.com:~/" ]
+				}
+			]
+		}
+	}
 
 ## NOTIFICATIONS
 
@@ -351,7 +412,7 @@ tasks.deploy() {
 	local deploy_local=false;
 	
 	# include version information in the target
-	local deploy_version=false;
+	local include_version=false;
 	
 	# dump script contents to stdout
 	local dump_script=false;
@@ -541,9 +602,6 @@ tasks.deploy() {
 	commands_remote_pre=();
 	commands_remote_post=();
 	
-	# override default settings from user defined deploy.json
-	:tasks.deploy.json.read;
-	
 	# echo "commands_local_pre (length) : ${#commands_local_pre[@]:-}";
 	# echo "commands_local_pre (keys) : ${!commands_local_pre[@]:-}";
 	# echo "commands_local_pre (values) : ${commands_local_pre[@]:-}";	
@@ -565,14 +623,14 @@ tasks.deploy() {
 	
 	# TODO: allow for the version to be included in the target directory
 	local target_name="${project_name}";
-	if $deploy_version; then
+	if $include_version; then
 		target_name="${deploy_file_name}";
 	fi
-	# set up the full deployment target directory
-	local deploy_target="${directory}/${target_name}";
-	if ! $flat; then
-		deploy_target="${deploy_target}/${profile}";
-	fi
+	# the full deployment target directory
+	local deploy_target;
+	
+	# override default settings from user defined deploy.json
+	:tasks.deploy.json.read;	
 	
 	# validate required data
 	if ! $deploy_local && [ -z "${host}" ]; then
@@ -631,8 +689,6 @@ tasks.deploy() {
 	if [ -n "${json_doc[directory]:-}" ]; then
 		directory="${json_doc[directory]}";
 	fi
-	# read in default commands
-	:tasks.deploy.commands.read;
 	
 	# USE PROFILE SPECIFIC SETTINGS
 	
@@ -645,8 +701,6 @@ tasks.deploy() {
 	if [ -n "${json_doc[profiles.${profile}.type]:-}" ];then
 		deploy_type="${json_doc[profiles.${profile}.type]}";
 	fi
-	# read in profile specific commands
-	:tasks.deploy.commands.read "profiles.${profile}";
 	
 	# USE COMMAND LINE OPTION OVERRIDES
 	
@@ -657,6 +711,25 @@ tasks.deploy() {
 	if [ -n "${overrides[directory]:-}" ]; then
 		directory="${overrides[directory]}";
 	fi
+	
+	# set up the full deployment target directory
+	deploy_target="${directory}/${target_name}";
+	if ! $flat; then
+		deploy_target="${deploy_target}/${profile}";
+	fi
+	
+	echo "set deploy_target to $deploy_target";	
+	
+	# NOTE: this reading commands should be done
+	# NOTE: after setting all relevant variables
+	# NOTE: so that all variables are available to commands being
+	# NOTE: declared in the deploy.json descriptor	
+	
+	# read in default commands
+	:tasks.deploy.commands.read;
+	
+	# read in profile specific commands
+	:tasks.deploy.commands.read "profiles.${profile}";		
 }
 
 # run pre-deployment local commands
@@ -694,7 +767,7 @@ tasks.deploy() {
 				local IFS=$'\n';
 				opt=( "${arr[@]:1}" );
 				unset IFS;
-				:tasks.deploy.out.info "run %s %s" "${exe}" "${opt[*]:-}";
+				:tasks.deploy.out.info "exec %s %s" "${exe}" "${opt[*]:-}";
 				
 				# echo "run command : ${exe} : ${opt[@]:-}";
 				
@@ -989,7 +1062,7 @@ ${shebang}
 # type: ${deploy_type}
 # local: ${deploy_local}
 # flat: ${flat}
-# include version: ${deploy_version}
+# include version: ${include_version}
 # staging: ${staging}
 # directory: ${directory}
 # target: ${deploy_target}
@@ -1184,7 +1257,7 @@ EOF
 				flat=true;
 				;;	
 			--include-version )
-				deploy_version=true;
+				include_version=true;
 				;;
 			--no-local )
 				skip["local.pre"]=true;
