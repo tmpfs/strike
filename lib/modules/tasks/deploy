@@ -192,9 +192,20 @@ tasks.deploy() {
 	# determine if we are deploying locally
 	local deploy_local=false;
 
+	# strategy used to determine the target
+	# directory. the default is to include
+	# the profile name in the target directory
+	# structure
+	local flat=false;
+	
+	# command line options that override
+	# properties set in deploy.json
+	declare -A overrides;
+
 	# default to git deployment
 	local deploy_type="git";
 	local profile="default";
+	local directory="";
 	local shell="${bake_deploy_shell:-}";
 	local host="${bake_deploy_remote:-}";
 	local staging="${bake_deploy_staging:-~/.deploy}";
@@ -206,8 +217,7 @@ tasks.deploy() {
 	local script="${target}/${script_name}";
 	local log_name="${deploy_file_name}-${profile}.log";
 	local log_dir="${staging}/log";
-	local log_file="${log_dir}/${log_name}";
-	local directory="${2:-~/}";
+	local log_file="${log_dir}/${log_name}";	
 	local git_remote_url git_branch;
 	git.remote.url;
 	git.branch.current "git_branch";
@@ -241,10 +251,6 @@ tasks.deploy() {
 	messages[success]="deploy ${deploy_name} complete";
 	messages[fail]="deploy ${deploy_name} failed";
 	
-	
-	# override default settings from user defined deploy.json
-	:tasks.deploy.json.read;	
-	
 	# parse options
 	:tasks.deploy.options.parse "$@";
 	
@@ -256,10 +262,6 @@ tasks.deploy() {
 	# if ! array.contains? "${deploy_type:-}" "${types[@]}"; then
 	# 	console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
 	# fi
-
-	if ! $deploy_local && [ -z "${host}" ]; then
-		console.quit 1 "no remote host information available for deploy";
-	fi
 
 	local default_profile="default";
 	# attempt to deploy the default profile
@@ -319,6 +321,10 @@ tasks.deploy() {
 					continue;
 				fi
 			fi
+			# quit on invalid profile name in the deploy descriptor
+			if ! :tasks.name.valid? "${profile}"; then
+				:tasks.name.quit "profile" "$1";
+			fi
 			:tasks.deploy.profile;
 	done
 	# dump json information
@@ -344,9 +350,30 @@ tasks.deploy() {
 
 # deploy a single profile
 :tasks.deploy.profile() {
-	local deploy_target="${directory}/${project_name}";	
+	# override default settings from user defined deploy.json
+	:tasks.deploy.json.read;
 	
-	:tasks.deploy.info;
+	local script_name="${deploy_file_name}-${profile}.sh";
+	local script="${target}/${script_name}";
+	local log_name="${deploy_file_name}-${profile}.log";
+	local log_dir="${staging}/log";
+	local log_file="${log_dir}/${log_name}";
+	
+	# TODO: allow for the version to be included in the target directory
+	local target_name="${project_name}";
+	# set up the full deployment target directory
+	local deploy_target="${directory}/${target_name}";
+	if ! $flat; then
+		deploy_target="${deploy_target}/${profile}";
+	fi
+	
+	# validate required data
+	if ! $deploy_local && [ -z "${host}" ]; then
+		console.quit 1 "no remote host information available for deploy";
+	fi
+	
+	# ready to start, output useful settings information
+	:tasks.deploy.info;	
 	
 	# write the deploy script file
 	# :tasks.deploy.script.write!;
@@ -448,14 +475,17 @@ tasks.deploy() {
 		directory="${json_doc[profiles.${profile}.directory]}";
 	fi
 
-	# lookup any custom deployment type
-	if [ -n "${json_doc[type]:-}" ]; then
-		deploy_type="${json_doc[type]}";
-	fi
-
 	# try a deploy type specified in the profile
 	if [ -n "${json_doc[profiles.${profile}.type]:-}" ];then
 		deploy_type="${json_doc[profiles.${profile}.type]}";
+	fi
+	
+	# command line options that override deploy.json
+	if [ -n "${overrides[host]:-}" ]; then
+		host="${overrides[host]}";
+	fi
+	if [ -n "${overrides[directory]:-}" ]; then
+		directory="${overrides[directory]}";
 	fi
 }
 
@@ -660,7 +690,7 @@ EOF
 				if [ -z "${value}" ]; then
 					console.quit 1 "no directory specified";
 				fi
-				directory="${value}";
+				overrides[directory]="${value}";
 				;;
 			--host )
 				shift;
@@ -668,7 +698,7 @@ EOF
 				if [ -z "${value}" ]; then
 					console.quit 1 "no host specified";
 				fi
-				host="${value}";
+				overrides[host]="${value}";
 				;;
 			--descriptor )
 				shift;
