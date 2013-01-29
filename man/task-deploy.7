@@ -126,7 +126,7 @@ The directory used on the remote server for staging deployment scripts, default 
 
 .
 .P
-The deployment directory\. When this option is specified it overrides any directory values specified in \fIdeploy\.json\fR for \fIall\fR profiles\.
+The deployment directory\. When this option is specified it overrides any directory values specified in \fIdeploy\.json\fR for all profiles\.
 .
 .TP
 \fB\-\-host [user@host]\fR:
@@ -140,7 +140,7 @@ The scp(1) and ssh(1) \fIuser@host\fR specification\. When this option is specif
 
 .
 .P
-The \fIdeploy\.json\fR descriptor to use for this deployment\.
+Use \fIfile\fR as the deployment descriptor\.
 .
 .TP
 \fB\-\-staging [directory]\fR:
@@ -148,6 +148,13 @@ The \fIdeploy\.json\fR descriptor to use for this deployment\.
 .
 .P
 The path to the staging directory\.
+.
+.TP
+\fB\-\-flat\fR:
+
+.
+.P
+Do not include the profile name in the deployment target directory\.
 .
 .TP
 \fB\-\-local\fR:
@@ -161,7 +168,7 @@ Perform a deployment locally\.
 
 .
 .P
-Dump all profile configuration settings that would be used by a deployment as a JSON document\. This implies \fB\-\-noop\fR and no deployment is performed\. This is useful to determine what settings would be used when running a deployment\.
+Dump all profile configuration settings that would be used by a deployment as a JSON document\. This implies \fB\-\-noop\fR and no deployment is performed\. This is useful to determine the settings that would be used when running a deployment\.
 .
 .TP
 \fB\-\-pretty\fR:
@@ -194,7 +201,7 @@ bake deploy
 .IP "" 0
 .
 .P
-Inspect deployment commands with \fB\-\-noop\fR:
+Inspect deployment commands:
 .
 .IP "" 4
 .

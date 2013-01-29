@@ -92,7 +92,7 @@ The directory used on the remote server for staging deployment scripts, default 
 
 * `--directory [directory]`:
 
-The deployment directory. When this option is specified it overrides any directory values specified in *deploy.json* for *all* profiles.
+The deployment directory. When this option is specified it overrides any directory values specified in *deploy.json* for all profiles.
 
 * `--host [user@host]`:
 
@@ -100,11 +100,15 @@ The scp(1) and ssh(1) *user@host* specification. When this option is specified i
 
 * `--descriptor [file]`:
 
-The *deploy.json* descriptor to use for this deployment.
+Use *file* as the deployment descriptor.
 
 * `--staging [directory]`:
 
 The path to the staging directory.
+
+* `--flat`:
+
+Do not include the profile name in the deployment target directory.
 
 * `--local`:
 
@@ -112,7 +116,7 @@ Perform a deployment locally.
 
 * `--json`:
 
-Dump all profile configuration settings that would be used by a deployment as a JSON document. This implies `--noop` and no deployment is performed. This is useful to determine what settings would be used when running a deployment.
+Dump all profile configuration settings that would be used by a deployment as a JSON document. This implies `--noop` and no deployment is performed. This is useful to determine the settings that would be used when running a deployment.
 
 * `--pretty`:
 
@@ -673,6 +677,9 @@ EOF
 			--pretty )
 				pretty=true;
 				;;
+			--flat )
+				flat=true;
+				;;				
 			--name )
 				shift;
 				value="${1:-}";
