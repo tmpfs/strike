@@ -4,7 +4,9 @@
 	"profiles": {
 		"test":{ "type": "git" },
 		"stage":{ "type": "git" },
-		"development":{ "type": "git" },
+		"development":{
+			"type": "git"
+		},
 		"production":{ "type": "git" }
 	}
 }
