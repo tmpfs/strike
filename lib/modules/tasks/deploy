@@ -320,6 +320,11 @@ tasks.deploy() {
 	# validate whitespace on the staging property
 	:tasks.whitespace.validate "${staging}" "staging";
 	
+	# validate the shell in use
+	if ! array.contains? "$shell" "${shells[@]}"; then
+		console.quit 1 "shell %s is not supported" "$shell";
+	fi
+	
 	# configure the shebang
 	local shebang="#!/bin/sh";
 	if [ "${shell}" != "sh" ]; then
@@ -731,9 +736,6 @@ EOF
 				value="${1:-}";
 				if [ -z "${value}" ]; then
 					console.quit 1 "no shell specified";
-				fi
-				if ! array.contains? "$value" "${shells[@]}"; then
-					console.quit 1 "unknown shell %s" "$value";
 				fi
 				shell="${value}";
 				;;
