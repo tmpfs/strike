@@ -451,7 +451,7 @@ The name of the profile currently being deployed\.
 
 .
 .P
-The final target directory used for the deployment\.
+The final target directory used for the deployment, see the \fBTARGET\fR section\.
 .
 .TP
 \fBdeploy_name\fR:
@@ -500,7 +500,28 @@ A boolean indicating whether output is being redirected to the file defined by t
 
 .
 .P
-The type of deployment being performed\.
+The type of deployment being performed, see the \fBTYPES\fR section\.
+.
+.TP
+\fBnoop\fR:
+
+.
+.P
+A boolean indicating if this deployment is a non\-operation, will be \fItrue\fR if the \fB\-\-noop\fR option has been specified\.
+.
+.TP
+\fBflat\fR:
+
+.
+.P
+A boolean indicating if a flat directory structure is being used, see the \fBTARGET\fR section\.
+.
+.TP
+\fBinclude_version\fR:
+
+.
+.P
+A boolean indicating if version information is being included in the directory structure, see the \fBTARGET\fR section\.
 .
 .SS "EXAMPLE"
 An example that uses npm(1) to create a tarball, moves it to the \fBtarget\fR directory and copies the tarball to a remote host:

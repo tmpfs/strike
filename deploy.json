@@ -11,7 +11,7 @@
 			"post": [
 				{
 					"command": "echo",
-					"options": [ "deployment complete $deploy_name $target $staging $script $deploy_target $logging $deploy_type $profile $deploy_file_name" ]
+					"options": [ "deployment complete $noop $flat $include_version" ]
 				}
 			]
 		}

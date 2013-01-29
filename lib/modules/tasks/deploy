@@ -273,7 +273,7 @@ The name of the profile currently being deployed.
 
 * `deploy_target`:
 
-The final target directory used for the deployment.
+The final target directory used for the deployment, see the `TARGET` section.
 
 * `deploy_name`:
 
@@ -301,7 +301,19 @@ A boolean indicating whether output is being redirected to the file defined by t
 
 * `deploy_type`:
 
-The type of deployment being performed.
+The type of deployment being performed, see the `TYPES` section.
+
+* `noop`:
+
+A boolean indicating if this deployment is a non-operation, will be *true* if the `--noop` option has been specified.
+
+* `flat`:
+
+A boolean indicating if a flat directory structure is being used, see the `TARGET` section.
+
+* `include_version`:
+
+A boolean indicating if version information is being included in the directory structure, see the `TARGET` section.
 
 ### EXAMPLE
 
