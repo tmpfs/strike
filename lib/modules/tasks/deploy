@@ -20,6 +20,18 @@ You do not need to require(3) this task as it is a builtin task.
 	
 ## OPTIONS
 
+* `--ok`:
+
+Disable interactivity and assume *yes* for every prompt.
+
+* `--noop`:
+
+Print commands but do not execute them, implies `--ok` to disable interactivity.
+
+* `--name [name]`:
+
+Override the default project name (determined by the name of the parent directory), see `NAMES` for project and profile name rules.
+
 * `--directory [directory]`:
 
 Use *directory* for deployment. When this option is specified it overrides any directory specified in *deploy.json* for all profiles.
@@ -46,11 +58,11 @@ Redirect *stdout* messages to `target/deploy/deploy.log`. Note that when using t
 
 * `--flat`:
 
-Do not include the profile name in the target directory.
+Do not include the profile name in the target directory, see `TARGET` for more information.
 
 * `--include-version`:
 
-Include version information in the target directory.
+Include version information in the target directory, see `TARGET` for more information.
 
 * `--local`:
 
@@ -101,10 +113,6 @@ Do not execute the post-deployment commands on the remote host.
 * `--expand`:
 
 Do not quote command options. When this options is set parameter expansion is performed on command options declared in a deployment descriptor.
-
-* `--noop`:
-
-Print commands but do not execute them.
 	
 ## TYPES
 
@@ -460,7 +468,7 @@ If global and/or profile-specific *local* pre-deployment commands have been spec
 
 At this point the deployment process starts. When running as a *local* deployment (using `--local`) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on the remote host using scp(1).
 
-If global and/or profile-specific remote pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+If global and/or profile-specific *remote* pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
 
 The deployment script is executed to perform the deployment based on the deployment type for the profile, see `TYPES`.
 
@@ -471,6 +479,19 @@ If global and/or profile-specific *remote* post-deployment commands have been sp
 If global and/or profile-specific *local* post-deployment commands have been specified they are executed on the local host.
 
 Success or failure notifications are delivered.
+
+## INTERACTIVE
+
+Deploying code is an important process and task-deploy(7) by design presents confirmation prompt(s) to ensure you wish to proceed.
+
+This interactivity can be disabled in a variety of ways which is often necessary when executing a deployment from another program or if you are re-deploying in quick succession. The recommended way is to specify the `--ok` option.
+
+If the `--noop` option is specified interactive prompt(s) are not displayed as no commands are executed.
+
+Interactive prompts write to *stdout* and read from *stdin* you may also disable interactivity by piping to *stdin* or redirecting *stdout*. For example:
+
+	echo "" | bake deploy
+	bake deploy > target/deploy.log
 
 ## NOTIFICATIONS
 
@@ -543,6 +564,9 @@ require.once 'git';
 
 # deploy delegate
 tasks.deploy() {
+	
+	# interactive by default
+	local interactive=true;
 	
 	# the prefix used for deployment
 	# interactive prompts
@@ -1309,7 +1333,7 @@ ${opt}";
 	local callback="${1:-}";
 	# stdin or stdout is not a tty
 	# cannot interact
-	if [ ! -t 0 ] || [ ! -t 1 ]; then
+	if ! $interactive || [ ! -t 0 ] || [ ! -t 1 ]; then
 		# invoke callback to start deployment
 		$callback;
 		return 0;
@@ -1551,8 +1575,12 @@ EOF
 	local value ;
 	while test -n "${1:-}"; do
 		case $1 in
+			--ok )
+				interactive=false;
+				;;
 			--noop )
 				noop=true;
+				interactive=false;				
 				;;
 			--staging )
 				shift;

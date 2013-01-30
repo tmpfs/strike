@@ -26,6 +26,27 @@ bake deploy [options\.\.\.] [profiles\.\.\.]
 .SH "OPTIONS"
 .
 .TP
+\fB\-\-ok\fR:
+
+.
+.P
+Disable interactivity and assume \fIyes\fR for every prompt\.
+.
+.TP
+\fB\-\-noop\fR:
+
+.
+.P
+Print commands but do not execute them, implies \fB\-\-ok\fR to disable interactivity\.
+.
+.TP
+\fB\-\-name [name]\fR:
+
+.
+.P
+Override the default project name (determined by the name of the parent directory), see \fBNAMES\fR for project and profile name rules\.
+.
+.TP
 \fB\-\-directory [directory]\fR:
 
 .
@@ -72,14 +93,14 @@ Redirect \fIstdout\fR messages to \fBtarget/deploy/deploy\.log\fR\. Note that wh
 
 .
 .P
-Do not include the profile name in the target directory\.
+Do not include the profile name in the target directory, see \fBTARGET\fR for more information\.
 .
 .TP
 \fB\-\-include\-version\fR:
 
 .
 .P
-Include version information in the target directory\.
+Include version information in the target directory, see \fBTARGET\fR for more information\.
 .
 .TP
 \fB\-\-local\fR:
@@ -167,13 +188,6 @@ Do not execute the post\-deployment commands on the remote host\.
 .
 .P
 Do not quote command options\. When this options is set parameter expansion is performed on command options declared in a deployment descriptor\.
-.
-.TP
-\fB\-\-noop\fR:
-
-.
-.P
-Print commands but do not execute them\.
 .
 .SH "TYPES"
 The deploy tasks support the \fIgit\fR and \fItar\fR deployment types\.
@@ -737,19 +751,13 @@ Before profile execution starts command line options are processed that may over
 An interactive prompt is displayed asking for confirmation that you wish to deploy the profile\.
 .
 .P
-If global local pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+If global and/or profile\-specific \fIlocal\fR pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
 .
 .P
-If profile\-specific local pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+At this point the deployment process starts\. When running as a \fIlocal\fR deployment (using \fB\-\-local\fR) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on the remote host using scp(1)\.
 .
 .P
-At this point the deployment process starts\. When running as a local deployment (using \fB\-\-local\fR) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on a remote host using scp(1)\.
-.
-.P
-If global remote pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
-.
-.P
-If profile\-specific remote pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+If global and/or profile\-specific remote pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
 .
 .P
 The deployment script is executed to perform the deployment based on the deployment type for the profile, see \fBTYPES\fR\.
@@ -765,6 +773,29 @@ If global and/or profile\-specific \fIlocal\fR post\-deployment commands have be
 .
 .P
 Success or failure notifications are delivered\.
+.
+.SH "INTERACTIVE"
+Deploying code is an important process and task\-deploy(7) by design presents confirmation prompt(s) to ensure you wish to proceed\.
+.
+.P
+This interactivity can be disabled in a variety of ways which is often necessary when executing a deployment from another program or if you are re\-deploying in quick succession\. The recommended way is to specify the \fB\-\-ok\fR option\.
+.
+.P
+If the \fB\-\-noop\fR option is specified interactive prompt(s) are not displayed as no commands are executed\.
+.
+.P
+Interactive prompts write to \fIstdout\fR and read from \fIstdin\fR you may also disable interactivity by piping to \fIstdin\fR or redirecting \fIstdout\fR\. For example:
+.
+.IP "" 4
+.
+.nf
+
+echo "" | bake deploy
+bake deploy > target/deploy\.log
+.
+.fi
+.
+.IP "" 0
 .
 .SH "NOTIFICATIONS"
 If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent for a \fBnoop\fR which is the case if the \fB\-\-noop\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
