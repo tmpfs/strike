@@ -213,3 +213,4 @@ api:ronn:markdown
 declare -Ag characters;
 characters[tick]="✓";
 characters[cross]="✘";
+characters[lightning]="⚡";

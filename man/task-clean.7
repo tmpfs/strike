@@ -10,7 +10,10 @@
 Clean task(s) for bake(1)\.
 .
 .SH "DESCRIPTION"
-Removes the \fB${target}\fR directory\.
+Removes the \fBtarget\fR directory\.
+.
+.P
+The \fBtarget\fR directory is the staging directory used by bake(1) tasks\.
 .
 .SH "REQUIRE"
 You do not need to require(3) this task as it is a builtin task\.
@@ -19,9 +22,32 @@ You do not need to require(3) this task as it is a builtin task\.
 .
 .nf
 
-bake clean
+bake clean [options\.\.\.]
 .
 .fi
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-v\fR:
+
+.
+.P
+Be verbose when removing the \fBtarget\fR directory\.
+.
+.SH "INTERACTIVE"
+The clean task is interactive provided that both \fIstdin\fR and \fIstdout\fR are a \fItty\fR\. You can bypass interactivity by piping to \fIstdin\fR or redirecting \fIstdout\fR:
+.
+.IP "" 4
+.
+.nf
+
+echo "" | bake clean
+bake clean > clean\.log
+.
+.fi
+.
+.IP "" 0
 .
 .SH "BUGS"
 \fBtask\-clean\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.

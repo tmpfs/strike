@@ -8,7 +8,9 @@ Clean task(s) for bake(1).
 
 ## DESCRIPTION
 
-Removes the `${target}` directory.
+Removes the `target` directory.
+
+The `target` directory is the staging directory used by bake(1) tasks.
 
 ## REQUIRE
 
@@ -16,7 +18,20 @@ You do not need to require(3) this task as it is a builtin task.
 
 ## USAGE
 
-	bake clean
+	bake clean [options...]
+	
+## OPTIONS
+
+* `-v`:
+
+Be verbose when removing the `target` directory.
+
+## INTERACTIVE
+
+The clean task is interactive provided that both *stdin* and *stdout* are a *tty*. You can bypass interactivity by piping to *stdin* or redirecting *stdout*:
+
+	echo "" | bake clean
+	bake clean > clean.log
 
 ## BUGS
 
@@ -33,11 +48,53 @@ ronn:markdown
 
 # removes the temporary target directory
 function tasks.clean {
-	# TODO: add a prompt to ensure this is correct ?
-	if [ -d "${target}" ]; then
-		console.info "rm -rf %s" "${target}";
-		rm -rf "${target}";
-		return $?;
+	local verbose=false;
+	local rmopts="-rf";	
+	
+	# the interactive prompt
+	local prompt="\033[1m[clean]\033[0m ${characters[lightning]}";
+	
+	# option validation
+	if [ $# -gt 1 ]; then
+		console.quit 1 "too many options";
 	fi
-	return 0;
+	
+	if [ "${1:-}" == "-v" ]; then
+		verbose=true;
+		rmopts="${rmopts}v";
+	fi
+	
+	# this should never happen
+	# as bake(1) always creates `target`
+	# it's a just in case test
+	if [ ! -d "${target}" ]; then
+		console.quit 1 "%s does not exist";
+	fi
+
+	console.info "rm ${rmopts} %s" "${target}";
+	
+	accepted() {		
+		rm "${rmopts}" "${target}";
+		if [ $? -gt 0 ]; then
+			console.quit $? "could not rm %s" "$rmopts" "$target";
+		else
+			console.success;
+		fi
+	}
+
+	rejected() {
+ 		console.quit 1 "aborted %s" "${characters[cross]}";
+	}
+	
+	# cannot interact, just try to clean
+	if [ ! -t 0 ] || [ ! -t 1 ]; then
+		accepted;
+	fi
+
+	# confirmation prompt
+	prompt.boolean confirm y n "${prompt} are you sure? (y/n)";
+	prompt.accepts accepted;
+	prompt.rejects rejected;
+	prompt.show confirm;
+	prompt.clean;
 }
