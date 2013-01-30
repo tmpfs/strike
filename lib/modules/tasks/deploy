@@ -659,10 +659,45 @@ tasks.deploy() {
 	# name validation regex
 	local re="^[-a-zA-Z0-9]+$";
 	
+	# list of supported shells
+	local shells=( sh bash zsh dash );
+
+	# default to git deployment
+	local deploy_type_default="git";	
+	local deploy_type="${deploy_type_default}";
+	local profile="default";
+	local directory="";
+	local shell="${bake_deploy_shell:-sh}";
+	local host="${bake_deploy_remote:-}";
+	local staging="${bake_deploy_staging:-~/.deploy}";
+	local git_url git_branch;
+	git.remote.url "git_url";
+	git.branch.current "git_branch";	
+	
+	# human readable name using @ delimiter
+	# must be set after option parsing in case a --name
+	# option has been specified
+	local deploy_name="${project_name}@${project_version}";
+	# file name using a - delimiter	
+	local deploy_file_name="${project_name}-${project_version}";
+	
+	# profile specific variables
+	local script_name="${deploy_file_name}.sh";
+	local script="${target}/${script_name}";
+	local log_name="${deploy_file_name}.log";
+	local log_dir="${staging}/log";
+	local log_file="${log_dir}/${log_name}";
+	
+	# messages
+	declare -A messages;
+	# messages sent via `growlnotify`
+	messages[success]="deploy ${deploy_name} complete";
+	messages[fail]="deploy ${deploy_name} failed";	
+	
 	local deploy_target_directory="${target}/deploy";
 	if [ ! -d "${deploy_target_directory}" ]; then
 		mkdir -p "${deploy_target_directory}" \
-			|| console.quit 1 "could not create %s" "${deploy_target_directory}";
+			|| :tasks.deploy.fail "could not create %s" "${deploy_target_directory}";
 	fi
 	
 	local log="${deploy_target_directory}/deploy.log";
@@ -713,21 +748,6 @@ tasks.deploy() {
 	# properties set in deploy.json
 	declare -A overrides;
 	
-	# list of supported shells
-	local shells=( sh bash zsh dash );
-
-	# default to git deployment
-	local deploy_type_default="git";	
-	local deploy_type="${deploy_type_default}";
-	local profile="default";
-	local directory="";
-	local shell="${bake_deploy_shell:-sh}";
-	local host="${bake_deploy_remote:-}";
-	local staging="${bake_deploy_staging:-~/.deploy}";
-	local git_url git_branch;
-	git.remote.url "git_url";
-	git.branch.current "git_branch";
-	
 	# JSON PROPERTIES
 	# determines whether we are generating json
 	local print_json=false;
@@ -743,25 +763,7 @@ tasks.deploy() {
 	local success=false;
 	
 	# parse options
-	:tasks.deploy.options.parse "$@";	
-	
-	# human readable name using @ delimiter
-	# must be set after option parsing in case a --name
-	# option has been specified
-	local deploy_name="${project_name}@${project_version}";
-	# file name using a - delimiter	
-	local deploy_file_name="${project_name}-${project_version}";
-	local script_name="${deploy_file_name}-${profile}.sh";
-	local script="${target}/${script_name}";
-	local log_name="${deploy_file_name}-${profile}.log";
-	local log_dir="${staging}/log";
-	local log_file="${log_dir}/${log_name}";
-	
-	# messages
-	declare -A messages;
-	# messages sent via `growlnotify`
-	messages[success]="deploy ${deploy_name} complete";
-	messages[fail]="deploy ${deploy_name} failed";
+	:tasks.deploy.options.parse "$@";
 	
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;
@@ -804,7 +806,7 @@ tasks.deploy() {
 	
 	# validate the shell in use
 	if ! array.contains? "$shell" "${shells[@]}"; then
-		console.quit 1 "shell %s is not supported" "$shell";
+		:tasks.deploy.fail "shell %s is not supported" "$shell";
 	fi
 	
 	# configure the shebang
@@ -825,11 +827,11 @@ tasks.deploy() {
 # validate a descriptor file
 :tasks.deploy.descriptor.validate() {
 	if [[ ! "${descriptor}" =~ \.json$ ]]; then
-		console.quit 1 "descriptor %s does not have a .json file extension" \
+		:tasks.deploy.fail "descriptor %s does not have a .json file extension" \
 			"${descriptor}";
 	fi
 	if [ ! -f "${descriptor}" ]; then
-		console.quit 1 "no deploy descriptor %s" "${descriptor}";
+		:tasks.deploy.fail "no deploy descriptor %s" "${descriptor}";
 	fi
 }
 
@@ -898,12 +900,13 @@ tasks.deploy() {
 	# for a profile
 	declare -A profile_commands;
 	
-	local script_name="${deploy_file_name}-${profile}.sh";
-	local script_dir="${deploy_target_directory}";
-	local script="${script_dir}/${script_name}";
-	local log_name="${deploy_file_name}-${profile}.log";
-	local log_dir="${staging}/log";
-	local log_file="${log_dir}/${log_name}";
+	# update profile specific variables
+	script_name="${deploy_file_name}-${profile}.sh";
+	script_dir="${deploy_target_directory}";
+	script="${script_dir}/${script_name}";
+	log_name="${deploy_file_name}-${profile}.log";
+	log_dir="${staging}/log";
+	log_file="${log_dir}/${log_name}";
 	
 	# TODO: allow for the version to be included in the target directory
 	local target_name="${project_name}";
@@ -918,7 +921,7 @@ tasks.deploy() {
 	
 	# validate required data
 	if ! $deploy_local && [ -z "${host}" ]; then
-		console.quit 1 "no remote host information available for deploy";
+		:tasks.deploy.fail "no remote host information available for deploy";
 	fi
 	
 	# ready to start, output useful settings information
@@ -926,7 +929,7 @@ tasks.deploy() {
 	
 	# verify deployment type is valid
 	if ! array.contains? "${deploy_type:-}" "${types[@]}"; then
-		console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
+		:tasks.deploy.fail "invalid deployment type %s" "${deploy_type:-}";
 	fi
 	
 	if ! $print_json; then
@@ -1463,7 +1466,7 @@ ${opt}";
 	# so that we can perform tilde expansion
 	local re="[ 	]+";
 	if [[ "${value}" =~ $re ]]; then
-		console.quit 1 "invalid %s value %s, cannot contain whitespace" \
+		:tasks.deploy.fail "invalid %s value %s, cannot contain whitespace" \
 			"${name}" "${value}";
 	fi
 }
@@ -1506,7 +1509,7 @@ ${opt}";
 	
 	if $print_profiles; then
 		if [ "${#all_profiles[@]}" -eq 0 ]; then
-			console.quit 1 "no profiles in %s" "$descriptor";
+			:tasks.deploy.fail "no profiles in %s" "$descriptor";
 		else
 			local IFS="$newline";
 			local all="${all_profiles[@]}";
@@ -1597,7 +1600,7 @@ ${opt}";
 	local value="$2";
 	console.error "names may not start with a hyphen and must match %s" "$re";	
 	console.error "invalid $var name %s" "$value";
-	console.quit 1;
+	:tasks.deploy.fail;
 }
 
 # SCRIPT
@@ -1606,11 +1609,11 @@ ${opt}";
 	# delete any existing deploy script
 	if [ -f "${script}" ]; then
 		rm "${script}" \
-			|| console.quit 1 "could not delete %s" "${script}";
+			|| :tasks.deploy.fail "could not delete %s" "${script}";
 	fi
 
 	touch "${script}" \
-		|| console.quit 1 "could not create %s" "${script}";
+		|| :tasks.deploy.fail "could not create %s" "${script}";
 	
 	# custom script file specified
 	if [ -n "${script_source}" ]; then
@@ -1668,7 +1671,7 @@ EOF
 	fi
 
 	chmod +x "${script}" \
-		|| console.quit 1 "could not set permissions on %s" "${script}";	
+		|| :tasks.deploy.fail "could not set permissions on %s" "${script}";	
 	if $dump_script; then
 		cat "${script}";
 	fi
@@ -1789,10 +1792,10 @@ EOF
 				shift;
 				value="${1:-}";
 				if [ ! -f "${value}" ]; then
-					console.quit 1 "script file %s does not exist" "$value";
+					:tasks.deploy.fail "script file %s does not exist" "$value";
 				fi
 				if [ ! -x "${value}" ]; then
-					console.quit 1 "script file %s is not executable" "$value";
+					:tasks.deploy.fail "script file %s is not executable" "$value";
 				fi
 				script_source="${value}";
 				;;
@@ -1800,7 +1803,7 @@ EOF
 				shift;
 				value="${1:-}";
 				if [ -z "${value}" ]; then
-					console.quit 1 "no shell specified";
+					:tasks.deploy.fail "no shell specified";
 				fi
 				shell="${value}";
 				;;
@@ -1808,7 +1811,7 @@ EOF
 				shift;
 				value="${1:-}";
 				if [ -z "${value}" ]; then
-					console.quit 1 "no name specified";
+					:tasks.deploy.fail "no name specified";
 				fi
 				if ! :tasks.name.valid? "${value}"; then
 					:tasks.name.quit "project" "$value";
@@ -1819,7 +1822,7 @@ EOF
 				shift;
 				value="${1:-}";
 				if [ -z "${value}" ]; then
-					console.quit 1 "no directory specified";
+					:tasks.deploy.fail "no directory specified";
 				fi
 				overrides[directory]="${value}";
 				;;
@@ -1827,7 +1830,7 @@ EOF
 				shift;
 				value="${1:-}";
 				if [ -z "${value}" ]; then
-					console.quit 1 "no host specified";
+					:tasks.deploy.fail "no host specified";
 				fi
 				overrides[host]="${value}";
 				;;
@@ -1835,12 +1838,12 @@ EOF
 				shift;
 				value="${1:-}";
 				if [ -z "${value}" ]; then
-					console.quit 1 "no descriptor specified";
+					:tasks.deploy.fail "no descriptor specified";
 				fi
-				descriptor="${value}";		
+				descriptor="${value}";
 				;;
 			-* | --* )
-				console.quit 1 "unknown option %s" "$1";
+				:tasks.deploy.fail "unknown option %s" "$1";
 				;;
 			* )
 				if ! :tasks.name.valid? "$1"; then
