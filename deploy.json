@@ -5,21 +5,14 @@
 		"local": {
 			"pre": [
 				{
-					"command": "pwd"
-				},
-				{
 					"command": "ls",
 					"options": [ "$target" ]
-				},
-				{
-					"command": "echo",
-					"options": [ "`env`" ]
-				}				
+				}
 			],
 			"post": [
 				{
-					"command": "echo",
-					"options": [ "deployment complete $noop $flat $include_version" ]
+					"command": "console.info",
+					"options": [ "deployment complete %s", "$deploy_name" ]
 				}
 			]
 		}
@@ -27,6 +20,27 @@
 	"profiles": {
 		"test":{ "type": "git" },
 		"stage":{ "type": "git" },
+		"npm": {
+			"type": "tar",
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "npm",
+							"options": [ "pack" ]
+						},
+						{
+							"command": "mv",
+							"options": [ "$project_name-$project_version.tgz", "target" ]
+						},
+						{
+							"command": "scp",
+							"options": [ "target/$project_name-$project_version.tgz", "${host}:~/" ]
+						}
+					]
+				}
+			}
+		},
 		"development":{
 			"type": "git",
 			"local": true,
@@ -39,7 +53,7 @@
 						}
 					]
 				}
-			}			
+			}
 		},
 		"production":{ "type": "git" }
 	}

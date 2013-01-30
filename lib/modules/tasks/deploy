@@ -243,7 +243,7 @@ You have two options to remedy this scenario. You may either decide to separate 
 	
 So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may use the `--expand` option to allow parameter expansion on command options. You should only use the `--expand` option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed.
 
-### COMMAND ENVIRONMENT
+### Command Environment
 
 Commands executing in a *local* context have access to the entire bake(1) variable scope chain which means that there are some useful variables exposed to your commands.
 
@@ -315,7 +315,7 @@ A boolean indicating if a flat directory structure is being used, see the `TARGE
 
 A boolean indicating if version information is being included in the directory structure, see the `TARGET` section.
 
-### EXAMPLE
+### Example
 
 An example that uses npm(1) to create a tarball, moves it to the `target` directory and copies the tarball to a remote host:
 
@@ -338,7 +338,7 @@ An example that uses npm(1) to create a tarball, moves it to the `target` direct
 		}
 	}
 	
-### COMMAND ERRORS
+### Command Errors
 
 Commands (declared by the *command* property) may not contain any whitespace (space, tab or newline). It is a JSON error to declare literal whitespace characters such as \\n or \\t, if these are specified using the escaped values (allowed by JSON) the program will exit with a whitespace error.
 
@@ -512,13 +512,13 @@ tasks.deploy() {
 	local script="${target}/${script_name}";
 	local log_name="${deploy_file_name}-${profile}.log";
 	local log_dir="${staging}/log";
-	local log_file="${log_dir}/${log_name}";	
+	local log_file="${log_dir}/${log_name}";
 	
 	# messages
 	declare -A messages;
 	# messages sent via `growlnotify`
 	messages[success]="deploy ${deploy_name} complete";
-	messages[fail]="deploy ${deploy_name} failed";	
+	messages[fail]="deploy ${deploy_name} failed";
 	
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;
@@ -635,24 +635,14 @@ tasks.deploy() {
 
 # deploy a single profile
 :tasks.deploy.profile() {
-	# commands to execute on local and remote
-	declare -a commands_local_pre;
-	declare -a commands_local_post;
-	declare -a commands_remote_pre;
-	declare -a commands_remote_post;
 	
-	commands_local_pre=();
-	commands_local_post=();
-	commands_remote_pre=();
-	commands_remote_post=();
+	# stores command to execute
+	# for all profiles
+	declare -A global_commands;	
 	
-	# echo "commands_local_pre (length) : ${#commands_local_pre[@]:-}";
-	# echo "commands_local_pre (keys) : ${!commands_local_pre[@]:-}";
-	# echo "commands_local_pre (values) : ${commands_local_pre[@]:-}";	
-	
-	# if array.is.array? "commands_local_pre"; then
-	# 	echo "commands_local_pre is an array :)";
-	# fi	
+	# stores command to execute
+	# for a profile
+	declare -A profile_commands;
 	
 	local start_time=$( date )
 	
@@ -715,10 +705,7 @@ tasks.deploy() {
 	unset deploy_type;
 	unset host;
 	unset directory;
-	unset commands_local_pre;
-	unset commands_local_post;	
-	unset commands_remote_pre;
-	unset commands_remote_post;
+	unset profile_commands;
 }
 
 # reads in the json data overrriding
@@ -767,11 +754,11 @@ tasks.deploy() {
 	# NOTE: so that all variables are available to commands being
 	# NOTE: declared in the deploy.json descriptor	
 	
-	# read in default commands
+	# read in global commands
 	:tasks.deploy.commands.read;
 	
 	# read in profile specific commands
-	:tasks.deploy.commands.read "profiles.${profile}";		
+	:tasks.deploy.commands.read "profiles.${profile}";
 }
 
 # run pre-deployment local commands
@@ -779,8 +766,10 @@ tasks.deploy() {
 	if "${skip["local.pre"]}"; then
 		return 0;
 	fi
-	# echo "run local pre-deployment commands:  ${commands_local_pre[@]:-}";
-	:tasks.deploy.run "commands_local_pre";
+	if [ "${#global_commands[@]:-0}" ]; then
+		:tasks.deploy.run "commands.local.pre" true;
+	fi
+	:tasks.deploy.run "commands.local.pre";
 }
 
 # run post-deployment local commands
@@ -788,18 +777,35 @@ tasks.deploy() {
 	if "${skip["local.post"]}"; then
 		return 0;
 	fi
-	# echo "run local post-deployment commands: ${commands_local_post[@]:-}";
-	:tasks.deploy.run "commands_local_post";
+	if [ "${#global_commands[@]:-0}" ]; then
+		:tasks.deploy.run "commands.local.post" true;
+	fi	
+	:tasks.deploy.run "commands.local.post";
 }
 
 # run a set of local commands
 :tasks.deploy.run() {
 	local varname="$1";
-	local cmd commands arr exe opt exit_code;
-	eval commands="( \"\${$varname[@]:-}\" )";
-	for cmd in "${commands[@]:-}"
+	local use_global_commands="${2:-false}";
+	local cmd list arr exe opt exit_code;
+	
+	# shortcut out for empty command maps	
+	local length=0;
+	if $use_global_commands; then
+		length="${global_commands["${varname}.length"]:-0}";
+	else
+		length="${profile_commands["${varname}.length"]:-0}";
+	fi
+	if [ $length -eq 0 ]; then
+		return 0;
+	fi
+	
+	# build list of commands to execute
+	list=();
+	:tasks.deploy.run.list;
+	for cmd in "${list[@]:-}"
 		do
-			#echo "cmd is : ${cmd}";
+			# echo "cmd is : ${cmd}";
 			local IFS=$'\n';
 			arr=( ${cmd} );
 			unset IFS;
@@ -846,16 +852,46 @@ tasks.deploy() {
 	done
 }
 
+# fetch the command type subset 
+# as an ordered array of commands
+:tasks.deploy.run.list() {
+	local k v keys i;
+	local re="${varname//\./\\.}";
+	re="^$re\.([0-9]+)";
+	if $use_global_commands; then
+		for k in "${!global_commands[@]}"
+			do
+				v="${global_commands[$k]}";
+				:tasks.deploy.run.list.add;
+		done
+	else
+		for k in "${!profile_commands[@]}"
+			do
+				v="${profile_commands[$k]}";
+				:tasks.deploy.run.list.add;
+		done		
+	fi
+}
+
+# add a command to the list of
+# commands to be processed
+:tasks.deploy.run.list.add() {
+	if [[ "$k" =~ $re ]]; then
+		i="${BASH_REMATCH[1]}";
+		list[$i]="$v";
+	fi
+}
+
 # read in commands
 :tasks.deploy.commands.read() {
 	local prefix="${1:-}";
+	local use_global_commands=false;
 	if [ -z "$prefix" ]; then
 		prefix="commands";
+		use_global_commands=true;
 	else
 		prefix="${prefix}.commands";
 	fi
-	
-	# echo "reading commands with prefix: $prefix";
 	
 	local local_pre_length="${json_doc[${prefix}.local.pre.length]:-0}";
 	local local_post_length="${json_doc[${prefix}.local.post.length]:-0}";
@@ -866,29 +902,29 @@ tasks.deploy() {
 			"$prefix" \
 			"${prefix}.local.pre" \
 			$local_pre_length \
-			"commands_local_pre"
+			"commands.local.pre"
 	fi
 	if [ $local_post_length -gt 0 ]; then
 		:tasks.deploy.commands.read.group \
 			"$prefix" \
 			"${prefix}.local.post" \
 			$local_post_length \
-			"commands_local_post"
+			"commands.local.post"
 	fi
 	if [ $remote_pre_length -gt 0 ]; then
 		:tasks.deploy.commands.read.group \
 			"$prefix" \
 			"${prefix}.remote.pre" \
 			$remote_pre_length \
-			"commands_remote_pre"
+			"commands.remote.pre"
 	fi
 	if [ $remote_post_length -gt 0 ]; then
 		:tasks.deploy.commands.read.group \
 			"$prefix" \
 			"${prefix}.remote.post" \
 			$remote_post_length \
-			"commands_remote_post"
-	fi	
+			"commands.remote.post"
+	fi
 }
 
 # read in a group of commands
@@ -899,7 +935,7 @@ tasks.deploy() {
 	local varname="$4";
 	local i j jl exe opt cmd;
 	
-	local whitespace="[ 	"'\n'"]";
+	local whitespace="[ 	]";
 	
 	# echo "GROUP READ !!! : $group";
 	# echo "GROUP READ !!! : ${!json_doc[*]}";
@@ -909,14 +945,14 @@ tasks.deploy() {
 			cmd="";
 			exe="${json_doc[${group}.$i.command]:-}";
 			if [ -z "$exe" ]; then
-				console.error "invalid command in %s" "$descriptor";
+				console.error "invalid command %s in %s" "$exe" "$descriptor";
 				:tasks.deploy.fail "%s may not be a blank string" "command";
 			fi
 			
 			# echo "got exe: $exe";
 			
 			if [[ "$exe" =~ $whitespace ]]; then
-				console.error "invalid command in %s" "$descriptor";
+				console.error "invalid command %s in %s" "$exe" "$descriptor";
 				:tasks.deploy.fail "%s may not contain whitespace" "command";
 			fi
 			
@@ -932,46 +968,29 @@ tasks.deploy() {
 				do
 					opt="${json_doc[${group}.$i.options.$j]}";
 					
-					# quote options
-					# if $quote; then
-					# 	opt=$( printf %q "${opt}" );
-					# 	# opt="\\\"$opt\\\"";
-					# fi
+					# evaluate each option so that variable
+					# references can be used
+					trap :tasks.deploy.unbound.variable EXIT
+					eval "opt=\"${opt}\"";
+					trap - EXIT
 					
-					#opt="\\\"$opt\\\"";
-
 					cmd="${cmd}
 ${opt}";
-					
-					#cmd="${cmd} ${opt}";
 			done
 			
-			if [ -n "${cmd}" ]; then
-				# set an exit trap to handle
-				# the situation when an undefined variable
-				# is referenced 
-				
-				trap :tasks.deploy.unbound.variable EXIT
-				eval "${varname}+=( \"${cmd}\" )";
-				trap - EXIT
-
-				# DEBUG
-				# local keys;
-				# eval keys="\${!$varname[*]}";
-				# echo "keys after add: $keys";
-				# local values;
-				# eval values="\${$varname[*]}";
-				# echo "values after add: $values";
+			if $use_global_commands; then
+				global_commands["${varname}.$i"]="${cmd}";
+			else
+				profile_commands["${varname}.$i"]="${cmd}";
 			fi
 	done
 	
-	# echo "commands_local_pre (read group) (length) : ${#commands_local_pre[@]:-}";
-	# echo "commands_local_pre (read group) (keys) : ${!commands_local_pre[@]:-}";
-	# echo "commands_local_pre (read group) (values) : ${commands_local_pre[@]:-}";
-	# 
-	# if array.is.array? "commands_local_pre"; then
-	# 	echo "commands_local_pre (read group) is an array :)";
-	# fi
+	# add length properties
+	if $use_global_commands; then
+		global_commands["${varname}.length"]="${i}";
+	else
+		profile_commands["${varname}.length"]="${i}";
+	fi
 }
 
 # handles the situation when a command *probably*
@@ -1013,10 +1032,6 @@ ${opt}";
 		git_url
 		git_branch
 		host
-		commands_local_pre
-		commands_local_post
-		commands_remote_pre
-		commands_remote_post
 	);
 	local value k len;
 	for var in "${vars[@]}"
