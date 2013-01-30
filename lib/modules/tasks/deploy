@@ -680,6 +680,10 @@ tasks.deploy() {
 	
 	local profiles=();
 	
+	# a custom script file to use
+	# instead of the generated script
+	local script_source="";
+	
 	# determine if we are deploying locally
 	local deploy_local=false;
 	
@@ -1308,6 +1312,12 @@ ${opt}";
 		git_branch
 		host
 	);
+	
+	# using custom script
+	if [ -n "${script_source}" ]; then
+		vars+=( script_source );
+	fi
+	
 	local value k len;
 	for var in "${vars[@]}"
 		do
@@ -1349,6 +1359,10 @@ ${opt}";
 		:tasks.deploy.out.info "type %s" "${deploy_type}";
 		:tasks.deploy.out.info "noop %s" "${noop}";
 		:tasks.deploy.out.info "shell %s" "${shell}";
+		# using custom script
+		if [ -n "${script_source}" ]; then
+			:tasks.deploy.out.info "source script %s" "${script_source}";
+		fi		
 		:tasks.deploy.out.info "script %s" "${script}";
 		:tasks.deploy.out.info "working directory %s" "${directory}";
 		:tasks.deploy.out.info "staging directory %s" "${staging}";
@@ -1501,8 +1515,12 @@ ${opt}";
 
 	touch "${script}" \
 		|| console.quit 1 "could not create %s" "${script}";
-
-# write the script file
+	
+	# custom script file specified
+	if [ -n "${script_source}" ]; then
+		cat "${script_source}" >| "${script}";
+	else
+# generate the script file
 cat <<EOF >> "${script}"
 ${shebang}
 
@@ -1551,6 +1569,7 @@ deploy() {
 }
 deploy "\$@";
 EOF
+	fi
 
 	chmod +x "${script}" \
 		|| console.quit 1 "could not set permissions on %s" "${script}";	
@@ -1751,6 +1770,17 @@ EOF
 				;;
 			--log )
 				logging=true;
+				;;
+			--script-file )
+				shift;
+				value="${1:-}";
+				if [ ! -f "${value}" ]; then
+					console.quit 1 "script file %s does not exist" "$value";
+				fi
+				if [ ! -x "${value}" ]; then
+					console.quit 1 "script file %s is not executable" "$value";
+				fi
+				script_source="${value}";
 				;;
 			--shell )
 				shift;
