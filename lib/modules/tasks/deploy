@@ -243,7 +243,7 @@ You have two options to remedy this scenario. You may either decide to separate 
 	
 So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may use the `--expand` option to allow parameter expansion on command options. You should only use the `--expand` option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed.
 
-### COMMAND ENVIRONMENT
+### Command Environment
 
 Commands executing in a *local* context have access to the entire bake(1) variable scope chain which means that there are some useful variables exposed to your commands.
 
@@ -315,7 +315,7 @@ A boolean indicating if a flat directory structure is being used, see the `TARGE
 
 A boolean indicating if version information is being included in the directory structure, see the `TARGET` section.
 
-### EXAMPLE
+### Example
 
 An example that uses npm(1) to create a tarball, moves it to the `target` directory and copies the tarball to a remote host:
 
@@ -338,7 +338,7 @@ An example that uses npm(1) to create a tarball, moves it to the `target` direct
 		}
 	}
 	
-### COMMAND ERRORS
+### Command Errors
 
 Commands (declared by the *command* property) may not contain any whitespace (space, tab or newline). It is a JSON error to declare literal whitespace characters such as \\n or \\t, if these are specified using the escaped values (allowed by JSON) the program will exit with a whitespace error.
 
