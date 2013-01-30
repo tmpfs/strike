@@ -89,6 +89,13 @@ Use \fIdirectory\fR as the staging directory\.
 Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \fIzsh\fR or \fIdash\fR\.
 .
 .TP
+\fB\-\-list\fR:
+
+.
+.P
+List profile names in a deployment descriptor\.
+.
+.TP
 \fB\-\-log\fR:
 
 .
@@ -846,26 +853,13 @@ bake deploy
 .IP "" 0
 .
 .P
-Deploy using the default profile locally:
+Deploy to \fIlocalhost\fR using the default profile:
 .
 .IP "" 4
 .
 .nf
 
 bake deploy \-\-local
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Inspect deployment commands:
-.
-.IP "" 4
-.
-.nf
-
-bake deploy \-\-noop
 .
 .fi
 .
@@ -905,6 +899,58 @@ Deploy all profiles in the descriptor:
 .nf
 
 bake deploy \-\-all
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Inspect deployment commands but do not execute them:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-noop
+.
+.fi
+.
+.IP "" 0
+.
+.P
+List profiles in \fIdeploy\.json\fR:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-list
+.
+.fi
+.
+.IP "" 0
+.
+.P
+List profiles in a specific descriptor:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-list \-\-descriptor ~/project/deploy\.json
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Print the script that will be used for deployment:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-script
 .
 .fi
 .
@@ -959,9 +1005,6 @@ Implement notifications using \fBmail\fR\.
 .
 .P
 Add log file(s) to \fBmail\fR notifications\.
-.
-.P
-Implement \fB\-\-list\fR option to list profiles in a descriptor\.
 .
 .P
 Add \fB\-\-script\-file\fR option to allow for a custom script to be used instead of the generated script allowing for unsupported deployment types (for example the mercurial source code management tool)\.

@@ -56,6 +56,10 @@ Use *directory* as the staging directory.
 
 Use *shell* for the script shebang. Must be one of *sh*, *bash*, *zsh* or *dash*.
 
+* `--list`:
+
+List profile names in a deployment descriptor.
+
 * `--log`:
 
 Redirect *stdout* messages to `target/deploy/deploy.log`. Note that when using the `--json` option that the JSON document is always sent to *stdout*.
@@ -523,25 +527,37 @@ Deploy using the default profile:
 
 	bake deploy
 	
-Deploy using the default profile locally:
+Deploy to *localhost* using the default profile:
 
 	bake deploy --local
-	
-Inspect deployment commands:
-
-	bake deploy --noop
 	
 Deploy the profile *stage*:
 
 	bake deploy stage
-		
+
 Deploy the profiles *test*, *stage* and *production*:
 
 	bake deploy test stage production
-	
+
 Deploy all profiles in the descriptor:
 
-	bake deploy --all
+	bake deploy --all	
+	
+Inspect deployment commands but do not execute them:
+
+	bake deploy --noop
+	
+List profiles in *deploy.json*:
+
+	bake deploy --list
+	
+List profiles in a specific descriptor:
+
+	bake deploy --list --descriptor ~/project/deploy.json
+	
+Print the script that will be used for deployment:
+
+	bake deploy --script
 	
 Inspect the settings used for a *default* deployment:
 
@@ -570,8 +586,6 @@ Implement notifications using `mail`.
 
 Add log file(s) to `mail` notifications.
 
-Implement `--list` option to list profiles in a descriptor.
-
 Add `--script-file` option to allow for a custom script to be used instead of the generated script allowing for unsupported deployment types (for example the mercurial source code management tool).
 
 Add the `deploy_ssh_options` and `deploy_scp_options` environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1).
@@ -596,6 +610,8 @@ require.once 'git';
 
 # deploy delegate
 tasks.deploy() {
+	executable.validate scp ssh;
+	executable.validate --test growlnotify;
 	
 	# interactive by default
 	local interactive=true;
@@ -603,6 +619,10 @@ tasks.deploy() {
 	# list of all profiles
 	# defined in descriptor
 	local all_profiles=();
+	
+	# -- list: determine if we are just
+	# printing profiles available in descriptor
+	local print_profiles=false;
 	
 	# determine if we are deploying
 	# all profiles in descriptor, see --all
@@ -618,13 +638,9 @@ tasks.deploy() {
 	local deploy_start_time=$( date );
 	local deploy_local_host_name=$( hostname );
 	local deploy_user=$( id -nu );
-	
-	executable.validate scp ssh;
 
 	local descriptor="${root}/deploy.json";
 	local newline=$'\n';
-
-	executable.validate --test growlnotify;
 	
 	# name validation regex
 	local re="^[-a-zA-Z0-9]+$";
@@ -695,7 +711,7 @@ tasks.deploy() {
 	
 	# JSON PROPERTIES
 	# determines whether we are generating json
-	local dump_json=false;
+	local print_json=false;
 	local write_json=false;
 	local json_settings_file="${deploy_target_directory}/settings.json";
 	local pretty=false;
@@ -825,13 +841,13 @@ tasks.deploy() {
 			:tasks.deploy.profile;
 	done
 	# dump/write json information
-	if $dump_json || $write_json; then
+	if $print_json || $write_json; then
 		if ! $pretty; then
 			json.stringify <<< "json_dump";
 		else
 			json.stringify --pretty 2 <<< "json_dump";
 		fi
-		if $dump_json; then
+		if $print_json; then
 			json.string;
 			printf "\n";
 		fi
@@ -894,12 +910,12 @@ tasks.deploy() {
 		console.quit 1 "invalid deployment type %s" "${deploy_type:-}";
 	fi
 	
-	if ! $dump_json; then
+	if ! $print_json; then
 		# write the deploy script file
 		:tasks.deploy.script.write!;
 	fi
 
-	if ! $dump_script && ! $dump_json; then
+	if ! $dump_script && ! $print_json; then
 	
 		# prompt for confirmation when possible
 		:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
@@ -1320,7 +1336,7 @@ ${opt}";
 	done
 	
 	# otherwise print out information to stdout
-	if ! $dump_json && ! $dump_script; then
+	if ! $print_json && ! $dump_script; then
 		local start_time=$( date )
 		:tasks.deploy.out.info "date %s" "${start_time}";
 		:tasks.deploy.out.info "deploy %s" "${deploy_name}";	
@@ -1355,7 +1371,7 @@ ${opt}";
 # output an info message to stdout or
 # the log file if logging
 :tasks.deploy.out.info() {
-	if $dump_json || $dump_script; then
+	if $print_json || $dump_script; then
 		return 0;
 	fi
 	
@@ -1458,6 +1474,17 @@ ${opt}";
 			fi
 	done
 	all_profiles=( ${!names[@]} );
+	
+	if $print_profiles; then
+		if [ "${#all_profiles[@]}" -eq 0 ]; then
+			console.quit 1 "no profiles in %s" "$descriptor";
+		else
+			local IFS="$newline";
+			local all="${all_profiles[@]}";
+			echo "$all";
+			console.success;
+		fi
+	fi
 }
 
 :tasks.deploy.script.write!() {
@@ -1613,7 +1640,7 @@ EOF
 	# output success information
 	if $success; then
 		:tasks.deploy.complete.notify;
-		if $dump_json || $dump_script; then
+		if $print_json || $dump_script; then
 			console.success;
 		else
 			console.success "deploy %s complete %s" \
@@ -1656,6 +1683,9 @@ EOF
 				noop=true;
 				interactive=false;				
 				;;
+			--list )
+				print_profiles=true;
+				;;				
 			--staging )
 				shift;
 				staging="${1:-}";
@@ -1664,7 +1694,7 @@ EOF
 				deploy_local=true;
 				;;
 			--json )
-				dump_json=true;
+				print_json=true;
 				noop=true;
 				dump_script=false;				
 				;;
@@ -1674,7 +1704,7 @@ EOF
 			--script )
 				dump_script=true;
 				noop=true;
-				dump_json=false;
+				print_json=false;
 				;;
 			--pretty )
 				pretty=true;
