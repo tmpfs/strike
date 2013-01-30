@@ -149,6 +149,19 @@ process.use strict;
 
 #exit 0;
 
+# export foo="bar";
+# echo "$foo";
+# options=( "$foo" );
+# ( echo $foo );
+# bash -c echo $foo;
+# #exec echo ${options[@]};
+# echo "run exec in subshell ..."
+# ( exec echo ${options[@]} );
+# export target="./target";
+# options=( "$target" );
+# ( exec ls ${options[@]} );
+# exit 0;
+
 # ( cd -P ~/"git" && pwd );
 # exit 0;
 

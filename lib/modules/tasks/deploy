@@ -512,13 +512,13 @@ tasks.deploy() {
 	local script="${target}/${script_name}";
 	local log_name="${deploy_file_name}-${profile}.log";
 	local log_dir="${staging}/log";
-	local log_file="${log_dir}/${log_name}";	
+	local log_file="${log_dir}/${log_name}";
 	
 	# messages
 	declare -A messages;
 	# messages sent via `growlnotify`
 	messages[success]="deploy ${deploy_name} complete";
-	messages[fail]="deploy ${deploy_name} failed";	
+	messages[fail]="deploy ${deploy_name} failed";
 	
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;
@@ -635,6 +635,9 @@ tasks.deploy() {
 
 # deploy a single profile
 :tasks.deploy.profile() {
+	
+	declare -A commands;
+	
 	# commands to execute on local and remote
 	declare -a commands_local_pre;
 	declare -a commands_local_post;
@@ -780,7 +783,7 @@ tasks.deploy() {
 		return 0;
 	fi
 	# echo "run local pre-deployment commands:  ${commands_local_pre[@]:-}";
-	:tasks.deploy.run "commands_local_pre";
+	:tasks.deploy.run "commands.local.pre";
 }
 
 # run post-deployment local commands
@@ -789,17 +792,34 @@ tasks.deploy() {
 		return 0;
 	fi
 	# echo "run local post-deployment commands: ${commands_local_post[@]:-}";
-	:tasks.deploy.run "commands_local_post";
+	:tasks.deploy.run "commands.local.post";
 }
 
 # run a set of local commands
 :tasks.deploy.run() {
 	local varname="$1";
-	local cmd commands arr exe opt exit_code;
-	eval commands="( \"\${$varname[@]:-}\" )";
-	for cmd in "${commands[@]:-}"
+	local cmd list arr exe opt exit_code;
+	
+	# build list of commands to execute
+	list=();
+	local k v keys i;
+	local re="${varname//\./\\.}";
+	re="^$re\.([0-9]+)";
+	for k in "${!commands[@]}"
 		do
-			#echo "cmd is : ${cmd}";
+			v="${commands[$k]}";
+			if [[ "$k" =~ $re ]]; then
+				i="${BASH_REMATCH[1]}";
+				list[$i]="$v";
+			fi
+	done
+	
+	export target="${target}";
+	export project_name="${project_name}";
+	
+	for cmd in "${list[@]:-}"
+		do
+			# echo "cmd is : ${cmd}";
 			local IFS=$'\n';
 			arr=( ${cmd} );
 			unset IFS;
@@ -866,29 +886,29 @@ tasks.deploy() {
 			"$prefix" \
 			"${prefix}.local.pre" \
 			$local_pre_length \
-			"commands_local_pre"
+			"commands.local.pre"
 	fi
 	if [ $local_post_length -gt 0 ]; then
 		:tasks.deploy.commands.read.group \
 			"$prefix" \
 			"${prefix}.local.post" \
 			$local_post_length \
-			"commands_local_post"
+			"commands.local.post"
 	fi
 	if [ $remote_pre_length -gt 0 ]; then
 		:tasks.deploy.commands.read.group \
 			"$prefix" \
 			"${prefix}.remote.pre" \
 			$remote_pre_length \
-			"commands_remote_pre"
+			"commands.remote.pre"
 	fi
 	if [ $remote_post_length -gt 0 ]; then
 		:tasks.deploy.commands.read.group \
 			"$prefix" \
 			"${prefix}.remote.post" \
 			$remote_post_length \
-			"commands_remote_post"
-	fi	
+			"commands.remote.post"
+	fi
 }
 
 # read in a group of commands
@@ -899,7 +919,7 @@ tasks.deploy() {
 	local varname="$4";
 	local i j jl exe opt cmd;
 	
-	local whitespace="[ 	"'\n'"]";
+	local whitespace="[ 	]";
 	
 	# echo "GROUP READ !!! : $group";
 	# echo "GROUP READ !!! : ${!json_doc[*]}";
@@ -909,14 +929,14 @@ tasks.deploy() {
 			cmd="";
 			exe="${json_doc[${group}.$i.command]:-}";
 			if [ -z "$exe" ]; then
-				console.error "invalid command in %s" "$descriptor";
+				console.error "invalid command %s in %s" "$exe" "$descriptor";
 				:tasks.deploy.fail "%s may not be a blank string" "command";
 			fi
 			
 			# echo "got exe: $exe";
 			
 			if [[ "$exe" =~ $whitespace ]]; then
-				console.error "invalid command in %s" "$descriptor";
+				console.error "invalid command %s in %s" "$exe" "$descriptor";
 				:tasks.deploy.fail "%s may not contain whitespace" "command";
 			fi
 			
@@ -932,18 +952,14 @@ tasks.deploy() {
 				do
 					opt="${json_doc[${group}.$i.options.$j]}";
 					
-					# quote options
-					# if $quote; then
-					# 	opt=$( printf %q "${opt}" );
-					# 	# opt="\\\"$opt\\\"";
-					# fi
+					# evaluate each option so that variable
+					# references can be used
+					trap :tasks.deploy.unbound.variable EXIT
+					eval "opt=\"${opt}\"";
+					trap - EXIT
 					
-					#opt="\\\"$opt\\\"";
-
 					cmd="${cmd}
 ${opt}";
-					
-					#cmd="${cmd} ${opt}";
 			done
 			
 			if [ -n "${cmd}" ]; then
@@ -951,9 +967,13 @@ ${opt}";
 				# the situation when an undefined variable
 				# is referenced 
 				
-				trap :tasks.deploy.unbound.variable EXIT
-				eval "${varname}+=( \"${cmd}\" )";
-				trap - EXIT
+				# trap :tasks.deploy.unbound.variable EXIT
+				# eval "${varname}+=( \"${cmd}\" )";
+				# trap - EXIT
+				
+				echo "add command $i $cmd";
+				
+				commands["${varname}.$i"]="${cmd}";
 
 				# DEBUG
 				# local keys;
