@@ -757,7 +757,7 @@ If global and/or profile\-specific \fIlocal\fR pre\-deployment commands have bee
 At this point the deployment process starts\. When running as a \fIlocal\fR deployment (using \fB\-\-local\fR) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on the remote host using scp(1)\.
 .
 .P
-If global and/or profile\-specific remote pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+If global and/or profile\-specific \fIremote\fR pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
 .
 .P
 The deployment script is executed to perform the deployment based on the deployment type for the profile, see \fBTYPES\fR\.
@@ -918,6 +918,39 @@ bake help deploy
 .fi
 .
 .IP "" 0
+.
+.SH "ROADMAP"
+Implement lock files for the local and remote scripts to prevent concurrency issues when multiple deployments are attempted\.
+.
+.P
+Add support for rsync(1)\.
+.
+.P
+Add \fB\-\-branch\fR option to specify a git branch to use for all profiles that are of the \fBgit\fR type\.
+.
+.P
+Add \fB\-\-refspec\fR option so that \fBgit\fR deployments may also be done from tags\.
+.
+.P
+Implement notifications using \fBmail\fR\.
+.
+.P
+Add log file(s) to \fBmail\fR notifications\.
+.
+.P
+Implement \fB\-\-all\fR option to deploy all profiles in a descriptor\.
+.
+.P
+Implement \fB\-\-list\fR option to list profiles in a descriptor\.
+.
+.P
+Add \fB\-\-script\-file\fR option to allow for a custom script to be used instead of the generated script allowing for unsupported deployment types (for example the mercurial source code management tool)\.
+.
+.P
+Add the \fBdeploy_ssh_options\fR and \fBdeploy_scp_options\fR environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1)\.
+.
+.P
+Add the \fB\-\-no\-growl\fR option to disable growl notifications even if the \fBgrowlnotify\fR executable is available\.
 .
 .SH "BUGS"
 \fBtask\-deploy\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
