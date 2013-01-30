@@ -75,11 +75,17 @@ The scp(1) and ssh(1) \fIuser@host\fR specification\. When this option is specif
 Use \fIfile\fR as the deployment descriptor\.
 .
 .TP
-\fB\-\-staging [directory]\fR:
+\fB\-\-script\-source [script]\fR:
 
 .
 .P
-Use \fIdirectory\fR as the staging directory\.
+Use \fIscript\fR as the deployment script instead of any generated script\. The \fIscript\fR must exist and be executable\. When this option is specified then the automatically generated script is ignored and the source \fIscript\fR is used instead\. It is written to disc in the same location, deployed to the remote host (or localhost with the \fB\-\-local\fR option) and executed\.
+.
+.P
+When this option is specified the \fB\-\-shell\fR option has no effect as it is only used to determine the \fIshebang\fR for generated deployment scripts\.
+.
+.P
+If multiple profiles are being deployed then \fIscript\fR is used for all active deployment profiles\.
 .
 .TP
 \fB\-\-shell [shell]\fR:
@@ -87,6 +93,13 @@ Use \fIdirectory\fR as the staging directory\.
 .
 .P
 Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \fIzsh\fR or \fIdash\fR\.
+.
+.TP
+\fB\-\-staging [directory]\fR:
+
+.
+.P
+Use \fIdirectory\fR as the staging directory\.
 .
 .TP
 \fB\-\-list\fR:
@@ -1017,10 +1030,10 @@ Implement notifications using \fBmail\fR\.
 Attach log file(s) to \fBmail\fR notifications\.
 .
 .P
-Add \fB\-\-script\-file\fR option to allow for a custom script to be used instead of the generated script allowing for unsupported deployment types (for example the mercurial source code management tool)\.
+Add the \fBdeploy_ssh_options\fR and \fBdeploy_scp_options\fR environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1)\.
 .
 .P
-Add the \fBdeploy_ssh_options\fR and \fBdeploy_scp_options\fR environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1)\.
+Add \fBenable\fR boolean property to profiles in a descriptor to prevent deployment of a profile\.
 .
 .SH "BUGS"
 \fBtask\-deploy\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.

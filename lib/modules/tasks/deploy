@@ -48,13 +48,21 @@ The scp(1) and ssh(1) *user@host* specification. When this option is specified i
 
 Use *file* as the deployment descriptor.
 
-* `--staging [directory]`:
+* `--script-source [script]`:
 
-Use *directory* as the staging directory.
+Use *script* as the deployment script instead of any generated script. The *script* must exist and be executable. When this option is specified then the automatically generated script is ignored and the source *script* is used instead. It is written to disc in the same location, deployed to the remote host (or localhost with the `--local` option) and executed.
+
+When this option is specified the `--shell` option has no effect as it is only used to determine the *shebang* for generated deployment scripts.
+
+If multiple profiles are being deployed then *script* is used for all active deployment profiles.
 
 * `--shell [shell]`:
 
 Use *shell* for the script shebang. Must be one of *sh*, *bash*, *zsh* or *dash*.
+
+* `--staging [directory]`:
+
+Use *directory* as the staging directory.
 
 * `--list`:
 
@@ -592,9 +600,9 @@ Implement notifications using `mail`.
 
 Attach log file(s) to `mail` notifications.
 
-Add `--script-file` option to allow for a custom script to be used instead of the generated script allowing for unsupported deployment types (for example the mercurial source code management tool).
-
 Add the `deploy_ssh_options` and `deploy_scp_options` environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1).
+
+Add `enable` boolean property to profiles in a descriptor to prevent deployment of a profile.
 
 ## BUGS
 
@@ -624,7 +632,7 @@ tasks.deploy() {
 	# defined in descriptor
 	local all_profiles=();
 	
-	# -- list: determine if we are just
+	# --list: determine if we are just
 	# printing profiles available in descriptor
 	local print_profiles=false;
 	
@@ -1771,7 +1779,7 @@ EOF
 			--log )
 				logging=true;
 				;;
-			--script-file )
+			--script-source )
 				shift;
 				value="${1:-}";
 				if [ ! -f "${value}" ]; then
