@@ -151,19 +151,19 @@ You may specify one or more profiles to deploy after any options. If no profiles
 Note that a profile must declare at a minimum the *type* property for it to be recognised, for example the following is invalid:
 
 	{
-		"profiles": {
-			"stage": {}
-		}
+	  "profiles": {
+	    "stage": {}
+	  }
 	}
 	
 Therefore the profile will not be available. You `must` specify at least the deployment *type*:
 
 	{
-		"profiles": {
-			"stage": {
-				"type": "git"
-			}
-		}
+	  "profiles": {
+	    "stage": {
+	      "type": "git"
+	    }
+	  }
 	}
 
 ## DEFAULT PROFILE
@@ -205,20 +205,20 @@ If any command exits with an exit code *>0* then the deployment is aborted. This
 The general syntax for declaring commands is:
 
 	"commands": {
-		"local": {
-			"pre": [
-				{
-					"command": "ls",
-					"options": [ "-la", "lib", "man" ]
-				}
-			],
-			"post": [
-				{
-					"command": "echo",
-					"options": [ "deployment complete $deploy_name" ]
-				}
-			]
-		}
+	  "local": {
+	    "pre": [
+	      {
+	        "command": "ls",
+	        "options": [ "-la", "lib", "man" ]
+	      }
+	    ],
+	    "post": [
+	      {
+	        "command": "echo",
+	        "options": [ "deployment complete $deploy_name" ]
+	      }
+	    ]
+	  }
 	}
 	
 All commands are encapsulated by the *commands* object which can contain *local* and *remote* properties indicating whether the commands should be executed on the local or remote host. The *pre* and *post* properties are arrays of commands to execute for the deployment phase(s).
@@ -230,15 +230,15 @@ A *commands* object may be declared at the top-level of the JSON descriptor docu
 By default parameters are not expanded - whitespace in a parameter is preserved and passed as a single argument to the command being executed. For example, imagine you wanted to list the contents of the *lib* and *man* directories, this would fail (with the default settings) if you specified both directories in a single option (`ls` would be looking for a directory named "lib man" rather than attempting to list two separate directories):
 
 	{
-		"command": "ls",
-		"options": [ "-la", "lib man" ]
+	  "command": "ls",
+	  "options": [ "-la", "lib man" ]
 	}
 	
 You have two options to remedy this scenario. You may either decide to separate the parameters:
 
 	{
-		"command": "ls",
-		"options": [ "-la", "lib", "man" ]
+	  "command": "ls",
+	  "options": [ "-la", "lib", "man" ]
 	}
 	
 So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may use the `--expand` option to allow parameter expansion on command options. You should only use the `--expand` option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed.
@@ -315,11 +315,23 @@ A boolean indicating if a flat directory structure is being used, see the `TARGE
 
 A boolean indicating if version information is being included in the directory structure, see the `TARGET` section.
 
+### Custom Environment
+
+You may declare properties specific to your deployment process in a top-level *env* object. You may then access these variables in your deployment profiles using the `env_` variable prefix.
+
+Properties declared in the *env* object may reference any variable documented in the `Command Environment` section but they may not use `Cross References` using a `json_` variable prefix.
+
+If you attempt to create a document cross-reference in an *env* property task-deploy(7) will exit immediately with a *>0* exit code.
+
+See the section `Command Examples` for example(s).
+
 ### Cross References
+
+It is recommended that you use the functionality provided by `Custom Environment` whenever possible but if you absolutely must reference other data in a deployment profile this section provides some information on using deployment descriptor cross-references.
 
 The JSON document properties are expanded to variables that you may reference in the deployment descriptor. These variables are exposed using a `json_` prefix.
 
-This is useful to prevent duplication of information between profiles that share some (not not all) commands or properties.
+This is useful to prevent duplication of information between profiles that share some (but not all) commands or properties.
 
 Consider the following example document:
 
@@ -390,25 +402,42 @@ If you reference a variable that is unbound in a command the program will exit i
 
 ### Command Examples
 
-An example that uses npm(1) to create a tarball, moves it to the `target` directory and copies the tarball to a remote host:
+A complete example that uses npm(1) to create a tarball, moves it to the local `target` staging directory and copies the tarball to a remote host prior to the main deployment process which will take the created archive (on the remote host) and deploy it to the *target* directory:
 
-	"commands": {
-		"local": {
-			"pre": [
-				{
-					"command": "npm",
-					"options": [ "pack" ]
-				},
-				{
-					"command": "mv",
-					"options": [ "$project_name-$project_version.tgz", "target" ]
-				},
-				{
-					"command": "scp",
-					"options": [ "target/$project_name-$project_version.tgz", "user@example.com:~/" ]
-				}
-			]
-		}
+	{
+	  "env": {
+	    "archive": {
+	      "name": "${project_name}-${project_version}.tgz",
+	      "dir": "$target",
+	      "path": "${target}/${project_name}-${project_version}.tgz"
+	    }
+	  },
+	  "host": "user@example.com",
+	  "directory": "~/www",
+	  "profiles": {
+	    "npm": {
+	      "type": "tar",
+	      "url": "~/$env_archive_name",
+	      "commands": {
+	        "local": {
+	          "pre": [
+	            {
+	              "command": "npm",
+	              "options": [ "pack" ]
+	            },
+	            {
+	              "command": "mv",
+	              "options": [ "$env_archive_name", "$env_archive_dir" ]
+	            },
+	            {
+	              "command": "scp",
+	              "options": [ "$env_archive_path", "${host}:~/" ]
+	            }
+	          ]
+	        }
+	      }
+	    }
+	  }
 	}
 
 ## NOTIFICATIONS
@@ -459,6 +488,10 @@ Inspect the settings used for a *default* deployment:
 		--staging ~/project-staging \\
 		--name project \\
 		--directory ~/www
+		
+Display this man page:
+
+	bake help deploy
 
 ## BUGS
 

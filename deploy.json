@@ -1,6 +1,10 @@
 {
 	"env": {
-		"archive": "$project_name-$project_version.tgz"
+		"archive": {
+			"name": "${project_name}-${project_version}.tgz",
+			"dir": "$target",
+			"path": "${target}/${project_name}-${project_version}.tgz"
+		}
 	},
 	"host": "cyberfunk@jet.freeformsystems.com",
 	"directory": "~/www",
@@ -43,11 +47,11 @@
 						},
 						{
 							"command": "mv",
-							"options": [ "$env_archive", "target" ]
+							"options": [ "$env_archive_name", "$env_archive_dir" ]
 						},
 						{
 							"command": "scp",
-							"options": [ "target/$env_archive", "${host}:~/" ]
+							"options": [ "$env_archive_path", "${host}:~/" ]
 						}
 					]
 				}

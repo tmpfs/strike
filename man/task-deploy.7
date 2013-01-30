@@ -263,9 +263,9 @@ Note that a profile must declare at a minimum the \fItype\fR property for it to 
 .nf
 
 {
-    "profiles": {
-        "stage": {}
-    }
+  "profiles": {
+    "stage": {}
+  }
 }
 .
 .fi
@@ -280,11 +280,11 @@ Therefore the profile will not be available\. You \fBmust\fR specify at least th
 .nf
 
 {
-    "profiles": {
-        "stage": {
-            "type": "git"
-        }
+  "profiles": {
+    "stage": {
+      "type": "git"
     }
+  }
 }
 .
 .fi
@@ -340,20 +340,20 @@ The general syntax for declaring commands is:
 .nf
 
 "commands": {
-    "local": {
-        "pre": [
-            {
-                "command": "ls",
-                "options": [ "\-la", "lib", "man" ]
-            }
-        ],
-        "post": [
-            {
-                "command": "echo",
-                "options": [ "deployment complete $deploy_name" ]
-            }
-        ]
-    }
+  "local": {
+    "pre": [
+      {
+        "command": "ls",
+        "options": [ "\-la", "lib", "man" ]
+      }
+    ],
+    "post": [
+      {
+        "command": "echo",
+        "options": [ "deployment complete $deploy_name" ]
+      }
+    ]
+  }
 }
 .
 .fi
@@ -374,8 +374,8 @@ By default parameters are not expanded \- whitespace in a parameter is preserved
 .nf
 
 {
-    "command": "ls",
-    "options": [ "\-la", "lib man" ]
+  "command": "ls",
+  "options": [ "\-la", "lib man" ]
 }
 .
 .fi
@@ -390,8 +390,8 @@ You have two options to remedy this scenario\. You may either decide to separate
 .nf
 
 {
-    "command": "ls",
-    "options": [ "\-la", "lib", "man" ]
+  "command": "ls",
+  "options": [ "\-la", "lib", "man" ]
 }
 .
 .fi
@@ -523,7 +523,22 @@ A boolean indicating if a flat directory structure is being used, see the \fBTAR
 .P
 A boolean indicating if version information is being included in the directory structure, see the \fBTARGET\fR section\.
 .
+.SS "Custom Environment"
+You may declare properties specific to your deployment process in a top\-level \fIenv\fR object\. You may then access these variables in your deployment profiles using the \fBenv_\fR variable prefix\.
+.
+.P
+Properties declared in the \fIenv\fR object may reference any variable documented in the \fBCommand Environment\fR section but they may not use \fBCross References\fR using a \fBjson_\fR variable prefix\.
+.
+.P
+If you attempt to create a document cross\-reference in an \fIenv\fR property task\-deploy(7) will exit immediately with a \fI>0\fR exit code\.
+.
+.P
+See the section \fBCommand Examples\fR for example(s)\.
+.
 .SS "Cross References"
+It is recommended that you use the functionality provided by \fBCustom Environment\fR whenever possible but if you absolutely must reference other data in a deployment profile this section provides some information on using deployment descriptor cross\-references\.
+.
+.P
 The JSON document properties are expanded to variables that you may reference in the deployment descriptor\. These variables are exposed using a \fBjson_\fR prefix\.
 .
 .P
@@ -654,29 +669,46 @@ Commands (declared by the \fIcommand\fR property) may not contain any whitespace
 If you reference a variable that is unbound in a command the program will exit immediately with a >0 exit code and an error message\.
 .
 .SS "Command Examples"
-An example that uses npm(1) to create a tarball, moves it to the \fBtarget\fR directory and copies the tarball to a remote host:
+A complete example that uses npm(1) to create a tarball, moves it to the local \fBtarget\fR staging directory and copies the tarball to a remote host prior to the main deployment process which will take the created archive (on the remote host) and deploy it to the \fItarget\fR directory:
 .
 .IP "" 4
 .
 .nf
 
-"commands": {
-    "local": {
-        "pre": [
-            {
-                "command": "npm",
-                "options": [ "pack" ]
-            },
-            {
-                "command": "mv",
-                "options": [ "$project_name\-$project_version\.tgz", "target" ]
-            },
-            {
-                "command": "scp",
-                "options": [ "target/$project_name\-$project_version\.tgz", "user@example\.com:~/" ]
-            }
-        ]
+{
+  "env": {
+    "archive": {
+      "name": "${project_name}\-${project_version}\.tgz",
+      "dir": "$target",
+      "path": "${target}/${project_name}\-${project_version}\.tgz"
     }
+  },
+  "host": "user@example\.com",
+  "directory": "~/www",
+  "profiles": {
+    "npm": {
+      "type": "tar",
+      "url": "~/$env_archive_name",
+      "commands": {
+        "local": {
+          "pre": [
+            {
+              "command": "npm",
+              "options": [ "pack" ]
+            },
+            {
+              "command": "mv",
+              "options": [ "$env_archive_name", "$env_archive_dir" ]
+            },
+            {
+              "command": "scp",
+              "options": [ "$env_archive_path", "${host}:~/" ]
+            }
+          ]
+        }
+      }
+    }
+  }
 }
 .
 .fi
@@ -787,6 +819,19 @@ bake deploy \-\-json \-\-pretty \e
     \-\-staging ~/project\-staging \e
     \-\-name project \e
     \-\-directory ~/www
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Display this man page:
+.
+.IP "" 4
+.
+.nf
+
+bake help deploy
 .
 .fi
 .
