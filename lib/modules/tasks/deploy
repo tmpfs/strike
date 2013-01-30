@@ -592,6 +592,14 @@ tasks.deploy() {
 	# interactive by default
 	local interactive=true;
 	
+	# list of all profiles
+	# defined in descriptor
+	local all_profiles=();
+	
+	# determine if we are deploying
+	# all profiles in descriptor, see --all
+	local deploy_all=false;
+	
 	# the prefix used for deployment
 	# interactive prompts
 	local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
@@ -666,7 +674,8 @@ tasks.deploy() {
 	local shells=( sh bash zsh dash );
 
 	# default to git deployment
-	local deploy_type="git";
+	local deploy_type_default="git";	
+	local deploy_type="${deploy_type_default}";
 	local profile="default";
 	local directory="";
 	local shell="${bake_deploy_shell:-sh}";
@@ -713,16 +722,26 @@ tasks.deploy() {
 	
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;
-
+	
+	:tasks.deploy.parse;
+	
 	local default_profile="default";
+	# if we are deploying everything
+	if $deploy_all; then
+		profiles=( ${all_profiles[@]} );
+	fi
+	
 	# attempt to deploy the default profile
+	# if profiles are empty this will occur
+	# if none are specified on the command line
+	# or none exist in the descriptor
 	if [ ${#profiles[*]} -eq 0 ]; then
 		profiles+=( "${default_profile}" );
 	fi
 	
+	# prevent duplicate executions if a command line
+	# declaration declares the same profile name
 	:tasks.deploy.profiles.uniq!;
-	
-	:tasks.deploy.parse;	
 	
 	# update some json dump properties after option parsing
 	json_dump["project-name"]="${project_name}";	
@@ -783,21 +802,18 @@ tasks.deploy() {
 :tasks.deploy.profiles() {
 	local profile;
 
-	# print profiles being processed	
+	# print profiles being processed
 	:tasks.deploy.print.profiles;
 	
 	for profile in "${profiles[@]}"
 		do
 			if [ "${profile}" != "${default_profile}" ]; then
-				if ! :tasks.profile.valid?; then
-					console.warn "profile %s does not exist" "${profile}";
+				if ! array.contains? "${profile}" "${all_profiles[@]:-}"; then
+					console.warn "profile %s does not exist in %s" "${profile}" "${descriptor}";
 					continue;
 				fi
 			fi
-			# quit on invalid profile name in the deploy descriptor
-			if ! :tasks.name.valid? "${profile}"; then
-				:tasks.name.quit "profile" "$1";
-			fi
+			# now attempt to deploy the profile
 			:tasks.deploy.profile;
 	done
 	# dump/write json information
@@ -822,11 +838,11 @@ tasks.deploy() {
 # test whether a profile name is valid
 # validity is determined by the existence of a
 # host property for the profile
-:tasks.profile.valid?() {
-	local key="profiles.${profile}.type";
-	local value="${json_doc[$key]:-}";
-	test -n "${value}";
-}
+# :tasks.profile.valid?() {
+# 	local key="profiles.${profile}.type";
+# 	local value="${json_doc[$key]:-}";
+# 	test -n "${value}";
+# }
 
 # deploy a single profile
 :tasks.deploy.profile() {
@@ -839,10 +855,6 @@ tasks.deploy() {
 	# for a profile
 	declare -A profile_commands;
 	
-	local start_time=$( date )
-	
-	:tasks.deploy.out.info "%s" "${start_time}";
-		
 	local script_name="${deploy_file_name}-${profile}.sh";
 	local script_dir="${deploy_target_directory}";
 	local script="${script_dir}/${script_name}";
@@ -1301,8 +1313,11 @@ ${opt}";
 	
 	# otherwise print out information to stdout
 	if ! $dump_json && ! $dump_script; then
+		local start_time=$( date )
+		:tasks.deploy.out.info "date %s" "${start_time}";
 		:tasks.deploy.out.info "deploy %s" "${deploy_name}";	
-		:tasks.deploy.out.info "profile %s" "${profile}";	
+		:tasks.deploy.out.info "profile %s" "${profile}";
+		:tasks.deploy.out.info "type %s" "${deploy_type}";
 		:tasks.deploy.out.info "noop %s" "${noop}";
 		:tasks.deploy.out.info "shell %s" "${shell}";
 		:tasks.deploy.out.info "script %s" "${script}";
@@ -1407,7 +1422,34 @@ ${opt}";
 	if [ $json_exit_code -gt 0 ]; then
 		console.error "invalid json in %s" "$descriptor";
 		:tasks.deploy.fail "stack trace in %s" "$log";
-	fi
+	fi	
+	# fetch all profile names in to
+	# the all_profiles list
+	declare -A names;
+	local k tk profile_re="^(profiles\.([^.]+))\.?";
+	for k in "${!json_doc[@]}"
+		do
+			if [[ "$k" =~ $profile_re ]]; then
+				names["${BASH_REMATCH[2]}"]=true;
+				
+				# assign the default deployment type when none
+				# has been specified
+				tk="${BASH_REMATCH[1]}.type";
+				if [ -z "${json_doc[$tk]:-}" ]; then
+					json_doc[$tk]="${deploy_type_default}";
+				fi
+			fi
+	done
+	# validate profile names in descriptor
+	# match the rules for project/profile names
+	for k in "${!names[@]}"
+		do
+			# quit on invalid profile name in the deploy descriptor
+			if ! :tasks.name.valid? "${k}"; then
+				:tasks.name.quit "profile" "$k";
+			fi
+	done
+	all_profiles=( ${!names[@]} );
 }
 
 :tasks.deploy.script.write!() {
@@ -1638,6 +1680,9 @@ EOF
 			--include-version )
 				include_version=true;
 				;;
+			--all )
+				deploy_all=true;
+				;;				
 			--no-local )
 				skip["local.pre"]=true;
 				skip["local.post"]=true;

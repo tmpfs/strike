@@ -56,6 +56,7 @@ require(3)
 ronn:markdown
 
 function executable.validate {
+	
 	local opt cmd="";
 	local strict=true;
 	if [ "$1" == "--test" ]; then
@@ -64,7 +65,11 @@ function executable.validate {
 	fi
 	
 	for opt in ${@}
-		do
+		do	
+			# skip executables we've already found
+			if [ -n "${executables[$opt]:-}" ]; then
+				continue;
+			fi
 			set +o errexit;
 			cmd=$( command -v "$opt" );
 			set -o errexit;
