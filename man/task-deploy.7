@@ -197,6 +197,13 @@ Do not execute the pre\-deployment commands on the remote host\.
 Do not execute the post\-deployment commands on the remote host\.
 .
 .TP
+\fB\-\-no\-growl\fR:
+
+.
+.P
+Do not send growl notifications\.
+.
+.TP
 \fB\-\-expand\fR:
 
 .
@@ -812,7 +819,10 @@ bake deploy > target/deploy\.log
 .IP "" 0
 .
 .SH "NOTIFICATIONS"
-If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent for a \fBnoop\fR which is the case if the \fB\-\-noop\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
+If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are \fInot\fR sent for a \fBnoop\fR which is the case if the \fB\-\-noop\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
+.
+.P
+You may disable the use of growl notifications by specifying the \fB\-\-no\-growl\fR option\.
 .
 .SH "FILES"
 All generated files are written to \fBtarget/deploy\fR\.
@@ -1004,16 +1014,13 @@ Add \fB\-\-refspec\fR option so that \fBgit\fR deployments may also be done from
 Implement notifications using \fBmail\fR\.
 .
 .P
-Add log file(s) to \fBmail\fR notifications\.
+Attach log file(s) to \fBmail\fR notifications\.
 .
 .P
 Add \fB\-\-script\-file\fR option to allow for a custom script to be used instead of the generated script allowing for unsupported deployment types (for example the mercurial source code management tool)\.
 .
 .P
 Add the \fBdeploy_ssh_options\fR and \fBdeploy_scp_options\fR environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1)\.
-.
-.P
-Add the \fB\-\-no\-growl\fR option to disable growl notifications even if the \fBgrowlnotify\fR executable is available\.
 .
 .SH "BUGS"
 \fBtask\-deploy\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.

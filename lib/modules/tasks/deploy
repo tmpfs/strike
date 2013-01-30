@@ -118,6 +118,10 @@ Do not execute the pre-deployment commands on the remote host.
 
 Do not execute the post-deployment commands on the remote host.
 
+* `--no-growl`:
+
+Do not send growl notifications.
+
 * `--expand`:
 
 Do not quote command options. When this options is set parameter expansion is performed on command options declared in a deployment descriptor.
@@ -503,7 +507,9 @@ Interactive prompts write to *stdout* and read from *stdin* you may also disable
 
 ## NOTIFICATIONS
 
-If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are not sent for a `noop` which is the case if the `--noop`, `--json` or `--script` options are specified.
+If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are *not* sent for a `noop` which is the case if the `--noop`, `--json` or `--script` options are specified.
+
+You may disable the use of growl notifications by specifying the `--no-growl` option.
 
 ## FILES
 
@@ -584,13 +590,11 @@ Add `--refspec` option so that `git` deployments may also be done from tags.
 
 Implement notifications using `mail`.
 
-Add log file(s) to `mail` notifications.
+Attach log file(s) to `mail` notifications.
 
 Add `--script-file` option to allow for a custom script to be used instead of the generated script allowing for unsupported deployment types (for example the mercurial source code management tool).
 
 Add the `deploy_ssh_options` and `deploy_scp_options` environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1).
-
-Add the `--no-growl` option to disable growl notifications even if the `growlnotify` executable is available.
 
 ## BUGS
 
@@ -669,6 +673,7 @@ tasks.deploy() {
 	skip["local.post"]=false;
 	skip["remote.pre"]=false;
 	skip["remote.post"]=false;
+	skip["growl"]=false;
 
 	# valid deployment types
 	local types=( git tar );
@@ -1612,7 +1617,7 @@ EOF
 	
 	# don't send growl notifications for
 	# json dumps or noop
-	if $noop; then
+	if $noop || ${skip[growl]}; then
 		return 0;
 	fi
 	
@@ -1740,6 +1745,9 @@ EOF
 				;;
 			--no-remote-post )
 				skip["remote.post"]=true;
+				;;
+			--no-growl )
+				skip["growl"]=true;
 				;;
 			--log )
 				logging=true;
