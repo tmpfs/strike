@@ -456,15 +456,11 @@ Before profile execution starts command line options are processed that may over
 
 An interactive prompt is displayed asking for confirmation that you wish to deploy the profile.
 
-If global local pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+If global and/or profile-specific *local* pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
 
-If profile-specific local pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+At this point the deployment process starts. When running as a *local* deployment (using `--local`) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on the remote host using scp(1).
 
-At this point the deployment process starts. When running as a local deployment (using `--local`) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on a remote host using scp(1).
-
-If global remote pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
-
-If profile-specific remote pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+If global and/or profile-specific remote pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
 
 The deployment script is executed to perform the deployment based on the deployment type for the profile, see `TYPES`.
 
