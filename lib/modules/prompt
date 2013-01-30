@@ -6,6 +6,8 @@ declare -g prompt_accepted;
 declare -g prompt_rejected;
 declare -g prompt_invalid;
 
+declare -g prompt_current;
+
 # add a boolean prompt
 # $1 id
 # $2 true string
@@ -98,10 +100,12 @@ function __prompt.rejected {
 }
 
 function __prompt.invalid {
-	#echo "$FUNCNAME"
-	__prompt.trigger $prompt_invalid;
+	if [ -n "${prompt_invalid:-}" ]; then
+		__prompt.trigger $prompt_invalid;
+	fi
 	# show prompt on invalid input by default
-	__prompt.show $@;
+	console.prompt ${prompt_current[@]};
+	__prompt.show;
 	return 0;
 }
 
@@ -113,6 +117,7 @@ function __prompt.show.boolean {
 	
 	# show the prompt message
 	console.prompt $@;
+	prompt_current=( $@ );
 	__prompt.show;
 }
 

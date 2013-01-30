@@ -412,6 +412,12 @@ require.once 'git';
 # deploy delegate
 tasks.deploy() {
 	
+	# the prefix used for deployment
+	# interactive prompts
+	local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
+	local deploy_prompt="${deploy_prompt_prefix} \033[4m%s\033[0m";
+	local deploy_prompt_suffix=" ⚡";
+	
 	# start time for the entire deployment
 	local deploy_start_time=$( date );
 	local deploy_local_host_name=$( hostname );
@@ -647,7 +653,7 @@ tasks.deploy() {
 	
 	# stores command to execute
 	# for all profiles
-	declare -A global_commands;	
+	declare -A global_commands;
 	
 	# stores command to execute
 	# for a profile
@@ -698,16 +704,9 @@ tasks.deploy() {
 		# run local pre-deployment command execution
 		:tasks.deploy.run.pre;
 		
-		echo "perform deployment !!!";
-		# local debug testing
-		# :tasks.script.debug;
-		#exit 0;
-
-		# scp the script to the remote server
-		# :tasks.deploy.script.push!;		
-		
-		# run local post-deployment command execution
-		:tasks.deploy.run.post;
+		# if we made it past the local pre-deployment
+		# commands prompt for confirmation when possible
+		:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
 	fi
 	
 	# clean up
@@ -715,6 +714,21 @@ tasks.deploy() {
 	unset host;
 	unset directory;
 	unset profile_commands;
+}
+
+# start execution of a profile
+:tasks.deploy.profile.start() {
+	echo "start deployment !!!";
+	
+	# local debug testing
+	# :tasks.script.debug;
+	#exit 0;
+
+	# scp the script to the remote server
+	# :tasks.deploy.script.push!;		
+	
+	# run local post-deployment command execution
+	:tasks.deploy.run.post;	
 }
 
 # reads in the json data overrriding
@@ -1116,6 +1130,49 @@ ${opt}";
 	else
 		console.info "$@" >> "${log}" 2>&1;
 	fi
+}
+
+# build up the prompt string
+:tasks.deploy.prompt() {
+	local replace="${1:-}";
+	local ps1=$( printf "$deploy_prompt" "$replace" );
+	#echo -n "${ps1}${rlx_prompt_suffix}";
+	prompt="${ps1}${deploy_prompt_suffix}";
+}
+
+# interactive confirmation for
+# a profile deployment
+:tasks.deploy.confirm() {
+	local callback="${1:-}";
+	# stdin or stdout is not a tty
+	# cannot interact
+	if [ ! -t 0 ] || [ ! -t 1 ]; then
+		# invoke callback to start deployment
+		$callback;
+		return 0;
+	fi
+	
+	local replace="${2:-}";
+	:tasks.deploy.prompt "${replace}";
+
+	accepted() {
+		$callback;
+	}
+
+	rejected() {
+		:tasks.deploy.fail "aborted %s" "${replace}";
+	}
+
+	# define a boolean prompt
+	prompt.boolean confirm y n "${prompt} are you sure? (y/n)";
+	# set accept/reject callback(s)
+	prompt.accepts accepted;
+	prompt.rejects rejected;
+	prompt.show confirm;
+	prompt.clean;
+	
+	# clean up confirmation callbacks
+	method.remove accepted rejected;
 }
 
 # validate variable value does not contain
