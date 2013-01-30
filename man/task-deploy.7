@@ -330,6 +330,9 @@ The directory used on the remote server for staging deployment scripts, default 
 The deployment process can optionally execute arbitrary simple commands on the local and remote host\. For each host, command execution is split into the pre\-deployment and post\-deployment execution phases\.
 .
 .P
+Note that when running a local deployment (using \fB\-\-local\fR) then remote commands are executed on the local host\.
+.
+.P
 If any command exits with an exit code \fI>0\fR then the deployment is aborted\. This is useful for running tests prior to performing a deployment or other tasks such as creating a tarball package\.
 .
 .P
@@ -542,7 +545,7 @@ It is recommended that you use the functionality provided by \fBCustom Environme
 The JSON document properties are expanded to variables that you may reference in the deployment descriptor\. These variables are exposed using a \fBjson_\fR prefix\.
 .
 .P
-This is useful to prevent duplication of information between profiles that share some (not not all) commands or properties\.
+This is useful to prevent duplication of information between profiles that share some (but not all) commands or properties\.
 .
 .P
 Consider the following example document:
@@ -714,6 +717,54 @@ A complete example that uses npm(1) to create a tarball, moves it to the local \
 .fi
 .
 .IP "" 0
+.
+.SH "DEPLOYMENT PROCESS"
+This section describes the process that task\-deploy(7) uses to perform a deployment assuming that no command line options (other than profile(s)) have been specified on the command line, see \fBOPTIONS\fR for how command line options influence behaviour\.
+.
+.P
+Load and parse the deployment descriptor JSON document and exit with a \fI>0\fR exit code if invalid JSON is encountered\.
+.
+.P
+Start processing of the target profiles specified on the command line, profile execution order is the order that profiles are specified on the command line or non\-determinate when executing all profiles\.
+.
+.P
+If no profiles are specified on the command line then a \fIdefault\fR profile is assumed, see \fBDEFAULT PROFILE\fR\.
+.
+.P
+Before profile execution starts command line options are processed that may override any settings in the deployment descriptor and the deployment descriptor is evaluated using \fBeval\fR so that variable references declared in a deployment descriptor are resolved correctly in the context of the current profile being executed\. If any errors are encountered task\-deploy(7) exits with a \fI>0\fR exit code\.
+.
+.P
+An interactive prompt is displayed asking for confirmation that you wish to deploy the profile\.
+.
+.P
+If global local pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+.
+.P
+If profile\-specific local pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+.
+.P
+At this point the deployment process starts\. When running as a local deployment (using \fB\-\-local\fR) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on a remote host using scp(1)\.
+.
+.P
+If global remote pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+.
+.P
+If profile\-specific remote pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+.
+.P
+The deployment script is executed to perform the deployment based on the deployment type for the profile, see \fBTYPES\fR\.
+.
+.P
+If the deployment script detects any error the deployment process is aborted\.
+.
+.P
+If global and/or profile\-specific \fIremote\fR post\-deployment commands have been specified they are executed on the remote host by the deployment script\.
+.
+.P
+If global and/or profile\-specific \fIlocal\fR post\-deployment commands have been specified they are executed on the local host\.
+.
+.P
+Success or failure notifications are delivered\.
 .
 .SH "NOTIFICATIONS"
 If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are not sent for a \fBnoop\fR which is the case if the \fB\-\-noop\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.

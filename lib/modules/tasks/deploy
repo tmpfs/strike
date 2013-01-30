@@ -200,6 +200,8 @@ The directory used on the remote server for staging deployment scripts, default 
 
 The deployment process can optionally execute arbitrary simple commands on the local and remote host. For each host, command execution is split into the pre-deployment and post-deployment execution phases.
 
+Note that when running a local deployment (using `--local`) then remote commands are executed on the local host.
+
 If any command exits with an exit code *>0* then the deployment is aborted. This is useful for running tests prior to performing a deployment or other tasks such as creating a tarball package.
 
 The general syntax for declaring commands is:
@@ -439,6 +441,40 @@ A complete example that uses npm(1) to create a tarball, moves it to the local `
 	    }
 	  }
 	}
+	
+## DEPLOYMENT PROCESS
+
+This section describes the process that task-deploy(7) uses to perform a deployment assuming that no command line options (other than profile(s)) have been specified on the command line, see `OPTIONS` for how command line options influence behaviour.
+
+Load and parse the deployment descriptor JSON document and exit with a *>0* exit code if invalid JSON is encountered.
+
+Start processing of the target profiles specified on the command line, profile execution order is the order that profiles are specified on the command line or non-determinate when executing all profiles.
+
+If no profiles are specified on the command line then a *default* profile is assumed, see `DEFAULT PROFILE`.
+
+Before profile execution starts command line options are processed that may override any settings in the deployment descriptor and the deployment descriptor is evaluated using `eval` so that variable references declared in a deployment descriptor are resolved correctly in the context of the current profile being executed. If any errors are encountered task-deploy(7) exits with a *>0* exit code.
+
+An interactive prompt is displayed asking for confirmation that you wish to deploy the profile.
+
+If global local pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+
+If profile-specific local pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+
+At this point the deployment process starts. When running as a local deployment (using `--local`) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on a remote host using scp(1).
+
+If global remote pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+
+If profile-specific remote pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+
+The deployment script is executed to perform the deployment based on the deployment type for the profile, see `TYPES`.
+
+If the deployment script detects any error the deployment process is aborted.
+
+If global and/or profile-specific *remote* post-deployment commands have been specified they are executed on the remote host by the deployment script.
+
+If global and/or profile-specific *local* post-deployment commands have been specified they are executed on the local host.
+
+Success or failure notifications are delivered.
 
 ## NOTIFICATIONS
 

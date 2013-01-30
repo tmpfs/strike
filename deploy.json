@@ -1,4 +1,9 @@
 {
+	"notifications": {
+		"mail": {
+			"to": "muji <freeformsystems@gmail.com>"
+		}
+	},
 	"env": {
 		"archive": {
 			"name": "${project_name}-${project_version}.tgz",
@@ -36,6 +41,7 @@
 		"test":{ "type": "git" },
 		"stage":{ "type": "git" },
 		"npm": {
+			"description": "deploy using npm(1)",
 			"type": "tar",
 			"url": "~/$project_name-$project_version.tgz",
 			"commands": {
