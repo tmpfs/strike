@@ -1009,10 +1009,13 @@ bake help deploy
 .IP "" 0
 .
 .SH "ROADMAP"
-Implement lock files for the local and remote scripts to prevent concurrency issues when multiple deployments are attempted\.
+Add npm(1) deployment type\.
 .
 .P
-Add support for rsync(1)\.
+Add rsync(1) deployment type\.
+.
+.P
+Implement lock files for the local and remote scripts to prevent concurrency issues when multiple deployments are attempted\.
 .
 .P
 Add ability to rollback a deployment if an existing \fBtarget\fR directory existed prior to deployment and the deployment process fails (such as due to a network error)\.
