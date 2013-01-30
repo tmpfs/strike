@@ -839,10 +839,41 @@ tasks.deploy() {
 		deploy_target="${deploy_target}/${profile}";
 	fi
 	
-	# NOTE: this reading commands should be done
+	# NOTE: reading commands should be done
 	# NOTE: after setting all relevant variables
 	# NOTE: so that all variables are available to commands being
-	# NOTE: declared in the deploy.json descriptor	
+	# NOTE: declared in the deploy.json descriptor
+	
+	local json_key json_value env_re="^env_." env_json_re="\\\$json_";
+	# 1) expand properties in an `env`
+	# 1) object exposed by direct variable name
+	# 2) expand JSON document properties
+	# 2) to json_ local variables
+	# 2) so that descriptor documents may
+	# 2) cross-reference properties
+	for json_key in "${!json_doc[@]}"
+		do
+			json_value="${json_doc["$json_key"]}";
+			# sanitized to _ delimiter for variable names
+			json_key="${json_key//\./_}";
+			if [[ ! "$json_key" =~ $env_re ]]; then
+				# escape dollar symbols as `eval`
+				# is invoked later on
+				json_value="${json_value//\$/\\\$}";
+								
+				# prefix with json_ for non-env properties
+				json_key="json_${json_key}";
+			else
+				if [[ "$json_value" =~ $env_json_re ]]; then
+					:tasks.deploy.fail \
+						"invalid %s cross-reference in %s" \
+						"json" "env";
+				fi
+			fi
+			# echo "expanding $json_key : $json_value";
+			# declare variable
+			eval "local $json_key=\"$json_value\"";
+	done
 	
 	# read in global commands
 	:tasks.deploy.commands.read;
@@ -982,20 +1013,6 @@ tasks.deploy() {
 	else
 		prefix="${prefix}.commands";
 	fi
-	
-	# expand JSON document properties
-	# to json_ local variables
-	# so that descriptor documents may
-	# cross-reference properties
-	local json_key json_value;
-	for json_key in "${!json_doc[@]}"
-		do
-			json_value="${json_doc["$json_key"]}";
-			json_value="${json_value//\$/\\\$}";
-			json_key="json_${json_key//\./_}";
-			# echo "expanding $json_key : $json_value";
-			eval "local $json_key=\"$json_value\"";
-	done
 	
 	local local_pre_length="${json_doc[${prefix}.local.pre.length]:-0}";
 	local local_post_length="${json_doc[${prefix}.local.post.length]:-0}";

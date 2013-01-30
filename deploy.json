@@ -1,4 +1,7 @@
 {
+	"env": {
+		"archive": "$project_name-$project_version.tgz"
+	},
 	"host": "cyberfunk@jet.freeformsystems.com",
 	"directory": "~/www",
 	"commands": {
@@ -30,6 +33,7 @@
 		"stage":{ "type": "git" },
 		"npm": {
 			"type": "tar",
+			"url": "~/$project_name-$project_version.tgz",
 			"commands": {
 				"local": {
 					"pre": [
@@ -39,11 +43,11 @@
 						},
 						{
 							"command": "mv",
-							"options": [ "$project_name-$project_version.tgz", "target" ]
+							"options": [ "$env_archive", "target" ]
 						},
 						{
 							"command": "scp",
-							"options": [ "target/$project_name-$project_version.tgz", "${host}:~/" ]
+							"options": [ "target/$env_archive", "${host}:~/" ]
 						}
 					]
 				}
