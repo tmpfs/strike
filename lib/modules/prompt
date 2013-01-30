@@ -18,8 +18,7 @@ function prompt.boolean {
 	shift;
 	# store newline separated
 	local quoted="";
-	local IFS="
-";
+	local IFS=$'\n';
 	quoted=( $@ );
 	prompt_boolean["$key"]="${quoted[*]}";
 }
@@ -31,8 +30,7 @@ function prompt.show {
 	
 	if [ ${#prompt_boolean[@]} -gt 0 ]; then
 		if [ -n "${prompt_boolean["$key"]}" ]; then
-				local IFS="
-			";			
+			local IFS=$'\n';
 			local values=( ${prompt_boolean["$key"]} );
 			__prompt.show.boolean ${values[@]};
 			return $?;
@@ -60,8 +58,11 @@ function prompt.invalid {
 
 # clean all prompt data
 function prompt.clean {
-	unset prompt_data[@];
-	unset prompt_boolean[@];
+	unset prompt_data;
+	unset prompt_boolean;
+	
+	declare -Ag prompt_data;
+	declare -Ag prompt_boolean;	
 	
 	#echo "prompt after clean : ${!prompt_data}";
 }

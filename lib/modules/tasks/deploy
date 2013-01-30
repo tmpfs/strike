@@ -571,6 +571,8 @@ tasks.deploy() {
 		shebang="#!/usr/bin/env ${shell}";
 	fi
 	
+	echo "got target profiles : ${profiles[@]}";
+	
 	# deploy all profiles
 	:tasks.deploy.profiles;
 
@@ -700,12 +702,8 @@ tasks.deploy() {
 	fi
 
 	if ! $dump_script && ! $dump_json; then
-
-		# run local pre-deployment command execution
-		:tasks.deploy.run.pre;
-		
-		# if we made it past the local pre-deployment
-		# commands prompt for confirmation when possible
+	
+		# prompt for confirmation when possible
 		:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
 	fi
 	
@@ -718,6 +716,10 @@ tasks.deploy() {
 
 # start execution of a profile
 :tasks.deploy.profile.start() {
+	
+	# run local pre-deployment command execution
+	:tasks.deploy.run.pre;
+	
 	echo "start deployment !!!";
 	
 	# local debug testing
@@ -1111,7 +1113,7 @@ ${opt}";
 	:tasks.deploy.out.info "started by %s" "${deploy_user}@${deploy_local_host_name}";
 	:tasks.deploy.out.info "";		
 	local p;
-	for p in "${profiles}"
+	for p in "${profiles[@]}"
 		do
 			:tasks.deploy.out.info "\t%s" "$p";
 	done
