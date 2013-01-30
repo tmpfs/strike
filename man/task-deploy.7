@@ -40,6 +40,13 @@ Disable interactivity and assume \fIyes\fR for every prompt\.
 Print commands but do not execute them, implies \fB\-\-ok\fR to disable interactivity\.
 .
 .TP
+\fB\-\-all\fR:
+
+.
+.P
+Deploy all profiles in the descriptor\.
+.
+.TP
 \fB\-\-name [name]\fR:
 
 .
@@ -891,6 +898,19 @@ bake deploy test stage production
 .IP "" 0
 .
 .P
+Deploy all profiles in the descriptor:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-all
+.
+.fi
+.
+.IP "" 0
+.
+.P
 Inspect the settings used for a \fIdefault\fR deployment:
 .
 .IP "" 4
@@ -926,6 +946,9 @@ Implement lock files for the local and remote scripts to prevent concurrency iss
 Add support for rsync(1)\.
 .
 .P
+Add ability to rollback a deployment if an existing \fBtarget\fR directory existed prior to deployment and the deployment process fails (such as due to a network error)\.
+.
+.P
 Add \fB\-\-branch\fR option to specify a git branch to use for all profiles that are of the \fBgit\fR type\.
 .
 .P
@@ -936,9 +959,6 @@ Implement notifications using \fBmail\fR\.
 .
 .P
 Add log file(s) to \fBmail\fR notifications\.
-.
-.P
-Implement \fB\-\-all\fR option to deploy all profiles in a descriptor\.
 .
 .P
 Implement \fB\-\-list\fR option to list profiles in a descriptor\.

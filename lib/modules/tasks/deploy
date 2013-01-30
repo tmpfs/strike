@@ -28,6 +28,10 @@ Disable interactivity and assume *yes* for every prompt.
 
 Print commands but do not execute them, implies `--ok` to disable interactivity.
 
+* `--all`:
+
+Deploy all profiles in the descriptor.
+
 * `--name [name]`:
 
 Override the default project name (determined by the name of the parent directory), see `NAMES` for project and profile name rules.
@@ -535,6 +539,10 @@ Deploy the profiles *test*, *stage* and *production*:
 
 	bake deploy test stage production
 	
+Deploy all profiles in the descriptor:
+
+	bake deploy --all
+	
 Inspect the settings used for a *default* deployment:
 
 	bake deploy --json --pretty \\
@@ -552,6 +560,8 @@ Implement lock files for the local and remote scripts to prevent concurrency iss
 
 Add support for rsync(1).
 
+Add ability to rollback a deployment if an existing `target` directory existed prior to deployment and the deployment process fails (such as due to a network error).
+
 Add `--branch` option to specify a git branch to use for all profiles that are of the `git` type.
 
 Add `--refspec` option so that `git` deployments may also be done from tags.
@@ -559,8 +569,6 @@ Add `--refspec` option so that `git` deployments may also be done from tags.
 Implement notifications using `mail`.
 
 Add log file(s) to `mail` notifications.
-
-Implement `--all` option to deploy all profiles in a descriptor.
 
 Implement `--list` option to list profiles in a descriptor.
 
