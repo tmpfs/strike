@@ -411,10 +411,15 @@ require.once 'git';
 
 # deploy delegate
 tasks.deploy() {
+	
+	# start time for the entire deployment
+	local deploy_start_time=$( date );
+	local deploy_local_host_name=$( hostname );
+	local deploy_user=$( id -nu );
+	
 	executable.validate scp ssh;
 
 	local descriptor="${root}/deploy.json";
-	
 	local newline=$'\n';
 
 	executable.validate --test growlnotify;
@@ -591,6 +596,10 @@ tasks.deploy() {
 # deploy a series of profiles
 :tasks.deploy.profiles() {
 	local profile;
+
+	# print profiles being processed	
+	:tasks.deploy.print.profiles;
+	
 	for profile in "${profiles[@]}"
 		do
 			if [ "${profile}" != "${default_profile}" ]; then
@@ -1080,6 +1089,19 @@ ${opt}";
 		:tasks.deploy.out.info "git branch %s" "${git_branch}";
 		:tasks.deploy.out.info "host %s" "${host}";
 	fi
+}
+
+# print profiles
+:tasks.deploy.print.profiles() {
+	:tasks.deploy.out.info "deploy %s" "$deploy_start_time";
+	:tasks.deploy.out.info "started by %s" "${deploy_user}@${deploy_local_host_name}";
+	:tasks.deploy.out.info "";		
+	local p;
+	for p in "${profiles}"
+		do
+			:tasks.deploy.out.info "\t%s" "$p";
+	done
+	:tasks.deploy.out.info "";
 }
 
 # output an info message to stdout or
