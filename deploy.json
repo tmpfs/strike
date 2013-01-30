@@ -3,10 +3,18 @@
 	"directory": "~/www",
 	"commands": {
 		"local": {
-			"pre": [								
+			"pre": [
 				{
 					"command": "pwd"
-				}
+				},
+				{
+					"command": "ls",
+					"options": [ "$target" ]
+				},
+				{
+					"command": "echo",
+					"options": [ "`env`" ]
+				}				
 			],
 			"post": [
 				{
