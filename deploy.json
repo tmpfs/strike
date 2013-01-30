@@ -5,6 +5,14 @@
 		"local": {
 			"pre": [
 				{
+		          "command": "echo",
+		          "options": [ "$json_commands_local_pre_0_command", "$json_directory", "$json_host", "$json_commands_local_pre_0_options_length" ]
+		        },
+				{
+					"command": "echo",
+					"options": [ "$json_directory" ]
+				},			
+				{
 					"command": "ls",
 					"options": [ "$target" ]
 				}

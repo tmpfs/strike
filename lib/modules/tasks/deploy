@@ -225,7 +225,7 @@ All commands are encapsulated by the *commands* object which can contain *local*
 
 A *commands* object may be declared at the top-level of the JSON descriptor document, in which case the commands will be executed for *all* profiles. A *commands* object may also be declared in a profile to execute commands specific to that profile. When *commands* are declared at the top-level of the document and in a profile then they are concatenated together and all commands are executed.
 
-### PARAMETER EXPANSION
+### Parameter Expansion
 
 By default parameters are not expanded - whitespace in a parameter is preserved and passed as a single argument to the command being executed. For example, imagine you wanted to list the contents of the *lib* and *man* directories, this would fail (with the default settings) if you specified both directories in a single option (`ls` would be looking for a directory named "lib man" rather than attempting to list two separate directories):
 
@@ -315,7 +315,80 @@ A boolean indicating if a flat directory structure is being used, see the `TARGE
 
 A boolean indicating if version information is being included in the directory structure, see the `TARGET` section.
 
-### Example
+### Cross References
+
+The JSON document properties are expanded to variables that you may reference in the deployment descriptor. These variables are exposed using a `json_` prefix.
+
+This is useful to prevent duplication of information between profiles that share some (not not all) commands or properties.
+
+Consider the following example document:
+
+	{
+	  "host": "user@example.com",
+	  "directory": "~/www",
+	  "commands": {
+	    "local": {
+	      "pre": [
+	        {
+	          "command": "echo",
+	          "options": [ "$json_directory", "$json_host" ]
+	        }
+	      ]
+	    }
+	  }
+	}
+	
+In this instance the `\$json_` variables reference the *directory* and *host* properties declared at the top-level of the document.
+
+This results in the command (for the local host pre-deployment phase):
+
+	echo ~/www user@example.com
+	
+When the command is executed it generates the output:
+
+	~/www user@example.com
+
+You may reference any property in the document by full path delimited by an underscore (_) for the variable name.
+
+To illustrate, a convoluted example which generates the same output as the above example but also prepends the command being executed and appends the number of options being passed to the command:
+
+	{
+	  "host": "user@example.com",
+	  "directory": "~/www",
+	  "commands": {
+	    "local": {
+	      "pre": [
+	        {
+	          "command": "echo",
+	          "options": [
+	            "$json_commands_local_pre_0_command",
+	            "$json_directory",
+	            "$json_host",
+	            "$json_commands_local_pre_0_options_length"
+	          ]
+	        }
+	      ]
+	    }
+	  }
+	}
+	
+The command becomes:
+
+	echo echo ~/www user@example.com 4
+	
+Which generates the *output*:
+
+	echo ~/www user@example.com 4
+	
+Notice how you can access array elements by index and also the the *length* properties of array types.
+	
+### Command Errors
+
+Commands (declared by the *command* property) may not contain any whitespace (space, tab or newline). It is a JSON error to declare literal whitespace characters such as \\n or \\t, if these are specified using the escaped values (allowed by JSON) the program will exit with a whitespace error.
+
+If you reference a variable that is unbound in a command the program will exit immediately with a >0 exit code and an error message.
+
+### Command Examples
 
 An example that uses npm(1) to create a tarball, moves it to the `target` directory and copies the tarball to a remote host:
 
@@ -337,12 +410,6 @@ An example that uses npm(1) to create a tarball, moves it to the `target` direct
 			]
 		}
 	}
-	
-### Command Errors
-
-Commands (declared by the *command* property) may not contain any whitespace (space, tab or newline). It is a JSON error to declare literal whitespace characters such as \\n or \\t, if these are specified using the escaped values (allowed by JSON) the program will exit with a whitespace error.
-
-If you reference a variable that is unbound in a command the program will exit immediately with a >0 exit code and an error message.
 
 ## NOTIFICATIONS
 
@@ -570,8 +637,6 @@ tasks.deploy() {
 	if [ "${shell}" != "sh" ]; then
 		shebang="#!/usr/bin/env ${shell}";
 	fi
-	
-	echo "got target profiles : ${profiles[@]}";
 	
 	# deploy all profiles
 	:tasks.deploy.profiles;
@@ -917,6 +982,20 @@ tasks.deploy() {
 	else
 		prefix="${prefix}.commands";
 	fi
+	
+	# expand JSON document properties
+	# to json_ local variables
+	# so that descriptor documents may
+	# cross-reference properties
+	local json_key json_value;
+	for json_key in "${!json_doc[@]}"
+		do
+			json_value="${json_doc["$json_key"]}";
+			json_value="${json_value//\$/\\\$}";
+			json_key="json_${json_key//\./_}";
+			# echo "expanding $json_key : $json_value";
+			eval "local $json_key=\"$json_value\"";
+	done
 	
 	local local_pre_length="${json_doc[${prefix}.local.pre.length]:-0}";
 	local local_post_length="${json_doc[${prefix}.local.post.length]:-0}";
