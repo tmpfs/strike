@@ -26,6 +26,7 @@
 	# timestamp has to be done here
 	# otherwise tilde ~ expansion will not work	
 	local timestamp=$( date +%s );
+	local creator_host=$( uname -a );
 
 	# setup a deployment staging sandbox
 	local sandbox="${staging}/${deploy_file_name}-${profile}-${timestamp}";
@@ -140,6 +141,7 @@ deploy_final_name="${deploy_final_name}"; export deploy_final_name;
 deploy_type="${type}"; export deploy_type;
 timestamp="${timestamp}"; export timestamp;
 creator="${creator}"; export creator;
+creator_host="${creator_host}"; export creator_host;
 
 project_name="${project_name}"; export project_name;
 project_version="${project_version}"; export project_version;
@@ -272,6 +274,7 @@ settings() {
 	fi	
 	info "target %s\n" "\${deploy_target}";	
 	info "creator %s\n" "\${creator}";
+	info "creator (host) %s\n" "\${creator_host}";
 	info "date %s\n" "\${start_time}";
 	info "timestamp %s\n" "\${timestamp}";
 	info "sandbox %s\n" "\${sandbox}";
