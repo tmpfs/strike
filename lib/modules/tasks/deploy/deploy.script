@@ -274,7 +274,6 @@ setup() {
 	
 	# if the target exist, move to a backup
 	if test -d \$deploy_target && [ "\$type" != "git" ]; then
-		echo "CREATING BACKUP DIRECTORY";
 		backup;
 	fi
 }

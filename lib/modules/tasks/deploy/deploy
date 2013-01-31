@@ -695,6 +695,14 @@ tasks.deploy() {
 	executable.validate scp ssh tar;
 	executable.validate --test growlnotify;
 	
+	# regex for matching a url scheme
+	# eg: file: http: https: ftp:
+	# this is only necessary for the *tar*
+	# type which uses curl to fetch the package.
+	# the *git* deployment can cope with local
+	# repositories that do not specify a scheme
+	local scheme="^[a-zA-Z]+:";
+	
 	# interactive by default
 	local interactive=true;
 	
@@ -1070,10 +1078,15 @@ tasks.deploy() {
 	# tar / git types must specify a url
 	if [ "$type" == "tar" ] || [ "$type" == "git" ]; then
 		if [ -z "${url:-}" ]; then
-			if [ "$profile" == "$default_profile" ] && [ "$type" == "git" ]; then
+			# use the default url extracted for a git repository
+			# for the default profile if possible
+			if [ "$profile" == "$default_profile" ] \
+				&& [ "$type" == "git" ] \
+				&& [ -n "${default_url:-}" ]; then
 				url="$default_url";
 			else
-				:tasks.deploy.fail "no url for %s (type: %s)" "${profile}" "${type}";				
+				:tasks.deploy.fail "%s (type: %s) no url" \
+					"${profile}" "${type}";
 			fi
 		fi
 	fi
@@ -1082,7 +1095,9 @@ tasks.deploy() {
 	if [ "$type" == "npm" ]; then
 		# must have a package declared
 		if [ -z "${package:-}" ]; then
-			:tasks.deploy.fail "no package for profile %s (type: %s)" "${profile}" "${type}";
+			:tasks.deploy.fail \
+				"%s (type: %s) no package" \
+				"${profile}" "${type}";
 		fi
 		# allow variable references in the *package* property
 		if [ -n "${package:-}" ]; then
@@ -1102,6 +1117,13 @@ tasks.deploy() {
 			eval "url=\"$url\"";
 		fi
 	fi
+	
+	if [ "$type" == "tar" ] \
+		&& [[ ! "$url" =~ $scheme ]]; then
+			:tasks.deploy.fail \
+				"%s (type: %s) invalid url %s, must specify a scheme" \
+				"${profile}" "${type}" "${url}";
+	fi	
 	
 	# validate required data
 	if ! $deploy_local && [ -z "${host}" ]; then
