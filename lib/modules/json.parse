@@ -76,6 +76,7 @@ function __json.start {
 	__json.parse.value;
 	exit_code=$?;
 	
+	# TODO: remove this logic completely as __json.parse.value is recursive ???
 	# we can have valid json and no next token
 	# so don't exit on the next read
 	set -o errexit;
