@@ -3,16 +3,15 @@
 	# always write the effective settings into the bundle
 	:tasks.bundle.settings.write!
 	
-	# create a package.json for the *npm* deployment type
-	if [ "$type" == "npm" ]; then
-		:tasks.bundle.npm.package.write!;
-	fi
-	
 	# create the bundle
 	{
 		cd "$deploy_target_directory" \
 			&& tar cf "$bundle_archive" "$bundle_name";
 	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
+	
+	# clean up after bundle creation
+	rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
+		|| :tasks.deploy.fail "could not clean bundle source %s" "$bundle_path";
 }
 
 # write the deploy settings for the profile to the bundle

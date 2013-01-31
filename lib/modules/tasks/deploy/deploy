@@ -1095,6 +1095,14 @@ tasks.deploy() {
 	:tasks.deploy.info;	
 	
 	if ! $print_json; then
+		
+		# create a package.json for the *npm* deployment type
+		# must be done prior to creating the script so that
+		# --lint-run works as expected
+		if [ "$type" == "npm" ]; then
+			:tasks.bundle.npm.package.write!;
+		fi
+		
 		# write the deploy script file
 		:tasks.deploy.script.write!;
 	fi

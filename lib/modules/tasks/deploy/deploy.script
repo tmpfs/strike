@@ -30,9 +30,6 @@
 
 	# setup a deployment staging sandbox
 	local sandbox="${staging}/${deploy_file_name}-${profile}-${timestamp}";
-	
-	# where a npm package.json file would be written
-	local npm_package_file="${sandbox}/package.json";
 		
 	# escape spaces in paths
 	printf -v staging "%q" "${staging}";
@@ -41,7 +38,6 @@
 	printf -v deploy_target "%q" "${deploy_target}";
 	printf -v directory "%q" "${directory}";
 	printf -v sandbox "%q" "${sandbox}";
-	printf -v npm_package_file "%q" "${npm_package_file}";
 	
 	# custom script file specified
 	if [ -n "${script_source}" ]; then
@@ -88,6 +84,9 @@
 		if $run_script; then
 			local exit_code=1;
 			console.info "exec %s" "${script}";
+			# make the working directory
+			# the bundle source directory
+			cd "${bundle_source}";
 			"${script}";
 			exit_code=$?;
 			console.info "%s exited with %s" "${script}" "${exit_code}";
@@ -160,9 +159,8 @@ deploy_parent=${deploy_parent}; export deploy_parent;
 
 # clean temporary files
 cleanup() {
-	
 	# attempt to rollback on exit if the deployment failed
-	if ! $success && test -d \${backup}; then
+	if ! \$success && test -d \${backup}; then
 		rollback;
 	fi
 	
@@ -184,7 +182,8 @@ cat <<EOF >> "${script}"
 
 # completed successfully
 complete() {
-	sucess=true;
+	success=true;
+	echo "COMPLETE CALLED \$success";
 	exit 0;
 }
 
@@ -315,31 +314,15 @@ EOF
 # npm specific commands
 :tasks.deploy.script.npm.write!() {	
 cat <<EOF >> "${script}"
-npm_package_name="${npm_package_name}"; export npm_package_name;
-npm_package_version="${npm_package_version}"; export npm_package_version;
-npm_package_file=\${sandbox}/package.json; export npm_package_file;
-npm_install_target="\${sandbox}/node_modules/$npm_package_name"; export npm_install_target;
-npm_install_final="\${sandbox}/node_modules/$deploy_final_name"; export npm_install_final;
+npm_package_name="${npm_package_name}";
+npm_package_version="${npm_package_version}";
+npm_install_target="./node_modules/\$npm_package_name";
+npm_install_final="./node_modules/\$deploy_final_name";
 deploy() {
 	info "npm name %s\n" "\$npm_package_name";
 	info "npm version %s\n" "\$npm_package_version";
-	info "npm package %s\n" "\$npm_package_file";
-	touch \${npm_package_file} \\
-		|| { quit "could not create %s\n" "\$npm_package_file"; }
-cat <<NPMPKG >> \${npm_package_file}
-{
-	"name": "${project_name}-${profile}-deploy",
-	"version": "0.0.1",	
-	"private": "true",
-	"dependencies": {
-		"$npm_package_name": "${npm_package_version:-*}"
-	}
-}
-NPMPKG
-
-	# now perform the npm installation in the sandbox
-	cd \${sandbox} \\
-		&& npm install >> \$log_file 2>&1 \\
+	# now perform the npm installation
+	npm install >> \$log_file 2>&1 \\
 		&& mv \$npm_install_target \$npm_install_final \\
 		&& mv \$npm_install_final \$deploy_parent \\
 		&& complete;
