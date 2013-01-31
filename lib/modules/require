@@ -231,10 +231,25 @@ function __require_register {
 
 function __require_source {
 	local abs="$1";
+	local name;
+	fs.basename "$abs" "name";
+	
+	# reference a directory, look in directory
+	# for a file matching the reference name
+	# this allows grouping or complex modules
+	# into a directory
+	if [ -d "$abs" ]; then
+		if [ -f "${abs}/${name}" ]; then			
+			abs="${abs}/${name}";
+		else
+			console.quit 1 "module %s is a directory" "$abs";
+		fi
+	fi
+	
 	# only require if path does not match an already loaded module
 	# or if the module is being loaded forcefully
 	if ! require.path.exists? "$abs" || $force; then
-		source "$abs";
+		. "$abs";
 	else
 		console.warn "skipping require on loaded module %s" "$abs";
 	fi
@@ -298,9 +313,8 @@ function __require_load {
 				do
 					#fs.path.expand "$f" > /dev/null;
 					#f="$_result";
-					abs="${f}/${name}";
-				
-					if [ -f "$abs" ] && [ -r "$abs" ]; then
+					abs="${f}/${name}";					
+					if [ -r "$abs" ]; then
 						__require_source "$abs";
 						loaded=1;
 						break;
@@ -317,8 +331,11 @@ function __require_load {
 		# TODO: change name handling for tasks loaded by name
 		# eg, tasks/test to correspond to tasks_test
 		
+		# TODO: check delegate name against the type -f 
+		# TODO: to see whether it overrides a builtin
+		
 		# never do delegate functionality for the `test`
-		# module otherwise we override the test command
+		# module otherwise we override the test command		
 		if [ "$name" == test ]; then
 			return 0;
 		fi

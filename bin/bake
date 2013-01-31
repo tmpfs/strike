@@ -150,6 +150,10 @@ process.use strict;
 # 
 # exit 0;
 
+# type -t test;
+# 
+# exit 0;
+
 #opts=( -la "man target" );
 #echo "opts length ${#opts[@]}";
 
