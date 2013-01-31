@@ -136,7 +136,7 @@ Do not quote command options. When this options is set parameter expansion is pe
 	
 ## TYPES
 
-The deploy tasks support the *git* and *tar* deployment types.
+The deploy tasks support the *git*, *tar* and *npm* deployment types.
 
 ### GIT
 
@@ -145,6 +145,10 @@ This deployment type will clone if the deployment directory does not exist and f
 ### TAR
 
 This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory.
+
+### NPM
+
+This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the `target` directory.
 
 ## JSON FORMAT
 
@@ -175,24 +179,6 @@ Or alternatively in conjunction with the `--flat` option the target directory be
 ## PROFILES
 
 You may specify one or more profiles to deploy after any options. If no profiles are specified then a deploy is attempted using the *default* profile.
-
-Note that a profile must declare at a minimum the *type* property for it to be recognised, for example the following is invalid:
-
-	{
-	  "profiles": {
-	    "stage": {}
-	  }
-	}
-	
-Therefore the profile will not be available. You `must` specify at least the deployment *type*:
-
-	{
-	  "profiles": {
-	    "stage": {
-	      "type": "git"
-	    }
-	  }
-	}
 
 ## DEFAULT PROFILE
 
@@ -633,12 +619,10 @@ deploy_property_names=(
 	"type"
 	"url"
 	"description"
+	"package"
+	"directory"
+	"staging"
 );
-
-# list of property names that are specific
-# to a particular type of deployment
-declare -Ag deploy_property_by_type;
-deploy_property_by_type[npm]="package";
 
 # deploy delegate
 tasks.deploy() {
@@ -1322,23 +1306,23 @@ ${opt}";
 	
 	# variable names to inspect for
 	# each profile being processed
-	local var key vars=(
+	local var key
+	
+	# use all json property names
+	local vars=( "${deploy_property_names[@]}" );
+	# add property names set internally
+	vars+=(
 		deploy_name
 		deploy_file_name
-		type
 		deploy_target
-		description
 		script_shell
-		script_shebang		
+		script_shebang
 		script_file
 		script_dir
-		directory
-		staging
 		log_file
 		log_dir
 		git_url
 		git_branch
-		host
 	);
 	
 	# using custom script

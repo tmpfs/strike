@@ -224,13 +224,16 @@ Do not send growl notifications\.
 Do not quote command options\. When this options is set parameter expansion is performed on command options declared in a deployment descriptor\.
 .
 .SH "TYPES"
-The deploy tasks support the \fIgit\fR and \fItar\fR deployment types\.
+The deploy tasks support the \fIgit\fR, \fItar\fR and \fInpm\fR deployment types\.
 .
 .SS "GIT"
 This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository\.
 .
 .SS "TAR"
 This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory\.
+.
+.SS "NPM"
+This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the \fBtarget\fR directory\.
 .
 .SH "JSON FORMAT"
 The format of the \fIdeploy\.json\fR descriptor is described in the task\-deploy\-json(7) man page, to view this man page run:
@@ -302,42 +305,6 @@ Or alternatively in conjunction with the \fB\-\-flat\fR option the target direct
 .
 .SH "PROFILES"
 You may specify one or more profiles to deploy after any options\. If no profiles are specified then a deploy is attempted using the \fIdefault\fR profile\.
-.
-.P
-Note that a profile must declare at a minimum the \fItype\fR property for it to be recognised, for example the following is invalid:
-.
-.IP "" 4
-.
-.nf
-
-{
-  "profiles": {
-    "stage": {}
-  }
-}
-.
-.fi
-.
-.IP "" 0
-.
-.P
-Therefore the profile will not be available\. You \fBmust\fR specify at least the deployment \fItype\fR:
-.
-.IP "" 4
-.
-.nf
-
-{
-  "profiles": {
-    "stage": {
-      "type": "git"
-    }
-  }
-}
-.
-.fi
-.
-.IP "" 0
 .
 .SH "DEFAULT PROFILE"
 The default profile uses a \fIgit\fR deployment type and the current branch and git remote URL for deployment to the target host\.
@@ -547,7 +514,7 @@ The path to the log file used by task\-deploy(7)\.
 A boolean indicating whether output is being redirected to the file defined by the \fIlog\fR variable\.
 .
 .TP
-\fBdeploy_type\fR:
+\fBtype\fR:
 
 .
 .P

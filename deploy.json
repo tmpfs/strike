@@ -39,7 +39,7 @@
 	},
 	"profiles": {
 		"test":{ "type": "git" },
-		"stage":{ "type": "git" },
+		"stage":{},
 		"empty": {},
 		"npm-scp-tar": {
 			"description": "npm(1)+scp(1)+tar(1)",
