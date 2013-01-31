@@ -15,8 +15,7 @@
 	printf -v log_file "%q" "${log_file}";
 	printf -v log_dir "%q" "${log_dir}";
 	printf -v deploy_target "%q" "${deploy_target}";
-	
-	#echo "after quoting : $staging";
+	printf -v directory "%q" "${directory}";
 	
 	# custom script file specified
 	if [ -n "${script_source}" ]; then
@@ -98,8 +97,11 @@ ${shebang}
 # directory: ${directory}
 # target: ${deploy_target}
 
-set +e;
-set +u;
+# NOTE: directories and files are literal
+# NOTE: to allow tilde ~ expansion
+
+set -e;
+set -u;
 
 # global variables
 start_time=\$( date ); export start_time;
@@ -117,6 +119,7 @@ host="${host}"; export host;
 deploy_name="${deploy_name}"; export deploy_name;
 deploy_target="${deploy_target}"; export deploy_target;
 deploy_type="${type}"; export deploy_type;
+
 EOF
 }
 
@@ -124,7 +127,6 @@ EOF
 # deployment types
 :tasks.deploy.script.common.write!() {
 cat <<EOF >> "${script}"
-
 # quit on failure
 quit() {
 	printf "\$@";
@@ -138,10 +140,6 @@ info() {
 
 # set up the log file
 log() {
-	echo "log dir: $log_dir";
-	echo "log file: $log_file";
-	# NOTE: directories and files are literal
-	# NOTE: to allow ~ expansion
 	# create the log directory
 	if ! test -d $log_dir; then
 		mkdir -pv $log_dir \\
@@ -153,6 +151,16 @@ log() {
 	fi
 	touch $log_file \\
 		|| { quit "could not create log file %s\n" "\$log_file"; }
+}
+
+# setup the directory structure
+setup() {
+	# create the main target directory
+	if ! test -d $directory; then
+		info "mkdir -p %s\n" "\${directory}";
+		mkdir -p $directory \\
+			|| { quit "could not create %s\n" "\$directory"; }
+	fi
 }
 
 # print the settings
@@ -167,8 +175,8 @@ settings() {
 	info "noop %s\n" "\${noop}";
 	info "shell %s\n" "\${shell}";
 	info "script %s\n" "\${script}";
-	info "working directory %s\n" "\${directory}";
-	info "staging directory %s\n" "\${staging}";
+	info "directory %s\n" "\${directory}";
+	info "staging %s\n" "\${staging}";
 	info "target %s\n" "\${deploy_target}";
 	info "log file %s\n" "\${log_file}";
 	info "host %s\n" "\${host}";
@@ -177,33 +185,14 @@ settings() {
 EOF
 }
 
-# :tasks.deploy.out.info "date %s" "${start_time}";
-# :tasks.deploy.out.info "deploy %s" "${deploy_name}";
-# if [ -n "${description:-}" ]; then
-# 	:tasks.deploy.out.info "description %s" "${description}";
-# fi
-# :tasks.deploy.out.info "profile %s" "${profile}";
-# :tasks.deploy.out.info "type %s" "${type}";
-# :tasks.deploy.out.info "noop %s" "${noop}";
-# :tasks.deploy.out.info "shell %s" "${shell}";
-# # using custom script
-# if [ -n "${script_source}" ]; then
-# 	:tasks.deploy.out.info "source script %s" "${script_source}";
-# fi		
-# :tasks.deploy.out.info "script %s" "${script}";
-# :tasks.deploy.out.info "working directory %s" "${directory}";
-# :tasks.deploy.out.info "staging directory %s" "${staging}";
-# :tasks.deploy.out.info "target %s" "${deploy_target}";
-# :tasks.deploy.out.info "log file %s" "${log_file}";
 # :tasks.deploy.out.info "git url %s" "${git_url}";
 # :tasks.deploy.out.info "git branch %s" "${git_branch}";
-# :tasks.deploy.out.info "host %s" "${host}";
 
 # git specific commands
 :tasks.deploy.script.git.write!() {
 cat <<EOF >> "${script}"
 deploy() {
-	echo "deploy git";
+	echo "deploy git !";
 }
 EOF
 }
@@ -212,7 +201,7 @@ EOF
 :tasks.deploy.script.tar.write!() {
 cat <<EOF >> "${script}"
 deploy() {
-	echo "deploy tar";
+	echo "deploy tar !";
 }
 EOF
 }
@@ -221,7 +210,7 @@ EOF
 :tasks.deploy.script.npm.write!() {
 cat <<EOF >> "${script}"
 deploy() {
-	echo "deploy npm";
+	echo "deploy npm !";
 }
 EOF
 }
@@ -237,9 +226,17 @@ if [ -z "\$binary" ]; then
 	quit "%s is not installed\n" "\$binary";
 fi
 
-start() {
+init() {
 	log;
+	# info command is available
+	# after calling `log`	
+	setup;
+}
+
+start() {
+	init;
 	settings;
+	deploy;
 }
 start "\$@";
 EOF

@@ -1403,8 +1403,8 @@ ${opt}";
 			:tasks.deploy.out.info "source script %s" "${script_source}";
 		fi		
 		:tasks.deploy.out.info "script %s" "${script}";
-		:tasks.deploy.out.info "working directory %s" "${directory}";
-		:tasks.deploy.out.info "staging directory %s" "${staging}";
+		:tasks.deploy.out.info "directory %s" "${directory}";
+		:tasks.deploy.out.info "staging %s" "${staging}";
 		:tasks.deploy.out.info "target %s" "${deploy_target}";
 		:tasks.deploy.out.info "log file %s" "${log_file}";
 		:tasks.deploy.out.info "git url %s" "${git_url}";
