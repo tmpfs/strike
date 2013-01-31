@@ -29,6 +29,9 @@
 
 	# setup a deployment staging sandbox
 	local sandbox="${staging}/${deploy_file_name}-${profile}-${timestamp}";
+	
+	# where a npm package.json file would be written
+	local npm_package_file="${sandbox}/package.json";
 		
 	# escape spaces in paths
 	printf -v staging "%q" "${staging}";
@@ -37,6 +40,7 @@
 	printf -v deploy_target "%q" "${deploy_target}";
 	printf -v directory "%q" "${directory}";
 	printf -v sandbox "%q" "${sandbox}";
+	printf -v npm_package_file "%q" "${npm_package_file}";
 	
 	# custom script file specified
 	if [ -n "${script_source}" ]; then
@@ -118,44 +122,43 @@ ${shebang}
 # directory: ${directory}
 # target: ${deploy_target}
 
-# NOTE: directories and files are literal
-# NOTE: to allow tilde ~ expansion
-
 set -e;
 set -u;
 
 # global variables
 start_time=\$( date ); export start_time;
-log_dir="${log_dir}"; export log_dir;
-log_file="${log_file}"; export log_file;
 profile="${profile}"; export profile;
 noop="${noop}"; export noop;
 shell="${shell}"; export shell;
 script_source="${script_source}"; export script_source;
 script="${script}"; export script;
-directory="${directory}"; export directory;
-staging="${staging}"; export staging;
 description="${description}"; export description;
 host="${host}"; export host;
 deploy_name="${deploy_name}"; export deploy_name;
-deploy_target="${deploy_target}"; export deploy_target;
-deploy_parent="${deploy_parent}"; export deploy_parent;
 deploy_final_name="${deploy_final_name}"; export deploy_final_name;
 deploy_type="${type}"; export deploy_type;
 timestamp="${timestamp}"; export timestamp;
-sandbox="${sandbox}"; export sandbox;
 creator="${creator}"; export creator;
 
+# NOTE: directories and files are literal
+# NOTE: to allow tilde ~ expansion
+sandbox=${sandbox}-\$\$; export sandbox;
+log_dir=${log_dir}; export log_dir;
+log_file=${log_file}; export log_file;
+directory=${directory}; export directory;
+staging=${staging}; export staging;
+deploy_target=${deploy_target}; export deploy_target;
+deploy_parent=${deploy_parent}; export deploy_parent;
 
 # clean temporary files
 cleanup() {
-	if test -d $sandbox-\$\$; then
-		info "rm -rfv %s\n" "$sandbox-\$\$";
-		rm -rfv $sandbox-\$\$;
+	if test -d \$sandbox; then
+		info "rm -rfv %s\n" "\$sandbox";
+		rm -rfv \$sandbox >> \$log_file 2>&1;
 	fi
 }
 
-trap 'cleanup >/dev/null 2>&1' EXIT HUP INT QUIT TERM
+trap 'cleanup' EXIT HUP INT QUIT TERM
 
 EOF
 }
@@ -193,17 +196,17 @@ log() {
 # setup the directory structure
 setup() {
 	# create the parent directory
-	if ! test -d $deploy_parent; then
+	if ! test -d \$deploy_parent; then
 		info "mkdir -p %s\n" "\${deploy_parent}";
-		mkdir -p $deploy_parent \\
+		mkdir -p \$deploy_parent \\
 			|| { quit "could not create %s\n" "\$deploy_parent"; }
 	fi
 	
 	# create the sandbox
-	if ! test -d $sandbox-\$\$; then
-		info "mkdir -p %s\n" "\${sandbox}-\$\$";
-		mkdir -p $sandbox-\$\$ \\
-			|| { quit "could not create %s\n" "\$sandbox-\$\$"; }
+	if ! test -d \$sandbox; then
+		info "mkdir -p %s\n" "\${sandbox}";
+		mkdir -p \$sandbox \\
+			|| { quit "could not create %s\n" "\$sandbox"; }
 	fi
 }
 
@@ -216,7 +219,7 @@ settings() {
 	info "creator %s\n" "\${creator}";
 	info "date %s\n" "\${start_time}";
 	info "timestamp %s\n" "\${timestamp}";
-	info "sandbox %s\n" "\${sandbox}-\$\$";
+	info "sandbox %s\n" "\${sandbox}";
 	info "profile %s\n" "\${profile}";
 	info "type %s\n" "\${deploy_type}";
 	info "noop %s\n" "\${noop}";
@@ -254,11 +257,18 @@ EOF
 }
 
 # npm specific commands
-:tasks.deploy.script.npm.write!() {
+:tasks.deploy.script.npm.write!() {	
 cat <<EOF >> "${script}"
+npm_package_name="${npm_package_name}"; export npm_package_name;
+npm_package_version="${npm_package_version}"; export npm_package_version;
+npm_package_file=\${sandbox}/package.json; export npm_package_file;
 deploy() {
-	echo "deploy npm !";
-cat <<NPMPKG
+	info "npm name %s\n" "\$npm_package_name";
+	info "npm version %s\n" "\$npm_package_version";
+	info "npm package %s\n" "\$npm_package_file";
+	touch \${npm_package_file} \\
+		|| { quit "could not create %s\n" "\$npm_package_file"; }
+cat <<NPMPKG >> \${npm_package_file}
 {
 	"name": "$deploy_name-${profile}-deploy",
 	"version": "0.0.1",	
@@ -269,13 +279,13 @@ cat <<NPMPKG
 }
 NPMPKG
 }
+
 EOF
 }
 
 # write the script footer
 :tasks.deploy.script.footer.write!() {
 cat <<EOF >> "${script}"
-
 # check for an executable that
 # matches the deployment type
 binary=\$( command -v "$type" );
