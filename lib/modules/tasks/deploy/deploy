@@ -678,6 +678,9 @@ tasks.deploy() {
 	# interactive by default
 	local interactive=true;
 	
+	string.repeat "+" 80;
+	local header="$_result";
+	
 	# list of all profiles
 	# defined in descriptor
 	local all_profiles=();
@@ -702,8 +705,9 @@ tasks.deploy() {
 	
 	# start time for the entire deployment
 	local deploy_start_time=$( date );
-	local deploy_local_host_name=$( hostname );
+	local localhost=$( hostname );
 	local deploy_user=$( id -nu );
+	local creator="${deploy_user}@${localhost}";
 
 	local descriptor="${root}/deploy.json";
 	local newline=$'\n';
@@ -722,9 +726,10 @@ tasks.deploy() {
 	local shell="${bake_deploy_shell:-sh}";
 	local host="${bake_deploy_remote:-}";
 	local staging="${bake_deploy_staging:-~/.deploy}";
-	local git_url git_branch;
+	local default_git_remote="origin";
+	local git_url git_ref git_remote="${default_git_remote}";
 	git.remote.url "git_url";
-	git.branch.current "git_branch";	
+	git.branch.current "git_ref";	
 	
 	# human readable name using @ delimiter
 	# must be set after option parsing in case a --name
@@ -1063,6 +1068,8 @@ tasks.deploy() {
 	# validate required data
 	if ! $deploy_local && [ -z "${host}" ]; then
 		:tasks.deploy.fail "no remote host information available for deploy";
+	elif $deploy_local; then
+		host="${localhost}";
 	fi
 	
 	# set up the full deployment target directory
@@ -1153,7 +1160,7 @@ tasks.deploy() {
 	fi
 	
 	# clean up
-	unset type;
+	unset type;	
 	unset host;
 	unset directory;
 	unset profile_commands;	
@@ -1438,7 +1445,7 @@ ${opt}";
 		log_file
 		log_dir
 		git_url
-		git_branch
+		git_ref
 	);
 	
 	# using custom script
@@ -1501,7 +1508,8 @@ ${opt}";
 		:tasks.deploy.out.info "target %s" "${deploy_target}";
 		:tasks.deploy.out.info "log file %s" "${log_file}";
 		:tasks.deploy.out.info "git url %s" "${git_url}";
-		:tasks.deploy.out.info "git branch %s" "${git_branch}";
+		:tasks.deploy.out.info "git ref %s" "${git_ref}";
+		:tasks.deploy.out.info "git remote %s" "${git_remote}";
 		:tasks.deploy.out.info "host %s" "${host}";
 	fi
 }
@@ -1509,7 +1517,7 @@ ${opt}";
 # print profiles
 :tasks.deploy.print.profiles() {
 	:tasks.deploy.out.info "deploy %s" "$deploy_start_time";
-	:tasks.deploy.out.info "started by %s" "${deploy_user}@${deploy_local_host_name}";
+	:tasks.deploy.out.info "started by %s" "${deploy_user}@${localhost}";
 	:tasks.deploy.out.info "";		
 	local p;
 	for p in "${profiles[@]}"

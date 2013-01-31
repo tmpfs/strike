@@ -38,6 +38,9 @@
 		}
 	},
 	"profiles": {
+		"default": {
+			"description": "default deloyment using git(1)"
+		},
 		"test":{ "type": "git" },
 		"stage":{},
 		"empty": {},

@@ -16,8 +16,6 @@
 	fs.dirname "${deploy_target}" "deploy_parent";
 	fs.basename "${deploy_target}" "deploy_final_name";
 	
-	local creator="${deploy_user}@${deploy_local_host_name}";
-	
 	# echo "got package: $package : $npm_package_name : $npm_package_version";
 	# exit 0;
 	
@@ -26,7 +24,7 @@
 	# timestamp has to be done here
 	# otherwise tilde ~ expansion will not work	
 	local timestamp=$( date +%s );
-	local creator_host=$( uname -a );
+	local creator_host=$( uname -a | fmt );
 
 	# setup a deployment staging sandbox
 	local sandbox="${staging}/${deploy_file_name}-${profile}-${timestamp}";
@@ -126,6 +124,7 @@ set -e;
 set -u;
 
 # global variables
+header="${header}";
 success=false;
 start_time=\$( date );
 profile="${profile}";
@@ -199,6 +198,11 @@ info() {
 	printf "\$@";
 }
 
+# print delimiter
+delimiter() {
+	printf "\${header}\n";
+}
+
 # set up the log file
 log() {
 	# create the log directory
@@ -265,15 +269,21 @@ setup() {
 
 # print the settings
 settings() {
-	info "deploy %s\n" "\${deploy_name}";
+	delimiter;
+	info "%s (%s)\n" "\${deploy_name}" "\${creator}";
+	delimiter;
+	info "%s\n" "\${start_time}";
+	delimiter;	
 	if test -n "\${description:-}"; then
-		info "description %s\n" "\${description}";
-	fi	
-	info "target %s\n" "\${deploy_target}";	
-	info "creator %s\n" "\${creator}";
-	info "creator (host) %s\n" "\${creator_host}";
-	info "date %s\n" "\${start_time}";
+		info "%s\n" "\${description}";
+	fi
+	delimiter;	
+	info "%s\n" "\${creator_host}";
+	delimiter;
+	info "info\n";
+	delimiter;
 	info "timestamp %s\n" "\${timestamp}";
+	info "pid %s\n" "\$\$";
 	info "sandbox %s\n" "\${sandbox}";
 	info "profile %s\n" "\${profile}";
 	info "type %s\n" "\${deploy_type}";
@@ -283,7 +293,12 @@ settings() {
 	info "directory %s\n" "\${directory}";
 	info "staging %s\n" "\${staging}";
 	info "log file %s\n" "\${log_file}";
+	delimiter;	
 	info "host %s\n" "\${host}";
+	info "target %s\n" "\${deploy_target}";		
+	delimiter;	
+	info "start ($type) %s\n" "`date`";
+	delimiter;		
 }
 
 EOF
@@ -295,8 +310,16 @@ EOF
 # git specific commands
 :tasks.deploy.script.git.write!() {
 cat <<EOF >> "${script}"
+git_url="${git_url}";
+git_ref="${git_ref}";
+git_remote="${git_remote}";
 deploy() {
-	echo "deploy git !";
+	info "git remote %s\n" "\$git_remote";
+	info "git ref %s\n" "\$git_ref";
+	info "git url %s\n" "\$git_url";
+	echo "deploy git ! \$git_url : \$git_ref : \$git_remote";
+	
+
 }
 EOF
 }
