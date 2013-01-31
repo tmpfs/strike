@@ -285,6 +285,18 @@ For the \fBnpm\fR deployment type the bundle will also include:
 .P
 An npm(1) conformant package descriptor used to perform the deployment\.
 .
+.SH "ROLLBACK"
+The generated \fIdeploy\.sh\fR script attempts to rollback to a previous deployment if a deployment fails\.
+.
+.P
+This operation will only be performed if the final target directory for the deployment existed prior to starting a deployment, ie, the operation is a re\-deployment\.
+.
+.P
+For the \fBnpm\fR and \fBtar\fR deployment types a backup is created by moving the existing directory prior to starting deployment and moving back to the target destination if deployment fails\.
+.
+.P
+For the \fBgit\fR deployment type a current revision is extracted from the existing repository using \fB\-\-rev\-parse\fR and if the deployment fails it is reverted to the previous revision using \fB\-\-reset\fR\.
+.
 .SH "JSON FORMAT"
 The format of the \fIdeploy\.json\fR descriptor is described in the task\-deploy\-json(7) man page, to view this man page run:
 .
