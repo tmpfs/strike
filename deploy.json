@@ -67,7 +67,7 @@
 		"npm": {
 			"description": "npm(1) latest public release",
 			"type": "npm",
-			"package": "${project_name}@0.1.6"
+			"package": "${project_name}@0.1.5"
 		},
 		"development":{
 			"type": "git",
