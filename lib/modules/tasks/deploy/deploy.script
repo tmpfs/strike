@@ -126,6 +126,7 @@ set -e;
 set -u;
 
 # global variables
+success=false; export success;
 start_time=\$( date ); export start_time;
 profile="${profile}"; export profile;
 noop="${noop}"; export noop;
@@ -140,9 +141,14 @@ deploy_type="${type}"; export deploy_type;
 timestamp="${timestamp}"; export timestamp;
 creator="${creator}"; export creator;
 
+project_name="${project_name}"; export project_name;
+project_version="${project_version}"; export project_version;
+deploy_file_name="${deploy_file_name}"; export deploy_file_name;
+
 # NOTE: directories and files are literal
 # NOTE: to allow tilde ~ expansion
 sandbox=${sandbox}-\$\$; export sandbox;
+backup=\${sandbox}/backup; export backup;
 log_dir=${log_dir}; export log_dir;
 log_file=${log_file}; export log_file;
 directory=${directory}; export directory;
@@ -154,7 +160,7 @@ deploy_parent=${deploy_parent}; export deploy_parent;
 cleanup() {
 	if test -d \$sandbox; then
 		info "rm -rfv %s\n" "\$sandbox";
-		rm -rfv \$sandbox >> \$log_file 2>&1;
+		# rm -rfv \$sandbox >> \$log_file 2>&1;
 	fi
 }
 
@@ -167,9 +173,18 @@ EOF
 # deployment types
 :tasks.deploy.script.common.write!() {
 cat <<EOF >> "${script}"
+
+# completed successfully
+complete() {
+	sucess=true;
+	exit 0;
+}
+
 # quit on failure
 quit() {
-	printf "\$@";
+	if [ $# -gt 0 ]; then
+		printf "\$@";
+	fi
 	exit 1;
 }
 
@@ -193,6 +208,13 @@ log() {
 		|| { quit "could not create log file %s\n" "\$log_file"; }
 }
 
+# create a backup that we roll back to on failure
+backup() {
+	info "mv %s %s\n" "\${deploy_target}" "\${backup}";
+	mv \${deploy_target} \${backup} \\
+		|| quit "could not create backup %s from %s\n" "\$backup" "\$deploy_target";
+}
+
 # setup the directory structure
 setup() {
 	# create the parent directory
@@ -207,6 +229,11 @@ setup() {
 		info "mkdir -p %s\n" "\${sandbox}";
 		mkdir -p \$sandbox \\
 			|| { quit "could not create %s\n" "\$sandbox"; }
+	fi
+	
+	# if the target exist, move to a backup
+	if test -d \$deploy_target; then
+		backup;
 	fi
 }
 
@@ -262,6 +289,8 @@ cat <<EOF >> "${script}"
 npm_package_name="${npm_package_name}"; export npm_package_name;
 npm_package_version="${npm_package_version}"; export npm_package_version;
 npm_package_file=\${sandbox}/package.json; export npm_package_file;
+npm_install_target="\${sandbox}/node_modules/$npm_package_name"; export npm_install_target;
+npm_install_final="\${sandbox}/node_modules/$deploy_final_name"; export npm_install_final;
 deploy() {
 	info "npm name %s\n" "\$npm_package_name";
 	info "npm version %s\n" "\$npm_package_version";
@@ -270,7 +299,7 @@ deploy() {
 		|| { quit "could not create %s\n" "\$npm_package_file"; }
 cat <<NPMPKG >> \${npm_package_file}
 {
-	"name": "$deploy_name-${profile}-deploy",
+	"name": "${project_name}-${profile}-deploy",
 	"version": "0.0.1",	
 	"private": "true",
 	"dependencies": {
@@ -278,6 +307,19 @@ cat <<NPMPKG >> \${npm_package_file}
 	}
 }
 NPMPKG
+
+	# now perform the npm installation in the sandbox
+	(
+		{ cd \${sandbox} \\
+			&& npm install >> \$log_file 2>&1 \\
+			&& mv \$npm_install_target \$npm_install_final \\
+			&& mv \$npm_install_final \$deploy_parent; } \\
+		|| false;
+		if [ $? -eq 0 ]; then
+			# if we made it this far everything is ok
+			complete;
+		fi
+	)
 }
 
 EOF
@@ -304,6 +346,10 @@ start() {
 	settings;
 	init;
 	deploy;
+	
+	# assume failure, the deploy command
+	# must explicitly exit 0
+	quit;
 }
 start "\$@";
 EOF
