@@ -1,7 +1,7 @@
 .\" generated with Ronn/v0.7.3
 .\" http://github.com/rtomayko/ronn/tree/0.7.3
 .
-.TH "TASK\-DEPLOY" "7" "January 2013" "" ""
+.TH "TASK\-DEPLOY" "7" "February 2013" "" ""
 .
 .SH "NAME"
 \fBtask\-deploy\fR \- deploy task(s) for bake(1)
@@ -111,12 +111,21 @@ Perform a sanity check on the generated script and exit, implies \fB\-\-noop\fR\
 .P
 Note that when using the \fB\-\-script\-source\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause \fIcheckbashisms\fR to output a warning but still pass the lint operation if there are no errors\.
 .
+.P
+This option ignores multiple profiles, it only executes for the first target profile\.
+.
 .TP
 \fB\-\-lint\-run\fR:
 
 .
 .P
-Executes the script in the local target directory in the context of the \fIlocalhost\fR, implies \fB\-\-lint\fR and \fB\-\-noop\fR\. The script is only executed if the \fB\-\-lint\fR operation succeeds\. Useful for testing and debugging purposes\.
+Executes the script in the local target directory in the context of the \fIlocalhost\fR, implies the \fB\-\-lint\fR, \fB\-\-local\fR and \fB\-\-noop\fR options\. The script is only executed if the \fB\-\-lint\fR operation succeeds\. Useful for testing and debugging purposes\.
+.
+.P
+Note that although this option implies \fB\-\-noop\fR (so no commands are executed) it does actually perform a deployment locally\.
+.
+.P
+This option ignores multiple profiles, it only executes for the first target profile\.
 .
 .TP
 \fB\-\-list\fR:
@@ -295,7 +304,7 @@ This operation will only be performed if the final target directory for the depl
 For the \fBnpm\fR and \fBtar\fR deployment types a backup is created by moving the existing directory prior to starting deployment and moving back to the target destination if deployment fails\.
 .
 .P
-For the \fBgit\fR deployment type a current revision is extracted from the existing repository using \fB\-\-rev\-parse\fR and if the deployment fails it is reverted to the previous revision using \fB\-\-reset\fR\.
+For the \fBgit\fR deployment type a current revision is extracted from the existing repository using \fBrev\-parse\fR and if the deployment fails it is reverted to the previous revision using \fBreset\fR\.
 .
 .SH "JSON FORMAT"
 The format of the \fIdeploy\.json\fR descriptor is described in the task\-deploy\-json(7) man page, to view this man page run:
@@ -371,11 +380,53 @@ You may specify one or more profiles to deploy after any options\. If no profile
 .SH "DEFAULT PROFILE"
 The default profile uses a \fIgit\fR deployment type and the current branch and git remote URL for deployment to the target host\.
 .
+.P
+This profile is used when no profiles are specified on the command line but may also be explicitly declared\. For example, to execute the default profile run:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy
+.
+.fi
+.
+.IP "" 0
+.
+.P
+But if a profile is specified:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy stage
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Then the default profile is not a target profile, only the \fIstage\fR profile is deployed\. To also execute the default profile, declare it on the command line:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy stage default
+.
+.fi
+.
+.IP "" 0
+.
+.P
+You may override settings for the default profile by declaring a profile named \fIdefault\fR in the descriptor\.
+.
 .SH "NAMES"
 Profile and project names may not start with a hyphen and should match the pattern ^[\-a\-zA\-Z0\-9]+\.
 .
 .SH "STRICT"
-The deployment process is strict\. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed\.
+The deployment process is fail fast\. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed\.
 .
 .SH "FILES"
 A \fIdeploy\.json\fR file must be present in the root of the project and must be valid JSON\. This file may just contain \'{}\' if you wish to use the \fIdefault\fR profile and configure deployment parameters via environment variables or command line options\.
@@ -1038,9 +1089,6 @@ bake help deploy
 .IP "" 0
 .
 .SH "ROADMAP"
-Add npm(1) deployment type\.
-.
-.P
 Add rsync(1) deployment type\.
 .
 .P
@@ -1059,7 +1107,7 @@ Add \fB\-\-refspec\fR option so that \fBgit\fR deployments may also be done from
 Implement notifications using \fBmail\fR\.
 .
 .P
-Attach log file(s) to \fBmail\fR notifications\.
+Attach bundle to \fBmail\fR notifications\.
 .
 .P
 Add the \fBdeploy_ssh_options\fR and \fBdeploy_scp_options\fR environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1)\.

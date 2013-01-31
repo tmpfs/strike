@@ -70,9 +70,15 @@ Perform a sanity check on the generated script and exit, implies `--noop`. You m
 
 Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause *checkbashisms* to output a warning but still pass the lint operation if there are no errors.
 
+This option ignores multiple profiles, it only executes for the first target profile.
+
 * `--lint-run`:
 
-Executes the script in the local target directory in the context of the *localhost*, implies `--lint` and `--noop`. The script is only executed if the `--lint` operation succeeds. Useful for testing and debugging purposes.
+Executes the script in the local target directory in the context of the *localhost*, implies the `--lint`, `--local` and `--noop` options. The script is only executed if the `--lint` operation succeeds. Useful for testing and debugging purposes.
+
+Note that although this option implies `--noop` (so no commands are executed) it does actually perform a deployment locally.
+
+This option ignores multiple profiles, it only executes for the first target profile.
 
 * `--list`:
 
@@ -228,13 +234,27 @@ You may specify one or more profiles to deploy after any options. If no profiles
 
 The default profile uses a *git* deployment type and the current branch and git remote URL for deployment to the target host.
 
+This profile is used when no profiles are specified on the command line but may also be explicitly declared. For example, to execute the default profile run:
+
+	bake deploy
+	
+But if a profile is specified:
+
+	bake deploy stage
+	
+Then the default profile is not a target profile, only the *stage* profile is deployed. To also execute the default profile, declare it on the command line:
+
+	bake deploy stage default
+
+You may override settings for the default profile by declaring a profile named *default* in the descriptor.
+
 ## NAMES
 
 Profile and project names may not start with a hyphen and should match the pattern ^[-a-zA-Z0-9]+.
 
 ## STRICT
 
-The deployment process is strict. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed.
+The deployment process is fail fast. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed.
 
 ## FILES
 
@@ -1802,6 +1822,7 @@ ${opt}";
  			--lint-run )
 				lint=true;
 				run_script=true;
+				deploy_local=true;				
 				noop=true;
 				;;				
 			--pretty )
