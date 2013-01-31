@@ -127,6 +127,7 @@ header="${header}";
 success=false;
 start_time=\$( date );
 profile="${profile}";
+type="${type}";
 noop="${noop}";
 shell="${shell}";
 script_source="${script_source}";
@@ -158,7 +159,7 @@ deploy_parent=${deploy_parent};
 # clean temporary files
 cleanup() {
 	# attempt to rollback on exit if the deployment failed
-	if ! \$success && test -d \${backup}; then
+	if ! \$success; then
 		rollback;
 	fi
 	
@@ -230,18 +231,24 @@ backup() {
 rollback() {
 	info "rollback %s\n" "\${deploy_target}";
 	
-	# backup exists but target also exists
-	# possible partial deployment so remove the deploy target
-	# prior to restoring from a backup, this gives the rollback
-	# the best change of succeeding on a failed partial deployment
-	if test -d \${backup} && test -d \${deploy_target}; then
-		info "rm -rfv %s\n" "\${deploy_target}";
-		rm -rfv \${deploy_target} >> \$log_file 2>&1;
-	fi
+	# we have a git revision to roll back to
+	if test -n \${git_revision_hash:-}; then
+		echo "ROLLBACK FROM GIT REVISION ... \$git_revision_hash";
+	# plain filesytem rollback
+	elif test -d \${backup}; then
+		# backup exists but target also exists
+		# possible partial deployment so remove the deploy target
+		# prior to restoring from a backup, this gives the rollback
+		# the best change of succeeding on a failed partial deployment
+		if test -d \${deploy_target}; then
+			info "rm -rfv %s\n" "\${deploy_target}";
+			rm -rfv \${deploy_target} >> \$log_file 2>&1;
+		fi
 	
-	info "mv %s %s\n" "\${backup}" "\${deploy_target}";	
-	mv \${backup} \${deploy_target} \\
-		|| quit "could not rollback %s from %s\n" "\$deploy_target" "\$backup";
+		info "mv %s %s\n" "\${backup}" "\${deploy_target}";	
+		mv \${backup} \${deploy_target} \\
+			|| quit "could not rollback %s from %s\n" "\$deploy_target" "\$backup";
+	fi
 }
 
 # setup the directory structure
@@ -261,7 +268,8 @@ setup() {
 	fi
 	
 	# if the target exist, move to a backup
-	if test -d \$deploy_target; then
+	if test -d \$deploy_target && [ "\$type" != "git" ]; then
+		echo "CREATING BACKUP DIRECTORY";
 		backup;
 	fi
 }
@@ -292,13 +300,13 @@ settings() {
 	info "paths\n";
 	delimiter;	
 	info "directory: %s\n" "\${directory}";
-	info "staging: %s\n" "\${staging}";	
-	info "sandbox: %s\n" "\${sandbox}";	
+	info "staging: %s\n" "\${staging}";
+	info "sandbox: %s\n" "\${sandbox}";
 	info "script: %s\n" "\${script}";
 	info "log file: %s\n" "\${log_file}";
 	delimiter;
 	info "start ($type) %s\n" "`date`";
-	delimiter;	
+	delimiter;
 	info "\n";
 	info "\t%s\n" "\${deploy_target}";
 	info "\n";
@@ -317,13 +325,43 @@ cat <<EOF >> "${script}"
 git_url="${git_url}";
 git_ref="${git_ref}";
 git_remote="${git_remote}";
+git_revision_hash="";
 deploy() {
 	info "git remote %s\n" "\$git_remote";
 	info "git ref %s\n" "\$git_ref";
 	info "git url %s\n" "\$git_url";
 	echo "deploy git ! \$git_url : \$git_ref : \$git_remote";
 	
-
+	# no target directory so try a clone
+	if ! test -d \${deploy_target}; then
+		cd \${deploy_parent} \\
+			&& git clone --origin \${git_remote} \${git_url} \${deploy_final_name} >> \$log_file 2>&1 \\
+			&& complete;
+	# target directory exists, do an update
+	# using pull
+	else
+		# target has a .git directory
+		# treat as a git repo
+		if test -d \${deploy_target}/.git; then
+			git_revision_hash=\$( cd \${deploy_target} && git rev-parse --verify HEAD );
+			echo "target repository exists: \$git_revision_hash";
+			
+			# something went wrong getting the revision?
+			# if test -z "${git_revision_hash:-}"; then
+			# 	backup;
+			# fi
+			
+			#  >> \$log_file 2>&1
+			
+			# try to pull to update
+			cd \${deploy_target} \\
+				&& git pull \${git_remote} \${git_ref} \\
+				&& complete;			
+		# otherwise try a normal backup operation
+		else
+			backup;
+		fi
+	fi
 }
 EOF
 }
