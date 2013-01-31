@@ -111,7 +111,7 @@ ${shebang}
 # script: ${script_name}
 # file: ${script}
 # name: ${project_name}
-# description: ${description}
+# description: ${description:-}
 # version: ${project_version}
 # profile: ${profile}
 # type: ${type}
@@ -133,7 +133,7 @@ noop="${noop}"; export noop;
 shell="${shell}"; export shell;
 script_source="${script_source}"; export script_source;
 script="${script}"; export script;
-description="${description}"; export description;
+description="${description:-}"; export description;
 host="${host}"; export host;
 deploy_name="${deploy_name}"; export deploy_name;
 deploy_final_name="${deploy_final_name}"; export deploy_final_name;
@@ -183,7 +183,6 @@ cat <<EOF >> "${script}"
 # completed successfully
 complete() {
 	success=true;
-	echo "COMPLETE CALLED \$success";
 	exit 0;
 }
 

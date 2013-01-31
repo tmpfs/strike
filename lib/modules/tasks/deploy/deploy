@@ -616,8 +616,6 @@ Display this man page:
 
 ## ROADMAP
 
-Add npm(1) deployment type.
-
 Add rsync(1) deployment type.
 
 Implement lock files for the local and remote scripts to prevent concurrency issues when multiple deployments are attempted.
@@ -630,7 +628,7 @@ Add `--refspec` option so that `git` deployments may also be done from tags.
 
 Implement notifications using `mail`.
 
-Attach log file(s) to `mail` notifications.
+Attach bundle to `mail` notifications.
 
 Add the `deploy_ssh_options` and `deploy_scp_options` environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1).
 
