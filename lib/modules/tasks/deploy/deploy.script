@@ -234,12 +234,13 @@ backup() {
 # rollback from the backup on error whenever possible
 # if there is any presence of the target directory it is removed
 rollback() {
-	info "rollback %s\n" "\${deploy_target}";
 	# we have a git revision to rollback to
 	if test -n \${git_revision_hash:-} && test -d \${deploy_target}/.git; then
+		info "rollback (git) %s\n" "\${deploy_target}";
 		cd \${deploy_target} && git reset \$git_revision_hash >> \$log_file 2>&1;
 	# plain filesytem rollback
 	elif test -d \${backup}; then
+		info "rollback (fs) %s\n" "\${deploy_target}";
 		# backup exists but target also exists
 		# possible partial deployment so remove the deploy target
 		# prior to restoring from a backup, this gives the rollback
@@ -320,27 +321,24 @@ settings() {
 EOF
 }
 
-# :tasks.deploy.out.info "git url %s" "${git_url}";
-# :tasks.deploy.out.info "git branch %s" "${git_branch}";
-
 # git specific commands
 :tasks.deploy.script.git.write!() {
 cat <<EOF >> "${script}"
-git_url="${git_url}";
+url="${url}";
 git_ref="${git_ref}";
 git_remote="${git_remote}";
 git_revision_hash="";
 deploy() {
 	info "git remote %s\n" "\$git_remote";
 	info "git ref %s\n" "\$git_ref";
-	info "git url %s\n" "\$git_url";
+	info "git url %s\n" "\$url";
 	
-	#echo "deploy git ! \$git_url : \$git_ref : \$git_remote";
+	#echo "deploy git ! \$url : \$git_ref : \$git_remote";
 	
 	# no target directory so try a clone
 	if ! test -d \${deploy_target}; then
 		cd \${deploy_parent} \\
-			&& git clone --origin \${git_remote} \${git_url} \${deploy_final_name} >> \$log_file 2>&1 \\
+			&& git clone --origin \${git_remote} \${url} \${deploy_final_name} >> \$log_file 2>&1 \\
 			&& complete;
 	# target directory exists, do an update
 	# using pull

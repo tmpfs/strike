@@ -749,7 +749,8 @@ tasks.deploy() {
 	local default_git_remote="origin";
 	local git_url git_ref git_remote="${default_git_remote}";
 	git.remote.url "git_url";
-	git.branch.current "git_ref";	
+	git.branch.current "git_ref";
+	local default_url="${git_url}";
 	
 	# human readable name using @ delimiter
 	# must be set after option parsing in case a --name
@@ -1066,14 +1067,28 @@ tasks.deploy() {
 		:tasks.deploy.fail "invalid deployment type %s" "${type:-}";
 	fi
 	
+	# tar / git types must specify a url
+	if [ "$type" == "tar" ] || [ "$type" == "git" ]; then
+		if [ -z "${url:-}" ]; then
+			if [ "$profile" == "$default_profile" ] && [ "$type" == "git" ]; then
+				url="$default_url";
+			else
+				:tasks.deploy.fail "no url for %s (type: %s)" "${profile}" "${type}";				
+			fi
+		fi
+	fi
+	
 	# npm specific properties
 	if [ "$type" == "npm" ]; then
-		if [ -n "$package" ]; then
-			# allow variable references in package properties
+		# must have a package declared
+		if [ -z "${package:-}" ]; then
+			:tasks.deploy.fail "no package for profile %s (type: %s)" "${profile}" "${type}";
+		fi
+		# allow variable references in the *package* property
+		if [ -n "${package:-}" ]; then
 			eval "package=\"$package\"";
 		fi
-		# TODO: validate package format name@version
-		local npm_package_name="${package}";
+		local npm_package_name="${package:-}";
 		local npm_package_version="";
 		local npm_package_re="([^@ ]+)(@| )(.*)?$";
 		if [[ "$package" =~ $npm_package_re ]]; then
@@ -1081,8 +1096,11 @@ tasks.deploy() {
 			npm_package_name="${BASH_REMATCH[1]}";
 			npm_package_version="${BASH_REMATCH[3]}";
 		fi
-		# echo "got npm package : $package : '$npm_package_name' : '$npm_package_version'";
-		# exit 0;
+	elif [ "$type" == "tar" ] || [ "$type" == "git" ]; then
+		# allow variable references in the *url* property		
+		if [ -n "${url:-}" ]; then
+			eval "url=\"$url\"";
+		fi
 	fi
 	
 	# validate required data
@@ -1187,6 +1205,7 @@ tasks.deploy() {
 	# clean up
 	unset type;	
 	unset host;
+	unset url;
 	unset directory;
 	unset profile_commands;	
 	
@@ -1469,9 +1488,13 @@ ${opt}";
 		bundle_path
 		log_file
 		log_dir
-		git_url
-		git_ref
 	);
+	
+	if [ "$type" == "git" ]; then
+		vars+=( git_ref git_remote url );
+	elif [ "$type" == "tar" ]; then
+		vars+=( url );
+	fi
 	
 	# using custom script
 	if [ -n "${script_source}" ]; then
@@ -1532,9 +1555,15 @@ ${opt}";
 		:tasks.deploy.out.info "staging %s" "${staging}";
 		:tasks.deploy.out.info "target %s" "${deploy_target}";
 		:tasks.deploy.out.info "log file %s" "${log_file}";
-		:tasks.deploy.out.info "git url %s" "${git_url}";
-		:tasks.deploy.out.info "git ref %s" "${git_ref}";
-		:tasks.deploy.out.info "git remote %s" "${git_remote}";
+		if [ "$type" == "tar" ] || [ "$type" == "git" ]; then
+			:tasks.deploy.out.info "url %s" "${url}";
+		fi
+		if [ "$type" == "npm" ]; then
+			:tasks.deploy.out.info "package %s" "${package}";
+		elif [ "$type" == "git" ]; then
+			:tasks.deploy.out.info "git ref %s" "${git_ref}";
+			:tasks.deploy.out.info "git remote %s" "${git_remote}";
+		fi
 		:tasks.deploy.out.info "host %s" "${host}";
 	fi
 }

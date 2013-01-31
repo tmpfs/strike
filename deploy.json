@@ -43,7 +43,29 @@
 		},
 		"test":{ "type": "git" },
 		"stage":{},
-		"empty": {},
+		"npm-tar": {
+			"description": "npm(1)+tar(1)",
+			"type": "tar",
+			"url": "file://$target/$project_name-$project_version.tgz",
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "npm",
+							"options": [ "pack" ]
+						},
+						{
+							"command": "mv",
+							"options": [ "$env_archive_name", "$env_archive_dir" ]
+						},
+						{
+							"command": "scp",
+							"options": [ "$env_archive_path", "${host}:~/" ]
+						}
+					]
+				}
+			}
+		},
 		"npm-scp-tar": {
 			"description": "npm(1)+scp(1)+tar(1)",
 			"type": "tar",
