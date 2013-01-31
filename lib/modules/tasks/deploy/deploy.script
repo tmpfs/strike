@@ -16,6 +16,18 @@
 	else
 		:tasks.deploy.script.header.write!;
 		:tasks.deploy.script.common.write!;
+		
+		# we've already validated on deployment type
+		# this is an additional sanity check
+		local method=":tasks.deploy.script.${type}.write!"		
+		if ! method.exists? "$method"; then
+			:tasks.deploy.fail "unsupported type %s" "${type}";
+		fi
+		
+		# call the deployment type specific
+		# script write command
+		$method;
+		
 		:tasks.deploy.script.footer.write!;
 	fi
 
@@ -61,6 +73,7 @@ ${shebang}
 # script: ${script_name}
 # file: ${script}
 # name: ${project_name}
+# description: ${description}
 # version: ${project_version}
 # profile: ${profile}
 # type: ${type}
@@ -72,10 +85,24 @@ ${shebang}
 # target: ${deploy_target}
 
 set +e;
+set +u;
 
 # global variables
+start_time=\$( date ); export start_time;
 log_dir="${log_dir}"; export log_dir;
 log_file="${log_file}"; export log_file;
+profile="${profile}"; export profile;
+noop="${noop}"; export noop;
+shell="${shell}"; export shell;
+script_source="${script_source}"; export script_source;
+script="${script}"; export script;
+directory="${directory}"; export directory;
+staging="${staging}"; export staging;
+description="${description}"; export description;
+host="${host}"; export host;
+deploy_name="${deploy_name}"; export deploy_name;
+deploy_target="${deploy_target}"; export deploy_target;
+deploy_type="${type}"; export deploy_type;
 EOF
 }
 
@@ -86,28 +113,99 @@ cat <<EOF >> "${script}"
 
 # quit on failure
 quit() {
-	printf "$@";
+	printf "\$@";
 	exit 1;
+}
+
+# info message
+info() {
+	printf "\$@";
 }
 
 # set up the log file
 log() {
-	echo "\$log_dir";
-	echo "\$log_file";
+	# echo "\$log_dir";
+	# echo "\$log_file";
 	# create the log directory
-	if ! test -d $log_dir; then
-		printf "creating %s\n" "$log_dir";
-		mkdir -p ${log_dir} \\
-			|| { echo "could not create $log_dir"; exit 1; }
+	if ! test -d "\$log_dir"; then
+		mkdir -p "\$log_dir" \\
+			|| { quit "could not create %s\n" "\$log_dir"; }
 	fi
-	if test -f $log_file; then
-		rm $log_file \\
-			|| { echo "could not remove log file $log_file"; exit 1; }
+	if test -f "\$log_file"; then
+		rm "\$log_file" \\
+			|| { quit "could not remove log file %s\n" "\$log_file"; }
 	fi
-	# create the log file
-	printf "creating %s\n" "$log_file";
-	touch $log_file \\
-		|| { echo "could not create log file $log_file"; exit 1; }
+	touch "\$log_file" \\
+		|| { quit "could not create log file %s\n" "\$log_file"; }
+}
+
+# print the settings
+settings() {
+	info "date %s\n" "\${start_time}";
+	info "deploy %s\n" "\${deploy_name}";
+	if test -n "\${description:-}"; then
+		info "description %s\n" "\${description}";
+	fi
+	info "profile %s\n" "\${profile}";
+	info "type %s\n" "\${deploy_type}";
+	info "noop %s\n" "\${noop}";
+	info "shell %s\n" "\${shell}";
+	info "script %s\n" "\${script}";
+	info "working directory %s\n" "\${directory}";
+	info "staging directory %s\n" "\${staging}";
+	info "target %s\n" "\${deploy_target}";
+	info "log file %s\n" "\${log_file}";
+	info "host %s\n" "\${host}";
+}
+
+EOF
+}
+
+# :tasks.deploy.out.info "date %s" "${start_time}";
+# :tasks.deploy.out.info "deploy %s" "${deploy_name}";
+# if [ -n "${description:-}" ]; then
+# 	:tasks.deploy.out.info "description %s" "${description}";
+# fi
+# :tasks.deploy.out.info "profile %s" "${profile}";
+# :tasks.deploy.out.info "type %s" "${type}";
+# :tasks.deploy.out.info "noop %s" "${noop}";
+# :tasks.deploy.out.info "shell %s" "${shell}";
+# # using custom script
+# if [ -n "${script_source}" ]; then
+# 	:tasks.deploy.out.info "source script %s" "${script_source}";
+# fi		
+# :tasks.deploy.out.info "script %s" "${script}";
+# :tasks.deploy.out.info "working directory %s" "${directory}";
+# :tasks.deploy.out.info "staging directory %s" "${staging}";
+# :tasks.deploy.out.info "target %s" "${deploy_target}";
+# :tasks.deploy.out.info "log file %s" "${log_file}";
+# :tasks.deploy.out.info "git url %s" "${git_url}";
+# :tasks.deploy.out.info "git branch %s" "${git_branch}";
+# :tasks.deploy.out.info "host %s" "${host}";
+
+# git specific commands
+:tasks.deploy.script.git.write!() {
+cat <<EOF >> "${script}"
+deploy() {
+	echo "deploy git";
+}
+EOF
+}
+
+# tar specific commands
+:tasks.deploy.script.tar.write!() {
+cat <<EOF >> "${script}"
+deploy() {
+	echo "deploy tar";
+}
+EOF
+}
+
+# npm specific commands
+:tasks.deploy.script.npm.write!() {
+cat <<EOF >> "${script}"
+deploy() {
+	echo "deploy npm";
 }
 EOF
 }
@@ -120,12 +218,13 @@ cat <<EOF >> "${script}"
 # matches the deployment type
 binary=\$( command -v "$type" );
 if [ -z "\$binary" ]; then
-	quit "%s is not installed" "\$binary";
+	quit "%s is not installed\n" "\$binary";
 fi
 
-deploy() {
+start() {
 	log;
+	settings;
 }
-deploy "\$@";
+start "\$@";
 EOF
 }
