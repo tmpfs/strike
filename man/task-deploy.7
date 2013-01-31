@@ -112,6 +112,13 @@ Perform a sanity check on the generated script and exit, implies \fB\-\-noop\fR\
 Note that when using the \fB\-\-script\-source\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause \fIcheckbashisms\fR to output a warning but still pass the lint operation if there are no errors\.
 .
 .TP
+\fB\-\-lint\-run\fR:
+
+.
+.P
+Executes the script in the local target directory in the context of the \fIlocalhost\fR, implies \fB\-\-lint\fR and \fB\-\-noop\fR\. The script is only executed if the \fB\-\-lint\fR operation succeeds\. Useful for testing and debugging purposes\.
+.
+.TP
 \fB\-\-list\fR:
 
 .
@@ -244,6 +251,39 @@ This deployment type will fetch a tarball from a filesystem path or remote URL a
 .
 .SS "NPM"
 This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the \fBtarget\fR directory\.
+.
+.SH "BUNDLES"
+The task\-deploy(7) execution creates a tarball bundle of the deployment files using the project \fIname\fR and \fIversion\fR concatenated with the current \fIprofile\fR for the bundle file name\. Assuming a project name of \fIproject\fR, with version \fI0\.0\.1\fR and a deployment profile of \fIstage\fR the resulting bundle is \fBproject\-0\.0\.1\-stage\.tgz\fR\.
+.
+.P
+Bundles are created in the \fBtarget/deploy\fR directory\.
+.
+.P
+A generated bundle will include:
+.
+.TP
+\fBdeploy\.sh\fR:
+
+.
+.P
+The generated deployment script or the contents of \fIscript\fR if \fB\-\-script\-source\fR was specified\.
+.
+.TP
+\fBsettings\.json\fR:
+
+.
+.P
+A JSON document containing the settings for the deployment\.
+.
+.SS "NPM"
+For the \fBnpm\fR deployment type the bundle will also include:
+.
+.TP
+\fBpackage\.json\fR:
+
+.
+.P
+An npm(1) conformant package descriptor used to perform the deployment\.
 .
 .SH "JSON FORMAT"
 The format of the \fIdeploy\.json\fR descriptor is described in the task\-deploy\-json(7) man page, to view this man page run:

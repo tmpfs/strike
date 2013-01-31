@@ -160,6 +160,30 @@ This deployment type will fetch a tarball from a filesystem path or remote URL a
 
 This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the `target` directory.
 
+## BUNDLES
+
+The task-deploy(7) execution creates a tarball bundle of the deployment files using the project *name* and *version* concatenated with the current *profile* for the bundle file name. Assuming a project name of *project*, with version *0.0.1* and a deployment profile of *stage* the resulting bundle is `project-0.0.1-stage.tgz`.
+
+Bundles are created in the `target/deploy` directory.
+
+A generated bundle will include:
+
+* `deploy.sh`:
+
+The generated deployment script or the contents of *script* if `--script-source` was specified.
+
+* `settings.json`:
+
+A JSON document containing the settings for the deployment.
+
+### NPM
+
+For the `npm` deployment type the bundle will also include:
+
+* `package.json`:
+
+An npm(1) conformant package descriptor used to perform the deployment.
+
 ## JSON FORMAT
 
 The format of the *deploy.json* descriptor is described in the task-deploy-json(7) man page, to view this man page run:
