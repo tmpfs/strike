@@ -126,36 +126,36 @@ set -e;
 set -u;
 
 # global variables
-success=false; export success;
-start_time=\$( date ); export start_time;
-profile="${profile}"; export profile;
-noop="${noop}"; export noop;
-shell="${shell}"; export shell;
-script_source="${script_source}"; export script_source;
-script="${script}"; export script;
-description="${description:-}"; export description;
-host="${host}"; export host;
-deploy_name="${deploy_name}"; export deploy_name;
-deploy_final_name="${deploy_final_name}"; export deploy_final_name;
-deploy_type="${type}"; export deploy_type;
-timestamp="${timestamp}"; export timestamp;
-creator="${creator}"; export creator;
-creator_host="${creator_host}"; export creator_host;
+success=false;
+start_time=\$( date );
+profile="${profile}";
+noop="${noop}";
+shell="${shell}";
+script_source="${script_source}";
+script="${script}";
+description="${description:-}";
+host="${host}";
+deploy_name="${deploy_name}";
+deploy_final_name="${deploy_final_name}";
+deploy_type="${type}";
+timestamp="${timestamp}";
+creator="${creator}";
+creator_host="${creator_host}";
 
-project_name="${project_name}"; export project_name;
-project_version="${project_version}"; export project_version;
-deploy_file_name="${deploy_file_name}"; export deploy_file_name;
+project_name="${project_name}";
+project_version="${project_version}";
+deploy_file_name="${deploy_file_name}";
 
 # NOTE: directories and files are literal
 # NOTE: to allow tilde ~ expansion
-sandbox=${sandbox}-\$\$; export sandbox;
-backup=\${sandbox}/backup; export backup;
-log_dir=${log_dir}; export log_dir;
-log_file=${log_file}; export log_file;
-directory=${directory}; export directory;
-staging=${staging}; export staging;
-deploy_target=${deploy_target}; export deploy_target;
-deploy_parent=${deploy_parent}; export deploy_parent;
+sandbox=${sandbox}-\$\$;
+backup=\${sandbox}/backup;
+log_dir=${log_dir};
+log_file=${log_file};
+directory=${directory};
+staging=${staging};
+deploy_target=${deploy_target};
+deploy_parent=${deploy_parent};
 
 # clean temporary files
 cleanup() {
