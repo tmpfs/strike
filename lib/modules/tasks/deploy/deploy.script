@@ -1,5 +1,6 @@
-# Script generation methods for task-deploy(7)
+# script generation commands for task-deploy(7)
 
+# write out the script file
 :tasks.deploy.script.write!() {
 	# delete any existing deploy script
 	if [ -f "${script}" ]; then
@@ -10,12 +11,21 @@
 	touch "${script}" \
 		|| :tasks.deploy.fail "could not create %s" "${script}";
 		
+	# target parent directory and final name
+	local deploy_parent deploy_final_name;
+	fs.dirname "${deploy_target}" "deploy_parent";
+	fs.basename "${deploy_target}" "deploy_final_name";
+
+	# setup a deployment staging sandbox
+	local sandbox="${staging}/${deploy_file_name}-${profile}";
+		
 	# escape spaces in paths
 	printf -v staging "%q" "${staging}";
 	printf -v log_file "%q" "${log_file}";
 	printf -v log_dir "%q" "${log_dir}";
 	printf -v deploy_target "%q" "${deploy_target}";
 	printf -v directory "%q" "${directory}";
+	printf -v sandbox "%q" "${sandbox}";
 	
 	# custom script file specified
 	if [ -n "${script_source}" ]; then
@@ -45,7 +55,7 @@
 	fi
 }
 
-# run script through `checkbashisms`
+# run script through *checkbashisms*
 :tasks.deploy.script.lint() {
 	executable.validate checkbashisms;
 	
@@ -118,7 +128,13 @@ description="${description}"; export description;
 host="${host}"; export host;
 deploy_name="${deploy_name}"; export deploy_name;
 deploy_target="${deploy_target}"; export deploy_target;
+deploy_parent="${deploy_parent}"; export deploy_parent;
+deploy_final_name="${deploy_final_name}"; export deploy_final_name;
 deploy_type="${type}"; export deploy_type;
+timestamp=\$( date +%s ); export timestamp;
+sandbox="${sandbox}-\${timestamp}"; export sandbox;
+
+echo "SANDBOX IS \$sandbox";
 
 EOF
 }
@@ -142,11 +158,11 @@ info() {
 log() {
 	# create the log directory
 	if ! test -d $log_dir; then
-		mkdir -pv $log_dir \\
+		mkdir -p $log_dir \\
 			|| { quit "could not create %s\n" "\$log_dir"; }
 	fi
 	if test -f $log_file; then
-		rm -v $log_file \\
+		rm $log_file \\
 			|| { quit "could not remove log file %s\n" "\$log_file"; }
 	fi
 	touch $log_file \\
@@ -155,21 +171,30 @@ log() {
 
 # setup the directory structure
 setup() {
-	# create the main target directory
-	if ! test -d $directory; then
-		info "mkdir -p %s\n" "\${directory}";
-		mkdir -p $directory \\
-			|| { quit "could not create %s\n" "\$directory"; }
+	# create the parent directory
+	if ! test -d $deploy_parent; then
+		info "mkdir -p %s\n" "\${deploy_parent}";
+		mkdir -p $deploy_parent \\
+			|| { quit "could not create %s\n" "\$deploy_parent"; }
+	fi
+	
+	# create the sandbox
+	if ! test -d $sandbox; then
+		info "mkdir -p %s\n" "\${sandbox}";
+		mkdir -p $sandbox \\
+			|| { quit "could not create %s\n" "\$sandbox"; }
 	fi
 }
 
 # print the settings
 settings() {
-	info "date %s\n" "\${start_time}";
 	info "deploy %s\n" "\${deploy_name}";
 	if test -n "\${description:-}"; then
 		info "description %s\n" "\${description}";
-	fi
+	fi	
+	info "date %s\n" "\${start_time}";
+	info "timestamp %s\n" "\${timestamp}";
+	info "sandbox %s\n" "\${sandbox}";
 	info "profile %s\n" "\${profile}";
 	info "type %s\n" "\${deploy_type}";
 	info "noop %s\n" "\${noop}";
@@ -229,13 +254,13 @@ fi
 init() {
 	log;
 	# info command is available
-	# after calling `log`	
+	# after calling *log*
 	setup;
 }
 
 start() {
-	init;
 	settings;
+	init;
 	deploy;
 }
 start "\$@";
