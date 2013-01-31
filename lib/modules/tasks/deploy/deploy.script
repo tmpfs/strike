@@ -184,7 +184,6 @@ cat <<EOF >> "${script}"
 
 # completed successfully
 complete() {
-	echo "COMPLETE CALLED ... ";
 	sucess=true;
 	exit 0;
 }

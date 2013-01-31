@@ -639,7 +639,7 @@ deploy_property_names=(
 
 # deploy delegate
 tasks.deploy() {
-	executable.validate scp ssh;
+	executable.validate scp ssh tar;
 	executable.validate --test growlnotify;
 	
 	# interactive by default
@@ -909,10 +909,30 @@ tasks.deploy() {
 	# stores command to execute
 	# for a profile
 	declare -A profile_commands;
-	
+
 	# update profile specific variables
-	script_name="${deploy_file_name}-${profile}.sh";
-	script_dir="${deploy_target_directory}";
+	
+	local bundle_source bundle_name bundle_archive;
+	
+	# bundle directory and move script to bundle
+	bundle_source="${deploy_target_directory}/${deploy_file_name}-${profile}";
+	bundle_name="${deploy_file_name}-${profile}";
+	bundle_archive="${bundle_name}.tgz";
+	bundle_path="${deploy_target_directory}/${bundle_archive}";
+	
+	# clean an existing bundle directory
+	if [ -d "${bundle_source}" ]; then
+		rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
+			|| :tasks.deploy.fail "could not clean %s" "${bundle_source}";
+	fi
+	
+	# create a fresh bundle directory
+	mkdir -p "${bundle_source}" \
+		|| :tasks.deploy.fail "could not create %s" "${bundle_source}";
+	
+	# scipt / log variables
+	script_name="deploy.sh";
+	script_dir="${bundle_source}";
 	script="${script_dir}/${script_name}";
 	log_name="${deploy_file_name}-${profile}.log";
 	log_dir="${staging}/log";
@@ -1083,6 +1103,8 @@ tasks.deploy() {
 
 	if ! $dump_script && ! $print_json; then
 	
+		:tasks.bundle.create;
+	
 		# prompt for confirmation when possible
 		:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
 	fi
@@ -1097,6 +1119,15 @@ tasks.deploy() {
 	unset package;
 	unset npm_package_name;
 	unset npm_package_version;
+}
+
+# create the deployment bundle
+:tasks.bundle.create() {
+	# echo "create bundle ... $bundle_source : $bundle_name : $deploy_target_directory : $bundle_archive : $bundle_path";
+	{
+		cd "$deploy_target_directory" \
+			&& tar cf "$bundle_archive" "$bundle_name";
+	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
 }
 
 # run pre-deployment local commands
@@ -1367,6 +1398,9 @@ ${opt}";
 		script_shebang
 		script_file
 		script_dir
+		bundle_archive
+		bundle_source
+		bundle_path
 		log_file
 		log_dir
 		git_url
@@ -1419,6 +1453,7 @@ ${opt}";
 			:tasks.deploy.out.info "description %s" "${description}";
 		fi
 		:tasks.deploy.out.info "profile %s" "${profile}";
+		:tasks.deploy.out.info "bundle %s" "${deploy_target}/${bundle_name}";
 		:tasks.deploy.out.info "type %s" "${type}";
 		:tasks.deploy.out.info "noop %s" "${noop}";
 		:tasks.deploy.out.info "shell %s" "${shell}";
