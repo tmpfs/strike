@@ -14,7 +14,20 @@
 	if [ -n "${script_source}" ]; then
 		cat "${script_source}" >| "${script}";
 	else
-# generate the script file
+		:tasks.deploy.script.header.write!;
+		:tasks.deploy.script.common.write!;
+		:tasks.deploy.script.footer.write!;
+	fi
+
+	chmod +x "${script}" \
+		|| :tasks.deploy.fail "could not set permissions on %s" "${script}";	
+	if $dump_script; then
+		cat "${script}";
+	fi
+}
+
+# write the script header
+:tasks.deploy.script.header.write!() {
 cat <<EOF >> "${script}"
 ${shebang}
 
@@ -38,9 +51,25 @@ ${shebang}
 
 set +e;
 
+# global variables
 log_dir="${log_dir}"; export log_dir;
 log_file="${log_file}"; export log_file;
-deploy_log() {
+EOF
+}
+
+# write the script commands shared by all
+# deployment types
+:tasks.deploy.script.common.write!() {
+cat <<EOF >> "${script}"
+
+# quit on failure
+quit() {
+	printf "$@";
+	exit 1;
+}
+
+# set up the log file
+log() {
 	echo "\$log_dir";
 	echo "\$log_file";
 	# create the log directory
@@ -58,16 +87,23 @@ deploy_log() {
 	touch $log_file \\
 		|| { echo "could not create log file $log_file"; exit 1; }
 }
+EOF
+}
+
+# write the script footer
+:tasks.deploy.script.footer.write!() {
+cat <<EOF >> "${script}"
+
+# check for an executable that
+# matches the deployment type
+binary=\$( command -v "$type" );
+if [ -z "\$binary" ]; then
+	quit "%s is not installed" "\$binary";
+fi
+
 deploy() {
-	deploy_log;
+	log;
 }
 deploy "\$@";
 EOF
-	fi
-
-	chmod +x "${script}" \
-		|| :tasks.deploy.fail "could not set permissions on %s" "${script}";	
-	if $dump_script; then
-		cat "${script}";
-	fi
 }
