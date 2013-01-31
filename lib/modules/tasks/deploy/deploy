@@ -620,6 +620,7 @@ require.once 'git';
 
 # module libraries
 require.library 'deploy.script';
+require.library 'deploy.bundle';
 
 # list of property names that are first set
 # from the top-level of a document and then
@@ -1123,20 +1124,6 @@ tasks.deploy() {
 	unset npm_package_version;
 }
 
-# create the deployment bundle
-:tasks.bundle.create() {
-	# echo "create bundle ... $bundle_source : $bundle_name : $deploy_target_directory : $bundle_archive : $bundle_path";
-	
-	# always write the effective settings into the bundle
-	json.stringify --pretty 2 <<< "json_dump";
-	json.string > "${settings}";
-	
-	{
-		cd "$deploy_target_directory" \
-			&& tar cf "$bundle_archive" "$bundle_name";
-	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
-}
-
 # run pre-deployment local commands
 :tasks.deploy.run.pre() {
 	if "${skip["local.pre"]}"; then
@@ -1407,7 +1394,7 @@ ${opt}";
 		script_dir
 		bundle_archive
 		bundle_source
-		bundle_path		
+		bundle_path
 		log_file
 		log_dir
 		git_url

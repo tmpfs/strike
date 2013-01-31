@@ -1,0 +1,46 @@
+# create the deployment bundle
+:tasks.bundle.create() {
+	# always write the effective settings into the bundle
+	:tasks.bundle.settings.write!
+	
+	# create a package.json for the *npm* deployment type
+	if [ "$type" == "npm" ]; then
+		:tasks.bundle.npm.package.write!;
+	fi
+	
+	# create the bundle
+	{
+		cd "$deploy_target_directory" \
+			&& tar cf "$bundle_archive" "$bundle_name";
+	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
+}
+
+# write the deploy settings for the profile to the bundle
+:tasks.bundle.settings.write!() {
+	json.stringify --pretty 2 <<< "json_dump";
+	json.string > "${settings}";
+}
+
+# creates a package.json for an *npm* installation type
+:tasks.bundle.npm.package.write!() {
+	local npm_package_file="${bundle_source}/package.json";
+	:tasks.deploy.out.info "npm name %s" "$npm_package_name";
+	:tasks.deploy.out.info "npm version %s" "$npm_package_version";
+	:tasks.deploy.out.info "npm package %s" "$npm_package_file";
+	
+	# create the npm package descriptor file
+	touch ${npm_package_file} \
+ 		|| :tasks.deploy.fail "could not create %s" "$npm_package_file";
+			
+# write out the package descriptor into the bundle source directory
+cat <<NPMPKG >> ${npm_package_file}
+{
+	"name": "${project_name}-${profile}-deploy",
+	"version": "0.0.1",	
+	"private": "true",
+	"dependencies": {
+		"$npm_package_name": "${npm_package_version:-*}"
+	}
+}
+NPMPKG
+}
