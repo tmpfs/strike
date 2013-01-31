@@ -9,6 +9,14 @@
 
 	touch "${script}" \
 		|| :tasks.deploy.fail "could not create %s" "${script}";
+		
+	# escape spaces in paths
+	printf -v staging "%q" "${staging}";
+	printf -v log_file "%q" "${log_file}";
+	printf -v log_dir "%q" "${log_dir}";
+	printf -v deploy_target "%q" "${deploy_target}";
+	
+	#echo "after quoting : $staging";
 	
 	# custom script file specified
 	if [ -n "${script_source}" ]; then
@@ -50,6 +58,11 @@
 	valid=$?;
 	if [ $valid -eq 0 ]; then
  		console.info "%s %s" "$script" "${characters[tick]}";
+		# run script (locally) from target
+		# staging directory, used for testing and debugging
+		if $run_script; then
+			"${script}";
+		fi
 	else
  		:tasks.deploy.fail "%s %s" "$script" "${characters[cross]}";
 	fi
@@ -124,18 +137,20 @@ info() {
 
 # set up the log file
 log() {
-	# echo "\$log_dir";
-	# echo "\$log_file";
+	echo "log dir: $log_dir";
+	echo "log file: $log_file";
+	# NOTE: directories and files are literal
+	# NOTE: to allow ~ expansion
 	# create the log directory
-	if ! test -d "\$log_dir"; then
-		mkdir -p "\$log_dir" \\
+	if ! test -d $log_dir; then
+		mkdir -pv $log_dir \\
 			|| { quit "could not create %s\n" "\$log_dir"; }
 	fi
-	if test -f "\$log_file"; then
-		rm "\$log_file" \\
+	if test -f $log_file; then
+		rm -v $log_file \\
 			|| { quit "could not remove log file %s\n" "\$log_file"; }
 	fi
-	touch "\$log_file" \\
+	touch $log_file \\
 		|| { quit "could not create log file %s\n" "\$log_file"; }
 }
 

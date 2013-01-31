@@ -70,6 +70,10 @@ Perform a sanity check on the generated script and exit, implies `--noop`. You m
 
 Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause *checkbashisms* to output a warning but still pass the lint operation if there are no errors.
 
+* `--lint-run`:
+
+Executes the script in the local target directory in the context of the *localhost*, implies `--lint` and `--noop`. The script is only executed if the `--lint` operation succeeds. Useful for testing and debugging purposes.
+
 * `--list`:
 
 List profile names in a deployment descriptor.
@@ -655,6 +659,7 @@ tasks.deploy() {
 	
 	# run script through checkbashisms and exit
 	local lint=false;
+	local run_script=false;
 	
 	# the prefix used for deployment
 	# interactive prompts
@@ -1681,6 +1686,11 @@ ${opt}";
 			--lint )
 				lint=true;
 				noop=true;				
+				;;
+ 			--lint-run )
+				lint=true;
+				run_script=true;
+				noop=true;
 				;;				
 			--pretty )
 				pretty=true;
