@@ -351,17 +351,23 @@ function __require_load {
 		# TODO: check delegate name against the type -f 
 		# TODO: to see whether it overrides a builtin
 		
+		# local internal_type=$( type -t "$name" );
+		# 
+		# echo "testing internal type for delegate: $name : $internal_type";
+		
 		# never do delegate functionality for the `test`
 		# module otherwise we override the test command		
-		if [ "$name" == test ]; then
-			return 0;
-		fi
+		
+		# TODO: this test is obsolete ???
+		# if [ "$name" == test ]; then
+		# 	return 0;
+		# fi
 		
 		# only add delegate functionality
 		# if the module explicitly marks it using
 		# the delegate variable
 		local delegate=${delegate:-false};
-		if $delegate; then
+		if $delegate; then		
 			require.delegate "$name";			
 		fi
 		# remove the require delegate flag

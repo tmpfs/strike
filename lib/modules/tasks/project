@@ -621,8 +621,7 @@ function !project.file {
 # read in the project file data
 function !project.file.read {
 	local k;	
-	json.parse < "$prjfile";
-	
+ 	json.parse < "$prjfile";
 	# clean prj_doc
 	for k in ${!prj_doc[@]}
 		do

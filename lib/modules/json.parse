@@ -43,6 +43,7 @@ function json.parse {
 	# use process substitution so that parsed
 	# data is available globally
 	__json.start < <(__json.tokenize <&0);
+	#echo "got json exit code: $?"
 	json_exit_code=$?;
 }
 
@@ -74,11 +75,16 @@ function __json.start {
 	read -r token;
 	__json.parse.value;
 	exit_code=$?;
-	read -r token;
+	
+	# we can have valid json and no next token
+	# so don't exit on the next read
+	set -o errexit;
+	read -r token || true;
 	case "$token" in
 		'' ) ;;
 		* ) __json.throw "EXPECTED EOF GOT $token"; return 1 ;;
 	esac
+	set +o errexit;
 	return $exit_code;
 }
 

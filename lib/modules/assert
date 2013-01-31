@@ -386,9 +386,14 @@ function __assert.print.summary {
 		
 		assert.header;
 		console.warn "# FAILURES";
-		assert.header;		
-		console.warn "# STDOUT: %s" "$stdout";
-		console.warn "# STDERR: %s" "$stderr";
+		assert.header;
+		
+		if [ -n "${stdout:-}" ]; then
+			console.warn "# STDOUT: %s" "$stdout";
+		fi
+		if [ -n "${stderr:-}" ]; then
+			console.warn "# STDERR: %s" "$stderr";
+		fi
 		assert.header;
 		
 		local debuginfo;
