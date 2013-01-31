@@ -634,7 +634,7 @@ deploy_property_names=(
 	"description"
 	"package"
 	"directory"
-	"staging"
+	"staging"	
 );
 
 # deploy delegate
@@ -986,6 +986,25 @@ tasks.deploy() {
 		:tasks.deploy.fail "invalid deployment type %s" "${type:-}";
 	fi
 	
+	# npm specific properties
+	if [ "$type" == "npm" ]; then
+		if [ -n "$package" ]; then
+			# allow variable references in package properties
+			eval "package=\"$package\"";
+		fi
+		# TODO: validate package format name@version
+		local npm_package_name="${package}";
+		local npm_package_version="";
+		local npm_package_re="([^@ ]+)(@| )(.*)?$";
+		if [[ "$package" =~ $npm_package_re ]]; then
+			# echo "MATCHES NPM RE!!!"
+			npm_package_name="${BASH_REMATCH[1]}";
+			npm_package_version="${BASH_REMATCH[3]}";
+		fi
+		# echo "got npm package : $package : '$npm_package_name' : '$npm_package_version'";
+		# exit 0;
+	fi
+	
 	# validate required data
 	if ! $deploy_local && [ -z "${host}" ]; then
 		:tasks.deploy.fail "no remote host information available for deploy";
@@ -1073,6 +1092,11 @@ tasks.deploy() {
 	unset host;
 	unset directory;
 	unset profile_commands;	
+	
+	# cleanup npm specific variable
+	unset package;
+	unset npm_package_name;
+	unset npm_package_version;
 }
 
 # run pre-deployment local commands

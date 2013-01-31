@@ -18,6 +18,9 @@
 	
 	local creator="${deploy_user}@${deploy_local_host_name}";
 	
+	# echo "got package: $package : $npm_package_name : $npm_package_version";
+	# exit 0;
+	
 	# NOTE: there is still a race condition albeit
 	# NOTE: highly unlikely in a real world scenario
 	# timestamp has to be done here
@@ -255,6 +258,16 @@ EOF
 cat <<EOF >> "${script}"
 deploy() {
 	echo "deploy npm !";
+cat <<NPMPKG
+{
+	"name": "$deploy_name-${profile}-deploy",
+	"version": "0.0.1",	
+	"private": "true",
+	"dependencies": {
+		"$npm_package_name": "${npm_package_version:-*}"
+	}
+}
+NPMPKG
 }
 EOF
 }
