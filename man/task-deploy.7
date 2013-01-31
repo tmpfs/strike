@@ -102,6 +102,16 @@ Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \f
 Use \fIdirectory\fR as the staging directory\.
 .
 .TP
+\fB\-\-lint\fR:
+
+.
+.P
+Perform a sanity check on the generated script and exit\. You must have the \fIcheckbashisms\fR script installed in $PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through \fIcheckbashisms\fR\.
+.
+.P
+Note that when using the \fB\-\-script\-source\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause \fIcheckbashisms\fR to output a warning but still pass the lint operation\.
+.
+.TP
 \fB\-\-list\fR:
 
 .

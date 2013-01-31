@@ -64,6 +64,12 @@ Use *shell* for the script shebang. Must be one of *sh*, *bash*, *zsh* or *dash*
 
 Use *directory* as the staging directory.
 
+* `--lint`:
+
+Perform a sanity check on the generated script and exit. You must have the *checkbashisms* script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through *checkbashisms*.
+
+Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause *checkbashisms* to output a warning but still pass the lint operation.
+
 * `--list`:
 
 List profile names in a deployment descriptor.
@@ -647,6 +653,9 @@ tasks.deploy() {
 	# all profiles in descriptor, see --all
 	local deploy_all=false;
 	
+	# run script through checkbashisms and exit
+	local lint=false;
+	
 	# the prefix used for deployment
 	# interactive prompts
 	local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
@@ -923,10 +932,6 @@ tasks.deploy() {
 	:tasks.deploy.run.pre;
 	
 	echo "start deployment !!!";
-	
-	# local debug testing
-	# :tasks.script.debug;
-	#exit 0;
 
 	# scp the script to the remote server
 	# :tasks.deploy.script.push!;		
@@ -1039,6 +1044,11 @@ tasks.deploy() {
 	if ! $print_json; then
 		# write the deploy script file
 		:tasks.deploy.script.write!;
+	fi
+	
+	# run script through `checkbashisms`
+	if $lint; then
+		:tasks.deploy.script.lint;
 	fi
 
 	if ! $dump_script && ! $print_json; then
@@ -1524,16 +1534,6 @@ ${opt}";
 	fi
 }
 
-# runs script locally for debugging
-:tasks.script.debug() {
-	# output sscipt contents
-	cat "${script}";
-	# utility to verify the script is not bash only
-	checkbashisms "${script}";
-	# run script locally
-	"${script}";
-}
-
 # failure
 :tasks.deploy.fail() {
 	:tasks.deploy.complete.notify;
@@ -1678,6 +1678,9 @@ ${opt}";
 				noop=true;
 				print_json=false;
 				;;
+			--lint )
+				lint=true;
+				;;				
 			--pretty )
 				pretty=true;
 				;;

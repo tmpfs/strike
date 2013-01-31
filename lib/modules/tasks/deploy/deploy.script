@@ -26,6 +26,28 @@
 	fi
 }
 
+# run script through `checkbashisms`
+:tasks.deploy.script.lint() {
+	executable.validate checkbashisms;
+	
+	console.info "lint %s" "${script}";
+	
+	local valid=1;
+	# utility to verify the script is not bash only
+	checkbashisms "${script}";
+	valid=$?;
+	if [ $valid -eq 0 ]; then
+ 		console.info "%s %s" "$script" "${characters[tick]}";
+	else
+ 		:tasks.deploy.fail "%s %s" "$script" "${characters[cross]}";
+	fi
+	
+	# run script locally
+	# "${script}";
+	
+	console.success;
+}
+
 # write the script header
 :tasks.deploy.script.header.write!() {
 cat <<EOF >> "${script}"
