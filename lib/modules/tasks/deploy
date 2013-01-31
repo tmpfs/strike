@@ -721,7 +721,7 @@ tasks.deploy() {
 	skip["growl"]=false;
 
 	# valid deployment types
-	local types=( git tar );
+	local types=( git tar npm );
 	
 	local profiles=();
 	
@@ -917,7 +917,7 @@ tasks.deploy() {
 	local deploy_target;
 	
 	# override default settings from user defined deploy.json
-	:tasks.deploy.json.read;	
+	:tasks.deploy.json.read;
 	
 	# validate required data
 	if ! $deploy_local && [ -z "${host}" ]; then
@@ -968,6 +968,18 @@ tasks.deploy() {
 	# run local post-deployment command execution
 	:tasks.deploy.run.post;	
 }
+
+# list of property names that are first set
+# from the top-level of a document and then
+# overriden by declarations in specific profiles
+declare -ag deploy_property_names;
+deploy_property_names=(
+	"host"
+	"directory"
+	"type"
+	"url"
+	"description"
+);
 
 # reads in the json data overrriding
 # default values where appropriate
@@ -1041,6 +1053,10 @@ tasks.deploy() {
 						"json" "env";
 				fi
 			fi
+			
+			#sanitize variable name
+			json_key="${json_key//[^a-zA-Z0-9_]/_}";
+			
 			# echo "expanding $json_key : $json_value";
 			# declare variable
 			eval "local $json_key=\"$json_value\"";
