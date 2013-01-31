@@ -143,6 +143,17 @@ timestamp="${timestamp}"; export timestamp;
 sandbox="${sandbox}"; export sandbox;
 creator="${creator}"; export creator;
 
+
+# clean temporary files
+cleanup() {
+	if test -d $sandbox-\$\$; then
+		info "rm -rfv %s\n" "$sandbox-\$\$";
+		rm -rfv $sandbox-\$\$;
+	fi
+}
+
+trap 'cleanup >/dev/null 2>&1' EXIT HUP INT QUIT TERM
+
 EOF
 }
 
@@ -266,7 +277,7 @@ init() {
 	setup;
 }
 
-start() {
+start() {	
 	settings;
 	init;
 	deploy;
