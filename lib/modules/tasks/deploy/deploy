@@ -192,7 +192,7 @@ This operation will only be performed if the final target directory for the depl
 
 For the `npm` and `tar` deployment types a backup is created by moving the existing directory prior to starting deployment and moving back to the target destination if deployment fails.
 
-For the `git` deployment type a current revision is extracted from the existing repository using `--rev-parse` and if the deployment fails it is reverted to the previous revision using `--reset`.
+For the `git` deployment type a current revision is extracted from the existing repository using `rev-parse` and if the deployment fails it is reverted to the previous revision using `reset`.
 
 ## JSON FORMAT
 

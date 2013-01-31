@@ -230,10 +230,9 @@ backup() {
 # if there is any presence of the target directory it is removed
 rollback() {
 	info "rollback %s\n" "\${deploy_target}";
-	
-	# we have a git revision to roll back to
-	if test -n \${git_revision_hash:-}; then
-		echo "ROLLBACK FROM GIT REVISION ... \$git_revision_hash";
+	# we have a git revision to rollback to
+	if test -n \${git_revision_hash:-} && test -d \${deploy_target}/.git; then
+		cd \${deploy_target} && git reset \$git_revision_hash >> \$log_file 2>&1;
 	# plain filesytem rollback
 	elif test -d \${backup}; then
 		# backup exists but target also exists
