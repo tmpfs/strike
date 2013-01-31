@@ -15,9 +15,17 @@
 	local deploy_parent deploy_final_name;
 	fs.dirname "${deploy_target}" "deploy_parent";
 	fs.basename "${deploy_target}" "deploy_final_name";
+	
+	local creator="${deploy_user}@${deploy_local_host_name}";
+	
+	# NOTE: there is still a race condition albeit
+	# NOTE: highly unlikely in a real world scenario
+	# timestamp has to be done here
+	# otherwise tilde ~ expansion will not work	
+	local timestamp=$( date +%s );
 
 	# setup a deployment staging sandbox
-	local sandbox="${staging}/${deploy_file_name}-${profile}";
+	local sandbox="${staging}/${deploy_file_name}-${profile}-${timestamp}";
 		
 	# escape spaces in paths
 	printf -v staging "%q" "${staging}";
@@ -131,10 +139,9 @@ deploy_target="${deploy_target}"; export deploy_target;
 deploy_parent="${deploy_parent}"; export deploy_parent;
 deploy_final_name="${deploy_final_name}"; export deploy_final_name;
 deploy_type="${type}"; export deploy_type;
-timestamp=\$( date +%s ); export timestamp;
-sandbox="${sandbox}-\${timestamp}"; export sandbox;
-
-echo "SANDBOX IS \$sandbox";
+timestamp="${timestamp}"; export timestamp;
+sandbox="${sandbox}"; export sandbox;
+creator="${creator}"; export creator;
 
 EOF
 }
@@ -179,10 +186,10 @@ setup() {
 	fi
 	
 	# create the sandbox
-	if ! test -d $sandbox; then
-		info "mkdir -p %s\n" "\${sandbox}";
-		mkdir -p $sandbox \\
-			|| { quit "could not create %s\n" "\$sandbox"; }
+	if ! test -d $sandbox-\$\$; then
+		info "mkdir -p %s\n" "\${sandbox}-\$\$";
+		mkdir -p $sandbox-\$\$ \\
+			|| { quit "could not create %s\n" "\$sandbox-\$\$"; }
 	fi
 }
 
@@ -192,9 +199,10 @@ settings() {
 	if test -n "\${description:-}"; then
 		info "description %s\n" "\${description}";
 	fi	
+	info "creator %s\n" "\${creator}";
 	info "date %s\n" "\${start_time}";
 	info "timestamp %s\n" "\${timestamp}";
-	info "sandbox %s\n" "\${sandbox}";
+	info "sandbox %s\n" "\${sandbox}-\$\$";
 	info "profile %s\n" "\${profile}";
 	info "type %s\n" "\${deploy_type}";
 	info "noop %s\n" "\${noop}";
