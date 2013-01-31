@@ -58,6 +58,20 @@ function require.load {
 	require "$1";
 }
 
+# complex modules stored in directories
+# can use this method to source a file 
+# relative to the directory containing 
+# the module, this essentially load the
+# file relative to the script invoking 
+# this method
+function require.library {
+	local file="${1:-}";
+	local info;
+	require.resolve "info" "1";
+	local path="${info[1]}/$file";
+	__require_load "$path";
+}
+
 # add a custom require path
 #TODO: get this working correctly!!!
 # function require.path! {
@@ -248,7 +262,11 @@ function __require_source {
 	# only require if path does not match an already loaded module
 	# or if the module is being loaded forcefully
 	if ! require.path.exists? "$abs" || $force; then
-		. "$abs";
+		if [ -f "$abs" ] && [ -r "$abs" ]; then
+			. "$abs";
+		else
+			console.quit 1 "module %s is not a file or unreadable" "$abs";
+		fi
 	else
 		console.warn "skipping require on loaded module %s" "$abs";
 	fi
