@@ -109,7 +109,6 @@ ${shebang}
 # script: ${script_name}
 # file: ${script}
 # name: ${project_name}
-# description: ${description:-}
 # version: ${project_version}
 # profile: ${profile}
 # type: ${type}
@@ -282,23 +281,28 @@ settings() {
 	delimiter;
 	info "info\n";
 	delimiter;
-	info "timestamp %s\n" "\${timestamp}";
-	info "pid %s\n" "\$\$";
-	info "sandbox %s\n" "\${sandbox}";
-	info "profile %s\n" "\${profile}";
-	info "type %s\n" "\${deploy_type}";
-	info "noop %s\n" "\${noop}";
-	info "shell %s\n" "\${shell}";
-	info "script %s\n" "\${script}";
-	info "directory %s\n" "\${directory}";
-	info "staging %s\n" "\${staging}";
-	info "log file %s\n" "\${log_file}";
+	info "host: %s\n" "\${host}";	
+	info "timestamp: %s\n" "\${timestamp}";
+	info "pid: %s\n" "\$\$";
+	info "profile: %s\n" "\${profile}";
+	info "type: %s\n" "\${deploy_type}";
+	info "noop: %s\n" "\${noop}";
+	info "shell: %s\n" "\${shell}";
+	delimiter;
+	info "paths\n";
 	delimiter;	
-	info "host %s\n" "\${host}";
-	info "target %s\n" "\${deploy_target}";		
-	delimiter;	
+	info "directory: %s\n" "\${directory}";
+	info "staging: %s\n" "\${staging}";	
+	info "sandbox: %s\n" "\${sandbox}";	
+	info "script: %s\n" "\${script}";
+	info "log file: %s\n" "\${log_file}";
+	delimiter;
 	info "start ($type) %s\n" "`date`";
-	delimiter;		
+	delimiter;	
+	info "\n";
+	info "\t%s\n" "\${deploy_target}";
+	info "\n";
+	delimiter;
 }
 
 EOF
