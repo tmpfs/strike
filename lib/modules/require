@@ -230,7 +230,6 @@ function __require_register {
 }
 
 function __require_source {
-	local abs="$1";
 	local name;
 	fs.basename "$abs" "name";
 	
