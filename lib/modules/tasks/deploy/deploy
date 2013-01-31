@@ -997,6 +997,12 @@ tasks.deploy() {
 		deploy_target="${deploy_target}/${profile}";
 	fi
 	
+	if [ -z "${staging}" ]; then
+		:tasks.deploy.fail "staging directory may not be empty";
+	elif [[ "${staging}" =~ ^/+$ ]]; then
+		:tasks.deploy.fail "staging directory may not be at the filesystem root";
+	fi
+	
 	# NOTE: reading commands should be done
 	# NOTE: after setting all relevant variables
 	# NOTE: so that all variables are available to commands being

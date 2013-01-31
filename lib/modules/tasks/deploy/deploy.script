@@ -57,19 +57,20 @@
 	checkbashisms "${script}";
 	valid=$?;
 	if [ $valid -eq 0 ]; then
- 		console.info "%s %s" "$script" "${characters[tick]}";
+ 		console.info "lint %s %s" "$script" "${characters[tick]}";
 		# run script (locally) from target
 		# staging directory, used for testing and debugging
 		if $run_script; then
+			local exit_code=1;
+			console.info "exec %s" "${script}";
 			"${script}";
+			exit_code=$?;
+			console.info "%s exited with %s" "${script}" "${exit_code}";
+			exit $exit_code;
 		fi
 	else
- 		:tasks.deploy.fail "%s %s" "$script" "${characters[cross]}";
+ 		:tasks.deploy.fail "lint %s %s" "$script" "${characters[cross]}";
 	fi
-	
-	# run script locally
-	# "${script}";
-	
 	console.success;
 }
 
