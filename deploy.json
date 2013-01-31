@@ -42,7 +42,7 @@
 		"stage":{ "type": "git" },
 		"empty": {},
 		"npm-scp-tar": {
-			"description": "deploy using npm(1)+scp(1)+tar(1)",
+			"description": "npm(1)+scp(1)+tar(1)",
 			"type": "tar",
 			"url": "~/$project_name-$project_version.tgz",
 			"commands": {
@@ -65,7 +65,7 @@
 			}
 		},
 		"npm": {
-			"description": "deploy latest public release using the npm(1) package system",
+			"description": "npm(1) latest public release",
 			"type": "npm",
 			"package": "${project_name}"
 		},

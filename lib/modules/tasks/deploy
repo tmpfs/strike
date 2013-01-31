@@ -329,7 +329,7 @@ The path to the log file used by task-deploy(7).
 
 A boolean indicating whether output is being redirected to the file defined by the *log* variable.
 
-* `deploy_type`:
+* `type`:
 
 The type of deployment being performed, see the `TYPES` section.
 
@@ -622,6 +622,24 @@ ronn:markdown
 require.once 'json';
 require.once 'git';
 
+# list of property names that are first set
+# from the top-level of a document and then
+# overriden by declarations in specific profiles
+# these properties are shared by all deployment types
+declare -ag deploy_property_names;
+deploy_property_names=(
+	"host"
+	"directory"
+	"type"
+	"url"
+	"description"
+);
+
+# list of property names that are specific
+# to a particular type of deployment
+declare -Ag deploy_property_by_type;
+deploy_property_by_type[npm]="package";
+
 # deploy delegate
 tasks.deploy() {
 	executable.validate scp ssh;
@@ -663,8 +681,8 @@ tasks.deploy() {
 	local shells=( sh bash zsh dash );
 
 	# default to git deployment
-	local deploy_type_default="git";	
-	local deploy_type="${deploy_type_default}";
+	local default_type="git";	
+	local type="${default_type}";
 	local profile="default";
 	local directory="";
 	local shell="${bake_deploy_shell:-sh}";
@@ -880,15 +898,6 @@ tasks.deploy() {
 	fi
 }
 
-# test whether a profile name is valid
-# validity is determined by the existence of a
-# host property for the profile
-# :tasks.profile.valid?() {
-# 	local key="profiles.${profile}.type";
-# 	local value="${json_doc[$key]:-}";
-# 	test -n "${value}";
-# }
-
 # deploy a single profile
 :tasks.deploy.profile() {
 	
@@ -916,38 +925,8 @@ tasks.deploy() {
 	# the full deployment target directory
 	local deploy_target;
 	
-	# override default settings from user defined deploy.json
-	:tasks.deploy.json.read;
-	
-	# validate required data
-	if ! $deploy_local && [ -z "${host}" ]; then
-		:tasks.deploy.fail "no remote host information available for deploy";
-	fi
-	
-	# ready to start, output useful settings information
-	:tasks.deploy.info;	
-	
-	# verify deployment type is valid
-	if ! array.contains? "${deploy_type:-}" "${types[@]}"; then
-		:tasks.deploy.fail "invalid deployment type %s" "${deploy_type:-}";
-	fi
-	
-	if ! $print_json; then
-		# write the deploy script file
-		:tasks.deploy.script.write!;
-	fi
-
-	if ! $dump_script && ! $print_json; then
-	
-		# prompt for confirmation when possible
-		:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
-	fi
-	
-	# clean up
-	unset deploy_type;
-	unset host;
-	unset directory;
-	unset profile_commands;
+	# cascade properties
+	:tasks.deploy.cascade;
 }
 
 # start execution of a profile
@@ -969,51 +948,50 @@ tasks.deploy() {
 	:tasks.deploy.run.post;	
 }
 
-# list of property names that are first set
-# from the top-level of a document and then
-# overriden by declarations in specific profiles
-declare -ag deploy_property_names;
-deploy_property_names=(
-	"host"
-	"directory"
-	"type"
-	"url"
-	"description"
-);
-
-# reads in the json data overrriding
-# default values where appropriate
-:tasks.deploy.json.read() {
+# cascade properties from the root of the document
+# overwriting with profile specific properties if
+# they have been set and finally with cli overrides
+:tasks.deploy.cascade() {
+	local prop var val;
+	for prop in "${deploy_property_names[@]}"
+		do
+			val="";
+			var="$prop";
+			var="${var//[^a-zA-Z0-9_]/_}";
+			
+			# set top-level property
+			if [ -n "${json_doc[$prop]:-}" ]; then
+				val="${json_doc[$prop]:-}";
+				# echo "setting top-level property: $var=$val";
+			fi
+			
+			# set profile-specific property
+			if [ -n "${json_doc[profiles.${profile}.${prop}]:-}" ];then
+				val="${json_doc[profiles.${profile}.${prop}]}";
+				# echo "setting profile property ($profile): $var=$val";
+			fi
+			
+			# override with command line option
+			if [ -n "${overrides[${prop}]:-}" ];then
+				val="${overrides[${prop}]}";
+				# echo "setting cli override: $var=$val";
+			fi
+			
+			# set the variable
+			if [ -n "$val" ]; then
+				eval "local $var=\"\${val}\"";
+			fi
+	done
 	
-	# USE DOCUMENT ROOT SETTINGS
-	
-	if [ -n "${json_doc[host]:-}" ]; then
-		host="${json_doc[host]}";
-	fi
-	if [ -n "${json_doc[directory]:-}" ]; then
-		directory="${json_doc[directory]}";
+	# verify deployment type is valid
+	local type="${type:-git}";
+	if ! array.contains? "${type:-}" "${types[@]}"; then
+		:tasks.deploy.fail "invalid deployment type %s" "${type:-}";
 	fi
 	
-	# USE PROFILE SPECIFIC SETTINGS
-	
-	if [ -n "${json_doc[profiles.${profile}.host]:-}" ];then
-		host="${json_doc[profiles.${profile}.host]}";
-	fi
-	if [ -n "${json_doc[profiles.${profile}.directory]:-}" ];then
-		directory="${json_doc[profiles.${profile}.directory]}";
-	fi
-	if [ -n "${json_doc[profiles.${profile}.type]:-}" ];then
-		deploy_type="${json_doc[profiles.${profile}.type]}";
-	fi
-	
-	# USE COMMAND LINE OPTION OVERRIDES
-	
-	# command line options that override deploy.json settings
-	if [ -n "${overrides[host]:-}" ]; then
-		host="${overrides[host]}";
-	fi
-	if [ -n "${overrides[directory]:-}" ]; then
-		directory="${overrides[directory]}";
+	# validate required data
+	if ! $deploy_local && [ -z "${host}" ]; then
+		:tasks.deploy.fail "no remote host information available for deploy";
 	fi
 	
 	# set up the full deployment target directory
@@ -1067,6 +1045,26 @@ deploy_property_names=(
 	
 	# read in profile specific commands
 	:tasks.deploy.commands.read "profiles.${profile}";
+	
+	# ready to start, output useful settings information
+	:tasks.deploy.info;	
+	
+	if ! $print_json; then
+		# write the deploy script file
+		:tasks.deploy.script.write!;
+	fi
+
+	if ! $dump_script && ! $print_json; then
+	
+		# prompt for confirmation when possible
+		:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
+	fi
+	
+	# clean up
+	unset type;
+	unset host;
+	unset directory;
+	unset profile_commands;	
 }
 
 # run pre-deployment local commands
@@ -1327,10 +1325,11 @@ ${opt}";
 	local var key vars=(
 		deploy_name
 		deploy_file_name
-		deploy_type
+		type
 		deploy_target
+		description
 		script_shell
-		script_shebang			
+		script_shebang		
 		script_file
 		script_dir
 		directory
@@ -1383,9 +1382,12 @@ ${opt}";
 	if ! $print_json && ! $dump_script; then
 		local start_time=$( date )
 		:tasks.deploy.out.info "date %s" "${start_time}";
-		:tasks.deploy.out.info "deploy %s" "${deploy_name}";	
+		:tasks.deploy.out.info "deploy %s" "${deploy_name}";
+		if [ -n "${description:-}" ]; then
+			:tasks.deploy.out.info "description %s" "${description}";
+		fi
 		:tasks.deploy.out.info "profile %s" "${profile}";
-		:tasks.deploy.out.info "type %s" "${deploy_type}";
+		:tasks.deploy.out.info "type %s" "${type}";
 		:tasks.deploy.out.info "noop %s" "${noop}";
 		:tasks.deploy.out.info "shell %s" "${shell}";
 		# using custom script
@@ -1508,7 +1510,7 @@ ${opt}";
 				# has been specified
 				tk="${BASH_REMATCH[1]}.type";
 				if [ -z "${json_doc[$tk]:-}" ]; then
-					json_doc[$tk]="${deploy_type_default}";
+					json_doc[$tk]="${default_type}";
 				fi
 			fi
 	done
@@ -1649,7 +1651,7 @@ ${shebang}
 # name: ${project_name}
 # version: ${project_version}
 # profile: ${profile}
-# type: ${deploy_type}
+# type: ${type}
 # local: ${deploy_local}
 # flat: ${flat}
 # include version: ${include_version}
