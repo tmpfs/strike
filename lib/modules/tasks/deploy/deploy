@@ -1069,6 +1069,46 @@ tasks.deploy() {
 			fi
 	done
 	
+	# NOTE: reading commands should be done
+	# NOTE: after setting all relevant variables
+	# NOTE: so that all variables are available to commands being
+	# NOTE: declared in the deploy.json descriptor
+	
+	local json_key json_value env_re="^env_." env_json_re="\\\$json_";
+	# 1) expand properties in an `env`
+	# 1) object exposed by direct variable name
+	# 2) expand JSON document properties
+	# 2) to json_ local variables
+	# 2) so that descriptor documents may
+	# 2) cross-reference properties
+	for json_key in "${!json_doc[@]}"
+		do
+			json_value="${json_doc["$json_key"]}";
+			# sanitized to _ delimiter for variable names
+			json_key="${json_key//\./_}";
+			if [[ ! "$json_key" =~ $env_re ]]; then
+				# escape dollar symbols as `eval`
+				# is invoked later on
+				json_value="${json_value//\$/\\\$}";
+								
+				# prefix with json_ for non-env properties
+				json_key="json_${json_key}";
+			else
+				if [[ "$json_value" =~ $env_json_re ]]; then
+					:tasks.deploy.fail \
+						"invalid %s cross-reference in %s" \
+						"json" "env";
+				fi
+			fi
+			
+			#sanitize variable name
+			json_key="${json_key//[^a-zA-Z0-9_]/_}";
+			
+			# echo "expanding $json_key : $json_value";
+			# declare variable
+			eval "local $json_key=\"$json_value\"";
+	done
+	
 	# verify deployment type is valid
 	local type="${type:-git}";
 	if ! array.contains? "${type:-}" "${types[@]}"; then
@@ -1147,47 +1187,7 @@ tasks.deploy() {
 		:tasks.deploy.fail "staging directory may not be empty";
 	elif [[ "${staging}" =~ ^/+$ ]]; then
 		:tasks.deploy.fail "staging directory may not be at the filesystem root";
-	fi
-	
-	# NOTE: reading commands should be done
-	# NOTE: after setting all relevant variables
-	# NOTE: so that all variables are available to commands being
-	# NOTE: declared in the deploy.json descriptor
-	
-	local json_key json_value env_re="^env_." env_json_re="\\\$json_";
-	# 1) expand properties in an `env`
-	# 1) object exposed by direct variable name
-	# 2) expand JSON document properties
-	# 2) to json_ local variables
-	# 2) so that descriptor documents may
-	# 2) cross-reference properties
-	for json_key in "${!json_doc[@]}"
-		do
-			json_value="${json_doc["$json_key"]}";
-			# sanitized to _ delimiter for variable names
-			json_key="${json_key//\./_}";
-			if [[ ! "$json_key" =~ $env_re ]]; then
-				# escape dollar symbols as `eval`
-				# is invoked later on
-				json_value="${json_value//\$/\\\$}";
-								
-				# prefix with json_ for non-env properties
-				json_key="json_${json_key}";
-			else
-				if [[ "$json_value" =~ $env_json_re ]]; then
-					:tasks.deploy.fail \
-						"invalid %s cross-reference in %s" \
-						"json" "env";
-				fi
-			fi
-			
-			#sanitize variable name
-			json_key="${json_key//[^a-zA-Z0-9_]/_}";
-			
-			# echo "expanding $json_key : $json_value";
-			# declare variable
-			eval "local $json_key=\"$json_value\"";
-	done
+	fi	
 	
 	# read in global commands
 	:tasks.deploy.commands.read;

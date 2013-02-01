@@ -1,4 +1,6 @@
 {
+	"host": "cyberfunk@jet.freeformsystems.com",
+	"directory": "~/www",	
 	"notifications": {
 		"mail": {
 			"to": "muji <freeformsystems@gmail.com>"
@@ -11,10 +13,9 @@
 			"path": "${target}/${project_name}-${project_version}.tgz"
 		}
 	},
-	"host": "cyberfunk@jet.freeformsystems.com",
-	"directory": "~/www",
 	"commands": {
 		"local": {
+			"description": "creates an npm package and moves it to target",
 			"pre": [
 				{
 					"command": "npm",
@@ -23,10 +24,6 @@
 				{
 					"command": "mv",
 					"options": [ "$env_archive_name", "$env_archive_dir" ]
-				},
-				{
-					"command": "scp",
-					"options": [ "$env_archive_path", "${host}:~/" ]
 				}
 			]
 		}
@@ -40,7 +37,7 @@
 		"npm-tar": {
 			"description": "npm(1)+tar(1)",
 			"type": "tar",
-			"url": "file://$target/$project_name-$project_version.tgz"
+			"url": "file://$env_archive_path"
 		},
 		"npm-scp-tar": {
 			"description": "npm(1)+scp(1)+tar(1)",
