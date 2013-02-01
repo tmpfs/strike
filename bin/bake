@@ -6,11 +6,15 @@ bake(1) -- make for bash
 
 ## SYNOPSIS
 
-`bake` command [<options>...]<br>
+Delegates to task commands after setting a context.
 
 ## DESCRIPTION
 
 **bake** is `make` for bash programs. It provides an extensible system for managing project tasks using modular code.
+
+## USAGE
+
+	bake [task] [task options...]
 	
 ## BUILTIN TASKS
 
@@ -26,7 +30,7 @@ The convention is that task methods are not declared in tasks(7) but are placed 
 
 The bake(1) program looks for a tasks(7) file in the current working directory. If no tasks(7) file is found in the current working directory then bake(1) will walk all parent directories looking for a tasks(7) file.
 
-It maps commands (the first option passed to bake(1)) to task method(s) declared by the tasks file. A command is considered to be the first option passed to the `bake` executable, any other options specified on the command line are passed to the corresponding task method.
+It maps commands (the first option passed to bake(1)) to a task command either builtin or declared (or required) by the tasks file. A task is considered to be the first option passed to the `bake` executable, any other options specified on the command line are passed to the corresponding task command.
 
 ## VARIABLES
 
@@ -50,7 +54,7 @@ The project version number, if no version information is available the value *0.
 
 * `target`:
 
-A temporary `target` directory corresponding to `${root}/target`.
+A staging directory corresponding to `${root}/target`.
 
 * `tasks`:
 

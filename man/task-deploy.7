@@ -85,7 +85,10 @@ Use \fIscript\fR as the deployment script instead of any generated script\. The 
 When this option is specified the \fB\-\-shell\fR option has no effect as it is only used to determine the \fIshebang\fR for generated deployment scripts\.
 .
 .P
-If multiple profiles are being deployed then \fIscript\fR is used for all active deployment profiles\.
+If multiple profiles are being deployed then \fIscript\fR is used for all target profiles\.
+.
+.P
+It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are \fInever\fR executed\.
 .
 .TP
 \fB\-\-shell [shell]\fR:
@@ -265,7 +268,7 @@ This deployment type will fetch a tarball from a filesystem path or remote URL a
 Unlike the \fInpm\fR and \fIgit\fR deployment types we cannot be certain that we are only deploying a single directory\. So this type uses the rule that when an archive contains a single directory then that directory is used as the final deployment directory\.
 .
 .P
-If the archive contains more than one file or a single non\-directory file then the entire contents of the archive are copied \fIinto\fR the final deployment directory\.
+If the archive contains more than one file or a single non\-directory file then the entire contents of the archive are copied into the final deployment directory\.
 .
 .P
 It is a subtle but important difference that caters to the common use case for working with archives\. Generally, when packaging a project for distribution all files are placed in a single directory and that directory is converted to an archive\. If we did not follow the above rule the resulting deployment would have an additional nested directory which is probably undesirable\.

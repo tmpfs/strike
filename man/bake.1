@@ -7,12 +7,18 @@
 \fBbake\fR \- make for bash
 .
 .SH "SYNOPSIS"
-\fBbake\fR command [\fIoptions\fR\.\.\.]
-.
-.br
+Delegates to task commands after setting a context\.
 .
 .SH "DESCRIPTION"
 \fBbake\fR is \fBmake\fR for bash programs\. It provides an extensible system for managing project tasks using modular code\.
+.
+.SH "USAGE"
+.
+.nf
+
+bake [task] [task options\.\.\.]
+.
+.fi
 .
 .SH "BUILTIN TASKS"
 All bake(1) projects have the following tasks built in task\-test(7), task\-clean(7), task\-ls(7), task\-doc(7) and task\-semver(7)\.
@@ -34,7 +40,7 @@ require \'tasks/todo\';
 The bake(1) program looks for a tasks(7) file in the current working directory\. If no tasks(7) file is found in the current working directory then bake(1) will walk all parent directories looking for a tasks(7) file\.
 .
 .P
-It maps commands (the first option passed to bake(1)) to task method(s) declared by the tasks file\. A command is considered to be the first option passed to the \fBbake\fR executable, any other options specified on the command line are passed to the corresponding task method\.
+It maps commands (the first option passed to bake(1)) to a task command either builtin or declared (or required) by the tasks file\. A task is considered to be the first option passed to the \fBbake\fR executable, any other options specified on the command line are passed to the corresponding task command\.
 .
 .SH "VARIABLES"
 The following variables are available to each task command:
@@ -72,7 +78,7 @@ The project version number, if no version information is available the value \fI
 
 .
 .P
-A temporary \fBtarget\fR directory corresponding to \fB${root}/target\fR\.
+A staging directory corresponding to \fB${root}/target\fR\.
 .
 .TP
 \fBtasks\fR:
