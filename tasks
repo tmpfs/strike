@@ -1,3 +1,5 @@
+require 'tasks/deploy';
+
 # tasks we want to use/test
 require 'tasks/archive';
 require 'tasks/todo';

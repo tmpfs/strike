@@ -573,7 +573,6 @@ require 'tasks/clean';
 require 'tasks/ls';
 require 'tasks/doc';
 require 'tasks/semver';
-require 'tasks/deploy';
 require 'tasks/module';
 
 bake() {
