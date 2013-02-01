@@ -12,7 +12,9 @@ Performs a deployment for a project.
 
 ## REQUIRE
 
-You do not need to require(3) this task as it is a builtin task.
+In your tasks(7) file `require` the `deploy` task(s) using:
+
+	require 'tasks/deploy';
 
 ## USAGE
 
@@ -31,6 +33,10 @@ Print commands but do not execute them, implies `--ok` to disable interactivity.
 * `--all`:
 
 Deploy all profiles in the descriptor.
+
+* `--bundle`:
+
+Just create bundles do not deploy anything and do not execute any commands. Implies `--noop`, `--no-local` and `--no-remote`. See the `BUNDLES` section.
 
 * `--name [name]`:
 
@@ -68,9 +74,9 @@ Use *directory* as the staging directory.
 
 * `--lint`:
 
-Perform a sanity check on the generated script and exit, implies `--noop`. You must have the *checkbashisms* script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through *checkbashisms*.
+Perform a sanity check on the generated script and exit, implies `--noop`. You must have the checkbashisms(1) script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through checkbashisms(1).
 
-Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause *checkbashisms* to output a warning but still pass the lint operation if there are no errors.
+Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors.
 
 This option ignores multiple profiles, it only executes for the first target profile.
 
@@ -684,7 +690,7 @@ Add `enable` boolean property to profiles in a descriptor to prevent deployment 
 
 ## SEE ALSO
 
-bake(1), task-deploy-json(7)
+bake(1), task-deploy-json(7), scp(1), ssh(1), tar(1), growlnotify(1), checkbashisms(1)
 ronn:markdown
 
 require.once 'json';

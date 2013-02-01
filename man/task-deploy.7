@@ -13,7 +13,17 @@ Deploy task(s) for bake(1)\.
 Performs a deployment for a project\.
 .
 .SH "REQUIRE"
-You do not need to require(3) this task as it is a builtin task\.
+In your tasks(7) file \fBrequire\fR the \fBdeploy\fR task(s) using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/deploy\';
+.
+.fi
+.
+.IP "" 0
 .
 .SH "USAGE"
 .
@@ -45,6 +55,13 @@ Print commands but do not execute them, implies \fB\-\-ok\fR to disable interact
 .
 .P
 Deploy all profiles in the descriptor\.
+.
+.TP
+\fB\-\-bundle\fR:
+
+.
+.P
+Just create bundles do not deploy anything and do not execute any commands\. Implies \fB\-\-noop\fR, \fB\-\-no\-local\fR and \fB\-\-no\-remote\fR\. See the \fBBUNDLES\fR section\.
 .
 .TP
 \fB\-\-name [name]\fR:
@@ -109,10 +126,10 @@ Use \fIdirectory\fR as the staging directory\.
 
 .
 .P
-Perform a sanity check on the generated script and exit, implies \fB\-\-noop\fR\. You must have the \fIcheckbashisms\fR script installed in $PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through \fIcheckbashisms\fR\.
+Perform a sanity check on the generated script and exit, implies \fB\-\-noop\fR\. You must have the checkbashisms(1) script installed in $PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through checkbashisms(1)\.
 .
 .P
-Note that when using the \fB\-\-script\-source\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause \fIcheckbashisms\fR to output a warning but still pass the lint operation if there are no errors\.
+Note that when using the \fB\-\-script\-source\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors\.
 .
 .P
 This option ignores multiple profiles, it only executes for the first target profile\.
@@ -1173,4 +1190,4 @@ Add \fBenable\fR boolean property to profiles in a descriptor to prevent deploym
 \fBtask\-deploy\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-bake(1), task\-deploy\-json(7)
+bake(1), task\-deploy\-json(7), scp(1), ssh(1), tar(1), growlnotify(1), checkbashisms(1)
