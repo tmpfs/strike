@@ -54,8 +54,8 @@
 		
 		# echo "creating script with: $script_commands_global_pre";
 		# echo "creating script with: $script_commands_global_post";	
-		# echo "creating script with: $script_commands_profile_pre";	
-		# echo "creating script with: $script_commands_profile_post";	
+		# echo "creating script with: $script_commands_profile_pre";
+		# echo "creating script with: $script_commands_profile_post";
 		
 		# write pre/post commands
 		:tasks.deploy.script.commands.write "pre";
@@ -178,12 +178,12 @@ deploy_file_name="${deploy_file_name}";
 
 # NOTE: directories and files are literal
 # NOTE: to allow tilde ~ expansion
+staging=${staging};
 sandbox=${sandbox}-\$\$;
 backup=\${sandbox}/backup;
 log_dir=${log_dir};
 log_file=${log_file};
 directory=${directory};
-staging=${staging};
 deploy_target=${deploy_target};
 deploy_parent=${deploy_parent};
 
@@ -195,8 +195,12 @@ cleanup() {
 	fi
 	
 	if test -d \$sandbox; then
+		delimiter;
+		info "clean %s\n" "\$sandbox";
+		delimiter;		
 		info "rm -rfv %s\n" "\$sandbox";
 		rm -rfv \$sandbox >> \$log_file 2>&1;
+		delimiter;
 	fi
 }
 
@@ -216,12 +220,22 @@ EOF
 # open command
 cat <<EOF >> "${script}"
 pre() {
+	wd=$( pwd );
+	delimiter;	
 	info "exec pre-deployment commands ($script_commands_pre)\n";
+	info "working directory \$wd\n";
+	delimiter;	
 EOF
 		:tasks.deploy.script.commands.embed;
 # close command
 cat <<EOF >> "${script}"
 
+	# cd \$owd;
+	# wd=$( pwd );
+	# delimiter;	
+	# info "pre-deployment commands ($script_commands_pre) complete\n";
+	# info "working directory \$wd\n";
+	# delimiter;
 }
 
 EOF
@@ -239,12 +253,22 @@ EOF
 # open command
 cat <<EOF >> "${script}"
 post() {
+	wd=$( pwd );
+	delimiter;		
 	info "exec post-deployment commands ($script_commands_post)\n";
+	info "working directory \$wd\n";
+	delimiter;	
 EOF
 		:tasks.deploy.script.commands.embed;
 # close command
 cat <<EOF >> "${script}"
 
+	cd \$owd;
+	wd=$( pwd );
+	delimiter;	
+	info "post-deployment commands ($script_commands_pre) complete\n";
+	info "working directory \$wd\n";	
+	delimiter;
 }
 
 EOF
@@ -282,7 +306,7 @@ EOF
 			:tasks.deploy.script.commands.embed.group;
 	done
 	# terminate command list
-	printf ";" >> "${script}";	
+	printf ";" >> "${script}";
 }
 
 :tasks.deploy.script.commands.embed.group() {
@@ -291,9 +315,9 @@ EOF
 	for cmd in "${v}"
 		do			
 			cmds=( $v );
-			# echo "appending command ${cmds[@]}";
+			echo "appending command ${cmds[@]}";
 			if $written; then
-				printf " \\" >> "${script}";				
+				printf " \\" >> "${script}";	
 				printf "\n\t&& " >> "${script}";
 			fi
 			local IFS=' ';
@@ -308,6 +332,8 @@ EOF
 cat <<EOF >> "${script}"
 # completed successfully
 complete() {
+	# run post-deployment commands
+	post;
 	success=true;
 	exit 0;
 }
@@ -496,7 +522,7 @@ deploy() {
 	
 	# TODO: checkout refspec !!!
 	
-	complete;
+	cd \$owd && complete;
 }
 
 EOF
@@ -555,7 +581,8 @@ deploy() {
 		cp -rfv ./archive/* "\$deploy_target" >> \$log_file 2>&1;
 	fi
 	
-	complete;
+	
+	cd \$owd && complete;
 }
 
 EOF
@@ -575,8 +602,8 @@ deploy() {
 	# now perform the npm installation
 	npm install >> \$log_file 2>&1 \\
 		&& mv \$npm_install_target \$npm_install_final \\
-		&& mv \$npm_install_final \$deploy_parent \\
-		&& complete;
+		&& mv \$npm_install_final \$deploy_parent;
+	cd \$owd && complete;
 }
 
 EOF
@@ -599,12 +626,13 @@ init() {
 	setup;
 }
 
-start() {	
+start() {
+	owd=$( pwd );
 	init;
 	settings;
+	# run pre-deployment commands
 	pre;
 	deploy;
-	post;
 	
 	# assume failure, the deploy command
 	# must explicitly exit 0
