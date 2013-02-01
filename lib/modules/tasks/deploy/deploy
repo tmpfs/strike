@@ -726,9 +726,14 @@ tasks.deploy() {
 	## FLAGS
 	
 	# assume failure
-	local success=false;	
+	local success=false;
 	
-	local logging=false;	
+	# just creating bundles
+	local bundling=false;
+	
+	# determine if we are printing
+	# messages to a log file
+	local logging=false;
 	
 	# interactive by default
 	local interactive=true;
@@ -1246,9 +1251,14 @@ tasks.deploy() {
 	if ! $dump_script && ! $print_json; then
 	
 		:tasks.bundle.create;
-	
-		# prompt for confirmation when possible
-		:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
+		
+		# only show the prompt and start
+		# a deployment process if we are not
+		# just creating bundles
+		if ! $bundling; then
+			# prompt for confirmation when possible
+			:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
+		fi
 	fi
 	
 	# clean up
@@ -1996,6 +2006,14 @@ ${opt}";
 				;;
 			--log )
 				logging=true;
+				;;
+			--bundle )
+				bundling=true;
+				noop=true;
+				skip["local.pre"]=true;
+				skip["local.post"]=true;
+				skip["remote.pre"]=true;
+				skip["remote.post"]=true;
 				;;
 			--script-source )
 				shift;
