@@ -34,6 +34,21 @@
 		},
 		"test":{ "type": "git" },
 		"stage":{},
+		"man-tar": {
+			"description": "create archive of man pages and deploy with tar(1)",
+			"type": "tar",
+			"url": "file://$target/manuals.tgz",
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "tar",
+							"options": [ "-cf", "$target/manuals.tgz", "man", "README.md", "LICENSE" ]
+						}
+					]
+				}
+			}			
+		},		
 		"npm-tar": {
 			"description": "npm(1)+tar(1)",
 			"type": "tar",

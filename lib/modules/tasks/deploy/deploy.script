@@ -429,8 +429,11 @@ deploy() {
 		info "mv %s %s\n" "\$file" "\$deploy_target";
 		mv "\$file" "\$deploy_target" >> \$log_file 2>&1;
 	else
-		info "copy archive contents\n";
+		info "copy contents %s\n" "./archive";
 		info "mkdir -p %s\n" "\$deploy_target";
+		mkdir -p "\$deploy_target" >> \$log_file 2>&1;
+		info "cp ./archive/* %s\n" "\$deploy_target";
+		cp -rfv ./archive/* "\$deploy_target" >> \$log_file 2>&1;
 	fi
 	
 	complete;
