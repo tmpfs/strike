@@ -15,18 +15,6 @@
 	local deploy_parent deploy_final_name;
 	fs.dirname "${deploy_target}" "deploy_parent";
 	fs.basename "${deploy_target}" "deploy_final_name";
-	
-	# echo "got package: $package : $npm_package_name : $npm_package_version";
-	# exit 0;
-	
-	# timestamp has to be done here
-	# otherwise tilde ~ expansion will not work	
-
-	# NOTE: there is still a race condition albeit
-	# NOTE: highly unlikely in a real world scenario
-	
-	# setup a deployment staging sandbox
-	local sandbox="${staging}/${deploy_file_name}-${profile}-${timestamp}";
 		
 	# escape spaces in paths
 	printf -v staging "%q" "${staging}";
@@ -34,7 +22,6 @@
 	printf -v log_dir "%q" "${log_dir}";
 	printf -v deploy_target "%q" "${deploy_target}";
 	printf -v directory "%q" "${directory}";
-	printf -v sandbox "%q" "${sandbox}";
 	
 	# custom script file specified
 	if [ -n "${script_source}" ]; then
@@ -149,6 +136,7 @@ set -e;
 set -u;
 
 # global variables
+timestamp=\$( date +%s );
 header="${header}";
 success=false;
 start_time=\$( date );
@@ -178,13 +166,18 @@ deploy_file_name="${deploy_file_name}";
 # NOTE: directories and files are literal
 # NOTE: to allow tilde ~ expansion
 staging=${staging};
-sandbox=${sandbox}-\$\$;
-backup=\${sandbox}/backup;
+
 log_dir=${log_dir};
 log_file=${log_file};
 directory=${directory};
 deploy_target=${deploy_target};
 deploy_parent=${deploy_parent};
+
+# NOTE: there is still a race condition albeit
+# NOTE: highly unlikely in a real world scenario
+# staging should have tilde expansion done
+sandbox=\${staging}/\${deploy_file_name}-\${profile}-\${timestamp}-\$\$;
+backup=\${sandbox}/backup;
 
 # ls -la .; pwd; exit 0;
 
@@ -469,15 +462,15 @@ settings() {
 	info "source: %s\n" "\${bundle_source}";
 	info "path: %s\n" "\${bundle_path}";
 	delimiter;	
-	info "info\n";
+	info "settings\n";
 	delimiter;
 	info "host: %s\n" "\${host}";
-	info "timestamp: %s\n" "\${timestamp}";
-	info "pid: %s\n" "\$\$";
-	info "profile: %s\n" "\${profile}";
+	info "profile: %s\n" "\${profile}";	
 	info "type: %s\n" "\${deploy_type}";
 	info "noop: %s\n" "\${noop}";
-	info "shell: %s\n" "\${shell}";
+	info "shell: %s\n" "\${shell}";	
+	info "timestamp: %s\n" "\${timestamp}";
+	info "pid: %s\n" "\$\$";
 	delimiter;
 	info "paths\n";
 	delimiter;	

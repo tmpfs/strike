@@ -1582,26 +1582,37 @@ ${opt}";
 	# otherwise print out information to stdout
 	if ! $print_json && ! $dump_script; then
 		local start_time=$( date )
-		:tasks.deploy.out.info "date %s" "${start_time}";
-		:tasks.deploy.out.info "deploy %s" "${deploy_name}";
-		if [ -n "${description:-}" ]; then
-			:tasks.deploy.out.info "description %s" "${description}";
-		fi
+		
+		# HEADER
+		:tasks.deploy.out.info "%s (%s)\n" "${deploy_name}" "${creator}";
 		:tasks.deploy.header;
+		:tasks.deploy.out.info "%s" "${start_time}";
+		:tasks.deploy.header;		
+		if [ -n "${description:-}" ]; then
+			:tasks.deploy.out.info "${description}";
+		fi
+		
+		# BUNDLE
+		:tasks.deploy.header;
+		:tasks.deploy.out.info "bundle";
+		:tasks.deploy.header;		
+		:tasks.deploy.out.info "name %s" "${bundle_name}";
+		:tasks.deploy.out.info "archive %s" "${bundle_archive}";
+		:tasks.deploy.out.info "source %s" "${bundle_source}";
+		:tasks.deploy.out.info "path %s" "${bundle_path}";
+		:tasks.deploy.header;		
+		
+		# SETTINGS
+		:tasks.deploy.header;
+		:tasks.deploy.out.info "settings";
+		:tasks.deploy.header;
+		:tasks.deploy.out.info "host %s" "${host}";		
 		:tasks.deploy.out.info "profile %s" "${profile}";
-		:tasks.deploy.out.info "bundle %s" "${deploy_target}/${bundle_name}";
 		:tasks.deploy.out.info "type %s" "${type}";
 		:tasks.deploy.out.info "noop %s" "${noop}";
 		:tasks.deploy.out.info "shell %s" "${shell}";
-		# using custom script
-		if [ -n "${script_source}" ]; then
-			:tasks.deploy.out.info "source script %s" "${script_source}";
-		fi		
-		:tasks.deploy.out.info "script %s" "${script}";
-		:tasks.deploy.out.info "directory %s" "${directory}";
-		:tasks.deploy.out.info "staging %s" "${staging}";
-		:tasks.deploy.out.info "target %s" "${deploy_target}";
-		:tasks.deploy.out.info "log file %s" "${log_file}";
+		
+		# type specific / optional settings
 		if [ "$type" == "tar" ] || [ "$type" == "git" ]; then
 			:tasks.deploy.out.info "url %s" "${url}";
 		fi
@@ -1611,7 +1622,26 @@ ${opt}";
 			:tasks.deploy.out.info "git ref %s" "${git_ref}";
 			:tasks.deploy.out.info "git remote %s" "${git_remote}";
 		fi
-		:tasks.deploy.out.info "host %s" "${host}";
+		# using custom script
+		if [ -n "${script_source}" ]; then
+			:tasks.deploy.out.info "source script %s" "${script_source}";
+		fi
+		
+		# PATHS
+		:tasks.deploy.header;
+		:tasks.deploy.out.info "paths";
+		:tasks.deploy.header;
+		:tasks.deploy.out.info "directory %s" "${directory}";
+		:tasks.deploy.out.info "staging %s" "${staging}";
+		:tasks.deploy.out.info "script %s" "${script}";		
+		:tasks.deploy.out.info "log file %s" "${log_file}";
+		:tasks.deploy.header;		
+		
+		# FINAL TARGET
+		:tasks.deploy.out.info "";		
+		:tasks.deploy.out.info "\t %s" "${deploy_target}";
+		:tasks.deploy.out.info "";		
+		:tasks.deploy.header;		
 	fi
 }
 

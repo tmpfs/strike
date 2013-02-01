@@ -79,7 +79,7 @@
 			}
 		},				
 		"npm-tar": {
-			"description": "npm(1)+tar(1)",
+			"description": "npm(1)+tar(1) with some long text with some long text with some long text with some long text with some long text with some long text",
 			"type": "tar",
 			"url": "file://$env_archive_path",
 			"commands": {
@@ -93,11 +93,7 @@
 					"post": [
 						{
 							"command": "pwd"
-						},
-						{
-							"command": "ls",
-							"options": [ "-la" ]
-						},						
+						},					
 						{
 							"command": "npm",
 							"options": [ "restart" ]
