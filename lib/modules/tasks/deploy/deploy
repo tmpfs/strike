@@ -12,7 +12,9 @@ Performs a deployment for a project.
 
 ## REQUIRE
 
-You do not need to require(3) this task as it is a builtin task.
+In your tasks(7) file `require` the `deploy` task(s) using:
+
+	require 'tasks/deploy';
 
 ## USAGE
 
@@ -31,6 +33,14 @@ Print commands but do not execute them, implies `--ok` to disable interactivity.
 * `--all`:
 
 Deploy all profiles in the descriptor.
+
+* `--bundle`:
+
+Just create bundles do not deploy anything and do not execute any commands. Implies `--noop`, `--no-local` and `--no-remote`. See the `BUNDLES` section.
+
+* `--output [directory]`:
+
+Use *directory* as the target for generated bundles. The *directory* must exist and be writable.
 
 * `--name [name]`:
 
@@ -68,9 +78,9 @@ Use *directory* as the staging directory.
 
 * `--lint`:
 
-Perform a sanity check on the generated script and exit, implies `--noop`. You must have the *checkbashisms* script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through *checkbashisms*.
+Perform a sanity check on the generated script and exit, implies `--noop`. You must have the checkbashisms(1) script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through checkbashisms(1).
 
-Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause *checkbashisms* to output a warning but still pass the lint operation if there are no errors.
+Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors.
 
 This option ignores multiple profiles, it only executes for the first target profile.
 
@@ -607,6 +617,8 @@ A >0 exit code indicates failure while a 0 exit code indicates success.
 
 ## EXAMPLES
 
+### Deploying
+
 Deploy using the default profile:
 
 	bake deploy
@@ -625,11 +637,23 @@ Deploy the profiles *test*, *stage* and *production*:
 
 Deploy all profiles in the descriptor:
 
-	bake deploy --all	
+	bake deploy --all
 	
-Inspect deployment commands but do not execute them:
+### Bundling
 
-	bake deploy --noop
+Bundle the default profile:
+
+	bake deploy --bundle
+	
+Bundle all profiles:
+
+	bake deploy --all --bundle
+	
+Bundle profiles *stage* and *production* and place generated bundles in *~/bundles*:
+
+	bake deploy --bundle --output ~/bundles stage production
+	
+### Inspecting
 	
 List profiles in *deploy.json*:
 
@@ -639,6 +663,12 @@ List profiles in a specific descriptor:
 
 	bake deploy --list --descriptor ~/project/deploy.json
 	
+### Debugging
+
+Inspect deployment commands but do not execute them:
+
+	bake deploy --noop
+
 Print the script that will be used for deployment:
 
 	bake deploy --script
@@ -684,7 +714,7 @@ Add `enable` boolean property to profiles in a descriptor to prevent deployment 
 
 ## SEE ALSO
 
-bake(1), task-deploy-json(7)
+bake(1), task-deploy-json(7), scp(1), ssh(1), tar(1), growlnotify(1), checkbashisms(1)
 ronn:markdown
 
 require.once 'json';
@@ -723,12 +753,23 @@ tasks.deploy() {
 	# repositories that do not specify a scheme
 	local scheme="^[a-zA-Z]+:";
 	
+	## FLAGS
+	
+	# assume failure
+	local success=false;
+	
+	# just creating bundles
+	local bundling=false;
+	
+	# determine if we are printing
+	# messages to a log file
+	local logging=false;
+	
 	# interactive by default
 	local interactive=true;
 	
-	# list of all profiles
-	# defined in descriptor
-	local all_profiles=();
+	# non-operation
+	local noop=false;
 	
 	# --list: determine if we are just
 	# printing profiles available in descriptor
@@ -740,7 +781,45 @@ tasks.deploy() {
 	
 	# run script through checkbashisms and exit
 	local lint=false;
-	local run_script=false;
+	local run_script=false;	
+	
+	# quote command options by default
+	local quote=true;
+	
+	# stores flags used to skip command
+	# execution phases
+	declare -A skip;
+	skip["local.pre"]=false;
+	skip["local.post"]=false;
+	skip["remote.pre"]=false;
+	skip["remote.post"]=false;
+	skip["growl"]=false;
+	
+	# determine if we are deploying locally
+	local deploy_local=false;
+	
+	# include version information in the target
+	local include_version=false;
+	
+	# dump script contents to stdout
+	local dump_script=false;
+
+	# strategy used to determine the target
+	# directory. the default is to include
+	# the profile name in the target directory
+	# structure
+	local flat=false;	
+	
+	# determines whether we are generating json
+	local print_json=false;
+	local write_json=false;
+	local pretty=false;	
+	
+	## DEFAULTS	
+	
+	# list of all profiles
+	# defined in descriptor
+	local all_profiles=();
 	
 	local timestamp=$( date +%s );
 	local creator_host=$( uname -a | fmt );	
@@ -800,31 +879,17 @@ tasks.deploy() {
 	messages[success]="deploy ${deploy_name} complete";
 	messages[fail]="deploy ${deploy_name} failed";	
 	
-	local deploy_target_directory="${target}/deploy";
-	if [ ! -d "${deploy_target_directory}" ]; then
-		mkdir -p "${deploy_target_directory}" \
-			|| :tasks.deploy.fail "could not create %s" "${deploy_target_directory}";
+	local deploy_staging_directory="${target}/deploy";
+	local bundle_output="${deploy_staging_directory}";
+	
+	if [ ! -d "${deploy_staging_directory}" ]; then
+		mkdir -p "${deploy_staging_directory}" \
+			|| :tasks.deploy.fail "could not create %s" "${deploy_staging_directory}";
 	fi
 	
-	local log="${deploy_target_directory}/deploy.log";
-	local logging=false;
+	local log="${deploy_staging_directory}/deploy.log";
 	# clear the log file
-	printf "" >| "${log}";	
-	
-	# non-operation
-	local noop=false;
-	
-	# quote command options by default
-	local quote=true;
-	
-	# stores flags used to skip command
-	# execution phases
-	declare -A skip;
-	skip["local.pre"]=false;
-	skip["local.post"]=false;
-	skip["remote.pre"]=false;
-	skip["remote.post"]=false;
-	skip["growl"]=false;
+	printf "" >| "${log}";
 
 	# valid deployment types
 	local types=( git tar npm );
@@ -835,38 +900,17 @@ tasks.deploy() {
 	# instead of the generated script
 	local script_source="";
 	
-	# determine if we are deploying locally
-	local deploy_local=false;
-	
-	# include version information in the target
-	local include_version=false;
-	
-	# dump script contents to stdout
-	local dump_script=false;
-
-	# strategy used to determine the target
-	# directory. the default is to include
-	# the profile name in the target directory
-	# structure
-	local flat=false;
-	
 	# command line options that override
 	# properties set in deploy.json
 	declare -A overrides;
 	
 	# JSON PROPERTIES
-	# determines whether we are generating json
-	local print_json=false;
-	local write_json=false;
-	local json_settings_file="${deploy_target_directory}/settings.json";
-	local pretty=false;
+	
+	local json_settings_file="${deploy_staging_directory}/settings.json";
 	# array used to store properties to be
 	# dumped as json
 	declare -A json_dump;
 	json_dump["project-version"]="${project_version}";
-
-	# assume failure
-	local success=false;
 	
 	# parse options
 	:tasks.deploy.options.parse "$@";
@@ -920,6 +964,47 @@ tasks.deploy() {
 	if [ "${shell}" != "sh" ]; then
 		shebang="#!/usr/bin/env ${shell}";
 	fi
+	
+	
+	# NOTE: reading commands should be done
+	# NOTE: after setting all relevant variables
+	# NOTE: so that all variables are available to commands being
+	# NOTE: declared in the deploy.json descriptor
+	
+	local json_key json_value env_re="^env_." env_json_re="\\\$json_";
+	# 1) expand properties in an `env`
+	# 1) object exposed by direct variable name
+	# 2) expand JSON document properties
+	# 2) to json_ local variables
+	# 2) so that descriptor documents may
+	# 2) cross-reference properties
+	for json_key in "${!json_doc[@]}"
+		do
+			json_value="${json_doc["$json_key"]}";
+			# sanitized to _ delimiter for variable names
+			json_key="${json_key//\./_}";
+			if [[ ! "$json_key" =~ $env_re ]]; then
+				# escape dollar symbols as `eval`
+				# is invoked later on
+				json_value="${json_value//\$/\\\$}";
+								
+				# prefix with json_ for non-env properties
+				json_key="json_${json_key}";
+			else
+				if [[ "$json_value" =~ $env_json_re ]]; then
+					:tasks.deploy.fail \
+						"invalid %s cross-reference in %s" \
+						"json" "env";
+				fi
+			fi
+			
+			#sanitize variable name
+			json_key="${json_key//[^a-zA-Z0-9_]/_}";
+			
+			# echo "expanding $json_key : $json_value";
+			# declare variable
+			eval "local $json_key=\"$json_value\"";
+	done	
 	
 	# deploy all profiles
 	:tasks.deploy.profiles;
@@ -1003,10 +1088,10 @@ tasks.deploy() {
 	local settings;
 	
 	# bundle directory and move script to bundle
-	bundle_source="${deploy_target_directory}/${deploy_file_name}-${profile}";
+	bundle_source="${bundle_output}/${deploy_file_name}-${profile}";
 	bundle_name="${deploy_file_name}-${profile}";
 	bundle_archive="${bundle_name}.tgz";
-	bundle_path="${deploy_target_directory}/${bundle_archive}";
+	bundle_path="${bundle_output}/${bundle_archive}";
 	settings="${bundle_source}/settings.json";
 	
 	# clean an existing bundle directory
@@ -1087,46 +1172,6 @@ tasks.deploy() {
 			if [ -n "$val" ]; then
 				eval "local $var=\"\${val}\"";
 			fi
-	done
-	
-	# NOTE: reading commands should be done
-	# NOTE: after setting all relevant variables
-	# NOTE: so that all variables are available to commands being
-	# NOTE: declared in the deploy.json descriptor
-	
-	local json_key json_value env_re="^env_." env_json_re="\\\$json_";
-	# 1) expand properties in an `env`
-	# 1) object exposed by direct variable name
-	# 2) expand JSON document properties
-	# 2) to json_ local variables
-	# 2) so that descriptor documents may
-	# 2) cross-reference properties
-	for json_key in "${!json_doc[@]}"
-		do
-			json_value="${json_doc["$json_key"]}";
-			# sanitized to _ delimiter for variable names
-			json_key="${json_key//\./_}";
-			if [[ ! "$json_key" =~ $env_re ]]; then
-				# escape dollar symbols as `eval`
-				# is invoked later on
-				json_value="${json_value//\$/\\\$}";
-								
-				# prefix with json_ for non-env properties
-				json_key="json_${json_key}";
-			else
-				if [[ "$json_value" =~ $env_json_re ]]; then
-					:tasks.deploy.fail \
-						"invalid %s cross-reference in %s" \
-						"json" "env";
-				fi
-			fi
-			
-			#sanitize variable name
-			json_key="${json_key//[^a-zA-Z0-9_]/_}";
-			
-			# echo "expanding $json_key : $json_value";
-			# declare variable
-			eval "local $json_key=\"$json_value\"";
 	done
 	
 	# verify deployment type is valid
@@ -1216,7 +1261,7 @@ tasks.deploy() {
 	:tasks.deploy.commands.read "profiles.${profile}";
 	
 	# ready to start, output useful settings information
-	:tasks.deploy.info;	
+	:tasks.deploy.info;
 	
 	if ! $print_json; then
 		
@@ -1239,17 +1284,24 @@ tasks.deploy() {
 	if ! $dump_script && ! $print_json; then
 	
 		:tasks.bundle.create;
-	
-		# prompt for confirmation when possible
-		:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
+		
+		# only show the prompt and start
+		# a deployment process if we are not
+		# just creating bundles
+		if ! $bundling; then
+			# prompt for confirmation when possible
+			# if --ok has been set the confirm command
+			# will fall through to execution
+			:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
+		fi
 	fi
 	
 	# clean up
-	unset type;	
+	unset type;
 	unset host;
 	unset url;
 	unset directory;
-	unset profile_commands;	
+	unset profile_commands;
 	
 	# cleanup npm specific variable
 	unset package;
@@ -1662,6 +1714,10 @@ ${opt}";
 
 # output the header delimiter
 :tasks.deploy.header() {
+	if $print_json || $dump_script; then
+		return 0;
+	fi	
+	
 	if ! $logging; then
 		console.header;
 	else
@@ -1776,23 +1832,25 @@ ${opt}";
 	done
 	all_profiles=( ${!names[@]} );
 	
-	# sort profiles
-	local IFS="$newline";
-	local all="${all_profiles[@]}";
-	local sorted_profiles=( $( echo "${all}" | sort ) );
-	unset IFS;
-	all_profiles=( ${sorted_profiles[@]} );
+	if [ -n "${!all_profiles[@]:-}" ]; then
+		# sort profiles
+		local IFS="$newline";
+		local all="${all_profiles[@]}";
+		local sorted_profiles=( $( echo "${all}" | sort ) );
+		unset IFS;
+		all_profiles=( ${sorted_profiles[@]} );
 	
-	if $print_profiles; then
-		if [ "${#all_profiles[@]}" -eq 0 ]; then
-			:tasks.deploy.fail "no profiles in %s" "$descriptor";
-		else
-			local IFS="$newline";
-			local all="${all_profiles[@]}";
-			echo "$all";
-			console.success;
+		if $print_profiles; then
+			if [ "${#all_profiles[@]}" -eq 0 ]; then
+				:tasks.deploy.fail "no profiles in %s" "$descriptor";
+			else
+				local IFS="$newline";
+				local all="${all_profiles[@]}";
+				echo "$all";
+				console.success;
+			fi
 		fi
-	fi
+	fi	
 }
 
 # failure
@@ -1989,6 +2047,25 @@ ${opt}";
 				;;
 			--log )
 				logging=true;
+				;;
+			--bundle )
+				bundling=true;
+				noop=true;
+				skip["local.pre"]=true;
+				skip["local.post"]=true;
+				skip["remote.pre"]=true;
+				skip["remote.post"]=true;
+				;;
+			--output )
+				shift;
+				value="${1:-}";
+				if [ ! -d "${value}" ]; then
+					:tasks.deploy.fail "bundle output %s is not a directory" "$value";
+				fi
+				if [ ! -w "${value}" ]; then
+					:tasks.deploy.fail "bundle output %s is not writable" "$value";
+				fi
+				bundle_output="${value}";
 				;;
 			--script-source )
 				shift;

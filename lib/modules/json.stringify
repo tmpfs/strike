@@ -101,6 +101,7 @@ function json.stringify {
 	if [ ! -z "$json" ]; then
 		json_str="$json";
 	fi
+	unset json;
 	return 0;
 }
 

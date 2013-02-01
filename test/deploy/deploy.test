@@ -1,9 +1,61 @@
 # test running with the --json option, implies --noop
-test.deploy.json.dump() {
-	local staging="~/.deploy-test"
+
+# runs all local deployment tests
+test.deploy.local() {
+	
+	# resolve files relative to this
+	# test directory
+	local self;
+	require.resolve "self";
+	local dir="${self[1]}";	
+	
+	# set up a mock directory structure
+	local deploy_test="${target}/deploy-test";
+	local staging="${deploy_test}/staging";
+	local directory="${deploy_test}/www";
+	local bundles="${deploy_test}/bundles";
+	local descriptors="${dir}/descriptors";
+	local descriptor="";
 	
 	# clean up before we start
 	:test.deploy.local.clean;
+	
+	# create fresh mock directories
+	mkdir -p "$staging";
+	mkdir -p "$directory";
+	mkdir -p "$bundles";
+	
+	declare -A expects;
+	expects[name]="$project_name";
+	expects[version]="$project_version";
+	expects[project]="$project_name-$project_version";
+	
+	# options common to all tests
+	local options=(
+		--local
+		--no-growl		
+		--staging "${staging}"
+		--directory "${directory}"
+		--output "${bundles}"
+	);
+	
+	# run tests that should pass
+	:test.deploy.bundle.minimal;
+	
+	# clean up at the end
+	:test.deploy.local.clean;
+}
+
+# test bundling the default profile
+# using the absolute minimal descriptor
+:test.deploy.bundle.minimal() {
+	descriptor="${descriptors}/minimal.json";
+	options+=( --bundle --descriptor "${descriptor}" );
+	( tasks.deploy "${options[@]}" );
+	assert.file.exists? "${bundles}/${expects[project]}-default.tgz";
+}
+
+:test.deploy.json.dump() {
 	
 	# get the configuration setting as a json document
 	local json=$( tasks.deploy --local --json --staging "${staging}" );
@@ -24,7 +76,8 @@ test.deploy.json.dump() {
 
 # clean the local ~/.deploy directory
 :test.deploy.local.clean() {
-	if [ -d "${staging}" ]; then
-		rm -rfv $staging;
+	if [ -d "${deploy_test}" ]; then
+		console.info "deploy.test clean %s" "$deploy_test";
+		rm -rfv "$deploy_test";
 	fi
 }

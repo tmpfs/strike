@@ -112,6 +112,8 @@ function __json.parse.value {
 		* ) value=${token} ;;
 	esac
 	
+	# echo "parsing key : ${key:-}" >&2;
+	
 	# enountered an empty key: ""
 	if [ -z "$key" ]; then
 		__json.throw "EXPECTED string GOT \"\" (empty key)"; return 1;
@@ -128,8 +130,10 @@ function __json.parse.object {
 	read -r token;
 	case "$token" in
 		'}' )
-			# handle empty objects
-			if [ "$previous" == '{' ] && [ "$token" == '}' ]; then
+			# handle empty objects, have
+			# to test for a key otherwise
+			# a top-level empty object will fail
+			if [ "$previous" == '{' ] && [ "$token" == '}' ] && [ -n "${key:-}" ]; then
 				json_doc["$key"]="null";
 			fi
 			: $((depth--));
@@ -175,7 +179,7 @@ function __json.parse.array {
 	case "$token" in
 		']' )
 			# handle empty arrays
-			if [ "$previous" == '[' ] && [ "$token" == ']' ]; then
+			if [ "$previous" == '[' ] && [ "$token" == ']' ] && [ -n "${key:-}" ]; then
 				json_doc["$key"]="null";
 			fi
 			: $((depth--));
