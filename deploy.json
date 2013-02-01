@@ -46,8 +46,6 @@
 		"default": {
 			"description": "default deloyment using git(1)"
 		},
-		"test":{ "type": "git" },
-		"stage":{},
 		"man-tar": {
 			"description": "create an archive of man pages and deploy with tar(1)",
 			"type": "tar",
@@ -105,7 +103,7 @@
 		"npm-scp-tar": {
 			"description": "npm(1)+scp(1)+tar(1)",
 			"type": "tar",
-			"url": "~/$project_name-$project_version.tgz",
+			"url": "file://$target/$project_name-$project_version.tgz",
 			"commands": {
 				"local": {
 					"pre": [
@@ -129,21 +127,6 @@
 			"description": "npm(1) latest public release",
 			"type": "npm",
 			"package": "${project_name}@0.1.6"
-		},
-		"development":{
-			"type": "git",
-			"local": true,
-			"commands": {
-				"local": {
-					"pre": [
-						{
-							"command": "echo",
-							"options": [ "hi" ]
-						}
-					]
-				}
-			}
-		},
-		"production":{ "type": "git" }
+		}
 	}
 }

@@ -38,6 +38,10 @@ Deploy all profiles in the descriptor.
 
 Just create bundles do not deploy anything and do not execute any commands. Implies `--noop`, `--no-local` and `--no-remote`. See the `BUNDLES` section.
 
+* `--output [directory]`:
+
+Use *directory* as the target for generated bundles. The *directory* must exist and be writable.
+
 * `--name [name]`:
 
 Override the default project name (determined by the name of the parent directory), see `NAMES` for project and profile name rules.
@@ -613,6 +617,8 @@ A >0 exit code indicates failure while a 0 exit code indicates success.
 
 ## EXAMPLES
 
+### Deploying
+
 Deploy using the default profile:
 
 	bake deploy
@@ -631,11 +637,19 @@ Deploy the profiles *test*, *stage* and *production*:
 
 Deploy all profiles in the descriptor:
 
-	bake deploy --all	
+	bake deploy --all
 	
-Inspect deployment commands but do not execute them:
+### Bundling
 
-	bake deploy --noop
+Bundle the default profile:
+
+	bake deploy --bundle
+	
+Bundle all profiles:
+
+	bake deploy --all --bundle
+	
+### Inspecting
 	
 List profiles in *deploy.json*:
 
@@ -645,6 +659,12 @@ List profiles in a specific descriptor:
 
 	bake deploy --list --descriptor ~/project/deploy.json
 	
+### Debugging
+
+Inspect deployment commands but do not execute them:
+
+	bake deploy --noop
+
 Print the script that will be used for deployment:
 
 	bake deploy --script
