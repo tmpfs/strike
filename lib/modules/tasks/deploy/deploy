@@ -979,7 +979,7 @@ tasks.deploy() {
 
 	# update profile specific variables
 	
-	local bundle_source bundle_name bundle_archive;
+	local bundle_source bundle_name bundle_archive bundle_path;
 	local settings;
 	
 	# bundle directory and move script to bundle

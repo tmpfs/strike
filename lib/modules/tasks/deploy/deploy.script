@@ -145,6 +145,10 @@ deploy_type="${type}";
 timestamp="${timestamp}";
 creator="${creator}";
 creator_host="${creator_host}";
+bundle_name="${bundle_name}";
+bundle_archive="${bundle_archive}";
+bundle_source="${bundle_source}";
+bundle_path="${bundle_path}";
 
 project_name="${project_name}";
 project_version="${project_version}";
@@ -290,10 +294,17 @@ settings() {
 	fi
 	delimiter;	
 	info "%s\n" "\${creator_host}";
+	delimiter;	
+	info "bundle\n";	
 	delimiter;
+	info "name: %s\n" "\${bundle_name}";
+	info "archive: %s\n" "\${bundle_archive}";
+	info "source: %s\n" "\${bundle_source}";
+	info "path: %s\n" "\${bundle_path}";
+	delimiter;	
 	info "info\n";
 	delimiter;
-	info "host: %s\n" "\${host}";	
+	info "host: %s\n" "\${host}";
 	info "timestamp: %s\n" "\${timestamp}";
 	info "pid: %s\n" "\$\$";
 	info "profile: %s\n" "\${profile}";
@@ -413,7 +424,7 @@ deploy() {
 		fi
 	fi
 	
-	if \$replace_target; then
+	if \$replace_target && test -n "\$file"; then
 		info "using archive directory %s\n" "\$file";
 		info "mv %s %s\n" "\$file" "\$deploy_target";
 		mv "\$file" "\$deploy_target" >> \$log_file 2>&1;
