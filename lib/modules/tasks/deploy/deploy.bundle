@@ -8,6 +8,8 @@
 	
 	#echo "got bundle parent : $bundle_parent"; exit 0;
 	
+	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
+	
 	# create the bundle
 	{
 		cd "$bundle_output" \
@@ -25,8 +27,10 @@
 
 # write the deploy settings for the profile to the bundle
 :tasks.bundle.settings.write!() {
+	echo "before write json";
 	json.stringify --pretty 2 <<< "json_dump";
 	json.string > "${settings}";
+	echo "after write json";
 }
 
 # creates a package.json for an *npm* installation type
