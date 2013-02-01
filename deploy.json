@@ -17,22 +17,16 @@
 		"local": {
 			"pre": [
 				{
-		          "command": "echo",
-		          "options": [ "$json_commands_local_pre_0_command", "$json_directory", "$json_host", "$json_commands_local_pre_0_options_length" ]
-		        },
+					"command": "npm",
+					"options": [ "pack" ]
+				},
 				{
-					"command": "echo",
-					"options": [ "$json_directory" ]
-				},			
+					"command": "mv",
+					"options": [ "$env_archive_name", "$env_archive_dir" ]
+				},
 				{
-					"command": "ls",
-					"options": [ "$target" ]
-				}
-			],
-			"post": [
-				{
-					"command": "console.info",
-					"options": [ "deployment complete %s", "$deploy_name" ]
+					"command": "scp",
+					"options": [ "$env_archive_path", "${host}:~/" ]
 				}
 			]
 		}
@@ -46,25 +40,7 @@
 		"npm-tar": {
 			"description": "npm(1)+tar(1)",
 			"type": "tar",
-			"url": "file://$target/$project_name-$project_version.tgz",
-			"commands": {
-				"local": {
-					"pre": [
-						{
-							"command": "npm",
-							"options": [ "pack" ]
-						},
-						{
-							"command": "mv",
-							"options": [ "$env_archive_name", "$env_archive_dir" ]
-						},
-						{
-							"command": "scp",
-							"options": [ "$env_archive_path", "${host}:~/" ]
-						}
-					]
-				}
-			}
+			"url": "file://$target/$project_name-$project_version.tgz"
 		},
 		"npm-scp-tar": {
 			"description": "npm(1)+scp(1)+tar(1)",

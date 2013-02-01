@@ -336,11 +336,10 @@ deploy() {
 	
 	# no target directory so try a clone
 	if ! test -d \${deploy_target}; then
-		# TODO: pull refspec and checkout !!!!
+		# TODO: pull refspec after clone
 		info "git clone --origin %s %s %s\n" "\${git_remote}" "\${url}" "\${deploy_final_name}";
 		cd \${deploy_parent} \\
-			&& git clone --origin \${git_remote} \${url} \${deploy_final_name} >> \$log_file 2>&1 \\
-			&& complete;
+			&& git clone --origin \${git_remote} \${url} \${deploy_final_name} >> \$log_file 2>&1;
 	# target directory exists, do an update
 	# using pull
 	else
@@ -359,13 +358,16 @@ deploy() {
 			# try to pull to update
 			info "git pull %s %s\n" "\${git_remote}" "\${git_ref}";
 			cd \${deploy_target} \\
-				&& git pull \${git_remote} \${git_ref} >> \$log_file 2>&1 \\
-				&& complete;			
+				&& git pull \${git_remote} \${git_ref} >> \$log_file 2>&1;
 		# otherwise try a normal backup operation
 		else
 			backup;
 		fi
 	fi
+	
+	# TODO: checkout refspec !!!
+	
+	complete;
 }
 EOF
 }
@@ -373,8 +375,54 @@ EOF
 # tar specific commands
 :tasks.deploy.script.tar.write!() {
 cat <<EOF >> "${script}"
+url="${url}";
 deploy() {
-	echo "deploy tar !";
+	
+	# are we completely replacing the target
+	# with the archive contents, this is the case
+	# if the archive contains only one file and 
+	# that file is a directory, otherwise all contents
+	# are copied into the target
+	replace_target=false;
+	file="";
+	
+	curl=$( command -v curl );
+	if test -z \$curl; then
+		quit "%s is not installed\n" "curl";
+	fi
+	info "mkdir download && cd download\n";
+	mkdir download >> \$log_file 2>&1 \\
+		&& cd download >> \$log_file 2>&1;
+	info "curl -# -OL %s\n" "\$url";
+	curl -# -OL "\$url" >> \$log_file 2>&1;
+	
+	file=\$( ls . );
+	info "downloaded %s\n" "\$file";
+	
+	info "mkdir archive\n";
+	mkdir archive >> \$log_file 2>&1;
+	info "tar -xf %s -C ./archive\n" "\$file";
+	tar -xf "\$file" -C ./archive;
+	count=\$( ls ./archive | wc -l | tr -s " " );
+	
+	if [ "\${count}" -eq 1 ]; then
+		file=\$( ls ./archive );
+		if test -d ./archive/\$file; then
+			replace_target=true;
+			file="./archive/\$file";
+		fi
+	fi
+	
+	if \$replace_target; then
+		info "using archive directory %s\n" "\$file";
+		info "mv %s %s\n" "\$file" "\$deploy_target";
+		mv "\$file" "\$deploy_target" >> \$log_file 2>&1;
+	else
+		info "copy archive contents\n";
+		info "mkdir -p %s\n" "\$deploy_target";
+	fi
+	
+	complete;
 }
 EOF
 }
