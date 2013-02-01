@@ -16,7 +16,9 @@
 	"engine": [ "node >= 0.8.11" ],
 	"scripts": {
 		"test": "./bake test",
-		"doc": "./bake doc.build"
+		"doc": "./bake doc.build",
+		"start": "echo mock server started",		
+		"stop": "echo mock server stopped"
 	},
 	"config" : {},
 	"bin" : {

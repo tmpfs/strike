@@ -42,6 +42,28 @@
 		cat "${script_source}" >| "${script}";
 	else
 		:tasks.deploy.script.header.write!;
+		
+		# calculate if there are remote
+		# commands to execute
+		local script_commands_global_pre="${global_commands[commands.remote.pre.length]:-0}";
+		local script_commands_global_post="${global_commands[commands.remote.post.length]:-0}";
+		local script_commands_profile_pre="${profile_commands[commands.remote.pre.length]:-0}";
+		local script_commands_profile_post="${profile_commands[commands.remote.post.length]:-0}";
+		local script_commands_pre=$(($script_commands_global_pre+$script_commands_profile_pre));
+		local script_commands_post=$(($script_commands_global_post+$script_commands_profile_post));
+		
+		# echo "creating script with: $script_commands_global_pre";
+		# echo "creating script with: $script_commands_global_post";	
+		# echo "creating script with: $script_commands_profile_pre";	
+		# echo "creating script with: $script_commands_profile_post";	
+		
+		# write pre/post commands
+		:tasks.deploy.script.commands.write "pre";
+		:tasks.deploy.script.commands.write "post";
+		
+		# cat "${script}";
+		# exit 0;
+		
 		:tasks.deploy.script.common.write!;
 		
 		# we've already validated on deployment type
@@ -183,11 +205,107 @@ trap 'cleanup' EXIT HUP INT QUIT TERM
 EOF
 }
 
+# write pre / post deployment commands
+:tasks.deploy.script.commands.write() {
+	local phase="$1";
+	
+	# echo "writing remote commands for phase ... $phase";
+	
+	if ! ${skip[remote.${phase}]} && [ "$phase" == pre ] \
+		&& [ $script_commands_pre -gt 0 ]; then
+# open command
+cat <<EOF >> "${script}"
+pre() {
+	info "exec pre-deployment commands ($script_commands_pre)\n";
+EOF
+		:tasks.deploy.script.commands.embed;
+# close command
+cat <<EOF >> "${script}"
+
+}
+
+EOF
+	# no commands to execute
+	elif [ "$phase" == pre ]; then
+cat <<EOF >> "${script}"
+pre() {
+	info "no pre-deployment commands\n";
+}
+EOF
+	fi
+		
+	if ! ${skip[remote.${phase}]} && [ "$phase" == post ] \
+		&& [ $script_commands_post -gt 0 ]; then
+# open command
+cat <<EOF >> "${script}"
+post() {
+	info "exec post-deployment commands ($script_commands_post)\n";
+EOF
+		:tasks.deploy.script.commands.embed;
+# close command
+cat <<EOF >> "${script}"
+
+}
+
+EOF
+	elif [ "$phase" == post ]; then
+cat <<EOF >> "${script}"
+post() {
+	info "no post-deployment commands for %s\n" "\$profile";
+}
+EOF
+	fi
+}
+
+# flatten a list of commands and write to script
+:tasks.deploy.script.commands.embed() {
+	#echo "flattening remote commands for ${!profile_commands[@]}";
+	
+	printf "\t" >> "${script}";
+	local written=false;	
+	local k v cmds re="^commands\.remote\.$phase\.[0-9]+";
+	for k in ${!global_commands[@]}
+		do
+			if [[ ! "$k" =~ $re ]]; then
+				continue;
+			fi
+			v="${global_commands[$k]}";
+			:tasks.deploy.script.commands.embed.group;
+	done
+	for k in ${!profile_commands[@]}
+		do
+			#echo "testing profile command $k : $re"
+			if [[ ! "$k" =~ $re ]]; then
+				continue;
+			fi
+			v="${profile_commands[$k]}";
+			:tasks.deploy.script.commands.embed.group;
+	done
+	# terminate command list
+	printf ";" >> "${script}";	
+}
+
+:tasks.deploy.script.commands.embed.group() {
+	local cmd;
+	local IFS=$newline;
+	for cmd in "${v}"
+		do			
+			cmds=( $v );
+			# echo "appending command ${cmds[@]}";
+			if $written; then
+				printf " \\" >> "${script}";				
+				printf "\n\t&& " >> "${script}";
+			fi
+			local IFS=' ';
+			printf "${cmds[*]}" >> "${script}";
+			written=true;
+	done
+}
+
 # write the script commands shared by all
 # deployment types
 :tasks.deploy.script.common.write!() {
 cat <<EOF >> "${script}"
-
 # completed successfully
 complete() {
 	success=true;
@@ -380,6 +498,7 @@ deploy() {
 	
 	complete;
 }
+
 EOF
 }
 
@@ -438,6 +557,7 @@ deploy() {
 	
 	complete;
 }
+
 EOF
 }
 
@@ -480,9 +600,11 @@ init() {
 }
 
 start() {	
-	settings;
 	init;
+	settings;
+	pre;
 	deploy;
+	post;
 	
 	# assume failure, the deploy command
 	# must explicitly exit 0

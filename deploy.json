@@ -26,7 +26,21 @@
 					"options": [ "$env_archive_name", "$env_archive_dir" ]
 				}
 			]
-		}
+		},
+		"remote": {
+			"pre": [
+				{
+					"command": "echo",
+					"options": [ "remote pre-deployment started" ]
+				}
+			],
+			"post": [
+				{
+					"command": "echo",
+					"options": [ "remote post-deployment started" ]
+				}
+			]		
+		}		
 	},
 	"profiles": {
 		"default": {
@@ -67,7 +81,30 @@
 		"npm-tar": {
 			"description": "npm(1)+tar(1)",
 			"type": "tar",
-			"url": "file://$env_archive_path"
+			"url": "file://$env_archive_path",
+			"commands": {
+				"remote": {
+					"description": "test remote command execution",
+					"pre": [
+						{
+							"command": "pwd"
+						}
+					],
+					"post": [
+						{
+							"command": "pwd"
+						},
+						{
+							"command": "ls",
+							"options": [ "-la" ]
+						},						
+						{
+							"command": "npm",
+							"options": [ "restart" ]
+						}
+					]
+				}
+			}			
 		},
 		"npm-scp-tar": {
 			"description": "npm(1)+scp(1)+tar(1)",

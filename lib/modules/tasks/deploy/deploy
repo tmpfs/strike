@@ -1391,6 +1391,10 @@ tasks.deploy() {
 	local local_post_length="${json_doc[${prefix}.local.post.length]:-0}";
 	local remote_pre_length="${json_doc[${prefix}.remote.pre.length]:-0}";
 	local remote_post_length="${json_doc[${prefix}.remote.post.length]:-0}";
+	
+	# echo "testing $prefix for remote pre: ${remote_pre_length}";
+	# echo "testing $prefix for remote post: ${remote_post_length}";
+	
 	if [ $local_pre_length -gt 0 ]; then
 		:tasks.deploy.commands.read.group \
 			"$prefix" \
