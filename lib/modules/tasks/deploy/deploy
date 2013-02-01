@@ -82,7 +82,7 @@ This option ignores multiple profiles, it only executes for the first target pro
 
 * `--list`:
 
-List profile names in a deployment descriptor.
+List profile names in a deployment descriptor. By default the default profile is not listed but if you have declared a custom configuration for the default profile then it will be included in the list.
 
 * `--log`:
 
@@ -245,6 +245,10 @@ But if a profile is specified:
 Then the default profile is not a target profile, only the *stage* profile is deployed. To also execute the default profile, declare it on the command line:
 
 	bake deploy stage default
+
+Note that when the `--all` option is specififed the *default* profile is not included, if you wish to also execute the default profile in addition to execute the default profile as well:
+
+	bake deploy --all default
 
 You may override settings for the default profile by declaring a profile named *default* in the descriptor.
 
@@ -1709,6 +1713,18 @@ ${opt}";
 			fi
 	done
 	all_profiles=( ${!names[@]} );
+	local all;
+	# sort profiles
+	local IFS="$newline";
+	local all="${all_profiles[@]}";
+	#echo "${all}";
+	local sorted_profiles=( $( echo "${all}" | sort ) );
+	unset IFS;
+	#echo "sorted profiles ${sorted_profiles[@]}"
+	all_profiles=( ${sorted_profiles[@]} );
+	#echo "all profiles ${all_profiles[@]}";
+	#exit 0;
+	
 	
 	if $print_profiles; then
 		if [ "${#all_profiles[@]}" -eq 0 ]; then
