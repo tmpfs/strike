@@ -336,6 +336,8 @@ deploy() {
 	
 	# no target directory so try a clone
 	if ! test -d \${deploy_target}; then
+		# TODO: pull refspec and checkout !!!!
+		info "git clone --origin %s %s %s\n" "\${git_remote}" "\${url}" "\${deploy_final_name}";
 		cd \${deploy_parent} \\
 			&& git clone --origin \${git_remote} \${url} \${deploy_final_name} >> \$log_file 2>&1 \\
 			&& complete;
@@ -355,6 +357,7 @@ deploy() {
 			# fi
 			
 			# try to pull to update
+			info "git pull %s %s\n" "\${git_remote}" "\${git_ref}";
 			cd \${deploy_target} \\
 				&& git pull \${git_remote} \${git_ref} >> \$log_file 2>&1 \\
 				&& complete;			
@@ -386,6 +389,7 @@ npm_install_final="./node_modules/\$deploy_final_name";
 deploy() {
 	info "npm name %s\n" "\$npm_package_name";
 	info "npm version %s\n" "\$npm_package_version";
+	info "npm install\n";
 	# now perform the npm installation
 	npm install >> \$log_file 2>&1 \\
 		&& mv \$npm_install_target \$npm_install_final \\
