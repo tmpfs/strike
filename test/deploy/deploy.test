@@ -13,40 +13,46 @@ test.deploy.local() {
 	local deploy_test="${target}/deploy-test";
 	local staging="${deploy_test}/staging";
 	local directory="${deploy_test}/www";
-	local output="${deploy_test}/bundles";
+	local bundles="${deploy_test}/bundles";
 	local descriptors="${dir}/descriptors";
 	local descriptor="";
 	
 	# clean up before we start
-	# :test.deploy.local.clean;
+	:test.deploy.local.clean;
 	
 	# create fresh mock directories
 	mkdir -p "$staging";
 	mkdir -p "$directory";
+	mkdir -p "$bundles";
+	
+	declare -A expects;
+	expects[name]="$project_name";
+	expects[version]="$project_version";
+	expects[project]="$project_name-$project_version";
 	
 	# options common to all tests
 	local options=(
 		--local
+		--no-growl		
 		--staging "${staging}"
 		--directory "${directory}"
-		--output "${output}"
+		--output "${bundles}"
 	);
 	
-	echo "deploy with staging ... $staging";
-	echo "deploy with directory ... $directory";
-	
 	# run tests that should pass
-	:test.deploy.minimal;
+	:test.deploy.bundle.minimal;
 	
 	# clean up at the end
-	# :test.deploy.local.clean;
+	:test.deploy.local.clean;
 }
 
-# test deploying the default profile
+# test bundling the default profile
 # using the absolute minimal descriptor
-:test.deploy.minimal() {
+:test.deploy.bundle.minimal() {
 	descriptor="${descriptors}/minimal.json";
-	echo "testing with descriptor: $descriptor";
+	options+=( --bundle --descriptor "${descriptor}" );
+	( tasks.deploy "${options[@]}" );
+	assert.file.exists? "${bundles}/${expects[project]}-default.tgz";
 }
 
 :test.deploy.json.dump() {
@@ -70,11 +76,8 @@ test.deploy.local() {
 
 # clean the local ~/.deploy directory
 :test.deploy.local.clean() {
-	if [ -d "${staging}" ]; then
-		rm -rfv "$staging";
+	if [ -d "${deploy_test}" ]; then
+		console.info "deploy.test clean %s" "$deploy_test";
+		rm -rfv "$deploy_test";
 	fi
-	
-	if [ -d "${directory}" ]; then
-		rm -rfv "$directory";
-	fi	
 }

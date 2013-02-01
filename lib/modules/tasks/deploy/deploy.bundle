@@ -27,10 +27,13 @@
 
 # write the deploy settings for the profile to the bundle
 :tasks.bundle.settings.write!() {
-	echo "before write json";
+	# TODO: fix json.stringify memory leak
+	# TODO: probably due to the string concatenation
+	
+	# echo "before write json";
 	json.stringify --pretty 2 <<< "json_dump";
 	json.string > "${settings}";
-	echo "after write json";
+	# echo "after write json";
 }
 
 # creates a package.json for an *npm* installation type

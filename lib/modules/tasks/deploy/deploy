@@ -1832,21 +1832,23 @@ ${opt}";
 	done
 	all_profiles=( ${!names[@]} );
 	
-	# sort profiles
-	local IFS="$newline";
-	local all="${all_profiles[@]}";
-	local sorted_profiles=( $( echo "${all}" | sort ) );
-	unset IFS;
-	all_profiles=( ${sorted_profiles[@]} );
+	if [ -n "${!all_profiles[@]:-}" ]; then
+		# sort profiles
+		local IFS="$newline";
+		local all="${all_profiles[@]}";
+		local sorted_profiles=( $( echo "${all}" | sort ) );
+		unset IFS;
+		all_profiles=( ${sorted_profiles[@]} );
 	
-	if $print_profiles; then
-		if [ "${#all_profiles[@]}" -eq 0 ]; then
-			:tasks.deploy.fail "no profiles in %s" "$descriptor";
-		else
-			local IFS="$newline";
-			local all="${all_profiles[@]}";
-			echo "$all";
-			console.success;
+		if $print_profiles; then
+			if [ "${#all_profiles[@]}" -eq 0 ]; then
+				:tasks.deploy.fail "no profiles in %s" "$descriptor";
+			else
+				local IFS="$newline";
+				local all="${all_profiles[@]}";
+				echo "$all";
+				console.success;
+			fi
 		fi
 	fi	
 }
