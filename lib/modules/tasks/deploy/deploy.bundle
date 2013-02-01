@@ -13,6 +13,9 @@
 	# clean up after bundle creation
 	rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
 		|| :tasks.deploy.fail "could not clean bundle source %s" "$bundle_path";
+		
+	:tasks.deploy.out.info "created bundle %s" "$bundle_archive";
+	:tasks.deploy.header;
 }
 
 # write the deploy settings for the profile to the bundle
