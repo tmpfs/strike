@@ -6,7 +6,8 @@
 	# create the bundle
 	{
 		cd "$deploy_target_directory" \
-			&& tar cf "$bundle_archive" "$bundle_name";
+			&& tar cf "$bundle_archive" "$bundle_name" \
+			&& cd "$project";
 	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
 	
 	# clean up after bundle creation
