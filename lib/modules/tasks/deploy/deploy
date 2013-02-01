@@ -1713,18 +1713,13 @@ ${opt}";
 			fi
 	done
 	all_profiles=( ${!names[@]} );
-	local all;
+	
 	# sort profiles
 	local IFS="$newline";
 	local all="${all_profiles[@]}";
-	#echo "${all}";
 	local sorted_profiles=( $( echo "${all}" | sort ) );
 	unset IFS;
-	#echo "sorted profiles ${sorted_profiles[@]}"
 	all_profiles=( ${sorted_profiles[@]} );
-	#echo "all profiles ${all_profiles[@]}";
-	#exit 0;
-	
 	
 	if $print_profiles; then
 		if [ "${#all_profiles[@]}" -eq 0 ]; then
