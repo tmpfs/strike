@@ -1,9 +1,55 @@
 # test running with the --json option, implies --noop
-test.deploy.json.dump() {
-	local staging="${target}/.deploy-test"
+
+# runs all local deployment tests
+test.deploy.local() {
+	
+	# resolve files relative to this
+	# test directory
+	local self;
+	require.resolve "self";
+	local dir="${self[1]}";	
+	
+	# set up a mock directory structure
+	local deploy_test="${target}/deploy-test";
+	local staging="${deploy_test}/staging";
+	local directory="${deploy_test}/www";
+	local output="${deploy_test}/bundles";
+	local descriptors="${dir}/descriptors";
+	local descriptor="";
 	
 	# clean up before we start
-	:test.deploy.local.clean;
+	# :test.deploy.local.clean;
+	
+	# create fresh mock directories
+	mkdir -p "$staging";
+	mkdir -p "$directory";
+	
+	# options common to all tests
+	local options=(
+		--local
+		--staging "${staging}"
+		--directory "${directory}"
+		--output "${output}"
+	);
+	
+	echo "deploy with staging ... $staging";
+	echo "deploy with directory ... $directory";
+	
+	# run tests that should pass
+	:test.deploy.minimal;
+	
+	# clean up at the end
+	# :test.deploy.local.clean;
+}
+
+# test deploying the default profile
+# using the absolute minimal descriptor
+:test.deploy.minimal() {
+	descriptor="${descriptors}/minimal.json";
+	echo "testing with descriptor: $descriptor";
+}
+
+:test.deploy.json.dump() {
 	
 	# get the configuration setting as a json document
 	local json=$( tasks.deploy --local --json --staging "${staging}" );
@@ -25,6 +71,10 @@ test.deploy.json.dump() {
 # clean the local ~/.deploy directory
 :test.deploy.local.clean() {
 	if [ -d "${staging}" ]; then
-		rm -rfv $staging;
+		rm -rfv "$staging";
 	fi
+	
+	if [ -d "${directory}" ]; then
+		rm -rfv "$directory";
+	fi	
 }

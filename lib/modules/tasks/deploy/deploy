@@ -855,13 +855,15 @@ tasks.deploy() {
 	messages[success]="deploy ${deploy_name} complete";
 	messages[fail]="deploy ${deploy_name} failed";	
 	
-	local deploy_target_directory="${target}/deploy";
-	if [ ! -d "${deploy_target_directory}" ]; then
-		mkdir -p "${deploy_target_directory}" \
-			|| :tasks.deploy.fail "could not create %s" "${deploy_target_directory}";
+	local deploy_staging_directory="${target}/deploy";
+	local bundle_output="${deploy_staging_directory}";
+	
+	if [ ! -d "${deploy_staging_directory}" ]; then
+		mkdir -p "${deploy_staging_directory}" \
+			|| :tasks.deploy.fail "could not create %s" "${deploy_staging_directory}";
 	fi
 	
-	local log="${deploy_target_directory}/deploy.log";
+	local log="${deploy_staging_directory}/deploy.log";
 	# clear the log file
 	printf "" >| "${log}";
 
@@ -880,7 +882,7 @@ tasks.deploy() {
 	
 	# JSON PROPERTIES
 	
-	local json_settings_file="${deploy_target_directory}/settings.json";
+	local json_settings_file="${deploy_staging_directory}/settings.json";
 	# array used to store properties to be
 	# dumped as json
 	declare -A json_dump;
@@ -1021,10 +1023,10 @@ tasks.deploy() {
 	local settings;
 	
 	# bundle directory and move script to bundle
-	bundle_source="${deploy_target_directory}/${deploy_file_name}-${profile}";
+	bundle_source="${bundle_output}/${deploy_file_name}-${profile}";
 	bundle_name="${deploy_file_name}-${profile}";
 	bundle_archive="${bundle_name}.tgz";
-	bundle_path="${deploy_target_directory}/${bundle_archive}";
+	bundle_path="${bundle_output}/${bundle_archive}";
 	settings="${bundle_source}/settings.json";
 	
 	# clean an existing bundle directory
@@ -2026,6 +2028,17 @@ ${opt}";
 				skip["local.post"]=true;
 				skip["remote.pre"]=true;
 				skip["remote.post"]=true;
+				;;
+			--output )
+				shift;
+				value="${1:-}";
+				if [ ! -d "${value}" ]; then
+					:tasks.deploy.fail "bundle output %s is not a directory" "$value";
+				fi
+				if [ ! -w "${value}" ]; then
+					:tasks.deploy.fail "bundle output %s is not writable" "$value";
+				fi
+				bundle_output="${value}";
 				;;
 			--script-source )
 				shift;

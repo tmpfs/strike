@@ -3,9 +3,14 @@
 	# always write the effective settings into the bundle
 	:tasks.bundle.settings.write!
 	
+	#local bundle_parent;
+	#fs.dirname "$bundle_output" "bundle_parent";
+	
+	#echo "got bundle parent : $bundle_parent"; exit 0;
+	
 	# create the bundle
 	{
-		cd "$deploy_target_directory" \
+		cd "$bundle_output" \
 			&& tar cf "$bundle_archive" "$bundle_name" \
 			&& cd "$project";
 	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
