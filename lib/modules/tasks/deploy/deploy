@@ -54,7 +54,9 @@ Use *script* as the deployment script instead of any generated script. The *scri
 
 When this option is specified the `--shell` option has no effect as it is only used to determine the *shebang* for generated deployment scripts.
 
-If multiple profiles are being deployed then *script* is used for all active deployment profiles.
+If multiple profiles are being deployed then *script* is used for all target profiles.
+
+It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are *never* executed.
 
 * `--shell [shell]`:
 

@@ -230,12 +230,12 @@ EOF
 # close command
 cat <<EOF >> "${script}"
 
-	# cd \$owd;
-	# wd=$( pwd );
-	# delimiter;	
-	# info "pre-deployment commands ($script_commands_pre) complete\n";
-	# info "working directory \$wd\n";
-	# delimiter;
+	cd \$owd;
+	wd=$( pwd );
+	delimiter;	
+	info "pre-deployment commands ($script_commands_pre) complete\n";
+	info "working directory \$wd\n";
+	delimiter;
 }
 
 EOF
@@ -546,6 +546,7 @@ deploy() {
 	if test -z \$curl; then
 		quit "%s is not installed\n" "curl";
 	fi
+	
 	info "mkdir download && cd download\n";
 	mkdir download >> \$log_file 2>&1 \\
 		&& cd download >> \$log_file 2>&1;
@@ -580,7 +581,6 @@ deploy() {
 		info "cp ./archive/* %s\n" "\$deploy_target";
 		cp -rfv ./archive/* "\$deploy_target" >> \$log_file 2>&1;
 	fi
-	
 	
 	cd \$owd && complete;
 }
@@ -632,10 +632,15 @@ start() {
 	settings;
 	# run pre-deployment commands
 	pre;
+	
+	# always start execution in the context of the sandbox
+	info "cd %s\n" "\$sandbox";
+	cd \$sandbox;
+	# perform the deployment
 	deploy;
 	
 	# assume failure, the deploy command
-	# must explicitly exit 0
+	# must explicitly invoke *complete*
 	quit;
 }
 start "\$@";
