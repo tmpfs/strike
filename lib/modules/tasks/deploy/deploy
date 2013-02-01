@@ -723,12 +723,18 @@ tasks.deploy() {
 	# repositories that do not specify a scheme
 	local scheme="^[a-zA-Z]+:";
 	
+	## FLAGS
+	
+	# assume failure
+	local success=false;	
+	
+	local logging=false;	
+	
 	# interactive by default
 	local interactive=true;
 	
-	# list of all profiles
-	# defined in descriptor
-	local all_profiles=();
+	# non-operation
+	local noop=false;
 	
 	# --list: determine if we are just
 	# printing profiles available in descriptor
@@ -740,7 +746,45 @@ tasks.deploy() {
 	
 	# run script through checkbashisms and exit
 	local lint=false;
-	local run_script=false;
+	local run_script=false;	
+	
+	# quote command options by default
+	local quote=true;
+	
+	# stores flags used to skip command
+	# execution phases
+	declare -A skip;
+	skip["local.pre"]=false;
+	skip["local.post"]=false;
+	skip["remote.pre"]=false;
+	skip["remote.post"]=false;
+	skip["growl"]=false;
+	
+	# determine if we are deploying locally
+	local deploy_local=false;
+	
+	# include version information in the target
+	local include_version=false;
+	
+	# dump script contents to stdout
+	local dump_script=false;
+
+	# strategy used to determine the target
+	# directory. the default is to include
+	# the profile name in the target directory
+	# structure
+	local flat=false;	
+	
+	# determines whether we are generating json
+	local print_json=false;
+	local write_json=false;
+	local pretty=false;	
+	
+	## DEFAULTS	
+	
+	# list of all profiles
+	# defined in descriptor
+	local all_profiles=();
 	
 	local timestamp=$( date +%s );
 	local creator_host=$( uname -a | fmt );	
@@ -807,24 +851,8 @@ tasks.deploy() {
 	fi
 	
 	local log="${deploy_target_directory}/deploy.log";
-	local logging=false;
 	# clear the log file
-	printf "" >| "${log}";	
-	
-	# non-operation
-	local noop=false;
-	
-	# quote command options by default
-	local quote=true;
-	
-	# stores flags used to skip command
-	# execution phases
-	declare -A skip;
-	skip["local.pre"]=false;
-	skip["local.post"]=false;
-	skip["remote.pre"]=false;
-	skip["remote.post"]=false;
-	skip["growl"]=false;
+	printf "" >| "${log}";
 
 	# valid deployment types
 	local types=( git tar npm );
@@ -835,38 +863,17 @@ tasks.deploy() {
 	# instead of the generated script
 	local script_source="";
 	
-	# determine if we are deploying locally
-	local deploy_local=false;
-	
-	# include version information in the target
-	local include_version=false;
-	
-	# dump script contents to stdout
-	local dump_script=false;
-
-	# strategy used to determine the target
-	# directory. the default is to include
-	# the profile name in the target directory
-	# structure
-	local flat=false;
-	
 	# command line options that override
 	# properties set in deploy.json
 	declare -A overrides;
 	
 	# JSON PROPERTIES
-	# determines whether we are generating json
-	local print_json=false;
-	local write_json=false;
+	
 	local json_settings_file="${deploy_target_directory}/settings.json";
-	local pretty=false;
 	# array used to store properties to be
 	# dumped as json
 	declare -A json_dump;
 	json_dump["project-version"]="${project_version}";
-
-	# assume failure
-	local success=false;
 	
 	# parse options
 	:tasks.deploy.options.parse "$@";
