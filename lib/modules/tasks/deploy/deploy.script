@@ -187,6 +187,8 @@ directory=${directory};
 deploy_target=${deploy_target};
 deploy_parent=${deploy_parent};
 
+# ls -la .; pwd; exit 0;
+
 # clean temporary files
 cleanup() {
 	# attempt to rollback on exit if the deployment failed
@@ -220,8 +222,17 @@ EOF
 # open command
 cat <<EOF >> "${script}"
 pre() {
-	wd=$( pwd );
-	delimiter;	
+	# if we have a final target this is always the
+	# working directory for remote pre-deployment commands
+	if test -d \$deploy_target; then
+		cd "\$deploy_target";
+	# otherwise it's the sandbox
+	else
+		cd "\$sandbox";
+	fi
+
+	wd=\$( pwd );
+	delimiter;
 	info "exec pre-deployment commands ($script_commands_pre)\n";
 	info "working directory \$wd\n";
 	delimiter;	
@@ -231,7 +242,7 @@ EOF
 cat <<EOF >> "${script}"
 
 	cd \$owd;
-	wd=$( pwd );
+	wd=\$( pwd );
 	delimiter;	
 	info "pre-deployment commands ($script_commands_pre) complete\n";
 	info "working directory \$wd\n";
@@ -253,6 +264,16 @@ EOF
 # open command
 cat <<EOF >> "${script}"
 post() {
+	
+	# if we have a final target this is always the
+	# working directory for remote post-deployment commands
+	if test -d \$deploy_target; then
+		cd \$deploy_target;
+	# we should always have the final target by this point
+	else
+		quit "cannot execute post-deployment commands, %s does not exist" "\$deploy_target";
+	fi
+	
 	wd=$( pwd );
 	delimiter;		
 	info "exec post-deployment commands ($script_commands_post)\n";
@@ -419,7 +440,10 @@ setup() {
 		mkdir -p \$sandbox \\
 			|| { quit "could not create %s\n" "\$sandbox"; }
 	fi
-	
+}
+
+# create a filesystem backup using *mv*
+fsbackup() {
 	# if the target exist, move to a backup
 	if test -d \$deploy_target && [ "\$type" != "git" ]; then
 		backup;
@@ -571,11 +595,11 @@ deploy() {
 	fi
 	
 	if \$replace_target && test -n "\$file"; then
-		info "using archive directory %s\n" "\$file";
+		info "copy archive directory %s\n" "\$file";
 		info "mv %s %s\n" "\$file" "\$deploy_target";
 		mv "\$file" "\$deploy_target" >> \$log_file 2>&1;
 	else
-		info "copy contents %s\n" "./archive";
+		info "copy archive contents %s\n" "./archive";
 		info "mkdir -p %s\n" "\$deploy_target";
 		mkdir -p "\$deploy_target" >> \$log_file 2>&1;
 		info "cp ./archive/* %s\n" "\$deploy_target";
@@ -627,15 +651,22 @@ init() {
 }
 
 start() {
-	owd=$( pwd );
+	owd=\$( pwd );
 	init;
 	settings;
 	# run pre-deployment commands
 	pre;
 	
+	# filesystem backup must be done after invoking
+	# any pre-deployment commands as pre-deployment
+	# commands need to execute in the context of the final
+	# directory for re-deployments
+	fsbackup;
+	
 	# always start execution in the context of the sandbox
 	info "cd %s\n" "\$sandbox";
 	cd \$sandbox;
+	
 	# perform the deployment
 	deploy;
 	
