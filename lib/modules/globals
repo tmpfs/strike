@@ -214,3 +214,6 @@ declare -Ag characters;
 characters[tick]="✓";
 characters[cross]="✘";
 characters[lightning]="⚡";
+
+# 75 character header used as a delimiter for program output
+declare -g header="+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";

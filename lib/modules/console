@@ -523,6 +523,11 @@ function console.trace {
 	return 0;
 }
 
+# print the generic header delimiter
+function console.header() {
+	printf "${header:-}\n";
+}
+
 # throws an error message and prints the stack trace
 function console.throw {
 	local message="${1:-Unknown error}";

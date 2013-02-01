@@ -726,9 +726,6 @@ tasks.deploy() {
 	# interactive by default
 	local interactive=true;
 	
-	string.repeat "+" 80;
-	local header="$_result";
-	
 	# list of all profiles
 	# defined in descriptor
 	local all_profiles=();
@@ -744,6 +741,9 @@ tasks.deploy() {
 	# run script through checkbashisms and exit
 	local lint=false;
 	local run_script=false;
+	
+	local timestamp=$( date +%s );
+	local creator_host=$( uname -a | fmt );	
 	
 	# the prefix used for deployment
 	# interactive prompts
@@ -1587,6 +1587,7 @@ ${opt}";
 		if [ -n "${description:-}" ]; then
 			:tasks.deploy.out.info "description %s" "${description}";
 		fi
+		:tasks.deploy.header;
 		:tasks.deploy.out.info "profile %s" "${profile}";
 		:tasks.deploy.out.info "bundle %s" "${deploy_target}/${bundle_name}";
 		:tasks.deploy.out.info "type %s" "${type}";
@@ -1616,6 +1617,7 @@ ${opt}";
 
 # print profiles
 :tasks.deploy.print.profiles() {
+	:tasks.deploy.header;
 	:tasks.deploy.out.info "deploy %s" "$deploy_start_time";
 	:tasks.deploy.out.info "started by %s" "${deploy_user}@${localhost}";
 	:tasks.deploy.out.info "";		
@@ -1625,6 +1627,16 @@ ${opt}";
 			:tasks.deploy.out.info "\t%s" "$p";
 	done
 	:tasks.deploy.out.info "";
+	:tasks.deploy.header;	
+}
+
+# output the header delimiter
+:tasks.deploy.header() {
+	if ! $logging; then
+		console.header;
+	else
+		console.header "$@" >> "${log}" 2>&1;
+	fi	
 }
 
 # output an info message to stdout or

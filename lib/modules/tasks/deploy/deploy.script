@@ -19,13 +19,12 @@
 	# echo "got package: $package : $npm_package_name : $npm_package_version";
 	# exit 0;
 	
-	# NOTE: there is still a race condition albeit
-	# NOTE: highly unlikely in a real world scenario
 	# timestamp has to be done here
 	# otherwise tilde ~ expansion will not work	
-	local timestamp=$( date +%s );
-	local creator_host=$( uname -a | fmt );
 
+	# NOTE: there is still a race condition albeit
+	# NOTE: highly unlikely in a real world scenario
+	
 	# setup a deployment staging sandbox
 	local sandbox="${staging}/${deploy_file_name}-${profile}-${timestamp}";
 		
@@ -235,7 +234,7 @@ pre() {
 	delimiter;
 	info "exec pre-deployment commands ($script_commands_pre)\n";
 	info "working directory \$wd\n";
-	delimiter;	
+	delimiter;
 EOF
 		:tasks.deploy.script.commands.embed;
 # close command
@@ -274,7 +273,7 @@ post() {
 		quit "cannot execute post-deployment commands, %s does not exist" "\$deploy_target";
 	fi
 	
-	wd=$( pwd );
+	wd=\$( pwd );
 	delimiter;		
 	info "exec post-deployment commands ($script_commands_post)\n";
 	info "working directory \$wd\n";
@@ -285,7 +284,7 @@ EOF
 cat <<EOF >> "${script}"
 
 	cd \$owd;
-	wd=$( pwd );
+	wd=\$( pwd );
 	delimiter;	
 	info "post-deployment commands ($script_commands_pre) complete\n";
 	info "working directory \$wd\n";	
@@ -336,7 +335,7 @@ EOF
 	for cmd in "${v}"
 		do			
 			cmds=( $v );
-			echo "appending command ${cmds[@]}";
+			# echo "appending command ${cmds[@]}";
 			if $written; then
 				printf " \\" >> "${script}";	
 				printf "\n\t&& " >> "${script}";
