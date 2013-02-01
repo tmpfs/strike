@@ -158,13 +158,27 @@ The deploy tasks support the *git*, *tar* and *npm* deployment types.
 
 This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository.
 
+### NPM
+
+This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the target directory.
+
 ### TAR
 
 This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory.
 
-### NPM
+Unlike the *npm* and *git* deployment types we cannot be certain that we are only deploying a single directory. So this type uses the rule that when an archive contains a single directory then that directory is used as the final deployment directory.
 
-This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the `target` directory.
+If the archive contains more than one file or a single non-directory file then the entire contents of the archive are copied into the final deployment directory.
+
+It is a subtle but important difference that caters to the common use case for working with archives. Generally, when packaging a project for distribution all files are placed in a single directory and that directory is converted to an archive. If we did not follow the above rule the resulting deployment would have an additional nested directory which is probably undesirable.
+
+To illustrate, if we are deploying to *~/www* with a deployment profile named *stage* and working with an archive named *project.tgz* that contains a single directory *project* then if we did not follow the above rule we would end up with a final directory of:
+
+	~/www/stage/project
+	
+Instead, by following the above rule we end up with the contents of the extracted *project* directory at the expected final directory:
+
+	~/www/stage
 
 ## BUNDLES
 

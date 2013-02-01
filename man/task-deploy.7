@@ -132,7 +132,7 @@ This option ignores multiple profiles, it only executes for the first target pro
 
 .
 .P
-List profile names in a deployment descriptor\.
+List profile names in a deployment descriptor\. By default the default profile is not listed but if you have declared a custom configuration for the default profile then it will be included in the list\.
 .
 .TP
 \fB\-\-log\fR:
@@ -255,11 +255,46 @@ The deploy tasks support the \fIgit\fR, \fItar\fR and \fInpm\fR deployment types
 .SS "GIT"
 This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository\.
 .
+.SS "NPM"
+This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the target directory\.
+.
 .SS "TAR"
 This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory\.
 .
-.SS "NPM"
-This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the \fBtarget\fR directory\.
+.P
+Unlike the \fInpm\fR and \fIgit\fR deployment types we cannot be certain that we are only deploying a single directory\. So this type uses the rule that when an archive contains a single directory then that directory is used as the final deployment directory\.
+.
+.P
+If the archive contains more than one file or a single non\-directory file then the entire contents of the archive are copied \fIinto\fR the final deployment directory\.
+.
+.P
+It is a subtle but important difference that caters to the common use case for working with archives\. Generally, when packaging a project for distribution all files are placed in a single directory and that directory is converted to an archive\. If we did not follow the above rule the resulting deployment would have an additional nested directory which is probably undesirable\.
+.
+.P
+To illustrate, if we are deploying to \fI~/www\fR with a deployment profile named \fIstage\fR and working with an archive named \fIproject\.tgz\fR that contains a single directory \fIproject\fR then if we did not follow the above rule we would end up with a final directory of:
+.
+.IP "" 4
+.
+.nf
+
+~/www/stage/project
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Instead, by following the above rule we end up with the contents of the extracted \fIproject\fR directory at the expected final directory:
+.
+.IP "" 4
+.
+.nf
+
+~/www/stage
+.
+.fi
+.
+.IP "" 0
 .
 .SH "BUNDLES"
 The task\-deploy(7) execution creates a tarball bundle of the deployment files using the project \fIname\fR and \fIversion\fR concatenated with the current \fIprofile\fR for the bundle file name\. Assuming a project name of \fIproject\fR, with version \fI0\.0\.1\fR and a deployment profile of \fIstage\fR the resulting bundle is \fBproject\-0\.0\.1\-stage\.tgz\fR\.
@@ -414,6 +449,19 @@ Then the default profile is not a target profile, only the \fIstage\fR profile i
 .nf
 
 bake deploy stage default
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Note that when the \fB\-\-all\fR option is specififed the \fIdefault\fR profile is not included, if you wish to also execute the default profile in addition to execute the default profile as well:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-all default
 .
 .fi
 .
