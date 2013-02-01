@@ -1,6 +1,6 @@
 # test running with the --json option, implies --noop
 test.deploy.json.dump() {
-	local staging="~/.deploy-test"
+	local staging="${target}/.deploy-test"
 	
 	# clean up before we start
 	:test.deploy.local.clean;

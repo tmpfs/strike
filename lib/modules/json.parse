@@ -112,6 +112,8 @@ function __json.parse.value {
 		* ) value=${token} ;;
 	esac
 	
+	# echo "parsing key : ${key:-}" >&2;
+	
 	# enountered an empty key: ""
 	if [ -z "$key" ]; then
 		__json.throw "EXPECTED string GOT \"\" (empty key)"; return 1;

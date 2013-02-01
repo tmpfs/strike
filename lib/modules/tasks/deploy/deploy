@@ -1263,16 +1263,18 @@ tasks.deploy() {
 		# just creating bundles
 		if ! $bundling; then
 			# prompt for confirmation when possible
+			# if --ok has been set the confirm command
+			# will fall through to execution
 			:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
 		fi
 	fi
 	
 	# clean up
-	unset type;	
+	unset type;
 	unset host;
 	unset url;
 	unset directory;
-	unset profile_commands;	
+	unset profile_commands;
 	
 	# cleanup npm specific variable
 	unset package;
@@ -1685,6 +1687,10 @@ ${opt}";
 
 # output the header delimiter
 :tasks.deploy.header() {
+	if $print_json || $dump_script; then
+		return 0;
+	fi	
+	
 	if ! $logging; then
 		console.header;
 	else
