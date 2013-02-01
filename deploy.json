@@ -35,7 +35,7 @@
 		"test":{ "type": "git" },
 		"stage":{},
 		"man-tar": {
-			"description": "create archive of man pages and deploy with tar(1)",
+			"description": "create an archive of man pages and deploy with tar(1)",
 			"type": "tar",
 			"url": "file://$target/manuals.tgz",
 			"commands": {
@@ -48,7 +48,22 @@
 					]
 				}
 			}			
-		},		
+		},
+		"readme-tar": {
+			"description": "create an archive of the readme and deploy with tar(1)",
+			"type": "tar",
+			"url": "file://$target/readme.tgz",
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "tar",
+							"options": [ "-cf", "$target/readme.tgz", "README.md" ]
+						}
+					]
+				}
+			}
+		},				
 		"npm-tar": {
 			"description": "npm(1)+tar(1)",
 			"type": "tar",
