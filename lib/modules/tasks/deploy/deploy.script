@@ -17,11 +17,9 @@
 	fs.basename "${deploy_target}" "deploy_final_name";
 		
 	# escape spaces in paths
-	printf -v staging "%q" "${staging}";
 	printf -v log_file "%q" "${log_file}";
 	printf -v log_dir "%q" "${log_dir}";
 	printf -v deploy_target "%q" "${deploy_target}";
-	printf -v directory "%q" "${directory}";
 	
 	# custom script file specified
 	if [ -n "${script_source}" ]; then

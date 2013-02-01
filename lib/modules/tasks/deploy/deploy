@@ -852,7 +852,11 @@ tasks.deploy() {
 	local directory="";
 	local shell="${bake_deploy_shell:-sh}";
 	local host="${bake_deploy_remote:-}";
-	local staging="${bake_deploy_staging:-~/.deploy}";
+	
+	# staging must be unquoted to allow ~ expansion
+	local staging=${bake_deploy_staging:-~/.deploy};
+	
+	
 	local default_git_remote="origin";
 	local git_url git_ref git_remote="${default_git_remote}";
 	git.remote.url "git_url";
@@ -914,6 +918,10 @@ tasks.deploy() {
 	
 	# parse options
 	:tasks.deploy.options.parse "$@";
+	
+	# escape spaces in paths
+	printf -v staging "%q" "${staging}";
+	printf -v directory "%q" "${directory}";
 	
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;
@@ -1126,17 +1134,13 @@ tasks.deploy() {
 
 # start execution of a profile
 :tasks.deploy.profile.start() {
-	
 	# run local pre-deployment command execution
 	:tasks.deploy.run.pre;
 	
-	echo "start deployment !!!";
-
-	# scp the script to the remote server
-	# :tasks.deploy.script.push!;		
+	:tasks.deploy.bundle.install!;
 	
 	# run local post-deployment command execution
-	:tasks.deploy.run.post;	
+	:tasks.deploy.run.post;
 }
 
 # cascade properties from the root of the document
@@ -1928,37 +1932,37 @@ ${opt}";
 }
 
 # write the script to the remote server
-:tasks.deploy.script.push!() {
-	local test_staging='test -d '${staging}'; echo $?;';
-	local mk_staging='mkdir -p '${staging}'';
-
-	# test if the staging directory exists
-	:tasks.deploy.out.info "${executables[ssh]} %s %s" \
-		"${host}" "${test_staging}";
-	local exists=0;
-	if ! $noop; then
-		exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
-	fi
-
-	# create remote staging directory if it does not exist
-	if [ $exists -gt 0 ]; then
-		:tasks.deploy.out.info "${executables[ssh]} %s %s" \
-			"${host}" "${mk_staging}";
-		if ! $noop; then
-			( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
-				|| :tasks.deploy.fail \
-				"could not create remote staging directory %s" \
-				"${staging}";
-		fi
-	fi
-
-	local remote="${host}:${staging}/${script_name}";
-	:tasks.deploy.out.info "scp -p %s %s" \
-		"${script}" "${remote}";
-	if ! $noop; then
-		echo "SCP SCRIPT";
-	fi	
-}
+# :tasks.deploy.script.push!() {
+# 	local test_staging='test -d '${staging}'; echo $?;';
+# 	local mk_staging='mkdir -p '${staging}'';
+# 
+# 	# test if the staging directory exists
+# 	:tasks.deploy.out.info "${executables[ssh]} %s %s" \
+# 		"${host}" "${test_staging}";
+# 	local exists=0;
+# 	if ! $noop; then
+# 		exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
+# 	fi
+# 
+# 	# create remote staging directory if it does not exist
+# 	if [ $exists -gt 0 ]; then
+# 		:tasks.deploy.out.info "${executables[ssh]} %s %s" \
+# 			"${host}" "${mk_staging}";
+# 		if ! $noop; then
+# 			( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
+# 				|| :tasks.deploy.fail \
+# 				"could not create remote staging directory %s" \
+# 				"${staging}";
+# 		fi
+# 	fi
+# 
+# 	local remote="${host}:${staging}/${script_name}";
+# 	:tasks.deploy.out.info "scp -p %s %s" \
+# 		"${script}" "${remote}";
+# 	if ! $noop; then
+# 		echo "SCP SCRIPT";
+# 	fi	
+# }
 
 # OPTIONS
 

@@ -17,14 +17,6 @@ test.deploy.local() {
 	local descriptors="${dir}/descriptors";
 	local descriptor="";
 	
-	# clean up before we start
-	:test.deploy.local.clean;
-	
-	# create fresh mock directories
-	mkdir -p "$staging";
-	mkdir -p "$directory";
-	mkdir -p "$bundles";
-	
 	declare -A expects;
 	expects[name]="$project_name";
 	expects[version]="$project_version";
@@ -32,6 +24,7 @@ test.deploy.local() {
 	
 	# options common to all tests
 	local options=(
+		--ok	
 		--local
 		--no-growl		
 		--staging "${staging}"
@@ -40,42 +33,71 @@ test.deploy.local() {
 	);
 	
 	# run tests that should pass
-	:test.deploy.bundle.minimal;
-	
+	:test.deploy.run ':test.deploy.minimal.bundle';
+	:test.deploy.run ':test.deploy.minimal.deploy';
+}
+
+# run a test, we want to ensure
+# that we have a fresh mock structure
+# for each test
+:test.deploy.run() {
+	local cmd="$1";
+	# clean up before we start
+	:test.deploy.clean;
+	# create fresh mock directories
+	:test.deploy.init;
+	# run the test
+	$cmd;
 	# clean up at the end
-	:test.deploy.local.clean;
+	:test.deploy.clean;
 }
 
 # test bundling the default profile
 # using the absolute minimal descriptor
-:test.deploy.bundle.minimal() {
+:test.deploy.minimal.bundle() {
 	descriptor="${descriptors}/minimal.json";
 	options+=( --bundle --descriptor "${descriptor}" );
 	( tasks.deploy "${options[@]}" );
 	assert.file.exists? "${bundles}/${expects[project]}-default.tgz";
 }
 
-:test.deploy.json.dump() {
-	
-	# get the configuration setting as a json document
-	local json=$( tasks.deploy --local --json --staging "${staging}" );
-	
-	printf "${json}\n";
-
-	# parse the output
-	json.parse <<< "${json}";
-	
-	# should not have the staging directory
-	assert.dir.exists! "${staging}";
-	
-	# check json dump properties
-	assert.equal "${staging}" "${json_doc[profiles.default.staging]}";
-	# noop should be true
-	assert.equal "true" "${json_doc[noop]}";
+# test deploying the default profile
+# using the absolute minimal descriptor
+:test.deploy.minimal.deploy() {
+	descriptor="${descriptors}/minimal.json";
+	options+=( --descriptor "${descriptor}" );
+	( tasks.deploy "${options[@]}" );
+	assert.dir.exists? "${directory}/${expects[name]}/default";
 }
 
-# clean the local ~/.deploy directory
-:test.deploy.local.clean() {
+# :test.deploy.json.dump() {
+# 	
+# 	# get the configuration setting as a json document
+# 	local json=$( tasks.deploy --local --json --staging "${staging}" );
+# 	
+# 	printf "${json}\n";
+# 
+# 	# parse the output
+# 	json.parse <<< "${json}";
+# 	
+# 	# should not have the staging directory
+# 	assert.dir.exists! "${staging}";
+# 	
+# 	# check json dump properties
+# 	assert.equal "${staging}" "${json_doc[profiles.default.staging]}";
+# 	# noop should be true
+# 	assert.equal "true" "${json_doc[noop]}";
+# }
+
+# create the test staging structure
+:test.deploy.init() {
+	mkdir -p "$staging";
+	mkdir -p "$directory";
+	mkdir -p "$bundles";
+}
+
+# clean the test staging directory
+:test.deploy.clean() {
 	if [ -d "${deploy_test}" ]; then
 		console.info "deploy.test clean %s" "$deploy_test";
 		rm -rfv "$deploy_test";

@@ -5,7 +5,7 @@
 #	$1 		The path to the directory.
 ######################################################################
 function fs.path.expand {
-	local dir="$1";
+	local dir="${1:-}";
 	if [  -d "$dir" ]; then
 		local owd=`pwd`;
 		cd "$dir" > /dev/null;

@@ -59,3 +59,50 @@ cat <<NPMPKG >> ${npm_package_file}
 }
 NPMPKG
 }
+
+# perform the bundle installation
+:tasks.deploy.bundle.install!() {
+	
+	# local deployment
+	if $deploy_local; then
+		# copy packaged bundle to staging
+		cp "${bundle_path}" "${staging}" \
+			|| :tasks.deploy.fail "could not copy bundle %s" "${bundle_path}";
+		cd "${staging}" && tar xf "${bundle_archive}" \
+			|| :tasks.deploy.fail "could not extract bundle %s" "${staging}/${bundle_archive}";
+	# remote deployment
+	else
+		# TODO: implement
+		echo "start remote deployment ... ";
+	fi
+	
+	# local test_staging='test -d '${staging}'; echo $?;';
+	# local mk_staging='mkdir -p '${staging}'';
+	# 
+	# # test if the staging directory exists
+	# :tasks.deploy.out.info "${executables[ssh]} %s %s" \
+	# 	"${host}" "${test_staging}";
+	# local exists=0;
+	# if ! $noop; then
+	# 	exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
+	# fi
+	# 
+	# # create remote staging directory if it does not exist
+	# if [ $exists -gt 0 ]; then
+	# 	:tasks.deploy.out.info "${executables[ssh]} %s %s" \
+	# 		"${host}" "${mk_staging}";
+	# 	if ! $noop; then
+	# 		( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
+	# 			|| :tasks.deploy.fail \
+	# 			"could not create remote staging directory %s" \
+	# 			"${staging}";
+	# 	fi
+	# fi
+	# 
+	# local remote="${host}:${staging}/${script_name}";
+	# :tasks.deploy.out.info "scp -p %s %s" \
+	# 	"${script}" "${remote}";
+	# if ! $noop; then
+	# 	echo "SCP SCRIPT";
+	# fi	
+}
