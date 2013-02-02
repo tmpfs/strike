@@ -275,8 +275,8 @@ function __assert.write.summary! {
 		name="${name}.${process_name}";
 	fi
 	local resultfile="${test_result_dir}/${name}.json";
-	#echo "result file is: $resultfile : ${!summary[@]} : ${summary[@]}"
 	json.stringify <<< "summary" || quit 1 "could not create json result data";
+	# echo "result file is: $resultfile : ${!summary[@]} : ${summary[@]} ${json_str}" >&2;
 	json.string >| "${resultfile}" || quit 1 "could not write test result file %s" "$resultfile";
 }
 

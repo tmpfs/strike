@@ -127,6 +127,10 @@ declare -Ag __test_excluded;
 
 function tasks.test {
 	
+	# original working directory for
+	# test runner
+	local testowd="$PWD";
+	
 	# TODO: put all related directories in this array	
 	declare -A files;
 	files[root]="${root}";
@@ -557,6 +561,11 @@ function __assert_run_test {
 	# only runing binary tests
 	local only_binaries="${2:-false}";
 	
+	# ensure working directory context
+	# is correct for each test in case
+	# they change working directory during a test
+	cd "${testowd}";
+	
 	fs.path.expand "$file";
 	file="$_result";
 	local name="`basename $file`";
@@ -691,12 +700,15 @@ function __assert_run_test_executable {
 			console.warn "could not find result file %s" "$resultfile";
 		else
 			# TODO: reinstate this when we have -v | --verbose flags etc.
-			# console.info "summary %s" "$resultfile";
+			console.info "summary %s" "$resultfile";
+			
+			#cat $resultfile;
 			
 			json.parse < "$resultfile";
 			if [ -n "${!summary[*]}" ]; then
 				
 				#echo "${!json_doc[@]}";
+				#echo "${json_doc[@]}";
 				
 				: $((summary[assertions]+=${json_doc[assertions]}));
 				: $((summary[assertions.pass]+=${json_doc[assertions.pass]}));

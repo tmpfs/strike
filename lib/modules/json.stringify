@@ -341,7 +341,7 @@ function __json.stringify.object {
 						
 						# echo "json.stringify using : $nk : $ak";
 						
-						eval nv="\${$json_data[\"$nk\.$ak\"]:-__json__null__}";
+						eval nv="\${$json_data[\"${nk}.${ak}\"]:-__json__null__}";
 						if [ "$nv" == "__json__null__" ]; then
 							continue;
 						fi
