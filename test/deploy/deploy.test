@@ -85,9 +85,8 @@ test.deploy.local() {
 	
 	# we need export variables to be available for assertions
 	# but do not want the the test runner to quit
-	set +o errexit;
+
 	tasks.deploy "${opts[@]}";
-	set -o errexit;
 
 	assert.equal "" "${env_non_existent:-}";
 	assert.equal "" "${env_unset}";
@@ -102,6 +101,11 @@ test.deploy.local() {
 	assert.equal '`rmdir target`' "${env_rmdir_backtick}";
 	assert.equal 'a && b' "${env_and}";
 	assert.equal 'c || d' "${env_or}";
+	assert.equal '2 + 2' "${env_4}";
+	assert.equal '[[ "abc" =~ a ]]' "${env_regex}";
+	assert.equal 'ls -la &' "${env_bgjob}";
+	assert.equal 'a\bc' "${env_backslash}";
+	assert.equal '$HOME' "${env_home_escaped}";
 	
 	assert.equal "${expects[name]}" "${env_project_name}";
 	assert.equal "${expects[version]}" "${env_project_version}";
