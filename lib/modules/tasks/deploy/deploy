@@ -76,22 +76,6 @@ Use *shell* for the script shebang. Must be one of *sh*, *bash*, *zsh* or *dash*
 
 Use *directory* as the staging directory.
 
-* `--lint`:
-
-Perform a sanity check on the generated script and exit, implies `--noop`. You must have the checkbashisms(1) script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through checkbashisms(1).
-
-Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors.
-
-This option ignores multiple profiles, it only executes for the first target profile.
-
-* `--lint-run`:
-
-Executes the script in the local target directory in the context of the *localhost*, implies the `--lint`, `--local` and `--noop` options. The script is only executed if the `--lint` operation succeeds. Useful for testing and debugging purposes.
-
-Note that although this option implies `--noop` (so no commands are executed) it does actually perform a deployment locally.
-
-This option ignores multiple profiles, it only executes for the first target profile.
-
 * `--list`:
 
 List profile names in a deployment descriptor. By default the default profile is not listed but if you have declared a custom configuration for the default profile then it will be included in the list.
@@ -111,24 +95,6 @@ Include version information in the target directory, see `TARGET` for more infor
 * `--local`:
 
 Perform a deployment on the local host.
-
-* `--json`:
-
-Dump all profile configuration settings that would be used by a deployment as a JSON document to *stdout*, implies `--noop`. This is useful to determine the settings that would be used when running a deployment.
-
-If this option is used in conjunction with `--script` the last option will take preference.
-
-* `--pretty`:
-
-Use in conjunction with the `--json` option to pretty print the JSON document. Uses two spaces as the indentation.
-
-* `--write-json`:
-
-Write the deployment settings to `target/deploy/settings.json`. If used in conjunction with the `--json` option then the settings will be printed to *stdout* and written to disc. The generated document will be formatted if the `--pretty` flag has been set.
-
-* `--script`:
-
-Dump script(s) to *stdout*, implies `--noop`. If this option is used in conjunction with `--json` the last option will take preference. Note that when this option is used the script(s) are still written to `target/deploy`.
 
 * `--no-local`:
 
@@ -161,6 +127,52 @@ Do not send growl notifications.
 * `--expand`:
 
 Do not quote command options. When this options is set parameter expansion is performed on command options declared in a deployment descriptor.
+
+## DEBUG OPTIONS
+
+This section documents the options used for debugging and unit testing.
+
+* `--global-env`:
+
+Declare variables exposed to deployment descriptors as *export* rather than *local*. This is used for unit testing purposes.
+
+* `--json`:
+
+Dump all profile configuration settings that would be used by a deployment as a JSON document to *stdout*, implies `--noop`. This is useful to determine the settings that would be used when running a deployment.
+
+If this option is used in conjunction with `--script` the last option will take preference.
+
+* `--lint`:
+
+Perform a sanity check on the generated script and exit, implies `--noop`. You must have the checkbashisms(1) script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through checkbashisms(1).
+
+Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors.
+
+This option ignores multiple profiles, it only executes for the first target profile.
+
+* `--lint-run`:
+
+Executes the script in the local target directory in the context of the *localhost*, implies the `--lint`, `--local` and `--noop` options. The script is only executed if the `--lint` operation succeeds. Useful for testing and debugging purposes.
+
+Note that although this option implies `--noop` (so no commands are executed) it does actually perform a deployment locally.
+
+This option ignores multiple profiles, it only executes for the first target profile.
+
+* `--pretty`:
+
+Use in conjunction with the `--json` option to pretty print the JSON document. Uses two spaces as the indentation.
+
+* `--print-env`:
+
+Print variables exposed to deployment descriptors and exit.
+
+* `--script`:
+
+Dump script(s) to *stdout*, implies `--noop`. If this option is used in conjunction with `--json` the last option will take preference. Note that when this option is used the script(s) are still written to `target/deploy`.
+
+* `--write-json`:
+
+Write the deployment settings to `target/deploy/settings.json`. If used in conjunction with the `--json` option then the settings will be printed to *stdout* and written to disc. The generated document will be formatted if the `--pretty` flag has been set.
 	
 ## TYPES
 

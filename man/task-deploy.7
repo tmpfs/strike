@@ -64,6 +64,13 @@ Deploy all profiles in the descriptor\.
 Just create bundles do not deploy anything and do not execute any commands\. Implies \fB\-\-noop\fR, \fB\-\-no\-local\fR and \fB\-\-no\-remote\fR\. See the \fBBUNDLES\fR section\.
 .
 .TP
+\fB\-\-output [directory]\fR:
+
+.
+.P
+Use \fIdirectory\fR as the target for generated bundles\. The \fIdirectory\fR must exist and be writable\.
+.
+.TP
 \fB\-\-name [name]\fR:
 
 .
@@ -122,32 +129,6 @@ Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \f
 Use \fIdirectory\fR as the staging directory\.
 .
 .TP
-\fB\-\-lint\fR:
-
-.
-.P
-Perform a sanity check on the generated script and exit, implies \fB\-\-noop\fR\. You must have the checkbashisms(1) script installed in $PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through checkbashisms(1)\.
-.
-.P
-Note that when using the \fB\-\-script\-source\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors\.
-.
-.P
-This option ignores multiple profiles, it only executes for the first target profile\.
-.
-.TP
-\fB\-\-lint\-run\fR:
-
-.
-.P
-Executes the script in the local target directory in the context of the \fIlocalhost\fR, implies the \fB\-\-lint\fR, \fB\-\-local\fR and \fB\-\-noop\fR options\. The script is only executed if the \fB\-\-lint\fR operation succeeds\. Useful for testing and debugging purposes\.
-.
-.P
-Note that although this option implies \fB\-\-noop\fR (so no commands are executed) it does actually perform a deployment locally\.
-.
-.P
-This option ignores multiple profiles, it only executes for the first target profile\.
-.
-.TP
 \fB\-\-list\fR:
 
 .
@@ -181,37 +162,6 @@ Include version information in the target directory, see \fBTARGET\fR for more i
 .
 .P
 Perform a deployment on the local host\.
-.
-.TP
-\fB\-\-json\fR:
-
-.
-.P
-Dump all profile configuration settings that would be used by a deployment as a JSON document to \fIstdout\fR, implies \fB\-\-noop\fR\. This is useful to determine the settings that would be used when running a deployment\.
-.
-.P
-If this option is used in conjunction with \fB\-\-script\fR the last option will take preference\.
-.
-.TP
-\fB\-\-pretty\fR:
-
-.
-.P
-Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON document\. Uses two spaces as the indentation\.
-.
-.TP
-\fB\-\-write\-json\fR:
-
-.
-.P
-Write the deployment settings to \fBtarget/deploy/settings\.json\fR\. If used in conjunction with the \fB\-\-json\fR option then the settings will be printed to \fIstdout\fR and written to disc\. The generated document will be formatted if the \fB\-\-pretty\fR flag has been set\.
-.
-.TP
-\fB\-\-script\fR:
-
-.
-.P
-Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
 .
 .TP
 \fB\-\-no\-local\fR:
@@ -268,6 +218,80 @@ Do not send growl notifications\.
 .
 .P
 Do not quote command options\. When this options is set parameter expansion is performed on command options declared in a deployment descriptor\.
+.
+.SH "DEBUG OPTIONS"
+This section documents the options used for debugging and unit testing\.
+.
+.TP
+\fB\-\-global\-env\fR:
+
+.
+.P
+Declare variables exposed to deployment descriptors as \fIexport\fR rather than \fIlocal\fR\. This is used for unit testing purposes\.
+.
+.TP
+\fB\-\-json\fR:
+
+.
+.P
+Dump all profile configuration settings that would be used by a deployment as a JSON document to \fIstdout\fR, implies \fB\-\-noop\fR\. This is useful to determine the settings that would be used when running a deployment\.
+.
+.P
+If this option is used in conjunction with \fB\-\-script\fR the last option will take preference\.
+.
+.TP
+\fB\-\-lint\fR:
+
+.
+.P
+Perform a sanity check on the generated script and exit, implies \fB\-\-noop\fR\. You must have the checkbashisms(1) script installed in $PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through checkbashisms(1)\.
+.
+.P
+Note that when using the \fB\-\-script\-source\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors\.
+.
+.P
+This option ignores multiple profiles, it only executes for the first target profile\.
+.
+.TP
+\fB\-\-lint\-run\fR:
+
+.
+.P
+Executes the script in the local target directory in the context of the \fIlocalhost\fR, implies the \fB\-\-lint\fR, \fB\-\-local\fR and \fB\-\-noop\fR options\. The script is only executed if the \fB\-\-lint\fR operation succeeds\. Useful for testing and debugging purposes\.
+.
+.P
+Note that although this option implies \fB\-\-noop\fR (so no commands are executed) it does actually perform a deployment locally\.
+.
+.P
+This option ignores multiple profiles, it only executes for the first target profile\.
+.
+.TP
+\fB\-\-pretty\fR:
+
+.
+.P
+Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON document\. Uses two spaces as the indentation\.
+.
+.TP
+\fB\-\-print\-env\fR:
+
+.
+.P
+Print variables exposed to deployment descriptors and exit\.
+.
+.TP
+\fB\-\-script\fR:
+
+.
+.P
+Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
+.
+.TP
+\fB\-\-write\-json\fR:
+
+.
+.P
+Write the deployment settings to \fBtarget/deploy/settings\.json\fR\. If used in conjunction with the \fB\-\-json\fR option then the settings will be printed to \fIstdout\fR and written to disc\. The generated document will be formatted if the \fB\-\-pretty\fR flag has been set\.
 .
 .SH "TYPES"
 The deploy tasks support the \fIgit\fR, \fItar\fR and \fInpm\fR deployment types\.
@@ -1011,6 +1035,8 @@ If the \fB\-\-write\-json\fR option is specified then the deployment settings ar
 A >0 exit code indicates failure while a 0 exit code indicates success\.
 .
 .SH "EXAMPLES"
+.
+.SS "Deploying"
 Deploy using the default profile:
 .
 .IP "" 4
@@ -1075,20 +1101,46 @@ bake deploy \-\-all
 .
 .IP "" 0
 .
-.P
-Inspect deployment commands but do not execute them:
+.SS "Bundling"
+Bundle the default profile:
 .
 .IP "" 4
 .
 .nf
 
-bake deploy \-\-noop
+bake deploy \-\-bundle
 .
 .fi
 .
 .IP "" 0
 .
 .P
+Bundle all profiles:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-all \-\-bundle
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Bundle profiles \fIstage\fR and \fIproduction\fR and place generated bundles in \fI~/bundles\fR:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-bundle \-\-output ~/bundles stage production
+.
+.fi
+.
+.IP "" 0
+.
+.SS "Inspecting"
 List profiles in \fIdeploy\.json\fR:
 .
 .IP "" 4
@@ -1109,6 +1161,19 @@ List profiles in a specific descriptor:
 .nf
 
 bake deploy \-\-list \-\-descriptor ~/project/deploy\.json
+.
+.fi
+.
+.IP "" 0
+.
+.SS "Debugging"
+Inspect deployment commands but do not execute them:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-noop
 .
 .fi
 .
