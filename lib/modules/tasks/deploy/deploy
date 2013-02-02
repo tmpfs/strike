@@ -1067,8 +1067,11 @@ tasks.deploy() {
 	# make working directory the descriptor parent
 	fs.dirname "${descriptor}";
 	setup[wd]="${_result}";
+	
+	:tasks.deploy.out.info "cd %s" "${setup[wd]}";
 	cd "${setup[wd]}" \
 		|| :tasks.deploy.fail "could not enter %s" "${setup[wd]}";
+	:tasks.deploy.out.info "working directory %s" "$PWD";
 }
 
 # validate the directory
@@ -1439,6 +1442,14 @@ tasks.deploy() {
 		return 0;
 	fi
 	
+	# ensure working directory is correct for local
+	# command execution
+	cd "${setup[wd]}" \
+		|| :tasks.deploy.fail "could not enter %s" "${setup[wd]}";
+	
+	:tasks.deploy.out.info "exec local pre-deployment commands (%s)" "$length";
+	:tasks.deploy.out.info "working directory %s" "$PWD";
+	
 	# build list of commands to execute
 	list=();
 	:tasks.deploy.run.list;
@@ -1774,6 +1785,7 @@ ${opt}";
 		:tasks.deploy.header;
 		:tasks.deploy.out.info "paths";
 		:tasks.deploy.header;
+		:tasks.deploy.out.info "working directory: %s\n" "${PWD}";
 		:tasks.deploy.out.info "descriptor %s" "${descriptor}";
 		:tasks.deploy.out.info "directory %s" "${directory}";
 		:tasks.deploy.out.info "staging %s" "${staging}";

@@ -56,19 +56,19 @@ test.deploy.local() {
 	local options=(
 		--ok	
 		--local
-		--no-growl		
+		--no-growl
 		--staging "${staging}"
 		--directory "${directory}"
 		--output "${bundles}"
 	);
 	
 	# run tests that should pass
-	:test.deploy.run ':test.deploy.env.minimal';
+	# :test.deploy.run ':test.deploy.env.minimal';
 	
-	:test.deploy.run ':test.deploy.minimal.bundle';
-	:test.deploy.run ':test.deploy.minimal.deploy';
+	# :test.deploy.run ':test.deploy.minimal.bundle';
+	# :test.deploy.run ':test.deploy.minimal.deploy';
 		
-	:test.deploy.run ':test.deploy.project.bundle';
+	# :test.deploy.run ':test.deploy.project.bundle';
 	:test.deploy.run ':test.deploy.project.deploy';
 	
 	# clean up the mock project .git directory
