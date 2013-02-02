@@ -17,6 +17,14 @@ test.deploy.local() {
 	local descriptors="${dir}/descriptors";
 	local descriptor="";
 	
+	# override name / semver
+	# for these tests to match the
+	# values for the mock project
+	# bake(1) will have set them
+	# to strike@0.0.1 etc.
+	project_name="project";
+	project_version="0.0.1";
+	
 	declare -A expects;
 	expects[name]="$project_name";
 	expects[version]="$project_version";

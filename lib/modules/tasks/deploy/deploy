@@ -753,7 +753,20 @@ tasks.deploy() {
 	# repositories that do not specify a scheme
 	local scheme="^[a-zA-Z]+:";
 	
-	## FLAGS
+	# SETUP
+	declare -A setup;
+	setup[owd]="$PWD";
+	
+	local timestamp=$( date +%s );
+	local creator_host=$( uname -a | fmt );	
+	
+	# start time for the entire deployment
+	local deploy_start_time=$( date );
+	local localhost=$( hostname );
+	local deploy_user=$( id -nu );
+	local creator="${deploy_user}@${localhost}";	
+	
+	# FLAGS
 	
 	# assume failure
 	local success=false;
@@ -821,20 +834,11 @@ tasks.deploy() {
 	# defined in descriptor
 	local all_profiles=();
 	
-	local timestamp=$( date +%s );
-	local creator_host=$( uname -a | fmt );	
-	
 	# the prefix used for deployment
 	# interactive prompts
 	local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
 	local deploy_prompt="${deploy_prompt_prefix} \033[4m%s\033[0m";
-	local deploy_prompt_suffix=" ⚡";
-	
-	# start time for the entire deployment
-	local deploy_start_time=$( date );
-	local localhost=$( hostname );
-	local deploy_user=$( id -nu );
-	local creator="${deploy_user}@${localhost}";
+	local deploy_prompt_suffix=" ${characters[lightning]}";
 
 	local descriptor="${root}/deploy.json";
 	local newline=$'\n';
@@ -919,12 +923,12 @@ tasks.deploy() {
 	# parse options
 	:tasks.deploy.options.parse "$@";
 	
+	# validate the descriptor after option parsing
+	:tasks.deploy.descriptor.validate;
+	
 	# escape spaces in paths
 	printf -v staging "%q" "${staging}";
 	printf -v directory "%q" "${directory}";
-	
-	# validate the descriptor after option parsing
-	:tasks.deploy.descriptor.validate;
 	
 	:tasks.deploy.parse;
 	
@@ -1032,6 +1036,12 @@ tasks.deploy() {
 	if [ ! -f "${descriptor}" ]; then
 		:tasks.deploy.fail "no deploy descriptor %s" "${descriptor}";
 	fi
+	
+	# make working directory the descriptor parent
+	fs.dirname "${descriptor}";
+	setup[wd]="${_result}";
+	cd "${setup[wd]}" \
+		|| :tasks.deploy.fail "could not enter %s" "${setup[wd]}";
 }
 
 # make profile list unique
