@@ -1029,6 +1029,8 @@ tasks.deploy() {
 				fi
 			fi
 			
+			json_value="${json_value//\`/\\\`}";
+			
 			#sanitize variable name
 			json_key="${json_key//[^a-zA-Z0-9_]/_}";
 			

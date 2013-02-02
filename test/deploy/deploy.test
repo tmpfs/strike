@@ -90,6 +90,8 @@ test.deploy.local() {
 	set -o errexit;
 	
 	assert.equal "bar" "${env_foo}";
+	assert.equal "bar" "${env_bad_name_format}";
+	assert.equal '`bar`' "${env_backtick}";
 	assert.equal "${expects[name]}" "${env_project_name}";
 	assert.equal "${expects[version]}" "${env_project_version}";
 	
