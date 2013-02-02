@@ -29,6 +29,28 @@
 					]
 				}
 			}
+		},
+		"tar": {
+			"type": "tar",
+			"url": "file://$env_archive_path",
+			"description": "test override a deployment with the 'tar' type",
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "npm",
+							"options": [ "pack" ]
+						},
+						{
+							"command": "mv",
+							"options": [ "$env_archive_name", "$env_archive_dir" ]
+						},
+						{
+							"command": "pwd"
+						}
+					]
+				}
+			}
 		}
 	}
 }

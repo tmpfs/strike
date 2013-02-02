@@ -1,0 +1,30 @@
+{
+	"env": {
+		"archive": {
+			"name": "${project_name}-${project_version}.tgz",
+			"dir": "${target}",
+			"path": "${target}/${project_name}-${project_version}.tgz"
+		}
+	},
+	"profiles": {
+		"tar": {
+			"type": "tar",
+			"url": "file://$env_archive_path",
+			"description": "test deployment with the 'tar' type",
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "npm",
+							"options": [ "pack" ]
+						},
+						{
+							"command": "mv",
+							"options": [ "$env_archive_name", "$env_archive_dir" ]
+						}
+					]
+				}
+			}
+		}
+	}
+}

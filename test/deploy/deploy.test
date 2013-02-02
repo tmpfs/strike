@@ -1,5 +1,3 @@
-# test running with the --json option, implies --noop
-
 # runs all local deployment tests
 test.deploy.local() {
 	local self;
@@ -28,7 +26,7 @@ test.deploy.local() {
 	# bake(1) will have set them
 	# to strike@0.0.1 etc.
 	project_name="project";
-	project_version="0.0.1";	
+	project_version="0.0.1";
 	local project_source="${dir}/${project_name}";
 	
 	# initialize the mock project as a git repository
@@ -71,6 +69,9 @@ test.deploy.local() {
 		
 	:test.deploy.run ':test.deploy.project.bundle';
 	:test.deploy.run ':test.deploy.project.deploy';
+	
+	:test.deploy.run ':test.deploy.project.tar.bundle';
+	:test.deploy.run ':test.deploy.project.tar.deploy';
 	
 	# clean up the mock project .git directory
 	if [ -d "${project_source}/.git" ]; then
@@ -168,8 +169,8 @@ test.deploy.local() {
 
 # PROJECT
 
-# test bundling the default profile
-# for the mock project
+## DEFAULT PROFILE
+
 :test.deploy.project.bundle() {
 	descriptor="${project_source}/deploy.json";
 	local opts=( ${options[@]} );
@@ -178,38 +179,50 @@ test.deploy.local() {
 	assert.file.exists? "${bundles}/${expects[project]}-default.tgz";
 }
 
-# test deploying the default profile
-# for the mock project
 :test.deploy.project.deploy() {
 	descriptor="${project_source}/deploy.json";
 	local opts=( ${options[@]} );
 	opts+=( --descriptor "${descriptor}" );
 	( tasks.deploy "${opts[@]}" );
-	assert.dir.exists? "${directory}/${expects[name]}/default";
-	assert.file.exists? "${directory}/${expects[name]}/default/README.md";
-	assert.file.exists? "${directory}/${expects[name]}/default/LICENSE";
+	
+	# check common files
+	:test.assert.deployment.files "${directory}/${expects[name]}/default";
 }
 
-# :test.deploy.json.dump() {
-# 	
-# 	# get the configuration setting as a json document
-# 	local json=$( tasks.deploy --local --json --staging "${staging}" );
-# 	
-# 	printf "${json}\n";
-# 
-# 	# parse the output
-# 	json.parse <<< "${json}";
-# 	
-# 	# should not have the staging directory
-# 	assert.dir.exists! "${staging}";
-# 	
-# 	# check json dump properties
-# 	assert.equal "${staging}" "${json_doc[profiles.default.staging]}";
-# 	# noop should be true
-# 	assert.equal "true" "${json_doc[noop]}";
-# }
+## TAR TYPE
+
+:test.deploy.project.tar.bundle() {
+	descriptor="${project_source}/deploy-tar.json";
+	local opts=( ${options[@]} );
+	opts+=( --bundle --descriptor "${descriptor}" );
+	( tasks.deploy "${opts[@]}" );
+	assert.file.exists? "${bundles}/${expects[project]}-default.tgz";
+}
+
+:test.deploy.project.tar.deploy() {
+	descriptor="${project_source}/deploy-tar.json";
+	local opts=( ${options[@]} );
+	opts+=( --descriptor "${descriptor}" );
+	( tasks.deploy "${opts[@]}" );
+	
+	# check common files
+	:test.assert.deployment.files "${directory}/${expects[name]}/default";
+}
 
 # UTIL
+
+# assert on files that should be present
+# for all deployments
+:test.assert.deployment.files() {
+	local final="$1";
+	
+	assert.dir.exists? "${final}";
+	assert.file.exists? "${final}/README.md";
+	assert.file.exists? "${final}/LICENSE";
+	assert.file.exists? "${final}/version";
+	assert.dir.exists? "${final}/doc";
+	assert.file.exists? "${final}/doc/README.md";
+}
 
 # create the test staging structure
 :test.deploy.init() {

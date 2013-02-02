@@ -76,6 +76,8 @@ The [project documentation](http://freeformsystems.github.com/strike) is availab
 
 ## Developers
 
+Developers should have [node(1)](http://nodejs.org) (which includes [npm(1)](http://npmjs.org)) in order to run the tests.
+
 ### Running Tests
 
 For illustrative purposes the `./bake test` runner is also available using the following commands:
