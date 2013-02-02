@@ -73,7 +73,7 @@ test.deploy.local() {
 	
 	# clean up the mock project .git directory
 	if [ -d "${project_source}/.git" ]; then
-		rm -rfv "${project_source}/.git" >> "${root}/target/deploy.test.clean.log";		
+		rm -rfv "${project_source}/.git" >> "${root}/target/deploy.test.clean.log";
 	fi	
 }
 
