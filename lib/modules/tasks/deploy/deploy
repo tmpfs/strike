@@ -831,7 +831,9 @@ tasks.deploy() {
 	# SETUP
 	declare -A setup;
 	setup[owd]="$PWD";
+	setup[timestamp]=$( date +%s );
 	
+	# TODO: remove this duplicate timestamp variable
 	local timestamp=$( date +%s );
 	local creator_host=$( uname -a | fmt );	
 	
@@ -846,6 +848,7 @@ tasks.deploy() {
 	declare -A flags;
 	flags[print.env]=false;
 	flags[global.env]=false;
+	flags[timestamp]=false;
 	
 	# TODO: move all other flag variables into $flags
 	
@@ -1217,8 +1220,11 @@ tasks.deploy() {
 	local settings;
 	
 	# bundle directory and move script to bundle
-	bundle_source="${bundle_output}/${deploy_file_name}-${profile}";
 	bundle_name="${deploy_file_name}-${profile}";
+	if ${flags[timestamp]}; then
+		bundle_name="${bundle_name}-${setup[timestamp]}";
+	fi
+	bundle_source="${bundle_output}/${bundle_name}";
 	bundle_archive="${bundle_name}.${compression_extension}";
 	bundle_path="${bundle_output}/${bundle_archive}";
 	settings="${bundle_source}/settings.json";
@@ -2247,6 +2253,9 @@ ${opt}";
 				;;
 			--lzma )
 				compression="lzma";
+				;;
+			--timestamp )
+				flags[timestamp]=true;
 				;;
 			--output )
 				shift;
