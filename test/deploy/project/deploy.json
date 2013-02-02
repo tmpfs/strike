@@ -12,20 +12,22 @@
 			"type": "tar",
 			"url": "file://$env_archive_path",
 			"description": "test override for the default profile",
-			"local": {
-				"pre": [
-					{
-						"command": "npm",
-						"options": [ "pack" ]
-					},
-					{
-						"command": "mv",
-						"options": [ "$env_archive_name", "$env_archive_dir" ]
-					},
-					{
-						"command": "pwd"
-					}
-				]
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "npm",
+							"options": [ "pack" ]
+						},
+						{
+							"command": "mv",
+							"options": [ "$env_archive_name", "$env_archive_dir" ]
+						},
+						{
+							"command": "pwd"
+						}
+					]
+				}
 			}
 		}
 	}
