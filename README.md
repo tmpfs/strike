@@ -44,6 +44,17 @@ This software is currently under development in the 0.x.x version range and is r
 * Use [bake(1)](http://freeformsystems.github.com/strike/bake.1.html) to automate common tasks
 * Intermingle [rake(1)](http://rake.rubyforge.org/) with [bake(1)](http://freeformsystems.github.com/strike/bake.1.html) tasks if you like
 
+## Prerequisites
+
+* [bash](http://www.gnu.org/software/bash/) >= 4.2
+
+For BSD (that's OS X users too) you will need GNU versions for `find(1)` and `tar(1)`.
+
+* [findutils](http://www.gnu.org/software/findutils/)
+* [tar](http://www.gnu.org/software/tar/) >= 1.22
+
+It is recommended (although not essential) that you have [git(1)](http://git-scm.com/) and [curl(1)](http://curl.haxx.se/).
+
 ## Installation
 
 To install the library code as a dependency for a project into the `node_modules` sub-folder use:
