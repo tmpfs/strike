@@ -867,6 +867,7 @@ tasks.deploy() {
 	setup[uname]=$( uname -a );
 	setup[date]=$( date );
 	setup[creator]="${setup[user]}@${setup[hostname]}";
+	setup[platform]=$( uname | tr '[:upper:]' '[:lower:]' );
 
 	# TODO: remove these duplicate variables
 	local deploy_user=$( id -nu );
@@ -1848,7 +1849,9 @@ ${opt}";
 		local start_time=$( date )
 		
 		# HEADER
-		:tasks.deploy.out.info "%s (%s)\n" "${deploy_name}" "${creator}";
+		:tasks.deploy.out.info "%s (%s) on %s" "${deploy_name}" "${creator}" "${setup[platform]}";
+		
+		# INFO		
 		:tasks.deploy.header;
 		:tasks.deploy.out.info "%s" "${start_time}";
 		:tasks.deploy.header;		

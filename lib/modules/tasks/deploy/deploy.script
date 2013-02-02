@@ -137,6 +137,7 @@ set -e;
 set -u;
 
 # global variables
+platform=\$( uname | tr '[:upper:]' '[:lower:]' );
 timestamp=\$( date +%s );
 header="${header}";
 success=false;
@@ -457,7 +458,7 @@ fsbackup() {
 # print the settings
 settings() {
 	delimiter;
-	info "%s (%s)\n" "\${deploy_name}" "\${creator}";
+	info "%s (%s) on %s\n" "\${deploy_name}" "\${creator}"  "\${platform}";
 	delimiter;
 	info "%s\n" "\${start_time}";
 	delimiter;	
