@@ -1228,13 +1228,6 @@ tasks.deploy() {
 			fi
 	done
 	
-	# do this before validating properties
-	# for easier unit testing
-	if ${flags[print.env]}; then
-		:tasks.deploy.env.print;
-		return 0;
-	fi
-	
 	# verify deployment type is valid
 	local type="${type:-git}";
 	if ! array.contains? "${type:-}" "${types[@]}"; then
@@ -1283,6 +1276,13 @@ tasks.deploy() {
 			eval "url=\"$url\"";
 		fi
 	fi
+	
+	# do this before validating properties
+	# for easier unit testing
+	if ${flags[print.env]}; then
+		:tasks.deploy.env.print;
+		return 0;
+	fi	
 	
 	# deploying default profile with a git type
 	# and the parent of the descriptor is not 

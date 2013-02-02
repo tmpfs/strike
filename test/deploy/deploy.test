@@ -89,7 +89,13 @@ test.deploy.local() {
 	tasks.deploy "${opts[@]}";
 	set -o errexit;
 	
-	echo "env minimal !!!! got json:  ${env_archive_dir:-}";
+	assert.equal "bar" "${env_foo}";
+	assert.equal "${expects[name]}" "${env_project_name}";
+	assert.equal "${expects[version]}" "${env_project_version}";
+	
+	assert.equal "${target}" "${env_archive_dir}";
+	assert.equal "${expects[name]}-${expects[version]}.tgz"	"${env_archive_name}";
+	assert.equal "${target}/${expects[name]}-${expects[version]}.tgz" "${env_archive_path}"
 }
 
 # MINIMAL
