@@ -13,9 +13,11 @@
 			"bundle": {
 				"scripts": [
 					{
+						"dir": "opt/bin",
 						"file": "/bin/ls"
 					},
 					{
+						"dir": "opt",
 						"file": "../../../bin/bake"
 					},
 					{

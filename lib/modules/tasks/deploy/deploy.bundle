@@ -33,7 +33,7 @@
 	local profile_scripts="${json_doc[profiles.${profile}.bundle.scripts.length]:-0}";
 	local total_scripts=$((global_scripts+profile_scripts));
 	if [ $total_scripts -gt 0 ]; then
-		:tasks.deploy.out.info "bundle %s script(s)" "$total_scripts";	
+		:tasks.deploy.out.info "bundle %s script(s)" "$total_scripts";
 		local scripts_path="${bundle_source}/${bundle_scripts_name}";
 		mkdir -p "${scripts_path}" \
 			|| :tasks.deploy.fail "could create bundle script directory %s" "$scripts_path";
@@ -48,13 +48,15 @@
 
 # 
 :tasks.bundle.scripts.group() {
-	local i k file nm;
+	local i k file nm dir destination;
 	local length="${1:-0}";
 	local prefix="${2:-}";
 	for((i = 0;i < $length;i++))
 		do
+			destination="${scripts_path}";
 			k="${prefix}.${i}";
 			file="${json_doc[${k}.file]:-}";
+			dir="${json_doc[${k}.dir]:-}";
 			if [ -z "$file" ]; then
 				:tasks.deploy.fail "script entry does not declare the %s field" "file";
 			fi
@@ -70,10 +72,23 @@
 				:tasks.deploy.fail "script %s is not executable" "${file}";
 			fi
 			fs.basename "${file}" "nm";
-			if [ -f "${scripts_path}/$nm" ]; then
-				:tasks.deploy.fail "duplicate script %s defined, script names must be unique" "${nm}";
+			if [ -f "${destination}/$nm" ]; then
+				:tasks.deploy.fail "duplicate script %s, script names must be unique" "${nm}";
 			fi
-			cp "$file" "${scripts_path}" \
+			
+			# got a custom directory structure for the script
+			if [ -n "${dir}" ]; then
+				if [[ "$dir" =~ ^[./] ]]; then
+					:tasks.deploy.fail "invalid script directory %s, may not begin with . or /" "${dir}";
+				fi
+				echo "ADDING TO CUSTOM DIRECTORY (after): $dir";
+				:tasks.deploy.out.info "create script directory %s" "$dir";
+				destination="${destination}/${dir}";
+				mkdir -p "${destination}" \
+					|| :tasks.deploy.fail "could not creat scripts directory %s" "${destination}";
+			fi
+			
+			cp "$file" "${destination}" \
 				|| :tasks.deploy.fail "could not copy script %s" "${file}";
 	done
 }

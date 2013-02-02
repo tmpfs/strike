@@ -431,6 +431,41 @@ For the \fBnpm\fR deployment type the bundle will also include:
 .P
 An npm(1) conformant package descriptor used to perform the deployment\.
 .
+.SS "Scripts"
+You may include custom scripts in a bundle by declaring a \fBscripts\fR array in the \fBbundles\fR object either globally or specific to a profile, the syntax is:
+.
+.IP "" 4
+.
+.nf
+
+"bundle": {
+  "scripts": [
+    {
+      "dir": "opt/bin",
+      "file": "script\.sh"
+    }
+  ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+A referenced script must exist on the filesystem and must be executable\. Bundled scripts are placed in a \fBscripts\fR directory automatically generated within the archive\.
+.
+.P
+Filesystem references may be absolute or relative, relative paths are resolved relative to the directory containing the descriptor\.
+.
+.P
+Global scripts are \fIalways\fR added to bundles for all profiles whereas profile specific script(s) will only be bundled for that profile\.
+.
+.P
+By default no hierarchy is maintained for bundled scripts so names should be unique for all bundled scripts, attempting to add a duplicate script will fail\.
+.
+.P
+To create a hierarchy for bundled scripts you may create a directory within the bundled \fBscripts\fR by specifying a \fBdir\fR property\. Leading periods or slashes are not allowed when specifying directories to create using the \fBdir\fR property\.
+.
 .SH "ROLLBACK"
 The generated \fIdeploy\.sh\fR script attempts to rollback to a previous deployment if a deployment fails\.
 .
