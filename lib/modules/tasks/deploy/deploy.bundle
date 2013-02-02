@@ -39,15 +39,8 @@
 
 # write the info.json file
 :tasks.bundle.info.write!() {
-	declare -A json_info;
-	json_info[user]="${deploy_user}";
-	json_info[hostname]="${localhost}";
-	json_info[creator]="${creator}";
-	json_info[timestamp]=$( date +%s );
-	json_info[date]=$( date );
-	json_info[uname]=$( uname -a );
 	local info="${bundle_source}/info.json";
-	json.stringify --pretty 2 <<< "json_info";
+	json.stringify --pretty 2 <<< "setup";
 	json.string > "${info}";
 }
 

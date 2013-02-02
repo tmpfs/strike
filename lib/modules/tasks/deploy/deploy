@@ -841,20 +841,19 @@ tasks.deploy() {
 	setup[owd]="$PWD";
 	setup[timestamp]=$( date +%s );
 	setup[user]=$( id -nu );
+	setup[hostname]=$( hostname );
+	setup[uname]=$( uname -a );
+	setup[date]=$( date );
+	setup[creator]="${setup[user]}@${setup[hostname]}";
 
-	# TODO: remove this duplicate variable	
+	# TODO: remove these duplicate variables
 	local deploy_user=$( id -nu );
-	
-	# TODO: remove this duplicate variable
 	local timestamp=$( date +%s );
+	local localhost=$( hostname );
+	local creator="${deploy_user}@${localhost}";
+	local deploy_start_time=$( date );		
 	
 	local creator_host=$( uname -a | fmt );	
-	
-	# start time for the entire deployment
-	local deploy_start_time=$( date );
-	local localhost=$( hostname );
-	
-	local creator="${deploy_user}@${localhost}";
 	
 	# FLAGS
 	
