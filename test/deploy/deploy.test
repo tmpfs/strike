@@ -82,12 +82,10 @@ test.deploy.local() {
 	descriptor="${project}/env.json";
 	local opts=( ${options[@]} );
 	opts+=( --global-env --print-env --descriptor "${descriptor}" );
-	
-	# we need export variables to be available for assertions
-	# but do not want the the test runner to quit
 
 	tasks.deploy "${opts[@]}";
-
+	
+	# env_ variables
 	assert.equal "" "${env_non_existent:-}";
 	assert.equal "" "${env_unset}";
 	assert.equal "${HOME:-}" "${env_home}";
@@ -117,6 +115,15 @@ test.deploy.local() {
 	assert.equal "${target}" "${env_archive_dir}";
 	assert.equal "${expects[name]}-${expects[version]}.tgz"	"${env_archive_name}";
 	assert.equal "${target}/${expects[name]}-${expects[version]}.tgz" "${env_archive_path}"
+	
+	# doc_ variables
+	assert.equal "${expects[name]}" "${doc_name}";
+	
+	assert.equal "a" "${doc_data_array_0}";
+	assert.equal "b" "${doc_data_array_1}";
+	assert.equal "c" "${doc_data_array_2}";
+	assert.equal "d e f" "${doc_data_array_3}";
+	assert.eq 4 "${doc_data_array_length}";
 }
 
 # MINIMAL
