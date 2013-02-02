@@ -8,6 +8,9 @@
 	# copy the descriptor
 	:tasks.bundle.descriptor.copy;
 	
+	# create the info.json file
+	:tasks.bundle.info.write!;
+	
 	# create the bundle
 	:tasks.bundle.archive.create;
 	
@@ -32,6 +35,20 @@
 			&& tar -cf "$bundle_archive" "$bundle_name" \
 			&& cd "$project";
 	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
+}
+
+# write the info.json file
+:tasks.bundle.info.write!() {
+	declare -A json_info;
+	json_info[user]="${deploy_user}";
+	json_info[hostname]="${localhost}";
+	json_info[creator]="${creator}";
+	json_info[timestamp]=$( date +%s );
+	json_info[date]=$( date );
+	json_info[uname]=$( uname -a );
+	local info="${bundle_source}/info.json";
+	json.stringify --pretty 2 <<< "json_info";
+	json.string > "${info}";
 }
 
 # write the deploy settings for the profile to the bundle

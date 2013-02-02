@@ -839,7 +839,7 @@ tasks.deploy() {
 	local deploy_start_time=$( date );
 	local localhost=$( hostname );
 	local deploy_user=$( id -nu );
-	local creator="${deploy_user}@${localhost}";	
+	local creator="${deploy_user}@${localhost}";
 	
 	# FLAGS
 	
