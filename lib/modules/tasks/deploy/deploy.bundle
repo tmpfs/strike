@@ -11,11 +11,7 @@
 	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
 	
 	# create the bundle
-	{
-		cd "$bundle_output" \
-			&& tar cf "$bundle_archive" "$bundle_name" \
-			&& cd "$project";
-	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
+	:tasks.bundle.archive.create;
 	
 	# clean up after bundle creation
 	rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
@@ -23,6 +19,15 @@
 		
 	:tasks.deploy.out.info "created bundle %s" "$bundle_archive";
 	:tasks.deploy.header;
+}
+
+# create the bundle archive
+:tasks.bundle.archive.create() {
+	{
+		cd "$bundle_output" \
+			&& tar -cf "$bundle_archive" "$bundle_name" \
+			&& cd "$project";
+	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
 }
 
 # write the deploy settings for the profile to the bundle
@@ -66,11 +71,10 @@ NPMPKG
 	# local deployment
 	if $deploy_local; then
 		:tasks.deploy.out.info "local install %s" "${bundle_archive}";
-		
 		# copy packaged bundle to staging
 		cp "${bundle_path}" "${staging}" \
 			|| :tasks.deploy.fail "could not copy bundle %s" "${bundle_path}";
-		cd "${staging}" && tar xf "${bundle_archive}" \
+		cd "${staging}" && tar -xf "${bundle_archive}" \
 			|| :tasks.deploy.fail "could not extract bundle %s" "${staging}/${bundle_archive}";
 		
 		# script_name

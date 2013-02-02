@@ -11,6 +11,9 @@
 	touch "${script}" \
 		|| :tasks.deploy.fail "could not create %s" "${script}";
 		
+	# TODO: add list of compression executables and custom binary
+	# TODO: dependencies to validate
+		
 	# target parent directory and final name
 	local deploy_parent deploy_final_name;
 	fs.dirname "${deploy_target}" "deploy_parent";

@@ -34,14 +34,6 @@ Print commands but do not execute them, implies `--ok` to disable interactivity.
 
 Deploy all profiles in the descriptor.
 
-* `--bundle`:
-
-Just create bundles do not deploy anything and do not execute any commands. Implies `--noop`, `--no-local` and `--no-remote`. See the `BUNDLES` section.
-
-* `--output [directory]`:
-
-Use *directory* as the target for generated bundles. The *directory* must exist and be writable.
-
 * `--name [name]`:
 
 Override the default project name (determined by the name of the parent directory), see `NAMES` for project and profile name rules.
@@ -127,6 +119,40 @@ Do not send growl notifications.
 * `--expand`:
 
 Do not quote command options. When this options is set parameter expansion is performed on command options declared in a deployment descriptor.
+
+## BUNDLE OPTIONS
+
+This section documents the options used for manipulating bundles.
+
+* `--bundle`:
+
+Just create bundles do not deploy anything and do not execute any commands. Implies `--noop`, `--no-local` and `--no-remote`. See the `BUNDLES` section.
+
+* `--output [directory]`:
+
+Use *directory* as the target for generated bundles. The *directory* must exist and be writable.
+
+### Compression
+
+The default compression used is `gzip` although if the `xz` and `xzdec` binaries are available then the `xz` compression type is preferred. You may override this behaviour by specifying a compression type option.
+
+Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing remote deployments.
+
+* `--gz`:
+
+Force bundle creation to use `gzip`, bundle(s) are created with the `tgz` file extension.
+
+* `--bz`:
+
+Force bundle creation to use `bzip2`, bundle(s) are created with the `bz2` file extension.
+
+* `--xz`:
+
+Force bundle creation to use `xz`, bundle(s) are created with the `xz` file extension.
+
+* `--lzma`:
+
+Force bundle creation to use `lzma`, bundle(s) are created with the `lzma` file extension.
 
 ## DEBUG OPTIONS
 
@@ -728,6 +754,10 @@ Add the `deploy_ssh_options` and `deploy_scp_options` environment variables so t
 
 Add `enable` boolean property to profiles in a descriptor to prevent deployment of a profile.
 
+## DEPENDENCIES
+
+GNU tar(1) >= 1.22, scp(1), ssh(1)
+
 ## BUGS
 
 **task-deploy** is written in bash and depends upon `bash` >= 4.2.
@@ -766,7 +796,7 @@ deploy_property_names=(
 
 # deploy delegate
 tasks.deploy() {
-	executable.validate scp ssh tar;
+	executable.validate scp ssh;
 	executable.validate --test growlnotify;
 	
 	# regex for matching a url scheme
@@ -776,6 +806,23 @@ tasks.deploy() {
 	# the *git* deployment can cope with local
 	# repositories that do not specify a scheme
 	local scheme="^[a-zA-Z]+:";
+	
+	declare -A compression_types;
+	compression_types[gz]="tgz gzip gunzip";
+	compression_types[bz]="bz2 bzip2 bunzip2";
+	compression_types[xz]="xz xz xzdec";
+	compression_types[lzma]="lzma lzma lzmadec";
+	
+	# default compression
+	local compression="gz";
+	local compression_extension="tgz";
+	
+	# prefer xz if we have the executables
+	executable.validate --test xz xzdec;
+	if [ -n "${executables[xz]}" ] && [ -n "${executables[xzdec]}" ]; then
+		compression="xz";
+		compression_extension="xz";
+	fi
 	
 	# SETUP
 	declare -A setup;
@@ -945,6 +992,9 @@ tasks.deploy() {
 	
 	# parse options
 	:tasks.deploy.options.parse "$@";
+	
+	# validate compression executables exist
+	:tasks.compression.validate;
 	
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;
@@ -1165,7 +1215,7 @@ tasks.deploy() {
 	# bundle directory and move script to bundle
 	bundle_source="${bundle_output}/${deploy_file_name}-${profile}";
 	bundle_name="${deploy_file_name}-${profile}";
-	bundle_archive="${bundle_name}.tgz";
+	bundle_archive="${bundle_name}.${compression_extension}";
 	bundle_path="${bundle_output}/${bundle_archive}";
 	settings="${bundle_source}/settings.json";
 	
@@ -2048,40 +2098,38 @@ ${opt}";
 	:tasks.deploy.fail;
 }
 
-# write the script to the remote server
-# :tasks.deploy.script.push!() {
-# 	local test_staging='test -d '${staging}'; echo $?;';
-# 	local mk_staging='mkdir -p '${staging}'';
-# 
-# 	# test if the staging directory exists
-# 	:tasks.deploy.out.info "${executables[ssh]} %s %s" \
-# 		"${host}" "${test_staging}";
-# 	local exists=0;
-# 	if ! $noop; then
-# 		exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
-# 	fi
-# 
-# 	# create remote staging directory if it does not exist
-# 	if [ $exists -gt 0 ]; then
-# 		:tasks.deploy.out.info "${executables[ssh]} %s %s" \
-# 			"${host}" "${mk_staging}";
-# 		if ! $noop; then
-# 			( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
-# 				|| :tasks.deploy.fail \
-# 				"could not create remote staging directory %s" \
-# 				"${staging}";
-# 		fi
-# 	fi
-# 
-# 	local remote="${host}:${staging}/${script_name}";
-# 	:tasks.deploy.out.info "scp -p %s %s" \
-# 		"${script}" "${remote}";
-# 	if ! $noop; then
-# 		echo "SCP SCRIPT";
-# 	fi	
-# }
-
 # OPTIONS
+
+:tasks.compression.validate() {
+	local copts=( ${compression_types[$compression]} );
+	compression_extension="${copts[0]}";
+	unset copts[0];
+	# check all binaries are available on the local machine
+	executable.validate tar ${copts[@]};
+	
+	# require GNU tar
+	tar --version | grep "GNU" > /dev/null 2>&1 \
+		|| :tasks.deploy.fail "GNU tar is required";
+	
+	if [ "$compression" != "gz" ]; then
+		# check tar version
+		local tarv=$( tar --version | awk '{print $4}' || \
+			:tasks.deploy.fail "could not fetch version information for %s" \
+			"tar" );
+		local min="22" got="" ver="";
+		if [[ "${tarv}" =~ ^([0-9]+\.([0-9]+)) ]]; then
+			ver="${BASH_REMATCH[1]}";
+			got="${BASH_REMATCH[2]}";
+			if [ -n "$got" ]; then
+				if [ $got -lt $min ]; then
+					:tasks.deploy.fail \
+						"tar minor version >= %s is required, version is %s" \
+						"$min" "$ver";
+				fi
+			fi
+		fi
+	fi
+}
 
 # parse options
 :tasks.deploy.options.parse() {
@@ -2183,6 +2231,18 @@ ${opt}";
 				skip["local.post"]=true;
 				skip["remote.pre"]=true;
 				skip["remote.post"]=true;
+				;;
+			--gz )
+				compression="gz";
+				;;
+			--bz )
+				compression="bz";
+				;;
+			--xz )
+				compression="xz";
+				;;
+			--lzma )
+				compression="lzma";
 				;;
 			--output )
 				shift;

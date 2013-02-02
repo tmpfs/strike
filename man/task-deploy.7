@@ -57,20 +57,6 @@ Print commands but do not execute them, implies \fB\-\-ok\fR to disable interact
 Deploy all profiles in the descriptor\.
 .
 .TP
-\fB\-\-bundle\fR:
-
-.
-.P
-Just create bundles do not deploy anything and do not execute any commands\. Implies \fB\-\-noop\fR, \fB\-\-no\-local\fR and \fB\-\-no\-remote\fR\. See the \fBBUNDLES\fR section\.
-.
-.TP
-\fB\-\-output [directory]\fR:
-
-.
-.P
-Use \fIdirectory\fR as the target for generated bundles\. The \fIdirectory\fR must exist and be writable\.
-.
-.TP
 \fB\-\-name [name]\fR:
 
 .
@@ -218,6 +204,57 @@ Do not send growl notifications\.
 .
 .P
 Do not quote command options\. When this options is set parameter expansion is performed on command options declared in a deployment descriptor\.
+.
+.SH "BUNDLE OPTIONS"
+This section documents the options used for manipulating bundles\.
+.
+.TP
+\fB\-\-bundle\fR:
+
+.
+.P
+Just create bundles do not deploy anything and do not execute any commands\. Implies \fB\-\-noop\fR, \fB\-\-no\-local\fR and \fB\-\-no\-remote\fR\. See the \fBBUNDLES\fR section\.
+.
+.TP
+\fB\-\-output [directory]\fR:
+
+.
+.P
+Use \fIdirectory\fR as the target for generated bundles\. The \fIdirectory\fR must exist and be writable\.
+.
+.SS "Compression"
+The default compression used is \fBgzip\fR although if the \fBxz\fR and \fBxzdec\fR binaries are available then the \fBxz\fR compression type is preferred\. You may override this behaviour by specifying a compression type option\.
+.
+.P
+Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing remote deployments\.
+.
+.TP
+\fB\-\-gz\fR:
+
+.
+.P
+Force bundle creation to use \fBgzip\fR, bundle(s) are created with the \fBtgz\fR file extension\.
+.
+.TP
+\fB\-\-bz\fR:
+
+.
+.P
+Force bundle creation to use \fBbzip2\fR, bundle(s) are created with the \fBbz2\fR file extension\.
+.
+.TP
+\fB\-\-xz\fR:
+
+.
+.P
+Force bundle creation to use \fBxz\fR, bundle(s) are created with the \fBxz\fR file extension\.
+.
+.TP
+\fB\-\-lzma\fR:
+
+.
+.P
+Force bundle creation to use \fBlzma\fR, bundle(s) are created with the \fBlzma\fR file extension\.
 .
 .SH "DEBUG OPTIONS"
 This section documents the options used for debugging and unit testing\.
@@ -1262,6 +1299,9 @@ Add the \fBdeploy_ssh_options\fR and \fBdeploy_scp_options\fR environment variab
 .
 .P
 Add \fBenable\fR boolean property to profiles in a descriptor to prevent deployment of a profile\.
+.
+.SH "DEPENDENCIES"
+GNU tar(1) >= 1\.22, scp(1), ssh(1)
 .
 .SH "BUGS"
 \fBtask\-deploy\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
