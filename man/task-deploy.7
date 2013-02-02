@@ -222,6 +222,20 @@ Just create bundles do not deploy anything and do not execute any commands\. Imp
 .P
 Use \fIdirectory\fR as the target for generated bundles\. The \fIdirectory\fR must exist and be writable\.
 .
+.TP
+\fB\-\-timestamp\fR:
+
+.
+.P
+Append a timestamp to the bundle name\.
+.
+.TP
+\fB\-\-author\fR:
+
+.
+.P
+Prepend an author to the name of the bundle\. This sanitizes the user name (determined by \fBid \-nu\fR) to remove any non\-alphanumeric characters\.
+.
 .SS "Compression"
 The default compression used is \fBgzip\fR although if the \fBxz\fR and \fBxzdec\fR binaries are available then the \fBxz\fR compression type is preferred\. You may override this behaviour by specifying a compression type option\.
 .
