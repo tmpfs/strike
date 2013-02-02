@@ -88,13 +88,23 @@ test.deploy.local() {
 	set +o errexit;
 	tasks.deploy "${opts[@]}";
 	set -o errexit;
-	
+
+	assert.equal "" "${env_non_existent:-}";
+	assert.equal "" "${env_unset}";
+	assert.equal "${HOME:-}" "${env_home}";
+	assert.equal "${USER:-}" "${env_user}";
+	assert.equal "${PATH:-}" "${env_path}";
+	assert.equal "${SHELL:-}" "${env_shell}";
 	assert.equal "bar" "${env_foo}";
 	assert.equal "bar" "${env_bad_name_format}";
 	assert.equal '`bar`' "${env_backtick}";
+	assert.equal "rmdir target" "${env_rmdir}";
+	assert.equal '`rmdir target`' "${env_rmdir_backtick}";
+	assert.equal 'a && b' "${env_and}";
+	assert.equal 'c || d' "${env_or}";
+	
 	assert.equal "${expects[name]}" "${env_project_name}";
 	assert.equal "${expects[version]}" "${env_project_version}";
-	
 	assert.equal "${target}" "${env_archive_dir}";
 	assert.equal "${expects[name]}-${expects[version]}.tgz"	"${env_archive_name}";
 	assert.equal "${target}/${expects[name]}-${expects[version]}.tgz" "${env_archive_path}"
