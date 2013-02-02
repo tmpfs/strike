@@ -38,7 +38,8 @@ test.deploy.local() {
 			cd "${project_source}" \
 				&& git init \
 				&& git add . \
-				&& git commit -m "Deploy test initial commit";
+				&& git commit -m "Deploy test initial commit" \
+				&& git remote add origin "${project_source}";
 		)
 	fi
 	
@@ -48,7 +49,7 @@ test.deploy.local() {
 	expects[project]="$project_name-$project_version";
 	
 	# setup the mock target staging directory
-	local target="${project}/target";
+	export target="${project}/target";
 	mkdir -p "${project}/target";
 	
 	# options common to all tests
@@ -64,11 +65,16 @@ test.deploy.local() {
 	# run tests that should pass
 	:test.deploy.run ':test.deploy.env.minimal';
 	
-	# :test.deploy.run ':test.deploy.minimal.bundle';
-	# :test.deploy.run ':test.deploy.minimal.deploy';
+	:test.deploy.run ':test.deploy.minimal.bundle';
+	:test.deploy.run ':test.deploy.minimal.deploy';
 		
-	# :test.deploy.run ':test.deploy.project.bundle';
-	# :test.deploy.run ':test.deploy.project.deploy';
+	:test.deploy.run ':test.deploy.project.bundle';
+	:test.deploy.run ':test.deploy.project.deploy';
+	
+	# clean up the mock project .git directory
+	if [ -d "${project_source}/.git" ]; then
+		rm -rfv "${project_source}/.git" >> "${root}/target/deploy.test.clean.log";		
+	fi	
 }
 
 # run a test, we want to ensure
@@ -218,10 +224,5 @@ test.deploy.local() {
 		# NOTE: we use ${root}/target rather than ${target}
 		# NOTE: as ${target} points to the mock project staging directory
 		rm -rfv "$deploy_test" >> "${root}/target/deploy.test.clean.log";
-	fi
-	
-	# clean up the mock project .git directory
-	if [ -d "${project_source}/.git" ]; then
-		rm -rfv "${project_source}/.git" >> "${root}/target/deploy.test.clean.log";		
 	fi
 }
