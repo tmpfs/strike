@@ -244,7 +244,7 @@ EOF
 	elif [ "$phase" == pre ]; then
 cat <<EOF >> "${script}"
 pre() {
-	info "no pre-deployment commands\n";
+	info "no pre-deployment commands for %s\n" "\$profile";
 }
 EOF
 	fi
