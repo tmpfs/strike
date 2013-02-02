@@ -29,7 +29,7 @@ test.deploy.local() {
 	expects[project]="$project_name-$project_version";
 	
 	# setup the mock target staging directory
-	target="${project}/target";
+	local target="${project}/target";
 	mkdir -p "${project}/target";
 	
 	# options common to all tests
@@ -43,8 +43,10 @@ test.deploy.local() {
 	);
 	
 	# run tests that should pass
-	:test.deploy.run ':test.deploy.minimal.bundle';	
-	:test.deploy.run ':test.deploy.project.bundle';
+	# :test.deploy.run ':test.deploy.minimal.bundle';
+	# :test.deploy.run ':test.deploy.project.bundle';
+	
+	:test.deploy.run ':test.deploy.minimal.deploy';	
 	
 	# :test.deploy.run ':test.deploy.minimal.deploy';	
 }
@@ -100,6 +102,16 @@ test.deploy.local() {
 	assert.file.exists? "${bundles}/${expects[project]}-default.tgz";
 }
 
+# test deploying the default profile
+# for the mock project
+:test.deploy.minimal.deploy() {
+	descriptor="${project}/deploy.json";
+	local opts=( ${options[@]} );
+	opts+=( --descriptor "${descriptor}" );
+	( tasks.deploy "${opts[@]}" );
+	assert.dir.exists? "${directory}/${expects[name]}/default";
+}
+
 # :test.deploy.json.dump() {
 # 	
 # 	# get the configuration setting as a json document
@@ -132,6 +144,8 @@ test.deploy.local() {
 :test.deploy.clean() {
 	if [ -d "${deploy_test}" ]; then
 		console.info "deploy.test clean %s" "$deploy_test";
-		rm -rfv "$deploy_test" >> "${target}/deploy.test.clean.log";
+		# NOTE: we use ${root}/target rather than ${target}
+		# NOTE: as ${target} points to the mock project staging directory
+		rm -rfv "$deploy_test" >> "${root}/target/deploy.test.clean.log";
 	fi
 }

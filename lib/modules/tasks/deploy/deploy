@@ -860,13 +860,6 @@ tasks.deploy() {
 	# staging must be unquoted to allow ~ expansion
 	local staging=${bake_deploy_staging:-~/.deploy};
 	
-	
-	local default_git_remote="origin";
-	local git_url git_ref git_remote="${default_git_remote}";
-	git.remote.url "git_url";
-	git.branch.current "git_ref";
-	local default_url="${git_url}";
-	
 	# human readable name using @ delimiter
 	# must be set after option parsing in case a --name
 	# option has been specified
@@ -926,9 +919,18 @@ tasks.deploy() {
 	# validate the descriptor after option parsing
 	:tasks.deploy.descriptor.validate;
 	
+	# setting git defaults should be done
+	# after validating the descriptor so that
+	# this is done in the context of
+	# the descriptor directory
+	local default_git_remote="origin";
+	local git_url git_ref git_remote="${default_git_remote}";
+	git.remote.url "git_url";
+	git.branch.current "git_ref";
+	local default_url="${git_url}";
+	
 	# escape spaces in paths
 	printf -v staging "%q" "${staging}";
-	printf -v directory "%q" "${directory}";
 	
 	:tasks.deploy.parse;
 	
@@ -1037,11 +1039,28 @@ tasks.deploy() {
 		:tasks.deploy.fail "no deploy descriptor %s" "${descriptor}";
 	fi
 	
+	fs.path.expand "${descriptor}";
+	descriptor="${_result}";
+	
 	# make working directory the descriptor parent
 	fs.dirname "${descriptor}";
 	setup[wd]="${_result}";
 	cd "${setup[wd]}" \
 		|| :tasks.deploy.fail "could not enter %s" "${setup[wd]}";
+}
+
+# validate the directory
+:tasks.deploy.directory.validate() {
+	if [ -z "${directory}" ]; then
+		:tasks.deploy.fail "directory may not be empty";
+	fi	
+	if [ ! -d "${directory}" ]; then
+		:tasks.deploy.fail "%s not a directory" "${directory}";
+	fi
+	if [ ! -w "${directory}" ]; then
+		:tasks.deploy.fail "%s is not writable" "${directory}";
+	fi
+	printf -v directory "%q" "${directory}";
 }
 
 # make profile list unique
@@ -1194,6 +1213,9 @@ tasks.deploy() {
 		:tasks.deploy.fail "invalid deployment type %s" "${type:-}";
 	fi
 	
+	# revalidate directory for profile specific overrides
+	:tasks.deploy.directory.validate
+	
 	# tar / git types must specify a url
 	if [ "$type" == "tar" ] || [ "$type" == "git" ]; then
 		if [ -z "${url:-}" ]; then
@@ -1235,6 +1257,15 @@ tasks.deploy() {
 		if [ -n "${url:-}" ]; then
 			eval "url=\"$url\"";
 		fi
+	fi
+	
+	# deploying default profile with a git type
+	# and the parent of the descriptor is not 
+	# a git repository
+	if [ "$type" == "git" ] \
+		&& [ "$profile" == "$default_profile" ] \
+		&& ! git.valid? "${setup[wd]}"; then
+		:tasks.deploy.fail "%s is not a git repsitory" "${setup[wd]}";
 	fi
 	
 	if [ "$type" == "tar" ] \
@@ -1697,6 +1728,7 @@ ${opt}";
 		:tasks.deploy.header;
 		:tasks.deploy.out.info "paths";
 		:tasks.deploy.header;
+		:tasks.deploy.out.info "descriptor %s" "${descriptor}";
 		:tasks.deploy.out.info "directory %s" "${directory}";
 		:tasks.deploy.out.info "staging %s" "${staging}";
 		:tasks.deploy.out.info "script %s" "${script}";		
@@ -2117,6 +2149,8 @@ ${opt}";
 				if [ -z "${value}" ]; then
 					:tasks.deploy.fail "no directory specified";
 				fi
+				directory="${value}";
+				:tasks.deploy.directory.validate;
 				overrides[directory]="${value}";
 				;;
 			--host )

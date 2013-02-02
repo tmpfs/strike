@@ -48,6 +48,10 @@ ronn:markdown
 
 # removes the temporary target directory
 function tasks.clean {
+	
+	# TODO: add support for finding nested `target`
+	# TODO: directories and removing those too
+	
 	local verbose=false;
 	local rmopts="-rf";	
 	
