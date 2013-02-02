@@ -339,7 +339,9 @@ function __json.stringify.object {
 						# FIXME: create a document stringify it then delete some elements and re-stringify
 						# FIXME: to recreate the problem
 						
-						eval nv="\${$json_data[\"$nk.$ak\"]:-__json__null__}";
+						# echo "json.stringify using : $nk : $ak";
+						
+						eval nv="\${$json_data[\"$nk\.$ak\"]:-__json__null__}";
 						if [ "$nv" == "__json__null__" ]; then
 							continue;
 						fi

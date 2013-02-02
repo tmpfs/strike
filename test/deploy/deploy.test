@@ -73,6 +73,9 @@ test.deploy.local() {
 	:test.deploy.run ':test.deploy.project.tar.bundle';
 	:test.deploy.run ':test.deploy.project.tar.deploy';
 	
+	:test.deploy.run ':test.deploy.project.git.bundle';
+	:test.deploy.run ':test.deploy.project.git.deploy';	
+	
 	# clean up the mock project .git directory
 	if [ -d "${project_source}/.git" ]; then
 		rm -rfv "${project_source}/.git" >> "${root}/target/deploy.test.clean.log";
@@ -193,7 +196,7 @@ test.deploy.local() {
 
 :test.deploy.project.tar.bundle() {
 	local profile="tar";
-	descriptor="${project_source}/deploy-tar.json";
+	descriptor="${project_source}/deploy-${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
 	( tasks.deploy "${opts[@]}" );
@@ -201,8 +204,30 @@ test.deploy.local() {
 }
 
 :test.deploy.project.tar.deploy() {
-	local profile="tar";	
-	descriptor="${project_source}/deploy-tar.json";
+	local profile="tar";
+	descriptor="${project_source}/deploy-${profile}.json";
+	local opts=( ${options[@]} );
+	opts+=( --descriptor "${descriptor}" "$profile" );
+	( tasks.deploy "${opts[@]}" );
+	
+	# check common files
+	:test.assert.deployment.files "${directory}/${expects[name]}/$profile";
+}
+
+## GIT TYPE
+
+:test.deploy.project.git.bundle() {
+	local profile="git";
+	descriptor="${project_source}/deploy-${profile}.json";
+	local opts=( ${options[@]} );
+	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
+	( tasks.deploy "${opts[@]}" );
+	assert.file.exists? "${bundles}/${expects[project]}-$profile.tgz";
+}
+
+:test.deploy.project.git.deploy() {
+	local profile="git";	
+	descriptor="${project_source}/deploy-${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --descriptor "${descriptor}" "$profile" );
 	( tasks.deploy "${opts[@]}" );

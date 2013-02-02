@@ -8,19 +8,14 @@
 	},
 	"profiles": {
 		"git": {
-			"type": "tar",
-			"url": "file://$env_archive_path",
-			"description": "test deployment with the 'tar' type",
+			"type": "git",
+			"url": "file://$project_source",
+			"description": "test deployment with the 'git' type",
 			"commands": {
 				"local": {
 					"pre": [
 						{
-							"command": "npm",
-							"options": [ "pack" ]
-						},
-						{
-							"command": "mv",
-							"options": [ "$env_archive_name", "$env_archive_dir" ]
+							"command": "pwd"
 						}
 					]
 				}

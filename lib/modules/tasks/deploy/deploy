@@ -1007,6 +1007,7 @@ tasks.deploy() {
 	local json_settings_file="${deploy_staging_directory}/settings.json";
 	# array used to store properties to be
 	# dumped as json
+	unset json_dump;
 	declare -A json_dump;
 	json_dump["project-version"]="${project_version}";
 	
@@ -1806,6 +1807,7 @@ ${opt}";
 				variable.get "${var}";
 				value="${_result:-}";
 				if [ -n "${value}" ]; then
+					echo "adding to json_dump $key : $value";
 					json_dump["profiles.${profile}.$key"]="$value";
 				fi
 			else
