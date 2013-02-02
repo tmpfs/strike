@@ -192,21 +192,23 @@ test.deploy.local() {
 ## TAR TYPE
 
 :test.deploy.project.tar.bundle() {
+	local profile="tar";
 	descriptor="${project_source}/deploy-tar.json";
 	local opts=( ${options[@]} );
-	opts+=( --bundle --descriptor "${descriptor}" );
+	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
 	( tasks.deploy "${opts[@]}" );
-	assert.file.exists? "${bundles}/${expects[project]}-default.tgz";
+	assert.file.exists? "${bundles}/${expects[project]}-$profile.tgz";
 }
 
 :test.deploy.project.tar.deploy() {
+	local profile="tar";	
 	descriptor="${project_source}/deploy-tar.json";
 	local opts=( ${options[@]} );
-	opts+=( --descriptor "${descriptor}" );
+	opts+=( --descriptor "${descriptor}" "$profile" );
 	( tasks.deploy "${opts[@]}" );
 	
 	# check common files
-	:test.assert.deployment.files "${directory}/${expects[name]}/default";
+	:test.assert.deployment.files "${directory}/${expects[name]}/$profile";
 }
 
 # UTIL
