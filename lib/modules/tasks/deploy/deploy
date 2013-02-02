@@ -770,6 +770,7 @@ tasks.deploy() {
 	
 	declare -A flags;
 	flags[print.env]=false;
+	flags[global.env]=false;
 	
 	# TODO: move all other flag variables into $flags
 	
@@ -984,7 +985,6 @@ tasks.deploy() {
 		shebang="#!/usr/bin/env ${shell}";
 	fi
 	
-	
 	# NOTE: reading commands should be done
 	# NOTE: after setting all relevant variables
 	# NOTE: so that all variables are available to commands being
@@ -998,7 +998,7 @@ tasks.deploy() {
 	# 2) so that descriptor documents may
 	# 2) cross-reference properties
 	for json_key in "${!json_doc[@]}"
-		do
+		do	
 			json_value="${json_doc["$json_key"]}";
 			# sanitized to _ delimiter for variable names
 			json_key="${json_key//\./_}";
@@ -1020,10 +1020,13 @@ tasks.deploy() {
 			#sanitize variable name
 			json_key="${json_key//[^a-zA-Z0-9_]/_}";
 			
-			# echo "expanding $json_key : $json_value";
 			# declare variable
-			eval "local $json_key=\"$json_value\"";
-	done	
+			if ${flags[global.env]}; then
+				eval "export $json_key=\"$json_value\"";
+			else
+				eval "local $json_key=\"$json_value\"";
+			fi
+	done
 	
 	# deploy all profiles
 	:tasks.deploy.profiles;
@@ -1213,6 +1216,13 @@ tasks.deploy() {
 			fi
 	done
 	
+	# do this before validating properties
+	# for easier unit testing
+	if ${flags[print.env]}; then
+		:tasks.deploy.env.print;
+		return 0;
+	fi
+	
 	# verify deployment type is valid
 	local type="${type:-git}";
 	if ! array.contains? "${type:-}" "${types[@]}"; then
@@ -1302,11 +1312,6 @@ tasks.deploy() {
 		:tasks.deploy.fail "staging directory may not be at the filesystem root";
 	fi
 	
-	if ${flags[print.env]}; then
-		:tasks.deploy.env.print;
-	fi
-	
-	
 	#echo "validating directory ... ${directory} ... ";
 	
 	# revalidate directory for profile specific overrides
@@ -1380,8 +1385,7 @@ tasks.deploy() {
 			variable.get "$k";
 			v="$_result";
 			printf "%s=%s\n" "$k" "$v";
-	done	
-	console.success;
+	done
 }
 
 # run pre-deployment local commands
@@ -1964,6 +1968,10 @@ ${opt}";
 # output the complete message
 :tasks.deploy.complete() {
 	
+	if ${flags[print.env]}; then
+		return 0;
+	fi
+	
 	# noop should always succeed
 	if $noop; then
 		success=true;
@@ -2127,6 +2135,9 @@ ${opt}";
 			--print-env )
 				flags[print.env]=true;
 				noop=true;
+				;;
+			--global-env )
+				flags[global.env]=true;
 				;;
 			--bundle )
 				bundling=true;

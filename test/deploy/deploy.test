@@ -51,11 +51,13 @@ test.deploy.local() {
 	);
 	
 	# run tests that should pass
+	:test.deploy.run ':test.deploy.env.minimal';
+	
 	# :test.deploy.run ':test.deploy.minimal.bundle';
 	# :test.deploy.run ':test.deploy.minimal.deploy';
 		
-	:test.deploy.run ':test.deploy.project.bundle';
-	:test.deploy.run ':test.deploy.project.deploy';	
+	# :test.deploy.run ':test.deploy.project.bundle';
+	# :test.deploy.run ':test.deploy.project.deploy';
 }
 
 # run a test, we want to ensure
@@ -73,6 +75,21 @@ test.deploy.local() {
 	$cmd;
 	# clean up at the end
 	:test.deploy.clean;
+}
+
+# test environment is sane
+:test.deploy.env.minimal() {
+	descriptor="${project}/env.json";
+	local opts=( ${options[@]} );
+	opts+=( --global-env --print-env --descriptor "${descriptor}" );
+	
+	# we need export variables to be available for assertions
+	# but do not want the the test runner to quit
+	set +o errexit;
+	tasks.deploy "${opts[@]}";
+	set -o errexit;
+	
+	echo "env minimal !!!! got json:  ${env_archive_dir:-}";
 }
 
 # MINIMAL
