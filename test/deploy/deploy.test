@@ -29,7 +29,18 @@ test.deploy.local() {
 	# to strike@0.0.1 etc.
 	project_name="project";
 	project_version="0.0.1";	
-	local project="${dir}/${project_name}";
+	local project_source="${dir}/${project_name}";
+	
+	# initialize the mock project as a git repository
+	# so that validation will pass with the default profile
+	if [ ! -d "${project_source}/.git" ]; then
+		(
+			cd "${project_source}" \
+				&& git init \
+				&& git add . \
+				&& git commit -m "Deploy test initial commit";
+		)
+	fi
 	
 	declare -A expects;
 	expects[name]="$project_name";
@@ -79,7 +90,7 @@ test.deploy.local() {
 
 # test environment is sane
 :test.deploy.env.minimal() {
-	descriptor="${project}/env.json";
+	descriptor="${project_source}/env.json";
 	local opts=( ${options[@]} );
 	opts+=( --global-env --print-env --descriptor "${descriptor}" );
 
@@ -131,7 +142,7 @@ test.deploy.local() {
 # test bundling the default profile
 # using the absolute minimal descriptor
 :test.deploy.minimal.bundle() {
-	descriptor="${project}/minimal.json";
+	descriptor="${project_source}/minimal.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" );
 	( tasks.deploy "${opts[@]}" );
@@ -141,7 +152,7 @@ test.deploy.local() {
 # test deploying the default profile
 # using the absolute minimal descriptor
 :test.deploy.minimal.deploy() {
-	descriptor="${project}/minimal.json";
+	descriptor="${project_source}/minimal.json";
 	local opts=( ${options[@]} );
 	opts+=( --descriptor "${descriptor}" );
 	( tasks.deploy "${opts[@]}" );
@@ -153,7 +164,7 @@ test.deploy.local() {
 # test bundling the default profile
 # for the mock project
 :test.deploy.project.bundle() {
-	descriptor="${project}/deploy.json";
+	descriptor="${project_source}/deploy.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" );
 	( tasks.deploy "${opts[@]}" );
@@ -163,7 +174,7 @@ test.deploy.local() {
 # test deploying the default profile
 # for the mock project
 :test.deploy.project.deploy() {
-	descriptor="${project}/deploy.json";
+	descriptor="${project_source}/deploy.json";
 	local opts=( ${options[@]} );
 	opts+=( --descriptor "${descriptor}" );
 	( tasks.deploy "${opts[@]}" );
@@ -207,5 +218,10 @@ test.deploy.local() {
 		# NOTE: we use ${root}/target rather than ${target}
 		# NOTE: as ${target} points to the mock project staging directory
 		rm -rfv "$deploy_test" >> "${root}/target/deploy.test.clean.log";
+	fi
+	
+	# clean up the mock project .git directory
+	if [ -d "${project_source}/.git" ]; then
+		rm -rfv "${project_source}/.git" >> "${root}/target/deploy.test.clean.log";		
 	fi
 }
