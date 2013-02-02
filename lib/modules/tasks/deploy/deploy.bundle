@@ -1,24 +1,28 @@
 # create the deployment bundle
 :tasks.bundle.create() {
-	# always write the effective settings into the bundle
-	:tasks.bundle.settings.write!
-	
-	#local bundle_parent;
-	#fs.dirname "$bundle_output" "bundle_parent";
-	
-	#echo "got bundle parent : $bundle_parent"; exit 0;
-	
 	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
+	
+	# always write the effective settings into the bundle
+	:tasks.bundle.settings.write!	
+	
+	# copy the descriptor
+	:tasks.bundle.descriptor.copy;
 	
 	# create the bundle
 	:tasks.bundle.archive.create;
 	
 	# clean up after bundle creation
 	rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
-		|| :tasks.deploy.fail "could not clean bundle source %s" "$bundle_path";
+		|| :tasks.deploy.fail "could not clean bundle source %s" "$bundle_source";
 		
 	:tasks.deploy.out.info "created bundle %s" "$bundle_archive";
 	:tasks.deploy.header;
+}
+
+# copy the descriptor to the bundle source directory
+:tasks.bundle.descriptor.copy() {
+	cp "${descriptor}" "${bundle_source}/descriptor.json" \
+		|| :tasks.deploy.fail "could not copy bundle descriptor %s" "$bundle_path";
 }
 
 # create the bundle archive

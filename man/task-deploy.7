@@ -387,18 +387,25 @@ Bundles are created in the \fBtarget/deploy\fR directory\.
 A generated bundle will include:
 .
 .TP
-\fBdeploy\.sh\fR:
+\fBdescriptor\.json\fR:
 
 .
 .P
-The generated deployment script or the contents of \fIscript\fR if \fB\-\-script\-source\fR was specified\.
+The descriptor used to create the bundle\.
 .
 .TP
 \fBsettings\.json\fR:
 
 .
 .P
-A JSON document containing the settings for the deployment\.
+A JSON document containing the computed settings for the deployment\.
+.
+.TP
+\fBdeploy\.sh\fR:
+
+.
+.P
+The generated deployment script or the contents of \fIscript\fR if \fB\-\-script\-source\fR was specified\.
 .
 .SS "NPM"
 For the \fBnpm\fR deployment type the bundle will also include:

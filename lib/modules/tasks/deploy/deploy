@@ -238,13 +238,17 @@ Bundles are created in the `target/deploy` directory.
 
 A generated bundle will include:
 
-* `deploy.sh`:
+* `descriptor.json`:
 
-The generated deployment script or the contents of *script* if `--script-source` was specified.
+The descriptor used to create the bundle.
 
 * `settings.json`:
 
-A JSON document containing the settings for the deployment.
+A JSON document containing the computed settings for the deployment.
+
+* `deploy.sh`:
+
+The generated deployment script or the contents of *script* if `--script-source` was specified.
 
 ### NPM
 
