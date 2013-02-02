@@ -63,12 +63,12 @@ test.deploy.local() {
 	);
 	
 	# run tests that should pass
-	# :test.deploy.run ':test.deploy.env.minimal';
+	:test.deploy.run ':test.deploy.env';
 	
-	# :test.deploy.run ':test.deploy.minimal.bundle';
-	# :test.deploy.run ':test.deploy.minimal.deploy';
+	:test.deploy.run ':test.deploy.minimal.bundle';
+	:test.deploy.run ':test.deploy.minimal.deploy';
 		
-	# :test.deploy.run ':test.deploy.project.bundle';
+	:test.deploy.run ':test.deploy.project.bundle';
 	:test.deploy.run ':test.deploy.project.deploy';
 	
 	# clean up the mock project .git directory
@@ -95,7 +95,7 @@ test.deploy.local() {
 }
 
 # test environment is sane
-:test.deploy.env.minimal() {
+:test.deploy.env() {
 	descriptor="${project_source}/env.json";
 	local opts=( ${options[@]} );
 	opts+=( --global-env --print-env --descriptor "${descriptor}" );

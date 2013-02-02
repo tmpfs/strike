@@ -1409,9 +1409,9 @@ tasks.deploy() {
 		return 0;
 	fi
 	if [ "${#global_commands[@]:-0}" ]; then
-		:tasks.deploy.run "commands.local.pre" true;
+		:tasks.deploy.run "pre" "commands.local.pre" true;
 	fi
-	:tasks.deploy.run "commands.local.pre";
+	:tasks.deploy.run "pre" "commands.local.pre";
 }
 
 # run post-deployment local commands
@@ -1420,15 +1420,16 @@ tasks.deploy() {
 		return 0;
 	fi
 	if [ "${#global_commands[@]:-0}" ]; then
-		:tasks.deploy.run "commands.local.post" true;
+		:tasks.deploy.run "post" "commands.local.post" true;
 	fi	
-	:tasks.deploy.run "commands.local.post";
+	:tasks.deploy.run "post" "commands.local.post";
 }
 
 # run a set of local commands
 :tasks.deploy.run() {
-	local varname="$1";
-	local use_global_commands="${2:-false}";
+	local phase="$1"
+	local varname="$2";
+	local use_global_commands="${3:-false}";
 	local cmd list arr exe opt exit_code;
 	
 	# shortcut out for empty command maps	
@@ -1447,7 +1448,7 @@ tasks.deploy() {
 	cd "${setup[wd]}" \
 		|| :tasks.deploy.fail "could not enter %s" "${setup[wd]}";
 	
-	:tasks.deploy.out.info "exec local pre-deployment commands (%s)" "$length";
+	:tasks.deploy.out.info "exec local ${phase}-deployment commands (%s)" "$length";
 	:tasks.deploy.out.info "working directory %s" "$PWD";
 	
 	# build list of commands to execute
