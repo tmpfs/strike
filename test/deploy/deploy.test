@@ -2,9 +2,6 @@
 
 # runs all local deployment tests
 test.deploy.local() {
-	
-	# resolve files relative to this
-	# test directory
 	local self;
 	require.resolve "self";
 	local dir="${self[1]}";
@@ -23,12 +20,17 @@ test.deploy.local() {
 	# bake(1) will have set them
 	# to strike@0.0.1 etc.
 	project_name="project";
-	project_version="0.0.1";
+	project_version="0.0.1";	
+	local project="${dir}/${project_name}";
 	
 	declare -A expects;
 	expects[name]="$project_name";
 	expects[version]="$project_version";
 	expects[project]="$project_name-$project_version";
+	
+	# setup the mock target staging directory
+	target="${project}/target";
+	mkdir -p "${project}/target";
 	
 	# options common to all tests
 	local options=(
@@ -42,7 +44,9 @@ test.deploy.local() {
 	
 	# run tests that should pass
 	:test.deploy.run ':test.deploy.minimal.bundle';	
-	:test.deploy.run ':test.deploy.minimal.deploy';	
+	:test.deploy.run ':test.deploy.project.bundle';
+	
+	# :test.deploy.run ':test.deploy.minimal.deploy';	
 }
 
 # run a test, we want to ensure
@@ -61,6 +65,8 @@ test.deploy.local() {
 	# clean up at the end
 	:test.deploy.clean;
 }
+
+# MINIMAL
 
 # test bundling the default profile
 # using the absolute minimal descriptor
@@ -82,6 +88,18 @@ test.deploy.local() {
 	assert.dir.exists? "${directory}/${expects[name]}/default";
 }
 
+# PROJECT
+
+# test bundling the default profile
+# for the mock project
+:test.deploy.project.bundle() {
+	descriptor="${project}/deploy.json";
+	local opts=( ${options[@]} );
+	opts+=( --bundle --descriptor "${descriptor}" );
+	( tasks.deploy "${opts[@]}" );
+	assert.file.exists? "${bundles}/${expects[project]}-default.tgz";
+}
+
 # :test.deploy.json.dump() {
 # 	
 # 	# get the configuration setting as a json document
@@ -100,6 +118,8 @@ test.deploy.local() {
 # 	# noop should be true
 # 	assert.equal "true" "${json_doc[noop]}";
 # }
+
+# UTIL
 
 # create the test staging structure
 :test.deploy.init() {

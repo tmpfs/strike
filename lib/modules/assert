@@ -143,6 +143,7 @@ function assert.file.exists? {
 	`test -f "$1"`;
 	local received="$?";
 	set -o errexit;
+	console.info "$FUNCNAME %s" "$1";	
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else
@@ -158,6 +159,7 @@ function assert.file.exists! {
 	`test -f "$1"`;
 	local received="$?";
 	set -o errexit;
+	console.info "$FUNCNAME %s" "$1";
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else
@@ -173,6 +175,7 @@ function assert.dir.exists? {
 	`test -d "$1"`;
 	local received="$?";
 	set -o errexit;
+	console.info "$FUNCNAME %s" "$1";	
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else
@@ -188,6 +191,7 @@ function assert.dir.exists! {
 	`test -d "$1"`;
 	local received="$?";
 	set -o errexit;
+	console.info "$FUNCNAME %s" "$1";	
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else
