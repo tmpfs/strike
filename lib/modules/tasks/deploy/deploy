@@ -441,7 +441,7 @@ A boolean indicating if version information is being included in the directory s
 
 You may declare properties specific to your deployment process in a top-level *env* object. You may then access these variables in your deployment profiles using the `env_` variable prefix.
 
-Properties declared in the *env* object may reference any variable documented in the `Command Environment` section but they may not use `Cross References` using a `json_` variable prefix.
+Properties declared in the *env* object may reference any variable documented in the `Command Environment` section but they may not use `Cross References` using a `doc_` variable prefix.
 
 If you attempt to create a document cross-reference in an *env* property task-deploy(7) will exit immediately with a *>0* exit code.
 
@@ -451,7 +451,7 @@ See the section `Command Examples` for example(s).
 
 It is recommended that you use the functionality provided by `Custom Environment` whenever possible but if you absolutely must reference other data in a deployment profile this section provides some information on using deployment descriptor cross-references.
 
-The JSON document properties are expanded to variables that you may reference in the deployment descriptor. These variables are exposed using a `json_` prefix.
+The JSON document properties are expanded to variables that you may reference in the deployment descriptor. These variables are exposed using a `doc_` prefix.
 
 This is useful to prevent duplication of information between profiles that share some (but not all) commands or properties.
 
@@ -465,14 +465,14 @@ Consider the following example document:
 	      "pre": [
 	        {
 	          "command": "echo",
-	          "options": [ "$json_directory", "$json_host" ]
+	          "options": [ "$doc_directory", "$doc_host" ]
 	        }
 	      ]
 	    }
 	  }
 	}
 	
-In this instance the `\$json_` variables reference the *directory* and *host* properties declared at the top-level of the document.
+In this instance the `\$doc_` variables reference the *directory* and *host* properties declared at the top-level of the document.
 
 This results in the command (for the local host pre-deployment phase):
 
@@ -495,10 +495,10 @@ To illustrate, a convoluted example which generates the same output as the above
 	        {
 	          "command": "echo",
 	          "options": [
-	            "$json_commands_local_pre_0_command",
-	            "$json_directory",
-	            "$json_host",
-	            "$json_commands_local_pre_0_options_length"
+	            "$doc_commands_local_pre_0_command",
+	            "$doc_directory",
+	            "$doc_host",
+	            "$doc_commands_local_pre_0_options_length"
 	          ]
 	        }
 	      ]
@@ -1002,43 +1002,43 @@ tasks.deploy() {
 	# NOTE: so that all variables are available to commands being
 	# NOTE: declared in the deploy.json descriptor
 	
-	local json_key json_value dly_env_re="^env_." dly_env_json_re="\\\$json_";
+	local dly_doc_key dly_doc_value dly_env_re="^env_." dly_env_doc_re="\\\$doc_";
 	# 1) expand properties in an `env`
 	# 1) object exposed by direct variable name
 	# 2) expand JSON document properties
-	# 2) to json_ local variables
+	# 2) to doc_ local variables
 	# 2) so that descriptor documents may
 	# 2) cross-reference properties
-	for json_key in "${!json_doc[@]}"
-		do	
-			json_value="${json_doc["$json_key"]}";
+	for dly_doc_key in "${!json_doc[@]}"
+		do
+			dly_doc_value="${json_doc["$dly_doc_key"]}";
 			# sanitized to _ delimiter for variable names
-			json_key="${json_key//\./_}";
-			if [[ ! "$json_key" =~ $dly_env_re ]]; then
+			dly_doc_key="${dly_doc_key//\./_}";
+			if [[ ! "$dly_doc_key" =~ $dly_env_re ]]; then
 				# escape dollar symbols as `eval`
 				# is invoked later on
-				json_value="${json_value//\$/\\\$}";
+				dly_doc_value="${dly_doc_value//\$/\\\$}";
 								
-				# prefix with json_ for non-env properties
-				json_key="json_${json_key}";
+				# prefix with doc_ for non-env properties
+				dly_doc_key="doc_${dly_doc_key}";
 			else
-				if [[ "$json_value" =~ $dly_env_json_re ]]; then
+				if [[ "$dly_doc_value" =~ $dly_env_doc_re ]]; then
 					:tasks.deploy.fail \
 						"invalid %s cross-reference in %s" \
 						"json" "env";
 				fi
 			fi
 			
-			json_value="${json_value//\`/\\\`}";
+			dly_doc_value="${dly_doc_value//\`/\\\`}";
 			
 			#sanitize variable name
-			json_key="${json_key//[^a-zA-Z0-9_]/_}";
+			dly_doc_key="${dly_doc_key//[^a-zA-Z0-9_]/_}";
 			
 			# declare variable
 			if ${flags[global.env]}; then
-				eval "export $json_key=\"$json_value\"";
+				eval "export $dly_doc_key=\"$dly_doc_value\"";
 			else
-				eval "local $json_key=\"$json_value\"";
+				eval "local $dly_doc_key=\"$dly_doc_value\"";
 			fi
 	done
 	
@@ -1076,13 +1076,13 @@ tasks.deploy() {
 	if [ -z "${directory}" ]; then
 		:tasks.deploy.fail "directory may not be empty";
 	fi
-	# NOTE: unquoted to allow ~ expansion
-	if [ ! -d ${directory} ]; then
-		:tasks.deploy.fail "%s not a directory" "${directory}";
-	fi
-	if [ ! -w ${directory} ]; then
-		:tasks.deploy.fail "%s is not writable" "${directory}";
-	fi
+	# # NOTE: unquoted to allow ~ expansion
+	# if [ ! -d ${directory} ]; then
+	# 	:tasks.deploy.fail "%s not a directory" "${directory}";
+	# fi
+	# if [ ! -w ${directory} ]; then
+	# 	:tasks.deploy.fail "%s is not writable" "${directory}";
+	# fi
 	printf -v directory "%q" "${directory}";
 }
 
@@ -1388,7 +1388,7 @@ tasks.deploy() {
 
 :tasks.deploy.env.print() {
 	local k v;
-	for k in ${!json_*}
+	for k in ${!doc_*}
 		do
 			variable.get "$k";
 			v="$_result";
