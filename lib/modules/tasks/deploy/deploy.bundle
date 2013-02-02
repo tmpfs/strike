@@ -65,11 +65,29 @@ NPMPKG
 	
 	# local deployment
 	if $deploy_local; then
+		:tasks.deploy.out.info "local install %s" "${bundle_archive}";
+		
 		# copy packaged bundle to staging
 		cp "${bundle_path}" "${staging}" \
 			|| :tasks.deploy.fail "could not copy bundle %s" "${bundle_path}";
 		cd "${staging}" && tar xf "${bundle_archive}" \
 			|| :tasks.deploy.fail "could not extract bundle %s" "${staging}/${bundle_archive}";
+		
+		# script_name
+		cd "${bundle_name}" \
+			|| :tasks.deploy.fail "could not enter %s" "${staging}/${bundle_name}";
+			
+		# run the script
+		if ! $logging; then
+			"./${script_name}";
+		else
+			"./${script_name}" >> "${log}" 2>&1;
+		fi
+		if [ $? -eq 0 ]; then
+			success=true;
+			:tasks.deploy.complete;
+		fi
+		:tasks.deploy.fail;
 	# remote deployment
 	else
 		# TODO: implement
