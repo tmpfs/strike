@@ -7,7 +7,7 @@
 		}
 	},
 	"profiles": {
-		"tar": {
+		"deploy-tar": {
 			"type": "tar",
 			"url": "file://$env_archive_path",
 			"description": "test deployment with the 'tar' type",

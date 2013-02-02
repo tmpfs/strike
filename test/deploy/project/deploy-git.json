@@ -7,7 +7,7 @@
 		}
 	},
 	"profiles": {
-		"git": {
+		"deploy-git": {
 			"type": "git",
 			"url": "file://$project_source",
 			"description": "test deployment with the 'git' type",
