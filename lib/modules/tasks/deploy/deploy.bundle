@@ -2,8 +2,13 @@
 :tasks.bundle.create() {
 	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
 	
+	local bundle_scripts_name="scripts";
+	
 	# always write the effective settings into the bundle
 	:tasks.bundle.settings.write!	
+	
+	# add scripts to bundle
+	:tasks.bundle.scripts;
 	
 	# copy the descriptor
 	:tasks.bundle.descriptor.copy;
@@ -20,6 +25,57 @@
 		
 	:tasks.deploy.out.info "created bundle %s" "$bundle_archive";
 	:tasks.deploy.header;
+}
+
+# include any scripts in the bundle
+:tasks.bundle.scripts() {
+	local global_scripts="${json_doc[bundle.scripts.length]:-0}";
+	local profile_scripts="${json_doc[profiles.${profile}.bundle.scripts.length]:-0}";
+	local total_scripts=$((global_scripts+profile_scripts));
+	if [ $total_scripts -gt 0 ]; then
+		:tasks.deploy.out.info "bundle %s script(s)" "$total_scripts";	
+		local scripts_path="${bundle_source}/${bundle_scripts_name}";
+		mkdir -p "${scripts_path}" \
+			|| :tasks.deploy.fail "could create bundle script directory %s" "$scripts_path";
+			if [ $global_scripts -gt 0 ]; then
+				:tasks.bundle.scripts.group $global_scripts "bundle.scripts";
+			fi
+			if [ $profile_scripts -gt 0 ]; then
+				:tasks.bundle.scripts.group $profile_scripts "profiles.${profile}.bundle.scripts";
+			fi
+	fi
+}
+
+# 
+:tasks.bundle.scripts.group() {
+	local i k file nm;
+	local length="${1:-0}";
+	local prefix="${2:-}";
+	for((i = 0;i < $length;i++))
+		do
+			k="${prefix}.${i}";
+			file="${json_doc[${k}.file]:-}";
+			if [ -z "$file" ]; then
+				:tasks.deploy.fail "script entry does not declare the %s field" "file";
+			fi
+			# resolve relative to the descriptor
+			# otherwise treat as a relative or absolute path
+			if [[ ! "$file" =~ ^(\.\.)?/ ]]; then
+				file="${setup[wd]}/$file";
+			fi
+			if [ ! -f "$file" ]; then
+				:tasks.deploy.fail "script %s does not exist" "${file}";
+			fi
+			if [ ! -x "$file" ]; then
+				:tasks.deploy.fail "script %s is not executable" "${file}";
+			fi
+			fs.basename "${file}" "nm";
+			if [ -f "${scripts_path}/$nm" ]; then
+				:tasks.deploy.fail "duplicate script %s defined, script names must be unique" "${nm}";
+			fi
+			cp "$file" "${scripts_path}" \
+				|| :tasks.deploy.fail "could not copy script %s" "${file}";
+	done
 }
 
 # copy the descriptor to the bundle source directory

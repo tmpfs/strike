@@ -1,0 +1,28 @@
+{
+	"bundle": {
+		"scripts": [
+			{
+				"file": "scripts/global.sh"
+			}
+		]
+	},
+	"profiles": {
+		"bundle-scripts": {
+			"type": "git",
+			"url": "file://$project_source",
+			"bundle": {
+				"scripts": [
+					{
+						"file": "/bin/ls"
+					},
+					{
+						"file": "../../../bin/bake"
+					},
+					{
+						"file": "./scripts/profile.sh"
+					}
+				]
+			}
+		}
+	}
+}

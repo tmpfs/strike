@@ -62,22 +62,24 @@ test.deploy.local() {
 	);
 	
 	# run tests that should pass
-	:test.deploy.run ':test.deploy.env';
+	# :test.deploy.run ':test.deploy.env';
+	# 
+	# :test.deploy.run ':test.deploy.minimal.bundle';
+	# :test.deploy.run ':test.deploy.minimal.deploy';
+	# 	
+	# :test.deploy.run ':test.deploy.project.bundle';
+	# :test.deploy.run ':test.deploy.project.deploy';
+	# 
+	# :test.deploy.run ':test.deploy.project.tar.bundle';
+	# :test.deploy.run ':test.deploy.project.tar.deploy';
+	# 
+	# :test.deploy.run ':test.deploy.project.git.bundle';
+	# :test.deploy.run ':test.deploy.project.git.deploy';
+	# 
+	# :test.deploy.run ':test.deploy.project.npm.bundle';
+	# :test.deploy.run ':test.deploy.project.npm.deploy';
 	
-	:test.deploy.run ':test.deploy.minimal.bundle';
-	:test.deploy.run ':test.deploy.minimal.deploy';
-		
-	:test.deploy.run ':test.deploy.project.bundle';
-	:test.deploy.run ':test.deploy.project.deploy';
-	
-	:test.deploy.run ':test.deploy.project.tar.bundle';
-	:test.deploy.run ':test.deploy.project.tar.deploy';
-	
-	:test.deploy.run ':test.deploy.project.git.bundle';
-	:test.deploy.run ':test.deploy.project.git.deploy';
-	
-	:test.deploy.run ':test.deploy.project.npm.bundle';
-	:test.deploy.run ':test.deploy.project.npm.deploy';
+	:test.deploy.run ':test.deploy.bundle.scripts';	
 	
 	# clean up the mock project .git directory
 	if [ -d "${project_source}/.git" ]; then
@@ -259,6 +261,17 @@ test.deploy.local() {
 	
 	# check common files
 	:test.assert.deployment.files "${directory}/${expects[name]}/$profile";
+}
+
+# BUNDLE SCRIPTS
+
+:test.deploy.bundle.scripts() {
+	local profile="bundle-scripts";
+	descriptor="${project_source}/${profile}.json";
+	local opts=( ${options[@]} );
+	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
+	( tasks.deploy "${opts[@]}" );
+	assert.file.exists? "${bundles}/${expects[project]}-$profile.tgz";	
 }
 
 # UTIL

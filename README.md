@@ -17,7 +17,7 @@ This software is currently under development in the 0.x.x version range and is r
 * Write portable and maintainable code using [require(3)](http://freeformsystems.github.com/strike/require.3.html)
 * Make your program pretty, use [console(3)](http://freeformsystems.github.com/strike/console.3.html) for [ANSI escape sequences](http://en.wikipedia.org/wiki/ANSI_escape_code)
 * Improve code legibility without sacrificing terseness by using the various helper modules such as [method(3)](http://freeformsystems.github.com/strike/method.3.html), [array(3)](http://freeformsystems.github.com/strike/array.3.html) and [string(3)](http://freeformsystems.github.com/strike/string.3.html)
-* Use [delegate(3)](http://freeformsystems.github.com/strike/delegate.3.html) to easily map options to command methods
+* Use [delegate(3)](http://freeformsystems.github.com/strike/delegate.3.html) to easily map options to commands
 
 ### Process
 
