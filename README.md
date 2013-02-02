@@ -48,12 +48,17 @@ This software is currently under development in the 0.x.x version range and is r
 
 * [bash](http://www.gnu.org/software/bash/) >= 4.2
 
-For BSD (that's OS X users too) you will need GNU versions for `find(1)` and `tar(1)`.
+Most modern distributions ship with the binaries that some parts of the library depend upon. However on extremely minimal distributions you should install the list below.
 
-* [findutils](http://www.gnu.org/software/findutils/)
-* [tar](http://www.gnu.org/software/tar/) >= 1.22
+It is recommended (although not essential) that you have these executables:
 
-It is recommended (although not essential) that you have [git(1)](http://git-scm.com/) and [curl(1)](http://curl.haxx.se/).
+* [git(1)](http://git-scm.com/)
+* [curl(1)](http://curl.haxx.se/)
+
+BSD users (that's OS X users too) should install GNU versions for `find(1)` and `tar(1)`.
+
+* [find(1)](http://www.gnu.org/software/findutils/)
+* [tar(1)](http://www.gnu.org/software/tar/) >= 1.22
 
 ## Installation
 
