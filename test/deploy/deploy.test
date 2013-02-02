@@ -6,6 +6,14 @@ test.deploy.local() {
 	require.resolve "self";
 	local dir="${self[1]}";
 	
+	# stash bake(1) variables
+	declare -A info;
+	info[root]="${root}";
+	info[project]="${project}";	
+	info[target]="${target}";
+	info[project_name]="${project_name}";
+	info[project_version]="${project_version}";
+	
 	# set up a mock directory structure
 	local deploy_test="${target}/deploy-test";
 	local staging="${deploy_test}/staging";

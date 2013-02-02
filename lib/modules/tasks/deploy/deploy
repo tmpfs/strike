@@ -768,6 +768,11 @@ tasks.deploy() {
 	
 	# FLAGS
 	
+	declare -A flags;
+	flags[print.env]=false;
+	
+	# TODO: move all other flag variables into $flags
+	
 	# assume failure
 	local success=false;
 	
@@ -985,7 +990,7 @@ tasks.deploy() {
 	# NOTE: so that all variables are available to commands being
 	# NOTE: declared in the deploy.json descriptor
 	
-	local json_key json_value env_re="^env_." env_json_re="\\\$json_";
+	local json_key json_value dly_env_re="^env_." dly_env_json_re="\\\$json_";
 	# 1) expand properties in an `env`
 	# 1) object exposed by direct variable name
 	# 2) expand JSON document properties
@@ -997,7 +1002,7 @@ tasks.deploy() {
 			json_value="${json_doc["$json_key"]}";
 			# sanitized to _ delimiter for variable names
 			json_key="${json_key//\./_}";
-			if [[ ! "$json_key" =~ $env_re ]]; then
+			if [[ ! "$json_key" =~ $dly_env_re ]]; then
 				# escape dollar symbols as `eval`
 				# is invoked later on
 				json_value="${json_value//\$/\\\$}";
@@ -1005,7 +1010,7 @@ tasks.deploy() {
 				# prefix with json_ for non-env properties
 				json_key="json_${json_key}";
 			else
-				if [[ "$json_value" =~ $env_json_re ]]; then
+				if [[ "$json_value" =~ $dly_env_json_re ]]; then
 					:tasks.deploy.fail \
 						"invalid %s cross-reference in %s" \
 						"json" "env";
@@ -1053,11 +1058,12 @@ tasks.deploy() {
 :tasks.deploy.directory.validate() {
 	if [ -z "${directory}" ]; then
 		:tasks.deploy.fail "directory may not be empty";
-	fi	
-	if [ ! -d "${directory}" ]; then
+	fi
+	# NOTE: unquoted to allow ~ expansion
+	if [ ! -d ${directory} ]; then
 		:tasks.deploy.fail "%s not a directory" "${directory}";
 	fi
-	if [ ! -w "${directory}" ]; then
+	if [ ! -w ${directory} ]; then
 		:tasks.deploy.fail "%s is not writable" "${directory}";
 	fi
 	printf -v directory "%q" "${directory}";
@@ -1213,9 +1219,6 @@ tasks.deploy() {
 		:tasks.deploy.fail "invalid deployment type %s" "${type:-}";
 	fi
 	
-	# revalidate directory for profile specific overrides
-	:tasks.deploy.directory.validate
-	
 	# tar / git types must specify a url
 	if [ "$type" == "tar" ] || [ "$type" == "git" ]; then
 		if [ -z "${url:-}" ]; then
@@ -1297,7 +1300,17 @@ tasks.deploy() {
 		:tasks.deploy.fail "staging directory may not be empty";
 	elif [[ "${staging}" =~ ^/+$ ]]; then
 		:tasks.deploy.fail "staging directory may not be at the filesystem root";
-	fi	
+	fi
+	
+	if ${flags[print.env]}; then
+		:tasks.deploy.env.print;
+	fi
+	
+	
+	#echo "validating directory ... ${directory} ... ";
+	
+	# revalidate directory for profile specific overrides
+	:tasks.deploy.directory.validate	
 	
 	# read in global commands
 	:tasks.deploy.commands.read;
@@ -1352,6 +1365,23 @@ tasks.deploy() {
 	unset package;
 	unset npm_package_name;
 	unset npm_package_version;
+}
+
+:tasks.deploy.env.print() {
+	local k v;
+	for k in ${!json_*}
+		do
+			variable.get "$k";
+			v="$_result";
+			printf "%s=%s\n" "$k" "$v";
+	done
+	for k in ${!env_*}
+		do
+			variable.get "$k";
+			v="$_result";
+			printf "%s=%s\n" "$k" "$v";
+	done	
+	console.success;
 }
 
 # run pre-deployment local commands
@@ -1760,7 +1790,7 @@ ${opt}";
 
 # output the header delimiter
 :tasks.deploy.header() {
-	if $print_json || $dump_script; then
+	if $print_json || $dump_script || ${flags[print.env]}; then
 		return 0;
 	fi	
 	
@@ -1774,7 +1804,7 @@ ${opt}";
 # output an info message to stdout or
 # the log file if logging
 :tasks.deploy.out.info() {
-	if $print_json || $dump_script; then
+	if $print_json || $dump_script || ${flags[print.env]}; then
 		return 0;
 	fi
 	
@@ -2093,6 +2123,10 @@ ${opt}";
 				;;
 			--log )
 				logging=true;
+				;;
+			--print-env )
+				flags[print.env]=true;
+				noop=true;
 				;;
 			--bundle )
 				bundling=true;
