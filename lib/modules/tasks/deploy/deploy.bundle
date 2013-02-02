@@ -69,11 +69,11 @@
 # write out the package descriptor into the bundle source directory
 cat <<NPMPKG >> ${npm_package_file}
 {
-	"name": "${project_name}-${profile}-deploy",
+	"name": "${project_name}-${profile}-npm-deploy",
 	"version": "0.0.1",	
 	"private": "true",
 	"dependencies": {
-		"$npm_package_name": "${npm_package_version:-*}"
+		"$npm_package_name": "${url}"
 	}
 }
 NPMPKG

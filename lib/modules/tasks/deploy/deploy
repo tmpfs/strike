@@ -801,7 +801,6 @@ deploy_property_names=(
 	"type"
 	"url"
 	"description"
-	"package"
 	"directory"
 	"staging"	
 );
@@ -1249,6 +1248,7 @@ tasks.deploy() {
 	bundle_source="${bundle_output}/${bundle_name}";
 	bundle_archive="${bundle_name}.${compression_extension}";
 	bundle_path="${bundle_output}/${bundle_archive}";
+	bundle_destination="${staging}/${bundle_name}";
 	settings="${bundle_source}/settings.json";
 	
 	# clean an existing bundle directory
@@ -1334,45 +1334,36 @@ tasks.deploy() {
 	fi
 	
 	# tar / git types must specify a url
-	if [ "$type" == "tar" ] || [ "$type" == "git" ]; then
-		if [ -z "${url:-}" ]; then
-			# use the default url extracted for a git repository
-			# for the default profile if possible
-			if [ "$profile" == "$default_profile" ] \
-				&& [ "$type" == "git" ] \
-				&& [ -n "${default_url:-}" ]; then
-				url="$default_url";
-			else
-				:tasks.deploy.fail "%s (type: %s) no url" \
-					"${profile}" "${type}";
-			fi
+	if [ -z "${url:-}" ]; then
+		# use the default url extracted for a git repository
+		# for the default profile if possible
+		if [ "$profile" == "$default_profile" ] \
+			&& [ "$type" == "git" ] \
+			&& [ -n "${default_url:-}" ]; then
+			url="$default_url";
+		else
+			:tasks.deploy.fail "%s (type: %s) no url" \
+				"${profile}" "${type}";
 		fi
 	fi
 	
+	# allow variable references in the *url* property		
+	if [ -n "${url:-}" ]; then
+		eval "url=\"$url\"";
+	fi
+	
 	# npm specific properties
-	if [ "$type" == "npm" ]; then
-		# must have a package declared
-		if [ -z "${package:-}" ]; then
-			:tasks.deploy.fail \
-				"%s (type: %s) no package" \
-				"${profile}" "${type}";
-		fi
-		# allow variable references in the *package* property
-		if [ -n "${package:-}" ]; then
-			eval "package=\"$package\"";
-		fi
-		local npm_package_name="${package:-}";
-		local npm_package_version="";
+	if [ "$type" == "npm" ] && [ -n "${url:-}" ]; then
+		local npm_package_name="${project_name}";
+		local npm_package_version="null";
+		local npm_use_package=false;		
 		local npm_package_re="([^@ ]+)(@| )(.*)?$";
-		if [[ "$package" =~ $npm_package_re ]]; then
+		if [[ "${url:-}" =~ $npm_package_re ]]; then
 			# echo "MATCHES NPM RE!!!"
 			npm_package_name="${BASH_REMATCH[1]}";
-			npm_package_version="${BASH_REMATCH[3]}";
-		fi
-	elif [ "$type" == "tar" ] || [ "$type" == "git" ]; then
-		# allow variable references in the *url* property		
-		if [ -n "${url:-}" ]; then
-			eval "url=\"$url\"";
+			url="${BASH_REMATCH[3]}";
+			npm_package_version="${url}";
+			npm_use_package=true;
 		fi
 	fi
 	
@@ -1861,14 +1852,10 @@ ${opt}";
 		:tasks.deploy.out.info "type %s" "${type}";
 		:tasks.deploy.out.info "noop %s" "${noop}";
 		:tasks.deploy.out.info "shell %s" "${shell}";
+		:tasks.deploy.out.info "url %s" "${url}";
 		
-		# type specific / optional settings
-		if [ "$type" == "tar" ] || [ "$type" == "git" ]; then
-			:tasks.deploy.out.info "url %s" "${url}";
-		fi
-		if [ "$type" == "npm" ]; then
-			:tasks.deploy.out.info "package %s" "${package}";
-		elif [ "$type" == "git" ]; then
+		# type specific / optional settings		
+		if [ "$type" == "git" ]; then
 			:tasks.deploy.out.info "git ref %s" "${git_ref}";
 			:tasks.deploy.out.info "git remote %s" "${git_remote}";
 		fi

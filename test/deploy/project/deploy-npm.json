@@ -1,5 +1,4 @@
 {
-	"name": "project",
 	"env": {
 		"archive": {
 			"name": "${project_name}-${project_version}.tgz",
@@ -8,10 +7,10 @@
 		}
 	},
 	"profiles": {
-		"default": {
-			"type": "tar",
-			"url": "file://$env_archive_path",
-			"description": "test override for the default profile",
+		"deploy-npm": {
+			"type": "npm",
+			"url": "$env_archive_path",
+			"description": "test deployment with npm+filesystem",
 			"commands": {
 				"local": {
 					"pre": [

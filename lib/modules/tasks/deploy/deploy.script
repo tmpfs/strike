@@ -154,11 +154,8 @@ deploy_final_name="${deploy_final_name}";
 deploy_type="${type}";
 timestamp="${timestamp}";
 creator="${creator}";
+url="${url}";
 creator_host="${creator_host}";
-bundle_name="${bundle_name}";
-bundle_archive="${bundle_archive}";
-bundle_source="${bundle_source}";
-bundle_path="${bundle_path}";
 
 project_name="${project_name}";
 project_version="${project_version}";
@@ -167,6 +164,12 @@ deploy_file_name="${deploy_file_name}";
 # NOTE: directories and files are literal
 # NOTE: to allow tilde ~ expansion
 staging=${staging};
+
+bundle_name="${bundle_name}";
+bundle_archive="${bundle_archive}";
+bundle_source="${bundle_source}";
+bundle_path="${bundle_path}";
+bundle_destination="\${staging}/\${bundle_name}";
 
 log_dir=${log_dir};
 log_file=${log_file};
@@ -189,10 +192,18 @@ cleanup() {
 		rollback;
 	fi
 	
+	# debug
+	# cat \$log_file;
+	
+	# TODO: test this logic
+	if test -f \$sandbox/npm-debug.log; then
+		cat \$sandbox/npm-debug.log >> \$log_file;
+	fi
+	
 	if test -d \$sandbox; then
 		delimiter;
 		info "clean %s\n" "\$sandbox";
-		delimiter;		
+		delimiter;
 		info "rm -rfv %s\n" "\$sandbox";
 		rm -rfv \$sandbox >> \$log_file 2>&1;
 		delimiter;
@@ -495,7 +506,6 @@ EOF
 # git specific commands
 :tasks.deploy.script.git.write!() {
 cat <<EOF >> "${script}"
-url="${url}";
 git_ref="${git_ref}";
 git_remote="${git_remote}";
 git_revision_hash="";
@@ -548,7 +558,6 @@ EOF
 # tar specific commands
 :tasks.deploy.script.tar.write!() {
 cat <<EOF >> "${script}"
-url="${url}";
 deploy() {
 	
 	# are we completely replacing the target
@@ -608,18 +617,32 @@ EOF
 # npm specific commands
 :tasks.deploy.script.npm.write!() {	
 cat <<EOF >> "${script}"
+npm_use_package="${npm_use_package}";
 npm_package_name="${npm_package_name}";
 npm_package_version="${npm_package_version}";
 npm_install_target="./node_modules/\$npm_package_name";
 npm_install_final="./node_modules/\$deploy_final_name";
 deploy() {
+	info "npm package %s\n" "\$bundle_destination/package.json";
+	info "npm use package %s\n" "\$npm_use_package";
 	info "npm name %s\n" "\$npm_package_name";
 	info "npm version %s\n" "\$npm_package_version";
-	info "npm install\n";
+	if \$npm_use_package; then
+		info "npm install\n" "\${url}";
+	else
+		info "npm install %s\n" "\${url}";
+	fi
 	# now perform the npm installation
-	npm install >> \$log_file 2>&1 \\
-		&& mv \$npm_install_target \$npm_install_final \\
-		&& mv \$npm_install_final \$deploy_parent;
+	cd \$bundle_destination;
+	if \$npm_use_package; then
+		npm install >> \$log_file 2>&1;	
+	else
+		npm install \${url} >> \$log_file 2>&1;
+	fi
+	rm -rfv ./node_modules/.bin >> \$log_file 2>&1;
+	npm_install_target=\$( ls ./node_modules );
+	npm_install_target="./node_modules/\$npm_install_target";
+	mv \$npm_install_target \$deploy_parent/\$deploy_final_name;
 	cd \$owd && complete;
 }
 

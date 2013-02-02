@@ -10,7 +10,7 @@
 		"deploy-tar": {
 			"type": "tar",
 			"url": "file://$env_archive_path",
-			"description": "test deployment with the 'tar' type",
+			"description": "test deployment with the tar+file://",
 			"commands": {
 				"local": {
 					"pre": [
