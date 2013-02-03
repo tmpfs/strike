@@ -67,6 +67,11 @@
 :tasks.bundle.contents() {
 	if ${flags[bundle.package]}; then
 		
+		local cp_opts="-p";
+		if ! ${flags[bundle.package.follow.symlinks]}; then
+			cp_opts="${cp_opts}R";
+		fi
+		
 		local contents_path="${bundle_source}/${bundle_contents_name}";
 		mkdir -p "${contents_path}" \
 			|| :tasks.deploy.fail "could create bundle contents directory %s" "$contents_path";		
@@ -116,7 +121,7 @@
 				if [ -f "${file}" ]; then
 					# NOTE: we copy with -R even though it is a file
 					# NOTE: to preserve symbolic links
-					cp -pR "${file}" "${path}/${name}";
+					cp ${cp_opts} "${file}" "${path}/${name}";
 				fi
 		done
 	fi
