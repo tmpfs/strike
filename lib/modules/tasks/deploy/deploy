@@ -290,6 +290,16 @@ For the `npm` deployment type the bundle will also include:
 
 An npm(1) conformant package descriptor used to perform the deployment.
 
+### Package
+
+A bundle may include packaged files to create a *standalone* bundle or to append/overwrite files in a deployment. Packaged files are stored in the *contents* directory within the bundle archive.
+
+Use the `--pkg` option to indicate that packaging of files should also be performed. By default when the `--pkg` option is specified task-deploy(7) will attempt to package *all* files in the directory containing the descriptor (except for the descriptor itself which is automatically included in the bundle) and following the rules described in `Package Ignores`.
+
+### Package Ignores
+
+The rules for ignoring packaged files are that if the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging.
+
 ### Scripts
 
 You may include custom scripts in a bundle by declaring a `scripts` array in the `bundles` object either globally or specific to a profile, the syntax is:
@@ -887,6 +897,10 @@ tasks.deploy() {
 		compression_extension="xz";
 	fi
 	
+	# list of files ignored when bundling
+	declare -a bundle_ignores;
+	bundle_ignores=();
+	
 	# SETUP
 	declare -A setup;
 	setup[owd]="$PWD";
@@ -919,6 +933,7 @@ tasks.deploy() {
 	flags[author]=false;
 	flags[sha]=true;
 	flags[bundle.inspect]=false;
+	flags[bundle.package]=false;
 	
 	# TODO: move all other flag variables into $flags
 	
@@ -1237,16 +1252,16 @@ tasks.deploy() {
 		setup[git.commit.author]=$( git.show.author "$git_branch_hash" );
 		
 		# echo "got author: ${setup[git.commit.author]}"; exit 0;
-		
+
+		# TODO: write this do disc?
 		local IFS=$'\n';
 		local i f ignored=( $( git.ignored ) );
 		unset IFS;
 		local length=${#ignored[@]:-0};
-		setup[git.repo.ignored.total]="${length}";
 		for((i = 0;i < $length;i++))
 			do
 				f="${ignored[$i]}";
-				setup["git.repo.ignored.files.$i"]="$f";
+				bundle_ignores+=( "$f" );
 		done
 		
 		# echo "${!setup[@]} : ${setup[@]}"; exit 0;
@@ -2370,12 +2385,18 @@ ${opt}";
 			--inspect )
 				flags[bundle.inspect]=true;
 				;;
+			--pkg )
+				flags[bundle.package]=true;
+				;;
+			--no-pkg )
+				flags[bundle.package]=false;
+				;;
 			--quiet )
 				flags[quiet]=true;
 				;;
 			--verbose )
 				flags[verbose]=true;
-				;;			
+				;;
 			--sha )
 				shift;
 				value="${1:-}";

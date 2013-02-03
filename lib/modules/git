@@ -92,12 +92,14 @@ function git.show.author() {
 # git ls-files --others -i --exclude-from=.git/info/exclude
 # git ls-files --others -i --exclude-standard
 # git ls-files --others -i --exclude-from=.gitignore
+# git ls-files --others
+# git ls-files --others --directory
 # list files ignored by a repository
-function git.ignored {
+function git.others {
 	local dir="${1:-}";
 	# git ls-files --others -i --exclude-standard
 	if git.exists? && git.valid? "${dir:-}"; then
-		${executables[git]} ls-files --others -i --exclude-standard
+		${executables[git]} ls-files --others
 	fi
 }
 

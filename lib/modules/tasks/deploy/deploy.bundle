@@ -4,6 +4,8 @@
 	
 	local bundle_size="0KB";
 	local bundle_scripts_name="scripts";
+	local bundle_contents_name="contents";	
+	local bundle_contents_git_ignored="git-ignored.txt";
 	
 	# must be done here to be written to info.json
 	local shafile="${bundle_name}.sha${setup[sha.algorithm]}";
@@ -21,6 +23,9 @@
 	
 	# add scripts to bundle
 	:tasks.bundle.scripts;
+	
+	# add package contents
+	:tasks.bundle.contents;
 	
 	# copy the descriptor
 	:tasks.bundle.descriptor.copy;
@@ -55,6 +60,58 @@
 			if [ $profile_scripts -gt 0 ]; then
 				:tasks.bundle.scripts.group $profile_scripts "profiles.${profile}.bundle.scripts";
 			fi
+	fi
+}
+
+# adds bundle package contents
+:tasks.bundle.contents() {
+	if ${flags[bundle.package]}; then
+		
+		local contents_path="${bundle_source}/${bundle_contents_name}";
+		mkdir -p "${contents_path}" \
+			|| :tasks.deploy.fail "could create bundle contents directory %s" "$contents_path";		
+		
+		local contents="${setup[wd]}";
+		local ignore_re="^(\.git|\.svn|\.)";
+		:tasks.deploy.out.info "package contents %s" "${contents}";
+		
+		local file relative parent path files;
+		if git.exists? && git.valid? "${contents}"; then
+			files=( $( cd "${contents}" && git ls-files ) );
+			git ls-files --others > "${bundle_source}/${bundle_contents_git_ignored}";
+		else
+			files=( $( find "${contents}" ) );
+		fi
+		
+		local i length=${#files[@]:-0};
+		for file in "${files[@]}"
+			do
+				relative="${file#$contents/}";
+				if [[ "$relative" =~ $ignore_re ]]; then
+					continue;
+				fi
+
+				if ${flags[verbose]}; then
+					:tasks.deploy.out.info "add %s" "${relative}";
+				fi
+				
+				# can't use cp --parents on BSD :(
+				fs.dirname "${relative}" "parent";
+				path="${contents_path}/${parent}";
+				# top-level file
+				if [ "$parent" == "." ]; then
+					continue;
+				fi
+				
+				# echo "file is: $file";
+				# echo "parent is: $parent";
+				# echo "destination is: $path";
+				
+				# create directories as needed
+				if [ ! -d "$path" ]; then
+					mkdir -p "$path";
+				fi
+		done
 	fi
 }
 
