@@ -58,7 +58,13 @@ function git.clean? {
 
 # determine if a directory is a valid git repository
 function git.valid? {
-	if [ -d "$1" ] && [ -d "${1}/.git" ]; then
+	local dir="${1:-}";
+	# test current working directory
+	# when no directory is specified
+	if [ -z "$dir" ]; then
+		dir="$PWD";
+	fi
+	if [ -d "$dir" ] && [ -d "${dir}/.git" ]; then
 		return 0;
 	fi
 	return 1;
@@ -77,6 +83,24 @@ function git.exists? {
 	return 0;
 }
 
+# retrieve an author/email string for a revision
+function git.show.author() {
+	local revision="${1:-HEAD}";
+	git --no-pager show -s --format='%an <%ae>' "$revision";
+}
+
+# git ls-files --others -i --exclude-from=.git/info/exclude
+# git ls-files --others -i --exclude-standard
+# git ls-files --others -i --exclude-from=.gitignore
+# list files ignored by a repository
+function git.ignored {
+	local dir="${1:-}";
+	# git ls-files --others -i --exclude-standard
+	if git.exists? && git.valid? "${dir:-}"; then
+		${executables[git]} ls-files --others -i --exclude-standard
+	fi
+}
+
 # get the current branch name
 function git.branch.current {
 	local varname="${1:-git_branch_current}";
@@ -92,7 +116,7 @@ function git.branch.hash {
 	if git.exists?; then
 		local git_branch="${1:-}";
 		if [ -z "${git_branch}" ]; then
-			git.branch.current;
+			git.branch.current "git_branch";
 		fi
 		local hash=$( "${executables[git]}" rev-parse "$git_branch" );
 		eval "$varname=\"$hash\"";
@@ -105,7 +129,7 @@ function git.branch.message {
 	if git.exists?; then
 		local git_branch="${1:-}";		
 		if [ -z "${git_branch}" ]; then
-			git.branch.current;
+			git.branch.current "git_branch";
 		fi
 		local msg=$( "${executables[git]}" log -n 1 "$git_branch" --format=format:%s );
 		eval "$varname=\"$msg\"";

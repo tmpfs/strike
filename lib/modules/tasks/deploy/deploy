@@ -1174,10 +1174,49 @@ tasks.deploy() {
 	fs.dirname "${descriptor}";
 	setup[wd]="${_result}";
 	
+	setup[descriptor]="${descriptor}";
+	
 	:tasks.deploy.out.info "cd %s" "${setup[wd]}";
 	cd "${setup[wd]}" \
 		|| :tasks.deploy.fail "could not enter %s" "${setup[wd]}";
 	:tasks.deploy.out.info "working directory %s" "$PWD";
+	
+	# fetch git information into set up for bundling
+	if git.valid? "${setup[wd]}" && git.exists?; then
+		setup[git.global.user.name]=$( git config --get --global user.name );
+		setup[git.global.user.email]=$( git config --get --global user.email );	
+		
+		setup[git.user.name]=$( git config --get user.name );
+		setup[git.user.email]=$( git config --get user.email );
+		
+		local git_branch_current git_branch_hash git_branch_message;
+		git.branch.current;
+		git.branch.hash;
+		git.branch.message;
+		
+		# duplication but better for clarity
+		setup[git.repo.path]="${setup[wd]}";		
+		setup[git.repo.branch]="${git_branch_current}";
+		
+		setup[git.commit.hash]="${git_branch_hash}";
+		setup[git.commit.message]="${git_branch_message}";
+		setup[git.commit.author]=$( git.show.author "$git_branch_hash" );
+		
+		# echo "got author: ${setup[git.commit.author]}"; exit 0;
+		
+		local IFS=$'\n';
+		local i f ignored=( $( git.ignored ) );
+		unset IFS;
+		local length=${#ignored[@]:-0};
+		setup[git.repo.ignored.total]="${length}";
+		for((i = 0;i < $length;i++))
+			do
+				f="${ignored[$i]}";
+				setup["git.repo.ignored.files.$i"]="$f";
+		done
+		
+		# echo "${!setup[@]} : ${setup[@]}"; exit 0;
+	fi
 }
 
 # validate the directory
@@ -1185,13 +1224,8 @@ tasks.deploy() {
 	if [ -z "${directory}" ]; then
 		:tasks.deploy.fail "directory may not be empty";
 	fi
-	# # NOTE: unquoted to allow ~ expansion
-	# if [ ! -d ${directory} ]; then
-	# 	:tasks.deploy.fail "%s not a directory" "${directory}";
-	# fi
-	# if [ ! -w ${directory} ]; then
-	# 	:tasks.deploy.fail "%s is not writable" "${directory}";
-	# fi
+	
+	# is this necessary???
 	printf -v directory "%q" "${directory}";
 }
 
