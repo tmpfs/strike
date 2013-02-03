@@ -2,6 +2,7 @@
 :tasks.bundle.create() {
 	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
 	
+	local bundle_size="0KB";
 	local bundle_scripts_name="scripts";
 	
 	# must be done here to be written to info.json
@@ -34,7 +35,7 @@
 	rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
 		|| :tasks.deploy.fail "could not clean bundle source %s" "$bundle_source";
 		
-	:tasks.deploy.out.info "created bundle %s" "$bundle_archive";
+	:tasks.deploy.out.info "created bundle %s (%s)" "$bundle_archive" "$bundle_size";
 	:tasks.deploy.header;
 }
 
@@ -123,6 +124,9 @@
 			|| :tasks.deploy.fail "could not generate checksum for %s" "${bundle_archive}";
 		:tasks.deploy.out.info "sha file %s" "${shafile}";
 	fi
+	
+	local size=( $( du -h "${bundle_archive}" ) );
+	bundle_size="${size[0]}";
 	
 	# revert to the main working directory
 	cd "${setup[wd]}";
