@@ -129,7 +129,12 @@
 	bundle_size="${size[0]}";
 	
 	if ${flags[bundle.inspect]}; then
-		tar -tf "${bundle_archive}";
+		local inspect_opts="-t";
+		if ${flags[verbose]}; then
+			inspect_opts="${inspect_opts}v";
+		fi
+		inspect_opts="${inspect_opts}f";
+		tar $inspect_opts "${bundle_archive}";
 	fi
 	
 	# revert to the main working directory
