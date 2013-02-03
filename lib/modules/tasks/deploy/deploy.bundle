@@ -72,12 +72,14 @@
 			|| :tasks.deploy.fail "could create bundle contents directory %s" "$contents_path";		
 		
 		local contents="${setup[wd]}";
-		local ignore_re="^(\.git|\.svn|\.)";
+		# be certain we are operating in the correct context
+		cd "${contents}";
+		local ignore_re="^(\.git|\.svn)";
 		:tasks.deploy.out.info "package contents %s" "${contents}";
 		
-		local file relative parent path files;
+		local file relative parent name path files;
 		if git.exists? && git.valid? "${contents}"; then
-			files=( $( cd "${contents}" && git ls-files ) );
+			files=( $( git ls-files ) );
 			git ls-files --others > "${bundle_source}/${bundle_contents_git_ignored}";
 		else
 			files=( $( find "${contents}" ) );
@@ -96,20 +98,25 @@
 				fi
 				
 				# can't use cp --parents on BSD :(
+				fs.basename "${file}" "name";
 				fs.dirname "${relative}" "parent";
 				path="${contents_path}/${parent}";
-				# top-level file
-				if [ "$parent" == "." ]; then
-					continue;
-				fi
 				
 				# echo "file is: $file";
 				# echo "parent is: $parent";
+				# echo "name is: $name";
 				# echo "destination is: $path";
 				
 				# create directories as needed
-				if [ ! -d "$path" ]; then
+				# top-level file(a) don't need a parent created
+				if [ "$parent" != "." ] && [ ! -d "$path" ]; then
 					mkdir -p "$path";
+				fi
+				
+				if [ -f "${file}" ]; then
+					# NOTE: we copy with -R even though it is a file
+					# NOTE: to preserve symbolic links
+					cp -pR "${file}" "${path}/${name}";
 				fi
 		done
 	fi
