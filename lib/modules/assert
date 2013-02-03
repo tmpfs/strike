@@ -314,13 +314,13 @@ function __assert_ok {
 }
 
 function __assert_err {
+	local ttyerr="${ttyerr:-}";	
 	
 	if [ -n "${!summary[*]}" ]; then
 		: $((summary[assertions]++));
 		: $((summary[assertions.fail]++));
 	fi
 	
-	local ttyerr="${ttyerr:-}";
 	local assertion="$1";
 	local stack=( $( caller 1) );
 	local lineno="${stack[0]}";

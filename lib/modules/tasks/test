@@ -144,6 +144,9 @@ function tasks.test {
 		mkdir -p "${files[testout]}";
 	fi
 	
+	local ttyout=true;
+	local ttyerr=true;
+	
 	local stdout="${files[testout]}/test.stdout.log";
 	local stderr="${files[testout]}/test.stderr.log";
 	

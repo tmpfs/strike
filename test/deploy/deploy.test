@@ -73,29 +73,25 @@ test.deploy.local() {
 		':test.deploy.project.bundle'
 		':test.deploy.project.deploy'
 		':test.deploy.project.bundle.nosha'
+		
+		':test.deploy.project.tar.bundle'
+		':test.deploy.project.tar.deploy'
+
+		':test.deploy.project.git.bundle'
+		':test.deploy.project.git.deploy'
+
+		':test.deploy.project.npm.bundle'
+		':test.deploy.project.npm.deploy'
+
+		':test.deploy.bundle.scripts'
 	);
 	
 	# run tests that should pass
-	:test.deploy.run ':test.deploy.env';
-	
-	:test.deploy.run ':test.deploy.project.bundle.nosha';
-	
-	:test.deploy.run ':test.deploy.minimal.bundle';
-	:test.deploy.run ':test.deploy.minimal.deploy';
-		
-	:test.deploy.run ':test.deploy.project.bundle';
-	:test.deploy.run ':test.deploy.project.deploy';
-	
-	:test.deploy.run ':test.deploy.project.tar.bundle';
-	:test.deploy.run ':test.deploy.project.tar.deploy';
-	
-	:test.deploy.run ':test.deploy.project.git.bundle';
-	:test.deploy.run ':test.deploy.project.git.deploy';
-	
-	:test.deploy.run ':test.deploy.project.npm.bundle';
-	:test.deploy.run ':test.deploy.project.npm.deploy';
-	
-	:test.deploy.run ':test.deploy.bundle.scripts';	
+	local i l=${#pass_tests[@]};
+	for((i = 0;i < $l;i++))
+		do
+			:test.deploy.run "${pass_tests[$i]}";
+	done
 	
 	# clean up the mock project .git directory
 	if [ -d "${project_source}/.git" ]; then
