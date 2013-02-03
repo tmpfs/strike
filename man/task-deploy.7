@@ -50,11 +50,25 @@ Disable interactivity and assume \fIyes\fR for every prompt\.
 Print commands but do not execute them, implies \fB\-\-ok\fR to disable interactivity\.
 .
 .TP
+\fB\-\-quiet\fR:
+
+.
+.P
+Suppress messages sent to standard output\.
+.
+.TP
+\fB\-\-verbose\fR:
+
+.
+.P
+Print more information\.
+.
+.TP
 \fB\-\-all\fR:
 
 .
 .P
-Deploy all profiles in the descriptor\.
+Operate on all profiles in the descriptor\.
 .
 .TP
 \fB\-\-name [name]\fR:
@@ -221,6 +235,13 @@ Just create bundles do not deploy anything and do not execute any commands\. Imp
 .
 .P
 Use \fIdirectory\fR as the target for generated bundles\. The \fIdirectory\fR must exist and be writable\.
+.
+.TP
+\fB\-\-inspect\fR:
+
+.
+.P
+Print the contents of a bundle after creation\. This option may be combined with \fB\-\-quiet\fR to only print the bundle contents and/or combined with the \fB\-\-verbose\fR option to print an extended listing (similar to \fBls \-la\fR)\.
 .
 .TP
 \fB\-\-timestamp\fR:

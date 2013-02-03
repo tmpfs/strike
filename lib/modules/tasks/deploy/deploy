@@ -30,9 +30,17 @@ Disable interactivity and assume *yes* for every prompt.
 
 Print commands but do not execute them, implies `--ok` to disable interactivity.
 
+* `--quiet`:
+
+Suppress messages sent to standard output.
+
+* `--verbose`:
+
+Print more information.
+
 * `--all`:
 
-Deploy all profiles in the descriptor.
+Operate on all profiles in the descriptor.
 
 * `--name [name]`:
 
@@ -131,6 +139,10 @@ Just create bundles do not deploy anything and do not execute any commands. Impl
 * `--output [directory]`:
 
 Use *directory* as the target for generated bundles. The *directory* must exist and be writable.
+
+* `--inspect`:
+
+Print the contents of a bundle after creation. This option may be combined with `--quiet` to only print the bundle contents and/or combined with the `--verbose` option to print an extended listing (similar to `ls -la`).
 
 * `--timestamp`:
 
