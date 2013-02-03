@@ -5,7 +5,7 @@
 	local bundle_size="0KB";
 	local bundle_scripts_name="scripts";
 	local bundle_contents_name="contents";	
-	local bundle_contents_git_ignored="git-ignored.txt";
+	local bundle_contents_git_ignored="gitignore.txt";
 	
 	# must be done here to be written to info.json
 	local shafile="${bundle_name}.sha${setup[sha.algorithm]}";
@@ -95,13 +95,28 @@
 			do
 				fs.basename "${file}" "name";
 				relative="${file#$contents/}";
-				if [[ "$relative" =~ $ignore_re ]] \
-					|| [ "$relative" == "${setup[descriptor.name]}" ]; then
+				
+				if :tasks.bundle.contents.ignore?; then
 					if ${flags[verbose]}; then
 						:tasks.deploy.out.info "ignore %s" "${relative}";
-					fi
-					continue;
+					fi					
 				fi
+				
+				# if [[ "$relative" =~ $ignore_re ]] \
+				# 	|| [ "$relative" == "${setup[descriptor.name]}" ]; then
+				# 	if ${flags[verbose]}; then
+				# 		:tasks.deploy.out.info "ignore %s" "${relative}";
+				# 	fi
+				# 	continue;
+				# fi
+				# 
+				# if ! ${flags[bundle.package.include.hidden]} && \
+				# 	[[ "$name" =~ ^\. ]]; then
+				# 	if ${flags[verbose]}; then
+				# 		:tasks.deploy.out.info "ignore %s" "${relative}";
+				# 	fi
+				# 	continue;
+				# fi
 
 				if ${flags[verbose]}; then
 					:tasks.deploy.out.info "add %s" "${relative}";
@@ -110,6 +125,11 @@
 				# can't use cp --parents on BSD :(
 				fs.dirname "${relative}" "parent";
 				path="${contents_path}/${parent}";
+				
+				if [ -d "$file" ] && [ -L "$file" ]; then
+					echo "got directory symbolic link $file";
+					exit 0;
+				fi
 				
 				# echo "file is: $file";
 				# echo "parent is: $parent";
@@ -129,6 +149,19 @@
 				fi
 		done
 	fi
+}
+
+# determine if a packaged file is being ignored
+:tasks.bundle.contents.ignore?() {
+	if [[ "$relative" =~ $ignore_re ]] \
+		|| [ "$relative" == "${setup[descriptor.name]}" ]; then
+		return 0;
+	fi
+	if ! ${flags[bundle.package.include.hidden]} && \
+		[[ "$name" =~ ^\. ]]; then
+		return 0;
+	fi	
+	return 1;
 }
 
 # 

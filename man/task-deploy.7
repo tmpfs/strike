@@ -265,6 +265,13 @@ Prepend an author to the name of the bundle\. This sanitizes the user name (dete
 Also package a directory into the \fIcontents\fR directory of the bundle\.
 .
 .TP
+\fB\-\-include\-hidden\fR:
+
+.
+.P
+Also include hidden files when packaging bundle contents\.
+.
+.TP
 \fB\-\-follow\-symlinks\fR:
 
 .
@@ -488,7 +495,7 @@ A directory containing packaged contents, see \fBPackage\fR\.
 A directory containing bundled scripts, see \fBScripts\fR\.
 .
 .TP
-\fBgit\-ignored\.txt\fR:
+\fBgitignore\.txt\fR:
 
 .
 .P
@@ -517,7 +524,13 @@ Symbolic links are preserved by default, although you may override this behaviou
 The descriptor is automatically included in the root of the archive and is therefore omitted from the package contents\.
 .
 .P
-The rules for ignoring packaged files are that if the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to \fBgit\-ignored\.txt\fR\.
+Hidden files or directories are ignored by default, you can specify the \fB\-\-include\-hidden\fR option to also include hidden files\.
+.
+.P
+Any relative paths starting with \fI\.git\fR or \fI\.svn\fR are automatically ignored, this behaviour is \fInot\fR affected by the \fB\-\-include\-hidden\fR option\.
+.
+.P
+If the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to \fBgitignore\.txt\fR\.
 .
 .SS "Scripts"
 You may include custom scripts in a bundle by declaring a \fBscripts\fR array in the \fBbundles\fR object either globally or specific to a profile, the syntax is:

@@ -156,6 +156,10 @@ Prepend an author to the name of the bundle. This sanitizes the user name (deter
 
 Also package a directory into the *contents* directory of the bundle.
 
+* `--include-hidden`:
+
+Also include hidden files when packaging bundle contents.
+
 * `--follow-symlinks`:
 
 Do not preserve symbolic links. Used in conjunction with the `--pkg` option this copies the symbolic link target into the bundle *contents* directory.
@@ -298,7 +302,7 @@ A directory containing packaged contents, see `Package`.
 
 A directory containing bundled scripts, see `Scripts`.
 
-* `git-ignored.txt`:
+* `gitignore.txt`:
 
 A text file containing a list of all the files ignored by git(1). This file will only be present if git(1) is available and the directory being packaged is a git repository.
 
@@ -322,7 +326,11 @@ Symbolic links are preserved by default, although you may override this behaviou
 
 The descriptor is automatically included in the root of the archive and is therefore omitted from the package contents.
 
-The rules for ignoring packaged files are that if the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to `git-ignored.txt`.
+Hidden files or directories are ignored by default, you can specify the `--include-hidden` option to also include hidden files.
+
+Any relative paths starting with *.git* or *.svn* are automatically ignored, this behaviour is *not* affected by the `--include-hidden` option.
+
+If the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to `gitignore.txt`.
 
 ### Scripts
 
@@ -959,6 +967,7 @@ tasks.deploy() {
 	flags[bundle.inspect]=false;
 	flags[bundle.package]=false;
 	flags[bundle.package.follow.symlinks]=false;
+	flags[bundle.package.include.hidden]=false;
 	
 	# TODO: move all other flag variables into $flags
 	
@@ -2407,6 +2416,9 @@ ${opt}";
 				;;
 			--follow-symlinks )
 				flags[bundle.package.follow.symlinks]=true;
+				;;
+			--include-hidden )
+				flags[bundle.package.include.hidden]=true;
 				;;
 			--quiet )
 				flags[quiet]=true;
