@@ -842,6 +842,10 @@ tasks.deploy() {
 	# repositories that do not specify a scheme
 	local scheme="^[a-zA-Z]+:";
 	
+	declare -A defaults;
+	defaults[sha.algorithms]="224 256 384 512";
+	defaults[sha.default.algorithm]="512";
+	
 	declare -A compression_types;
 	compression_types[gz]="tgz gzip gunzip";
 	compression_types[bz]="bz2 bzip2 bunzip2";
@@ -862,7 +866,7 @@ tasks.deploy() {
 	# SETUP
 	declare -A setup;
 	setup[owd]="$PWD";
-	setup[sha.algorithm]="512";	
+	setup[sha.algorithm]="${defaults[sha.default.algorithm]}";
 	setup[timestamp]=$( date +%s );
 	setup[user]=$( id -nu );
 	setup[hostname]=$( hostname );
@@ -2216,7 +2220,7 @@ ${opt}";
 
 # parse options
 :tasks.deploy.options.parse() {
-	local value ;
+	local value available;
 	while test -n "${1:-}"; do
 		case $1 in
 			--ok )
@@ -2335,6 +2339,15 @@ ${opt}";
 				;;
 			--no-sha )
 				flags[sha]=false;
+				;;
+			--sha )
+				shift;
+				value="${1:-}";
+				if ! array.contains? "${value}" ${defaults[sha.algorithms]}; then
+					:tasks.deploy.fail "unknown sha algorithm %s" "$value";
+				fi
+				setup[sha.algorithm]="${value}";
+				flags[sha]=true;
 				;;
 			--output )
 				shift;
