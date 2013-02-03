@@ -3,7 +3,10 @@
 	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
 	
 	local bundle_scripts_name="scripts";
-	local bundle_checksum_algorithm="512";
+	
+	# must be done here to be written to info.json
+	local shafile="${bundle_name}.sha${setup[sha.algorithm]}";
+	setup[sha.file]="${shafile}";
 	
 	# always write the effective settings into the bundle
 	:tasks.bundle.settings.write!	
@@ -107,11 +110,12 @@
 			&& tar -cf "$bundle_archive" "$bundle_name";
 	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
 	
-	local shafile="${bundle_name}.sha${bundle_checksum_algorithm}";
-	checksum.sha "${bundle_checksum_algorithm}" "$bundle_archive" >| "${shafile}" \
-		|| :tasks.deploy.fail "could not generate checksum for %s" "${bundle_archive}";
-
-	:tasks.deploy.out.info "sha file %s" "${shafile}";
+	
+	if ${flags[sha]}; then		
+		checksum.sha "${setup[sha.algorithm]}" "$bundle_archive" >| "${shafile}" \
+			|| :tasks.deploy.fail "could not generate checksum for %s" "${bundle_archive}";
+		:tasks.deploy.out.info "sha file %s" "${shafile}";
+	fi
 	
 	# revert to the main working directory
 	cd "${setup[wd]}";

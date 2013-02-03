@@ -862,6 +862,7 @@ tasks.deploy() {
 	# SETUP
 	declare -A setup;
 	setup[owd]="$PWD";
+	setup[sha.algorithm]="512";	
 	setup[timestamp]=$( date +%s );
 	setup[user]=$( id -nu );
 	setup[hostname]=$( hostname );
@@ -886,6 +887,7 @@ tasks.deploy() {
 	flags[global.env]=false;
 	flags[timestamp]=false;
 	flags[author]=false;
+	flags[sha]=true;
 	
 	# TODO: move all other flag variables into $flags
 	
