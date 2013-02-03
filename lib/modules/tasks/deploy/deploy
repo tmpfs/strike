@@ -808,6 +808,7 @@ ronn:markdown
 
 require.once 'json';
 require.once 'git';
+require.once 'util/checksum';
 
 # module libraries
 require.library 'deploy.script';
@@ -825,7 +826,7 @@ deploy_property_names=(
 	"url"
 	"description"
 	"directory"
-	"staging"	
+	"staging"
 );
 
 # deploy delegate

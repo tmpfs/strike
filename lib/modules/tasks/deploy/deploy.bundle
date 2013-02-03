@@ -103,9 +103,16 @@
 :tasks.bundle.archive.create() {
 	{
 		cd "$bundle_output" \
-			&& tar -cf "$bundle_archive" "$bundle_name" \
-			&& cd "$project";
+			&& tar -cf "$bundle_archive" "$bundle_name";
 	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
+	
+	local algorithm="256";
+	local shafile="${bundle_name}.sha${algorithm}";
+	checksum.sha "${algorithm}" "$bundle_archive" >| "${shafile}" \
+		|| :tasks.deploy.fail "could not generate checksum for %s" "${bundle_archive}";
+	
+	# revert to the main working directory
+	cd "${setup[wd]}";
 }
 
 # write the info.json file
