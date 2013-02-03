@@ -1224,7 +1224,10 @@ tasks.deploy() {
 	fs.dirname "${descriptor}";
 	setup[wd]="${_result}";
 	
-	setup[descriptor]="${descriptor}";
+	local nm;
+	fs.basename "${descriptor}" "nm";
+	setup[descriptor.path]="${descriptor}";	
+	setup[descriptor.name]="${nm}";
 	
 	:tasks.deploy.out.info "cd %s" "${setup[wd]}";
 	cd "${setup[wd]}" \

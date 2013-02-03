@@ -93,8 +93,10 @@
 		local i length=${#files[@]:-0};
 		for file in "${files[@]}"
 			do
+				fs.basename "${file}" "name";
 				relative="${file#$contents/}";
-				if [[ "$relative" =~ $ignore_re ]]; then
+				if [[ "$relative" =~ $ignore_re ]] \
+					|| [ "$relative" == "${setup[descriptor.name]}" ]; then
 					continue;
 				fi
 
@@ -103,7 +105,6 @@
 				fi
 				
 				# can't use cp --parents on BSD :(
-				fs.basename "${file}" "name";
 				fs.dirname "${relative}" "parent";
 				path="${contents_path}/${parent}";
 				
