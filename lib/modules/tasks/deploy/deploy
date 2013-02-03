@@ -324,8 +324,6 @@ Symbolic links are preserved by default, although you may override this behaviou
 
 ### Package Ignores
 
-The descriptor is automatically included in the root of the archive and is therefore omitted from the package contents.
-
 Hidden files or directories are ignored by default, you can specify the `--include-hidden` option to also include hidden files.
 
 Any relative paths starting with *.git* or *.svn* are automatically ignored, this behaviour is *not* affected by the `--include-hidden` option.

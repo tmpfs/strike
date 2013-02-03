@@ -76,13 +76,15 @@
 		mkdir -p "${contents_path}" \
 			|| :tasks.deploy.fail "could create bundle contents directory %s" "$contents_path";		
 		
+		# TODO: make the source directory for packaging configurable
 		local contents="${setup[wd]}";
+		
 		# be certain we are operating in the correct context
 		cd "${contents}";
 		local ignore_re="^((\.git/)+|(\.svn/)+)";
 		:tasks.deploy.out.info "package contents %s" "${contents}";
 		
-		local file relative parent name path files;
+		local file relative parent name path files symlink;
 		if git.exists? && git.valid? "${contents}"; then
 			files=( $( git ls-files ) );
 			git ls-files --others > "${bundle_source}/${bundle_contents_git_ignored}";
@@ -101,22 +103,6 @@
 						:tasks.deploy.out.info "ignore %s" "${relative}";
 					fi					
 				fi
-				
-				# if [[ "$relative" =~ $ignore_re ]] \
-				# 	|| [ "$relative" == "${setup[descriptor.name]}" ]; then
-				# 	if ${flags[verbose]}; then
-				# 		:tasks.deploy.out.info "ignore %s" "${relative}";
-				# 	fi
-				# 	continue;
-				# fi
-				# 
-				# if ! ${flags[bundle.package.include.hidden]} && \
-				# 	[[ "$name" =~ ^\. ]]; then
-				# 	if ${flags[verbose]}; then
-				# 		:tasks.deploy.out.info "ignore %s" "${relative}";
-				# 	fi
-				# 	continue;
-				# fi
 
 				if ${flags[verbose]}; then
 					:tasks.deploy.out.info "add %s" "${relative}";
@@ -124,11 +110,12 @@
 				
 				# can't use cp --parents on BSD :(
 				fs.dirname "${relative}" "parent";
-				path="${contents_path}/${parent}";
-				
-				if [ -d "$file" ] && [ -L "$file" ]; then
-					echo "got directory symbolic link $file";
-					exit 0;
+				if [ "$parent" == "." ]; then
+					parent="";
+				fi
+				path="${contents_path}";
+				if [ -n "${parent}" ]; then
+					path="${contents_path}/${parent}";
 				fi
 				
 				# echo "file is: $file";
@@ -138,7 +125,7 @@
 				
 				# create directories as needed
 				# top-level file(a) don't need a parent created
-				if [ "$parent" != "." ] && [ ! -d "$path" ]; then
+				if [ ! -d "$path" ]; then
 					mkdir -p "$path";
 				fi
 				
@@ -146,6 +133,15 @@
 					# NOTE: we copy with -R even though it is a file
 					# NOTE: to preserve symbolic links
 					cp ${cp_opts} "${file}" "${path}/${name}";
+				elif [ -L "${file}" ]; then
+					symlink=$( readlink "$file" );
+					# preserve symbolic links for directories
+					if ! ${flags[bundle.package.follow.symlinks]}; then
+						cd "$path" && ln -s "$symlink" "$name";
+						cd "${contents}";
+					# TODO: copy over contents of symbolic link directory
+					# TODO: when following symlinks
+					fi
 				fi
 		done
 	fi
@@ -153,15 +149,20 @@
 
 # determine if a packaged file is being ignored
 :tasks.bundle.contents.ignore?() {
-	if [[ "$relative" =~ $ignore_re ]] \
-		|| [ "$relative" == "${setup[descriptor.name]}" ]; then
+	if [[ "$relative" =~ $ignore_re ]]; then
 		return 0;
 	fi
 	if ! ${flags[bundle.package.include.hidden]} && \
 		[[ "$name" =~ ^\. ]]; then
 		return 0;
-	fi	
+	fi
 	return 1;
+}
+
+# test for exclusion against .xpmignore patterns
+:tasks.bundle.contents.xpmignore?() {
+	# [[ "$name" =~ $ptn ]] && { return 0; }
+	# if [ $? -eq 2 ]; then __compress.invalid.pattern; fi	
 }
 
 # 
