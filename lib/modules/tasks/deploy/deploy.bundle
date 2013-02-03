@@ -3,6 +3,7 @@
 	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
 	
 	local bundle_scripts_name="scripts";
+	local bundle_checksum_algorithm="512";
 	
 	# always write the effective settings into the bundle
 	:tasks.bundle.settings.write!	
@@ -81,7 +82,7 @@
 				if [[ "$dir" =~ ^[./] ]]; then
 					:tasks.deploy.fail "invalid script directory %s, may not begin with . or /" "${dir}";
 				fi
-				echo "ADDING TO CUSTOM DIRECTORY (after): $dir";
+				# echo "ADDING TO CUSTOM DIRECTORY (after): $dir";
 				:tasks.deploy.out.info "create script directory %s" "$dir";
 				destination="${destination}/${dir}";
 				mkdir -p "${destination}" \
@@ -106,10 +107,11 @@
 			&& tar -cf "$bundle_archive" "$bundle_name";
 	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
 	
-	local algorithm="256";
-	local shafile="${bundle_name}.sha${algorithm}";
-	checksum.sha "${algorithm}" "$bundle_archive" >| "${shafile}" \
+	local shafile="${bundle_name}.sha${bundle_checksum_algorithm}";
+	checksum.sha "${bundle_checksum_algorithm}" "$bundle_archive" >| "${shafile}" \
 		|| :tasks.deploy.fail "could not generate checksum for %s" "${bundle_archive}";
+
+	:tasks.deploy.out.info "sha file %s" "${shafile}";
 	
 	# revert to the main working directory
 	cd "${setup[wd]}";

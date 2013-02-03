@@ -1,7 +1,7 @@
 # generate a checksum using either
 # shasum or sha1sum
 checksum.sha() {
-	local algorithm="256";
+	local algorithm="512";
 	if [[ "${1:-}" =~ ^[0-9]+$ ]]; then
 		algorithm="$1";
 		shift;
