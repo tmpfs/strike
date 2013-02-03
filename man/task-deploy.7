@@ -257,6 +257,20 @@ Append a timestamp to the bundle name\.
 .P
 Prepend an author to the name of the bundle\. This sanitizes the user name (determined by \fBid \-nu\fR) to remove any non\-alphanumeric characters\.
 .
+.TP
+\fB\-\-pkg\fR:
+
+.
+.P
+Also package a directory into the \fIcontents\fR directory of the bundle\.
+.
+.TP
+\fB\-\-follow\-symlinks\fR:
+
+.
+.P
+Do not preserve symbolic links\. Used in conjunction with the \fB\-\-pkg\fR option this copies the symbolic link target into the bundle \fIcontents\fR directory\.
+.
 .SS "Checksums"
 By default a \fBSecure Hash Algorithm\fR is generated for created bundles using the \fI512\fR algorithm and written to a file as a sibling of the generated bundle\. You may influence the behaviour of checksum generation with the following options (last option takes precedence)\.
 .
@@ -459,6 +473,27 @@ A JSON document containing the computed settings for the deployment\.
 .P
 The generated deployment script or the contents of \fIscript\fR if \fB\-\-script\-source\fR was specified\.
 .
+.TP
+\fBcontents\fR:
+
+.
+.P
+A directory containing packaged contents, see \fBPackage\fR\.
+.
+.TP
+\fBscripts\fR:
+
+.
+.P
+A directory containing bundled scripts, see \fBScripts\fR\.
+.
+.TP
+\fBgit\-ignored\.txt\fR:
+
+.
+.P
+A text file containing a list of all the files ignored by git(1)\. This file will only be present if git(1) is available and the directory being packaged is a git repository\.
+.
 .SS "NPM"
 For the \fBnpm\fR deployment type the bundle will also include:
 .
@@ -468,6 +503,21 @@ For the \fBnpm\fR deployment type the bundle will also include:
 .
 .P
 An npm(1) conformant package descriptor used to perform the deployment\.
+.
+.SS "Package"
+A bundle may include packaged files to create a \fIstandalone\fR bundle or to append/overwrite files in a deployment\. Packaged files are stored in the \fIcontents\fR directory within the bundle archive\.
+.
+.P
+Use the \fB\-\-pkg\fR option to indicate that packaging of files should also be performed\. By default when the \fB\-\-pkg\fR option is specified task\-deploy(7) will attempt to package \fIall\fR files in the directory containing the descriptor and following the rules described in \fBPackage Ignores\fR\.
+.
+.P
+Symbolic links are preserved by default, although you may override this behaviour by specifying the \fB\-\-follow\-symlinks\fR option\.
+.
+.SS "Package Ignores"
+The descriptor is automatically included in the root of the archive and is therefore always omitted when create a package\.
+.
+.P
+The rules for ignoring packaged files are that if the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to \fBgit\-ignored\.txt\fR\.
 .
 .SS "Scripts"
 You may include custom scripts in a bundle by declaring a \fBscripts\fR array in the \fBbundles\fR object either globally or specific to a profile, the syntax is:

@@ -152,6 +152,14 @@ Append a timestamp to the bundle name.
 
 Prepend an author to the name of the bundle. This sanitizes the user name (determined by `id -nu`) to remove any non-alphanumeric characters.
 
+* `--pkg`:
+
+Also package a directory into the *contents* directory of the bundle.
+
+* `--follow-symlinks`:
+
+Do not preserve symbolic links. Used in conjunction with the `--pkg` option this copies the symbolic link target into the bundle *contents* directory.
+
 ### Checksums
 
 By default a `Secure Hash Algorithm` is generated for created bundles using the *512* algorithm and written to a file as a sibling of the generated bundle. You may influence the behaviour of checksum generation with the following options (last option takes precedence).
@@ -282,6 +290,18 @@ A JSON document containing the computed settings for the deployment.
 
 The generated deployment script or the contents of *script* if `--script-source` was specified.
 
+* `contents`:
+
+A directory containing packaged contents, see `Package`.
+
+* `scripts`:
+
+A directory containing bundled scripts, see `Scripts`.
+
+* `git-ignored.txt`:
+
+A text file containing a list of all the files ignored by git(1). This file will only be present if git(1) is available and the directory being packaged is a git repository.
+
 ### NPM
 
 For the `npm` deployment type the bundle will also include:
@@ -294,11 +314,15 @@ An npm(1) conformant package descriptor used to perform the deployment.
 
 A bundle may include packaged files to create a *standalone* bundle or to append/overwrite files in a deployment. Packaged files are stored in the *contents* directory within the bundle archive.
 
-Use the `--pkg` option to indicate that packaging of files should also be performed. By default when the `--pkg` option is specified task-deploy(7) will attempt to package *all* files in the directory containing the descriptor (except for the descriptor itself which is automatically included in the bundle) and following the rules described in `Package Ignores`.
+Use the `--pkg` option to indicate that packaging of files should also be performed. By default when the `--pkg` option is specified task-deploy(7) will attempt to package *all* files in the directory containing the descriptor and following the rules described in `Package Ignores`.
+
+Symbolic links are preserved by default, although you may override this behaviour by specifying the `--follow-symlinks` option.
 
 ### Package Ignores
 
-The rules for ignoring packaged files are that if the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging.
+The descriptor is automatically included in the root of the archive and is therefore always omitted when create a package.
+
+The rules for ignoring packaged files are that if the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to `git-ignored.txt`.
 
 ### Scripts
 
@@ -2117,7 +2141,7 @@ ${opt}";
 	done
 	all_profiles=( ${!names[@]} );
 	
-	if [ -n "${!all_profiles[@]:-}" ]; then
+	if [ "${#all_profiles[@]:-0}" -gt 0 ]; then
 		# sort profiles
 		local IFS="$newline";
 		local all="${all_profiles[@]}";
@@ -2263,6 +2287,7 @@ ${opt}";
 				;;
 			--list )
 				print_profiles=true;
+				flags[quiet]=true;				
 				;;				
 			--staging )
 				shift;
