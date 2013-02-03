@@ -8,6 +8,13 @@
 	local shafile="${bundle_name}.sha${setup[sha.algorithm]}";
 	setup[sha.file]="${shafile}";
 	
+	# no point writing the sha data when not
+	# generating a checksum
+	if ! ${flags[sha]}; then
+		unset setup[sha.algorithm];
+		unset setup[sha.file];
+	fi
+	
 	# always write the effective settings into the bundle
 	:tasks.bundle.settings.write!	
 	
