@@ -6,6 +6,7 @@
 	local bundle_scripts_name="scripts";
 	local bundle_contents_name="contents";	
 	local bundle_contents_git_ignored="gitignore.txt";
+	local bundle_ignore_file=".xpmignore";
 	
 	# must be done here to be written to info.json
 	local shafile="${bundle_name}.sha${setup[sha.algorithm]}";
@@ -74,10 +75,20 @@
 		
 		local contents_path="${bundle_source}/${bundle_contents_name}";
 		mkdir -p "${contents_path}" \
-			|| :tasks.deploy.fail "could create bundle contents directory %s" "$contents_path";		
+			|| :tasks.deploy.fail "could create bundle contents directory %s" \
+				"$contents_path";		
 		
 		# TODO: make the source directory for packaging configurable
 		local contents="${setup[wd]}";
+		
+		local exclude_file="${contents}/${bundle_ignore_file}";
+		local exclude_patterns=();
+		
+		# check if we need to obey a custom ignore file
+		if [ -f "${exclude_file}" ]; then
+			exclude_patterns=( $( < "${exclude_file}" ) );
+			cp "${exclude_file}" "${bundle_source}";
+		fi
 		
 		# be certain we are operating in the correct context
 		cd "${contents}";
@@ -87,7 +98,8 @@
 		local file relative parent name path files symlink;
 		if git.exists? && git.valid? "${contents}"; then
 			files=( $( git ls-files ) );
-			git ls-files --others > "${bundle_source}/${bundle_contents_git_ignored}";
+			git ls-files \
+				--others > "${bundle_source}/${bundle_contents_git_ignored}";
 		else
 			files=( $( find "${contents}" ) );
 		fi
@@ -101,7 +113,8 @@
 				if :tasks.bundle.contents.ignore?; then
 					if ${flags[verbose]}; then
 						:tasks.deploy.out.info "ignore %s" "${relative}";
-					fi					
+					fi
+					continue;
 				fi
 
 				if ${flags[verbose]}; then
@@ -152,17 +165,29 @@
 	if [[ "$relative" =~ $ignore_re ]]; then
 		return 0;
 	fi
-	if ! ${flags[bundle.package.include.hidden]} && \
-		[[ "$name" =~ ^\. ]]; then
-		return 0;
+	if ! ${flags[bundle.package.include.hidden]}; then
+		if [[ "$name" =~ ^\. ]]; then
+			return 0;
+		fi
+	fi
+	if [ ${#exclude_patterns[@]} -gt 0 ]; then
+		:tasks.bundle.contents.xpmignore?;
+		return $?;
 	fi
 	return 1;
 }
 
 # test for exclusion against .xpmignore patterns
 :tasks.bundle.contents.xpmignore?() {
-	# [[ "$name" =~ $ptn ]] && { return 0; }
-	# if [ $? -eq 2 ]; then __compress.invalid.pattern; fi	
+	local ptn;
+	for ptn in "${exclude_patterns[@]}"
+		do
+			[[ "$relative" =~ $ptn ]] && { return 0; }
+			if [ $? -eq 2 ]; then
+				:tasks.deploy.fail "invalid pattern %s" "$ptn";
+			fi
+	done
+	return 1;
 }
 
 # 

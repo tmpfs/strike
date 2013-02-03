@@ -501,6 +501,13 @@ A directory containing bundled scripts, see \fBScripts\fR\.
 .P
 A text file containing a list of all the files ignored by git(1)\. This file will only be present if git(1) is available and the directory being packaged is a git repository\.
 .
+.TP
+\fB\.xpmignore\fR:
+
+.
+.P
+If the source directory being packaged contains a file named \fB\.xpmignore\fR it is copied to the root of the bundle\.
+.
 .SS "NPM"
 For the \fBnpm\fR deployment type the bundle will also include:
 .
@@ -521,16 +528,16 @@ Use the \fB\-\-pkg\fR option to indicate that packaging of files should also be 
 Symbolic links are preserved by default, although you may override this behaviour by specifying the \fB\-\-follow\-symlinks\fR option\.
 .
 .SS "Package Ignores"
-The descriptor is automatically included in the root of the archive and is therefore omitted from the package contents\.
-.
-.P
 Hidden files or directories are ignored by default, you can specify the \fB\-\-include\-hidden\fR option to also include hidden files\.
 .
 .P
 Any relative paths starting with \fI\.git\fR or \fI\.svn\fR are automatically ignored, this behaviour is \fInot\fR affected by the \fB\-\-include\-hidden\fR option\.
 .
 .P
-If the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to \fBgitignore\.txt\fR\.
+If the source directory is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to \fBgitignore\.txt\fR\.
+.
+.P
+If the source directory contains a file named \fB\.xpmignore\fR the patterns defined in the file are processed against the \fIrelative\fR path for each file, if the pattern matches the file is ignored\. Patterns are \fBExtended Regular Expressions\fR, it is an error to specify an invalid pattern\.
 .
 .SS "Scripts"
 You may include custom scripts in a bundle by declaring a \fBscripts\fR array in the \fBbundles\fR object either globally or specific to a profile, the syntax is:
@@ -1219,7 +1226,7 @@ If the \fIgrowlnotify\fR executable is available then a success or failure notif
 You may disable the use of growl notifications by specifying the \fB\-\-no\-growl\fR option\.
 .
 .SH "FILES"
-All generated files are written to \fBtarget/deploy\fR\.
+All generated files are written to \fBtarget/deploy\fR by default\.
 .
 .P
 When the \fB\-\-log\fR option is specified \fIstdout\fR messages are redirected to \fBtarget/deploy/deploy\.log\fR\.

@@ -306,6 +306,10 @@ A directory containing bundled scripts, see `Scripts`.
 
 A text file containing a list of all the files ignored by git(1). This file will only be present if git(1) is available and the directory being packaged is a git repository.
 
+* `.xpmignore`:
+
+If the source directory being packaged contains a file named `.xpmignore` it is copied to the root of the bundle.
+
 ### NPM
 
 For the `npm` deployment type the bundle will also include:
@@ -328,7 +332,9 @@ Hidden files or directories are ignored by default, you can specify the `--inclu
 
 Any relative paths starting with *.git* or *.svn* are automatically ignored, this behaviour is *not* affected by the `--include-hidden` option.
 
-If the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to `gitignore.txt`.
+If the source directory is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to `gitignore.txt`.
+
+If the source directory contains a file named `.xpmignore` the patterns defined in the file are processed against the *relative* path for each file, if the pattern matches the file is ignored. Patterns are `Extended Regular Expressions`, it is an error to specify an invalid pattern.
 
 ### Scripts
 
@@ -750,7 +756,7 @@ You may disable the use of growl notifications by specifying the `--no-growl` op
 
 ## FILES
 
-All generated files are written to `target/deploy`.
+All generated files are written to `target/deploy` by default.
 
 When the `--log` option is specified *stdout* messages are redirected to `target/deploy/deploy.log`.
 
