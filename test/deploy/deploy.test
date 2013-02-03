@@ -65,8 +65,20 @@ test.deploy.local() {
 		--output "${bundles}"
 	);
 	
+	#
+	local pass_tests=(
+		':test.deploy.env'
+		':test.deploy.minimal.bundle'
+		':test.deploy.minimal.deploy'
+		':test.deploy.project.bundle'
+		':test.deploy.project.deploy'
+		':test.deploy.project.bundle.nosha'
+	);
+	
 	# run tests that should pass
 	:test.deploy.run ':test.deploy.env';
+	
+	:test.deploy.run ':test.deploy.project.bundle.nosha';
 	
 	:test.deploy.run ':test.deploy.minimal.bundle';
 	:test.deploy.run ':test.deploy.minimal.deploy';
@@ -203,6 +215,20 @@ test.deploy.local() {
 	
 	# check common files
 	:test.assert.deployment.files "${directory}/${expects[name]}/${profile}";
+}
+
+### NO SHA
+
+# should not have a checksum file in this instance
+:test.deploy.project.bundle.nosha() {
+	local profile="default";
+	descriptor="${project_source}/deploy.json";
+	local opts=( ${options[@]} );
+	opts+=( --bundle --descriptor "${descriptor}" --no-sha );
+	( tasks.deploy "${opts[@]}" );
+	local final="${bundles}/${expects[project]}-${profile}";
+	assert.file.exists? "${final}.tgz";
+	assert.file.exists! "${final}.sha${algorithm}";
 }
 
 ## TAR TYPE
