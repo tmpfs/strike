@@ -122,7 +122,7 @@ Do not quote command options. When this options is set parameter expansion is pe
 
 ## BUNDLE OPTIONS
 
-This section documents the options used for manipulating bundles.
+This section describes bundle options.
 
 * `--bundle`:
 
@@ -140,11 +140,23 @@ Append a timestamp to the bundle name.
 
 Prepend an author to the name of the bundle. This sanitizes the user name (determined by `id -nu`) to remove any non-alphanumeric characters.
 
+### Checksums
+
+By default a `Secure Hash Algorithm` is generated for created bundles using the *512* algorithm and written to a file as a sibling of the generated bundle. You may influence the behaviour of checksum generation with the following options (last option takes precedence).
+
+* `--sha [algorithm]`:
+
+Use *algorithm* when generating checksums. Available values are *224*, *256*, *384* and *512*, specifying any other value for this option will result in an error.
+
+* `--no-sha`:
+
+Do not generate a checksum file.
+
 ### Compression
 
-The default compression used is `gzip` although if the `xz` and `xzdec` binaries are available then the `xz` compression type is preferred. You may override this behaviour by specifying a compression type option.
+The default compression used is `gzip` although if the `xz` and `xzdec` binaries are available then the `xz` compression type is preferred. You may override this behaviour by specifying a compression type option (last option takes precedence).
 
-Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing remote deployments.
+Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing a remote deployment.
 
 * `--gz`:
 
@@ -164,7 +176,7 @@ Force bundle creation to use `lzma`, bundle(s) are created with the `lzma` file 
 
 ## DEBUG OPTIONS
 
-This section documents the options used for debugging and unit testing.
+This section describes options for debugging and unit testing.
 
 * `--global-env`:
 

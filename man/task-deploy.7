@@ -206,7 +206,7 @@ Do not send growl notifications\.
 Do not quote command options\. When this options is set parameter expansion is performed on command options declared in a deployment descriptor\.
 .
 .SH "BUNDLE OPTIONS"
-This section documents the options used for manipulating bundles\.
+This section describes bundle options\.
 .
 .TP
 \fB\-\-bundle\fR:
@@ -236,11 +236,28 @@ Append a timestamp to the bundle name\.
 .P
 Prepend an author to the name of the bundle\. This sanitizes the user name (determined by \fBid \-nu\fR) to remove any non\-alphanumeric characters\.
 .
-.SS "Compression"
-The default compression used is \fBgzip\fR although if the \fBxz\fR and \fBxzdec\fR binaries are available then the \fBxz\fR compression type is preferred\. You may override this behaviour by specifying a compression type option\.
+.SS "Checksums"
+By default a \fBSecure Hash Algorithm\fR is generated for created bundles using the \fI512\fR algorithm and written to a file as a sibling of the generated bundle\. You may influence the behaviour of checksum generation with the following options (last option takes precedence)\.
+.
+.TP
+\fB\-\-sha [algorithm]\fR:
+
 .
 .P
-Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing remote deployments\.
+Use \fIalgorithm\fR when generating checksums\. Available values are \fI224\fR, \fI256\fR, \fI384\fR and \fI512\fR, specifying any other value for this option will result in an error\.
+.
+.TP
+\fB\-\-no\-sha\fR:
+
+.
+.P
+Do not generate a checksum file\.
+.
+.SS "Compression"
+The default compression used is \fBgzip\fR although if the \fBxz\fR and \fBxzdec\fR binaries are available then the \fBxz\fR compression type is preferred\. You may override this behaviour by specifying a compression type option (last option takes precedence)\.
+.
+.P
+Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing a remote deployment\.
 .
 .TP
 \fB\-\-gz\fR:
@@ -271,7 +288,7 @@ Force bundle creation to use \fBxz\fR, bundle(s) are created with the \fBxz\fR f
 Force bundle creation to use \fBlzma\fR, bundle(s) are created with the \fBlzma\fR file extension\.
 .
 .SH "DEBUG OPTIONS"
-This section documents the options used for debugging and unit testing\.
+This section describes options for debugging and unit testing\.
 .
 .TP
 \fB\-\-global\-env\fR:
