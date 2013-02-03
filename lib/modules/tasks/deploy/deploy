@@ -899,11 +899,13 @@ tasks.deploy() {
 	# FLAGS
 	
 	declare -A flags;
+	flags[quiet]=false;
 	flags[print.env]=false;
 	flags[global.env]=false;
 	flags[timestamp]=false;
 	flags[author]=false;
 	flags[sha]=true;
+	flags[bundle.inspect]=false;
 	
 	# TODO: move all other flag variables into $flags
 	
@@ -1980,7 +1982,7 @@ ${opt}";
 
 # output the header delimiter
 :tasks.deploy.header() {
-	if $print_json || $dump_script || ${flags[print.env]}; then
+	if ${flags[quiet]} || $print_json || $dump_script || ${flags[print.env]}; then
 		return 0;
 	fi	
 	
@@ -1994,7 +1996,7 @@ ${opt}";
 # output an info message to stdout or
 # the log file if logging
 :tasks.deploy.out.info() {
-	if $print_json || $dump_script || ${flags[print.env]}; then
+	if ${flags[quiet]} || $print_json || $dump_script || ${flags[print.env]}; then
 		return 0;
 	fi
 	
@@ -2121,6 +2123,10 @@ ${opt}";
 
 # failure
 :tasks.deploy.fail() {
+	if ${flags[quiet]}; then
+		console.quit 1;
+	fi
+	
 	:tasks.deploy.complete.notify;
 	if [ $# -gt 0 ]; then
 		console.error "$@";
@@ -2154,7 +2160,7 @@ ${opt}";
 # output the complete message
 :tasks.deploy.complete() {
 	
-	if ${flags[print.env]}; then
+	if ${flags[quiet]} || ${flags[print.env]}; then
 		return 0;
 	fi
 	
@@ -2234,7 +2240,7 @@ ${opt}";
 :tasks.deploy.options.parse() {
 	local value available;
 	while test -n "${1:-}"; do
-		case $1 in
+		case $1 in	
 			--ok )
 				interactive=false;
 				;;
@@ -2352,6 +2358,12 @@ ${opt}";
 			--no-sha )
 				flags[sha]=false;
 				;;
+			--inspect )
+				flags[bundle.inspect]=true;
+				;;
+			--quiet )
+				flags[quiet]=true;
+				;;				
 			--sha )
 				shift;
 				value="${1:-}";

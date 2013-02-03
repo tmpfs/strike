@@ -128,6 +128,10 @@
 	local size=( $( du -h "${bundle_archive}" ) );
 	bundle_size="${size[0]}";
 	
+	if ${flags[bundle.inspect]}; then
+		tar -tf "${bundle_archive}";
+	fi
+	
 	# revert to the main working directory
 	cd "${setup[wd]}";
 }
