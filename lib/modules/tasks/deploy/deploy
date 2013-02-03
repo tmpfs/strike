@@ -320,7 +320,7 @@ Symbolic links are preserved by default, although you may override this behaviou
 
 ### Package Ignores
 
-The descriptor is automatically included in the root of the archive and is therefore always omitted when create a package.
+The descriptor is automatically included in the root of the archive and is therefore omitted from the package contents.
 
 The rules for ignoring packaged files are that if the directory containing the descriptor is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to `git-ignored.txt`.
 

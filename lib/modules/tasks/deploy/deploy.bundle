@@ -79,7 +79,7 @@
 		local contents="${setup[wd]}";
 		# be certain we are operating in the correct context
 		cd "${contents}";
-		local ignore_re="^(\.git|\.svn)";
+		local ignore_re="^((\.git/)+|(\.svn/)+)";
 		:tasks.deploy.out.info "package contents %s" "${contents}";
 		
 		local file relative parent name path files;
@@ -97,6 +97,9 @@
 				relative="${file#$contents/}";
 				if [[ "$relative" =~ $ignore_re ]] \
 					|| [ "$relative" == "${setup[descriptor.name]}" ]; then
+					if ${flags[verbose]}; then
+						:tasks.deploy.out.info "ignore %s" "${relative}";
+					fi
 					continue;
 				fi
 
