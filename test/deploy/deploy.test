@@ -67,30 +67,31 @@ test.deploy.local() {
 	
 	#
 	local pass_tests=(
-		':test.deploy.env'
-		':test.deploy.minimal.bundle'
-		':test.deploy.minimal.deploy'
-		':test.deploy.project.bundle'
-		':test.deploy.project.deploy'
-		':test.deploy.project.bundle.nosha'
+		"deploy.env"
+		'deploy.minimal.bundle'
+		'deploy.minimal.deploy'
+		'deploy.project.bundle'
+		'deploy.project.deploy'
+		'deploy.project.bundle.nosha'
 		
-		':test.deploy.project.tar.bundle'
-		':test.deploy.project.tar.deploy'
+		'deploy.project.tar.bundle'
+		'deploy.project.tar.deploy'
 
-		':test.deploy.project.git.bundle'
-		':test.deploy.project.git.deploy'
+		'deploy.project.git.bundle'
+		'deploy.project.git.deploy'
 
-		':test.deploy.project.npm.bundle'
-		':test.deploy.project.npm.deploy'
+		'deploy.project.npm.bundle'
+		'deploy.project.npm.deploy'
 
-		':test.deploy.bundle.scripts'
+		'deploy.bundle.scripts'
 	);
 	
 	# run tests that should pass
-	local i l=${#pass_tests[@]};
-	for((i = 0;i < $l;i++))
+	# NOTE: do not use a for(()) loop here!
+	local i;
+	for i in ${!pass_tests[@]}
 		do
-			:test.deploy.run "${pass_tests[$i]}";
+			deploy.run "${pass_tests[$i]}";
 	done
 	
 	# clean up the mock project .git directory
@@ -102,22 +103,25 @@ test.deploy.local() {
 # run a test, we want to ensure
 # that we have a fresh mock structure
 # for each test
-:test.deploy.run() {
+deploy.run() {
 	local cmd="$1";
 	
+	echo "got command : $cmd";
+	# return 0;
+	
 	# clean up before we start
-	:test.deploy.clean;	
+	deploy.clean;	
 	
 	# create fresh mock directories
-	:test.deploy.init;
+	deploy.init;
 	# run the test
-	$cmd;
+	"$cmd";
 	# clean up at the end
-	:test.deploy.clean;
+	deploy.clean;
 }
 
 # test environment is sane
-:test.deploy.env() {
+deploy.env() {
 	descriptor="${project_source}/env.json";
 	local opts=( ${options[@]} );
 	opts+=( --global-env --print-env --descriptor "${descriptor}" );
@@ -169,18 +173,18 @@ test.deploy.local() {
 
 # test bundling the default profile
 # using the absolute minimal descriptor
-:test.deploy.minimal.bundle() {
+deploy.minimal.bundle() {
 	local profile="default";
 	descriptor="${project_source}/minimal.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" );
 	( tasks.deploy "${opts[@]}" );
-	:test.assert.bundle "${bundles}/${expects[project]}-${profile}";
+	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
 # test deploying the default profile
 # using the absolute minimal descriptor
-:test.deploy.minimal.deploy() {
+deploy.minimal.deploy() {
 	local profile="default";	
 	descriptor="${project_source}/minimal.json";
 	local opts=( ${options[@]} );
@@ -193,16 +197,16 @@ test.deploy.local() {
 
 ## DEFAULT PROFILE
 
-:test.deploy.project.bundle() {
+deploy.project.bundle() {
 	local profile="default";	
 	descriptor="${project_source}/deploy.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" );
 	( tasks.deploy "${opts[@]}" );
-	:test.assert.bundle "${bundles}/${expects[project]}-${profile}";
+	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
-:test.deploy.project.deploy() {
+deploy.project.deploy() {
 	local profile="default";	
 	descriptor="${project_source}/deploy.json";
 	local opts=( ${options[@]} );
@@ -210,13 +214,13 @@ test.deploy.local() {
 	( tasks.deploy "${opts[@]}" );
 	
 	# check common files
-	:test.assert.deployment.files "${directory}/${expects[name]}/${profile}";
+	assert.deployment.files "${directory}/${expects[name]}/${profile}";
 }
 
 ### NO SHA
 
 # should not have a checksum file in this instance
-:test.deploy.project.bundle.nosha() {
+deploy.project.bundle.nosha() {
 	local profile="default";
 	descriptor="${project_source}/deploy.json";
 	local opts=( ${options[@]} );
@@ -229,16 +233,16 @@ test.deploy.local() {
 
 ## TAR TYPE
 
-:test.deploy.project.tar.bundle() {
+deploy.project.tar.bundle() {
 	local profile="deploy-tar";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
 	( tasks.deploy "${opts[@]}" );
-	:test.assert.bundle "${bundles}/${expects[project]}-${profile}";
+	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
-:test.deploy.project.tar.deploy() {
+deploy.project.tar.deploy() {
 	local profile="deploy-tar";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -246,21 +250,21 @@ test.deploy.local() {
 	( tasks.deploy "${opts[@]}" );
 	
 	# check common files
-	:test.assert.deployment.files "${directory}/${expects[name]}/$profile";
+	assert.deployment.files "${directory}/${expects[name]}/$profile";
 }
 
 ## GIT TYPE
 
-:test.deploy.project.git.bundle() {
+deploy.project.git.bundle() {
 	local profile="deploy-git";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
 	( tasks.deploy "${opts[@]}" );
-	:test.assert.bundle "${bundles}/${expects[project]}-${profile}";
+	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
-:test.deploy.project.git.deploy() {
+deploy.project.git.deploy() {
 	local profile="deploy-git";	
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -268,21 +272,21 @@ test.deploy.local() {
 	( tasks.deploy "${opts[@]}" );
 	
 	# check common files
-	:test.assert.deployment.files "${directory}/${expects[name]}/$profile";
+	assert.deployment.files "${directory}/${expects[name]}/$profile";
 }
 
 ## NPM TYPE
 
-:test.deploy.project.npm.bundle() {
+deploy.project.npm.bundle() {
 	local profile="deploy-npm";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
 	( tasks.deploy "${opts[@]}" );
-	:test.assert.bundle "${bundles}/${expects[project]}-${profile}";
+	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
-:test.deploy.project.npm.deploy() {
+deploy.project.npm.deploy() {
 	local profile="deploy-npm";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -290,24 +294,24 @@ test.deploy.local() {
 	( tasks.deploy "${opts[@]}" );
 	
 	# check common files
-	:test.assert.deployment.files "${directory}/${expects[name]}/$profile";
+	assert.deployment.files "${directory}/${expects[name]}/$profile";
 }
 
 # BUNDLE SCRIPTS
 
-:test.deploy.bundle.scripts() {
+deploy.bundle.scripts() {
 	local profile="bundle-scripts";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
 	( tasks.deploy "${opts[@]}" );
-	:test.assert.bundle "${bundles}/${expects[project]}-${profile}";
+	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
 # UTIL
 
 # assert on generated bundles/checksums
-:test.assert.bundle() {
+assert.bundle() {
 	local final="$1";
 	assert.file.exists? "${final}.tgz";
 	assert.file.exists? "${final}.sha${algorithm}";	
@@ -315,7 +319,7 @@ test.deploy.local() {
 
 # assert on files that should be present
 # for all deployments
-:test.assert.deployment.files() {
+assert.deployment.files() {
 	local final="$1";
 	
 	assert.dir.exists? "${final}";
@@ -327,14 +331,14 @@ test.deploy.local() {
 }
 
 # create the test staging structure
-:test.deploy.init() {
+deploy.init() {
 	mkdir -p "$staging";
 	mkdir -p "$directory";
 	mkdir -p "$bundles";
 }
 
 # clean the test staging directory
-:test.deploy.clean() {
+deploy.clean() {
 	if [ -d "${deploy_test}" ]; then
 		console.info "deploy.test clean %s" "$deploy_test";
 		# NOTE: we use ${root}/target rather than ${target}
