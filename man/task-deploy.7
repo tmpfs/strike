@@ -539,6 +539,38 @@ If the source directory is a git repository the files ignored by git are exclude
 .P
 If the source directory contains a file named \fB\.xpmignore\fR the patterns defined in the file are processed against the \fIrelative\fR path for each file, if the pattern matches the file is ignored\. Patterns are \fBExtended Regular Expressions\fR, it is an error to specify an invalid pattern\.
 .
+.SS "Directories"
+It is common that a program relies on some directories for use cases such as logging, temporary files or pid files\. Normally, these directories are not stored in a repository or included in a package therefore you may define directories to be created (globally or specific to a profile) after a successful deployment\. The syntax for defining directories to be created is:
+.
+.IP "" 4
+.
+.nf
+
+"bundle": {
+  "dirs": [
+    {
+      "path": "server/pids",
+      "perm": "0700"
+    }
+  ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The working directory for this operation is the final deployment target\. Directory creation and setting of permissions is only attempted if the directory does not exist\. Directories are created using \fBmkdir \-p\fR so parent directories will be created as needed\.
+.
+.P
+Directories are created prior to running post\-deployment commands so you can rely on them existing by the time post\-deployment commands are executed\.
+.
+.P
+Permissions declared in the \fIperm\fR property may be an octal value of any other value accepted by chmod(1), ie, g+w\.
+.
+.P
+You may specify absolute paths if required but you should be sure that the effective user has the correct permissions to create the directory structure\. Tilde expansion is performed on \fIpath\fR so you may create directories in the home directory for the effective user\.
+.
 .SS "Scripts"
 You may include custom scripts in a bundle by declaring a \fBscripts\fR array in the \fBbundles\fR object either globally or specific to a profile, the syntax is:
 .

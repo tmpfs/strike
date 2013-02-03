@@ -6,6 +6,20 @@
 			"to": "muji <freeformsystems@gmail.com>"
 		}
 	},
+	"bundle": {
+		"dirs": [
+			{
+				"path": "server/logs"
+			},
+			{
+				"path": "server/log\ files"
+			},			
+			{
+				"path": "server/pids",
+				"perm": "0700"
+			}
+		]
+	},
 	"env": {
 		"archive": {
 			"name": "${project_name}-${project_version}.tgz",
@@ -40,7 +54,7 @@
 					"options": [ "remote post-deployment started" ]
 				}
 			]		
-		}		
+		}
 	},
 	"profiles": {
 		"default": {

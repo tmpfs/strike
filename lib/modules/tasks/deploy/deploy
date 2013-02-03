@@ -336,6 +336,27 @@ If the source directory is a git repository the files ignored by git are exclude
 
 If the source directory contains a file named `.xpmignore` the patterns defined in the file are processed against the *relative* path for each file, if the pattern matches the file is ignored. Patterns are `Extended Regular Expressions`, it is an error to specify an invalid pattern.
 
+### Directories
+
+It is common that a program relies on some directories for use cases such as logging, temporary files or pid files. Normally, these directories are not stored in a repository or included in a package therefore you may define directories to be created (globally or specific to a profile) after a successful deployment. The syntax for defining directories to be created is:
+
+	"bundle": {
+	  "dirs": [			
+	    {
+	      "path": "server/pids",
+	      "perm": "0700"
+	    }
+	  ]
+	}
+	
+The working directory for this operation is the final deployment target. Directory creation and setting of permissions is only attempted if the directory does not exist. Directories are created using `mkdir -p` so parent directories will be created as needed.
+
+Directories are created prior to running post-deployment commands so you can rely on them existing by the time post-deployment commands are executed.
+
+Permissions declared in the *perm* property may be an octal value of any other value accepted by chmod(1), ie, g+w.
+
+You may specify absolute paths if required but you should be sure that the effective user has the correct permissions to create the directory structure. Tilde expansion is performed on *path* so you may create directories in the home directory for the effective user.
+
 ### Scripts
 
 You may include custom scripts in a bundle by declaring a `scripts` array in the `bundles` object either globally or specific to a profile, the syntax is:

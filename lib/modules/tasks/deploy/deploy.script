@@ -48,10 +48,9 @@
 		:tasks.deploy.script.commands.write "pre";
 		:tasks.deploy.script.commands.write "post";
 		
-		# cat "${script}";
-		# exit 0;
-		
 		:tasks.deploy.script.common.write!;
+		
+		:tasks.deploy.script.directories.write!;
 		
 		# we've already validated on deployment type
 		# this is an additional sanity check
@@ -216,6 +215,81 @@ trap 'cleanup' EXIT HUP INT QUIT TERM
 EOF
 }
 
+# write the command used to create directories
+# post-deployment
+:tasks.deploy.script.directories.write!() {
+# open command
+cat <<EOF >> "${script}"
+directories() {
+EOF
+
+	local globals="${json_doc[bundle.dirs.length]:-0}";
+	local profiles="${json_doc[profiles.${profile}.bundle.dirs.length]:-0}";
+	local total=$(($globals+$profiles));
+	
+	# no directories to write out
+	if [ $total -eq 0 ]; then
+cat <<EOF >> "${script}"
+	info "no directories to create\n";
+EOF
+	else
+		
+cat <<EOF >> "${script}"
+	# ensure context is correct for creating dirs
+	if test -d \$deploy_target; then
+		cd "\$deploy_target";
+EOF
+		:tasks.deploy.script.directories.group.write! $globals "bundle.dirs";
+		:tasks.deploy.script.directories.group.write! $profiles "profiles.${profile}.bundle.dirs";
+cat <<EOF >> "${script}"
+	fi
+EOF
+	fi
+
+# close command
+cat <<EOF >> "${script}"
+}
+
+EOF
+}
+
+:tasks.deploy.script.directories.group.write!() {
+	local length="$1";
+	local prefix="$2";
+	local i k path perm;
+	for((i = 0;i < $length;i++))
+		do
+			k="${prefix}.$i";
+			path="${json_doc[${k}.path]:-}";
+			perm="${json_doc[${k}.perm]:-}";
+			if [ -z "${path:-}" ]; then
+				:tasks.deploy.fail "empty path for directory %s" "$k";
+			fi
+			
+cat <<EOF >> "${script}"
+		if ! test -d $path; then
+			info "mkdir -p %s\n" "$path";
+			mkdir -p $path \\
+				|| quit "could not create directory %s\n" "$path";
+EOF
+
+			if [ -n "$perm" ]; then
+cat <<EOF >> "${script}"
+			info "chmod %s %s\n" "$perm" "$path";
+			chmod $perm $path \\
+				|| quit "could not set permissions %s on %s\n" "$perm" "$path";
+EOF
+			fi
+cat <<EOF >> "${script}"
+		fi
+EOF
+	done
+	
+# cat <<EOF >> "${script}"
+# 
+# EOF
+}
+
 # write pre / post deployment commands
 :tasks.deploy.script.commands.write() {
 	local phase="$1";
@@ -358,6 +432,8 @@ EOF
 cat <<EOF >> "${script}"
 # completed successfully
 complete() {
+	# create directories
+	directories;
 	# run post-deployment commands
 	post;
 	success=true;
