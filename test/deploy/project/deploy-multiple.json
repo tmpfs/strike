@@ -1,0 +1,54 @@
+{
+	"env": {
+		"archive": {
+			"name": "${project_name}-${project_version}.tgz",
+			"dir": "${target}",
+			"path": "${target}/${project_name}-${project_version}.tgz"
+		}
+	},
+	"profiles": {
+		"deploy-git": {
+			"type": "git",
+			"url": "file://$project_source",
+			"description": "test deployment with the git+file://"
+		},
+		"deploy-tar": {
+			"type": "tar",
+			"url": "file://$env_archive_path",
+			"description": "test deployment with the tar+file://",
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "npm",
+							"options": [ "pack" ]
+						},
+						{
+							"command": "mv",
+							"options": [ "$env_archive_name", "$env_archive_dir" ]
+						}
+					]
+				}
+			}
+		},
+		"deploy-npm": {
+			"type": "npm",
+			"url": "$env_archive_path",
+			"description": "test deployment with npm+filesystem",
+			"commands": {
+				"local": {
+					"pre": [
+						{
+							"command": "npm",
+							"options": [ "pack" ]
+						},
+						{
+							"command": "mv",
+							"options": [ "$env_archive_name", "$env_archive_dir" ]
+						}
+					]
+				}
+			}
+		}		
+	}
+}

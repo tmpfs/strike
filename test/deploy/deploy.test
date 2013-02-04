@@ -193,29 +193,23 @@ deploy.options.script.file() {
 	assert.equal "./install.sh" "${contents}";
 }
 
+# test the --list option
 deploy.options.list() {
-	# local profile="default";
-	# descriptor="${project_source}/${profile}.json";
-	# local opts=( ${options[@]} );
-	# opts+=( --descriptor "${descriptor}" --script-file "${script}" );
-	# ( tasks.deploy "${opts[@]}" );
-	# local expects="${target}/custom-install.txt";
-	# assert.file.exists? "${expects}";
-	# local contents=$( < "${expects}" );
-	# assert.equal "./install.sh" "${contents}";
-	
 	declare -A descriptors;
 	descriptors[default]="default.json";
 	descriptors[minimal]="minimal.json";
+	descriptors[deploy-git]="deploy-git.json";
+	descriptors[deploy-tar]="deploy-tar.json";
 	descriptors[deploy-npm]="deploy-npm.json";
-	descriptors[deploy-tar]="deploy-tar.json";	
+	descriptors[deploy-multiple]="deploy-multiple.json";
 	
 	declare -A expects;
 	expects[default]="default";
 	expects[minimal]="default";
 	expects[deploy-git]="deploy-git";
-	expects[deploy-npm]="deploy-npm";	
-	expects[deploy-tar]="deploy-tar";	
+	expects[deploy-tar]="deploy-tar";
+	expects[deploy-npm]="deploy-npm";
+	expects[deploy-multiple]="deploy-git deploy-npm deploy-tar";
 	
 	local k v descriptor opts received;
 	for k in "${!descriptors[@]}"
@@ -225,9 +219,8 @@ deploy.options.list() {
 			opts=( ${options[@]} );
 			opts+=( --list --descriptor "${descriptor}" );
 			received=( $( tasks.deploy "${opts[@]}" ) );
-			assert.equal "${expects[$k]}" "$received";
+			assert.equal "${expects[$k]}" "${received[*]}";
 	done
-	
 }
 
 # MINIMAL
