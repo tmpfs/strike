@@ -274,7 +274,7 @@ Also include hidden files when packaging bundle contents\.
 Do not preserve symbolic links\. Used in conjunction with the \fB\-\-pkg\fR option this copies the symbolic link target into the bundle \fIcontents\fR directory\.
 .
 .TP
-\fB\-\-script\-source [file]\fR:
+\fB\-\-script\-file [file]\fR:
 
 .
 .P
@@ -290,7 +290,7 @@ If multiple profiles are being deployed then \fIfile\fR is used for all target p
 It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are \fInever\fR executed\.
 .
 .TP
-\fB\-\-make\-source [file]\fR:
+\fB\-\-make\-file [file]\fR:
 
 .
 .P
@@ -372,10 +372,10 @@ If this option is used in conjunction with \fB\-\-script\fR the last option will
 
 .
 .P
-Perform a sanity check on the generated script and exit, implies \fB\-\-noop\fR\. You must have the checkbashisms(1) script installed in $PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through checkbashisms(1)\.
+Perform a sanity check on the generated script and exit, implies \fB\-\-noop\fR\. You must have the checkbashisms(1) script installed in \e$PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through checkbashisms(1)\.
 .
 .P
-Note that when using the \fB\-\-script\-source\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors\.
+Note that when using the \fB\-\-script\-file\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors\.
 .
 .P
 This option ignores multiple profiles, it only executes for the first target profile\.
@@ -510,7 +510,7 @@ A JSON document containing useful information about the host machine, user and o
 
 .
 .P
-The generated deployment script or the contents of \fIscript\fR if \fB\-\-script\-source\fR was specified\.
+The generated deployment script or the contents of \fIscript\fR if \fB\-\-script\-file\fR was specified\.
 .
 .TP
 \fBcontents\fR:
@@ -557,7 +557,7 @@ The rules for the behaviour of generated makefiles are as follows\. If the bundl
 If a bundled makefile exists (in the contents directory) then it is checked for an \fBinstall\fR target\. If the bundled makefile contains an \fBinstall\fR target then the generated makefile (at the root of the archive) proxies all targets to the bundled makefile\. If no \fBinstall\fR target is found in the bundled makefile then an \fBinstall\fR target is generated that proxies to \fBinstall\.sh\fR and all other targets are proxied to the bundled makefile\.
 .
 .P
-You may specify a custom makefile using \fB\-\-make\-source\fR in which case the above rules for makefile generation are ignored and the specified makefile is used instead\.
+You may specify a custom makefile using \fB\-\-make\-file\fR in which case the above rules for makefile generation are ignored and the specified makefile is used instead\.
 .
 .SS "Package"
 A bundle may include packaged files to create a \fIstandalone\fR bundle or to append/overwrite files in a deployment\. Packaged files are stored in the \fIcontents\fR directory within the bundle archive\.
@@ -1083,7 +1083,7 @@ Consider the following example document:
 .IP "" 0
 .
 .P
-In this instance the \fB$doc_\fR variables reference the \fIdirectory\fR and \fIhost\fR properties declared at the top\-level of the document\.
+In this instance the \fB\e$doc_\fR variables reference the \fIdirectory\fR and \fIhost\fR properties declared at the top\-level of the document\.
 .
 .P
 This results in the command (for the local host pre\-deployment phase):
@@ -1488,9 +1488,9 @@ Inspect the settings used for a \fIdefault\fR deployment:
 .
 .nf
 
-bake deploy \-\-json \-\-pretty \e
-    \-\-staging ~/project\-staging \e
-    \-\-name project \e
+bake deploy \-\-json \-\-pretty \e\e
+    \-\-staging ~/project\-staging \e\e
+    \-\-name project \e\e
     \-\-directory ~/www
 .
 .fi
