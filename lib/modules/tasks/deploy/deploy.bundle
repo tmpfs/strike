@@ -7,6 +7,7 @@
 	local bundle_contents_name="contents";	
 	local bundle_contents_git_ignored="gitignore.txt";
 	local bundle_ignore_file=".xpmignore";
+	local bundle_contents_path="${bundle_source}/${bundle_contents_name}";	
 	
 	# must be done here to be written to info.json
 	local shafile="${bundle_name}.sha${setup[sha.algorithm]}";
@@ -76,10 +77,9 @@
 			cp_opts="${cp_opts}R";
 		fi
 		
-		local contents_path="${bundle_source}/${bundle_contents_name}";
-		mkdir -p "${contents_path}" \
+		mkdir -p "${bundle_contents_path}" \
 			|| :tasks.deploy.fail "could create bundle contents directory %s" \
-				"$contents_path";		
+				"$bundle_contents_path";		
 		
 		# TODO: make the source directory for packaging configurable
 		local contents="${setup[wd]}";
@@ -129,9 +129,9 @@
 				if [ "$parent" == "." ]; then
 					parent="";
 				fi
-				path="${contents_path}";
+				path="${bundle_contents_path}";
 				if [ -n "${parent}" ]; then
-					path="${contents_path}/${parent}";
+					path="${bundle_contents_path}/${parent}";
 				fi
 				
 				# echo "file is: $file";

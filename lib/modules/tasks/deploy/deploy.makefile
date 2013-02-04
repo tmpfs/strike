@@ -3,20 +3,92 @@
 	local makefile="${bundle_source}/${names[makefile]}";
 	
 	declare -A make_targets;
-	make_targets[targets]="install";
-	
 	declare -A make_rules;
-	make_rules[install]="./install.sh \$@";
 	
-	:tasks.bundle.makefile.header;
-	:tasks.bundle.makefile.targets;
+	local bundle_makefile="";
+	local bundle_makefile_name="";
+	local bundle_makefile_relative="";
+	local makefile_names=( makefile Makefile GNUmakefile );
+	:tasks.bundle.makefile.exists?;
+	local has_makefile=$?;
+	local has_makefile_install_target=1;
+	
+	# write make file header
+	:tasks.bundle.makefile.header;	
+	
+	# not a standalone bundle or no makefile bundled
+	# so always proxy to the installation script
+	if ! ${flags[bundle.standalone]} || [ $has_makefile -gt 0 ]; then
+		:tasks.bundle.makefile.script.proxy;
+		:tasks.bundle.makefile.targets;
+	# standalone and a makefile is bundled
+	# so let's see whether we proxy
+	elif [ $has_makefile -eq 0 ]; then
+		# make -qp | grep -v '^# ' | grep -v '^[[:space:]]' | grep --only-matching '^.*:' | grep 'install:';
+		
+			echo "got custom makefile: $bundle_makefile"
+			
+			# determine if the makefile has a install target
+			# executed in a subshell so the working directory
+			# is not affected
+			(
+				cd "${bundle_contents_path}" \
+					&& make -qp \
+					| grep -v '^# ' \
+					| grep -v '^[[:space:]]' \
+					| grep --only-matching '^.*:' \
+					| grep 'install:' > /dev/null 2>&1
+			)
+			has_makefile_install_target=$?;
+			# no install target in bundled makefile
+			# so we can proxy the install target to
+			# the script and all other targets to the
+			# bundled makefile using an include
+			if [ $has_makefile_install_target -gt 0 ]; then
+				# NOTE: the script proxy is done first so
+				# NOTE: it becomes the default target and can
+				# NOTE: be executed with just `make`
+				:tasks.bundle.makefile.script.proxy;
+				:tasks.bundle.makefile.targets;
+				:tasks.bundle.makefile.proxy "${bundle_contents_name}" "$bundle_makefile_name";
+			fi
+	fi
+	
 	:tasks.bundle.makefile.phony;
 	
 	# cat "$makefile";
-	
-	# %: force
-	#              @$(MAKE) -f Makefile $@
-	#      force: ;	
+}
+
+# sets the makefile targets and rules to
+# proxy to the installation script
+:tasks.bundle.makefile.script.proxy() {
+	make_targets[targets]="install";
+	make_rules[install]="./install.sh \$@";
+}
+
+# write an include directive to the makefile
+:tasks.bundle.makefile.proxy() {
+cat <<EOF >> "${makefile}"
+%: force
+	@\$(MAKE) --directory $1 --file $2 \$@
+force: ;
+
+EOF
+}
+
+# determine if the package contents has a makefile
+:tasks.bundle.makefile.exists?() {
+	local name;
+	for name in ${makefile_names[@]}
+		do
+			if [ -f "${bundle_contents_path}/${name}" ]; then
+				bundle_makefile="${bundle_contents_path}/${name}";
+				bundle_makefile_name="${name}";
+				bundle_makefile_relative="${bundle_makefile#$bundle_source/}";
+				return 0;
+			fi
+	done
+	return 1;
 }
 
 :tasks.bundle.makefile.header() {

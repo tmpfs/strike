@@ -980,7 +980,7 @@ tasks.deploy() {
 	local timestamp=$( date +%s );
 	local localhost=$( hostname );
 	local creator="${deploy_user}@${localhost}";
-	local deploy_start_time=$( date );		
+	local deploy_start_time=$( date );
 	
 	local creator_host=$( uname -a | fmt );	
 	
@@ -995,6 +995,7 @@ tasks.deploy() {
 	flags[author]=false;
 	flags[sha]=true;
 	flags[bundle.inspect]=false;
+	flags[bundle.standalone]=false;
 	flags[bundle.package.contents]=false;
 	flags[bundle.package.follow]=false;
 	flags[bundle.package.hidden]=false;
@@ -2437,6 +2438,10 @@ ${opt}";
 				;;
 			--inspect )
 				flags[bundle.inspect]=true;
+				;;
+			--standalone )
+				flags[bundle.standalone]=true;
+				flags[bundle.package.contents]=true;
 				;;
 			--pkg )
 				flags[bundle.package.contents]=true;
