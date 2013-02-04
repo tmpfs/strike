@@ -279,6 +279,15 @@
 # write the info.json file
 :tasks.bundle.info.write!() {
 	local info="${bundle_source}/info.json";
+	local k v;
+		
+	# also expose the flags
+	for k in "${!flags[@]}"
+		do
+			v="${flags[$k]}";
+			setup["flags.$k"]="$v";
+	done
+	
 	json.stringify --pretty 2 <<< "setup";
 	json.string > "${info}";
 }

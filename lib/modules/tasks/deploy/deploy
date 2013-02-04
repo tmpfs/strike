@@ -997,6 +997,7 @@ tasks.deploy() {
 	setup[date]=$( date );
 	setup[creator]="${setup[user]}@${setup[hostname]}";
 	setup[platform]=$( uname | tr '[:upper:]' '[:lower:]' );
+	setup[args]="$*";
 
 	# TODO: remove these duplicate variables
 	local deploy_user=$( id -nu );
