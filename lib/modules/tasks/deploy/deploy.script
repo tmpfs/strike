@@ -125,7 +125,7 @@ ${shebang}
 # version: ${project_version}
 # profile: ${profile}
 # type: ${type}
-# local: ${deploy_local}
+# local: ${flags[local]}
 # flat: ${flat}
 # include version: ${include_version}
 # staging: ${staging}
@@ -151,10 +151,9 @@ host="${host}";
 deploy_name="${deploy_name}";
 deploy_final_name="${deploy_final_name}";
 deploy_type="${type}";
-timestamp="${timestamp}";
-creator="${creator}";
+creator="${setup[creator]}";
 url="${url}";
-creator_host="${creator_host}";
+hostinfo=\$( uname -a | fmt );
 
 project_name="${project_name}";
 project_version="${project_version}";
@@ -533,7 +532,7 @@ fsbackup() {
 # print the settings
 settings() {
 	delimiter;
-	info "%s (%s) on %s\n" "\${deploy_name}" "\${creator}"  "\${platform}";
+	info "%s (%s) on %s\n" "\${deploy_name}" "${setup[creator]}"  "\${platform}";
 	delimiter;
 	info "%s\n" "\${start_time}";
 	delimiter;	
@@ -541,7 +540,7 @@ settings() {
 		info "%s\n" "\${description}";
 	fi
 	delimiter;	
-	info "%s\n" "\${creator_host}";
+	info "%s\n" "\${hostinfo}";
 	delimiter;	
 	info "bundle\n";	
 	delimiter;

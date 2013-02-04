@@ -954,7 +954,10 @@ tasks.deploy() {
 	# type which uses curl to fetch the package.
 	# the *git* deployment can cope with local
 	# repositories that do not specify a scheme
-	local scheme="^[a-zA-Z]+:";
+	declare -A regex;
+	regex[scheme]="^[a-zA-Z]+:";
+	# name validation regex
+	regex[name]="^[-a-zA-Z0-9]+$";
 	
 	declare -A defaults;
 	defaults[sha.algorithms]="224 256 384 512";
@@ -969,17 +972,12 @@ tasks.deploy() {
 	# default compression
 	local compression="gz";
 	local compression_extension="tgz";
-	
 	# prefer xz if we have the executables
 	executable.validate --test xz xzdec;
 	if [ -n "${executables[xz]}" ] && [ -n "${executables[xzdec]}" ]; then
 		compression="xz";
 		compression_extension="xz";
 	fi
-	
-	# list of files ignored when bundling
-	declare -a bundle_ignores;
-	bundle_ignores=();
 	
 	# FILE NAMES
 	declare -A names;
@@ -998,19 +996,11 @@ tasks.deploy() {
 	setup[creator]="${setup[user]}@${setup[hostname]}";
 	setup[platform]=$( uname | tr '[:upper:]' '[:lower:]' );
 	setup[args]="$*";
-
-	# TODO: remove these duplicate variables
-	local deploy_user=$( id -nu );
-	local timestamp=$( date +%s );
-	local localhost=$( hostname );
-	local creator="${deploy_user}@${localhost}";
-	local deploy_start_time=$( date );
-	
-	local creator_host=$( uname -a | fmt );	
+	setup[uid]="${setup[user]}@${setup[hostname]}";
 	
 	# FLAGS
-	
 	declare -A flags;
+	flags[local]=false;	
 	flags[verbose]=false;
 	flags[quiet]=false;
 	flags[print.env]=false;
@@ -1018,6 +1008,8 @@ tasks.deploy() {
 	flags[timestamp]=false;
 	flags[author]=false;
 	flags[sha]=true;
+	flags[interactive]=true;
+	flags[logging]=false;
 	flags[bundle.inspect]=false;
 	flags[bundle.standalone]=false;
 	flags[bundle.package.contents]=false;
@@ -1031,13 +1023,6 @@ tasks.deploy() {
 	
 	# just creating bundles
 	local bundling=false;
-	
-	# determine if we are printing
-	# messages to a log file
-	local logging=false;
-	
-	# interactive by default
-	local interactive=true;
 	
 	# non-operation
 	local noop=false;
@@ -1065,9 +1050,6 @@ tasks.deploy() {
 	skip["remote.pre"]=false;
 	skip["remote.post"]=false;
 	skip["growl"]=false;
-	
-	# determine if we are deploying locally
-	local deploy_local=false;
 	
 	# include version information in the target
 	local include_version=false;
@@ -1106,9 +1088,6 @@ tasks.deploy() {
 
 	local descriptor="${root}/deploy.json";
 	local newline=$'\n';
-	
-	# name validation regex
-	local re="^[-a-zA-Z0-9]+$";
 	
 	# list of supported shells
 	local shells=( sh bash zsh dash );
@@ -1220,7 +1199,7 @@ tasks.deploy() {
 	json_dump["project-name"]="${project_name}";	
 	json_dump["descriptor"]="${descriptor}";
 	json_dump["noop"]="${noop}";
-	json_dump["local"]="${deploy_local}";
+	json_dump["local"]="${flags[local]}";
 	local i;
 	for i in ${!profiles[@]}
 		do
@@ -1563,17 +1542,17 @@ tasks.deploy() {
 	fi
 	
 	if [ "$type" == "tar" ] \
-		&& [[ ! "$url" =~ $scheme ]]; then
+		&& [[ ! "$url" =~ ${regex[scheme]} ]]; then
 			:tasks.deploy.fail \
 				"%s (type: %s) invalid url %s, must specify a scheme" \
 				"${profile}" "${type}" "${url}";
 	fi	
 	
 	# validate required data
-	if ! $deploy_local && [ -z "${host}" ]; then
+	if ! ${flags[local]} && [ -z "${host}" ]; then
 		:tasks.deploy.fail "no remote host information available for deploy";
-	elif $deploy_local; then
-		host="${localhost}";
+	elif ${flags[local]}; then
+		host="${setup[hostname]}";
 	fi
 	
 	# set up the full deployment target directory
@@ -1751,7 +1730,7 @@ tasks.deploy() {
 				
 				# execute the command
 				if ! $noop; then
-					if ! $logging; then
+					if ! ${flags[logging]}; then
 						if $quote; then
 							( ${exe} "${opt[@]:-}" ); exit_code=$?;
 						else
@@ -2007,7 +1986,7 @@ ${opt}";
 		local start_time=$( date )
 		
 		# HEADER
-		:tasks.deploy.out.info "%s (%s) on %s" "${deploy_name}" "${creator}" "${setup[platform]}";
+		:tasks.deploy.out.info "%s (%s) on %s" "${deploy_name}" "${setup[creator]}" "${setup[platform]}";
 		
 		# INFO		
 		:tasks.deploy.header;
@@ -2071,9 +2050,9 @@ ${opt}";
 # print profiles
 :tasks.deploy.print.profiles() {
 	:tasks.deploy.header;
-	:tasks.deploy.out.info "deploy %s" "$deploy_start_time";
-	:tasks.deploy.out.info "started by %s" "${deploy_user}@${localhost}";
-	:tasks.deploy.out.info "";		
+	:tasks.deploy.out.info "deploy %s" "${setup[date]}";
+	:tasks.deploy.out.info "started by %s" "${setup[uid]}";
+	:tasks.deploy.out.info "";
 	local p;
 	for p in "${profiles[@]}"
 		do
@@ -2089,7 +2068,7 @@ ${opt}";
 		return 0;
 	fi	
 	
-	if ! $logging; then
+	if ! ${flags[logging]}; then
 		console.header;
 	else
 		console.header "$@" >> "${log}" 2>&1;
@@ -2103,7 +2082,7 @@ ${opt}";
 		return 0;
 	fi
 	
-	if ! $logging; then
+	if ! ${flags[logging]}; then
 		console.info "$@";
 	else
 		console.info "$@" >> "${log}" 2>&1;
@@ -2124,7 +2103,7 @@ ${opt}";
 	local callback="${1:-}";
 	# stdin or stdout is not a tty
 	# cannot interact
-	if ! $interactive || [ ! -t 0 ] || [ ! -t 1 ]; then
+	if ! ${flags[interactive]} || [ ! -t 0 ] || [ ! -t 1 ]; then
 		# invoke callback to start deployment
 		$callback;
 		return 0;
@@ -2287,7 +2266,7 @@ ${opt}";
 	local name="${1:-}";
 	# may not start with a hyphen
 	# and must match the name regex
-	if [[ "$name" =~ ^-+ ]] || [[ ! "$name" =~ $re ]]; then
+	if [[ "$name" =~ ^-+ ]] || [[ ! "$name" =~ ${regex[name]} ]]; then
 		return 1;
 	fi
 	return 0;
@@ -2297,7 +2276,7 @@ ${opt}";
 :tasks.name.quit() {
 	local var="$1";
 	local value="$2";
-	console.error "names may not start with a hyphen and must match %s" "$re";	
+	console.error "names may not start with a hyphen and must match %s" "${regex[name]}";	
 	console.error "invalid $var name %s" "$value";
 	:tasks.deploy.fail;
 }
@@ -2341,11 +2320,11 @@ ${opt}";
 	while test -n "${1:-}"; do
 		case $1 in	
 			--ok )
-				interactive=false;
+				flags[interactive]=false;
 				;;
 			--noop )
 				noop=true;
-				interactive=false;				
+				flags[interactive]=false;
 				;;
 			--list )
 				print_profiles=true;
@@ -2356,7 +2335,7 @@ ${opt}";
 				staging="${1:-}";
 				;;
 			--local )
-				deploy_local=true;
+				flags[local]=true;
 				;;
 			--json )
 				print_json=true;
@@ -2378,7 +2357,7 @@ ${opt}";
  			--lint-run )
 				lint=true;
 				run_script=true;
-				deploy_local=true;				
+				flags[local]=true;				
 				noop=true;
 				;;				
 			--pretty )
@@ -2420,7 +2399,7 @@ ${opt}";
 				skip["growl"]=true;
 				;;
 			--log )
-				logging=true;
+				flags[logging]=true;
 				;;
 			--print-env )
 				flags[print.env]=true;

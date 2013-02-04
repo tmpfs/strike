@@ -331,7 +331,7 @@ NPMPKG
 :tasks.deploy.bundle.install!() {
 	
 	# local deployment
-	if $deploy_local; then
+	if ${flags[local]}; then
 		:tasks.deploy.out.info "local install %s" "${bundle_archive}";
 		# copy packaged bundle to staging
 		cp "${bundle_path}" "${staging}" \
@@ -344,7 +344,7 @@ NPMPKG
 			|| :tasks.deploy.fail "could not enter %s" "${staging}/${bundle_name}";
 			
 		# run the script
-		if ! $logging; then
+		if ! ${flags[logging]}; then
 			"./${script_name}";
 		else
 			"./${script_name}" >> "${log}" 2>&1;
