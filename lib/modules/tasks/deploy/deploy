@@ -290,7 +290,7 @@ The descriptor used to create the bundle.
 
 A JSON document containing the computed settings for the deployment.
 
-* `deploy.sh`:
+* `install.sh`:
 
 The generated deployment script or the contents of *script* if `--script-source` was specified.
 
@@ -382,7 +382,7 @@ To create a hierarchy for bundled scripts you may create a directory within the 
 
 ## ROLLBACK
 
-The generated *deploy.sh* script attempts to rollback to a previous deployment if a deployment fails.
+The generated *install.sh* script attempts to rollback to a previous deployment if a deployment fails.
 
 This operation will only be performed if the final target directory for the deployment existed prior to starting a deployment, ie, the operation is a re-deployment.
 
@@ -1416,7 +1416,7 @@ tasks.deploy() {
 		|| :tasks.deploy.fail "could not create %s" "${bundle_source}";
 	
 	# scipt / log variables
-	script_name="deploy.sh";
+	script_name="install.sh";
 	script_dir="${bundle_source}";
 	script="${script_dir}/${script_name}";
 	log_name="${deploy_file_name}-${profile}.log";

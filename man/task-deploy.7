@@ -474,7 +474,7 @@ The descriptor used to create the bundle\.
 A JSON document containing the computed settings for the deployment\.
 .
 .TP
-\fBdeploy\.sh\fR:
+\fBinstall\.sh\fR:
 
 .
 .P
@@ -607,7 +607,7 @@ By default no hierarchy is maintained for bundled scripts so names should be uni
 To create a hierarchy for bundled scripts you may create a directory within the bundled \fBscripts\fR by specifying a \fBdir\fR property\. Leading periods or slashes are not allowed when specifying directories to create using the \fBdir\fR property\.
 .
 .SH "ROLLBACK"
-The generated \fIdeploy\.sh\fR script attempts to rollback to a previous deployment if a deployment fails\.
+The generated \fIinstall\.sh\fR script attempts to rollback to a previous deployment if a deployment fails\.
 .
 .P
 This operation will only be performed if the final target directory for the deployment existed prior to starting a deployment, ie, the operation is a re\-deployment\.
