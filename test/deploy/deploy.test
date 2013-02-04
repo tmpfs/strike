@@ -68,7 +68,9 @@ test.deploy.local() {
 	#
 	local pass_tests=(
 		"deploy.env"
-		'deploy.script.file'
+		
+		'deploy.options.list'
+		'deploy.options.script.file'
 		'deploy.minimal.bundle'
 		'deploy.minimal.deploy'
 		'deploy.project.bundle'
@@ -178,7 +180,7 @@ deploy.env() {
 
 # test a custom installation script
 # specified with the --script-file option
-deploy.script.file() {
+deploy.options.script.file() {
 	local script="${project_source}/custom-install.sh";	
 	local profile="default";
 	descriptor="${project_source}/${profile}.json";
@@ -189,6 +191,43 @@ deploy.script.file() {
 	assert.file.exists? "${expects}";
 	local contents=$( < "${expects}" );
 	assert.equal "./install.sh" "${contents}";
+}
+
+deploy.options.list() {
+	# local profile="default";
+	# descriptor="${project_source}/${profile}.json";
+	# local opts=( ${options[@]} );
+	# opts+=( --descriptor "${descriptor}" --script-file "${script}" );
+	# ( tasks.deploy "${opts[@]}" );
+	# local expects="${target}/custom-install.txt";
+	# assert.file.exists? "${expects}";
+	# local contents=$( < "${expects}" );
+	# assert.equal "./install.sh" "${contents}";
+	
+	declare -A descriptors;
+	descriptors[default]="default.json";
+	descriptors[minimal]="minimal.json";
+	descriptors[deploy-npm]="deploy-npm.json";
+	descriptors[deploy-tar]="deploy-tar.json";	
+	
+	declare -A expects;
+	expects[default]="default";
+	expects[minimal]="default";
+	expects[deploy-git]="deploy-git";
+	expects[deploy-npm]="deploy-npm";	
+	expects[deploy-tar]="deploy-tar";	
+	
+	local k v descriptor opts received;
+	for k in "${!descriptors[@]}"
+		do
+			v="${descriptors[$k]}";
+			descriptor="${project_source}/${v}";
+			opts=( ${options[@]} );
+			opts+=( --list --descriptor "${descriptor}" );
+			received=( $( tasks.deploy "${opts[@]}" ) );
+			assert.equal "${expects[$k]}" "$received";
+	done
+	
 }
 
 # MINIMAL

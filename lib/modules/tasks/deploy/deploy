@@ -50,7 +50,7 @@ tasks.deploy() {
 	declare -A defaults;
 	defaults[sha.algorithms]="224 256 384 512";
 	defaults[sha.default.algorithm]="512";
-	defaults[profile.name]="default";
+	defaults[profile.name]="default";	
 	
 	local default_type="git";
 	
@@ -76,9 +76,13 @@ tasks.deploy() {
 	names[makefile]="makefile";
 	names[makefiles]="makefile Makefile GNUmakefile";
 	names[script]="install.sh";
+	names[descriptor]="deploy.json";
+	
+	# list of supported shells
+	local shells=( sh bash zsh dash );	
 	
 	# valid deployment types
-	local types=( git tar npm );	
+	local types=( git tar npm );
 	
 	# SETUP
 	declare -A setup;
@@ -159,13 +163,11 @@ tasks.deploy() {
 	sources[script]="";
 	sources[make]="";	
 
-	local descriptor="${root}/deploy.json";
+	local descriptor="${root}/${names[descriptor]}";
 	
-	# list of supported shells
-	local shells=( sh bash zsh dash );	
 	local type="${default_type}";
 	# FIXME: use default variable
-	local profile="default";
+	local profile="${defaults[profile.name]}";
 	local directory="";
 	local shell="${bake_deploy_shell:-sh}";
 	local host="${bake_deploy_remote:-}";

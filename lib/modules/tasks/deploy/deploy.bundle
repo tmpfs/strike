@@ -278,6 +278,8 @@
 
 # write the info.json file
 :tasks.bundle.info.write!() {
+	# TODO: when processing multiple profiles, we only need to generate this info once!!!
+	
 	local info="${bundle_source}/info.json";
 	local k v;
 		
