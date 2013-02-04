@@ -127,7 +127,7 @@ ${shebang}
 # type: ${type}
 # local: ${flags[local]}
 # flat: ${flat}
-# include version: ${include_version}
+# include version: ${flags[target.version]}
 # staging: ${staging}
 # directory: ${directory}
 # target: ${deploy_target}

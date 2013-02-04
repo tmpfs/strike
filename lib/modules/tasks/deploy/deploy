@@ -948,6 +948,9 @@ tasks.deploy() {
 	executable.validate scp ssh;
 	executable.validate --test growlnotify;
 	
+	# GENERAL
+	local newline=$'\n';
+	
 	# regex for matching a url scheme
 	# eg: file: http: https: ftp:
 	# this is only necessary for the *tar*
@@ -957,12 +960,22 @@ tasks.deploy() {
 	declare -A regex;
 	regex[scheme]="^[a-zA-Z]+:";
 	# name validation regex
-	regex[name]="^[-a-zA-Z0-9]+$";
+	regex[name]="^[-a-zA-Z0-9]+$";	
 	
+	# INTERACTIVE
+	local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
+	local deploy_prompt="${deploy_prompt_prefix} \033[4m%s\033[0m";
+	local deploy_prompt_suffix=" ${characters[lightning]}";
+	
+	# DEFAULTS
 	declare -A defaults;
 	defaults[sha.algorithms]="224 256 384 512";
 	defaults[sha.default.algorithm]="512";
+	defaults[profile.name]="default";
 	
+	local default_type="git";
+	
+	# COMPRESSION
 	declare -A compression_types;
 	compression_types[gz]="tgz gzip gunzip";
 	compression_types[bz]="bz2 bzip2 bunzip2";
@@ -983,6 +996,10 @@ tasks.deploy() {
 	declare -A names;
 	names[makefile]="makefile";
 	names[makefiles]="makefile Makefile GNUmakefile";
+	names[script]="install.sh";
+	
+	# valid deployment types
+	local types=( git tar npm );	
 	
 	# SETUP
 	declare -A setup;
@@ -1010,35 +1027,39 @@ tasks.deploy() {
 	flags[sha]=true;
 	flags[interactive]=true;
 	flags[logging]=false;
+	flags[deploy.all]=false;
 	flags[bundle.inspect]=false;
 	flags[bundle.standalone]=false;
 	flags[bundle.package.contents]=false;
 	flags[bundle.package.follow]=false;
 	flags[bundle.package.hidden]=false;
 	
+	flags[target.version]=false;
+	flags[target.flat]=false;
+
+	# strategy used to determine the target
+	# directory. the default is to include
+	# the profile name in the target directory
+	# structure
+	local flat=false;	
+	
 	# TODO: move all other flag variables into $flags
 	
 	# assume failure
 	local success=false;
-	
 	# just creating bundles
 	local bundling=false;
-	
 	# non-operation
 	local noop=false;
-	
 	# --list: determine if we are just
 	# printing profiles available in descriptor
 	local print_profiles=false;
 	
-	# determine if we are deploying
-	# all profiles in descriptor, see --all
-	local deploy_all=false;
-	
 	# run script through checkbashisms and exit
 	local lint=false;
-	local run_script=false;	
-	
+	local run_script=false;
+	# dump script contents to stdout
+	local dump_script=false;
 	# quote command options by default
 	local quote=true;
 	
@@ -1049,24 +1070,12 @@ tasks.deploy() {
 	skip["local.post"]=false;
 	skip["remote.pre"]=false;
 	skip["remote.post"]=false;
-	skip["growl"]=false;
-	
-	# include version information in the target
-	local include_version=false;
-	
-	# dump script contents to stdout
-	local dump_script=false;
-
-	# strategy used to determine the target
-	# directory. the default is to include
-	# the profile name in the target directory
-	# structure
-	local flat=false;	
+	skip["growl"]=false;	
 	
 	# determines whether we are generating json
 	local print_json=false;
 	local write_json=false;
-	local pretty=false;	
+	local pretty=false;
 	
 	## DEFAULTS	
 	
@@ -1078,23 +1087,14 @@ tasks.deploy() {
 	# instead of generated ones
 	declare -A sources;
 	sources[script]="";
-	sources[make]="";
-	
-	# the prefix used for deployment
-	# interactive prompts
-	local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
-	local deploy_prompt="${deploy_prompt_prefix} \033[4m%s\033[0m";
-	local deploy_prompt_suffix=" ${characters[lightning]}";
+	sources[make]="";	
 
 	local descriptor="${root}/deploy.json";
-	local newline=$'\n';
 	
 	# list of supported shells
-	local shells=( sh bash zsh dash );
-
-	# default to git deployment
-	local default_type="git";	
+	local shells=( sh bash zsh dash );	
 	local type="${default_type}";
+	# FIXME: use default variable
 	local profile="default";
 	local directory="";
 	local shell="${bake_deploy_shell:-sh}";
@@ -1110,18 +1110,18 @@ tasks.deploy() {
 	# file name using a - delimiter	
 	local deploy_file_name="${project_name}-${project_version}";
 	
+	# messages
+	declare -A messages;
+	# messages sent via `growlnotify`
+	messages[success]="deploy ${deploy_name} complete";
+	messages[fail]="deploy ${deploy_name} failed";	
+	
 	# profile specific variables
 	local script_name="${deploy_file_name}.sh";
 	local script="${target}/${script_name}";
 	local log_name="${deploy_file_name}.log";
 	local log_dir="${staging}/log";
 	local log_file="${log_dir}/${log_name}";
-	
-	# messages
-	declare -A messages;
-	# messages sent via `growlnotify`
-	messages[success]="deploy ${deploy_name} complete";
-	messages[fail]="deploy ${deploy_name} failed";	
 	
 	local deploy_staging_directory="${target}/deploy";
 	local bundle_output="${deploy_staging_directory}";
@@ -1134,9 +1134,6 @@ tasks.deploy() {
 	local log="${deploy_staging_directory}/deploy.log";
 	# clear the log file
 	printf "" >| "${log}";
-
-	# valid deployment types
-	local types=( git tar npm );
 	
 	local profiles=();
 	
@@ -1172,14 +1169,10 @@ tasks.deploy() {
 	git.branch.current "git_ref";
 	local default_url="${git_url}";
 	
-	# escape spaces in paths
-	printf -v staging "%q" "${staging}";
-	
 	:tasks.deploy.parse;
 	
-	local default_profile="default";
 	# if we are deploying everything
-	if $deploy_all; then
+	if ${flags[deploy.all]}; then
 		profiles=( ${all_profiles[@]} );
 	fi
 	
@@ -1188,7 +1181,7 @@ tasks.deploy() {
 	# if none are specified on the command line
 	# or none exist in the descriptor
 	if [ ${#profiles[*]} -eq 0 ]; then
-		profiles+=( "${default_profile}" );
+		profiles+=( "${defaults[profile.name]}" );
 	fi
 	
 	# prevent duplicate executions if a command line
@@ -1196,7 +1189,7 @@ tasks.deploy() {
 	:tasks.deploy.profiles.uniq!;
 	
 	# update some json dump properties after option parsing
-	json_dump["project-name"]="${project_name}";	
+	json_dump["project-name"]="${project_name}";
 	json_dump["descriptor"]="${descriptor}";
 	json_dump["noop"]="${noop}";
 	json_dump["local"]="${flags[local]}";
@@ -1250,7 +1243,7 @@ tasks.deploy() {
 				if [[ "$dly_doc_value" =~ $dly_env_doc_re ]]; then
 					:tasks.deploy.fail \
 						"invalid %s cross-reference in %s" \
-						"json" "env";
+						"doc" "env";
 				fi
 			fi
 			
@@ -1267,7 +1260,7 @@ tasks.deploy() {
 			fi
 	done
 	
-	# deploy all profiles
+	# deploy all target profiles
 	:tasks.deploy.profiles;
 
 	# show the complete message
@@ -1295,7 +1288,7 @@ tasks.deploy() {
 	
 	local nm;
 	fs.basename "${descriptor}" "nm";
-	setup[descriptor.path]="${descriptor}";	
+	setup[descriptor.path]="${descriptor}";
 	setup[descriptor.name]="${nm}";
 	
 	:tasks.deploy.out.info "cd %s" "${setup[wd]}";
@@ -1331,9 +1324,6 @@ tasks.deploy() {
 	if [ -z "${directory}" ]; then
 		:tasks.deploy.fail "directory may not be empty";
 	fi
-	
-	# is this necessary???
-	printf -v directory "%q" "${directory}";
 }
 
 # make profile list unique
@@ -1353,7 +1343,7 @@ tasks.deploy() {
 	
 	for profile in "${profiles[@]}"
 		do
-			if [ "${profile}" != "${default_profile}" ]; then
+			if [ "${profile}" != "${defaults[profile.name]}" ]; then
 				if ! array.contains? "${profile}" "${all_profiles[@]:-}"; then
 					console.warn "profile %s does not exist in %s" "${profile}" "${descriptor}";
 					continue;
@@ -1427,7 +1417,7 @@ tasks.deploy() {
 		|| :tasks.deploy.fail "could not create %s" "${bundle_source}";
 	
 	# scipt / log variables
-	script_name="install.sh";
+	script_name="${names[script]}";
 	script_dir="${bundle_source}";
 	script="${script_dir}/${script_name}";
 	log_name="${deploy_file_name}-${profile}.log";
@@ -1436,7 +1426,7 @@ tasks.deploy() {
 	
 	# TODO: allow for the version to be included in the target directory
 	local target_name="${project_name}";
-	if $include_version; then
+	if ${flags[target.version]}; then
 		target_name="${deploy_file_name}";
 	fi
 	# the full deployment target directory
@@ -1502,7 +1492,7 @@ tasks.deploy() {
 	if [ -z "${url:-}" ]; then
 		# use the default url extracted for a git repository
 		# for the default profile if possible
-		if [ "$profile" == "$default_profile" ] \
+		if [ "$profile" == "${defaults[profile.name]}" ] \
 			&& [ "$type" == "git" ] \
 			&& [ -n "${default_url:-}" ]; then
 			url="$default_url";
@@ -1524,7 +1514,6 @@ tasks.deploy() {
 		local npm_use_package=false;		
 		local npm_package_re="([^@ ]+)(@| )(.*)?$";
 		if [[ "${url:-}" =~ $npm_package_re ]]; then
-			# echo "MATCHES NPM RE!!!"
 			npm_package_name="${BASH_REMATCH[1]}";
 			url="${BASH_REMATCH[3]}";
 			npm_package_version="${url}";
@@ -1536,7 +1525,7 @@ tasks.deploy() {
 	# and the parent of the descriptor is not 
 	# a git repository
 	if [ "$type" == "git" ] \
-		&& [ "$profile" == "$default_profile" ] \
+		&& [ "$profile" == "${defaults[profile.name]}" ] \
 		&& ! git.valid? "${setup[wd]}"; then
 		:tasks.deploy.fail "%s is not a git repsitory" "${setup[wd]}";
 	fi
@@ -2332,6 +2321,7 @@ ${opt}";
 				;;				
 			--staging )
 				shift;
+				# TODO: validate this?
 				staging="${1:-}";
 				;;
 			--local )
@@ -2370,10 +2360,10 @@ ${opt}";
 				flat=true;
 				;;	
 			--include-version )
-				include_version=true;
+				flags[target.version]=true;
 				;;
 			--all )
-				deploy_all=true;
+				flags[deploy.all]=true;
 				;;				
 			--no-local )
 				skip["local.pre"]=true;

@@ -58,7 +58,7 @@
 	},
 	"profiles": {
 		"default": {
-			"description": "default deloyment using git(1)"
+			"description": "default deployment using git(1)"
 		},
 		"man-tar": {
 			"description": "create an archive of man pages and deploy with tar(1)",

@@ -87,7 +87,7 @@
 # proxy to the installation script
 :tasks.bundle.makefile.script.proxy() {
 	make_targets[targets]="install";
-	make_rules[install]="./install.sh \$@";
+	make_rules[install]="./${names[script]} \$@";
 }
 
 # write an include directive to the makefile
