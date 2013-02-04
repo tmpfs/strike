@@ -29,8 +29,8 @@ doc:
 	
 json-checker:
 	./bake json.checker.compile
-# 	
+
 # install:
-# 	@echo "install target ... ";
+# 	@echo "install target invoked";
 	
-.PHONY: clean test doc json-checker
+.PHONY: clean test doc json-checker install

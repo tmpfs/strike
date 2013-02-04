@@ -26,7 +26,7 @@
 	elif [ $has_makefile -eq 0 ]; then
 		# make -qp | grep -v '^# ' | grep -v '^[[:space:]]' | grep --only-matching '^.*:' | grep 'install:';
 		
-			echo "got custom makefile: $bundle_makefile"
+			# echo "got custom makefile: $bundle_makefile"
 			
 			# determine if the makefile has a install target
 			# executed in a subshell so the working directory
@@ -51,6 +51,10 @@
 				:tasks.bundle.makefile.script.proxy;
 				:tasks.bundle.makefile.targets;
 				:tasks.bundle.makefile.proxy "${bundle_contents_name}" "$bundle_makefile_name";
+			# the bundled makefile has an install target
+			# so we just proxy everything
+			else
+				:tasks.bundle.makefile.proxy "${bundle_contents_name}" "$bundle_makefile_name";				
 			fi
 	fi
 	
@@ -78,6 +82,9 @@ EOF
 
 # determine if the package contents has a makefile
 :tasks.bundle.makefile.exists?() {
+	# FIXME: if the bundle is created on a case-insensitive
+	# FIXME: platform but deployed to a case-sensitive platform
+	# FIXME: the make file name will be incorrect in deployment
 	local name;
 	for name in ${makefile_names[@]}
 		do
@@ -127,8 +134,10 @@ EOF
 }
 
 :tasks.bundle.makefile.phony() {
+	if [ -n "${make_targets[targets]:-}" ]; then
 cat <<EOF >> "${makefile}"
 .PHONY: ${make_targets[targets]}
 
 EOF
+	fi
 }
