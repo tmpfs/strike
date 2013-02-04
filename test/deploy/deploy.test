@@ -68,7 +68,7 @@ test.deploy.local() {
 	#
 	local pass_tests=(
 		"deploy.env"
-		'deploy.script.source'
+		'deploy.script.file'
 		'deploy.minimal.bundle'
 		'deploy.minimal.deploy'
 		'deploy.project.bundle'
@@ -178,7 +178,7 @@ deploy.env() {
 
 # test a custom installation script
 # specified with the --script-file option
-deploy.script.source() {
+deploy.script.file() {
 	local script="${project_source}/custom-install.sh";	
 	local profile="default";
 	descriptor="${project_source}/${profile}.json";

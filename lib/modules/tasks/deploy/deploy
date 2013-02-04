@@ -116,6 +116,11 @@ tasks.deploy() {
 	flags[target.version]=false;
 	flags[target.flat]=false;
 	
+	flags[print.profiles]=false;
+	flags[print.json]=false;
+	
+	local print_json=false;
+	
 	# TODO: move all other flag variables into $flags
 	
 	# assume failure
@@ -124,9 +129,6 @@ tasks.deploy() {
 	local bundling=false;
 	# non-operation
 	local noop=false;
-	# --list: determine if we are just
-	# printing profiles available in descriptor
-	local print_profiles=false;
 	
 	# run script through checkbashisms and exit
 	local lint=false;
@@ -145,8 +147,6 @@ tasks.deploy() {
 	skip["remote.post"]=false;
 	skip["growl"]=false;	
 	
-	# determines whether we are generating json
-	local print_json=false;
 	local write_json=false;
 	local pretty=false;
 	
@@ -1252,7 +1252,7 @@ ${opt}";
 		unset IFS;
 		all_profiles=( ${sorted_profiles[@]} );
 	
-		if $print_profiles; then
+		if ${flags[print.profiles]}; then
 			if [ "${#all_profiles[@]}" -eq 0 ]; then
 				:tasks.deploy.fail "no profiles in %s" "$descriptor";
 			else
@@ -1262,7 +1262,7 @@ ${opt}";
 				console.success;
 			fi
 		fi
-	else
+	elif ${flags[print.profiles]}; then
 		console.log "${defaults[profile.name]}";
 		console.success;
 	fi
@@ -1392,9 +1392,9 @@ ${opt}";
 				flags[interactive]=false;
 				;;
 			--list )
-				print_profiles=true;
-				flags[quiet]=true;				
-				;;				
+				flags[print.profiles]=true;
+				flags[quiet]=true;		
+				;;
 			--staging )
 				shift;
 				# TODO: validate this?
