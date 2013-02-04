@@ -126,7 +126,7 @@ ${shebang}
 # profile: ${profile}
 # type: ${type}
 # local: ${flags[local]}
-# flat: ${flat}
+# flat: ${flags[target.flat]}
 # include version: ${flags[target.version]}
 # staging: ${staging}
 # directory: ${directory}
@@ -381,8 +381,6 @@ EOF
 
 # flatten a list of commands and write to script
 :tasks.deploy.script.commands.embed() {
-	#echo "flattening remote commands for ${!profile_commands[@]}";
-	
 	printf "\t" >> "${script}";
 	local written=false;	
 	local k v cmds re="^commands\.remote\.$phase\.[0-9]+";

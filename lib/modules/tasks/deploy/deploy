@@ -1036,12 +1036,6 @@ tasks.deploy() {
 	
 	flags[target.version]=false;
 	flags[target.flat]=false;
-
-	# strategy used to determine the target
-	# directory. the default is to include
-	# the profile name in the target directory
-	# structure
-	local flat=false;	
 	
 	# TODO: move all other flag variables into $flags
 	
@@ -1546,7 +1540,7 @@ tasks.deploy() {
 	
 	# set up the full deployment target directory
 	deploy_target="${directory}/${target_name}";
-	if ! $flat; then
+	if ! ${flags[target.flat]}; then
 		deploy_target="${deploy_target}/${profile}";
 	fi
 	
@@ -2189,7 +2183,10 @@ ${opt}";
 				console.success;
 			fi
 		fi
-	fi	
+	else
+		console.log "${defaults[profile.name]}";
+		console.success;
+	fi
 }
 
 # failure
@@ -2357,7 +2354,7 @@ ${opt}";
 				quote=false;
 				;;
 			--flat )
-				flat=true;
+				flags[target.flat]=true;
 				;;	
 			--include-version )
 				flags[target.version]=true;
