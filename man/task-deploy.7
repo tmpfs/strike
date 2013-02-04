@@ -7,7 +7,12 @@
 \fBtask\-deploy\fR \- deploy task(s) for bake(1)
 .
 .SH "SYNOPSIS"
-Deploy task(s) for bake(1)\.
+.
+.nf
+
+bake deploy [options\.\.\.] [profiles\.\.\.]
+.
+.fi
 .
 .SH "DESCRIPTION"
 Performs a deployment for a project\.
@@ -24,14 +29,6 @@ require \'tasks/deploy\';
 .fi
 .
 .IP "" 0
-.
-.SH "USAGE"
-.
-.nf
-
-bake deploy [options\.\.\.] [profiles\.\.\.]
-.
-.fi
 .
 .SH "OPTIONS"
 .
@@ -97,22 +94,6 @@ The scp(1) and ssh(1) \fIuser@host\fR specification\. When this option is specif
 .
 .P
 Use \fIfile\fR as the deployment descriptor\.
-.
-.TP
-\fB\-\-script\-source [script]\fR:
-
-.
-.P
-Use \fIscript\fR as the deployment script instead of any generated script\. The \fIscript\fR must exist and be executable\. When this option is specified then the automatically generated script is ignored and the source \fIscript\fR is used instead\. It is written to disc in the same location, deployed to the remote host (or localhost with the \fB\-\-local\fR option) and executed\.
-.
-.P
-When this option is specified the \fB\-\-shell\fR option has no effect as it is only used to determine the \fIshebang\fR for generated deployment scripts\.
-.
-.P
-If multiple profiles are being deployed then \fIscript\fR is used for all target profiles\.
-.
-.P
-It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are \fInever\fR executed\.
 .
 .TP
 \fB\-\-shell [shell]\fR:
@@ -291,6 +272,29 @@ Also include hidden files when packaging bundle contents\.
 .
 .P
 Do not preserve symbolic links\. Used in conjunction with the \fB\-\-pkg\fR option this copies the symbolic link target into the bundle \fIcontents\fR directory\.
+.
+.TP
+\fB\-\-script\-source [file]\fR:
+
+.
+.P
+Use \fIfile\fR as the script instead of the generated script\. The \fIfile\fR must exist and be executable\. When this option is specified then the automatically generated script is ignored and \fIfile\fR is used instead\. It is written to disc in the same location, deployed to the remote host (or localhost with the \fB\-\-local\fR option) and executed\.
+.
+.P
+When this option is specified the \fB\-\-shell\fR option has no effect as it is only used to determine the \fIshebang\fR for generated deployment scripts\.
+.
+.P
+If multiple profiles are being deployed then \fIfile\fR is used for all target profiles\.
+.
+.P
+It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are \fInever\fR executed\.
+.
+.TP
+\fB\-\-make\-source [file]\fR:
+
+.
+.P
+Use \fIfile\fR as the makefile instead of the generated makefile\. The \fIfile\fR must exist and be named one of \fImakefile\fR, \fIMakefile\fR or \fIGNUmakefile\fR\.
 .
 .SS "Checksums"
 By default a \fBSecure Hash Algorithm\fR is generated for created bundles using the \fI512\fR algorithm and written to a file as a sibling of the generated bundle\. You may influence the behaviour of checksum generation with the following options (last option takes precedence)\.
@@ -551,6 +555,9 @@ The rules for the behaviour of generated makefiles are as follows\. If the bundl
 .
 .P
 If a bundled makefile exists (in the contents directory) then it is checked for an \fBinstall\fR target\. If the bundled makefile contains an \fBinstall\fR target then the generated makefile (at the root of the archive) proxies all targets to the bundled makefile\. If no \fBinstall\fR target is found in the bundled makefile then an \fBinstall\fR target is generated that proxies to \fBinstall\.sh\fR and all other targets are proxied to the bundled makefile\.
+.
+.P
+You may specify a custom makefile using \fB\-\-make\-source\fR in which case the above rules for makefile generation are ignored and the specified makefile is used instead\.
 .
 .SS "Package"
 A bundle may include packaged files to create a \fIstandalone\fR bundle or to append/overwrite files in a deployment\. Packaged files are stored in the \fIcontents\fR directory within the bundle archive\.

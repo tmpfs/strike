@@ -2,13 +2,20 @@
 :tasks.bundle.makefile() {
 	local makefile="${bundle_source}/${names[makefile]}";
 	
+	# using a custom make file
+	if [ -n "${sources[make]}" ]; then
+		cp "${sources[make]}" "${makefile}" \
+			|| :tasks.deploy.fail "could not copy make file %s" \
+				"${sources[make]}";
+		return 0;
+	fi	
+	
 	declare -A make_targets;
 	declare -A make_rules;
 	
 	local bundle_makefile="";
 	local bundle_makefile_name="";
 	local bundle_makefile_relative="";
-	local makefile_names=( makefile Makefile GNUmakefile );
 	:tasks.bundle.makefile.exists?;
 	local has_makefile=$?;
 	local has_makefile_install_target=1;
@@ -63,6 +70,19 @@
 	# cat "$makefile";
 }
 
+# determine if a makefile name is recognised
+:tasks.bundle.makefile.name.valid?() {
+	local name="${1:-}";
+	local word;
+	for word in ${names[makefiles]}
+		do
+			if [ "$name" == "$word" ]; then
+				return 0;
+			fi
+	done
+	return 1;
+}
+
 # sets the makefile targets and rules to
 # proxy to the installation script
 :tasks.bundle.makefile.script.proxy() {
@@ -86,7 +106,7 @@ EOF
 	# FIXME: platform but deployed to a case-sensitive platform
 	# FIXME: the make file name will be incorrect in deployment
 	local name;
-	for name in ${makefile_names[@]}
+	for name in ${names[makefiles]}
 		do
 			if [ -f "${bundle_contents_path}/${name}" ]; then
 				bundle_makefile="${bundle_contents_path}/${name}";

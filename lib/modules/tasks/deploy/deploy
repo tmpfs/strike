@@ -4,7 +4,7 @@ task-deploy(7) -- deploy task(s) for bake(1)
 
 ## SYNOPSIS
 
-Deploy task(s) for bake(1).
+	bake deploy [options...] [profiles...]
 
 ## DESCRIPTION
 
@@ -15,10 +15,6 @@ Performs a deployment for a project.
 In your tasks(7) file `require` the `deploy` task(s) using:
 
 	require 'tasks/deploy';
-
-## USAGE
-
-	bake deploy [options...] [profiles...]
 	
 ## OPTIONS
 
@@ -57,16 +53,6 @@ The scp(1) and ssh(1) *user@host* specification. When this option is specified i
 * `--descriptor [file]`:
 
 Use *file* as the deployment descriptor.
-
-* `--script-source [script]`:
-
-Use *script* as the deployment script instead of any generated script. The *script* must exist and be executable. When this option is specified then the automatically generated script is ignored and the source *script* is used instead. It is written to disc in the same location, deployed to the remote host (or localhost with the `--local` option) and executed.
-
-When this option is specified the `--shell` option has no effect as it is only used to determine the *shebang* for generated deployment scripts.
-
-If multiple profiles are being deployed then *script* is used for all target profiles.
-
-It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are *never* executed.
 
 * `--shell [shell]`:
 
@@ -171,6 +157,20 @@ Also include hidden files when packaging bundle contents.
 * `--follow-symlinks`:
 
 Do not preserve symbolic links. Used in conjunction with the `--pkg` option this copies the symbolic link target into the bundle *contents* directory.
+
+* `--script-source [file]`:
+
+Use *file* as the script instead of the generated script. The *file* must exist and be executable. When this option is specified then the automatically generated script is ignored and *file* is used instead. It is written to disc in the same location, deployed to the remote host (or localhost with the `--local` option) and executed.
+
+When this option is specified the `--shell` option has no effect as it is only used to determine the *shebang* for generated deployment scripts.
+
+If multiple profiles are being deployed then *file* is used for all target profiles.
+
+It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are *never* executed.
+
+* `--make-source [file]`:
+
+Use *file* as the makefile instead of the generated makefile. The *file* must exist and be named one of *makefile*, *Makefile* or *GNUmakefile*.
 
 ### Checksums
 
@@ -337,6 +337,8 @@ A `makefile` is generated in the archive to create a consistent and familiar exp
 The rules for the behaviour of generated makefiles are as follows. If the bundle is not standalone or no makefile is included in the bundle contents then a single *install* target is created which runs the `install.sh` script.
 
 If a bundled makefile exists (in the contents directory) then it is checked for an `install` target. If the bundled makefile contains an `install` target then the generated makefile (at the root of the archive) proxies all targets to the bundled makefile. If no `install` target is found in the bundled makefile then an `install` target is generated that proxies to `install.sh` and all other targets are proxied to the bundled makefile.
+
+You may specify a custom makefile using `--make-source` in which case the above rules for makefile generation are ignored and the specified makefile is used instead.
 
 ### Package
 
@@ -982,6 +984,7 @@ tasks.deploy() {
 	# FILE NAMES
 	declare -A names;
 	names[makefile]="makefile";
+	names[makefiles]="makefile Makefile GNUmakefile";
 	
 	# SETUP
 	declare -A setup;
@@ -2502,6 +2505,9 @@ ${opt}";
 			--script-source )
 				shift;
 				value="${1:-}";
+				if [ -z "${value}" ]; then
+					:tasks.deploy.fail "no script file specified";
+				fi
 				if [ ! -f "${value}" ]; then
 					:tasks.deploy.fail "script file %s does not exist" "$value";
 				fi
@@ -2509,6 +2515,25 @@ ${opt}";
 					:tasks.deploy.fail "script file %s is not executable" "$value";
 				fi
 				sources[script]="${value}";
+				;;
+			--make-source )
+				shift;
+				value="${1:-}";
+				if [ -z "${value}" ]; then
+					:tasks.deploy.fail "no make file specified";
+				fi
+				if [ ! -f "${value}" ]; then
+					:tasks.deploy.fail "make file %s does not exist" "$value";
+				fi
+				
+				local filename;
+				fs.basename "${value}" "filename";
+				if ! :tasks.bundle.makefile.name.valid? "$filename"; then
+					:tasks.deploy.fail \
+						"invalid make file name %s, must be one of %s" \
+						"$filename" "${names[makefiles]}";
+				fi
+				sources[make]="${value}";
 				;;
 			--shell )
 				shift;
