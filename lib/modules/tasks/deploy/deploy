@@ -995,9 +995,9 @@ tasks.deploy() {
 	flags[author]=false;
 	flags[sha]=true;
 	flags[bundle.inspect]=false;
-	flags[bundle.package]=false;
-	flags[bundle.package.follow.symlinks]=false;
-	flags[bundle.package.include.hidden]=false;
+	flags[bundle.package.contents]=false;
+	flags[bundle.package.follow]=false;
+	flags[bundle.package.hidden]=false;
 	
 	# TODO: move all other flag variables into $flags
 	
@@ -2439,16 +2439,16 @@ ${opt}";
 				flags[bundle.inspect]=true;
 				;;
 			--pkg )
-				flags[bundle.package]=true;
+				flags[bundle.package.contents]=true;
 				;;
 			--no-pkg )
-				flags[bundle.package]=false;
+				flags[bundle.package.contents]=false;
 				;;
 			--follow-symlinks )
-				flags[bundle.package.follow.symlinks]=true;
+				flags[bundle.package.follow]=true;
 				;;
 			--include-hidden )
-				flags[bundle.package.include.hidden]=true;
+				flags[bundle.package.hidden]=true;
 				;;
 			--quiet )
 				flags[quiet]=true;

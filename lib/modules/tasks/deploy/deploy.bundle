@@ -69,10 +69,10 @@
 
 # adds bundle package contents
 :tasks.bundle.contents() {
-	if ${flags[bundle.package]}; then
+	if ${flags[bundle.package.contents]}; then
 		
 		local cp_opts="-p";
-		if ! ${flags[bundle.package.follow.symlinks]}; then
+		if ! ${flags[bundle.package.follow]}; then
 			cp_opts="${cp_opts}R";
 		fi
 		
@@ -152,7 +152,7 @@
 				elif [ -L "${file}" ]; then
 					symlink=$( readlink "$file" );
 					# preserve symbolic links for directories
-					if ! ${flags[bundle.package.follow.symlinks]}; then
+					if ! ${flags[bundle.package.follow]}; then
 						cd "$path" && ln -s "$symlink" "$name";
 						cd "${contents}";
 					# TODO: copy over contents of symbolic link directory
@@ -168,7 +168,7 @@
 	if [[ "$relative" =~ $ignore_re ]]; then
 		return 0;
 	fi
-	if ! ${flags[bundle.package.include.hidden]}; then
+	if ! ${flags[bundle.package.hidden]}; then
 		if [[ "$name" =~ ^\. ]]; then
 			return 0;
 		fi

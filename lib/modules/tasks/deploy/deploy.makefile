@@ -13,6 +13,10 @@
 	:tasks.bundle.makefile.phony;
 	
 	# cat "$makefile";
+	
+	# %: force
+	#              @$(MAKE) -f Makefile $@
+	#      force: ;	
 }
 
 :tasks.bundle.makefile.header() {
