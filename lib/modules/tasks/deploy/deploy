@@ -138,7 +138,7 @@ Just create bundles do not deploy anything and do not execute any commands. Impl
 
 * `--output [directory]`:
 
-Use *directory* as the target for generated bundles. The *directory* must exist and be writable.
+Use *directory* as the target for generated bundles, the *directory* must exist and be writable.
 
 * `--inspect`:
 
@@ -154,7 +154,15 @@ Prepend an author to the name of the bundle. This sanitizes the user name (deter
 
 * `--pkg`:
 
-Also package a directory into the *contents* directory of the bundle.
+Package a directory into the *contents* directory of the bundle.
+
+* `--no-pkg`:
+
+Do not package a directory into the *contents* directory of the bundle.
+
+* `--standalone`:
+
+Make the bundle a standalone installation. Implies the `--pkg` option.
 
 * `--include-hidden`:
 
@@ -282,6 +290,10 @@ Bundles are created in the `target/deploy` directory.
 
 A generated bundle will include:
 
+* `makefile`:
+
+A GNU compatible makefile, see `Makefiles`.
+
 * `descriptor.json`:
 
 The descriptor used to create the bundle.
@@ -289,6 +301,10 @@ The descriptor used to create the bundle.
 * `settings.json`:
 
 A JSON document containing the computed settings for the deployment.
+
+* `info.json`:
+
+A JSON document containing useful information about the host machine, user and options that generated the bundle.
 
 * `install.sh`:
 
@@ -310,13 +326,17 @@ A text file containing a list of all the files ignored by git(1). This file will
 
 If the source directory being packaged contains a file named `.xpmignore` it is copied to the root of the bundle.
 
-### NPM
-
-For the `npm` deployment type the bundle will also include:
-
 * `package.json`:
 
-An npm(1) conformant package descriptor used to perform the deployment.
+An npm(1) conformant package descriptor used to perform the deployment, this file is only included when the deployment type is `npm`.
+
+### Makefiles
+
+A `makefile` is generated in the archive to create a consistent and familiar experience when make(1) is available. If make(1) is not available the deployment may still be performed using `./install.sh`.
+
+The rules for the behaviour of generated makefiles are as follows. If the bundle is not standalone or no makefile is included in the bundle contents then a single *install* target is created which runs the `install.sh` script.
+
+If a bundled makefile exists (in the contents directory) then it is checked for an `install` target. If the bundled makefile contains an `install` target then the generated makefile (at the root of the archive) proxies all targets to the bundled makefile. If no `install` target is found in the bundled makefile then an `install` target is generated that proxies to `install.sh` and all other targets are proxied to the bundled makefile.
 
 ### Package
 
@@ -894,7 +914,7 @@ GNU tar(1) >= 1.22, scp(1), ssh(1)
 
 ## SEE ALSO
 
-bake(1), task-deploy-json(7), scp(1), ssh(1), tar(1), growlnotify(1), checkbashisms(1)
+bake(1), task-deploy-json(7), scp(1), ssh(1), tar(1), make(1), growlnotify(1), checkbashisms(1)
 ronn:markdown
 
 require.once 'json';

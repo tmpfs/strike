@@ -234,7 +234,7 @@ Just create bundles do not deploy anything and do not execute any commands\. Imp
 
 .
 .P
-Use \fIdirectory\fR as the target for generated bundles\. The \fIdirectory\fR must exist and be writable\.
+Use \fIdirectory\fR as the target for generated bundles, the \fIdirectory\fR must exist and be writable\.
 .
 .TP
 \fB\-\-inspect\fR:
@@ -262,7 +262,21 @@ Prepend an author to the name of the bundle\. This sanitizes the user name (dete
 
 .
 .P
-Also package a directory into the \fIcontents\fR directory of the bundle\.
+Package a directory into the \fIcontents\fR directory of the bundle\.
+.
+.TP
+\fB\-\-no\-pkg\fR:
+
+.
+.P
+Do not package a directory into the \fIcontents\fR directory of the bundle\.
+.
+.TP
+\fB\-\-standalone\fR:
+
+.
+.P
+Make the bundle a standalone installation\. Implies the \fB\-\-pkg\fR option\.
 .
 .TP
 \fB\-\-include\-hidden\fR:
@@ -460,6 +474,13 @@ Bundles are created in the \fBtarget/deploy\fR directory\.
 A generated bundle will include:
 .
 .TP
+\fBmakefile\fR:
+
+.
+.P
+A GNU compatible makefile, see \fBMakefiles\fR\.
+.
+.TP
 \fBdescriptor\.json\fR:
 
 .
@@ -472,6 +493,13 @@ The descriptor used to create the bundle\.
 .
 .P
 A JSON document containing the computed settings for the deployment\.
+.
+.TP
+\fBinfo\.json\fR:
+
+.
+.P
+A JSON document containing useful information about the host machine, user and options that generated the bundle\.
 .
 .TP
 \fBinstall\.sh\fR:
@@ -508,15 +536,21 @@ A text file containing a list of all the files ignored by git(1)\. This file wil
 .P
 If the source directory being packaged contains a file named \fB\.xpmignore\fR it is copied to the root of the bundle\.
 .
-.SS "NPM"
-For the \fBnpm\fR deployment type the bundle will also include:
-.
 .TP
 \fBpackage\.json\fR:
 
 .
 .P
-An npm(1) conformant package descriptor used to perform the deployment\.
+An npm(1) conformant package descriptor used to perform the deployment, this file is only included when the deployment type is \fBnpm\fR\.
+.
+.SS "Makefiles"
+A \fBmakefile\fR is generated in the archive to create a consistent and familiar experience when make(1) is available\. If make(1) is not available the deployment may still be performed using \fB\./install\.sh\fR\.
+.
+.P
+The rules for the behaviour of generated makefiles are as follows\. If the bundle is not standalone or no makefile is included in the bundle contents then a single \fIinstall\fR target is created which runs the \fBinstall\.sh\fR script\.
+.
+.P
+If a bundled makefile exists (in the contents directory) then it is checked for an \fBinstall\fR target\. If the bundled makefile contains an \fBinstall\fR target then the generated makefile (at the root of the archive) proxies all targets to the bundled makefile\. If no \fBinstall\fR target is found in the bundled makefile then an \fBinstall\fR target is generated that proxies to \fBinstall\.sh\fR and all other targets are proxied to the bundled makefile\.
 .
 .SS "Package"
 A bundle may include packaged files to create a \fIstandalone\fR bundle or to append/overwrite files in a deployment\. Packaged files are stored in the \fIcontents\fR directory within the bundle archive\.
@@ -1506,4 +1540,4 @@ GNU tar(1) >= 1\.22, scp(1), ssh(1)
 \fBtask\-deploy\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-bake(1), task\-deploy\-json(7), scp(1), ssh(1), tar(1), growlnotify(1), checkbashisms(1)
+bake(1), task\-deploy\-json(7), scp(1), ssh(1), tar(1), make(1), growlnotify(1), checkbashisms(1)
