@@ -177,13 +177,13 @@ deploy.env() {
 # OPTIONS
 
 # test a custom installation script
-# specified with the --script-source option
+# specified with the --script-file option
 deploy.script.source() {
 	local script="${project_source}/custom-install.sh";	
 	local profile="default";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
-	opts+=( --descriptor "${descriptor}" --script-source "${script}" );
+	opts+=( --descriptor "${descriptor}" --script-file "${script}" );
 	( tasks.deploy "${opts[@]}" );
 	local expects="${target}/custom-install.txt";
 	assert.file.exists? "${expects}";

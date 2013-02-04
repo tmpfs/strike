@@ -158,7 +158,7 @@ Also include hidden files when packaging bundle contents.
 
 Do not preserve symbolic links. Used in conjunction with the `--pkg` option this copies the symbolic link target into the bundle *contents* directory.
 
-* `--script-source [file]`:
+* `--script-file [file]`:
 
 Use *file* as the script instead of the generated script. The *file* must exist and be executable. When this option is specified then the automatically generated script is ignored and *file* is used instead. It is written to disc in the same location, deployed to the remote host (or localhost with the `--local` option) and executed.
 
@@ -168,7 +168,7 @@ If multiple profiles are being deployed then *file* is used for all target profi
 
 It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are *never* executed.
 
-* `--make-source [file]`:
+* `--make-file [file]`:
 
 Use *file* as the makefile instead of the generated makefile. The *file* must exist and be named one of *makefile*, *Makefile* or *GNUmakefile*.
 
@@ -224,7 +224,7 @@ If this option is used in conjunction with `--script` the last option will take 
 
 Perform a sanity check on the generated script and exit, implies `--noop`. You must have the checkbashisms(1) script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through checkbashisms(1).
 
-Note that when using the `--script-source` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors.
+Note that when using the `--script-file` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors.
 
 This option ignores multiple profiles, it only executes for the first target profile.
 
@@ -308,7 +308,7 @@ A JSON document containing useful information about the host machine, user and o
 
 * `install.sh`:
 
-The generated deployment script or the contents of *script* if `--script-source` was specified.
+The generated deployment script or the contents of *script* if `--script-file` was specified.
 
 * `contents`:
 
@@ -338,7 +338,7 @@ The rules for the behaviour of generated makefiles are as follows. If the bundle
 
 If a bundled makefile exists (in the contents directory) then it is checked for an `install` target. If the bundled makefile contains an `install` target then the generated makefile (at the root of the archive) proxies all targets to the bundled makefile. If no `install` target is found in the bundled makefile then an `install` target is generated that proxies to `install.sh` and all other targets are proxied to the bundled makefile.
 
-You may specify a custom makefile using `--make-source` in which case the above rules for makefile generation are ignored and the specified makefile is used instead.
+You may specify a custom makefile using `--make-file` in which case the above rules for makefile generation are ignored and the specified makefile is used instead.
 
 ### Package
 
@@ -2502,7 +2502,7 @@ ${opt}";
 				fi
 				bundle_output="${value}";
 				;;
-			--script-source )
+			--script-file )
 				shift;
 				value="${1:-}";
 				if [ -z "${value}" ]; then
@@ -2516,7 +2516,7 @@ ${opt}";
 				fi
 				sources[script]="${value}";
 				;;
-			--make-source )
+			--make-file )
 				shift;
 				value="${1:-}";
 				if [ -z "${value}" ]; then
