@@ -34,6 +34,9 @@
 	# create the info.json file
 	:tasks.bundle.info.write!;
 	
+	# write the makefile wrapper
+	:tasks.bundle.makefile;	
+	
 	# create the bundle
 	:tasks.bundle.archive.create;
 	

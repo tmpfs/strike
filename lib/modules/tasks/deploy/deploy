@@ -903,6 +903,7 @@ require.once 'util/checksum';
 
 # module libraries
 require.library 'deploy.script';
+require.library 'deploy.makefile';
 require.library 'deploy.bundle';
 
 # list of property names that are first set
@@ -957,6 +958,10 @@ tasks.deploy() {
 	# list of files ignored when bundling
 	declare -a bundle_ignores;
 	bundle_ignores=();
+	
+	# FILE NAMES
+	declare -A names;
+	names[makefile]="makefile";
 	
 	# SETUP
 	declare -A setup;
