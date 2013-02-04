@@ -68,6 +68,7 @@ test.deploy.local() {
 	#
 	local pass_tests=(
 		"deploy.env"
+		'deploy.script.source'
 		'deploy.minimal.bundle'
 		'deploy.minimal.deploy'
 		'deploy.project.bundle'
@@ -76,15 +77,19 @@ test.deploy.local() {
 		
 		'deploy.project.tar.bundle'
 		'deploy.project.tar.deploy'
-
+	
 		'deploy.project.git.bundle'
 		'deploy.project.git.deploy'
-
+	
 		'deploy.project.npm.bundle'
 		'deploy.project.npm.deploy'
-
+	
 		'deploy.bundle.scripts'
 	);
+	
+	# local pass_tests=(
+	# 	'deploy.script.source'
+	# )
 	
 	# run tests that should pass
 	# NOTE: do not use a for(()) loop here!
@@ -106,7 +111,7 @@ test.deploy.local() {
 deploy.run() {
 	local cmd="$1";
 	
-	echo "got command : $cmd";
+	#echo "got command : $cmd";
 	# return 0;
 	
 	# clean up before we start
@@ -169,6 +174,23 @@ deploy.env() {
 	assert.eq 4 "${doc_data_array_length}";
 }
 
+# OPTIONS
+
+# test a custom installation script
+# specified with the --script-source option
+deploy.script.source() {
+	local script="${project_source}/custom-install.sh";	
+	local profile="default";
+	descriptor="${project_source}/${profile}.json";
+	local opts=( ${options[@]} );
+	opts+=( --descriptor "${descriptor}" --script-source "${script}" );
+	( tasks.deploy "${opts[@]}" );
+	local expects="${target}/custom-install.txt";
+	assert.file.exists? "${expects}";
+	local contents=$( < "${expects}" );
+	assert.equal "./install.sh" "${contents}";
+}
+
 # MINIMAL
 
 # test bundling the default profile
@@ -199,7 +221,7 @@ deploy.minimal.deploy() {
 
 deploy.project.bundle() {
 	local profile="default";	
-	descriptor="${project_source}/deploy.json";
+	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" );
 	( tasks.deploy "${opts[@]}" );
@@ -208,7 +230,7 @@ deploy.project.bundle() {
 
 deploy.project.deploy() {
 	local profile="default";	
-	descriptor="${project_source}/deploy.json";
+	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --descriptor "${descriptor}" );
 	( tasks.deploy "${opts[@]}" );
@@ -222,7 +244,7 @@ deploy.project.deploy() {
 # should not have a checksum file in this instance
 deploy.project.bundle.nosha() {
 	local profile="default";
-	descriptor="${project_source}/deploy.json";
+	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" --no-sha );
 	( tasks.deploy "${opts[@]}" );

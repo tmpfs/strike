@@ -1088,6 +1088,12 @@ tasks.deploy() {
 	# defined in descriptor
 	local all_profiles=();
 	
+	# source files that are used
+	# instead of generated ones
+	declare -A sources;
+	sources[script]="";
+	sources[make]="";
+	
 	# the prefix used for deployment
 	# interactive prompts
 	local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
@@ -1150,10 +1156,6 @@ tasks.deploy() {
 	local types=( git tar npm );
 	
 	local profiles=();
-	
-	# a custom script file to use
-	# instead of the generated script
-	local script_source="";
 	
 	# command line options that override
 	# properties set in deploy.json
@@ -1954,17 +1956,13 @@ ${opt}";
 		bundle_path
 		log_file
 		log_dir
+		sources
 	);
 	
 	if [ "$type" == "git" ]; then
 		vars+=( git_ref git_remote url );
 	elif [ "$type" == "tar" ]; then
 		vars+=( url );
-	fi
-	
-	# using custom script
-	if [ -n "${script_source}" ]; then
-		vars+=( script_source );
 	fi
 	
 	local value k len;
@@ -2042,8 +2040,8 @@ ${opt}";
 			:tasks.deploy.out.info "git remote %s" "${git_remote}";
 		fi
 		# using custom script
-		if [ -n "${script_source}" ]; then
-			:tasks.deploy.out.info "source script %s" "${script_source}";
+		if [ -n "${sources[script]}" ]; then
+			:tasks.deploy.out.info "source script %s" "${sources[script]}";
 		fi
 		
 		# PATHS
@@ -2510,7 +2508,7 @@ ${opt}";
 				if [ ! -x "${value}" ]; then
 					:tasks.deploy.fail "script file %s is not executable" "$value";
 				fi
-				script_source="${value}";
+				sources[script]="${value}";
 				;;
 			--shell )
 				shift;

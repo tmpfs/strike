@@ -25,8 +25,8 @@
 	printf -v deploy_target "%q" "${deploy_target}";
 	
 	# custom script file specified
-	if [ -n "${script_source}" ]; then
-		cat "${script_source}" >| "${script}";
+	if [ -n "${sources[script]}" ]; then
+		cat "${sources[script]}" >| "${script}";
 	else
 		:tasks.deploy.script.header.write!;
 		
@@ -145,7 +145,6 @@ profile="${profile}";
 type="${type}";
 noop="${noop}";
 shell="${shell}";
-script_source="${script_source}";
 script="${script}";
 description="${description:-}";
 host="${host}";
