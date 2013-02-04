@@ -68,7 +68,7 @@
 
 	chmod +x "${script}" \
 		|| :tasks.deploy.fail "could not set permissions on %s" "${script}";	
-	if $dump_script; then
+	if ${flags[print.script]}; then
 		cat "${script}";
 	fi
 }
@@ -87,7 +87,7 @@
  		:tasks.deploy.out.info "lint %s %s" "$script" "${characters[tick]}";
 		# run script (locally) from target
 		# staging directory, used for testing and debugging
-		if $run_script; then
+		if ${flags[script.lint.run]}; then
 			local exit_code=1;
 			:tasks.deploy.out.info "exec %s" "${script}";
 			# make the working directory

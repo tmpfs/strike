@@ -352,7 +352,7 @@ NPMPKG
 			"./${script_name}" >> "${log}" 2>&1;
 		fi
 		if [ $? -eq 0 ]; then
-			success=true;
+			flags[success]=true;
 			:tasks.deploy.complete;
 		fi
 		:tasks.deploy.fail;

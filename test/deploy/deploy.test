@@ -89,10 +89,6 @@ test.deploy.local() {
 		'deploy.bundle.scripts'
 	);
 	
-	# local pass_tests=(
-	# 	'deploy.script.source'
-	# )
-	
 	# run tests that should pass
 	# NOTE: do not use a for(()) loop here!
 	local i;
@@ -178,8 +174,7 @@ deploy.env() {
 
 # OPTIONS
 
-# test a custom installation script
-# specified with the --script-file option
+# test the --script-file option
 deploy.options.script.file() {
 	local script="${project_source}/custom-install.sh";	
 	local profile="default";

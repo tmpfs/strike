@@ -41,18 +41,36 @@ tasks.deploy() {
 	# name validation regex
 	regex[name]="^[-a-zA-Z0-9]+$";	
 	
+	# SOURCES - BUNDLE FILE OVERRIDES
+	declare -A sources;
+	sources[script]="";
+	sources[make]="";
+	
 	# INTERACTIVE
 	local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
 	local deploy_prompt="${deploy_prompt_prefix} \033[4m%s\033[0m";
 	local deploy_prompt_suffix=" ${characters[lightning]}";
 	
+	# FILE NAMES
+	declare -A names;
+	names[makefile]="makefile";
+	names[makefiles]="makefile Makefile GNUmakefile";
+	names[script]="install.sh";
+	names[descriptor]="deploy.json";
+	
+	# list of supported shells
+	local shells=( sh bash zsh dash );
+	# valid deployment types
+	local types=( git tar npm );
+	
 	# DEFAULTS
 	declare -A defaults;
 	defaults[sha.algorithms]="224 256 384 512";
 	defaults[sha.default.algorithm]="512";
-	defaults[profile.name]="default";	
+	defaults[profile.name]="default";
+	defaults[type]="git";
 	
-	local default_type="git";
+	local descriptor="${root}/${names[descriptor]}";
 	
 	# COMPRESSION
 	declare -A compression_types;
@@ -71,19 +89,6 @@ tasks.deploy() {
 		compression_extension="xz";
 	fi
 	
-	# FILE NAMES
-	declare -A names;
-	names[makefile]="makefile";
-	names[makefiles]="makefile Makefile GNUmakefile";
-	names[script]="install.sh";
-	names[descriptor]="deploy.json";
-	
-	# list of supported shells
-	local shells=( sh bash zsh dash );	
-	
-	# valid deployment types
-	local types=( git tar npm );
-	
 	# SETUP
 	declare -A setup;
 	setup[owd]="$PWD";
@@ -100,6 +105,7 @@ tasks.deploy() {
 	
 	# FLAGS
 	declare -A flags;
+	flags[success]=false;
 	flags[local]=false;	
 	flags[verbose]=false;
 	flags[quiet]=false;
@@ -122,21 +128,18 @@ tasks.deploy() {
 	
 	flags[print.profiles]=false;
 	flags[print.json]=false;
+	flags[print.json.pretty]=false;
+	flags[print.script]=false;
+	
+	flags[script.lint]=false;
+	flags[script.lint.run]=false;
 	
 	# TODO: move all other flag variables into $flags
-	
-	# assume failure
-	local success=false;
 	# just creating bundles
 	local bundling=false;
 	# non-operation
 	local noop=false;
-	
-	# run script through checkbashisms and exit
-	local lint=false;
-	local run_script=false;
-	# dump script contents to stdout
-	local dump_script=false;
+
 	# quote command options by default
 	local quote=true;
 	
@@ -147,9 +150,7 @@ tasks.deploy() {
 	skip["local.post"]=false;
 	skip["remote.pre"]=false;
 	skip["remote.post"]=false;
-	skip["growl"]=false;	
-	
-	local pretty=false;
+	skip["growl"]=false;
 	
 	## DEFAULTS	
 	
@@ -157,15 +158,7 @@ tasks.deploy() {
 	# defined in descriptor
 	local all_profiles=();
 	
-	# source files that are used
-	# instead of generated ones
-	declare -A sources;
-	sources[script]="";
-	sources[make]="";	
-
-	local descriptor="${root}/${names[descriptor]}";
-	
-	local type="${default_type}";
+	local type="${defaults[type]}";
 	# FIXME: use default variable
 	local profile="${defaults[profile.name]}";
 	local directory="";
@@ -425,7 +418,7 @@ tasks.deploy() {
 	done
 	# dump/write json information
 	if ${flags[print.json]}; then
-		if ! $pretty; then
+		if ! ${flags[print.json.pretty]}; then
 			json.stringify <<< "json_dump";
 		else
 			json.stringify --pretty 2 <<< "json_dump";
@@ -660,11 +653,11 @@ tasks.deploy() {
 	fi
 	
 	# run script through `checkbashisms`
-	if $lint; then
+	if ${flags[script.lint]}; then
 		:tasks.deploy.script.lint;
 	fi
 
-	if ! $dump_script && ! ${flags[print.json]}; then
+	if ! ${flags[print.script]} && ! ${flags[print.json]}; then
 	
 		:tasks.bundle.create;
 		
@@ -1037,7 +1030,7 @@ ${opt}";
 	done
 	
 	# otherwise print out information to stdout
-	if ! ${flags[print.json]} && ! $dump_script; then
+	if ! ${flags[print.json]} && ! ${flags[print.script]}; then
 		local start_time=$( date )
 		
 		# HEADER
@@ -1119,7 +1112,7 @@ ${opt}";
 
 # output the header delimiter
 :tasks.deploy.header() {
-	if ${flags[quiet]} || ${flags[print.json]} || $dump_script || ${flags[print.env]}; then
+	if ${flags[quiet]} || ${flags[print.json]} || ${flags[print.script]} || ${flags[print.env]}; then
 		return 0;
 	fi	
 	
@@ -1133,7 +1126,7 @@ ${opt}";
 # output an info message to stdout or
 # the log file if logging
 :tasks.deploy.out.info() {
-	if ${flags[quiet]} || ${flags[print.json]} || $dump_script || ${flags[print.env]}; then
+	if ${flags[quiet]} || ${flags[print.json]} || ${flags[print.script]} || ${flags[print.env]}; then
 		return 0;
 	fi
 	
@@ -1222,7 +1215,7 @@ ${opt}";
 				# has been specified
 				tk="${BASH_REMATCH[1]}.type";
 				if [ -z "${json_doc[$tk]:-}" ]; then
-					json_doc[$tk]="${default_type}";
+					json_doc[$tk]="${defaults[type]}";
 				fi
 			fi
 	done
@@ -1283,7 +1276,7 @@ ${opt}";
 	if [ -n "${executables[growlnotify]}" ]; then
 		local message;
 		local priority="${2:-Normal}";
-		if $success; then
+		if ${flags[success]}; then
 			message="${messages[success]}";
 		else
 			priority="Emergency";
@@ -1302,13 +1295,13 @@ ${opt}";
 	
 	# noop should always succeed
 	if $noop; then
-		success=true;
+		flags[success]=true;
 	fi
 	
 	# output success information
-	if $success; then
+	if ${flags[success]}; then
 		:tasks.deploy.complete.notify;
-		if ${flags[print.json]} || $dump_script; then
+		if ${flags[print.json]} || ${flags[print.script]}; then
 			console.success;
 		else
 			console.success "deploy %s complete %s" \
@@ -1399,25 +1392,25 @@ ${opt}";
 			--json )
 				flags[print.json]=true;
 				noop=true;
-				dump_script=false;				
+				flags[print.script]=false;				
 				;;
 			--script )
-				dump_script=true;
+				flags[print.script]=true;
 				noop=true;
 				flags[print.json]=false;
 				;;
 			--lint )
-				lint=true;
+				flags[script.lint]=true;
 				noop=true;				
 				;;
  			--lint-run )
-				lint=true;
-				run_script=true;
-				flags[local]=true;				
+				flags[script.lint]=true;
+				flags[script.lint.run]=true;
+				flags[local]=true;
 				noop=true;
-				;;				
+				;;
 			--pretty )
-				pretty=true;
+				flags[print.json.pretty]=true;
 				;;
 			--expand )
 				quote=false;
