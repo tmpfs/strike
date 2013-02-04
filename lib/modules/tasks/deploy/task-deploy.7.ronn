@@ -246,10 +246,6 @@ Print variables exposed to deployment descriptors and exit.
 * `--script`:
 
 Dump script(s) to *stdout*, implies `--noop`. If this option is used in conjunction with `--json` the last option will take preference. Note that when this option is used the script(s) are still written to `target/deploy`.
-
-* `--write-json`:
-
-Write the deployment settings to `target/deploy/settings.json`. If used in conjunction with the `--json` option then the settings will be printed to *stdout* and written to disc. The generated document will be formatted if the `--pretty` flag has been set.
 	
 ## TYPES
 
@@ -805,8 +801,6 @@ When the `--log` option is specified *stdout* messages are redirected to `target
 The generated script file(s) are written to `target/deploy` using the following naming strategy:
 
 	${name}-${version}-${profile}.sh
-	
-If the `--write-json` option is specified then the deployment settings are written to `target/deploy/settings.json`.
 
 ## EXIT CODES
 

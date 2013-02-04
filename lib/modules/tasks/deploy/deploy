@@ -119,8 +119,6 @@ tasks.deploy() {
 	flags[print.profiles]=false;
 	flags[print.json]=false;
 	
-	local print_json=false;
-	
 	# TODO: move all other flag variables into $flags
 	
 	# assume failure
@@ -147,7 +145,6 @@ tasks.deploy() {
 	skip["remote.post"]=false;
 	skip["growl"]=false;	
 	
-	local write_json=false;
 	local pretty=false;
 	
 	## DEFAULTS	
@@ -216,7 +213,6 @@ tasks.deploy() {
 	
 	# JSON PROPERTIES
 	
-	local json_settings_file="${deploy_staging_directory}/settings.json";
 	# array used to store properties to be
 	# dumped as json
 	unset json_dump;
@@ -426,20 +422,15 @@ tasks.deploy() {
 			:tasks.deploy.profile;
 	done
 	# dump/write json information
-	if $print_json || $write_json; then
+	if ${flags[print.json]}; then
 		if ! $pretty; then
 			json.stringify <<< "json_dump";
 		else
 			json.stringify --pretty 2 <<< "json_dump";
 		fi
-		if $print_json; then
+		if ${flags[print.json]}; then
 			json.string;
 			printf "\n";
-		fi
-		if $write_json; then
-			printf "" >| "$json_settings_file";
-			json.string >> "$json_settings_file";
-			printf "\n" >> "$json_settings_file";
 		fi
 	fi
 }
@@ -653,7 +644,7 @@ tasks.deploy() {
 	# ready to start, output useful settings information
 	:tasks.deploy.info;
 	
-	if ! $print_json; then
+	if ! ${flags[print.json]}; then
 		
 		# create a package.json for the *npm* deployment type
 		# must be done prior to creating the script so that
@@ -671,7 +662,7 @@ tasks.deploy() {
 		:tasks.deploy.script.lint;
 	fi
 
-	if ! $dump_script && ! $print_json; then
+	if ! $dump_script && ! ${flags[print.json]}; then
 	
 		:tasks.bundle.create;
 		
@@ -1044,7 +1035,7 @@ ${opt}";
 	done
 	
 	# otherwise print out information to stdout
-	if ! $print_json && ! $dump_script; then
+	if ! ${flags[print.json]} && ! $dump_script; then
 		local start_time=$( date )
 		
 		# HEADER
@@ -1126,7 +1117,7 @@ ${opt}";
 
 # output the header delimiter
 :tasks.deploy.header() {
-	if ${flags[quiet]} || $print_json || $dump_script || ${flags[print.env]}; then
+	if ${flags[quiet]} || ${flags[print.json]} || $dump_script || ${flags[print.env]}; then
 		return 0;
 	fi	
 	
@@ -1140,7 +1131,7 @@ ${opt}";
 # output an info message to stdout or
 # the log file if logging
 :tasks.deploy.out.info() {
-	if ${flags[quiet]} || $print_json || $dump_script || ${flags[print.env]}; then
+	if ${flags[quiet]} || ${flags[print.json]} || $dump_script || ${flags[print.env]}; then
 		return 0;
 	fi
 	
@@ -1315,7 +1306,7 @@ ${opt}";
 	# output success information
 	if $success; then
 		:tasks.deploy.complete.notify;
-		if $print_json || $dump_script; then
+		if ${flags[print.json]} || $dump_script; then
 			console.success;
 		else
 			console.success "deploy %s complete %s" \
@@ -1404,17 +1395,14 @@ ${opt}";
 				flags[local]=true;
 				;;
 			--json )
-				print_json=true;
+				flags[print.json]=true;
 				noop=true;
 				dump_script=false;				
-				;;
-			--write-json )
-				write_json=true;
 				;;
 			--script )
 				dump_script=true;
 				noop=true;
-				print_json=false;
+				flags[print.json]=false;
 				;;
 			--lint )
 				lint=true;
