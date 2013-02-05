@@ -503,7 +503,7 @@ tasks.deploy() {
 	# run local pre-deployment command execution
 	:tasks.deploy.run.pre;
 	
-	:tasks.deploy.bundle.install!;
+	bundle.install!;
 	
 	# run local post-deployment command execution
 	:tasks.deploy.run.post;
@@ -662,7 +662,7 @@ tasks.deploy() {
 		# must be done prior to creating the script so that
 		# --lint-run works as expected
 		if [ "$type" == "npm" ]; then
-			:tasks.bundle.npm.package.write!;
+			bundle.npm.package.write!;
 		fi
 		
 		# write the deploy script file
@@ -675,7 +675,7 @@ tasks.deploy() {
 	fi
 
 	if ! ${flags[print.script]} && ! ${flags[print.json]}; then
-		:tasks.bundle.create;
+		bundle.create;
 		
 		# only show the prompt and start
 		# a deployment process if we are not

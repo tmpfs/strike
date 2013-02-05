@@ -1,5 +1,5 @@
 # create the deployment bundle
-:tasks.bundle.create() {
+bundle.create() {
 	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
 	
 	local bundle_size="${defaults[bundle.size]}";
@@ -17,25 +17,25 @@
 	fi
 	
 	# always write the effective settings into the bundle
-	:tasks.bundle.settings.write!
+	bundle.settings.write!
 	
 	# add scripts to bundle
-	:tasks.bundle.scripts;
+	bundle.scripts;
 	
 	# add package contents
-	:tasks.bundle.contents;
+	bundle.contents;
 	
 	# copy the descriptor
-	:tasks.bundle.descriptor.copy;
+	bundle.descriptor.copy;
 	
 	# create the info.json file
-	:tasks.bundle.info.write!;
+	bundle.info.write!;
 	
 	# write the makefile wrapper
 	makefile;	
 	
 	# create the bundle
-	:tasks.bundle.archive.create;
+	bundle.archive.create;
 	
 	# clean up after bundle creation
 	rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
@@ -46,7 +46,7 @@
 }
 
 # include any scripts in the bundle
-:tasks.bundle.scripts() {
+bundle.scripts() {
 	local global_scripts="${json_doc[bundle.scripts.length]:-0}";
 	local profile_scripts="${json_doc[profiles.${profile}.bundle.scripts.length]:-0}";
 	local total_scripts=$((global_scripts+profile_scripts));
@@ -56,16 +56,16 @@
 		mkdir -p "${scripts_path}" \
 			|| :tasks.deploy.fail "could create bundle script directory %s" "$scripts_path";
 			if [ $global_scripts -gt 0 ]; then
-				:tasks.bundle.scripts.group $global_scripts "bundle.scripts";
+				bundle.scripts.group $global_scripts "bundle.scripts";
 			fi
 			if [ $profile_scripts -gt 0 ]; then
-				:tasks.bundle.scripts.group $profile_scripts "profiles.${profile}.bundle.scripts";
+				bundle.scripts.group $profile_scripts "profiles.${profile}.bundle.scripts";
 			fi
 	fi
 }
 
 # adds bundle package contents
-:tasks.bundle.contents() {
+bundle.contents() {
 	if ${flags[bundle.package.contents]}; then
 		
 		local cp_opts="-p";
@@ -109,7 +109,7 @@
 				fs.basename "${file}" "name";
 				relative="${file#$contents/}";
 				
-				if :tasks.bundle.contents.ignore?; then
+				if bundle.contents.ignore?; then
 					if ${flags[verbose]}; then
 						:tasks.deploy.out.info "ignore %s" "${relative}";
 					fi
@@ -177,7 +177,7 @@
 }
 
 # determine if a packaged file is being ignored
-:tasks.bundle.contents.ignore?() {
+bundle.contents.ignore?() {
 	if [[ "$relative" =~ $ignore_re ]]; then
 		return 0;
 	fi
@@ -187,14 +187,14 @@
 		fi
 	fi
 	if [ ${#exclude_patterns[@]} -gt 0 ]; then
-		:tasks.bundle.contents.xpmignore?;
+		bundle.contents.xpmignore?;
 		return $?;
 	fi
 	return 1;
 }
 
 # test for exclusion against .xpmignore patterns
-:tasks.bundle.contents.xpmignore?() {
+bundle.contents.xpmignore?() {
 	local ptn;
 	for ptn in "${exclude_patterns[@]}"
 		do
@@ -207,7 +207,7 @@
 }
 
 # 
-:tasks.bundle.scripts.group() {
+bundle.scripts.group() {
 	local i k file nm dir destination;
 	local length="${1:-0}";
 	local prefix="${2:-}";
@@ -254,13 +254,13 @@
 }
 
 # copy the descriptor to the bundle source directory
-:tasks.bundle.descriptor.copy() {
+bundle.descriptor.copy() {
 	cp "${descriptor}" "${bundle_source}/descriptor.json" \
 		|| :tasks.deploy.fail "could not copy bundle descriptor %s" "$bundle_path";
 }
 
 # create the bundle archive
-:tasks.bundle.archive.create() {
+bundle.archive.create() {
 	{
 		cd "$bundle_output" \
 			&& tar -cf "$bundle_archive" "$bundle_name";
@@ -290,7 +290,7 @@
 }
 
 # write the info.json file
-:tasks.bundle.info.write!() {
+bundle.info.write!() {
 	# TODO: when processing multiple profiles, we only need to generate this info once!!!
 	
 	local info="${bundle_source}/info.json";
@@ -308,7 +308,7 @@
 }
 
 # write the deploy settings for the profile to the bundle
-:tasks.bundle.settings.write!() {
+bundle.settings.write!() {
 	# TODO: fix json.stringify memory leak
 	# TODO: probably due to the string concatenation
 	
@@ -319,7 +319,7 @@
 }
 
 # creates a package.json for an *npm* installation type
-:tasks.bundle.npm.package.write!() {
+bundle.npm.package.write!() {
 	local npm_package_file="${bundle_source}/package.json";
 	:tasks.deploy.out.info "npm name %s" "$npm_package_name";
 	:tasks.deploy.out.info "npm version %s" "$npm_package_version";
@@ -343,7 +343,7 @@ NPMPKG
 }
 
 # perform the bundle installation
-:tasks.deploy.bundle.install!() {
+bundle.install!() {
 	
 	# local deployment
 	if ${flags[deploy.local]}; then
