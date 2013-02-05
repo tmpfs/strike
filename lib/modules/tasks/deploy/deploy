@@ -1504,9 +1504,6 @@ ${opt}";
 			--pkg )
 				flags[bundle.package.contents]=true;
 				;;
-			--no-pkg )
-				flags[bundle.package.contents]=false;
-				;;
 			--follow-symlinks )
 				flags[bundle.package.follow]=true;
 				;;

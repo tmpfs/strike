@@ -141,10 +141,6 @@ Prepend an author to the name of the bundle. This sanitizes the user name (deter
 
 Package a directory into the *contents* directory of the bundle.
 
-* `--no-pkg`:
-
-Do not package a directory into the *contents* directory of the bundle.
-
 * `--standalone`:
 
 Make the bundle a standalone installation. Implies the `--pkg` option.
