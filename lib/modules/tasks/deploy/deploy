@@ -123,6 +123,7 @@ tasks.deploy() {
 	flags[interactive]=true;
 	flags[logging]=false;
 	flags[deploy.all]=false;
+	flags[bundle.only]=false;
 	flags[bundle.inspect]=false;
 	flags[bundle.standalone]=false;
 	flags[bundle.package.contents]=false;
@@ -138,7 +139,6 @@ tasks.deploy() {
 	flags[script.lint.run]=false;
 	
 	# TODO: move all other flag variables into $flags
-	local bundling=false;
 	local noop=false;
 	# quote command options by default
 	local quote=true;
@@ -676,17 +676,18 @@ tasks.deploy() {
 	fi
 
 	if ! ${flags[print.script]} && ! ${flags[print.json]}; then
-	
 		:tasks.bundle.create;
 		
 		# only show the prompt and start
 		# a deployment process if we are not
 		# just creating bundles
-		if ! $bundling; then
+		if ! ${flags[bundle.only]}; then
 			# prompt for confirmation when possible
 			# if --ok has been set the confirm command
 			# will fall through to execution
 			:tasks.deploy.confirm ":tasks.deploy.profile.start" "$profile";
+		else
+			:tasks.deploy.complete;
 		fi
 	fi
 	
@@ -1311,10 +1312,7 @@ ${opt}";
 		return 0;
 	fi
 	
-	# noop should always succeed
-	if $noop; then
-		flags[success]=true;
-	fi
+	flags[success]=true;
 	
 	# output success information
 	if ${flags[success]}; then
@@ -1325,8 +1323,6 @@ ${opt}";
 			console.success "deploy %s complete %s" \
 				"${deploy_name}" "${characters[tick]}";
 		fi
-	else
-		:tasks.deploy.fail;
 	fi
 }
 
@@ -1476,7 +1472,7 @@ ${opt}";
 				flags[global.env]=true;
 				;;
 			--bundle )
-				bundling=true;
+				flags[bundle.only]=true;
 				noop=true;
 				skip["local.pre"]=true;
 				skip["local.post"]=true;
@@ -1508,6 +1504,7 @@ ${opt}";
 				flags[bundle.inspect]=true;
 				;;
 			--standalone )
+				flags[bundle.only]=true;
 				flags[bundle.standalone]=true;
 				flags[bundle.package.contents]=true;
 				;;
