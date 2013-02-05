@@ -353,6 +353,7 @@ NPMPKG
 		:tasks.deploy.fail;
 	# remote deployment
 	else
+		executable.validate scp ssh;
 		# TODO: implement
 		echo "start remote deployment ... ";
 	fi

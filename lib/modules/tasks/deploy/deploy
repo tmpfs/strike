@@ -24,7 +24,6 @@ deploy_property_names=(
 
 # deploy delegate
 tasks.deploy() {
-	executable.validate scp ssh;
 	executable.validate --test growlnotify;
 	
 	# GENERAL
@@ -39,7 +38,7 @@ tasks.deploy() {
 	declare -A regex;
 	regex[scheme]="^[a-zA-Z]+:";
 	# name validation regex
-	regex[name]="^[-a-zA-Z0-9]+$";	
+	regex[name]="^[-a-zA-Z0-9]+$";
 	
 	# SOURCES - BUNDLE FILE OVERRIDES
 	declare -A sources;
