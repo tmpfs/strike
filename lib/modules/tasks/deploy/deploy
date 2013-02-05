@@ -116,7 +116,7 @@ tasks.deploy() {
 	# TODO: remove this!
 	flags[success]=false;
 	
-	flags[noop]=false;	
+	flags[noop]=false;
 	flags[verbose]=false;
 	flags[quiet]=false;
 	flags[timestamp]=false;
@@ -145,9 +145,6 @@ tasks.deploy() {
 	
 	flags[script.lint]=false;
 	flags[script.lint.run]=false;
-	
-	# TODO: move all other flag variables into $flags
-	local noop=false;
 	
 	# quote command options by default
 	local quote=true;
@@ -258,7 +255,7 @@ tasks.deploy() {
 	# update some json dump properties after option parsing
 	json_dump["project-name"]="${project_name}";
 	json_dump["descriptor"]="${descriptor}";
-	json_dump["noop"]="${noop}";
+	json_dump["noop"]="${flags[noop]}";
 	json_dump["local"]="${flags[deploy.local]}";
 	local i;
 	for i in ${!profiles[@]}
@@ -806,7 +803,7 @@ tasks.deploy() {
 				#echo "run command (after validation) : ${exe} : ${opt[@]:-} : length:  ${#opt[@]}";
 				
 				# execute the command
-				if ! $noop; then
+				if ! ${flags[noop]}; then
 					if ! ${flags[logging]}; then
 						if $quote; then
 							( ${exe} "${opt[@]:-}" ); exit_code=$?;
@@ -1090,7 +1087,7 @@ ${opt}";
 		:tasks.deploy.out.info "host %s" "${host}";		
 		:tasks.deploy.out.info "profile %s" "${profile}";
 		:tasks.deploy.out.info "type %s" "${type}";
-		:tasks.deploy.out.info "noop %s" "${noop}";
+		:tasks.deploy.out.info "noop %s" "${flags[noop]}";
 		:tasks.deploy.out.info "shell %s" "${shell}";
 		:tasks.deploy.out.info "url %s" "${url}";
 		
@@ -1298,7 +1295,7 @@ ${opt}";
 	
 	# don't send growl notifications for
 	# json dumps or noop
-	if $noop || ${skip[growl]}; then
+	if ${flags[noop]} || ${skip[growl]}; then
 		return 0;
 	fi
 	
@@ -1398,7 +1395,7 @@ ${opt}";
 				flags[interactive]=false;
 				;;
 			--noop )
-				noop=true;
+				flags[noop]=true;
 				flags[interactive]=false;
 				;;
 			--list )
@@ -1415,23 +1412,23 @@ ${opt}";
 				;;
 			--json )
 				flags[print.json]=true;
-				noop=true;
+				flags[noop]=true;
 				flags[print.script]=false;				
 				;;
 			--script )
 				flags[print.script]=true;
-				noop=true;
+				flags[noop]=true;
 				flags[print.json]=false;
 				;;
 			--lint )
 				flags[script.lint]=true;
-				noop=true;				
+				flags[noop]=true;				
 				;;
  			--lint-run )
 				flags[script.lint]=true;
 				flags[script.lint.run]=true;
 				flags[deploy.local]=true;
-				noop=true;
+				flags[noop]=true;
 				;;
 			--pretty )
 				flags[print.json.pretty]=true;
@@ -1476,14 +1473,14 @@ ${opt}";
 				;;
 			--print-env )
 				flags[print.env]=true;
-				noop=true;
+				flags[noop]=true;
 				;;
 			--global-env )
 				flags[global.env]=true;
 				;;
 			--bundle )
 				flags[bundle.only]=true;
-				noop=true;
+				flags[noop]=true;
 				skip["local.pre"]=true;
 				skip["local.post"]=true;
 				skip["remote.pre"]=true;

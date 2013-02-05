@@ -364,7 +364,7 @@ NPMPKG
 	# :tasks.deploy.out.info "${executables[ssh]} %s %s" \
 	# 	"${host}" "${test_staging}";
 	# local exists=0;
-	# if ! $noop; then
+	# if ! ${flags[noop]}; then
 	# 	exists=$( "${executables[ssh]}" "${host}" ""${test_staging}"" );
 	# fi
 	# 
@@ -372,7 +372,7 @@ NPMPKG
 	# if [ $exists -gt 0 ]; then
 	# 	:tasks.deploy.out.info "${executables[ssh]} %s %s" \
 	# 		"${host}" "${mk_staging}";
-	# 	if ! $noop; then
+	# 	if ! ${flags[noop]}; then
 	# 		( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
 	# 			|| :tasks.deploy.fail \
 	# 			"could not create remote staging directory %s" \
@@ -383,7 +383,7 @@ NPMPKG
 	# local remote="${host}:${staging}/${script_name}";
 	# :tasks.deploy.out.info "scp -p %s %s" \
 	# 	"${script}" "${remote}";
-	# if ! $noop; then
+	# if ! ${flags[noop]}; then
 	# 	echo "SCP SCRIPT";
 	# fi	
 }
