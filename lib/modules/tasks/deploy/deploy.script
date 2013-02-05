@@ -152,7 +152,7 @@ deploy_name="${deploy_name}";
 deploy_final_name="${deploy_final_name}";
 deploy_type="${type}";
 creator="${setup[creator]}";
-url="${url}";
+url=${url};
 hostinfo=\$( uname -a | fmt );
 
 project_name="${project_name}";
@@ -282,10 +282,6 @@ cat <<EOF >> "${script}"
 		fi
 EOF
 	done
-	
-# cat <<EOF >> "${script}"
-# 
-# EOF
 }
 
 # write pre / post deployment commands
@@ -576,16 +572,44 @@ settings() {
 EOF
 }
 
-# git specific commands
+# cp(1) specific commands
+:tasks.deploy.script.cp.write!() {
+cat <<EOF >> "${script}"
+deploy() {
+	if test -z \$url; then
+		quit "empty filesystem path";
+	fi	
+	if ! test -d \$url || ! test -r \$url; then
+		quit "filesystem path %s is not a directory or not readable";
+	fi
+	
+	info "url %s\n" "\$url";
+	if ! test -d \$deploy_target; then
+		mkdir -p \$deploy_target \\
+			|| quit "could not create %s\n" "\$deploy_target";
+	fi
+	
+	# now try to copy everything over
+	info "cp -pR %s/* %s\n" "\$url" "\$deploy_target";
+	
+	cp -pR \${url}/* \$deploy_target;
+	
+	cd \$owd && complete;
+}
+
+EOF
+}
+
+# git(1) specific commands
 :tasks.deploy.script.git.write!() {
 cat <<EOF >> "${script}"
 git_ref="${git_ref}";
 git_remote="${git_remote}";
 git_revision_hash="";
 deploy() {
+	info "url %s\n" "\$url";
 	info "git remote %s\n" "\$git_remote";
 	info "git ref %s\n" "\$git_ref";
-	info "git url %s\n" "\$url";
 	
 	#echo "deploy git ! \$url : \$git_ref : \$git_remote";
 	
@@ -628,11 +652,12 @@ deploy() {
 EOF
 }
 
-# tar specific commands
+# tar(1) specific commands
 :tasks.deploy.script.tar.write!() {
 cat <<EOF >> "${script}"
 deploy() {
-	
+	info "url %s\n" "\$url";
+		
 	# are we completely replacing the target
 	# with the archive contents, this is the case
 	# if the archive contains only one file and 
@@ -687,7 +712,7 @@ deploy() {
 EOF
 }
 
-# npm specific commands
+# npm(1) specific commands
 :tasks.deploy.script.npm.write!() {	
 cat <<EOF >> "${script}"
 npm_use_package="${npm_use_package}";
@@ -696,6 +721,7 @@ npm_package_version="${npm_package_version}";
 npm_install_target="./node_modules/\$npm_package_name";
 npm_install_final="./node_modules/\$deploy_final_name";
 deploy() {
+	info "url %s\n" "\$url";	
 	info "npm package %s\n" "\$bundle_destination/package.json";
 	info "npm use package %s\n" "\$npm_use_package";
 	info "npm name %s\n" "\$npm_package_name";

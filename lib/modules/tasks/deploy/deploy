@@ -61,14 +61,15 @@ tasks.deploy() {
 	# list of supported shells
 	local shells=( sh bash zsh dash );
 	# valid deployment types
-	local types=( git tar npm );
+	local types=( git tar npm cp );
 	
 	# DEFAULTS
 	declare -A defaults;
 	defaults[sha.algorithms]="224 256 384 512";
 	defaults[sha.default.algorithm]="512";
 	defaults[profile.name]="default";
-	defaults[type]="git";
+	defaults[type]="cp";
+	defaults[url]="${project}";
 	
 	local descriptor="${root}/${names[descriptor]}";
 	
@@ -122,29 +123,20 @@ tasks.deploy() {
 	flags[bundle.package.contents]=false;
 	flags[bundle.package.follow]=false;
 	flags[bundle.package.hidden]=false;
-	
 	flags[target.version]=false;
 	flags[target.flat]=false;
-	
 	flags[print.profiles]=false;
 	flags[print.json]=false;
 	flags[print.json.pretty]=false;
 	flags[print.script]=false;
-	
 	flags[script.lint]=false;
 	flags[script.lint.run]=false;
 	
 	# TODO: move all other flag variables into $flags
-	# just creating bundles
 	local bundling=false;
-	# non-operation
 	local noop=false;
-
 	# quote command options by default
 	local quote=true;
-	
-	# stores flags used to skip command
-	# execution phases
 	declare -A skip;
 	skip["local.pre"]=false;
 	skip["local.post"]=false;
@@ -153,13 +145,10 @@ tasks.deploy() {
 	skip["growl"]=false;
 	
 	## DEFAULTS	
-	
-	# list of all profiles
-	# defined in descriptor
+
 	local all_profiles=();
 	
 	local type="${defaults[type]}";
-	# FIXME: use default variable
 	local profile="${defaults[profile.name]}";
 	local directory="";
 	local shell="${bake_deploy_shell:-sh}";
@@ -231,7 +220,6 @@ tasks.deploy() {
 	local git_url git_ref git_remote="${default_git_remote}";
 	git.remote.url "git_url";
 	git.branch.current "git_ref";
-	local default_url="${git_url}";
 	
 	:tasks.deploy.parse;
 	
@@ -317,6 +305,7 @@ tasks.deploy() {
 			dly_doc_key="${dly_doc_key//[^a-zA-Z0-9_]/_}";
 			
 			# declare variable
+			# TODO: always export ???
 			if ${flags[global.env]}; then
 				eval "export $dly_doc_key=\"$dly_doc_value\"";
 			else
@@ -547,14 +536,16 @@ tasks.deploy() {
 		:tasks.deploy.fail "invalid deployment type %s" "${type:-}";
 	fi
 	
-	# tar / git types must specify a url
+	# types should specify a url
 	if [ -z "${url:-}" ]; then
 		# use the default url extracted for a git repository
 		# for the default profile if possible
 		if [ "$profile" == "${defaults[profile.name]}" ] \
-			&& [ "$type" == "git" ] \
-			&& [ -n "${default_url:-}" ]; then
-			url="$default_url";
+			&& [ "$type" == "cp" ] \
+			&& [ -n "${defaults[url]:-}" ]; then
+			# default to the project path
+			# for the default cp(1) type
+			url="${defaults[url]}";
 		else
 			:tasks.deploy.fail "%s (type: %s) no url" \
 				"${profile}" "${type}";
