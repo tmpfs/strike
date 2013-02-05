@@ -25,6 +25,12 @@ tdd.suite.exclude! "task-test";
 # this test is slow and should be run manually
 tdd.suite.exclude! "jsonlint";
 
+tasks.auto() {
+	autoreconf;
+	#./configure && make;
+	./configure # && make && make install;
+}
+
 function tasks.json.checker.compile {
 	executable.validate gcc;
 	local exename="jsoncheck";

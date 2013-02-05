@@ -7,3 +7,11 @@ indexes
 erl_crash.dump
 tmp
 *.bak
+*.cache
+missing
+install-sh
+configure
+*.status
+Makefile.in
+aclocal.m4
+Makefile
