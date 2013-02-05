@@ -343,7 +343,8 @@ post() {
 	if test -d \$deploy_target; then
 		cd \$deploy_target;
 	# we should always have the final target by this point
-	else
+	# when we are actually executing commands
+	elif ! \$noop; then
 		quit "cannot execute post-deployment commands, %s does not exist" "\$deploy_target";
 	fi
 	

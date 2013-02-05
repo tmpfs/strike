@@ -40,7 +40,7 @@ require \'tasks/deploy\';
 Disable interactivity and assume \fIyes\fR for every prompt\.
 .
 .TP
-\fB\-\-noop\fR:
+\fB\-\-dry\-run\fR:
 
 .
 .P
@@ -208,7 +208,7 @@ This section describes bundle options\.
 
 .
 .P
-Just create bundles do not deploy anything and do not execute any commands\. Implies \fB\-\-noop\fR, \fB\-\-no\-local\fR and \fB\-\-no\-remote\fR\. See the \fBBUNDLES\fR section\.
+Just create bundles do not deploy anything and do not execute any commands\. Implies \fB\-\-dry\-run\fR, \fB\-\-no\-local\fR and \fB\-\-no\-remote\fR\. See the \fBBUNDLES\fR section\.
 .
 .TP
 \fB\-\-output [directory]\fR:
@@ -365,7 +365,7 @@ Declare variables exposed to deployment descriptors as \fIexport\fR rather than 
 
 .
 .P
-Dump all profile configuration settings that would be used by a deployment as a JSON document to \fIstdout\fR, implies \fB\-\-noop\fR\. This is useful to determine the settings that would be used when running a deployment\.
+Dump all profile configuration settings that would be used by a deployment as a JSON document to \fIstdout\fR, implies \fB\-\-dry\-run\fR\. This is useful to determine the settings that would be used when running a deployment\.
 .
 .P
 If this option is used in conjunction with \fB\-\-script\fR the last option will take preference\.
@@ -375,7 +375,7 @@ If this option is used in conjunction with \fB\-\-script\fR the last option will
 
 .
 .P
-Perform a sanity check on the generated script and exit, implies \fB\-\-noop\fR\. You must have the checkbashisms(1) script installed in \e$PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through checkbashisms(1)\.
+Perform a sanity check on the generated script and exit, implies \fB\-\-dry\-run\fR\. You must have the checkbashisms(1) script installed in \e$PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through checkbashisms(1)\.
 .
 .P
 Note that when using the \fB\-\-script\-file\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors\.
@@ -388,10 +388,10 @@ This option ignores multiple profiles, it only executes for the first target pro
 
 .
 .P
-Executes the script in the local target directory in the context of the \fIlocalhost\fR, implies the \fB\-\-lint\fR, \fB\-\-local\fR and \fB\-\-noop\fR options\. The script is only executed if the \fB\-\-lint\fR operation succeeds\. Useful for testing and debugging purposes\.
+Executes the script in the local target directory in the context of the \fIlocalhost\fR, implies the \fB\-\-lint\fR, \fB\-\-local\fR and \fB\-\-dry\-run\fR options\. The script is only executed if the \fB\-\-lint\fR operation succeeds\. Useful for testing and debugging purposes\.
 .
 .P
-Note that although this option implies \fB\-\-noop\fR (so no commands are executed) it does actually perform a deployment locally\.
+Note that although this option implies \fB\-\-dry\-run\fR (so no commands are executed) it does actually perform a deployment locally\.
 .
 .P
 This option ignores multiple profiles, it only executes for the first target profile\.
@@ -415,7 +415,7 @@ Print variables exposed to deployment descriptors and exit\.
 
 .
 .P
-Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
+Dump script(s) to \fIstdout\fR, implies \fB\-\-dry\-run\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
 .
 .SH "TYPES"
 The deploy tasks support the \fIcp\fR, \fIgit\fR, \fItar\fR and \fInpm\fR deployment types\.
@@ -1036,7 +1036,7 @@ The type of deployment being performed, see the \fBTYPES\fR section\.
 
 .
 .P
-A boolean indicating if this deployment is a non\-operation, will be \fItrue\fR if the \fB\-\-noop\fR option has been specified\.
+A boolean indicating if this deployment is a non\-operation, will be \fItrue\fR if the \fB\-\-dry\-run\fR option has been specified\.
 .
 .TP
 \fBflat\fR:
@@ -1293,7 +1293,7 @@ Deploying code is an important process and task\-deploy(7) by design presents co
 This interactivity can be disabled in a variety of ways which is often necessary when executing a deployment from another program or if you are re\-deploying in quick succession\. The recommended way is to specify the \fB\-\-ok\fR option\.
 .
 .P
-If the \fB\-\-noop\fR option is specified interactive prompt(s) are not displayed as no commands are executed\.
+If the \fB\-\-dry\-run\fR option is specified interactive prompt(s) are not displayed as no commands are executed\.
 .
 .P
 Interactive prompts write to \fIstdout\fR and read from \fIstdin\fR you may also disable interactivity by piping to \fIstdin\fR or redirecting \fIstdout\fR\. For example:
@@ -1310,7 +1310,7 @@ bake deploy > target/deploy\.log
 .IP "" 0
 .
 .SH "NOTIFICATIONS"
-If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are \fInot\fR sent for a \fBnoop\fR which is the case if the \fB\-\-noop\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
+If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are \fInot\fR sent for a \fBnoop\fR which is the case if the \fB\-\-dry\-run\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
 .
 .P
 You may disable the use of growl notifications by specifying the \fB\-\-no\-growl\fR option\.
@@ -1476,7 +1476,7 @@ Inspect deployment commands but do not execute them:
 .
 .nf
 
-bake deploy \-\-noop
+bake deploy \-\-dry\-run
 .
 .fi
 .

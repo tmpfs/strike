@@ -1380,7 +1380,7 @@ ${opt}";
 			--ok )
 				flags[interactive]=false;
 				;;
-			--noop )
+			--dry-run )
 				flags[noop]=true;
 				flags[interactive]=false;
 				;;

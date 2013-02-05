@@ -21,7 +21,7 @@ In your tasks(7) file `require` the `deploy` task(s) using:
 
 Disable interactivity and assume *yes* for every prompt.
 
-* `--noop`:
+* `--dry-run`:
 
 Print commands but do not execute them, implies `--ok` to disable interactivity.
 
@@ -119,7 +119,7 @@ This section describes bundle options.
 
 * `--bundle`:
 
-Just create bundles do not deploy anything and do not execute any commands. Implies `--noop`, `--no-local` and `--no-remote`. See the `BUNDLES` section.
+Just create bundles do not deploy anything and do not execute any commands. Implies `--dry-run`, `--no-local` and `--no-remote`. See the `BUNDLES` section.
 
 * `--output [directory]`:
 
@@ -217,13 +217,13 @@ Declare variables exposed to deployment descriptors as *export* rather than *loc
 
 * `--json`:
 
-Dump all profile configuration settings that would be used by a deployment as a JSON document to *stdout*, implies `--noop`. This is useful to determine the settings that would be used when running a deployment.
+Dump all profile configuration settings that would be used by a deployment as a JSON document to *stdout*, implies `--dry-run`. This is useful to determine the settings that would be used when running a deployment.
 
 If this option is used in conjunction with `--script` the last option will take preference.
 
 * `--lint`:
 
-Perform a sanity check on the generated script and exit, implies `--noop`. You must have the checkbashisms(1) script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through checkbashisms(1).
+Perform a sanity check on the generated script and exit, implies `--dry-run`. You must have the checkbashisms(1) script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through checkbashisms(1).
 
 Note that when using the `--script-file` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors.
 
@@ -231,9 +231,9 @@ This option ignores multiple profiles, it only executes for the first target pro
 
 * `--lint-run`:
 
-Executes the script in the local target directory in the context of the *localhost*, implies the `--lint`, `--local` and `--noop` options. The script is only executed if the `--lint` operation succeeds. Useful for testing and debugging purposes.
+Executes the script in the local target directory in the context of the *localhost*, implies the `--lint`, `--local` and `--dry-run` options. The script is only executed if the `--lint` operation succeeds. Useful for testing and debugging purposes.
 
-Note that although this option implies `--noop` (so no commands are executed) it does actually perform a deployment locally.
+Note that although this option implies `--dry-run` (so no commands are executed) it does actually perform a deployment locally.
 
 This option ignores multiple profiles, it only executes for the first target profile.
 
@@ -247,7 +247,7 @@ Print variables exposed to deployment descriptors and exit.
 
 * `--script`:
 
-Dump script(s) to *stdout*, implies `--noop`. If this option is used in conjunction with `--json` the last option will take preference. Note that when this option is used the script(s) are still written to `target/deploy`.
+Dump script(s) to *stdout*, implies `--dry-run`. If this option is used in conjunction with `--json` the last option will take preference. Note that when this option is used the script(s) are still written to `target/deploy`.
 	
 ## TYPES
 
@@ -628,7 +628,7 @@ The type of deployment being performed, see the `TYPES` section.
 
 * `noop`:
 
-A boolean indicating if this deployment is a non-operation, will be *true* if the `--noop` option has been specified.
+A boolean indicating if this deployment is a non-operation, will be *true* if the `--dry-run` option has been specified.
 
 * `flat`:
 
@@ -799,7 +799,7 @@ Deploying code is an important process and task-deploy(7) by design presents con
 
 This interactivity can be disabled in a variety of ways which is often necessary when executing a deployment from another program or if you are re-deploying in quick succession. The recommended way is to specify the `--ok` option.
 
-If the `--noop` option is specified interactive prompt(s) are not displayed as no commands are executed.
+If the `--dry-run` option is specified interactive prompt(s) are not displayed as no commands are executed.
 
 Interactive prompts write to *stdout* and read from *stdin* you may also disable interactivity by piping to *stdin* or redirecting *stdout*. For example:
 
@@ -808,7 +808,7 @@ Interactive prompts write to *stdout* and read from *stdin* you may also disable
 
 ## NOTIFICATIONS
 
-If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are *not* sent for a `noop` which is the case if the `--noop`, `--json` or `--script` options are specified.
+If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are *not* sent for a `noop` which is the case if the `--dry-run`, `--json` or `--script` options are specified.
 
 You may disable the use of growl notifications by specifying the `--no-growl` option.
 
@@ -878,7 +878,7 @@ List profiles in a specific descriptor:
 
 Inspect deployment commands but do not execute them:
 
-	bake deploy --noop
+	bake deploy --dry-run
 
 Print the script that will be used for deployment:
 
