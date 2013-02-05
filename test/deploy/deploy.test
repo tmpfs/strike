@@ -67,26 +67,25 @@ test.deploy.local() {
 	
 	#
 	local pass_tests=(
-		"deploy.env"
+		"tdd.deploy.env"
+		'tdd.deploy.options.list'
+		'tdd.deploy.options.script.file'
+		'tdd.deploy.minimal.bundle'
+		'tdd.deploy.minimal.deploy'
+		'tdd.deploy.project.bundle'
+		'tdd.deploy.project.deploy'
+		'tdd.deploy.project.bundle.nosha'
 		
-		'deploy.options.list'
-		'deploy.options.script.file'
-		'deploy.minimal.bundle'
-		'deploy.minimal.deploy'
-		'deploy.project.bundle'
-		'deploy.project.deploy'
-		'deploy.project.bundle.nosha'
-		
-		'deploy.project.tar.bundle'
-		'deploy.project.tar.deploy'
+		'tdd.deploy.project.tar.bundle'
+		'tdd.deploy.project.tar.deploy'
 	
-		'deploy.project.git.bundle'
-		'deploy.project.git.deploy'
+		'tdd.deploy.project.git.bundle'
+		'tdd.deploy.project.git.deploy'
 	
-		'deploy.project.npm.bundle'
-		'deploy.project.npm.deploy'
+		'tdd.deploy.project.npm.bundle'
+		'tdd.deploy.project.npm.deploy'
 	
-		'deploy.bundle.scripts'
+		'tdd.deploy.bundle.scripts'
 	);
 	
 	# run tests that should pass
@@ -94,7 +93,7 @@ test.deploy.local() {
 	local i;
 	for i in ${!pass_tests[@]}
 		do
-			deploy.run "${pass_tests[$i]}";
+			tdd.deploy.run "${pass_tests[$i]}";
 	done
 	
 	# clean up the mock project .git directory
@@ -106,25 +105,25 @@ test.deploy.local() {
 # run a test, we want to ensure
 # that we have a fresh mock structure
 # for each test
-deploy.run() {
+tdd.deploy.run() {
 	local cmd="$1";
 	
 	#echo "got command : $cmd";
 	# return 0;
 	
 	# clean up before we start
-	deploy.clean;	
+	tdd.deploy.clean;	
 	
 	# create fresh mock directories
-	deploy.init;
+	tdd.deploy.init;
 	# run the test
 	"$cmd";
 	# clean up at the end
-	deploy.clean;
+	tdd.deploy.clean;
 }
 
 # test environment is sane
-deploy.env() {
+tdd.deploy.env() {
 	descriptor="${project_source}/env.json";
 	local opts=( ${options[@]} );
 	opts+=( --global-env --print-env --descriptor "${descriptor}" );
@@ -175,7 +174,7 @@ deploy.env() {
 # OPTIONS
 
 # test the --script-file option
-deploy.options.script.file() {
+tdd.deploy.options.script.file() {
 	local script="${project_source}/custom-install.sh";	
 	local profile="default";
 	descriptor="${project_source}/${profile}.json";
@@ -189,7 +188,7 @@ deploy.options.script.file() {
 }
 
 # test the --list option
-deploy.options.list() {
+tdd.deploy.options.list() {
 	declare -A descriptors;
 	descriptors[default]="default.json";
 	descriptors[minimal]="minimal.json";
@@ -222,7 +221,7 @@ deploy.options.list() {
 
 # test bundling the default profile
 # using the absolute minimal descriptor
-deploy.minimal.bundle() {
+tdd.deploy.minimal.bundle() {
 	local profile="default";
 	descriptor="${project_source}/minimal.json";
 	local opts=( ${options[@]} );
@@ -233,7 +232,7 @@ deploy.minimal.bundle() {
 
 # test deploying the default profile
 # using the absolute minimal descriptor
-deploy.minimal.deploy() {
+tdd.deploy.minimal.deploy() {
 	local profile="default";	
 	descriptor="${project_source}/minimal.json";
 	local opts=( ${options[@]} );
@@ -246,7 +245,7 @@ deploy.minimal.deploy() {
 
 ## DEFAULT PROFILE
 
-deploy.project.bundle() {
+tdd.deploy.project.bundle() {
 	local profile="default";	
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -255,7 +254,7 @@ deploy.project.bundle() {
 	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
-deploy.project.deploy() {
+tdd.deploy.project.deploy() {
 	local profile="default";	
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -269,7 +268,7 @@ deploy.project.deploy() {
 ### NO SHA
 
 # should not have a checksum file in this instance
-deploy.project.bundle.nosha() {
+tdd.deploy.project.bundle.nosha() {
 	local profile="default";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -282,7 +281,7 @@ deploy.project.bundle.nosha() {
 
 ## TAR TYPE
 
-deploy.project.tar.bundle() {
+tdd.deploy.project.tar.bundle() {
 	local profile="deploy-tar";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -291,7 +290,7 @@ deploy.project.tar.bundle() {
 	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
-deploy.project.tar.deploy() {
+tdd.deploy.project.tar.deploy() {
 	local profile="deploy-tar";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -304,7 +303,7 @@ deploy.project.tar.deploy() {
 
 ## GIT TYPE
 
-deploy.project.git.bundle() {
+tdd.deploy.project.git.bundle() {
 	local profile="deploy-git";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -313,7 +312,7 @@ deploy.project.git.bundle() {
 	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
-deploy.project.git.deploy() {
+tdd.deploy.project.git.deploy() {
 	local profile="deploy-git";	
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -326,7 +325,7 @@ deploy.project.git.deploy() {
 
 ## NPM TYPE
 
-deploy.project.npm.bundle() {
+tdd.deploy.project.npm.bundle() {
 	local profile="deploy-npm";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -335,7 +334,7 @@ deploy.project.npm.bundle() {
 	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
-deploy.project.npm.deploy() {
+tdd.deploy.project.npm.deploy() {
 	local profile="deploy-npm";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -348,7 +347,7 @@ deploy.project.npm.deploy() {
 
 # BUNDLE SCRIPTS
 
-deploy.bundle.scripts() {
+tdd.deploy.bundle.scripts() {
 	local profile="bundle-scripts";
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
@@ -380,14 +379,14 @@ assert.deployment.files() {
 }
 
 # create the test staging structure
-deploy.init() {
+tdd.deploy.init() {
 	mkdir -p "$staging";
 	mkdir -p "$directory";
 	mkdir -p "$bundles";
 }
 
 # clean the test staging directory
-deploy.clean() {
+tdd.deploy.clean() {
 	if [ -d "${deploy_test}" ]; then
 		console.info "deploy.test clean %s" "$deploy_test";
 		# NOTE: we use ${root}/target rather than ${target}
