@@ -363,7 +363,7 @@ deploy.bundle.scripts() {
 assert.bundle() {
 	local final="$1";
 	assert.file.exists? "${final}.tgz";
-	assert.file.exists? "${final}.sha${algorithm}";	
+	assert.file.exists? "${final}.tgz.sha${algorithm}";	
 }
 
 # assert on files that should be present

@@ -119,7 +119,7 @@ This section describes bundle options.
 
 * `--bundle`:
 
-Just create bundles do not deploy anything and do not execute any commands. Implies `--dry-run`, `--no-local` and `--no-remote`. See the `BUNDLES` section.
+Just create bundles do not deploy anything and do not execute any commands. Implies `--no-remote`. See the `BUNDLES` section.
 
 * `--output [directory]`:
 
