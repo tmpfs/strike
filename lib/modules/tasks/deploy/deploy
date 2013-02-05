@@ -666,12 +666,12 @@ tasks.deploy() {
 		fi
 		
 		# write the deploy script file
-		:tasks.deploy.script.write!;
+		script.write!;
 	fi
 	
 	# run script through `checkbashisms`
 	if ${flags[script.lint]}; then
-		:tasks.deploy.script.lint;
+		script.lint;
 	fi
 
 	if ! ${flags[print.script]} && ! ${flags[print.json]}; then

@@ -1,7 +1,7 @@
 # script generation commands for task-deploy(7)
 
 # write out the script file
-:tasks.deploy.script.write!() {
+script.write!() {
 	# delete any existing deploy script
 	if [ -f "${script}" ]; then
 		rm "${script}" \
@@ -28,7 +28,7 @@
 	if [ -n "${sources[script]}" ]; then
 		cat "${sources[script]}" >| "${script}";
 	else
-		:tasks.deploy.script.header.write!;
+		script.header.write!;
 		
 		# calculate if there are remote
 		# commands to execute
@@ -45,16 +45,16 @@
 		# echo "creating script with: $script_commands_profile_post";
 		
 		# write pre/post commands
-		:tasks.deploy.script.commands.write "pre";
-		:tasks.deploy.script.commands.write "post";
+		script.commands.write "pre";
+		script.commands.write "post";
 		
-		:tasks.deploy.script.common.write!;
+		script.common.write!;
 		
-		:tasks.deploy.script.directories.write!;
+		script.directories.write!;
 		
 		# we've already validated on deployment type
 		# this is an additional sanity check
-		local method=":tasks.deploy.script.${type}.write!"		
+		local method="script.${type}.write!"		
 		if ! method.exists? "$method"; then
 			:tasks.deploy.fail "unsupported type %s" "${type}";
 		fi
@@ -63,7 +63,7 @@
 		# script write command
 		$method;
 		
-		:tasks.deploy.script.footer.write!;
+		script.footer.write!;
 	fi
 
 	chmod +x "${script}" \
@@ -74,7 +74,7 @@
 }
 
 # run script through *checkbashisms*
-:tasks.deploy.script.lint() {
+script.lint() {
 	executable.validate checkbashisms;
 	
 	:tasks.deploy.out.info "lint %s" "${script}";
@@ -110,7 +110,7 @@
 }
 
 # write the script header
-:tasks.deploy.script.header.write!() {
+script.header.write!() {
 cat <<EOF >> "${script}"
 ${shebang}
 
@@ -215,7 +215,7 @@ EOF
 
 # write the command used to create directories
 # post-deployment
-:tasks.deploy.script.directories.write!() {
+script.directories.write!() {
 # open command
 cat <<EOF >> "${script}"
 directories() {
@@ -237,8 +237,8 @@ cat <<EOF >> "${script}"
 	if test -d \$deploy_target; then
 		cd "\$deploy_target";
 EOF
-		:tasks.deploy.script.directories.group.write! $globals "bundle.dirs";
-		:tasks.deploy.script.directories.group.write! $profiles "profiles.${profile}.bundle.dirs";
+		script.directories.group.write! $globals "bundle.dirs";
+		script.directories.group.write! $profiles "profiles.${profile}.bundle.dirs";
 cat <<EOF >> "${script}"
 	fi
 EOF
@@ -251,7 +251,7 @@ cat <<EOF >> "${script}"
 EOF
 }
 
-:tasks.deploy.script.directories.group.write!() {
+script.directories.group.write!() {
 	local length="$1";
 	local prefix="$2";
 	local i k path perm;
@@ -285,7 +285,7 @@ EOF
 }
 
 # write pre / post deployment commands
-:tasks.deploy.script.commands.write() {
+script.commands.write() {
 	local phase="$1";
 	
 	# echo "writing remote commands for phase ... $phase";
@@ -310,7 +310,7 @@ pre() {
 	info "working directory \$wd\n";
 	delimiter;
 EOF
-		:tasks.deploy.script.commands.embed \
+		script.commands.embed \
 			$script_commands_global_pre '';
 # close command
 cat <<EOF >> "${script}"
@@ -355,7 +355,7 @@ post() {
 	info "working directory \$wd\n";
 	delimiter;	
 EOF
-		:tasks.deploy.script.commands.embed;
+		script.commands.embed;
 # close command
 cat <<EOF >> "${script}"
 
@@ -378,7 +378,7 @@ EOF
 }
 
 # flatten a list of commands and write to script
-:tasks.deploy.script.commands.embed() {
+script.commands.embed() {
 	
 	# print what is about to be executed
 	
@@ -392,7 +392,7 @@ EOF
 				continue;
 			fi
 			v="${global_commands[$k]}";
-			:tasks.deploy.script.commands.embed.group;
+			script.commands.embed.group;
 	done
 	for k in ${!profile_commands[@]}
 		do
@@ -401,13 +401,13 @@ EOF
 				continue;
 			fi
 			v="${profile_commands[$k]}";
-			:tasks.deploy.script.commands.embed.group;
+			script.commands.embed.group;
 	done
 	# terminate command list
 	printf ";" >> "${script}";
 }
 
-:tasks.deploy.script.commands.embed.group() {
+script.commands.embed.group() {
 	local cmd;
 	local IFS=$newline;	
 	# print the commands
@@ -427,7 +427,7 @@ EOF
 
 # write the script commands shared by all
 # deployment types
-:tasks.deploy.script.common.write!() {
+script.common.write!() {
 cat <<EOF >> "${script}"
 # completed successfully
 complete() {
@@ -589,7 +589,7 @@ EOF
 }
 
 # cp(1) specific commands
-:tasks.deploy.script.cp.write!() {
+script.cp.write!() {
 cat <<EOF >> "${script}"
 deploy() {
 	cd \$owd;
@@ -621,7 +621,7 @@ EOF
 }
 
 # git(1) specific commands
-:tasks.deploy.script.git.write!() {
+script.git.write!() {
 cat <<EOF >> "${script}"
 git_ref="${git_ref}";
 git_remote="${git_remote}";
@@ -673,7 +673,7 @@ EOF
 }
 
 # tar(1) specific commands
-:tasks.deploy.script.tar.write!() {
+script.tar.write!() {
 cat <<EOF >> "${script}"
 deploy() {
 	info "url %s\n" "\$url";
@@ -733,7 +733,7 @@ EOF
 }
 
 # npm(1) specific commands
-:tasks.deploy.script.npm.write!() {	
+script.npm.write!() {	
 cat <<EOF >> "${script}"
 npm_use_package="${npm_use_package}";
 npm_package_name="${npm_package_name}";
@@ -770,7 +770,7 @@ EOF
 }
 
 # write the script footer
-:tasks.deploy.script.footer.write!() {
+script.footer.write!() {
 cat <<EOF >> "${script}"
 # check for an executable that
 # matches the deployment type
