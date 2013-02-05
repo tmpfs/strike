@@ -146,8 +146,7 @@ tasks.deploy() {
 	flags[script.lint]=false;
 	flags[script.lint.run]=false;
 	
-	# quote command options by default
-	local quote=true;
+	flags[expand]=false;
 	
 	declare -A skip;
 	skip["local.pre"]=false;
@@ -805,13 +804,13 @@ tasks.deploy() {
 				# execute the command
 				if ! ${flags[noop]}; then
 					if ! ${flags[logging]}; then
-						if $quote; then
+						if ! ${flags[expand]}; then
 							( ${exe} "${opt[@]:-}" ); exit_code=$?;
 						else
 							( ${exe} ${opt[@]:-} ); exit_code=$?;
 						fi
 					else
-						if $quote; then
+						if ! ${flags[expand]}; then
 							( ${exe} "${opt[@]:-}" >> "${log}" 2>&1 );
 							exit_code=$?;
 						else
@@ -1434,7 +1433,7 @@ ${opt}";
 				flags[print.json.pretty]=true;
 				;;
 			--expand )
-				quote=false;
+				flags[expand]=true;
 				;;
 			--flat )
 				flags[target.flat]=true;
