@@ -185,7 +185,9 @@ Do not generate a checksum file.
 
 ### Compression
 
-The default compression used is `gzip` although if the `xz` and `xzdec` binaries are available then the `xz` compression type is preferred. You may override this behaviour by specifying a compression type option (last option takes precedence).
+The default compression used is `gzip`, you may override this behaviour by specifying a compression type option (last option takes precedence).
+
+To reduce file size and network throughput, if the `xz` and `xzdec` binaries are available then the `xz` compression type is preferred. This could be problematic if the local host has the binaries but a remote host does not, in which case you should force compression to be of a type that is available on all machines.
 
 Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing a remote deployment.
 

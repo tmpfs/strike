@@ -267,14 +267,14 @@ EOF
 cat <<EOF >> "${script}"
 		if ! test -d $path; then
 			info "mkdir -p %s\n" "$path";
-			mkdir -p $path \\
+			run mkdir -p $path \\
 				|| quit "could not create directory %s\n" "$path";
 EOF
 
 			if [ -n "$perm" ]; then
 cat <<EOF >> "${script}"
 			info "chmod %s %s\n" "$perm" "$path";
-			chmod $perm $path \\
+			run chmod $perm $path \\
 				|| quit "could not set permissions %s on %s\n" "$perm" "$path";
 EOF
 			fi
@@ -440,6 +440,15 @@ quit() {
 	exit 1;
 }
 
+# run a command and respect noop
+run() {
+	if \$noop; then
+		return 0;
+	fi
+	\$@;
+	return \$?;
+}
+
 # info message
 info() {
 	printf "\$@";
@@ -469,7 +478,7 @@ log() {
 backup() {
 	info "backup %s\n" "\${deploy_target}";	
 	info "mv %s %s\n" "\${deploy_target}" "\${backup}";
-	mv \${deploy_target} \${backup} \\
+	run mv \${deploy_target} \${backup} \\
 		|| quit "could not create backup %s from %s\n" "\$backup" "\$deploy_target";
 }
 
@@ -479,7 +488,7 @@ rollback() {
 	# we have a git revision to rollback to
 	if test -n \${git_revision_hash:-} && test -d \${deploy_target}/.git; then
 		info "rollback (git) %s\n" "\${deploy_target}";
-		cd \${deploy_target} && git reset \$git_revision_hash >> \$log_file 2>&1;
+		run cd \${deploy_target} && run git reset \$git_revision_hash >> \$log_file 2>&1;
 	# plain filesytem rollback
 	elif test -d \${backup}; then
 		info "rollback (fs) %s\n" "\${deploy_target}";
@@ -489,11 +498,11 @@ rollback() {
 		# the best change of succeeding on a failed partial deployment
 		if test -d \${deploy_target}; then
 			info "rm -rfv %s\n" "\${deploy_target}";
-			rm -rfv \${deploy_target} >> \$log_file 2>&1;
+			run rm -rfv \${deploy_target} >> \$log_file 2>&1;
 		fi
 	
 		info "mv %s %s\n" "\${backup}" "\${deploy_target}";	
-		mv \${backup} \${deploy_target} \\
+		run mv \${backup} \${deploy_target} \\
 			|| quit "could not rollback %s from %s\n" "\$deploy_target" "\$backup";
 	fi
 }
@@ -503,7 +512,7 @@ setup() {
 	# create the parent directory
 	if ! test -d \$deploy_parent; then
 		info "mkdir -p %s\n" "\${deploy_parent}";
-		mkdir -p \$deploy_parent \\
+		run mkdir -p \$deploy_parent \\
 			|| { quit "could not create %s\n" "\$deploy_parent"; }
 	fi
 	
@@ -576,7 +585,6 @@ EOF
 :tasks.deploy.script.cp.write!() {
 cat <<EOF >> "${script}"
 deploy() {
-	
 	cd \$owd;
 	
 	echo "start cp deployment `pwd`";
@@ -590,14 +598,14 @@ deploy() {
 	
 	info "url %s\n" "\$url";
 	if ! test -d \$deploy_target; then
-		mkdir -p \$deploy_target \\
+		run mkdir -p \$deploy_target \\
 			|| quit "could not create %s\n" "\$deploy_target";
 	fi
 	
 	# now try to copy everything over
 	info "cp -pR %s/* %s\n" "\$url" "\$deploy_target";
 	
-	cp -pR \${url}/* \$deploy_target;
+	run cp -pR \${url}/* \$deploy_target;
 	
 	cd \$owd && complete;
 }
@@ -622,8 +630,8 @@ deploy() {
 	if ! test -d \${deploy_target}; then
 		# TODO: pull refspec after clone
 		info "git clone --origin %s %s %s\n" "\${git_remote}" "\${url}" "\${deploy_final_name}";
-		cd \${deploy_parent} \\
-			&& git clone --origin \${git_remote} \${url} \${deploy_final_name} >> \$log_file 2>&1;
+		run cd \${deploy_parent} \\
+			&& run git clone --origin \${git_remote} \${url} \${deploy_final_name} >> \$log_file 2>&1;
 	# target directory exists, do an update
 	# using pull
 	else
@@ -641,8 +649,8 @@ deploy() {
 			
 			# try to pull to update
 			info "git pull %s %s\n" "\${git_remote}" "\${git_ref}";
-			cd \${deploy_target} \\
-				&& git pull \${git_remote} \${git_ref} >> \$log_file 2>&1;
+			run cd \${deploy_target} \\
+				&& run git pull \${git_remote} \${git_ref} >> \$log_file 2>&1;
 		# otherwise try a normal backup operation
 		else
 			backup;
@@ -677,18 +685,18 @@ deploy() {
 	fi
 	
 	info "mkdir download && cd download\n";
-	mkdir download >> \$log_file 2>&1 \\
-		&& cd download >> \$log_file 2>&1;
+	run mkdir download >> \$log_file 2>&1 \\
+		&& run cd download >> \$log_file 2>&1;
 	info "curl -# -OL %s\n" "\$url";
-	curl -# -OL "\$url" >> \$log_file 2>&1;
+	run curl -# -OL "\$url" >> \$log_file 2>&1;
 	
 	file=\$( ls . );
 	info "downloaded %s\n" "\$file";
 	
 	info "mkdir archive\n";
-	mkdir archive >> \$log_file 2>&1;
+	run mkdir archive >> \$log_file 2>&1;
 	info "tar -xf %s -C ./archive\n" "\$file";
-	tar -xf "\$file" -C ./archive;
+	run tar -xf "\$file" -C ./archive;
 	count=\$( ls ./archive | wc -l | tr -s " " );
 	
 	if [ "\${count}" -eq 1 ]; then
@@ -702,13 +710,13 @@ deploy() {
 	if \$replace_target && test -n "\$file"; then
 		info "copy archive directory %s\n" "\$file";
 		info "mv %s %s\n" "\$file" "\$deploy_target";
-		mv "\$file" "\$deploy_target" >> \$log_file 2>&1;
+		run mv "\$file" "\$deploy_target" >> \$log_file 2>&1;
 	else
 		info "copy archive contents %s\n" "./archive";
 		info "mkdir -p %s\n" "\$deploy_target";
 		mkdir -p "\$deploy_target" >> \$log_file 2>&1;
 		info "cp ./archive/* %s\n" "\$deploy_target";
-		cp -rfv ./archive/* "\$deploy_target" >> \$log_file 2>&1;
+		run cp -rfv ./archive/* "\$deploy_target" >> \$log_file 2>&1;
 	fi
 	
 	cd \$owd && complete;
@@ -739,14 +747,15 @@ deploy() {
 	# now perform the npm installation
 	cd \$bundle_destination;
 	if \$npm_use_package; then
-		npm install >> \$log_file 2>&1;	
+		run npm install >> \$log_file 2>&1;	
 	else
-		npm install \${url} >> \$log_file 2>&1;
+		run npm install \${url} >> \$log_file 2>&1;
 	fi
-	rm -rfv ./node_modules/.bin >> \$log_file 2>&1;
+	# TODO: info message here!
+	run rm -rfv ./node_modules/.bin >> \$log_file 2>&1;
 	npm_install_target=\$( ls ./node_modules );
 	npm_install_target="./node_modules/\$npm_install_target";
-	mv \$npm_install_target \$deploy_parent/\$deploy_final_name;
+	run mv \$npm_install_target \$deploy_parent/\$deploy_final_name;
 	cd \$owd && complete;
 }
 

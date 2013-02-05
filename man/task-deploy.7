@@ -314,7 +314,10 @@ Use \fIalgorithm\fR when generating checksums\. Available values are \fI224\fR, 
 Do not generate a checksum file\.
 .
 .SS "Compression"
-The default compression used is \fBgzip\fR although if the \fBxz\fR and \fBxzdec\fR binaries are available then the \fBxz\fR compression type is preferred\. You may override this behaviour by specifying a compression type option (last option takes precedence)\.
+The default compression used is \fBgzip\fR, you may override this behaviour by specifying a compression type option (last option takes precedence)\.
+.
+.P
+To reduce file size and network throughput, if the \fBxz\fR and \fBxzdec\fR binaries are available then the \fBxz\fR compression type is preferred\. This could be problematic if the local host has the binaries but a remote host does not, in which case you should force compression to be of a type that is available on all machines\.
 .
 .P
 Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing a remote deployment\.
@@ -463,6 +466,21 @@ Instead, by following the above rule we end up with the contents of the extracte
 .fi
 .
 .IP "" 0
+.
+.SH "URL"
+This section describes the rules for the \fIurl\fR property for the different deployment types\. In the case of the \fInpm\fR type (or filesystem paths) this property does not have to be a valid URL as specified by \fBRFC 1738\fR\.
+.
+.P
+For the \fIcp\fR deployment type, the \fIurl\fR should be a filesystem path (tilde expansion is allowed) that points to a directory and may optionally begin with the \fIfile:\fR scheme which will be removed for the deployment\. If is an error to use any scheme other than \fIfile:\fR\.
+.
+.P
+The \fIurl\fR used for the \fIgit\fR deployment type is passed directly to git(1) so you may use any of the supported protocols: ssh, git, http, https, ftp, ftps, and rsync\.
+.
+.P
+The \fItar\fR deployment type uses curl(1) to fetch the archive to deploy so you may use any protocol supported by curl(1), for example: file, ftp, ftps, scp, http or https\.
+.
+.P
+The \fInpm\fR deployment type may specify the \fIurl\fR in any form supported by npm(1) including the \fBproject@0\.0\.1\fR declaration\.
 .
 .SH "BUNDLES"
 The task\-deploy(7) execution creates a tarball bundle of the deployment files using the project \fIname\fR and \fIversion\fR concatenated with the current \fIprofile\fR for the bundle file name\. Assuming a project name of \fIproject\fR, with version \fI0\.0\.1\fR and a deployment profile of \fIstage\fR the resulting bundle is \fBproject\-0\.0\.1\-stage\.tgz\fR\.
