@@ -120,8 +120,7 @@ tasks.deploy() {
 	flags[sha]=true;
 	flags[interactive]=true;
 	flags[logging]=false;
-	
-	flags[deploy.local]=false;		
+	flags[deploy.local]=false;
 	flags[deploy.all]=false;
 	flags[bundle.only]=false;
 	flags[bundle.inspect]=false;
@@ -145,11 +144,10 @@ tasks.deploy() {
 	flags[script.lint.run]=false;
 	flags[expand]=false;
 	
-	declare -A skip;
-	skip["local.pre"]=false;
-	skip["local.post"]=false;
-	skip["remote.pre"]=false;
-	skip["remote.post"]=false;
+	flags[skip.local.pre]=false;
+	flags[skip.local.post]=false;
+	flags[skip.remote.pre]=false;
+	flags[skip.remote.post]=false;
 	
 	## DEFAULTS	
 
@@ -724,7 +722,7 @@ tasks.deploy() {
 
 # run pre-deployment local commands
 :tasks.deploy.run.pre() {
-	if "${skip["local.pre"]}"; then
+	if ${flags[skip.local.pre]}; then
 		return 0;
 	fi
 	if [ "${#global_commands[@]:-0}" ]; then
@@ -735,7 +733,7 @@ tasks.deploy() {
 
 # run post-deployment local commands
 :tasks.deploy.run.post() {
-	if "${skip["local.post"]}"; then
+	if ${flags[skip.local.post]}; then
 		return 0;
 	fi
 	if [ "${#global_commands[@]:-0}" ]; then
@@ -1435,24 +1433,24 @@ ${opt}";
 				flags[deploy.all]=true;
 				;;				
 			--no-local )
-				skip["local.pre"]=true;
-				skip["local.post"]=true;
+				flags[skip.local.pre]=true;
+				flags[skip.local.post]=true;
 				;;
 			--no-local-pre )
-				skip["local.pre"]=true;
+				flags[skip.local.pre]=true;
 				;;
 			--no-local-post )
-				skip["local.post"]=true;
+				flags[skip.local.post]=true;
 				;;
 			--no-remote )
-				skip["remote.pre"]=true;
-				skip["remote.post"]=true;
+				flags[skip.remote.pre]=true;
+				flags[skip.remote.post]=true;
 				;;
 			--no-remote-pre )
-				skip["remote.pre"]=true;
+				flags[skip.remote.pre]=true;
 				;;
 			--no-remote-post )
-				skip["remote.post"]=true;
+				flags[skip.remote.post]=true;
 				;;
 			--no-growl )
 				flags[notify.growl]=false;
@@ -1470,10 +1468,10 @@ ${opt}";
 			--bundle )
 				flags[bundle.only]=true;
 				flags[noop]=true;
-				skip["local.pre"]=true;
-				skip["local.post"]=true;
-				skip["remote.pre"]=true;
-				skip["remote.post"]=true;
+				flags[skip.local.pre]=true;
+				flags[skip.local.post]=true;
+				flags[skip.remote.pre]=true;
+				flags[skip.remote.post]=true;
 				;;
 			--gz )
 				compression="gz";

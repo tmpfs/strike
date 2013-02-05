@@ -290,7 +290,7 @@ EOF
 	
 	# echo "writing remote commands for phase ... $phase";
 	
-	if ! ${skip[remote.${phase}]} && [ "$phase" == pre ] \
+	if ! ${flags[skip.remote.${phase}]} && [ "$phase" == pre ] \
 		&& [ $script_commands_pre -gt 0 ]; then
 # open command
 cat <<EOF >> "${script}"
@@ -332,7 +332,7 @@ pre() {
 EOF
 	fi
 		
-	if ! ${skip[remote.${phase}]} && [ "$phase" == post ] \
+	if ! ${flags[skip.remote.${phase}]} && [ "$phase" == post ] \
 		&& [ $script_commands_post -gt 0 ]; then
 # open command
 cat <<EOF >> "${script}"
