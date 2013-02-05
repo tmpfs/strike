@@ -136,6 +136,7 @@ tasks.deploy() {
 	flags[print.json.pretty]=false;
 	flags[print.script]=false;
 	flags[print.env]=false;
+	flags[notify.growl]=true;
 	
 	# TODO: remove this!
 	flags[global.env]=false;
@@ -149,7 +150,6 @@ tasks.deploy() {
 	skip["local.post"]=false;
 	skip["remote.pre"]=false;
 	skip["remote.post"]=false;
-	skip["growl"]=false;
 	
 	## DEFAULTS	
 
@@ -1290,7 +1290,7 @@ ${opt}";
 	local success="${1:-false}";
 	# don't send growl notifications for
 	# json dumps or noop
-	if ${flags[noop]} || ${skip[growl]}; then
+	if ${flags[noop]} || ! ${flags[notify.growl]}; then
 		return 0;
 	fi
 	if [ -n "${executables[growlnotify]}" ]; then
@@ -1455,7 +1455,7 @@ ${opt}";
 				skip["remote.post"]=true;
 				;;
 			--no-growl )
-				skip["growl"]=true;
+				flags[notify.growl]=false;
 				;;
 			--log )
 				flags[logging]=true;
