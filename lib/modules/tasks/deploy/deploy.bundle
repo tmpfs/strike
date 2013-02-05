@@ -329,7 +329,7 @@ NPMPKG
 :tasks.deploy.bundle.install!() {
 	
 	# local deployment
-	if ${flags[local]}; then
+	if ${flags[deploy.local]}; then
 		:tasks.deploy.out.info "local install %s" "${bundle_archive}";
 		# copy packaged bundle to staging
 		cp "${bundle_path}" "${staging}" \

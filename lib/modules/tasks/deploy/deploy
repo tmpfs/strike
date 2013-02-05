@@ -64,8 +64,9 @@ tasks.deploy() {
 	
 	# list of supported shells
 	local shells=( sh bash zsh dash );
+	
 	# valid deployment types
-	local types=( git tar npm cp );
+	local types=( git tar npm cp );	
 	
 	# DEFAULTS
 	declare -A defaults;
@@ -111,17 +112,20 @@ tasks.deploy() {
 	
 	# FLAGS
 	declare -A flags;
+	
+	# TODO: remove this!
 	flags[success]=false;
-	flags[local]=false;	
+	
+	flags[noop]=false;	
 	flags[verbose]=false;
 	flags[quiet]=false;
-	flags[print.env]=false;
-	flags[global.env]=false;
 	flags[timestamp]=false;
 	flags[author]=false;
 	flags[sha]=true;
 	flags[interactive]=true;
 	flags[logging]=false;
+	
+	flags[deploy.local]=false;		
 	flags[deploy.all]=false;
 	flags[bundle.only]=false;
 	flags[bundle.inspect]=false;
@@ -135,13 +139,19 @@ tasks.deploy() {
 	flags[print.json]=false;
 	flags[print.json.pretty]=false;
 	flags[print.script]=false;
+	flags[print.env]=false;
+	# TODO: remove this!
+	flags[global.env]=false;	
+	
 	flags[script.lint]=false;
 	flags[script.lint.run]=false;
 	
 	# TODO: move all other flag variables into $flags
 	local noop=false;
+	
 	# quote command options by default
 	local quote=true;
+	
 	declare -A skip;
 	skip["local.pre"]=false;
 	skip["local.post"]=false;
@@ -249,7 +259,7 @@ tasks.deploy() {
 	json_dump["project-name"]="${project_name}";
 	json_dump["descriptor"]="${descriptor}";
 	json_dump["noop"]="${noop}";
-	json_dump["local"]="${flags[local]}";
+	json_dump["local"]="${flags[deploy.local]}";
 	local i;
 	for i in ${!profiles[@]}
 		do
@@ -615,9 +625,9 @@ tasks.deploy() {
 	fi
 	
 	# validate required data
-	if ! ${flags[local]} && [ -z "${host}" ]; then
+	if ! ${flags[deploy.local]} && [ -z "${host}" ]; then
 		:tasks.deploy.fail "no remote host information available for deploy";
-	elif ${flags[local]}; then
+	elif ${flags[deploy.local]}; then
 		host="${setup[hostname]}";
 	fi
 	
@@ -1401,7 +1411,7 @@ ${opt}";
 				staging="${1:-}";
 				;;
 			--local )
-				flags[local]=true;
+				flags[deploy.local]=true;
 				;;
 			--json )
 				flags[print.json]=true;
@@ -1420,7 +1430,7 @@ ${opt}";
  			--lint-run )
 				flags[script.lint]=true;
 				flags[script.lint.run]=true;
-				flags[local]=true;
+				flags[deploy.local]=true;
 				noop=true;
 				;;
 			--pretty )

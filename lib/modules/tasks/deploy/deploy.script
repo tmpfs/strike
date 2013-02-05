@@ -125,7 +125,7 @@ ${shebang}
 # version: ${project_version}
 # profile: ${profile}
 # type: ${type}
-# local: ${flags[local]}
+# local: ${flags[deploy.local]}
 # flat: ${flags[target.flat]}
 # include version: ${flags[target.version]}
 # staging: ${staging}
