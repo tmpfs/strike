@@ -18,7 +18,12 @@
 				"path": "server/pids",
 				"perm": "0700"
 			}
-		]
+		],
+		"files": {
+			"include": [
+				"configure"
+			]
+		}
 	},
 	"env": {
 		"archive": {
@@ -29,8 +34,10 @@
 	},
 	"commands": {
 		"local": {
-			"description": "creates an npm package and moves it to target",
 			"pre": [
+				{
+					"command": "autoconf"
+				},
 				{
 					"command": "npm",
 					"options": [ "pack" ]

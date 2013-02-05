@@ -6,7 +6,7 @@
 	local bundle_contents_path="${bundle_source}/${names[bundle.contents]}";
 	
 	# must be done here to be written to info.json
-	local shafile="${bundle_name}.sha${setup[sha.algorithm]}";
+	local shafile="${bundle_archive}.sha${setup[sha.algorithm]}";
 	setup[sha.file]="${shafile}";
 	
 	# no point writing the sha data when not
@@ -17,7 +17,7 @@
 	fi
 	
 	# always write the effective settings into the bundle
-	:tasks.bundle.settings.write!	
+	:tasks.bundle.settings.write!
 	
 	# add scripts to bundle
 	:tasks.bundle.scripts;
