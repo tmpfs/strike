@@ -349,9 +349,7 @@ A `makefile` is generated in the archive to create a consistent and familiar exp
 
 The rules for the behaviour of generated makefiles are as follows. If the bundle is not standalone or no makefile is included in the bundle contents then a single *install* target is created which runs the `install.sh` script.
 
-If a bundled makefile exists (in the contents directory) then it is checked for an `install` target. If the bundled makefile contains an `install` target then the generated makefile (at the root of the archive) proxies all targets to the bundled makefile. If no `install` target is found in the bundled makefile then an `install` target is generated that proxies to `install.sh` and all other targets are proxied to the bundled makefile.
-
-You may specify a custom makefile using `--make-file` in which case the above rules for makefile generation are ignored and the specified makefile is used instead.
+If a bundled makefile exists (in the contents directory) then the makefile generated in the root of the bundle proxies all targets to the makefile included in the contents directory. You may override this behaviour by specifying a different makefile for the root of the bundle using the `--make-file` option.
 
 ### Package
 

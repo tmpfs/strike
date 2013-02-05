@@ -310,7 +310,8 @@ pre() {
 	info "working directory \$wd\n";
 	delimiter;
 EOF
-		:tasks.deploy.script.commands.embed;
+		:tasks.deploy.script.commands.embed \
+			$script_commands_global_pre '';
 # close command
 cat <<EOF >> "${script}"
 
@@ -378,6 +379,10 @@ EOF
 
 # flatten a list of commands and write to script
 :tasks.deploy.script.commands.embed() {
+	
+	# print what is about to be executed
+	
+	
 	printf "\t" >> "${script}";
 	local written=false;	
 	local k v cmds re="^commands\.remote\.$phase\.[0-9]+";
@@ -404,14 +409,15 @@ EOF
 
 :tasks.deploy.script.commands.embed.group() {
 	local cmd;
-	local IFS=$newline;
+	local IFS=$newline;	
+	# print the commands
 	for cmd in "${v}"
 		do			
 			cmds=( $v );
 			# echo "appending command ${cmds[@]}";
 			if $written; then
 				printf " \\" >> "${script}";	
-				printf "\n\t&& " >> "${script}";
+				printf "\n\t\t&& " >> "${script}";
 			fi
 			local IFS=' ';
 			printf "${cmds[*]}" >> "${script}";

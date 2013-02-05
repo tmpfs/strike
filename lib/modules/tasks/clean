@@ -47,12 +47,13 @@ bake(1)
 ronn:markdown
 
 # removes the temporary target directory
-function tasks.clean {
+tasks.clean() {
 	
 	# TODO: add support for finding nested `target`
 	# TODO: directories and removing those too
 	
 	local verbose=false;
+	local force=false;
 	local rmopts="-rf";	
 	
 	# the interactive prompt
@@ -101,4 +102,9 @@ function tasks.clean {
 	prompt.rejects rejected;
 	prompt.show confirm;
 	prompt.clean;
+}
+
+
+clean.options.parse() {
+	echo "get opts"
 }

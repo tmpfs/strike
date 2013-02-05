@@ -52,8 +52,15 @@
 				{
 					"command": "echo",
 					"options": [ "remote post-deployment started" ]
-				}
-			]		
+				},
+				{
+					"command": "pwd"
+				},
+				{
+					"command": "ls",
+					"options": [ "-la" ]
+				}				
+			]
 		}
 	},
 	"profiles": {
