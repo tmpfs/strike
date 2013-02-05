@@ -280,6 +280,18 @@ To illustrate, if we are deploying to *~/www* with a deployment profile named *s
 Instead, by following the above rule we end up with the contents of the extracted *project* directory at the expected final directory:
 
 	~/www/stage
+	
+## URL
+
+This section describes the rules for the *url* property for the different deployment types. In the case of the *npm* type (or filesystem paths) this property does not have to be a valid URL as specified by `RFC 1738`.
+
+For the *cp* deployment type, the *url* should be a filesystem path (tilde expansion is allowed) that points to a directory and may optionally begin with the *file:* scheme which will be removed for the deployment. If is an error to use any scheme other than *file:*.
+
+The *url* used for the *git* deployment type is passed directly to git(1) so you may use any of the supported protocols: ssh, git, http, https, ftp, ftps, and rsync.
+
+The *tar* deployment type uses curl(1) to fetch the archive to deploy so you may use any protocol supported by curl(1), for example: file, ftp, ftps, scp, http or https.
+
+The *npm* deployment type may specify the *url* in any form supported by npm(1) including the `project@0.0.1` declaration.
 
 ## BUNDLES
 

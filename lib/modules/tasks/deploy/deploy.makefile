@@ -57,11 +57,11 @@
 				# NOTE: be executed with just `make`
 				:tasks.bundle.makefile.script.proxy;
 				:tasks.bundle.makefile.targets;
-				:tasks.bundle.makefile.proxy "${bundle_contents_name}" "$bundle_makefile_name";
+				:tasks.bundle.makefile.proxy "${names[bundle.contents]}" "$bundle_makefile_name";
 			# the bundled makefile has an install target
 			# so we just proxy everything
 			else
-				:tasks.bundle.makefile.proxy "${bundle_contents_name}" "$bundle_makefile_name";				
+				:tasks.bundle.makefile.proxy "${names[bundle.contents]}" "$bundle_makefile_name";				
 			fi
 	fi
 	

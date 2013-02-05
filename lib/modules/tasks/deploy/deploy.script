@@ -576,11 +576,16 @@ EOF
 :tasks.deploy.script.cp.write!() {
 cat <<EOF >> "${script}"
 deploy() {
+	
+	cd \$owd;
+	
+	echo "start cp deployment `pwd`";
+	
 	if test -z \$url; then
 		quit "empty filesystem path";
 	fi	
 	if ! test -d \$url || ! test -r \$url; then
-		quit "filesystem path %s is not a directory or not readable";
+		quit "filesystem path %s is not a directory or not readable\n" "\$url";
 	fi
 	
 	info "url %s\n" "\$url";

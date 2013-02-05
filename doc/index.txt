@@ -52,3 +52,4 @@ jsonlint(1)			https://github.com/zaach/jsonlint
 jsoncheck(1)		http://json.org/JSON_checker/
 ere(7)				http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html#tag_09_04
 couchdb(7)			http://couchdb.apache.org/
+url(7)				http://www.ietf.org/rfc/rfc1738.txt
