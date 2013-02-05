@@ -156,6 +156,23 @@
 					fi
 				fi
 		done
+		
+		# always include files set to include
+		length="${json_doc[bundle.files.include.length]:-0}";
+		
+		if ${flags[verbose]} && [ $length -gt 0 ]; then
+			:tasks.deploy.out.info "include %s files" "$length";
+		fi
+		
+		for((i=0;i<$length;i++))
+			do
+				file="${json_doc[bundle.files.include.$i.path]}";
+				# if ${flags[verbose]}; then
+				# 	:tasks.deploy.out.info "add %s" "${file}";
+				# fi
+				echo "got file that must be included ... $i : $file";
+				#cp ${cp_opts} "${file}" "${path}/${name}";
+		done
 	fi
 }
 
