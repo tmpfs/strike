@@ -249,7 +249,11 @@ Dump script(s) to *stdout*, implies `--noop`. If this option is used in conjunct
 	
 ## TYPES
 
-The deploy tasks support the *git*, *tar* and *npm* deployment types.
+The deploy tasks support the *cp*, *git*, *tar* and *npm* deployment types.
+
+### CP
+
+This deployment type uses cp(1) to copy files from a local filesystem directory, this is the type used for the default profile (see `DEFAULT PROFILE`). When deploying to remote hosts the filesystem path *must* exist on the remote host for the deployment to succeed. Hidden files are not copied by default.
 
 ### GIT
 
@@ -439,9 +443,9 @@ You may specify one or more profiles to deploy after any options. If no profiles
 
 ## DEFAULT PROFILE
 
-The default profile uses a *git* deployment type and the current branch and git remote URL for deployment to the target host.
+This profile is used when no profiles are specified on the command line. The default profile uses a *cp* deployment type.
 
-This profile is used when no profiles are specified on the command line but may also be explicitly declared. For example, to execute the default profile run:
+For example, to execute the default profile run:
 
 	bake deploy
 	
@@ -453,11 +457,13 @@ Then the default profile is not a target profile, only the *stage* profile is de
 
 	bake deploy stage default
 
-Note that when the `--all` option is specififed the *default* profile is not included, if you wish to also execute the default profile in addition to execute the default profile as well:
+Note that when the `--all` option is specified the *default* profile is not included, if you wish to also execute the default profile in addition to execute the default profile as well:
 
 	bake deploy --all default
 
 You may override settings for the default profile by declaring a profile named *default* in the descriptor.
+
+When no *url* is available for the default profile the following rules apply. The *url* is first set to the project directory, once a descriptor has been validated then the default url is set to the parent directory for the descriptor allowing consistent behaviour when the `--descriptor` option is set. If a profile named *default* is defined in the descriptor and a *url* property for the profile is set then the value of *url* is used.
 
 ## NAMES
 

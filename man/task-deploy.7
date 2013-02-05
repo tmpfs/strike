@@ -414,15 +414,11 @@ Print variables exposed to deployment descriptors and exit\.
 .P
 Dump script(s) to \fIstdout\fR, implies \fB\-\-noop\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
 .
-.TP
-\fB\-\-write\-json\fR:
-
-.
-.P
-Write the deployment settings to \fBtarget/deploy/settings\.json\fR\. If used in conjunction with the \fB\-\-json\fR option then the settings will be printed to \fIstdout\fR and written to disc\. The generated document will be formatted if the \fB\-\-pretty\fR flag has been set\.
-.
 .SH "TYPES"
-The deploy tasks support the \fIgit\fR, \fItar\fR and \fInpm\fR deployment types\.
+The deploy tasks support the \fIcp\fR, \fIgit\fR, \fItar\fR and \fInpm\fR deployment types\.
+.
+.SS "CP"
+This deployment type uses cp(1) to copy files from a local filesystem directory, this is the type used for the default profile (see \fBDEFAULT PROFILE\fR)\. When deploying to remote hosts the filesystem path \fImust\fR exist on the remote host for the deployment to succeed\. Hidden files are not copied by default\.
 .
 .SS "GIT"
 This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository\.
@@ -731,10 +727,10 @@ Or alternatively in conjunction with the \fB\-\-flat\fR option the target direct
 You may specify one or more profiles to deploy after any options\. If no profiles are specified then a deploy is attempted using the \fIdefault\fR profile\.
 .
 .SH "DEFAULT PROFILE"
-The default profile uses a \fIgit\fR deployment type and the current branch and git remote URL for deployment to the target host\.
+This profile is used when no profiles are specified on the command line\. The default profile uses a \fIcp\fR deployment type\.
 .
 .P
-This profile is used when no profiles are specified on the command line but may also be explicitly declared\. For example, to execute the default profile run:
+For example, to execute the default profile run:
 .
 .IP "" 4
 .
@@ -773,7 +769,7 @@ bake deploy stage default
 .IP "" 0
 .
 .P
-Note that when the \fB\-\-all\fR option is specififed the \fIdefault\fR profile is not included, if you wish to also execute the default profile in addition to execute the default profile as well:
+Note that when the \fB\-\-all\fR option is specified the \fIdefault\fR profile is not included, if you wish to also execute the default profile in addition to execute the default profile as well:
 .
 .IP "" 4
 .
@@ -787,6 +783,9 @@ bake deploy \-\-all default
 .
 .P
 You may override settings for the default profile by declaring a profile named \fIdefault\fR in the descriptor\.
+.
+.P
+When no \fIurl\fR is available for the default profile the following rules apply\. The \fIurl\fR is first set to the project directory, once a descriptor has been validated then the default url is set to the parent directory for the descriptor allowing consistent behaviour when the \fB\-\-descriptor\fR option is set\. If a profile named \fIdefault\fR is defined in the descriptor and a \fIurl\fR property for the profile is set then the value of \fIurl\fR is used\.
 .
 .SH "NAMES"
 Profile and project names may not start with a hyphen and should match the pattern ^[\-a\-zA\-Z0\-9]+\.
@@ -1316,9 +1315,6 @@ ${name}\-${version}\-${profile}\.sh
 .fi
 .
 .IP "" 0
-.
-.P
-If the \fB\-\-write\-json\fR option is specified then the deployment settings are written to \fBtarget/deploy/settings\.json\fR\.
 .
 .SH "EXIT CODES"
 A >0 exit code indicates failure while a 0 exit code indicates success\.

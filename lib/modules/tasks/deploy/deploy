@@ -57,6 +57,10 @@ tasks.deploy() {
 	names[makefiles]="makefile Makefile GNUmakefile";
 	names[script]="install.sh";
 	names[descriptor]="deploy.json";
+	names[bundle.contents]="contents";
+	names[bundle.scripts]="scripts";
+	names[bundle.ignore.file]=".xpmignore";
+	names[bundle.ignore.git]="gitignore.txt";
 	
 	# list of supported shells
 	local shells=( sh bash zsh dash );
@@ -70,6 +74,7 @@ tasks.deploy() {
 	defaults[profile.name]="default";
 	defaults[type]="cp";
 	defaults[url]="${project}";
+	defaults[bundle.size]="0KB";
 	
 	local descriptor="${root}/${names[descriptor]}";
 	
@@ -349,6 +354,16 @@ tasks.deploy() {
 		|| :tasks.deploy.fail "could not enter %s" "${setup[wd]}";
 	:tasks.deploy.out.info "working directory %s" "$PWD";
 	
+	# update default url to the parent
+	# of the descriptor
+	defaults[url]="${setup[wd]}";
+	
+	# a standalone package changes the default
+	# url to the contents folder
+	if ${flags[bundle.standalone]}; then
+		defaults[url]="${names[bundle.contents]}";
+	fi
+	
 	# fetch git information into set up for bundling
 	if git.valid? "${setup[wd]}" && git.exists?; then
 		setup[git.global.user.name]=$( git config --get --global user.name );
@@ -586,6 +601,18 @@ tasks.deploy() {
 				"%s (type: %s) invalid url %s, must specify a scheme" \
 				"${profile}" "${type}" "${url}";
 	fi	
+	
+	if [ "$type" == "cp" ]; then
+		# strip any file:// scheme which is allowed
+		url="${url#file://}";
+		
+		# cp types may not specifiy a scheme other than file://
+		if [[ "$url" =~ ${regex[scheme]} ]]; then
+			:tasks.deploy.fail \
+				"%s (type: %s) invalid url %s, no scheme allowed" \
+				"${profile}" "${type}" "${url}";
+		fi
+	fi
 	
 	# validate required data
 	if ! ${flags[local]} && [ -z "${host}" ]; then

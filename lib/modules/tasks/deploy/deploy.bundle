@@ -2,12 +2,8 @@
 :tasks.bundle.create() {
 	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
 	
-	local bundle_size="0KB";
-	local bundle_scripts_name="scripts";
-	local bundle_contents_name="contents";	
-	local bundle_contents_git_ignored="gitignore.txt";
-	local bundle_ignore_file=".xpmignore";
-	local bundle_contents_path="${bundle_source}/${bundle_contents_name}";	
+	local bundle_size="${defaults[bundle.size]}";
+	local bundle_contents_path="${bundle_source}/${names[bundle.contents]}";
 	
 	# must be done here to be written to info.json
 	local shafile="${bundle_name}.sha${setup[sha.algorithm]}";
@@ -56,7 +52,7 @@
 	local total_scripts=$((global_scripts+profile_scripts));
 	if [ $total_scripts -gt 0 ]; then
 		:tasks.deploy.out.info "bundle %s script(s)" "$total_scripts";
-		local scripts_path="${bundle_source}/${bundle_scripts_name}";
+		local scripts_path="${bundle_source}/${names[bundle.scripts]}";
 		mkdir -p "${scripts_path}" \
 			|| :tasks.deploy.fail "could create bundle script directory %s" "$scripts_path";
 			if [ $global_scripts -gt 0 ]; then
@@ -84,7 +80,7 @@
 		# TODO: make the source directory for packaging configurable
 		local contents="${setup[wd]}";
 		
-		local exclude_file="${contents}/${bundle_ignore_file}";
+		local exclude_file="${contents}/${names[bundle.ignore.file]}";
 		local exclude_patterns=();
 		
 		# check if we need to obey a custom ignore file
@@ -102,7 +98,7 @@
 		if git.exists? && git.valid? "${contents}"; then
 			files=( $( git ls-files ) );
 			git ls-files \
-				--others > "${bundle_source}/${bundle_contents_git_ignored}";
+				--others > "${bundle_source}/${names[bundle.ignore.git]}";
 		else
 			files=( $( find "${contents}" ) );
 		fi
