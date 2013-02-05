@@ -112,10 +112,6 @@ tasks.deploy() {
 	
 	# FLAGS
 	declare -A flags;
-	
-	# TODO: remove this!
-	flags[success]=false;
-	
 	flags[noop]=false;
 	flags[verbose]=false;
 	flags[quiet]=false;
@@ -140,12 +136,12 @@ tasks.deploy() {
 	flags[print.json.pretty]=false;
 	flags[print.script]=false;
 	flags[print.env]=false;
+	
 	# TODO: remove this!
-	flags[global.env]=false;	
+	flags[global.env]=false;
 	
 	flags[script.lint]=false;
 	flags[script.lint.run]=false;
-	
 	flags[expand]=false;
 	
 	declare -A skip;
@@ -1281,7 +1277,7 @@ ${opt}";
 
 # failure
 :tasks.deploy.fail() {
-	:tasks.deploy.complete.notify;
+	:tasks.deploy.complete.notify false;
 	if [ $# -gt 0 ]; then
 		console.error "$@";
 	fi
@@ -1291,17 +1287,16 @@ ${opt}";
 
 # attempts to notify via `growlnotify` when available
 :tasks.deploy.complete.notify() {
-	
+	local success="${1:-false}";
 	# don't send growl notifications for
 	# json dumps or noop
 	if ${flags[noop]} || ${skip[growl]}; then
 		return 0;
 	fi
-	
 	if [ -n "${executables[growlnotify]}" ]; then
 		local message;
 		local priority="${2:-Normal}";
-		if ${flags[success]}; then
+		if $success; then
 			message="${messages[success]}";
 		else
 			priority="Emergency";
@@ -1313,22 +1308,17 @@ ${opt}";
 
 # output the complete message
 :tasks.deploy.complete() {
-	
 	if ${flags[quiet]} || ${flags[print.env]}; then
 		return 0;
 	fi
 	
-	flags[success]=true;
-	
 	# output success information
-	if ${flags[success]}; then
-		:tasks.deploy.complete.notify;
-		if ${flags[print.json]} || ${flags[print.script]}; then
-			console.success;
-		else
-			console.success "deploy %s complete %s" \
-				"${deploy_name}" "${characters[tick]}";
-		fi
+	:tasks.deploy.complete.notify true;
+	if ${flags[print.json]} || ${flags[print.script]}; then
+		console.success;
+	else
+		console.success "deploy %s complete %s" \
+			"${deploy_name}" "${characters[tick]}";
 	fi
 }
 
