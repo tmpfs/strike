@@ -1,6 +1,6 @@
 # create the deployment bundle
 bundle.create() {
-	:tasks.deploy.out.info "creating bundle %s" "$bundle_archive";
+	dly.out.info "creating bundle %s" "$bundle_archive";
 	
 	local bundle_size="${defaults[bundle.size]}";
 	local bundle_contents_path="${bundle_source}/${names[bundle.contents]}";
@@ -39,10 +39,10 @@ bundle.create() {
 	
 	# clean up after bundle creation
 	rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
-		|| :tasks.deploy.fail "could not clean bundle source %s" "$bundle_source";
+		|| dly.fail "could not clean bundle source %s" "$bundle_source";
 		
-	:tasks.deploy.out.info "created bundle %s (%s)" "$bundle_archive" "$bundle_size";
-	:tasks.deploy.header;
+	dly.out.info "created bundle %s (%s)" "$bundle_archive" "$bundle_size";
+	dly.header;
 }
 
 # include any scripts in the bundle
@@ -51,10 +51,10 @@ bundle.scripts() {
 	local profile_scripts="${json_doc[profiles.${profile}.bundle.scripts.length]:-0}";
 	local total_scripts=$((global_scripts+profile_scripts));
 	if [ $total_scripts -gt 0 ]; then
-		:tasks.deploy.out.info "bundle %s script(s)" "$total_scripts";
+		dly.out.info "bundle %s script(s)" "$total_scripts";
 		local scripts_path="${bundle_source}/${names[bundle.scripts]}";
 		mkdir -p "${scripts_path}" \
-			|| :tasks.deploy.fail "could create bundle script directory %s" "$scripts_path";
+			|| dly.fail "could create bundle script directory %s" "$scripts_path";
 			if [ $global_scripts -gt 0 ]; then
 				bundle.scripts.group $global_scripts "bundle.scripts";
 			fi
@@ -74,7 +74,7 @@ bundle.contents() {
 		fi
 		
 		mkdir -p "${bundle_contents_path}" \
-			|| :tasks.deploy.fail "could create bundle contents directory %s" \
+			|| dly.fail "could create bundle contents directory %s" \
 				"$bundle_contents_path";		
 		
 		# TODO: make the source directory for packaging configurable
@@ -92,7 +92,7 @@ bundle.contents() {
 		# be certain we are operating in the correct context
 		cd "${contents}";
 		local ignore_re="^((\.git/)+|(\.svn/)+)";
-		:tasks.deploy.out.info "package contents %s" "${contents}";
+		dly.out.info "package contents %s" "${contents}";
 		
 		local file relative parent name path files symlink;
 		if git.exists? && git.valid? "${contents}"; then
@@ -111,13 +111,13 @@ bundle.contents() {
 				
 				if bundle.contents.ignore?; then
 					if ${flags[verbose]}; then
-						:tasks.deploy.out.info "ignore %s" "${relative}";
+						dly.out.info "ignore %s" "${relative}";
 					fi
 					continue;
 				fi
 
 				if ${flags[verbose]}; then
-					:tasks.deploy.out.info "add %s" "${relative}";
+					dly.out.info "add %s" "${relative}";
 				fi
 				
 				# can't use cp --parents on BSD :(
@@ -161,14 +161,14 @@ bundle.contents() {
 		length="${json_doc[bundle.files.include.length]:-0}";
 		
 		if ${flags[verbose]} && [ $length -gt 0 ]; then
-			:tasks.deploy.out.info "include %s files" "$length";
+			dly.out.info "include %s files" "$length";
 		fi
 		
 		for((i=0;i<$length;i++))
 			do
 				file="${json_doc[bundle.files.include.$i.path]}";
 				# if ${flags[verbose]}; then
-				# 	:tasks.deploy.out.info "add %s" "${file}";
+				# 	dly.out.info "add %s" "${file}";
 				# fi
 				echo "got file that must be included ... $i : $file";
 				#cp ${cp_opts} "${file}" "${path}/${name}";
@@ -200,7 +200,7 @@ bundle.contents.xpmignore?() {
 		do
 			[[ "$relative" =~ $ptn ]] && { return 0; }
 			if [ $? -eq 2 ]; then
-				:tasks.deploy.fail "invalid pattern %s" "$ptn";
+				dly.fail "invalid pattern %s" "$ptn";
 			fi
 	done
 	return 1;
@@ -218,7 +218,7 @@ bundle.scripts.group() {
 			file="${json_doc[${k}.file]:-}";
 			dir="${json_doc[${k}.dir]:-}";
 			if [ -z "$file" ]; then
-				:tasks.deploy.fail "script entry does not declare the %s field" "file";
+				dly.fail "script entry does not declare the %s field" "file";
 			fi
 			# resolve relative to the descriptor
 			# otherwise treat as a relative or absolute path
@@ -226,37 +226,37 @@ bundle.scripts.group() {
 				file="${setup[wd]}/$file";
 			fi
 			if [ ! -f "$file" ]; then
-				:tasks.deploy.fail "script %s does not exist" "${file}";
+				dly.fail "script %s does not exist" "${file}";
 			fi
 			if [ ! -x "$file" ]; then
-				:tasks.deploy.fail "script %s is not executable" "${file}";
+				dly.fail "script %s is not executable" "${file}";
 			fi
 			fs.basename "${file}" "nm";
 			if [ -f "${destination}/$nm" ]; then
-				:tasks.deploy.fail "duplicate script %s, script names must be unique" "${nm}";
+				dly.fail "duplicate script %s, script names must be unique" "${nm}";
 			fi
 			
 			# got a custom directory structure for the script
 			if [ -n "${dir}" ]; then
 				if [[ "$dir" =~ ^[./] ]]; then
-					:tasks.deploy.fail "invalid script directory %s, may not begin with . or /" "${dir}";
+					dly.fail "invalid script directory %s, may not begin with . or /" "${dir}";
 				fi
 				# echo "ADDING TO CUSTOM DIRECTORY (after): $dir";
-				:tasks.deploy.out.info "create script directory %s" "$dir";
+				dly.out.info "create script directory %s" "$dir";
 				destination="${destination}/${dir}";
 				mkdir -p "${destination}" \
-					|| :tasks.deploy.fail "could not creat scripts directory %s" "${destination}";
+					|| dly.fail "could not creat scripts directory %s" "${destination}";
 			fi
 			
 			cp "$file" "${destination}" \
-				|| :tasks.deploy.fail "could not copy script %s" "${file}";
+				|| dly.fail "could not copy script %s" "${file}";
 	done
 }
 
 # copy the descriptor to the bundle source directory
 bundle.descriptor.copy() {
 	cp "${descriptor}" "${bundle_source}/descriptor.json" \
-		|| :tasks.deploy.fail "could not copy bundle descriptor %s" "$bundle_path";
+		|| dly.fail "could not copy bundle descriptor %s" "$bundle_path";
 }
 
 # create the bundle archive
@@ -264,13 +264,13 @@ bundle.archive.create() {
 	{
 		cd "$bundle_output" \
 			&& tar -cf "$bundle_archive" "$bundle_name";
-	} || :tasks.deploy.fail "failed to create bundle %s" "$bundle_path";
+	} || dly.fail "failed to create bundle %s" "$bundle_path";
 	
 	
 	if ${flags[sha]}; then		
 		checksum.sha "${setup[sha.algorithm]}" "$bundle_archive" >| "${shafile}" \
-			|| :tasks.deploy.fail "could not generate checksum for %s" "${bundle_archive}";
-		:tasks.deploy.out.info "sha file %s" "${shafile}";
+			|| dly.fail "could not generate checksum for %s" "${bundle_archive}";
+		dly.out.info "sha file %s" "${shafile}";
 	fi
 	
 	local size=( $( du -h "${bundle_archive}" ) );
@@ -321,13 +321,13 @@ bundle.settings.write!() {
 # creates a package.json for an *npm* installation type
 bundle.npm.package.write!() {
 	local npm_package_file="${bundle_source}/package.json";
-	:tasks.deploy.out.info "npm name %s" "$npm_package_name";
-	:tasks.deploy.out.info "npm version %s" "$npm_package_version";
-	:tasks.deploy.out.info "npm package %s" "$npm_package_file";
+	dly.out.info "npm name %s" "$npm_package_name";
+	dly.out.info "npm version %s" "$npm_package_version";
+	dly.out.info "npm package %s" "$npm_package_file";
 	
 	# create the npm package descriptor file
 	touch ${npm_package_file} \
- 		|| :tasks.deploy.fail "could not create %s" "$npm_package_file";
+ 		|| dly.fail "could not create %s" "$npm_package_file";
 			
 # write out the package descriptor into the bundle source directory
 cat <<NPMPKG >> ${npm_package_file}
@@ -347,16 +347,16 @@ bundle.install!() {
 	
 	# local deployment
 	if ${flags[deploy.local]}; then
-		:tasks.deploy.out.info "local install %s" "${bundle_archive}";
+		dly.out.info "local install %s" "${bundle_archive}";
 		# copy packaged bundle to staging
 		cp "${bundle_path}" "${staging}" \
-			|| :tasks.deploy.fail "could not copy bundle %s" "${bundle_path}";
+			|| dly.fail "could not copy bundle %s" "${bundle_path}";
 		cd "${staging}" && tar -xf "${bundle_archive}" \
-			|| :tasks.deploy.fail "could not extract bundle %s" "${staging}/${bundle_archive}";
+			|| dly.fail "could not extract bundle %s" "${staging}/${bundle_archive}";
 		
 		# script_name
 		cd "${bundle_name}" \
-			|| :tasks.deploy.fail "could not enter %s" "${staging}/${bundle_name}";
+			|| dly.fail "could not enter %s" "${staging}/${bundle_name}";
 			
 		# run the script
 		if ! ${flags[logging]}; then
@@ -365,9 +365,9 @@ bundle.install!() {
 			"./${script_name}" >> "${log}" 2>&1;
 		fi
 		if [ $? -eq 0 ]; then
-			:tasks.deploy.complete;
+			dly.complete;
 		fi
-		:tasks.deploy.fail;
+		dly.fail;
 	# remote deployment
 	else
 		executable.validate scp ssh;
@@ -379,7 +379,7 @@ bundle.install!() {
 	# local mk_staging='mkdir -p '${staging}'';
 	# 
 	# # test if the staging directory exists
-	# :tasks.deploy.out.info "${executables[ssh]} %s %s" \
+	# dly.out.info "${executables[ssh]} %s %s" \
 	# 	"${host}" "${test_staging}";
 	# local exists=0;
 	# if ! ${flags[noop]}; then
@@ -388,18 +388,18 @@ bundle.install!() {
 	# 
 	# # create remote staging directory if it does not exist
 	# if [ $exists -gt 0 ]; then
-	# 	:tasks.deploy.out.info "${executables[ssh]} %s %s" \
+	# 	dly.out.info "${executables[ssh]} %s %s" \
 	# 		"${host}" "${mk_staging}";
 	# 	if ! ${flags[noop]}; then
 	# 		( "${executables[ssh]}" "${host}" ""${mk_staging}"" ) \
-	# 			|| :tasks.deploy.fail \
+	# 			|| dly.fail \
 	# 			"could not create remote staging directory %s" \
 	# 			"${staging}";
 	# 	fi
 	# fi
 	# 
 	# local remote="${host}:${staging}/${script_name}";
-	# :tasks.deploy.out.info "scp -p %s %s" \
+	# dly.out.info "scp -p %s %s" \
 	# 	"${script}" "${remote}";
 	# if ! ${flags[noop]}; then
 	# 	echo "SCP SCRIPT";
