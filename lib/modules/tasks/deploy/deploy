@@ -1562,7 +1562,7 @@ ${opt}";
 				
 				local filename;
 				fs.basename "${value}" "filename";
-				if ! :tasks.bundle.makefile.name.valid? "$filename"; then
+				if ! makefile.name.valid? "$filename"; then
 					:tasks.deploy.fail \
 						"invalid make file name %s, must be one of %s" \
 						"$filename" "${names[makefiles]}";
