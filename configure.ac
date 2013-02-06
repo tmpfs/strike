@@ -8,7 +8,20 @@ AC_PROG_LN_S
 AC_PROG_MKDIR_P
 
 printf "checking bash version >= 4.2... \n";
-printf "checking for GNU find... \n";
-printf "checking for GNU tar... \n";
+
+# check for curl
+AC_CHECK_PROG(CURL_CHECK,curl,yes)
+if test x"$CURL_CHECK" != x"yes" ; then
+    AC_MSG_ERROR([Please install curl before installing.])
+fi
+
+# check for curl
+# AC_CHECK_PROG(CURL_CHECK,curl,yes)
+# if test x"$CURL_CHECK" != x"yes" ; then
+#     AC_MSG_ERROR([Please install curl before installing.])
+# fi
+
+# printf "checking for GNU find... \n";
+# printf "checking for GNU tar... \n";
 
 AC_OUTPUT
