@@ -33,6 +33,7 @@ openssl(1)			http://man.cx/openssl(1)
 scp(1)				http://man.cx/scp(1)
 ssh(1)				http://man.cx/ssh(1)
 rsync(1)			http://man.cx/rsync(1)
+autoreconf(1)		http://man.cx/autoreconf(1)
 checkbashisms(1)	http://man.cx/checkbashisms
 growlnotify(1)		http://scottlab.ucsc.edu/Library/init/zsh/man/html/growlnotify.html
 

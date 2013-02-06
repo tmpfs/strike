@@ -4,16 +4,21 @@ AC_CONFIG_FILES([Makefile])
 AC_PROG_AWK
 AC_PROG_EGREP
 #AC_PROG_CXX
+AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 
 printf "checking bash version >= 4.2... \n";
 
 # check for curl
-AC_CHECK_PROG(CURL_CHECK,curl,yes)
-if test x"$CURL_CHECK" != x"yes" ; then
-    AC_MSG_ERROR([Please install curl before installing.])
+AC_PATH_PROG(CURL_CHECK,curl,yes)
+if test -z "$CURL_CHECK"; then
+    AC_MSG_ERROR([curl not found, install from http://curl.haxx.se/download.html])
 fi
+
+# if test x"$CURL_CHECK" != x"yes" ; then
+#     AC_MSG_ERROR([Please install curl before installing.])
+# fi
 
 # check for curl
 # AC_CHECK_PROG(CURL_CHECK,curl,yes)
