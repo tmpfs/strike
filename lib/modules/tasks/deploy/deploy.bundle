@@ -397,10 +397,12 @@ if test -d ./${names[bundle.contents]} \\
 	(
 		cd ./${names[bundle.contents]} \\
 			&& ./${names[autoconf.configure]}
-	) || false;
+	) || exit 1;
+	echo "${names[autoconf.configure]}: make && make install";	
 	exit $?;
 else
-	echo "${names[autoconf.configure]}: nothing to be done";
+	echo "${names[autoconf.configure]}: nothing to be done for $deploy_name";
+	echo "${names[autoconf.configure]}: make && make install";
 	exit 0;
 fi
 EOF
