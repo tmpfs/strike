@@ -1,4 +1,4 @@
-AC_INIT([strike], [0.1.8], [bugs@xpm.io])
+AC_INIT([strike], [0.1.9], [bugs@xpm.io])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_FILES([Makefile])
 AC_PROG_AWK
