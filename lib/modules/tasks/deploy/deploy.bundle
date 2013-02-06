@@ -416,6 +416,11 @@ bundle.install!() {
 	
 	# local deployment
 	if ${flags[deploy.local]}; then
+		
+		# if we have make(1) we run: ./configure && make && make install
+		# otherwise the install.sh script is run directly
+		executable.validate --test make;		
+		
 		dly.out.info "local install %s" "${bundle_archive}";
 		# copy packaged bundle to staging
 		cp "${bundle_path}" "${staging}" \
@@ -427,14 +432,15 @@ bundle.install!() {
 		cd "${bundle_name}" \
 			|| dly.fail "could not enter %s" "${staging}/${bundle_name}";
 			
-		# run the script
-		if ! ${flags[logging]}; then
-			"./${script_name}";
+		if [ -n "${executables[make]}" ]; then
+			./configure && make -s && make -s install && dly.complete;
 		else
-			"./${script_name}" >> "${log}" 2>&1;
-		fi
-		if [ $? -eq 0 ]; then
-			dly.complete;
+			# run the script directly
+			if ! ${flags[logging]}; then
+				"./${script_name}" && dly.complete;
+			else
+				"./${script_name}" >> "${log}" 2>&1 && dly.complete;
+			fi
 		fi
 		dly.fail;
 	# remote deployment
