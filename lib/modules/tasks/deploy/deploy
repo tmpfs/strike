@@ -52,7 +52,7 @@ tasks.deploy() {
 	
 	# FILE NAMES
 	declare -A names;
-	names[makefile]="makefile";
+	names[makefile]="Makefile";
 	names[makefiles]="makefile Makefile GNUmakefile";
 	names[script]="install.sh";
 	names[descriptor]="deploy.json";
