@@ -1,2 +1,6 @@
 ^tmp/.*
 ^target/.*
+^build\.xml
+^rakefile
+^pom\.xml
+^install

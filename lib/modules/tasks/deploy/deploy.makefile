@@ -110,6 +110,13 @@ makefile.exists?() {
 	# FIXME: if the bundle is created on a case-insensitive
 	# FIXME: platform but deployed to a case-sensitive platform
 	# FIXME: the make file name will be incorrect in deployment
+	
+	# if a bundle contents contains a configure.ac
+	# file then we should always proxy
+	if [ -f "${bundle_contents_path}/${names[autoconf.ac]}" ]; then
+		return 0;
+	fi
+	
 	local name;
 	for name in ${names[makefiles]}
 		do

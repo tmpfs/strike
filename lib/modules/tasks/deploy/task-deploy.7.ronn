@@ -299,9 +299,13 @@ Bundles are created in the `target/deploy` directory.
 
 A generated bundle will include:
 
-* `makefile`:
+* `configure`:
 
-A GNU compatible makefile, see `Makefiles`.
+A top-level configure script used to proxy to a bundled configure script.
+
+* `Makefile`:
+
+A GNU compatible make file, see `Makefiles`.
 
 * `descriptor.json`:
 
