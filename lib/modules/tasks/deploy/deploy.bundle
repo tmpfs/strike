@@ -157,23 +157,59 @@ bundle.contents() {
 				fi
 		done
 		
-		# always include files set to include
-		length="${json_doc[bundle.files.include.length]:-0}";
-		
-		if ${flags[verbose]} && [ $length -gt 0 ]; then
-			dly.out.info "include %s files" "$length";
-		fi
-		
-		for((i=0;i<$length;i++))
-			do
-				file="${json_doc[bundle.files.include.$i.path]}";
-				# if ${flags[verbose]}; then
-				# 	dly.out.info "add %s" "${file}";
-				# fi
-				echo "got file that must be included ... $i : $file";
-				#cp ${cp_opts} "${file}" "${path}/${name}";
-		done
+		bundle.contents.include;
 	fi
+}
+
+# generate configure, missing and install-sh when a configure.ac
+# file is present but no configure file is available, requires
+# that the *autoreconf* binary is available
+bundle.contents.autoconf() {
+	executable.validate --test autoreconf;
+	if [ -f "${bundle_contents_path}/${names[autoconf.ac]}" ] \
+		&& [ ! -f "${bundle_contents_path}/${names[autoconf.configure]}" ] \
+		&& [ -n "${executables[autoreconf]:-}" ]; then
+		dly.out.info "autoreconf -i";
+		(
+			cd "${bundle_contents_path}" \
+				&& "${executables[autoreconf]}" -i >> "${log}" 2>&1 \
+				|| dly.fail "error while running autoconf in %s" \
+					"${bundle_contents_path}";
+		)
+		if [ -d "${bundle_contents_path}/${names[autoconf.cache]}" ]; then
+			dly.out.info "rm -rfv %s" "${bundle_contents_path}/${names[autoconf.cache]}";
+			rm -rfv "${bundle_contents_path}/${names[autoconf.cache]}" >> "${log}" 2>&1;
+		fi
+	fi
+}
+
+# always include files that are marked for inclusion
+# regardless of any excludes
+bundle.contents.include() {
+	
+	bundle.contents.autoconf;
+	
+	local i length file includes=();
+	length="${json_doc[bundle.files.include.length]:-0}";
+	if ${flags[verbose]} && [ $length -gt 0 ]; then
+		dly.out.info "include %s file(s)" "$length";
+	fi
+	
+	# XXX: we would like to do this in a single loop
+	# XXX: but there is currently a bash bug that prevents 
+	# XXX: a single iteration
+	for((i=0;i < $length;i++))
+		do
+			file="${json_doc[bundle.files.include.${i}.path]}";
+			includes+=( "$file" );
+	done
+	for file in "${includes[@]}"
+		do
+			if ${flags[verbose]}; then
+				dly.out.info "add %s" "${file}";
+			fi
+			echo "got file that must be included ... $file";
+	done
 }
 
 # determine if a packaged file is being ignored

@@ -153,9 +153,6 @@ makefile.targets() {
 
 makefile.phony() {
 	if [ -n "${make_targets[targets]:-}" ]; then
-cat <<EOF >> "${makefile}"
-.PHONY: ${make_targets[targets]}
-
-EOF
+		printf "\n.PHONY: ${make_targets[targets]}" >> "${makefile}";
 	fi
 }

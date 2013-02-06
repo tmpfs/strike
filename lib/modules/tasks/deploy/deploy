@@ -60,6 +60,10 @@ tasks.deploy() {
 	names[bundle.scripts]="scripts";
 	names[bundle.ignore.file]=".xpmignore";
 	names[bundle.ignore.git]="gitignore.txt";
+	names[autoconf.ac]="configure.ac";
+	names[autoconf.configure]="configure";
+	names[automake.am]="Makefile.am";
+	names[autoconf.cache]="autom4te.cache";
 	
 	# list of supported shells
 	local shells=( sh bash zsh dash );
