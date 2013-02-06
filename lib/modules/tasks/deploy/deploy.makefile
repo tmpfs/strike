@@ -8,7 +8,7 @@ makefile() {
 			|| :tasks.deploy.fail "could not copy make file %s" \
 				"${sources[make]}";
 		return 0;
-	fi	
+	fi
 	
 	declare -A make_targets;
 	declare -A make_rules;
@@ -64,7 +64,15 @@ makefile() {
 			# 	makefile.proxy "${names[bundle.contents]}" "$bundle_makefile_name";				
 			# fi
 			
-			makefile.proxy "${names[bundle.contents]}" "$bundle_makefile_name";
+	
+			# if the has make file was set by detecting a
+			# configure.ac file then bundle make file will
+			# be empty to assume the default name
+			if [ -z "${bundle_makefile_name:-}" ]; then
+				bundle_makefile_name="${names[makefile]}";
+			fi
+			
+			makefile.proxy "${names[bundle.contents]}" "${bundle_makefile_name}";
 	fi
 	
 	makefile.phony;
@@ -98,9 +106,17 @@ makefile.script.proxy() {
 # write an include directive to the makefile
 makefile.proxy() {
 cat <<EOF >> "${makefile}"
+all:
+	@\$(MAKE) --directory $1 --file $2 \$@
+
 %: force
 	@\$(MAKE) --directory $1 --file $2 \$@
-force: ;
+
+force:
+	@echo > /dev/null
+
+.PHONY: all force
+.SILENT: all force
 
 EOF
 }
