@@ -31,8 +31,10 @@ bundle.create() {
 	# create the info.json file
 	bundle.info.write!;
 	
+	bundle.configure.write!;
+	
 	# write the makefile wrapper
-	makefile;	
+	makefile;
 	
 	# create the bundle
 	bundle.archive.create;
@@ -376,6 +378,35 @@ cat <<NPMPKG >> ${npm_package_file}
 	}
 }
 NPMPKG
+}
+
+# write the configure script to the
+# root of the bundle
+bundle.configure.write!() {
+	local configure="${bundle_source}/${names[autoconf.configure]}";
+cat <<EOF >> ${configure}
+#!/bin/sh
+
+set -e;
+set -u;
+
+if test -d ./${names[bundle.contents]} \\
+	&& test -f ./${names[bundle.contents]}/${names[autoconf.configure]}; then
+	printf "${names[autoconf.configure]}: ";
+	printf "./${names[bundle.contents]}/${names[autoconf.configure]}\n";
+	(
+		cd ./${names[bundle.contents]} \\
+			&& ./${names[autoconf.configure]}
+	) || false;
+	exit $?;
+else
+	echo "${names[autoconf.configure]}: nothing to be done";
+	exit 0;
+fi
+EOF
+
+	chmod +x "${configure}" \
+		|| dly.fail "could not set permissions on %s" "${configure}";
 }
 
 # perform the bundle installation
