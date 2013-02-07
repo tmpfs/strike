@@ -485,11 +485,18 @@ Bundles are created in the \fBtarget/deploy\fR directory\.
 A generated bundle will include:
 .
 .TP
-\fBmakefile\fR:
+\fBconfigure\fR:
 
 .
 .P
-A GNU compatible makefile, see \fBMakefiles\fR\.
+A top\-level configure script used to proxy to a bundled configure script\.
+.
+.TP
+\fBMakefile\fR:
+
+.
+.P
+A GNU compatible make file, see \fBMakefiles\fR\.
 .
 .TP
 \fBdescriptor\.json\fR:
@@ -553,6 +560,13 @@ If the source directory being packaged contains a file named \fB\.xpmignore\fR i
 .
 .P
 An npm(1) conformant package descriptor used to perform the deployment, this file is only included when the deployment type is \fBnpm\fR\.
+.
+.TP
+\fBenv\.log\fR:
+
+.
+.P
+A log file containing the result of executing env(1) just before creating the bundle archive\.
 .
 .SS "Makefiles"
 A \fBmakefile\fR is generated in the archive to create a consistent and familiar experience when make(1) is available\. If make(1) is not available the deployment may still be performed using \fB\./install\.sh\fR\.

@@ -343,6 +343,10 @@ If the source directory being packaged contains a file named `.xpmignore` it is 
 
 An npm(1) conformant package descriptor used to perform the deployment, this file is only included when the deployment type is `npm`.
 
+* `env.log`:
+
+A log file containing the result of executing env(1) just before creating the bundle archive.
+
 ### Makefiles
 
 A `makefile` is generated in the archive to create a consistent and familiar experience when make(1) is available. If make(1) is not available the deployment may still be performed using `./install.sh`.

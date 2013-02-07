@@ -37,7 +37,7 @@ json\.clean;
 .IP "" 0
 .
 .P
-Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global \fBjson_str\fR variable\. Use the \fBjson\.string\fR method to print the JSON string data\.
+Converting to JSON is achieved using references to variable names and using command substitution to capture the result into a variable (or redirect output to a file)\.
 .
 .IP "" 4
 .
@@ -50,9 +50,8 @@ toJSON() {
     doc[key]="value";
     doc[greeting]="hello world";
     # doc is the *name* of the variable to stringify
-    json\.stringify <<< "doc";
-    # print the result
-    json\.string;
+    local document=$( json\.stringify <<< "doc" );
+    echo "$document";
 }
 toJSON;
 .
@@ -61,7 +60,7 @@ toJSON;
 .IP "" 0
 .
 .SH "BUGS"
-\fBjson\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+\fBjson\fR is written in bash and depends upon \fBbash\fR = 4\.2\.
 .
 .P
 The json(3) module is derived from json\-sh(1)\.
