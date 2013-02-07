@@ -420,7 +420,7 @@ script.commands.embed.group() {
 				printf "\n\t\t&& " >> "${script}";
 			fi
 			local IFS=' ';
-			printf "${cmds[*]}" >> "${script}";
+			printf "run ${cmds[*]}" >> "${script}";
 			written=true;
 	done
 }
@@ -450,6 +450,8 @@ quit() {
 # run a command and respect noop
 run() {
 	if \$noop; then
+		# NOTE: use echo so backslash escape characters are preserved
+		echo "[dry run] \$*";
 		return 0;
 	fi
 	"\$@";
@@ -594,7 +596,7 @@ cat <<EOF >> "${script}"
 deploy() {
 	cd \$owd;
 	
-	echo "start cp deployment `pwd`";
+	#echo "start cp deployment `pwd`";
 	
 	if test -z \$url; then
 		quit "empty filesystem path";
@@ -704,7 +706,7 @@ deploy() {
 	run mkdir archive >> \$log_file 2>&1;
 	info "tar -xf %s -C ./archive\n" "\$file";
 	run tar -xf "\$file" -C ./archive;
-	count=\$( ls ./archive | wc -l | tr -s " " );
+	count=\$( run ls ./archive | run wc -l | run tr -s " " );
 	
 	if [ "\${count}" -eq 1 ]; then
 		file=\$( ls ./archive );
@@ -721,7 +723,7 @@ deploy() {
 	else
 		info "copy archive contents %s\n" "./archive";
 		info "mkdir -p %s\n" "\$deploy_target";
-		mkdir -p "\$deploy_target" >> \$log_file 2>&1;
+		run mkdir -p "\$deploy_target" >> \$log_file 2>&1;
 		info "cp ./archive/* %s\n" "\$deploy_target";
 		run cp -rfv ./archive/* "\$deploy_target" >> \$log_file 2>&1;
 	fi
