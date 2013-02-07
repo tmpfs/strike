@@ -36,6 +36,9 @@ bundle.create() {
 	# write the makefile wrapper
 	makefile;
 	
+	# write all environment variables to a log file
+	env >| "${bundle_source}/${names[env.log]}";
+	
 	# create the bundle
 	bundle.archive.create;
 	
