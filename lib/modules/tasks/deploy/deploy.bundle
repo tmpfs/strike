@@ -408,7 +408,7 @@ if test -d ./${names[bundle.contents]} \\
 		cd ./${names[bundle.contents]} \\
 			&& ./${names[autoconf.configure]} \$@
 	) || exit 1;
-	echo "${names[autoconf.configure]}: make && make install";	
+	echo "${names[autoconf.configure]}: make && make install";
 	exit $?;
 else
 	echo "${names[autoconf.configure]}: nothing to be done for $deploy_name";
