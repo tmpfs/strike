@@ -406,7 +406,7 @@ if test -d ./${names[bundle.contents]} \\
 	printf "./${names[bundle.contents]}/${names[autoconf.configure]}\n";
 	(
 		cd ./${names[bundle.contents]} \\
-			&& ./${names[autoconf.configure]}
+			&& ./${names[autoconf.configure]} \$@
 	) || exit 1;
 	echo "${names[autoconf.configure]}: make && make install";	
 	exit $?;
