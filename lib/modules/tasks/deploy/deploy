@@ -203,14 +203,6 @@ tasks.deploy() {
 	# properties set in deploy.json
 	declare -A overrides;
 	
-	# JSON PROPERTIES
-	
-	# array used to store properties to be
-	# dumped as json
-	unset json_dump;
-	declare -A json_dump;
-	json_dump["project-version"]="${project_version}";
-	
 	# parse options
 	dly.options.parse "$@";
 	
@@ -247,17 +239,6 @@ tasks.deploy() {
 	# prevent duplicate executions if a command line
 	# declaration declares the same profile name
 	dly.profiles.uniq!;
-	
-	# update some json dump properties after option parsing
-	json_dump["project-name"]="${project_name}";
-	json_dump["descriptor"]="${descriptor}";
-	json_dump["noop"]="${flags[noop]}";
-	json_dump["local"]="${flags[deploy.local]}";
-	local i;
-	for i in ${!profiles[@]}
-		do
-			json_dump["targets.$i"]="${profiles[$i]}";
-	done
 	
 	# validate whitespace on the project name
 	dly.whitespace.validate "${project_name}" "project name";
@@ -436,6 +417,9 @@ dly.profiles() {
 
 # deploy a single profile
 dly.profile() {
+	
+	# printf "PID\tCPU\tMEM\n";
+	# ps -mx -o "pid %cpu %mem" | grep "$$";
 	
 	# stores command to execute
 	# for all profiles
@@ -974,10 +958,33 @@ dly.unbound.variable()
 	dly.fail "invalid command %s" "${cmd//$newline/ }";
 }
 
+dly.settings.init() {
+	# JSON PROPERTIES
+		
+	# array used to store properties to be
+	# dumped as json
+	json_dump["project-version"]="${project_version}";
+		
+	# update some json dump properties after option parsing
+	json_dump["project-name"]="${project_name}";
+	json_dump["descriptor"]="${descriptor}";
+	json_dump["noop"]="${flags[noop]}";
+	json_dump["local"]="${flags[deploy.local]}";
+	local i;
+	for i in ${!profiles[@]}
+		do
+			json_dump["targets.$i"]="${profiles[$i]}";
+	done	
+}
+
 # either outputs configuration information
 # for the profile being processed or prints
 # a json document 
 dly.info() {
+	
+	unset json_dump;	
+	declare -A json_dump;
+	dly.settings.init;
 
 	# always build up the json settings so that
 	# this data can be written to a file when

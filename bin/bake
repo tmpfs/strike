@@ -181,11 +181,18 @@ process.use strict;
 # doc[null]=null;
 # doc[keys.name]="key name";
 # doc[keys.id]="key id";
-# str=$( json.stringify --pretty 2 <<< "doc" || false );
-# echo "$str";	
-# #declare >| target/vars.log;
-# # json.stringify <<< "doc";
-# echo "after sringify code : $?";
+# 
+# length=100;
+# for((i=0;i < $length;i++))
+# 	do
+# 		printf "BEFORE STRINGIFY\n";
+# 		printf "PID\tCPU\tMEM\n";
+# 		ps -mx -o "pid %cpu rss %mem" | grep "$$";
+# 		time json.stringify --pretty 2 <<< "doc" > /dev/null;
+# 		printf "AFTER STRINGIFY\n";
+# 		printf "PID\tCPU\tMEM\n";
+# 		ps -mx -o "pid %cpu %mem" | grep "$$";
+# done
 # 
 # exit 0;
 

@@ -501,7 +501,9 @@ function __json.add.key.value {
 	# encode the value
 	__json.stringify.value "$2";
 	#json="${json}${_result},";
-	printf -- "${_result}";
+	#printf -- "${_result}";
+	
+	echo -ne "${_result}";
 }
 
 function __json.stringify.quote {

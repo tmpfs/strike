@@ -349,6 +349,10 @@ bundle.settings.write!() {
 	# TODO: fix json.stringify memory leak
 	# TODO: probably due to the string concatenation
 	
+	if ${flags[verbose]}; then
+		dly.out.info "write %s" "${settings}";
+	fi
+	
 	# echo "before write json";
 	json.stringify --pretty 2 <<< "json_dump" > "${settings}";
 }
@@ -429,17 +433,19 @@ bundle.install!() {
 		cd "${bundle_name}" \
 			|| dly.fail "could not enter %s" "${staging}/${bundle_name}";
 			
+		#  && dly.complete
 		if [ -n "${executables[make]}" ]; then
-			./configure && make -s && make -s install && dly.complete;
+			./configure && make -s && make -s install;
 		else
+			#  && dly.complete
 			# run the script directly
 			if ! ${flags[logging]}; then
-				"./${script_name}" && dly.complete;
+				"./${script_name}";
 			else
-				"./${script_name}" >> "${log}" 2>&1 && dly.complete;
+				"./${script_name}" >> "${log}" 2>&1;
 			fi
 		fi
-		dly.fail;
+		# dly.fail;
 	# remote deployment
 	else
 		executable.validate scp ssh;
