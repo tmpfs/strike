@@ -452,7 +452,7 @@ run() {
 	if \$noop; then
 		return 0;
 	fi
-	\$@;
+	"\$@";
 	return \$?;
 }
 
