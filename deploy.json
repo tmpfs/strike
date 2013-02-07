@@ -38,9 +38,6 @@
 		"local": {
 			"pre": [
 				{
-					"command": "autoconf"
-				},
-				{
 					"command": "npm",
 					"options": [ "pack" ]
 				},
