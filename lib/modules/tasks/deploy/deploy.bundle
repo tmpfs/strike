@@ -353,6 +353,8 @@ bundle.settings.write!() {
 		dly.out.info "write %s" "${settings}";
 	fi
 	
+	# echo "keys are: ${!json_dump[@]}"; exit 0;
+	
 	# echo "before write json";
 	json.stringify --pretty 2 <<< "json_dump" > "${settings}";
 }

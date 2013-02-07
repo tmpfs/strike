@@ -421,6 +421,9 @@ dly.profile() {
 	# printf "PID\tCPU\tMEM\n";
 	# ps -mx -o "pid %cpu %mem" | grep "$$";
 	
+	unset json_dump;	
+	declare -A json_dump;
+	
 	# stores command to execute
 	# for all profiles
 	declare -A global_commands;
@@ -981,9 +984,6 @@ dly.settings.init() {
 # for the profile being processed or prints
 # a json document 
 dly.info() {
-	
-	unset json_dump;	
-	declare -A json_dump;
 	dly.settings.init;
 
 	# always build up the json settings so that
@@ -1033,7 +1033,7 @@ dly.info() {
 				variable.get "${var}";
 				value="${_result:-}";
 				if [ -n "${value}" ]; then
-					# echo "adding to json_dump $key : $value";
+					#echo "adding to json_dump $key : $value";
 					json_dump["profiles.${profile}.$key"]="$value";
 				fi
 			else
@@ -1118,7 +1118,7 @@ dly.info() {
 		dly.out.info "\t %s" "${deploy_target}";
 		dly.out.info "";		
 		dly.header;		
-	fi
+	fi	
 }
 
 # print profiles
