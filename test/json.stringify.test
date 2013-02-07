@@ -39,53 +39,53 @@ function test.json.stringify.basic {
 	
 	# test that a variable set to the empty string converts to ""
 	doc="";
-	json.stringify <<< "doc";
+	result=$( json.stringify <<< "doc" );
 	assert.eq "0" "$?";
-	result=$( json.string );
+	#result=$( json.string );
 	assert.equal '""' "$result";
 	
 	# test that a set array is detected
 	declare -a myarray;
 	myarray=( 1 2 3 );
-	json.stringify <<< "myarray";
+	result=$( json.stringify <<< "myarray" );
 	assert.eq "0" "$?";	
-	result=$( json.string );
+	#result=$( json.string );
 	assert.equal "[1,2,3]" "$result";
 	
 	# test that a declared but unset array converts to []
 	declare -a mynewarray;
-	json.stringify <<< "mynewarray";
+	result=$( json.stringify <<< "mynewarray" );
 	assert.eq "0" "$?";
-	result=$( json.string );
+	#result=$( json.string );
 	assert.equal "[]" "$result";
 	
 	# test that a set local array is valid
 	local localarr=( 1 2 3 );
-	json.stringify <<< "localarr";
+	result=$( json.stringify <<< "localarr" );
 	assert.eq "0" "$?";
-	result=$( json.string );
+	#result=$( json.string );
 	assert.equal "[1,2,3]" "$result";	
 	
 	# test that a set local but empty local array converts to []
 	local emptyarr=();
-	json.stringify <<< "emptyarr";
+	result=$( json.stringify <<< "emptyarr" );
 	assert.eq "0" "$?";
-	result=$( json.string );
+	#result=$( json.string );
 	assert.equal "[]" "$result";	
 	
 	# test that a declared but unset associative array converts to {}
 	declare -A myassoc;
-	json.stringify <<< "myassoc";
+	result=$( json.stringify <<< "myassoc" );
 	assert.eq "0" "$?";
-	result=$( json.string );
+	#result=$( json.string );
 	assert.equal "{}" "$result";
 	
 	# test that a declared and set associative array is valid
 	declare -A mynewassoc;
 	mynewassoc[key]="value";
-	json.stringify <<< "mynewassoc";
+	result=$( json.stringify <<< "mynewassoc" );
 	assert.eq "0" "$?";
-	result=$( json.string );
+	#result=$( json.string );
 	assert.equal '{"key":"value"}' "$result";
 	
 	# TODO: null / numbers
@@ -94,59 +94,49 @@ function test.json.stringify.basic {
 # test(s) for encoding boolean values
 function test.json.stringify.boolean {
 	local result doc="true";
-	json.stringify <<< "doc";
-	result=$( json.string );	
+	result=$( json.stringify <<< "doc" );
 	assert.equal "true" "$result";
 	
 	doc="false";
-	json.stringify <<< "doc";
-	result=$( json.string );	
+	result=$( json.stringify <<< "doc" );
 	assert.equal "false" "$result";
 	
 	doc=true;
-	json.stringify <<< "doc";
-	result=$( json.string );	
+	result=$( json.stringify <<< "doc" );
 	assert.equal "true" "$result";
 	
 	doc=false;
-	json.stringify <<< "doc";
-	result=$( json.string );	
+	result=$( json.stringify <<< "doc" );
 	assert.equal "false" "$result";	
 }
 
 # test(s) for encoding null values
 function test.json.stringify.null {
 	local result doc="null";
-	json.stringify <<< "doc";
-	result=$( json.string );
+	result=$( json.stringify <<< "doc" );
 	assert.equal "null" "$result";
 	
 	doc=null;
-	json.stringify <<< "doc";
-	result=$( json.string );	
+	result=$( json.stringify <<< "doc" );
 	assert.equal "null" "$result";
 }
 
 # test(s) for encoding an integers
 function test.json.stringify.integer {
 	local result doc="127";
-	json.stringify <<< "doc";
-	result=$( json.string );
+	result=$( json.stringify <<< "doc" );
 	assert.equal "127" "$result";
 	
 	doc=127;
-	json.stringify <<< "doc";
-	result=$( json.string );
+	result=$( json.stringify <<< "doc" );
 	assert.equal "127" "$result";
 	
 	doc="-127";
-	json.stringify <<< "doc";
-	result=$( json.string );
+	result=$( json.stringify <<< "doc" );
 	assert.equal "-127" "$result";
 	
 	doc=-127;
-	json.stringify <<< "doc";
-	result=$( json.string );
+	result=$( json.stringify <<< "doc" );
 	assert.equal "-127" "$result";		
 }
 
@@ -155,8 +145,7 @@ function test.json.stringify.number {
 	local result num;
 	for num in ${json_valid_numbers[@]}
 		do
-			json.stringify <<< "num";
-			result=$( json.string );
+			result=$( json.stringify <<< "num" );
 			# numbers should not be quoted
 			assert.equal "$num" "$result";
 	done
@@ -197,7 +186,7 @@ function test.json.stringify.number.match {
 }
 
 # test(s) for encoding strings
-function test.json.stringify.string {
+function tdd.test.json.stringify.string {
 	local result expected str;
 	local newline="
 ";
@@ -213,8 +202,7 @@ function test.json.stringify.string {
 			# echo "testing str: $str";
 			
 			expected="$str";
-			json.stringify <<< "str";
-			result=$( json.string );
+			result=$( json.stringify <<< "str" );
 			# expect string values with quotes
 			# to be escaped
 			if [[ "$expected" =~ \" ]]; then
@@ -242,8 +230,7 @@ function test.json.stringify.string {
 function test.json.stringify.object {
 	declare -A doc;
 	doc[key]="a key value";
-	json.stringify <<< "doc";
-	local received=$( json.string );
+	local received=$( json.stringify <<< "doc" );
 	assert.equal '{"key":"a key value"}' "$received";
 }
 
@@ -252,8 +239,7 @@ function test.json.stringify.object {
 function test.json.stringify.object.dash {
 	declare -A doc;
 	doc["-key"]="-value";
-	json.stringify <<< "doc";
-	local received=$( json.string );
+	local received=$( json.stringify <<< "doc" );
 	assert.equal '{"-key":"-value"}' "$received";
 }
 
@@ -262,8 +248,7 @@ function test.json.stringify.object.keys {
 	declare -A doc;
 	doc[key1]="the first value";
 	doc[key2]="the second value";
-	json.stringify <<< "doc";
-	local received=$( json.string );
+	local received=$( json.stringify <<< "doc" );
 	# key iterartion order appears to always be in reverse order
 	# this test will fail if that behaviour changes
 	assert.equal '{"key2":"the second value","key1":"the first value"}' "$received";
@@ -271,7 +256,7 @@ function test.json.stringify.object.keys {
 
 # test for encoding an object with multiple nested
 # objects that contain the same keys
-function test.json.stringify.object.multiple {
+function tdd.test.json.stringify.object.multiple {
 	declare -A doc;
 	doc[type]="test";
 	doc[obj1.id]="id1";
@@ -291,10 +276,9 @@ function test.json.stringify.object.multiple {
 	doc[null]=null;
 	doc[keys.name]="key name";
 	doc[keys.id]="key id";
-	json.stringify --pretty 2 <<< "doc";
-	local received=$( json.string );
+	local received=$( json.stringify --pretty 2 <<< "doc" );
 	
-	echo "$json_str";
+	echo "$received";
 	
 	#assert.equal '{"false":false,"key":"value","null":null,"true":true,"type":"test","obj1":{"path":"path1","id":"id1"},"obj2":{"path":"path2","id":"id2"},"arr":["a","b","c"],"keys":{"name":"key name","id":"key id"}}' "$received";
 }
@@ -305,8 +289,7 @@ function test.json.stringify.object.multiple {
 function test.json.stringify.array {
 	declare -a doc;
 	doc=( 127 null true false "a string value" );
-	json.stringify <<< "doc";
-	local received=$( json.string );
+	local received=$( json.stringify <<< "doc" );
 	assert.equal '[127,null,true,false,"a string value"]' "$received";
 }
 
@@ -319,8 +302,7 @@ function test.json.stringify.array.objects {
 	doc[2.id]="id2";
 	doc[2.path]="path2";
 	doc[3]="after-value";
-	json.stringify <<< "doc";
-	local received=$( json.string );
+	local received=$( json.stringify <<< "doc" );
 	assert.equal '["value",{"path":"path1","id":"id1"},{"path":"path2","id":"id2"},"after-value"]' "$received";
 }
 
@@ -333,8 +315,7 @@ function test.json.stringify.array.arrays {
 	doc[2.0]="d";
 	doc[2.1]="e";
 	doc[3]="f";
-	json.stringify <<< "doc";
-	local received=$( json.string );
+	local received=$( json.stringify <<< "doc" );
 	assert.equal '["a",["b","c"],["d","e"],"f"]' "$received";
 }
 
@@ -351,12 +332,8 @@ function test.json.stringify.array.deep.arrays {
 	doc[3.0.2]="h";
 	doc[3.1.0]="i";
 	doc[3.1.1]="j";
-	json.stringify  --pretty 2 <<< "doc";
-	#json.stringify <<< "doc";
-	#local str=$( json.string );
-	echo "$json_str";
-	#local received=$( json.string );
-	#assert.equal '["a",["b","c"],["d","e"],[["f","g","h"],["i","j"]]]' "$received";
+	local received=$( json.stringify <<< "doc" );
+	assert.equal '["a",["b","c"],["d","e"],[["f","g","h"],["i","j"]]]' "$received";
 }
 
 # test for encoding an array of sparse indices
@@ -365,8 +342,7 @@ function test.json.stringify.array.sparse {
 	doc[8]="a";
 	doc[16]="b";
 	doc[24]="c";
-	json.stringify <<< "doc";
-	local received=$( json.string );
+	local received=$( json.stringify <<< "doc" );
 	assert.equal '["a","b","c"]' "$received";
 }
 
@@ -378,11 +354,9 @@ function test.json.stringify.array.pretty.space {
 	doc=( 127 null true false "a string value" );
 	
 	# pretty print with 2 spaces for the indent	
-	json.stringify --pretty 2 <<< "doc";
-
+	local received=$( json.stringify --pretty 2 <<< "doc" );
 	local file="${testdir}/json/pretty/array.json";
 	local expected=$( < "$file" );
-	local received=$( json.string );	
 	assert.equal "$expected" "$received";
 }
 
@@ -392,11 +366,11 @@ function test.json.stringify.array.pretty.tab {
 	doc=( 127 null true false "a string value" );
 	
 	# pretty print with 2 spaces for the indent	
-	json.stringify --pretty 1 '	' <<< "doc";			#third parameter is actually: \t
+	# third parameter is actually: \t
+	local received=$( json.stringify --pretty 1 '	' <<< "doc" );
 
 	local file="${testdir}/json/pretty/array.tab.json";
-	local expected=$( < "$file" );
-	local received=$( json.string );	
+	local expected=$( < "$file" );	
 	assert.equal "$expected" "$received";
 }
 
@@ -407,14 +381,10 @@ function test.json.stringify.object.pretty.space {
 	doc[key2]="the second value";
 	
 	# pretty print with 2 spaces for the indent
-	json.stringify --pretty 2 <<< "doc";
+	local received=$( json.stringify --pretty 2 <<< "doc" );
 	
 	local file="${testdir}/json/pretty/object.json";
 	local expected=$( < "$file" );
-	local received=$( json.string );
-	
-	# echo "$received";
-		
 	assert.equal "$expected" "$received";
 }
 
@@ -425,11 +395,11 @@ function test.json.stringify.object.pretty.tab {
 	doc[key2]="the second value";
 	
 	# pretty print with a single tab for the indent
-	json.stringify --pretty 1 '	' <<< "doc";			#third parameter is actually: \t
+	# third parameter is actually: \t
+	local received=$( json.stringify --pretty 1 '	' <<< "doc" );
 	
 	local file="${testdir}/json/pretty/object.tab.json";
 	local expected=$( < "$file" );
-	local received=$( json.string );	
 	assert.equal "$expected" "$received";
 }
 
@@ -443,15 +413,8 @@ function test.json.stringify.project.pretty {
 	doc[projects.test-project.meta.license]="MIT License";
 	doc[projects.test-project.meta.email]="<noop@xpm.io>";
 	doc[projects.test-project.meta.author]="muji";
-	
-	# pretty print with a single tab for the indent
-	json.stringify --pretty 2 <<< "doc";
-	
-	local contents=$( json.string );
-	echo "$contents";
-	
-	# local file="${testdir}/json/pretty/object.tab.json";
-	# local expected=$( < "$file" );
-	# local received=$( json.string );	
-	# assert.equal "$expected" "$received";
+	local received=$( json.stringify --pretty 2 <<< "doc" );
+	local file="${testdir}/json/pretty/project.json";
+	local expected=$( < "$file" );
+	assert.equal "$expected" "$received";
 }

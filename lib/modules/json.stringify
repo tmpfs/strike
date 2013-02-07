@@ -8,7 +8,6 @@ declare -g json_str;
 declare -g json_number_regexp="^-?[0-9]+((\.[0-9]+)?([eE][-+]?[0-9]+)?)?$";
 
 function json.stringify {
-	
 	# clean up from last call
 	json.stringify.clean;
 	
@@ -56,7 +55,8 @@ function json.stringify {
 		return 1;
 	fi
 	
-	#echo "testing existence of ${1:-}";
+	# echo "testing existence of ${1:-} : ${!doc[@]}";
+	#array.is.array? "$json_data" || echo "not array ... $?";
 	
 	$( array.is.array? "$json_data" );
 	local isarr=$?;
@@ -91,16 +91,21 @@ function json.stringify {
 		eval value="\${$json_data}";
 		if [ -n "$value" ]; then
 			__json.stringify.value "$value";
-			json="$_result";
+			printf -- "$_result";
+			#json="$_result";
 			#echo "got result after evaluation : '''$json'''";
 		# the empty string should be ""
 		else
-			json="\"\"";
+			#json="\"\"";
+			printf -- "\"\"";
 		fi
 	fi
-	if [ ! -z "$json" ]; then
-		json_str="$json";
-	fi
+	# if [ ! -z "$json" ]; then
+	# 	json_str="$json";
+	# fi
+	
+	#echo ${!.*};
+	
 	unset json;
 	return 0;
 }
@@ -147,6 +152,12 @@ function __json.stringify.array {
 	
 	local i=0;
 	local len=${#arrkeys[@]};
+	local end=$((len - 1));
+	
+	# 
+	# echo "got array len: $len";
+	# echo "got array end: $end";
+	
 	for((i=0;i < $len;i++))
 		do
 			key="${arrkeys[$i]}";
@@ -156,6 +167,9 @@ function __json.stringify.array {
 			if [[ ! "$key" =~ \. ]]; then
 				eval value="\${$json_data[$key]}";
 				__json.add.value;
+				if [ $i -lt $end ]; then
+					printf -- ",";
+				fi
 				unset arrkeys[$i];
 			# nested dot-style property
 			else
@@ -184,17 +198,31 @@ function __json.stringify.array {
 						unset arrkeys[$i];
 						: $((i++));
 				done
-				: $((i--));
-				# # treat as an object
-				__json.stringify.object "_$k";
+				
 				# add comma between array entries
-				json="${json},";
+				# json="${json},";	
+				
+				# # treat as an object
+				__json.stringify.object "_$k";	
+				
+				if [ $i -lt $len ]; then
+					printf -- ",";
+					if $pretty; then
+						printf -- "\n";
+					fi
+				fi							
+				
+				: $((i--));
 			fi
 	done
 	
-	json="${json%$newline}";
+	#json="${json%$newline}";
+	
 	# remove any trailing comma
-	json="${json%,}";
+	
+	# TODO: fix this logic for printf
+	#json="${json%,}";
+	
 	__json.stringify.array.end;
 	: $((depth--));
 }
@@ -220,7 +248,8 @@ function __json.stringify.array.start {
 			whitespace="${newline}${whitespace}";
 		fi
 	fi
-	json="${json}${whitespace}${arrstart}";
+	#json="${json}${whitespace}${arrstart}";
+	printf -- "${whitespace}${arrstart}";
 }
 
 
@@ -230,12 +259,13 @@ function __json.stringify.array.end {
 		__json.stringify.indent;
 		whitespace="$_result";
 		if [ $depth -gt 0 ]; then
-			whitespace="${newline}${whitespace}";
+			whitespace="${whitespace}";
 		elif [ $depth -eq 0 ]; then
 			whitespace="${newline}";
 		fi
 	fi
-	json="${json}${whitespace}${arrend}";
+	#json="${json}${whitespace}${arrend}";
+	printf -- "${whitespace}${arrend}";
 }
 
 function __json.stringify.object {
@@ -278,6 +308,9 @@ function __json.stringify.object {
 	
 	# deal with nested properties
 	local k match nk nv ak nestedkey;	
+	local len="${#keys[@]}";
+	local end=$((len - 1));
+	local i=0;
 	for key in "${keys[@]}"
 		do
 			# echo "(object) processing key: $key";
@@ -286,6 +319,11 @@ function __json.stringify.object {
 			if [[ ! "$key" =~ \. ]]; then
 				eval value="\${$json_data[$key]}";
 				__json.add.key.value "$key" "$value";
+				#echo "adding key pair $i : $end";
+				if [ $i -lt $end ]; then
+					printf -- ",";
+				fi
+				: $((i++));
 			# got a nested dot-style reference
 			# group objects together
 			else
@@ -308,6 +346,9 @@ function __json.stringify.object {
 			fi
 	done
 	
+	local len="${#nested[@]}";
+	local end=$((len - 1));
+	local i=0;
 	# post-process nested data
 	if [ ${#nested[@]} -gt 0 ]; then
 		for nk in ${!nested[@]}
@@ -361,7 +402,13 @@ function __json.stringify.object {
 				#echo "PROCESSING NESTED KEY ON: $nk";
 				
 				__json.stringify.object "$nestedkey" "$nk";
-				json="${json},";
+				if [ $i -lt $end ]; then
+					printf -- ",";
+				fi
+				: $((i++));
+								
+				#json="${json},";
+				#printf ",";
 				
 				#echo "cleaning $nestedkey";
 				
@@ -381,10 +428,12 @@ function __json.stringify.object {
 		unset $json_data;
 	fi
 	
-	json="${json%$newline}";
-	json="${json%,}";
+	# TODO: fix this
+	# json="${json%$newline}";
+	# json="${json%,}";
+	
 	__json.stringify.object.end;
-	: $((depth--));		
+	: $((depth--));
 }
 
 function __json.stringify.object.start.nested {
@@ -398,7 +447,8 @@ function __json.stringify.object.start.nested {
 		#fi
 	fi
 	__json.stringify.quote "$nk";
-	json="${json}${whitespace}${_result}:";
+	#json="${json}${whitespace}${_result}:";
+	printf -- "${whitespace}${_result}:";
 }
 
 function __json.stringify.object.start {
@@ -408,7 +458,8 @@ function __json.stringify.object.start {
 			whitespace="${space}";
 		fi
 	fi
-	json="${json}${whitespace}${objstart}";	
+	#json="${json}${whitespace}${objstart}";	
+	printf -- "${whitespace}${objstart}";
 }
 
 function __json.stringify.object.end {
@@ -422,7 +473,8 @@ function __json.stringify.object.end {
 			whitespace="${newline}";
 		fi
 	fi	
-	json="${json}${whitespace}${objend}";
+	#json="${json}${whitespace}${objend}";
+	printf -- "${whitespace}${objend}";
 }
 
 # add an array value
@@ -436,7 +488,8 @@ function __json.add.value {
 	fi
 	# encode the value
 	__json.stringify.value "$value";	
-	json="${json}${whitespace}${_result},";
+	# json="${json}${whitespace}${_result},";
+	printf -- "${whitespace}${_result}";
 }
 
 # add an object key/value pair
@@ -452,16 +505,19 @@ function __json.add.key.value {
 	
 	# quote the key
 	__json.stringify.quote "$1";
-	json="${json}${whitespace}${_result}:";
+	# json="${json}${whitespace}${_result}:";
+	printf -- "${whitespace}${_result}:";
 	
 	# space between colon and value
 	if $pretty; then
-		json="${json}${space}";
+		#json="${json}${space}";
+		printf -- "${space}";
 	fi
 	
 	# encode the value
 	__json.stringify.value "$2";
-	json="${json}${_result},";
+	#json="${json}${_result},";
+	printf -- "${_result}";
 }
 
 function __json.stringify.quote {
