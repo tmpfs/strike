@@ -1,3 +1,7 @@
+# regular expression used to sanitize dynamic
+# variables names
+declare -g variable_name_sanitize_regexp="[^a-zA-Z0-9_]";
+
 function variable.get {
 	local name="$1";
 	set +o nounset;

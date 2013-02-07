@@ -127,7 +127,7 @@ tdd.deploy.run() {
 tdd.deploy.env() {
 	descriptor="${project_source}/env.json";
 	local opts=( ${options[@]} );
-	opts+=( --global-env --print-env --descriptor "${descriptor}" );
+	opts+=( --print-env --descriptor "${descriptor}" );
 
 	tasks.deploy "${opts[@]}";
 	
@@ -252,7 +252,6 @@ tdd.deploy.minimal.dryrun() {
 	local opts=( ${options[@]} );
 	opts+=( --descriptor "${descriptor}" --dry-run );
 	( tasks.deploy "${opts[@]}" );
-	
 	# the deployment directory should not exist with --dry-run
 	assert.dir.exists! "${directory}/${expects[name]}/${profile}";
 	# we shouldn't even have the top-level directory for the deployment

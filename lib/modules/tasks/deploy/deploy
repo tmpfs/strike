@@ -142,9 +142,6 @@ tasks.deploy() {
 	flags[print.env]=false;
 	flags[notify.growl]=true;
 	
-	# TODO: remove this!
-	flags[global.env]=false;
-	
 	flags[script.lint]=false;
 	flags[script.lint.run]=false;
 	flags[expand]=false;
@@ -293,15 +290,10 @@ tasks.deploy() {
 			dly_doc_value="${dly_doc_value//\`/\\\`}";
 			
 			#sanitize variable name
-			dly_doc_key="${dly_doc_key//[^a-zA-Z0-9_]/_}";
+			dly_doc_key="${dly_doc_key//$variable_name_sanitize_regexp/_}";
 			
 			# declare variable
-			# TODO: always export ???
-			if ${flags[global.env]}; then
-				eval "export $dly_doc_key=\"$dly_doc_value\"";
-			else
-				eval "local $dly_doc_key=\"$dly_doc_value\"";
-			fi
+			eval "export $dly_doc_key=\"$dly_doc_value\"";
 	done
 	
 	# deploy all target profiles
@@ -1470,9 +1462,6 @@ dly.options.parse() {
 			--print-env )
 				flags[print.env]=true;
 				flags[noop]=true;
-				;;
-			--global-env )
-				flags[global.env]=true;
 				;;
 			--bundle )
 				flags[bundle.only]=true;

@@ -207,10 +207,6 @@ Force bundle creation to use `lzma`, bundle(s) are created with the `lzma` file 
 
 This section describes options for debugging and unit testing.
 
-* `--global-env`:
-
-Declare variables exposed to deployment descriptors as *export* rather than *local*. This is used for unit testing purposes.
-
 * `--json`:
 
 Dump all profile configuration settings that would be used by a deployment as a JSON document to *stdout*, implies `--dry-run`. This is useful to determine the settings that would be used when running a deployment.
