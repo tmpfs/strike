@@ -27,7 +27,7 @@ Parsing JSON data can be from a file, string or variable. After parsing the JSON
 	# clean up parsed json data
 	json.clean;
 	
-Converting to JSON is achieved using references to variable names and afterwards the JSON string is available in the global `json_str` variable. Use the `json.string` method to print the JSON string data.
+Converting to JSON is achieved using references to variable names and using command substitution to capture the result into a variable (or redirect output to a file).
 
 	require 'json';
 
@@ -36,9 +36,8 @@ Converting to JSON is achieved using references to variable names and afterwards
 		doc[key]="value";
 		doc[greeting]="hello world";
 		# doc is the *name* of the variable to stringify
-		json.stringify <<< "doc";
-		# print the result
-		json.string;
+		local document=$( json.stringify <<< "doc" );
+		echo "$document";
 	}
 	toJSON;
 
@@ -64,7 +63,6 @@ require.once json.stringify;
 # json.parse and json.stringify
 function json.clean {
 	json.parse.clean;
-	json.stringify.clean;
 }
 
 # prints key/value pairs from the last call
@@ -76,15 +74,4 @@ function json.print {
 			val="${json_doc["$key"]}";
 			console.log "${key}=${val}";
 	done
-}
-
-# prints the string value from
-# the last call to json.stringify
-function json.string {
-	# NOTE: do not use console.log
-	# NOTE: as it calls printf which changes quoting
-	# NOTE: and escape sequences
-	# NOTE: additionally do NOT specift the -e option
-	# NOTE: to echo, otherwise quoting will not work
-	echo -n "${json_str:-}";
 }

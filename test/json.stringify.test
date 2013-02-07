@@ -34,14 +34,13 @@ function test.json.stringify.basic {
 	
 	# test that a set variable is detected
 	local doc="mydocument";
-	json.stringify <<< "doc";
+	result=$( json.stringify <<< "doc" || false );
 	assert.eq "0" "$?";
 	
 	# test that a variable set to the empty string converts to ""
 	doc="";
 	result=$( json.stringify <<< "doc" );
 	assert.eq "0" "$?";
-	#result=$( json.string );
 	assert.equal '""' "$result";
 	
 	# test that a set array is detected
@@ -49,35 +48,30 @@ function test.json.stringify.basic {
 	myarray=( 1 2 3 );
 	result=$( json.stringify <<< "myarray" );
 	assert.eq "0" "$?";	
-	#result=$( json.string );
 	assert.equal "[1,2,3]" "$result";
 	
 	# test that a declared but unset array converts to []
 	declare -a mynewarray;
 	result=$( json.stringify <<< "mynewarray" );
 	assert.eq "0" "$?";
-	#result=$( json.string );
 	assert.equal "[]" "$result";
 	
 	# test that a set local array is valid
 	local localarr=( 1 2 3 );
 	result=$( json.stringify <<< "localarr" );
 	assert.eq "0" "$?";
-	#result=$( json.string );
 	assert.equal "[1,2,3]" "$result";	
 	
 	# test that a set local but empty local array converts to []
 	local emptyarr=();
 	result=$( json.stringify <<< "emptyarr" );
 	assert.eq "0" "$?";
-	#result=$( json.string );
 	assert.equal "[]" "$result";	
 	
 	# test that a declared but unset associative array converts to {}
 	declare -A myassoc;
 	result=$( json.stringify <<< "myassoc" );
 	assert.eq "0" "$?";
-	#result=$( json.string );
 	assert.equal "{}" "$result";
 	
 	# test that a declared and set associative array is valid
@@ -85,7 +79,6 @@ function test.json.stringify.basic {
 	mynewassoc[key]="value";
 	result=$( json.stringify <<< "mynewassoc" );
 	assert.eq "0" "$?";
-	#result=$( json.string );
 	assert.equal '{"key":"value"}' "$result";
 	
 	# TODO: null / numbers
@@ -186,6 +179,7 @@ function test.json.stringify.number.match {
 }
 
 # test(s) for encoding strings
+# FIXME: re-instate this test!
 function tdd.test.json.stringify.string {
 	local result expected str;
 	local newline="
@@ -256,7 +250,7 @@ function test.json.stringify.object.keys {
 
 # test for encoding an object with multiple nested
 # objects that contain the same keys
-function tdd.test.json.stringify.object.multiple {
+function test.json.stringify.object.multiple {
 	declare -A doc;
 	doc[type]="test";
 	doc[obj1.id]="id1";
@@ -276,11 +270,8 @@ function tdd.test.json.stringify.object.multiple {
 	doc[null]=null;
 	doc[keys.name]="key name";
 	doc[keys.id]="key id";
-	local received=$( json.stringify --pretty 2 <<< "doc" );
-	
-	echo "$received";
-	
-	#assert.equal '{"false":false,"key":"value","null":null,"true":true,"type":"test","obj1":{"path":"path1","id":"id1"},"obj2":{"path":"path2","id":"id2"},"arr":["a","b","c"],"keys":{"name":"key name","id":"key id"}}' "$received";
+	local received=$( json.stringify <<< "doc" );
+	assert.equal '{"false":false,"key":"value","null":null,"true":true,"type":"test","obj1":{"path":"path1","id":"id1","nested":{"path":"nested path","id":"nested id","deep":{"path":"deep path","id":"deep id"}}},"obj2":{"path":"path2","id":"id2"},"arr":["a","b","c"],"keys":{"name":"key name","id":"key id"}}' "$received";
 }
 
 # ARRAY TESTS

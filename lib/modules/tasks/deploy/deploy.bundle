@@ -341,8 +341,7 @@ bundle.info.write!() {
 			setup["flags.$k"]="$v";
 	done
 	
-	json.stringify --pretty 2 <<< "setup";
-	json.string > "${info}";
+	json.stringify --pretty 2 <<< "setup" > "${info}";
 }
 
 # write the deploy settings for the profile to the bundle
@@ -351,9 +350,7 @@ bundle.settings.write!() {
 	# TODO: probably due to the string concatenation
 	
 	# echo "before write json";
-	json.stringify --pretty 2 <<< "json_dump";
-	json.string > "${settings}";
-	# echo "after write json";
+	json.stringify --pretty 2 <<< "json_dump" > "${settings}";
 }
 
 # creates a package.json for an *npm* installation type

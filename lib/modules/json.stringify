@@ -1,16 +1,10 @@
 # SEE: http://mywiki.wooledge.org/BashFAQ/006
 # SEE: http://blog.publicobject.com/2010/04/json-javascript-and-numeric-types.html
 
-# holds the last result of calling json.stringify
-declare -g json_str;
-
 # regexp for number matching
 declare -g json_number_regexp="^-?[0-9]+((\.[0-9]+)?([eE][-+]?[0-9]+)?)?$";
 
 function json.stringify {
-	# clean up from last call
-	json.stringify.clean;
-	
 	local json="";
 	local objstart="{";
 	local objend="}";
@@ -100,19 +94,9 @@ function json.stringify {
 			printf -- "\"\"";
 		fi
 	fi
-	# if [ ! -z "$json" ]; then
-	# 	json_str="$json";
-	# fi
-	
-	#echo ${!.*};
 	
 	unset json;
 	return 0;
-}
-
-# clean global variable(s)
-function json.stringify.clean {
-	unset json_str;
 }
 
 ######################################################################

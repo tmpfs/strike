@@ -276,8 +276,7 @@ function prj.tasks.project.add {
 }
 
 function !project.file.write! {
-	json.stringify <<< "prj_doc";
-	json.string >| "$prjfile" || !project.file.write.quit;
+	json.stringify <<< "prj_doc" >| "$prjfile" || !project.file.write.quit;
 }
 
 # failed to write file
@@ -492,7 +491,6 @@ function prj.tasks.project.print {
 	if [ "${1:-}" == "--pretty" ]; then
 		!project.file.read;
 		json.stringify --pretty <<< "prj_doc";
-		json.string;
 	else
 		cat "$prjfile";
 	fi
@@ -659,8 +657,7 @@ function !project.generator {
 
 # write an empty project file
 function !project.write! {
-	json.stringify <<< "prj_doc";
-	json.string > "${prjfile}" || !project.file.write.quit;
+	json.stringify <<< "prj_doc" > "${prjfile}" || !project.file.write.quit;
 }
 
 # quit if project file exists

@@ -430,10 +430,7 @@ dly.profiles() {
 		else
 			json.stringify --pretty 2 <<< "json_dump";
 		fi
-		if ${flags[print.json]}; then
-			json.string;
-			printf "\n";
-		fi
+		printf "\n";
 	fi
 }
 
