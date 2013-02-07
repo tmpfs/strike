@@ -96,8 +96,7 @@ function rlx.auth.save {
 			fi
 			
 			# convert to json and encrypt
-			json.stringify <<< "json_doc";
-			json.string >| "${plain}";
+			json.stringify <<< "json_doc" >| "${plain}";
 			crypto.enc.aes256cbc "${plain}" "${auth}" "$master";
 			code=$?;
 			if [ $code -gt 0 ]; then

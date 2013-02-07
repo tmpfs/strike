@@ -146,6 +146,56 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# set +e;
+# require.once 'json';
+# declare -Agx doc;
+# doc[0]="value";
+# doc[1.id]="id1";
+# doc[1.path]="path1";
+# doc[2.id]="id2";
+# doc[2.path]="path2";
+# doc[3]="after-value";
+# str=$( json.stringify <<< "doc" || false );
+# echo "$str";
+# echo "after sringify code : $?";
+# exit 0;
+
+# set +e;
+# require.once 'json';
+# declare -Agx doc;
+# doc[type]="test";
+# doc[obj1.id]="id1";
+# doc[obj1.path]="path1";
+# doc[obj1.nested.id]="nested id";
+# doc[obj1.nested.path]="nested path";
+# doc[obj1.nested.deep.id]="deep id";
+# doc[obj1.nested.deep.path]="deep path";
+# doc[obj2.id]="id2";
+# doc[obj2.path]="path2";
+# doc[arr.0]="a";	
+# doc[arr.1]="b";	
+# doc[arr.2]="c";
+# doc[key]="value";
+# doc[true]=true;
+# doc[false]=false;
+# doc[null]=null;
+# doc[keys.name]="key name";
+# doc[keys.id]="key id";
+# 
+# length=100;
+# for((i=0;i < $length;i++))
+# 	do
+# 		printf "BEFORE STRINGIFY\n";
+# 		printf "PID\tCPU\tMEM\n";
+# 		ps -mx -o "pid %cpu rss %mem" | grep "$$";
+# 		time json.stringify --pretty 2 <<< "doc" > /dev/null;
+# 		printf "AFTER STRINGIFY\n";
+# 		printf "PID\tCPU\tMEM\n";
+# 		ps -mx -o "pid %cpu %mem" | grep "$$";
+# done
+# 
+# exit 0;
+
 # 
 # json_key="a-b-c";
 # json_key="${json_key//[^a-zA-Z0-9_]/_}";

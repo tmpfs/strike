@@ -709,9 +709,7 @@ function __semver.file.write! {
 		done
 		
 		# encoded the semver data to a JSON document
-		json.stringify <<< "semverdoc";
-		# create the semver.json file
-		json.string >| "${files[semver]}" || __semver.file.write.quit "${files[semver]}";
+		json.stringify <<< "semverdoc" >| "${files[semver]}" || __semver.file.write.quit "${files[semver]}";
 	}
 	
 	# parse the current semver

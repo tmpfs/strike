@@ -144,10 +144,6 @@
 						{
 							"command": "mv",
 							"options": [ "$env_archive_name", "$env_archive_dir" ]
-						},
-						{
-							"command": "scp",
-							"options": [ "$env_archive_path", "${host}:~/" ]
 						}
 					]
 				}
