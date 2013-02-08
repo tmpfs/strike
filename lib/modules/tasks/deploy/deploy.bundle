@@ -194,7 +194,7 @@ bundle.contents.include() {
 	
 	bundle.contents.autoconf;
 	
-	local i length file includes=();
+	local i length file includes=() parent parents=();
 	length="${json_doc[bundle.files.include.length]:-0}";
 	if ${flags[verbose]} && [ $length -gt 0 ]; then
 		dly.out.info "include %s file(s)" "$length";
@@ -205,15 +205,42 @@ bundle.contents.include() {
 	# XXX: a single iteration
 	for((i=0;i < $length;i++))
 		do
-			file="${json_doc[bundle.files.include.${i}.path]}";
-			includes+=( "$file" );
+			file="${json_doc[bundle.files.include.${i}.path]:-}";
+			parent="${json_doc[bundle.files.include.${i}.dir]:-}";
+			if [ -n "$file" ]; then
+				includes[$i]="$file";
+			fi
+			if [ -n "$parent" ]; then
+				if [[ "$parent" =~ ^/ ]] || [[ "$parent" =~ ^\.\. ]]; then
+					dly.fail "include directory must be relative";
+				fi
+				parents[$i]="$parent";
+			fi
 	done
+	i=0;
 	for file in "${includes[@]}"
 		do
-			if ${flags[verbose]}; then
-				dly.out.info "add %s" "${file}";
+			fs.basename "${file}" "name";
+			relative="${file#$contents/}";
+			parent="${parents[$i]:-}";
+			
+			if "${flags[verbose]}"; then
+				'dly.out.info' "add %s" "${file}";
 			fi
+			
+			# 
+			# if [ -n  ]; then
+			# 	
+			# fi
+			
+			# considered to be an absolute path, copy into the
+			# bundle source
+			if [[ "$file" =~ ^/ ]] || [[ "$file" =~ ^\.\./ ]]; then
+				echo "got absolute include reference ... ";
+			fi
+			
 			echo "got file that must be included ... $file";
+			: $((i++));
 	done
 }
 
