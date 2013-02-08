@@ -182,7 +182,8 @@ function console.colorize {
 	local message="$3";
 	local replacements=("${@:3}");
 	local output=( "$message" );
-	local c=0;	
+	local c=0;
+	local i;
 	for i in "${replacements[@]}"
 		do
 			if [ $c -ne 0 ]; then

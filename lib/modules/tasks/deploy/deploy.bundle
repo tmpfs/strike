@@ -194,44 +194,31 @@ bundle.contents.include() {
 	
 	bundle.contents.autoconf;
 	
-	local i length file includes=() parent parents=();
+	local i length file parent;
 	length="${json_doc[bundle.files.include.length]:-0}";
 	if ${flags[verbose]} && [ $length -gt 0 ]; then
 		dly.out.info "include %s file(s)" "$length";
 	fi
 	
-	# XXX: we would like to do this in a single loop
-	# XXX: but there is currently a bash bug that prevents 
-	# XXX: a single iteration
 	for((i=0;i < $length;i++))
 		do
 			file="${json_doc[bundle.files.include.${i}.path]:-}";
 			parent="${json_doc[bundle.files.include.${i}.dir]:-}";
+			fs.basename "${file}" "name";
+			relative="${file#$contents/}";
+						
 			if [ -n "$file" ]; then
-				includes[$i]="$file";
+				if ${flags[verbose]}; then
+					dly.out.info "add %s" "${file}";
+				fi
+			else
+				dly.fail "include file may not be empty";
 			fi
 			if [ -n "$parent" ]; then
 				if [[ "$parent" =~ ^/ ]] || [[ "$parent" =~ ^\.\. ]]; then
 					dly.fail "include directory must be relative";
 				fi
-				parents[$i]="$parent";
 			fi
-	done
-	i=0;
-	for file in "${includes[@]}"
-		do
-			fs.basename "${file}" "name";
-			relative="${file#$contents/}";
-			parent="${parents[$i]:-}";
-			
-			if "${flags[verbose]}"; then
-				'dly.out.info' "add %s" "${file}";
-			fi
-			
-			# 
-			# if [ -n  ]; then
-			# 	
-			# fi
 			
 			# considered to be an absolute path, copy into the
 			# bundle source
@@ -239,8 +226,7 @@ bundle.contents.include() {
 				echo "got absolute include reference ... ";
 			fi
 			
-			echo "got file that must be included ... $file";
-			: $((i++));
+			echo "got file that must be included ... $file";			
 	done
 }
 
