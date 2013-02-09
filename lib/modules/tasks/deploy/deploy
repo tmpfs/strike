@@ -187,6 +187,8 @@ tasks.deploy() {
 	local deploy_staging_directory="${target}/deploy";
 	local bundle_output="${deploy_staging_directory}";
 	
+	local uid="${deploy_file_name}-${profile}";
+	
 	if [ ! -d "${deploy_staging_directory}" ]; then
 		mkdir -p "${deploy_staging_directory}" \
 			|| dly.fail "could not create %s" "${deploy_staging_directory}";
@@ -463,8 +465,9 @@ dly.profile() {
 	# scipt / log variables
 	script_name="${names[script]}";
 	script_dir="${bundle_source}";
+	uid="${deploy_file_name}-${profile}";	
 	script="${script_dir}/${script_name}";
-	log_name="${deploy_file_name}-${profile}.log";
+	log_name="${uid}.log";
 	log_dir="${staging}/log";
 	log_file="${log_dir}/${log_name}";
 	

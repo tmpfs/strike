@@ -10,11 +10,7 @@
 		{
 			"name": "foo",
 			"value": "bar\ qwerty"
-		},
-		{
-			"name": "foo-qwe",
-			"value": "bar\ qwerty"
-		}		
+		}	
 	],
 	"bundle": {
 		"dirs": [

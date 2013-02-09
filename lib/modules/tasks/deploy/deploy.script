@@ -13,6 +13,8 @@ script.write!() {
 		
 	# TODO: add list of compression executables and custom binary
 	# TODO: dependencies to validate
+	
+	local recipient="${json_doc[notifications.mail.to]:-root}";
 		
 	# target parent directory and final name
 	local deploy_parent deploy_final_name;
@@ -197,6 +199,8 @@ cleanup() {
 	if test -f \$sandbox/npm-debug.log; then
 		cat \$sandbox/npm-debug.log >> \$log_file;
 	fi
+	
+	notify;
 	
 	if test -d \$sandbox; then
 		delimiter;
@@ -437,6 +441,24 @@ complete() {
 	post;
 	success=true;
 	exit 0;
+}
+
+# send email notification
+notify() {
+	mail=\$( command -v mail );
+	uuencode=\$( command -v uuencode );
+	
+	if test -n \$mail && test -n \$uuencode; then
+		subject="deploy: ${uid}";
+		# echo "subject: \$subject";
+		mail_opts="-s \$subject";
+		mail_opts="\$mail_opts $recipient";
+		log_file_name=\$( basename -- \$log_file );
+		info "uuencode %s %s | mail %s\n" "\$log_file" "\$log_file_name" "\$mail_opts";
+		uuencode \$log_file \$log_file_name \\
+			| mail -s "\$subject" \\
+			"$recipient";
+	fi
 }
 
 # quit on failure
