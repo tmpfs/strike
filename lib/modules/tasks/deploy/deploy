@@ -1496,7 +1496,7 @@ dly.options.parse() {
 				flags[bundle.inspect]=true;
 				;;
 			--standalone )
-				flags[bundle.only]=true;
+				# flags[bundle.only]=true;
 				flags[bundle.standalone]=true;
 				flags[bundle.package.contents]=true;
 				;;

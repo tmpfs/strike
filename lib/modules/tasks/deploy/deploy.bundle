@@ -25,6 +25,8 @@ bundle.create() {
 	# add package contents
 	bundle.contents;
 	
+	bundle.exports.write!;
+	
 	# copy the descriptor
 	bundle.descriptor.copy;
 	
@@ -230,6 +232,40 @@ bundle.contents.include() {
 	done
 }
 
+# write the variable exports file
+# when exports have been declared
+bundle.exports.write!() {
+	local file="${bundle_source}/${names[exports]}";
+	local i name value length="${json_doc[export.length]:-0}";
+	if [ $length -gt 0 ]; then
+		printf "" >| "${file}";
+		dly.out.info "export %s variable(s)" "$length";
+		for((i = 0;i < $length;i++))
+			do
+				name="${json_doc[export.$i.name]:-}";
+				value="${json_doc[export.$i.value]:-}";
+				if [ -z "$name" ]; then
+					dly.fail "export variable name is missing";
+				fi
+				if [ -z "$value" ]; then
+					dly.fail "export variable name is missing";
+				fi
+				if ${flags[verbose]}; then
+					dly.out.info "export %s=%s" "$name" "$value";
+				fi
+				
+				if [[ "$name" =~ $variable_name_sanitize_regexp ]]; then
+					dly.fail "invalid export variable name %s, must match %s" \
+						"$name" \
+						"$variable_name_sanitize_regexp";
+				fi
+				
+				printf "${name}=${value};\n" >> "${file}";
+				printf "export ${name};\n" >> "${file}";
+		done
+	fi
+}
+
 # determine if a packaged file is being ignored
 bundle.contents.ignore?() {
 	if [[ "$relative" =~ $ignore_re ]]; then
@@ -409,10 +445,6 @@ cat <<EOF >> ${configure}
 set -e;
 set -u;
 
-if test -f ./${names[exports]}; then
-	. ./${names[exports]};
-fi
-
 if test -d ./${names[bundle.contents]} \\
 	&& test -f ./${names[bundle.contents]}/${names[autoconf.configure]}; then
 	printf "${names[autoconf.configure]}: ";
@@ -454,6 +486,10 @@ bundle.install!() {
 		# script_name
 		cd "${bundle_name}" \
 			|| dly.fail "could not enter %s" "${staging}/${bundle_name}";
+			
+		if [ -f "${names[exports]}" ]; then
+			. "${names[exports]}";
+		fi
 			
 		#  && dly.complete
 		if [ -n "${executables[make]}" ]; then

@@ -6,13 +6,13 @@ AUTOMAKE_OPTIONS = foreign
 # dist_data_DATA = lib man test
 
 all:
-	@echo "my all called ... ";
+	@echo "my all called : foo is $(foo)";
 	
 install-exec-local:
 	@echo "install-exec-local ... $(prefix) : $(PACKAGE_NAME) $(PACKAGE_VERSION)";
 	
 install-data-local:
-	@echo "install-data-local ... $(prefix)";
+	@echo "install-data-local ... $(prefix) : foo is $(foo)";
 	
 clean-local:
 	@echo "clean-local ... ";
