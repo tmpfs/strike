@@ -814,6 +814,25 @@ Interactive prompts write to *stdout* and read from *stdin* you may also disable
 
 ## NOTIFICATIONS
 
+### Email
+
+Email notifications are enabled by default but email will not be sent under the following situations.
+
+* If either sendmail(1) or uuencode(1) are not available.
+* If the `to` field for email notifications has not been specified or is the empty string.
+* If the `--no-mail` option has been specified.
+* If the `--script-file` option has been specified. In this instance a custom script is being used to perform the deployment and it becomes the responsibility of the script to send notifications.
+* If the `--pkg` or `--standalone` option has been specified and the bundled contents contains a *configure* executable (or *Makefile*). In this scenario it is the responsibility of the bundled contents to perform the installation therefore the generated script is not used.
+
+Email subjects lines are in the format:
+
+	[deploy] (user@host.local) project-0.0.1-profile ✓
+	[deploy] (user@host.local) project-0.0.1-profile ✘
+	
+The subject line for a successful deployment is appended with ✓ (\\u2713) whilst a ✘ (\\u2718) is appended for a failed deployment.
+
+### Growl
+
 If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are *not* sent for a `noop` which is the case if the `--dry-run`, `--json` or `--script` options are specified.
 
 You may disable the use of growl notifications by specifying the `--no-growl` option.

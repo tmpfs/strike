@@ -1316,6 +1316,45 @@ bake deploy > target/deploy\.log
 .IP "" 0
 .
 .SH "NOTIFICATIONS"
+.
+.SS "Email"
+Email notifications are enabled by default but email will not be sent under the following situations\.
+.
+.IP "\[ci]" 4
+If either sendmail(1) or uuencode(1) are not available\.
+.
+.IP "\[ci]" 4
+If the \fBto\fR field for email notifications has not been specified or is the empty string\.
+.
+.IP "\[ci]" 4
+If the \fB\-\-no\-mail\fR option has been specified\.
+.
+.IP "\[ci]" 4
+If the \fB\-\-script\-file\fR option has been specified\. In this instance a custom script is being used to perform the deployment and it becomes the responsibility of the script to send notifications\.
+.
+.IP "\[ci]" 4
+If the \fB\-\-pkg\fR or \fB\-\-standalone\fR option has been specified and the bundled contents contains a \fIconfigure\fR executable (or \fIMakefile\fR)\. In this scenario it is the responsibility of the bundled contents to perform the installation therefore the generated script is not used\.
+.
+.IP "" 0
+.
+.P
+Email subjects lines are in the format:
+.
+.IP "" 4
+.
+.nf
+
+[deploy] (user@host\.local) project\-0\.0\.1\-profile ✓
+[deploy] (user@host\.local) project\-0\.0\.1\-profile ✘
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The subject line for a successful deployment is appended with ✓ (\eu2713) whilst a ✘ (\eu2718) is appended for a failed deployment\.
+.
+.SS "Growl"
 If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are \fInot\fR sent for a \fBnoop\fR which is the case if the \fB\-\-dry\-run\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
 .
 .P

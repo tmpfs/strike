@@ -159,7 +159,7 @@
 		"npm": {
 			"description": "npm(1) latest public release",
 			"type": "npm",
-			"url": "${project_name}@0.1.5"
+			"url": "${project_name}@0.1.6"
 		}
 	}
 }
