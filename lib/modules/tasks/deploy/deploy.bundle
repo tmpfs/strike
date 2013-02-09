@@ -493,17 +493,16 @@ bundle.install!() {
 			
 		#  && dly.complete
 		if [ -n "${executables[make]}" ]; then
-			./configure && make -s && make -s install;
+			./configure && make -s && make -s install || dly.fail;
 		else
 			#  && dly.complete
 			# run the script directly
 			if ! ${flags[logging]}; then
-				"./${script_name}";
+				"./${script_name}" || dly.fail;
 			else
-				"./${script_name}" >> "${log}" 2>&1;
+				"./${script_name}" >> "${log}" 2>&1 || dly.fail;
 			fi
 		fi
-		# dly.fail;
 	# remote deployment
 	else
 		executable.validate scp ssh;

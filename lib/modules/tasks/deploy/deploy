@@ -67,8 +67,11 @@ tasks.deploy() {
 	names[autoconf.cache]="autom4te.cache";
 	names[exports]="exports.sh";
 	
-	names[env.log]="env.log";	
+	names[env.log]="env.log";
 	names[log.npm]="npm-debug.log";
+	names[log.settings]="settings.log";
+	
+	names[json.settings]="settings.json";
 	
 	# list of supported shells
 	local shells=( sh bash zsh dash );
@@ -453,7 +456,7 @@ dly.profile() {
 	bundle_archive="${bundle_name}.${compression_extension}";
 	bundle_path="${bundle_output}/${bundle_archive}";
 	bundle_destination="${staging}/${bundle_name}";
-	settings="${bundle_source}/settings.json";
+	settings="${bundle_source}/${names[json.settings]}";
 	
 	# clean an existing bundle directory
 	if [ -d "${bundle_source}" ]; then

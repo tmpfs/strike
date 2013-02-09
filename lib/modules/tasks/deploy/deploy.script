@@ -181,7 +181,7 @@ deploy_parent=${deploy_parent};
 # NOTE: highly unlikely in a real world scenario
 # staging should have tilde expansion done
 sandbox=\${staging}/\${deploy_file_name}-\${profile}-\${timestamp}-\$\$;
-email_body_file="\${sandbox}/email.body.txt";
+email_file="\${sandbox}/email.txt";
 backup=\${sandbox}/backup;
 
 # ls -la .; pwd; exit 0;
@@ -450,39 +450,46 @@ notify() {
 	uuencode=\$( command -v uuencode );
 	if test -n \$sendmail && test -n \$uuencode; then
 		mail_init;
-		# ensure there is a newline after the body contents
-		printf "\n" >> "\$email_body_file";
 		# add attachments
 		mail_attachments;
-		sendmail "$recipient" < \$email_body_file;
+		sendmail "$recipient" < \$email_file;
 	fi
 }
 
 # initialize the email contents
 mail_init() {
-	printf "" > \$email_body_file;
+	username=\$( id -nu );
+	localhost=\$( hostname );	
+	printf "" > \$email_file;
 	mail_headers;
-	# set up the mail body
-	settings >> \$email_body_file;
+	mail_body;
 }
 
 # set up email headers
 mail_headers() {
 	mail_subject;
-	printf "\n" >> "\$email_body_file";
+	printf "\n" >> "\$email_file";
+}
+
+# set up email body
+mail_body() {
+	printf "Date: \${start_time}\n" >> "\$email_file";
+	printf "User: \${username}\n" >> "\$email_file";
+	printf "Host: \${localhost}\n" >> "\$email_file";
+	printf "Success: \${success}\n" >> "\$email_file";
+	# ensure there is a newline after the body contents
+	printf "\n" >> "\$email_file";	
 }
 
 mail_subject() {
-	username=\$( id -nu );
-	localhost=\$( hostname );
 	subject="[deploy] (\${username}@\${localhost}) ${uid}";
-	printf "Subject: \$subject" >> "\$email_body_file";
+	printf "Subject: \$subject" >> "\$email_file";
 	if \$success; then
-		printf " ${characters[tick]}" >> "\$email_body_file";
+		printf " ${characters[tick]}" >> "\$email_file";
 	else
-		printf " ${characters[cross]}" >> "\$email_body_file";
+		printf " ${characters[cross]}" >> "\$email_file";
 	fi
-	printf "\n" >> "\$email_body_file";
+	printf "\n" >> "\$email_file";
 }
 
 # setup email attachments
@@ -491,20 +498,27 @@ mail_attachments() {
 	descriptor_file="${names[descriptor.output]}";
 	exports_file="${names[exports]}";
 	npm_debug_log="${names[log.npm]}";
+	settings_file="${names[json.settings]}";
 	
 	# always attach the log file
-	uuencode \$log_file \$log_file_name >> "\$email_body_file";
+	uuencode \$log_file \$log_file_name >> "\$email_file";
+	
+	# always attach a settings.log file
+	settings | uuencode "${names[log.settings]}" >> \$email_file;
 	
 	# on failure attach additional useful files
 	if ! \$success; then
 		if [ -f "\$descriptor_file" ]; then
-			uuencode \$descriptor_file \$descriptor_file >> "\$email_body_file";
+			uuencode \$descriptor_file \$descriptor_file >> "\$email_file";
 		fi
 		if [ -f "\$exports_file" ]; then
-			uuencode \$exports_file \$exports_file >> "\$email_body_file";
+			uuencode \$exports_file \$exports_file >> "\$email_file";
 		fi
 		if [ -f "\$npm_debug_log" ]; then
-			uuencode \$npm_debug_log \$npm_debug_log >> "\$email_body_file";
+			uuencode \$npm_debug_log \$npm_debug_log >> "\$email_file";
+		fi
+		if [ -f "\$settings_file" ]; then
+			uuencode \$settings_file \$settings_file >> "\$email_file";
 		fi
 	fi
 }
