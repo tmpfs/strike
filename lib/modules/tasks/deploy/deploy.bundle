@@ -345,7 +345,7 @@ bundle.scripts.group() {
 
 # copy the descriptor to the bundle source directory
 bundle.descriptor.copy() {
-	cp "${descriptor}" "${bundle_source}/descriptor.json" \
+	cp "${descriptor}" "${bundle_source}/${names[descriptor.output]}" \
 		|| dly.fail "could not copy bundle descriptor %s" "$bundle_path";
 }
 

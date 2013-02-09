@@ -56,6 +56,7 @@ tasks.deploy() {
 	names[makefiles]="makefile Makefile GNUmakefile";
 	names[script]="install.sh";
 	names[descriptor]="deploy.json";
+	names[descriptor.output]="descriptor.json";
 	names[bundle.contents]="contents";
 	names[bundle.scripts]="scripts";
 	names[bundle.ignore.file]=".xpmignore";
