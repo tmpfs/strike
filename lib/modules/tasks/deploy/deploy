@@ -65,8 +65,10 @@ tasks.deploy() {
 	names[autoconf.configure]="configure";
 	names[automake.am]="Makefile.am";
 	names[autoconf.cache]="autom4te.cache";
-	names[env.log]="env.log";
 	names[exports]="exports.sh";
+	
+	names[env.log]="env.log";	
+	names[log.npm]="npm-debug.log";
 	
 	# list of supported shells
 	local shells=( sh bash zsh dash );

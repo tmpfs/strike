@@ -490,16 +490,22 @@ mail_attachments() {
 	log_file_name=\$( basename -- \$log_file );
 	descriptor_file="${names[descriptor.output]}";
 	exports_file="${names[exports]}";
+	npm_debug_log="${names[log.npm]}";
 	
 	# always attach the log file
 	uuencode \$log_file \$log_file_name >> "\$email_body_file";
 	
-	# additional useful files
-	if [ -f "\$descriptor_file" ]; then
-		uuencode \$descriptor_file \$descriptor_file >> "\$email_body_file";
-	fi
-	if [ -f "\$exports_file" ]; then
-		uuencode \$exports_file \$exports_file >> "\$email_body_file";
+	# on failure attach additional useful files
+	if ! \$success; then
+		if [ -f "\$descriptor_file" ]; then
+			uuencode \$descriptor_file \$descriptor_file >> "\$email_body_file";
+		fi
+		if [ -f "\$exports_file" ]; then
+			uuencode \$exports_file \$exports_file >> "\$email_body_file";
+		fi
+		if [ -f "\$npm_debug_log" ]; then
+			uuencode \$npm_debug_log \$npm_debug_log >> "\$email_body_file";
+		fi
 	fi
 }
 
