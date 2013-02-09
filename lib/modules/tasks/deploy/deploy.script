@@ -14,7 +14,14 @@ script.write!() {
 	# TODO: add list of compression executables and custom binary
 	# TODO: dependencies to validate
 	
-	local recipient="${json_doc[notifications.mail.to]:-root}";
+	local recipient="${json_doc[notifications.mail.to]:-}";
+	
+	# force recipient to be empty when not --no-mail
+	# has been specified which causes no email
+	# notification to be sent
+	if ! ${flags[notify.mail]}; then
+		recipient="";
+	fi
 		
 	# target parent directory and final name
 	local deploy_parent deploy_final_name;
@@ -181,10 +188,10 @@ deploy_parent=${deploy_parent};
 # NOTE: highly unlikely in a real world scenario
 # staging should have tilde expansion done
 sandbox=\${staging}/\${deploy_file_name}-\${profile}-\${timestamp}-\$\$;
-email_file="\${sandbox}/email.txt";
 backup=\${sandbox}/backup;
 
-# ls -la .; pwd; exit 0;
+recipient="${recipient}";
+email_file="\${sandbox}/email.txt";
 
 # clean temporary files
 cleanup() {
@@ -448,11 +455,11 @@ complete() {
 notify() {
 	sendmail=\$( command -v sendmail );
 	uuencode=\$( command -v uuencode );
-	if test -n \$sendmail && test -n \$uuencode; then
+	if test -n "\$sendmail" && test -n "\$uuencode" && test -n "\$recipient"; then
 		mail_init;
 		# add attachments
 		mail_attachments;
-		sendmail "$recipient" < \$email_file;
+		sendmail "\$recipient" < \$email_file;
 	fi
 }
 

@@ -59,6 +59,7 @@ test.deploy.local() {
 		--local
 		--gz
 		--no-growl
+		--no-mail		
 		--sha "${algorithm}"
 		--staging "${staging}"
 		--directory "${directory}"

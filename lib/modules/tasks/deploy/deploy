@@ -147,6 +147,7 @@ tasks.deploy() {
 	flags[print.script]=false;
 	flags[print.env]=false;
 	flags[notify.growl]=true;
+	flags[notify.mail]=true;
 	
 	flags[script.lint]=false;
 	flags[script.lint.run]=false;
@@ -1464,6 +1465,9 @@ dly.options.parse() {
 				;;
 			--no-growl )
 				flags[notify.growl]=false;
+				;;
+			--no-mail )
+				flags[notify.mail]=false;
 				;;
 			--log )
 				flags[logging]=true;
