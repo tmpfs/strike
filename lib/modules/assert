@@ -68,11 +68,22 @@ function assert.match! {
 	fi
 }
 
-# asserts that a string is empty, blank string
+# asserts that a string is the empty string
 function assert.empty? {
-	local expected="";
+	local expected="-z";
 	local received="${1:-}";
 	if [ -z "$received" ]; then
+		__assert_ok "$FUNCNAME";
+	else
+		__assert_err "$FUNCNAME";
+	fi
+}
+
+# asserts that a string is not the empty string
+function assert.empty! {
+	local expected="-n";
+	local received="${1:-}";
+	if [ -n "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else
 		__assert_err "$FUNCNAME";
