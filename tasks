@@ -25,6 +25,11 @@ tdd.suite.exclude! "task-test";
 # this test is slow and should be run manually
 tdd.suite.exclude! "jsonlint";
 
+# exclude binary files that are not tests
+tdd.suite.exclude! "profile.sh";
+tdd.suite.exclude! "global.sh";
+tdd.suite.exclude! "custom-install.sh";
+
 tasks.auto() {
 	autoreconf;
 	#./configure && make;

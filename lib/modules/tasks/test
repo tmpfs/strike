@@ -386,9 +386,19 @@ function __assert.run {
 }
 
 function __assert.suite.add {
-	if $all && array.contains? "$1" "${__test_excludes[@]:-}"; then
-		__test_excluded["$1"]="$2";
-		builtin return 0;
+	# echo "testing $unit" "${__test_excludes[@]:-}";
+	local nm;
+	fs.basename "$1" "nm";
+	if $all; then
+		# test by path
+		if array.contains? "$1" "${__test_excludes[@]:-}"; then
+			__test_excluded["$1"]="$2";
+			builtin return 0;
+		# test by basename
+		elif array.contains? "$nm" "${__test_excludes[@]:-}"; then
+			__test_excluded["$1"]="$2";
+			builtin return 0;
+		fi
 	fi
 	
 	if [ -f "$2" ]; then
@@ -404,6 +414,8 @@ function __assert_get_suites {
 	local opts=( "$@" );
 	local path file methods unit;
 	local suite targets=();
+	
+	# targets to exlude prefixed with a -
 	local excludes=();
 	
 	# handle test suites with a ':' method specification
@@ -445,8 +457,9 @@ function __assert_get_suites {
 		done
 	fi
 	
-	# echo "targets are :${targets[@]}";
-	# echo "excludes are :${excludes[@]}";
+	# echo "targets are :${targets[@]:-}";
+	# echo "excludes are :${excludes[@]:-}";
+	# return 0;
 	
 	exclude!() {
 		# echo "testing for exclude with $1 : $2";
