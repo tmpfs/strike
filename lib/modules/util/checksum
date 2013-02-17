@@ -24,3 +24,20 @@ checksum.sha() {
 		return $?;
 	fi
 }
+
+# generate a md5 checksum using either
+# md5 (BSD) or md5sum (Linux)
+checksum.md5() {
+	local file="${1:-}";
+	if [ -z "$file" ]; then
+		return 1;
+	fi
+	local binaries=( md5 md5sum );
+	executable.validate --test "${binaries[@]}";
+	if [ -n "${executables[md5]}" ]; then
+		${executables[md5]} -q "$file";
+	elif [ -n "${executables[md5sum]}" ]; then
+		local parts=( $( ${executables[md5sum]} "$file" ) );
+		printf "${parts[0]}\n";
+	fi
+}
