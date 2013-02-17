@@ -632,7 +632,9 @@ dly.cascade() {
 	#echo "validating directory ... ${directory} ... ";
 	
 	# revalidate directory for profile specific overrides
-	dly.directory.validate;
+	if ! ${flags[bundle.only]}; then
+		dly.directory.validate;
+	fi
 	
 	# read in global commands
 	dly.commands.read;
