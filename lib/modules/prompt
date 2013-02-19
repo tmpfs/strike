@@ -23,18 +23,34 @@ function prompt.boolean {
 	prompt_boolean["$key"]="${quoted[*]}";
 }
 
+# add a data prompt - read a non-empty string
+# $1 id
+# $2..$# message parameters ...
+function prompt.data {
+	local key="${1:-}";
+	shift;
+	# store newline separated
+	local quoted="";
+	local IFS=$'\n';
+	quoted=( $@ );
+	prompt_data["$key"]="${quoted[*]}";
+}
+
 # show a prompt by id
 function prompt.show {
 	local key="${1:-}";
 	shift;
 	
-	if [ ${#prompt_boolean[@]} -gt 0 ]; then
-		if [ -n "${prompt_boolean["$key"]}" ]; then
-			local IFS=$'\n';
-			local values=( ${prompt_boolean["$key"]} );
-			__prompt.show.boolean ${values[@]};
-			return $?;
-		fi
+	if [ -n "${prompt_boolean["$key"]:-}" ]; then
+		local IFS=$'\n';
+		local values=( ${prompt_boolean["$key"]} );
+		__prompt.show.boolean ${values[@]};
+		return $?;
+	elif [ -n "${prompt_data["$key"]:-}" ]; then
+		local IFS=$'\n';
+		local values=( ${prompt_data["$key"]} );
+		__prompt.show.data ${values[@]};
+		return $?;
 	fi
 
 	console.warn "no prompt data for %s" "$key";
@@ -77,26 +93,27 @@ function __prompt.trigger {
 	local m;
 	local IFS=' ';
 	local methods=( $1 );
+	shift;
 	unset IFS;	
 	# echo "trigger called with ${#methods[@]} : ${methods[@]}";
 	for m in ${methods[@]}
 		do
 			#echo "callback : $m";
 			if method.exists? "$m"; then
-				$m;
+				$m "$@";
 			fi
 	done
 }
 
 function __prompt.accepted {
 	#echo "$FUNCNAME"
-	__prompt.trigger $prompt_accepted;
+	__prompt.trigger $prompt_accepted "$@";
 	return 0;
 }
 
 function __prompt.rejected {
 	#echo "$FUNCNAME"
-	__prompt.trigger $prompt_rejected;
+	__prompt.trigger $prompt_rejected "$@";
 	return 0;
 }
 
@@ -120,6 +137,21 @@ function __prompt.show.boolean {
 	console.prompt $@;
 	prompt_current=( $@ );
 	__prompt.show;
+}
+
+function __prompt.show.data {
+	# show the prompt message
+	console.prompt $@;
+	prompt_current=( $@ );
+	
+	if [ -t 0 ]; then
+		read value;
+		if [ -n "${value:-}" ]; then
+			__prompt.accepted "${value}";
+		else
+			__prompt.show.data "$@";
+		fi
+	fi
 }
 
 function __prompt.show {
