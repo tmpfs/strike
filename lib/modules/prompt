@@ -149,7 +149,7 @@ function __prompt.show.data {
 		if [ -n "${value:-}" ]; then
 			__prompt.accepted "${value}";
 		else
-			__prompt.show.data "$@";
+			__prompt.rejected "${value}";
 		fi
 	fi
 }
