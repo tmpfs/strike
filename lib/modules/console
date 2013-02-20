@@ -120,85 +120,193 @@ declare -g __stderr_log_file="";
 
 declare -g console_bypass_generic_error_handler=false;
 
+declare -Ag console_styles;
+console_styles[bold]="\033[1m";
+console_styles[red]="\033[0;37;0;31m";
+
 # generic console output command
 console() {
-	
+	# style terminator
+	local terminator="\033[0m";
 	# message prefix
 	local prefix="";
 	local messages=();
+	local parsed="";
+	
+	if [ $# -eq 0 ]; then
+		echo "console: too few options" >&2;
+		exit 2;
+	fi
+	
+	local color="";
 	
 	declare -A flags;
-	flags[print.program.prefix]=false;
-	flags[print.message.prefix]=true;
+	flags[program.prefix]=false;
+	flags[message.prefix]=true;
 	flags[color]=true;
-	flags[stderr]=false;	
+	flags[replace]=true;
+	flags[replace.bold]=true;
+	flags[prefix.bold]=true;
+	flags[stderr]=false;
+	flags[tick]=false;
+	flags[cross]=false;
 	console.options.parse "$@";
+	
+	# list of available commands
+	local namespace="console.commands";
+	local cmd="";
+	local commands=( info warn error throw log header trace quit success );
+	
+	if array.contains? "$1" "${commands[@]}"; then
+		cmd="$1";
+		prefix="${console_prefixes[$cmd]}";
+		shift;
+	fi
 	
 	if [ "${#messages[@]}" -eq 0 ]; then
 		echo "no console message supplied";
-		return 1;
+		exit 2;
 	fi
 	
+	local message="${messages[0]}";
+	local replacements=( "${messages[@]:1}" );
+	
+	if [ -n "${cmd}" ]; then
+		delegate "$namespace" "$cmd" "$@";
+	else
+		console.main;
+	fi
+}
+
+# main 
+console.main() {
+	if ${flags[replace]}; then
+		console.replace;
+	fi
+	# console.debugger;
+	console.output;
+}
+
+# print parsed result
+console.output() {
+	if ! ${flags[stderr]}; then
+		echo -e "$parsed";
+	else
+		echo -e "$parsed" >&2;
+	fi
+}
+
+# performs printf replacement
+# on the primary message
+console.replace() {
+	local i length val;
+	if ! ${flags[color]}; then
+		parsed=$( printf -- "${messages[@]}" );
+	else
+		if ${flags[replace.bold]}; then
+			length="${#replacements[@]}";
+			for((i = 0;i < $length;i++))
+				do
+					val="${replacements[$i]}";
+					replacements[$i]="${console_styles[bold]}${val}${terminator}";
+			done
+			parsed=$( printf -- "${message}" "${replacements[@]:-}" );
+		fi
+		
+		# handle overall message color
+		if [ -n "$color" ]; then
+			parsed="${console_styles[$color]}${parsed}${terminator}";
+		fi
+	fi
+	
+	console.prefix;	
+}
+
+# prepend prefix(es)
+console.prefix() {
+	if [ -n "${prefix}" ] && ${flags[message.prefix]}; then	
+		echo "prepend prefix ... $message : $prefix";
+		if ${flags[color]}; then
+			echo "ADDING COLOR PREFIX";
+			if ${flags[prefix.bold]}; then
+				prefix="${console_styles[bold]}${prefix}${terminator}";
+			fi
+		fi
+		parsed="${prefix} ${parsed}";
+	fi
+}
+
+# debug parsed options
+console.debugger() {
+	echo "$header";
 	local flag;
 	for flag in ${!flags[@]}
 		do
 			echo "flag $flag :: ${flags[$flag]}";
 	done
-	
 	echo "prefix is : ${prefix}"
-
 	echo "messages length : ${#messages[@]}";
 	echo "messages are : ${messages}";
+	echo "primary message: $message";
+	echo "replacements length: ${#replacements[@]}";
+	if [ "${#replacements[@]}" -gt 0 ]; then
+		echo "replacements: ${replacements[@]}";	
+	fi
+	echo "$header";	
 }
 
 # parse console options
 console.options.parse() {
-	echo "$FUNCNAME : $*";
+	#echo "$FUNCNAME : $*";
 	local optspec=":cn12-:";
 	local optchar val opt;
 	OPTIND=0;
 	while getopts "$optspec" optchar; do
-		echo "got optchar $optchar";
 	    case "${optchar}" in
 	        -)
-				echo "parsing double hyphen option ... ${OPTARG}";
 	            case "${OPTARG}" in
 	                prefix=*)
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
-	                    # echo "Parsing option: '--${opt}', value: '${val}'" >&2
 						prefix="${val}";
+	                    ;;
+	                red)
+						color=red;
+	                    ;;
+	                tick)
+						flags[tick]=true;
+	                    ;;
+	                cross)
+						flags[cross]=true;
 	                    ;;
 	                *)
 	                    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
-	                        echo "Unknown option --${OPTARG}" >&2
+	                        echo "console: unknown option --${OPTARG}" >&2
 	                    fi
 	                    ;;
 	            esac;;
 	        c)
 				flags[color]=true;
-	            #echo "Parsing option: '-${optchar}'";
 	            ;;
 	        n)
 				flags[color]=false;
-	            #echo "Parsing option: '-${optchar}'";
 	            ;;
 	        1)
 				flags[stderr]=false;
-	            #echo "Parsing option: '-${optchar}'";
 	            ;;
 	        2)
 				flags[stderr]=true;
-	            #echo "Parsing option: '-${optchar}'";
 	            ;;
 	        *)
 	            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
-	                echo "Non-option argument: '-${OPTARG}'" >&2
+	                echo "console: non-option '-${OPTARG}'" >&2
 	            fi
 	            ;;
 	    esac
 	done
 	
+	# get remaining message and printf
+	# replacement values
 	local opt opts=( "$@" );
 	local i length="$#";
 	for((i = 0;i < $length;i++))
@@ -207,7 +315,6 @@ console.options.parse() {
 			if [[ "$opt" =~ ^- ]]; then
 				continue;
 			fi
-			echo "got non-option value : $opt";
 			messages+=( "$opt" );
 	done
 }

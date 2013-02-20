@@ -632,15 +632,10 @@ require 'tasks/module';
 
 #console -h "color message for you ... %s" "abc";
 
-console -c "color message for you ... %s" "abc";
-
-echo "after colour message"
-
+console -c "color message for you ... %s" "abc def ghi";
 console -n "simple message for you ... %s" "abc";
-
 console -n2 "simple error message for you ... %s" "abc";
-
-console -n2 --prefix="[warning]" "simple error message for you ... %s" "abc";
+console -n2 --prefix="[warning]" "simple warning message for you ... %s" "a value for you";
 
 # console.error "custom error";
 exit 0;

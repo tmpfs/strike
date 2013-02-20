@@ -130,7 +130,7 @@ function process.initialize {
 	process.error() {
 		while read line;
 			do
-				console.error "$line" >&2;
+				console -2 --red "$line" >&2;
 		done
 	}
 	exec 2> >(process.error)
