@@ -44,7 +44,7 @@ function system.print {
 	for key in "${!system_info[@]}"
 		do
 			value="${system_info["$key"]}";
-			console.info "${key}=%s" "$value";
+			console info "${key}=%s" "$value";
 	done
 }
 
@@ -54,7 +54,7 @@ function system.dirs {
 	for key in "${!process_dirs[@]}"
 		do
 			value="${process_dirs["$key"]}";
-			console.info "${key}=%s" "$value";
+			console info "${key}=%s" "$value";
 	done
 }
 
@@ -64,6 +64,6 @@ function system.lib.dirs {
 	for key in "${!library_dirs[@]}"
 		do
 			value="${library_dirs["$key"]}";
-			console.info "${key}=%s" "$value";
+			console info "${key}=%s" "$value";
 	done
 }

@@ -519,7 +519,7 @@ function __todo.line.matches? {
 
 # scan a file
 function __todo.scan.file {
-	# console.info "scanning %s" "$1";
+	# console info "scanning %s" "$1";
 	local file="$1";	
 	local lineno=0;
 	local tag frame todo;

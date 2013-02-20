@@ -16,10 +16,10 @@ To parse a semver(7) string into an associative array use `semver.parse` with th
 
 	require 'semver';
 	callback() {
-		console.info "semver keys %s" "${!semver[*]}";
-		console.info "semver values %s" "${semver[*]}";
+		console info "semver keys %s" "${!semver[*]}";
+		console info "semver values %s" "${semver[*]}";
 		semver.stringify;
-		console.info "semver string %s" "$_result";
+		console info "semver string %s" "$_result";
 	}
 	semver.parse "2.0.0-rc" "callback";
 	

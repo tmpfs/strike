@@ -15,7 +15,7 @@ function rlx.init {
 	mkdir -p "$rlx_home" \
 		|| console quit 1 "could not create %s" "$rlx_home";
 	if [ -d "$rlx_home" ]; then
-		console.info "created %s" "$rlx_home";
+		console info "created %s" "$rlx_home";
 	fi
 	# create required sub-directories
 	for dir in "${subdirs[@]}"
@@ -24,7 +24,7 @@ function rlx.init {
 			mkdir -p "$dir" \
 				|| console quit 1 "could not create %s" "$dir";
 			if [ -d "$dir" ]; then
-				console.info "created %s" "$dir";
+				console info "created %s" "$dir";
 			fi
 	done
 	
@@ -39,7 +39,7 @@ function rlx.init {
 	chmod -R 700 "$auth" || console quit 1 "could not change permissions on %s" "$auth";
 	
 	if [ -f "$auth" ]; then
-		console.info "generated encrypted auth file %s" "$auth";
+		console info "generated encrypted auth file %s" "$auth";
 	fi
 	
 	# test decryption
@@ -62,7 +62,7 @@ function rlx.prompt {
 # save authentication credentials
 function rlx.auth.save {
 	if [ -z "${master:-}" ]; then
-		console.info "enter the master password: ";
+		console info "enter the master password: ";
 		rlx.password.read false;
 		master="$password";
 	fi
@@ -102,7 +102,7 @@ function rlx.auth.save {
 			if [ $code -gt 0 ]; then
 				console.error "openssl(%s) could not encrypt to %s" "${auth}";
 			else
-				console.info "saved %s @ %s" "$couchdb_user" "$host";
+				console info "saved %s @ %s" "$couchdb_user" "$host";
 			fi
 			rlx.auth.save.clean;
 			
@@ -220,7 +220,7 @@ function rlx.prompt.cmd {
 			history -w "$rlx_history";
 			
 			if ! method.exists? "rlx.shell.$cmd"; then
-				console.info "unknown command %s, type %s" "$cmd" "help";
+				console info "unknown command %s, type %s" "$cmd" "help";
 				rlx.prompt.cmd;
 				return 0;
 			fi
@@ -257,7 +257,7 @@ function rlx.prompt.cmd {
 	# local cmdline=( $cmd );
 	# cmd="${cmdline[0]}";
 	# if ! method.exists? "rlx.shell.$cmd"; then
-	# 	console.info "unknown command %s, type %s" "$cmd" "help";
+	# 	console info "unknown command %s, type %s" "$cmd" "help";
 	# 	rlx.prompt.cmd;
 	# 	return 0;
 	# fi
@@ -310,7 +310,7 @@ function rlx.authenticate {
 function rlx.response {
 	
 	if [ $http_response_status -eq 401 ]; then
-		console.info "authorization required for %s" "$host";
+		console info "authorization required for %s" "$host";
 		if [ -v PS1 ]; then
 			console quit 1 "not a tty, cannot prompt for authentication credentials";
 		else

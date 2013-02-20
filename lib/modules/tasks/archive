@@ -222,7 +222,7 @@ function arc.tasks.archive.create {
 		archive="${archive_output}/${archive_name}";
 	fi
 	if $archive_debug; then
-		console.info "$archive_executable %s %s %s" "$archive_executable_options" "$archive" "${files[*]}";
+		console info "$archive_executable %s %s %s" "$archive_executable_options" "$archive" "${files[*]}";
 	fi	
 	local result=$( "$archive_executable" "${archive_executable_options}" "$archive" "${files[@]}" 1> /dev/null );
 	if [ $? -gt 0 ]; then
@@ -260,7 +260,7 @@ function arc.tasks.archive.list {
 	fi
 	archive_executable_options=( ${archive_executable_options} );
 	if $archive_debug; then
-		console.info "$archive_executable %s %s" "${archive_executable_options[*]}" "$archive";
+		console info "$archive_executable %s %s" "${archive_executable_options[*]}" "$archive";
 	fi
 	
 	if [ ! -f "$archive" ]; then
@@ -312,7 +312,7 @@ function arc.tasks.archive.extract {
 	#echo "got executable: $archive_executable $archive_executable_options"
 	
 	if $archive_debug; then
-		console.info "$archive_executable %s" "$archive_executable_options";
+		console info "$archive_executable %s" "$archive_executable_options";
 	fi
 	local result=$( "$archive_executable" ${archive_executable_options} 1> /dev/null );
 	if [ $? -gt 0 ]; then

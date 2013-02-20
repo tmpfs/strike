@@ -46,7 +46,7 @@ version.show() {
 	fi
 	local version=$( cat "$versionfile" );
 	# TODO: use --no-prefix when it is implemented
-	console.info "%s version %s" "$process_name" "$version";
+	console info "%s version %s" "$process_name" "$version";
 	console.success;
 }
 

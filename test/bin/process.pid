@@ -5,7 +5,6 @@
 #	BOILERPLATE
 #
 ######################################################################
-console_print_program_prefix="off";
 export exedir;
 function boilerplate {
 	local src="${BASH_SOURCE[0]}"

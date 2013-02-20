@@ -248,7 +248,7 @@ function __tasks.doc.parse {
 			fi
 	done < "$file";
 	if [ ! -z "$heredoc" ]; then
-		echo -n "$heredoc" >| "$outputfile" && info "generated %s" "$outputfile";
+		echo -n "$heredoc" >| "$outputfile" && console info "generated %s" "$outputfile";
 	fi
 	
 	# also got some api documentation to parse

@@ -667,7 +667,7 @@ function !project.file.exists.quit {
 
 # info on creating a project file
 function !project.file.missing.info {
-	console.info "use %s to create an empty %s file" "project init" "${project_file_name}";
+	console info "use %s to create an empty %s file" "project init" "${project_file_name}";
 }
 
 # quit if no project file is available

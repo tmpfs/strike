@@ -356,7 +356,7 @@ function __assert.run {
 	local binaries=0;
 	
 	assert.header;
-	console.info "RUN";
+	console info "RUN";
 	assert.header;
 
 	# print summary of what will be run
@@ -368,13 +368,13 @@ function __assert.run {
 			elif [[ "$path" =~ \.test$ ]]; then
 				: $((tests++));
 			fi
-			console.info "suite %s < %s" "$unit" "$path";
+			console info "suite %s < %s" "$unit" "$path";
 	done
 
-	console.info "suite (total): %s" "${#suites[@]}";
-	console.info "suite (binary): %s" "$binaries";
-	console.info "suite (test): %s" "$tests";
-	console.info "suite (excludes): %s" "${#__test_excluded[@]}";
+	console info "suite (total): %s" "${#suites[@]}";
+	console info "suite (binary): %s" "$binaries";
+	console info "suite (test): %s" "$tests";
+	console info "suite (excludes): %s" "${#__test_excluded[@]}";
 	assert.header;
 		
 	# run tests
@@ -604,7 +604,7 @@ function __assert_run_test {
 		require.methods "$file" "^test\.";
 		local methods=( $_result );
 		assert.header;
-		console.info "test %s < %s" "$suite" "$file";
+		console info "test %s < %s" "$suite" "$file";
 		assert.header;		
 		if [ "${#methods[@]}" -eq 0 ]; then
 			console.warn "test %s does not declare any test methods" "$name";
@@ -623,9 +623,9 @@ function __assert_run_test {
 			fi
 			
 			if ! $filter; then
-				console.info "methods (%s)" "${#methods[@]}";
+				console info "methods (%s)" "${#methods[@]}";
 			else
-				console.info "methods (%s)" "${#filtermethods[@]}";
+				console info "methods (%s)" "${#filtermethods[@]}";
 			fi
 
 			# print method summary	
@@ -633,10 +633,10 @@ function __assert_run_test {
 				do
 					nm=${m#test.${unit}.};
 					if ! $filter; then
-						console.info "test.%s" "$nm";
+						console info "test.%s" "$nm";
 					else
 						if array.contains? "$nm" "${filtermethods[@]}"; then
-							console.info "assert %s" "$nm";
+							console info "assert %s" "$nm";
 						fi
 					fi
 			done
@@ -673,7 +673,7 @@ function __assert_run_test {
 
 function __assert_run_test_method {
 	: $((summary[methods]++));
-	console.info "run %s" "$m";
+	console info "run %s" "$m";
 	# execute the test method
 	"$m" 1>> "$stdout" 2>> "$stderr";
 
@@ -691,7 +691,7 @@ function __assert_run_test_executable {
 		require.once json;		
 		
 		local binary_name="`basename $binary`";
-		console.info "binary test %s < %s" "$binary_name" "$binary";
+		console info "binary test %s < %s" "$binary_name" "$binary";
 		# execute the binary test file
 		# 1>> "$stdout" 2>> "$stderr" 
 		"$binary" --suite 1>> "$stdout" 2>> "$stderr" &
@@ -714,7 +714,7 @@ function __assert_run_test_executable {
 			console.warn "could not find result file %s" "$resultfile";
 		else
 			# TODO: reinstate this when we have -v | --verbose flags etc.
-			console.info "summary %s" "$resultfile";
+			console info "summary %s" "$resultfile";
 			
 			#cat $resultfile;
 			

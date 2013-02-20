@@ -76,7 +76,7 @@ tasks.clean() {
 		console quit 1 "%s does not exist";
 	fi
 
-	console.info "rm ${rmopts} %s" "${target}";
+	console info "rm ${rmopts} %s" "${target}";
 	
 	accepted() {		
 		rm "${rmopts}" "${target}";

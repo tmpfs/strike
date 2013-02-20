@@ -23,11 +23,11 @@ Suppose you had a `say` module with the following code:
 
 	declare say_greeting="world";
 	say.hello() {
-		console.info "hello %s" "$say_greeting";
+		console info "hello %s" "$say_greeting";
 	}
 	
 	say.goodbye() {
-		console.info "goodbye %s" "$say_greeting";
+		console info "goodbye %s" "$say_greeting";
 	}
 	
 And then included the module in your program using require(3):

@@ -54,6 +54,27 @@ Set \fIcolor\fR as the overall message color\.
 Prepend \fIprefix\fR to the beginning of the message\.
 .
 .TP
+\fB\-\-no\-prefix\fR:
+
+.
+.P
+Do not print the prefix\.
+.
+.TP
+\fB\-\-cross\fR:
+
+.
+.P
+Append a single space and a cross character to the message\.
+.
+.TP
+\fB\-\-tick\fR:
+
+.
+.P
+Append a single space and a tick character to the message\.
+.
+.TP
 \fB\-\-debug\fR:
 
 .
@@ -64,7 +85,7 @@ Do not interpret ANSI sequences, print them\.
 The general syntax for printing output is:
 .
 .P
-console\.info "message to print with %s information" "important";
+console info "message to print with %s information" "important";
 .
 .P
 Whereby the \fB%s\fR substring in the main message will be highlighted and replaced with the string \fIimportant\fR, generating:
@@ -76,7 +97,7 @@ message to print with \fBimportant\fR information
 To print to standard output use the following methods\.
 .
 .TP
-\fBconsole\.info\fR:
+\fBconsole info\fR:
 .
 .IP
 Prints an informational message\.
@@ -145,7 +166,7 @@ The console(3) module provides methods for exiting the program (optionally with 
 Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message\.
 .
 .TP
-\fBconsole\.quit\fR:
+\fBconsole quit\fR:
 .
 .IP
 Exits the program with a non\-zero exit code and optional error message\. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code\.

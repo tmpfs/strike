@@ -358,7 +358,7 @@ function process.signal.print {
 		do
 			signal="$1";
 			callbacks=( "${process_signal_callbacks["$signal"]}" );
-			console.info "%s > %s" "$signal" "${callbacks[*]}";
+			console info "%s > %s" "$signal" "${callbacks[*]}";
 			shift;
 	done
 }

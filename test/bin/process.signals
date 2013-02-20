@@ -5,7 +5,6 @@
 #	BOILERPLATE
 #
 ######################################################################
-console_print_program_prefix="off";
 export exedir;
 function boilerplate {
 	local src="${BASH_SOURCE[0]}"
@@ -87,11 +86,11 @@ function signals {
 	loop()
 	{
 		process.uptime;
-		console.info "uptime %s" "$_result";
+		console info "uptime %s" "$_result";
 		# wait a little while
 		sleep 2;
 		process.uptime;
-		console.info "uptime %s" "$_result";
+		console info "uptime %s" "$_result";
 		assert.summary;	
 		exit 0;
 	}

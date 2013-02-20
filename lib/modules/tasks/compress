@@ -338,7 +338,7 @@ function __compress.deflate {
 	__compress.output;	
 	compress_options=( -c --best --force -v "$file" );
 	if $compress_debug; then
-		console.info "${executables[gzip]} %s 1>| %s" "${compress_options[*]}" "$out";
+		console info "${executables[gzip]} %s 1>| %s" "${compress_options[*]}" "$out";
 	fi
 	results=( $( { "${executables[gzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
 	status=$?;	
@@ -349,7 +349,7 @@ function __compress.deflate {
 		console quit 1 "failed to compress %s" "$file";
 	fi
 	if $compress_verbose; then
-		console.info "%s > %s (%s)" "$nm" "$name" "${results[${#results[@]}-1]}";
+		console info "%s > %s (%s)" "$nm" "$name" "${results[${#results[@]}-1]}";
 	fi
 	# also touch the file to set modification time
 	# in case it already exists
@@ -367,7 +367,7 @@ function __compress.inflate {
 	compress_options=( -c -v "$file" );
 	
 	if $compress_debug; then
-		console.info "${executables[gunzip]} %s 1>| %s" "${compress_options[*]}" "$out";
+		console info "${executables[gunzip]} %s 1>| %s" "${compress_options[*]}" "$out";
 	fi
 	
 	results=( $( { "${executables[gunzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
@@ -379,7 +379,7 @@ function __compress.inflate {
 		console quit 1 "failed to extract %s" "$file";
 	fi
 	if $compress_verbose; then
-		console.info "%s < %s (%s)" "$name" "$nm" "${results[${#results[@]}-1]}";
+		console info "%s < %s (%s)" "$name" "$nm" "${results[${#results[@]}-1]}";
 	fi
 	# also touch the file to set modification time
 	# in case it already exists

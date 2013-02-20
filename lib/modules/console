@@ -52,7 +52,7 @@ Do not interpret ANSI sequences, print them.
 
 The general syntax for printing output is:
 
-console.info "message to print with %s information" "important";
+console info "message to print with %s information" "important";
 	
 Whereby the `%s` substring in the main message will be highlighted and replaced with the string *important*, generating:
 
@@ -62,7 +62,7 @@ message to print with `important` information
 
 To print to standard output use the following methods.
 
-* `console.info`:
+* `console info`:
 
 	Prints an informational message.
 	
@@ -844,7 +844,7 @@ function console.log.stderr.close {
 # }
 # 
 # #outputs an info message
-# function console.info {	
+# function console info {	
 # 	local status="${console_prefixes[$FUNCNAME]}";
 # 	local prefix="$status";
 # 	local msg="";
@@ -871,7 +871,7 @@ function console.log.stderr.close {
 # function console.debug {
 # 	# TODO: change prefix to debug
 # 	if process.debug?; then
-# 		console.info "$@";
+# 		console info "$@";
 # 	fi
 # }
 # 
@@ -970,7 +970,7 @@ shopt -s expand_aliases;
 
 # set up aliases for backward compatability
 # WARNING: these aliases will be removed in a future
-# version and you should use console.info etc.
+# version and you should use console info etc.
 alias "console.info=console info";
 alias "console.error=console error";
 alias "console.warn=console warn";
@@ -981,7 +981,7 @@ alias "console.ok=console ok";
 alias "console.prompt=console prompt";
 alias "console.log=console log";
 
-# alias "info=console.info";
+# alias "info=console info";
 # alias "error=console.error";
 # alias "warn=console.warn";
 # alias "success=console.success";

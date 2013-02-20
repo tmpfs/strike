@@ -46,12 +46,12 @@ read_array() {
     array\.read < "$file";                       # read from the `arrays` file
 
     # print array keys
-    console\.log "${!array1[*]}";
-    console\.log "${!array2[*]}";
+    console print "${!array1[*]}";
+    console print "${!array2[*]}";
 
     # print array values
-    console\.log "${array1[*]}";
-    console\.log "${array2[*]}";
+    console print "${array1[*]}";
+    console print "${array2[*]}";
 }
 read_array;
 .

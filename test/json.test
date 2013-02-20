@@ -121,18 +121,18 @@ function test.json.parse {
 # 	local invalid=( "3." "-3." "-3.e" "3a" "b3" ".14" ".14e+10" ".14-10" );
 # 	
 # 	# valid
-# 	console.info "$FUNCNAME (valid) ${valid[*]}";	
+# 	console info "$FUNCNAME (valid) ${valid[*]}";	
 # 	for num in ${valid[@]}
 # 		do
-# 			console.info "$FUNCNAME (valid) %s =~ %s" "$num" "$match";
+# 			console info "$FUNCNAME (valid) %s =~ %s" "$num" "$match";
 # 			assert.match "$match" "$num";
 # 	done
 # 	
 # 	# invalid
-# 	console.info "$FUNCNAME (invalid) ${invalid[*]}";	
+# 	console info "$FUNCNAME (invalid) ${invalid[*]}";	
 # 	for num in ${invalid[@]}
 # 		do
-# 			console.info "$FUNCNAME (invalid) %s =~ %s" "$num" "$match";
+# 			console info "$FUNCNAME (invalid) %s =~ %s" "$num" "$match";
 # 			assert.match! "$match" "$num";
 # 	done
 # }

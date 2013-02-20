@@ -36,7 +36,7 @@ Sometimes it can be useful to test for an executable but do not quit the program
 		if [ -n "$git" ]; then
 			$git status; 
 		else
-			console.info "git is not available";
+			console info "git is not available";
 			# implement fallback logic
 		fi
 	}

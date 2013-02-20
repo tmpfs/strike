@@ -8,7 +8,6 @@ set -o nounset;
 #	BOILERPLATE
 #
 ######################################################################
-console_print_program_prefix="off";
 export exedir;
 function boilerplate {
 	local src="${BASH_SOURCE[0]}"
@@ -249,7 +248,7 @@ function test.project {
 	assert.gt "0" "$?";
 	
 	# clean up the test file
-	{ rm "${projectfile}" && console.info "%s removed project file %s" "$FUNCNAME" "$projectfile"; };
+	{ rm "${projectfile}" && console info "%s removed project file %s" "$FUNCNAME" "$projectfile"; };
 	
 	# exists fails on no project file
 	tasks.project exists "${test_project_id}" > /dev/null 2>&1 & wait %%;

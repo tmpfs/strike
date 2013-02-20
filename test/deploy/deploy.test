@@ -406,7 +406,7 @@ tdd.deploy.init() {
 # clean the test staging directory
 tdd.deploy.clean() {
 	if [ -d "${deploy_test}" ]; then
-		console.info "deploy.test clean %s" "$deploy_test";
+		console info "deploy.test clean %s" "$deploy_test";
 		# NOTE: we use ${root}/target rather than ${target}
 		# NOTE: as ${target} points to the mock project staging directory
 		rm -rfv "$deploy_test" >> "${root}/target/deploy.test.clean.log";

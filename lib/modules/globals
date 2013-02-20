@@ -121,17 +121,6 @@ declare -Agx executables;
 
 See console(3) for related information.
 
-* `console_print_program_prefix`:
-
-Determines whether console prints the program name
-at the beginning of each line of output
-this is useful when a program proxies calls
-to multiple other programs and you want to determine
-which program is generating the output.
-
-api:ronn:markdown
-declare -gx console_print_program_prefix="";
-
 : <<'api:ronn:markdown'
 * `console_no_color`:
 
@@ -166,7 +155,7 @@ api:ronn:markdown
 declare -Agx console_prefixes;
 
 # TODO: deprecate these ...
-console_prefixes['console.info']="[info]";
+console_prefixes['console info']="[info]";
 console_prefixes['console.error']="[not ok]";
 console_prefixes['console.warn']="[warn]";
 console_prefixes['console.ok']="[ok]";

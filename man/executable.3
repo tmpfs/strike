@@ -59,7 +59,7 @@ git\.find() {
     if [ \-n "$git" ]; then
         $git status;
     else
-        console\.info "git is not available";
+        console info "git is not available";
         # implement fallback logic
     fi
 }

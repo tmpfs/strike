@@ -9,7 +9,6 @@
 #	BOILERPLATE
 #
 ######################################################################
-console_print_program_prefix="off";
 export exedir;
 function boilerplate {
 	local src="${BASH_SOURCE[0]}"
@@ -62,10 +61,10 @@ function paths {
 				changed=true;
 			fi
 			if [ ! -x "$path" ]; then
-				console.warn "%s is not executable" "$path";
+				console warn "%s is not executable" "$path";
 				exit 1;
 			fi
-			"$path" ls && console.info "$msg (%s)" "$path";
+			"$path" ls && console info "$msg (%s)" "$path";
 			if [ $? -ne 0 ]; then
 				console quit 1 "path test failed for %s" "$path";
 			fi

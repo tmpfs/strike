@@ -12,7 +12,7 @@ Utility commands for working with git(1) repositories.
 	git.info() {
 		local dir="$PWD";
 		if git.valid? "$dir"; then
-			console.info "%s is a git repository" "$dir";
+			console info "%s is a git repository" "$dir";
 		else
 			console.warn "%s is %s a git repository" "$dir" "not";
 		fi

@@ -126,7 +126,7 @@ devel.push() {
 	fi
 
     #echo "copy project to target ... with id $id : $path : $destination"
-	console.info "push %s > %s" "${root}" "${destination}";
+	console info "push %s > %s" "${root}" "${destination}";
     
     local f;
     for f in ${root}/*
@@ -135,7 +135,7 @@ devel.push() {
                 continue;
             fi
             #echo "copy file $f to $destination";
-			console.info "push %s" "$f";
+			console info "push %s" "$f";
 			cp -Rfv "${f}" "${destination}" >> "${log}" 2>&1;
     done
 

@@ -95,7 +95,7 @@ A text file (*version*) containing the current semver(7) version. This file is g
 	version() {
 		local file="${process_dirs[root]}/version";
 		local semver=$( cat "$file" );
-		console.info "version %s" "$semver";
+		console info "version %s" "$semver";
 	}
 	version;
 
@@ -227,7 +227,7 @@ function sv.tasks.semver.test {
 		console quit 1 "no semver specified to test";
 	else
 		if semver.valid? "$1"; then
-			console.info "semver %s is ok" "$1";
+			console info "semver %s is ok" "$1";
 		else
 			__semver.invalid.warn "$1";
 			__semver.invalid.quit "$1";
@@ -293,14 +293,14 @@ function sv.tasks.semver.sync {
 # init semver files
 function sv.tasks.semver.init {	
 	if ! __semver.version.file.exists?; then
-		console.info "creating %s" "${files[version]}";
+		console info "creating %s" "${files[version]}";
 		# create the version file
 		__semver.version.write! "$version";
 		versions[version]="$version";
 	fi
 	
 	if ! __semver.file.exists?; then
-		console.info "creating %s" "${files[semver]}";
+		console info "creating %s" "${files[semver]}";
 		# create the semver.json file
 		__semver.file.write! "$version";
 		versions[semver]="$version";
@@ -418,7 +418,7 @@ function __semver.change.confirm {
 # semver change confirmation
 function __semver.confirm {
 	ok() {
-		console.info "$sv_msg %s" "$newversion";
+		console info "$sv_msg %s" "$newversion";
 		sv.tasks.semver.write "$newversion";
 	}
 	__semver.change.confirm "ok" "$sv_msg";	
@@ -488,7 +488,7 @@ function __semver.release.confirmed {
 		# TODO: update new version
 		# TODO: ensure any release and build properties are included
 		newversion="1.0.0";
-		console.info "set release to %s" "$newversion";
+		console info "set release to %s" "$newversion";
 		next;
 		return 0;
 	}
@@ -496,7 +496,7 @@ function __semver.release.confirmed {
 	rejected() {
 		# move on to next step without modifying
 		# the new version
-		console.info "using %s" "$newversion";
+		console info "using %s" "$newversion";
 		next;
 	}
 	
@@ -530,7 +530,7 @@ function __semver.release.preprocess.test {
 	local testlog="${target}/release.test.log";
 	# use: npm test
 	if __semver.package.file.exists?; then
-		console.info "%s > %s" "npm test" "$testlog";
+		console info "%s > %s" "npm test" "$testlog";
 		# TODO: integrate with pushd / popd
 		# pushd "$PWD";
 		cd "${root}" && npm test > "$testlog" || quit 1 "unit tests failed";
@@ -546,7 +546,7 @@ function __semver.release.preprocess.test {
 
 function __semver.release.preprocess.todo {
 	local scanlog="${target}/release.todo.log";
-	console.info "scan %s %s > %s" "BUG" "FIXME" "$scanlog";
+	console info "scan %s %s > %s" "BUG" "FIXME" "$scanlog";
 	
 	require.once "tasks/todo";
 	$( tasks.todo scan --bug --fixme > "$scanlog" 2>&1 );
@@ -635,7 +635,7 @@ function __semver.parse {
 # write a semver to all available files
 function __semver.write! {
 	local semver="${1:-$semver}";
-	console.info "write semver %s" "$semver";
+	console info "write semver %s" "$semver";
 	# only write to a package if it exists
 	if __semver.package.file.exists?; then
 		__semver.package.write! "$semver";
@@ -766,12 +766,12 @@ function __semver.sync.quit {
 
 function __semver.missing.files.info {
  	if [ -f "${files[package]}" ] && [ ! -f "${files[semver]}" ] && [ ! -f "${files[version]}" ]; then
-		console.info "run %s to create files" "bake semver";
+		console info "run %s to create files" "bake semver";
 	fi
 }
 
 function __semver.file.semver.info {
-	console.info "%s < %s" "$1" "$2";
+	console info "%s < %s" "$1" "$2";
 }
 
 function __semver.file.write.quit {

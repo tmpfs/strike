@@ -72,18 +72,11 @@ Associative array of executable paths created by executable(3)\.
 See console(3) for related information\.
 .
 .TP
-\fBconsole_print_program_prefix\fR:
-
-.
-.P
-Determines whether console prints the program name at the beginning of each line of output this is useful when a program proxies calls to multiple other programs and you want to determine which program is generating the output\.
-.
-.TP
 \fBconsole_no_color\fR:
 
 .
 .P
-Controls whether console output is formatted\. A non\-empty string value causes console to omit all formatting of output, switched on with the global \-\-no\-format option, see console(3)\.
+Controls whether console output uses ANSI escape sequences\. A non\-empty string value causes console to omit all formatting of output, switched on with the global \-\-no\-color option, see console(3)\.
 .
 .TP
 \fBconsole_no_prefix\fR:

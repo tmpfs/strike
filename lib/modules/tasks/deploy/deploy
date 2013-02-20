@@ -1163,9 +1163,9 @@ dly.out.info() {
 	fi
 	
 	if ! ${flags[logging]}; then
-		console.info "$@";
+		console info "$@";
 	else
-		console.info "$@" >> "${log}" 2>&1;
+		console info "$@" >> "${log}" 2>&1;
 	fi
 }
 

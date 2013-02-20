@@ -124,7 +124,6 @@ set -o nounset;
 #	BOILERPLATE
 #
 ######################################################################
-console_print_program_prefix="off";
 export exedir;
 function boilerplate {
 	local src="${BASH_SOURCE[0]}"
@@ -401,7 +400,7 @@ process.use strict;
 # version() {
 # 	local file="${process_dirs[root]}/version";
 # 	local semver=$( cat "$file" );
-# 	console.info "version %s" "$semver";
+# 	console info "version %s" "$semver";
 # }
 # version;
 # 
@@ -569,11 +568,11 @@ process.use strict;
 # echo "got to end of test..."
 # exit 0;
 
-# console.info "this is an info message";
+# console info "this is an info message";
 # console.log.stdout "./target/test.log";
-# console.info "this is a log file message";
+# console info "this is a log file message";
 # console.log.stdout.close;
-# console.info "this is a message after log file close";
+# console info "this is a message after log file close";
 # 
 # exit 0;
 

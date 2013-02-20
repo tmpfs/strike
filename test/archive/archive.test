@@ -227,7 +227,7 @@ function !test.archive.path.test {
 	for k in ${!files[@]}
 		do
 			v=( "${files[$k]}" );
-			console.info "$program %s %s" "$cmd" "${v[*]}";
+			console info "$program %s %s" "$cmd" "${v[*]}";
 			result=( $( $program $cmd ${v[@]} ) );
 			assert.equal "${expects[$k]}" "${result[*]:-}";
 	done

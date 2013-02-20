@@ -13,8 +13,8 @@ function rlx.shell {
 	
 	# TODO: test if db-name has been specified
 	
-	console.info "host %s" "$host";
-	console.info "fetching database list from %s" "$host";
+	console info "host %s" "$host";
+	console info "fetching database list from %s" "$host";
 	
 	rlx.run couchdb.db.list "$host";
 }
@@ -25,7 +25,7 @@ function rlx.shell.db {
 		local db;
 		for db in "${databases[@]}"
 			do
-				console.info "$db";
+				console info "$db";
 		done
 	else
 		local cmd="${1:-}";
