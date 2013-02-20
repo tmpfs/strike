@@ -102,7 +102,6 @@ task-test(7), task-doc(7), task-clean(7), task-ls(7), task-semver(7)
 ronn:markdown
 
 set -o errtrace;
-set -o errexit;
 set -o nounset;
 
 # empty?() {
@@ -285,7 +284,6 @@ process.use strict;
 
 # require inet;
 # 
-# set +o errexit;
 # inet.up?;
 # echo "exit code in bake: $?";
 # #set -e;

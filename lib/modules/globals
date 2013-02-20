@@ -133,15 +133,17 @@ api:ronn:markdown
 declare -gx console_print_program_prefix="";
 
 : <<'api:ronn:markdown'
-* `console_no_format`:
+* `console_no_color`:
 
-Controls whether console output is formatted.
+Controls whether console output uses ANSI escape sequences.
 A non-empty string value causes console to omit
 all formatting of output, switched on with the global
---no-format option, see console(3).
+--no-color option, see console(3).
 
 api:ronn:markdown
-declare -gx console_no_format="";
+declare -gx console_no_color=false;
+declare -gx console_no_color_option="--no-color";
+
 
 # TODO: implement this parameter in console(3)
 : <<'api:ronn:markdown'
@@ -181,7 +183,8 @@ console_prefixes['prompt']="[prompt]";
 console_prefixes['trace']="[trace]";
 console_prefixes['debug']="[debug]";
 console_prefixes['header']="";
-console_prefixes['log']="";
+console_prefixes['log']="[log]";
+console_prefixes['print']="";
 
 ######################################################################
 #

@@ -16,7 +16,17 @@ Prints messages using ANSI sequences.
 
 When invoked with no options this program prints a series of test messages for console(3). When options are specified they are passed on to console(3).
 
-Run `console help` to view the console(3) manual.
+Run `console help console` to view the console(3) manual.
+
+## EXAMPLES
+
+Print test messages:
+
+	console
+	
+Print test messages with no ANSI sequences:
+
+	console --no-color
 
 ## BUGS
 
@@ -55,11 +65,12 @@ boilerplate "$@";
 ######################################################################
 
 # switch on strict mode
-process.use strict;
+# process.use strict;
 
 # configure help
 require 'help';
-help.man.page "default" "console.3";
+help.man.page "default" "console.1";
+help.man.page "console" "console.3";
 help.parse "$@";
 
 require 'opts/version';
@@ -67,10 +78,15 @@ version.parse "$@";
 
 require.once 'console';
 
-console.test() {
+# test colors
+console.test.colors() {
+	console header;
+	console print "COLORS";
+	console header;
+	
 	# colors
 	console --color=bold "a %s message" "bold";
-	console --color=underline "a %s message" "underline";
+	console --color=underline "an %s message" "underline";
 	# console --color=black "a %s message" "black";
 	console --color=red "a %s message" "red";
 	console --color=green "a %s message" "green";
@@ -80,28 +96,54 @@ console.test() {
 
 	console --color=cyan "a %s message" "cyan";
 	console --color=gray "a %s message" "gray";
-
 	console --color=yellow "a %s message" "yellow";
-	console --color=white "a %s message" "white";
+	console --color=white "a %s message" "white";	
+	console.header;	
+}
 
-	# message types
-	console log "a %s for %s" "log message" "you my friend";
-	console info "an %s for %s" "info message" "you my friend";
-	console error "an %s for %s" "error message" "you my friend";
-	console warn "a %s for %s" "warning message" "you my friend";
-	console trace;
+# test message types
+console.test.types() {
+	local title="${1:-TYPES}";
+	local opts="${2:-}";
+	console print "${title}";
+	console header;
+	console log $opts "a %s message" "log";
+	console info $opts "an %s message" "info";
+	console debug $opts "a %s message" "debug";
+	console warn $opts "a %s message" "warning";	
+	console error $opts "an %s message" "error";
 
-	console -c "standard message for you ... %s" "abc def ghi";
-	console -n "simple message for you ... %s" "abc";
-	console -n2 "simple error message for you ... %s" "abc";
+	(
+		console quit 127 "a %s message" "quit"
+	);
+	
+	echo "AFTER QUIT !!!"
+	
+	console trace $opts;
+	
+	console.header;
+}
 
-	console -2 --color=red --prefix="[red]" "simple %s message for you ... %s" "warning" "a value for you";
-	console -2 --color=cyan --prefix="[cyan]" "simple %s message for you ... %s" "warning" "a value for you";	
+# print test messages
+console.test() {
+	console.test.colors;
+	console.test.types;
+
+	# console -c "standard message for you ... %s" "abc def ghi";
+	# console -n "simple message for you ... %s" "abc";
+	# console -n2 "simple error message for you ... %s" "abc";
+	# 
+	# console -2 --color=red --prefix="[red]" "simple %s message for you ... %s" "warning" "a value for you";
+	# console -2 --color=cyan --prefix="[cyan]" "simple %s message for you ... %s" "warning" "a value for you";	
 }
 
 if [ $# -eq 0 ]; then
 	console.test;
 else
+	if [ $# -eq 1 ] && [ $1 == "${console_no_color_option}" ]; then
+		shift;
+		console.test;
+		exit 0;
+	fi
 	console "$@";
 fi
-	

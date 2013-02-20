@@ -76,7 +76,6 @@ couchdb(3), http(3), json(3), curl(1)
 ronn:markdown
 
 set -o errtrace;
-set -o errexit;
 set -o nounset;
 
 ######################################################################

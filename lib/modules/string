@@ -123,8 +123,6 @@ function string.repeat {
 
 function string.ltrim {
 	local value="${@}";
-	set +o errexit;
 	read  -rd '' value <<< "$value";
-	set -o errexit;	
 	_result="$value";
 }

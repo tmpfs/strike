@@ -1,0 +1,59 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "CONSOLE" "1" "February 2013" "" ""
+.
+.SH "NAME"
+\fBconsole\fR \- test program for console(3)
+.
+.SH "SYNOPSIS"
+.
+.nf
+
+console [options] message [replacements\.\.\.]
+.
+.fi
+.
+.SH "DESCRIPTION"
+Prints messages using ANSI sequences\.
+.
+.SH "USAGE"
+When invoked with no options this program prints a series of test messages for console(3)\. When options are specified they are passed on to console(3)\.
+.
+.P
+Run \fBconsole help console\fR to view the console(3) manual\.
+.
+.SH "EXAMPLES"
+Print test messages:
+.
+.IP "" 4
+.
+.nf
+
+console
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Print test messages with no ANSI:
+.
+.IP "" 4
+.
+.nf
+
+console \-\-no\-color
+.
+.fi
+.
+.IP "" 0
+.
+.SH "BUGS"
+\fBconsole\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBconsole\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+console(3)

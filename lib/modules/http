@@ -167,8 +167,6 @@ function http.curl.execute {
 			unset "$opt";
 	done
 	
-	set +o errexit;	
-	
 	#echo "$FUNCNAME: ${#runopts[@]} : ${runopts[@]}";
 		
 	# redirect stderr with tee, useful for also
@@ -241,8 +239,6 @@ function http.curl.execute {
 		# TODO: don't show this if the request is HEAD
 		console.warn "no http output file %s after request" "$http_body_file";
 	fi
-	
-	set -o errexit;	
 }
 
 function http.curl {

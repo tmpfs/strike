@@ -227,10 +227,8 @@ function __require_register {
 		# as doing this slows things down noticeably
 		
 		# get method definitions but don't quit if none are defined
-		# set +o errexit;
 		# methods=( $( method.list | egrep "^${name}" ) );
 		# private=( $( method.list | egrep "^__${name}" ) );
-		# set -o errexit;
 		# 
 		# # echo "got module private methods: ${private[@]:-}";
 		# 

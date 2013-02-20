@@ -1,7 +1,6 @@
 #! /usr/bin/env bash
 
 set -o errtrace;
-set -o errexit;
 set -o nounset;
 
 ######################################################################
@@ -80,16 +79,12 @@ function test.project {
 	# create the test project
 	mkdir -p "${test_project_path}";
 	
-	# switch off errexit for these tests
-	set +o errexit;	
-	
 	# initialize an empty projects.json file
 	tasks.project init & wait %%;
 	assert.eq "0" "$?";
 	assert.file.exists? "${projectfile}";
 	
-	# attempt to call init with an existing projects file, exit code >0
-	set +o errexit;	
+	# attempt to call init with an existing projects file, exit code >0	
 	tasks.project init > /dev/null 2>&1 & wait %%;
 	assert.gt "0" "$?";
 	

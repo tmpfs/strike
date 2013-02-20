@@ -1,5 +1,5 @@
 : <<'ronn:markdown'
-console(3) -- console output
+console(3) -- console output module
 =============================================
 
 ## SYNOPSIS
@@ -207,25 +207,28 @@ console() {
 	
 	if [ -n "${color}" ]; then
 		console.color.validate "${color}";
-	fi
-	
-	#echo "colors are : ${colors[@]}";
-	#exit 0;
-	
-	# list of available commands
-	local namespace="console.commands";
-	local cmd="";
-	local commands=( info warn error throw log header trace quit success );
-	
-	if array.contains? "$1" "${commands[@]}"; then
-		cmd="$1";
-		prefix="${console_prefixes[$cmd]}";
-		shift;
-	fi
+	fi	
 	
 	if [ "${#messages[@]}" -eq 0 ]; then
 		echo "no console message supplied";
 		exit 2;
+	fi	
+	
+	# list of available commands
+	local namespace="console.commands";
+	local cmd="";
+	local commands=( info warn error throw debug log header trace quit success print );
+	
+	local code=1;
+	if array.contains? "$1" "${commands[@]}"; then
+		cmd="$1";
+		prefix="${console_prefixes[$cmd]}";
+		shift;
+		
+		if [ "$cmd" == quit ] && [ $# -gt 0 ]; then
+			code="$1";
+			shift;
+		fi
 	fi
 	
 	local message="${messages[0]}";
@@ -238,6 +241,8 @@ console() {
 		console.noansi;
 	elif [ "$TERM" != "xterm" ]; then
 		console.noansi;
+	elif ${console_no_color}; then
+		console.noansi;
 	fi
 	
 	if [ -n "${cmd}" ]; then
@@ -249,9 +254,19 @@ console() {
 
 ## COMMANDS
 
-# log a message with no prefix
-console.commands.log() {
+# print the generic message header
+console.commands.header() {
+	console "$@" "${header}";
+}
+
+# print a message with no prefix
+console.commands.print() {
 	console "$@";
+}
+
+# print a log message with a prefix
+console.commands.log() {
+	console --prefix="${console_prefixes[log]}" "$@";
 }
 
 # print an info message with a prefix
@@ -259,12 +274,19 @@ console.commands.info() {
 	console --prefix="${console_prefixes[info]}" "$@";
 }
 
-# print an error message with a prefix
+## ERROR COMMANDS
+
+# print a debug message to stderr
+console.commands.debug() {
+	console -2  --color=cyan --prefix="${console_prefixes[debug]}" "$@";
+}
+
+# print an error message to stderr
 console.commands.error() {
 	console -2 --color=red --prefix="${console_prefixes[error]}" "$@";
 }
 
-# print a warning message with a prefix
+# print a warning message to stderr
 console.commands.warn() {
 	console -2 --color=magenta --prefix="${console_prefixes[warn]}" "$@";
 }
@@ -280,7 +302,15 @@ console.commands.trace() {
 		: $((frame++));
 		data=( $( caller $frame ) );
 	done
-	return 0;
+}
+
+# quit the program
+console.commands.quit() {
+	if [ $# -gt 0 ]; then
+		console -2 --color=red --prefix="${console_prefixes[quit]}" "$@";
+	fi
+	echo "exiting ... $code";
+	exit $code;
 }
 
 ## INTERNAL
@@ -475,6 +505,20 @@ console.options.parse() {
 }
 
 
+# inspect the program options 
+# looking for a --no-color option
+console.parse() {
+	local l=$#;
+	local i val;
+	for((i = 1;i < l+1;i++))
+		do
+			eval val="$"$i;
+			if [ "$val" == "${console_no_color_option}" ]; then
+				console_no_color=true;
+			fi
+	done
+}
+console.parse "$@";
 
 
 
@@ -512,7 +556,7 @@ console.options.parse() {
 
 
 
-
+# DEPRECATED
 
 function console.log.stdout {
 	touch "$1" || warn "could not create stdout log file %s" "$1";
@@ -658,7 +702,7 @@ function __console_print_program_prefix {
 	local prefix="[${process_name:-}]";
 	local include_prefix=${console_print_program_prefix:-};
 	if [ ! -z "$include_prefix" ]; then
-		if [ -t 1 ] && [ -z "$console_no_format" ]; then	
+		if [ -t 1 ] && [ -z "$console_no_color" ]; then	
 			if [ "$prefix" != "" ]; then
 				gray "$prefix";
 				echo -ne "$_result";
@@ -680,7 +724,7 @@ function console.success {
 	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_format" ]; then
+	if [ -t 1 ] && [ -z "$console_no_color" ]; then
 		#get the message prefix
 		bold "$status";
 		prefix="$_result";
@@ -704,7 +748,7 @@ function console.ok {
 	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_format" ]; then
+	if [ -t 1 ] && [ -z "$console_no_color" ]; then
 		#get the message prefix
 		bold "$status";
 		prefix="$_result";
@@ -727,7 +771,7 @@ function console.prompt {
 	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";	
 	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_format" ]; then
+	if [ -t 1 ] && [ -z "$console_no_color" ]; then
 		#get the message prefix
 		bold "$status";
 		prefix="$_result";
@@ -751,7 +795,7 @@ function console.info {
 	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_format" ]; then
+	if [ -t 1 ] && [ -z "$console_no_color" ]; then
 		#get the message prefix
 		bold "$status";
 		prefix="$_result";
@@ -783,7 +827,7 @@ function console.warn {
 	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
-	if [ -t 2 ] && [ -z "$console_no_format" ]; then
+	if [ -t 2 ] && [ -z "$console_no_color" ]; then
 		#get the message prefix
 		boldpurple "$status";
 		prefix="$_result";
@@ -823,7 +867,7 @@ function console.error {
 	local status="${console_prefixes[$FUNCNAME]}";
 	local prefix="$status";
 	local msg="";
-	if [ -t 2 ] && [ -z "$console_no_format" ]; then
+	if [ -t 2 ] && [ -z "$console_no_color" ]; then
 		#get the message prefix
 		boldred "$status";
 		prefix="$_result";
@@ -867,20 +911,6 @@ function console.throw {
 	console.error "$message";
 	console.trace 1;
 }
-
-# inspect the program options looking for a --no-color option
-function console.parse {
-	local l=$#;
-	local i val;
-	for((i = 1;i < l+1;i++))
-		do
-			eval val="$"$i;
-			if [ "$val" == "--no-color" ]; then
-				console_no_format="on";
-			fi
-	done
-}
-console.parse "$@";
 
 # must set this option so that aliases are expanded
 shopt -s expand_aliases;

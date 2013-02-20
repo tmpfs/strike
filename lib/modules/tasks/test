@@ -674,10 +674,8 @@ function __assert_run_test {
 function __assert_run_test_method {
 	: $((summary[methods]++));
 	console.info "run %s" "$m";
-	set +o errexit;
 	# execute the test method
 	"$m" 1>> "$stdout" 2>> "$stderr";
-	set -o errexit;
 
 	# remove the method so that it is not
 	# executed again on subsequent passes

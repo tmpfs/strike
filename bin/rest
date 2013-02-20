@@ -131,7 +131,6 @@ curl(1)
 ronn:markdown
 
 set -o errtrace;
-set -o errexit;
 set -o nounset;
 
 ######################################################################

@@ -162,7 +162,6 @@ function process.use {
 				process_strict="on";
 				# TODO: make these options an array
 				set -o errtrace;
-				# set -o errexit;
 				set -o nounset;
 				set -o noclobber;
 			elif [ "$val" == "debug" ]; then
@@ -206,7 +205,6 @@ function process.debug! {
 function process.strict! {
 	process_strict="";
 	set +o errtrace;
-	#set +o errexit;
 	set +o nounset;
 	set +o noclobber;
 }

@@ -150,10 +150,8 @@ function assert.ne {
 function assert.file.exists? {
 	# TODO: add custom error message
 	local expected="0";
-	set +o errexit;
 	`test -f "$1"`;
 	local received="$?";
-	set -o errexit;
 	console.info "$FUNCNAME %s" "$1";	
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
@@ -166,10 +164,8 @@ function assert.file.exists? {
 function assert.file.exists! {
 	# TODO: add custom error message
 	local expected="1";
-	set +o errexit;
 	`test -f "$1"`;
 	local received="$?";
-	set -o errexit;
 	console.info "$FUNCNAME %s" "$1";
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
@@ -182,10 +178,8 @@ function assert.file.exists! {
 function assert.dir.exists? {
 	# TODO: add custom error message
 	local expected="0";
-	set +o errexit;
 	`test -d "$1"`;
 	local received="$?";
-	set -o errexit;
 	console.info "$FUNCNAME %s" "$1";	
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
@@ -198,10 +192,8 @@ function assert.dir.exists? {
 function assert.dir.exists! {
 	# TODO: add custom error message
 	local expected="1";
-	set +o errexit;
 	`test -d "$1"`;
 	local received="$?";
-	set -o errexit;
 	console.info "$FUNCNAME %s" "$1";	
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";

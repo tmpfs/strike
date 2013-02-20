@@ -4,16 +4,61 @@
 .TH "CONSOLE" "3" "February 2013" "" ""
 .
 .SH "NAME"
-\fBconsole\fR \- console output
+\fBconsole\fR \- console output module
 .
 .SH "SYNOPSIS"
-Helper methods for printing ANSI formatted output to a terminal and redirecting output to log file(s)\.
+.
+.nf
+
+console [options\.\.\.] message [replacements\.\.\.]
+.
+.fi
 .
 .SH "DESCRIPTION"
+Helper methods for printing ANSI formatted output to a terminal and redirecting output to log file(s)\.
+.
+.P
 The console(3) module is a built in module available to all programs\. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed\.
 .
 .P
 If either stdout or stderr is not a \fItty\fR then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but \fIno formatting\fR\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-1\fR:
+
+.
+.P
+Print to \fIstdout\fR\.
+.
+.TP
+\fB\-2\fR:
+
+.
+.P
+Print to \fIstderr\fR\.
+.
+.TP
+\fB\-\-color=[color]\fR:
+
+.
+.P
+Set \fIcolor\fR as the overall message color\.
+.
+.TP
+\fB\-\-prefix=[prefix]\fR:
+
+.
+.P
+Prepend \fIprefix\fR to the beginning of the message\.
+.
+.TP
+\fB\-\-debug\fR:
+
+.
+.P
+Do not interpret ANSI sequences, print them\.
 .
 .SH "USAGE"
 The general syntax for printing output is:
@@ -109,10 +154,11 @@ Exits the program with a non\-zero exit code and optional error message\. Note t
 The console(3) module parses the program options (but does not modify them) looking for the following options:
 .
 .TP
-\fB\-\-no\-format\fR:
+\fB\-\-no\-color\fR:
 .
 .IP
 Do not perform any ANSI color or formatting modifications to the output\.
+It is recommended that users of iTerm2 uncheck the \fIDraw bold text in bright colors\fR option in \fIProfiles > Text\fR for highlighted replacement values to appear consistently with the main message colour\.
 .
 .SH "VARIABLES"
 See the globals\-api(3) documentation\.

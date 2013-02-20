@@ -70,9 +70,7 @@ function executable.validate {
 			if [ -n "${executables[$opt]:-}" ]; then
 				continue;
 			fi
-			set +o errexit;
 			cmd=$( command -v "$opt" );
-			set -o errexit;
 			if [ -z "$cmd" ] && $strict; then
 				console.quit 1 "%s is not available" "$opt";
 			fi
