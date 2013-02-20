@@ -121,6 +121,7 @@ declare -g __stderr_log_file="";
 declare -Ag console_styles;
 console_styles[bold]="\033[1m";
 console_styles[red]="\033[0;37;0;31m";
+console_styles[cyan]="\033[0;36m";
 
 # generic console output command
 console() {
@@ -141,6 +142,7 @@ console() {
 	declare -A flags;
 	flags[program.prefix]=false;
 	flags[message.prefix]=true;
+	flags[ansi]=true;
 	flags[color]=true;
 	flags[replace]=true;
 	flags[replace.bold]=true;
@@ -148,7 +150,17 @@ console() {
 	flags[stderr]=false;
 	flags[tick]=false;
 	flags[cross]=false;
+	
 	console.options.parse "$@";
+	
+	# list of available colors
+	local colors=( red cyan );
+	if [ -n "${color}" ]; then
+		console.color.validate "${color}";
+	fi
+	
+	#echo "colors are : ${colors[@]}";
+	#exit 0;
 	
 	# list of available commands
 	local namespace="console.commands";
@@ -169,16 +181,10 @@ console() {
 	local message="${messages[0]}";
 	local replacements=( "${messages[@]:1}" );
 	
-	# echo "1 is tty " `test -t 1`;
-	# echo "2 is tty " `test -t 2`;
-	
-	#test -t 2; echo "got stderr $?";
-	
 	# switch off ansi escapes for non-tty
 	if ! ${flags[stderr]} && [ ! -t 1 ]; then
 		console.noansi;
-	elif ${flags[stderr]} && [ ! -t 0 ]; then
-		echo "stderr calling nonansi";
+	elif ${flags[stderr]} && [ ! -t 2 ]; then
 		console.noansi;
 	fi
 	
@@ -189,9 +195,19 @@ console() {
 	fi
 }
 
+# validate a color name
+console.color.validate() {
+	local val="$1";
+	if ! array.contains? "${val}" "${colors[@]}"; then
+		console -2 --color=red --prefix="[console]" "invalid color ${val}";
+		exit 2;
+	fi
+}
+
 # switch off ANSI escape sequences completely
 console.noansi() {
 	echo "no ansi called...";
+	flags[ansi]=false;
 	flags[color]=false;
 	flags[replace.bold]=false;
 	flags[prefix.bold]=false;
@@ -222,23 +238,43 @@ console.replace() {
 	if ! ${flags[color]}; then
 		parsed=$( printf -- "${messages[@]}" );
 	else
-		if ${flags[replace.bold]}; then
+		if ${flags[ansi]}; then
 			length="${#replacements[@]}";
+			local highlight_color="";
 			for((i = 0;i < $length;i++))
 				do
 					val="${replacements[$i]}";
-					replacements[$i]="${console_styles[bold]}${val}${terminator}";
+					if ${flags[replace.bold]}; then
+						replacements[$i]="${console_styles[bold]}${val}${terminator}";
+					fi
+					# ensure replacements respect the overall colour
+					if ${flags[color]} && [ -n "$color" ]; then
+						highlight_color="$color";
+					fi
+					if [ -n "${highlight_color}" ]; then
+						replacements[$i]="${console_styles[$highlight_color]}${replacements[$i]}${terminator}";
+					fi
+					if ${flags[color]} && [ -n "$color" ]; then
+						# start the message colour again for parts in
+						# between replacements
+						replacements[$i]="${replacements[$i]}${console_styles[$color]}";
+					fi
 			done
 			parsed=$( printf -- "${message}" "${replacements[@]:-}" );
 		fi
 
 		# handle overall message color
-		if ${flags[color]} && [ -n "$color" ]; then
+		if ${flags[ansi]} && ${flags[color]} && [ -n "$color" ]; then
 			echo "add overall message color ..."
-			parsed="${console_styles[$color]}${parsed}${terminator}";
+			parsed="${console_styles[$color]}${parsed}";
 		fi
 	fi
 	console.prefix;
+	
+	# always add final terminator
+	if ${flags[ansi]}; then
+		parsed="${parsed}${terminator}";
+	fi
 	
 
 	# should be done after setting the prefix
@@ -301,8 +337,10 @@ console.options.parse() {
 	                    opt=${OPTARG%=$val};
 						prefix="${val}";
 	                    ;;
-	                red)
-						color=red;
+	                color=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						color="${val}";
 	                    ;;
 	                tick)
 						flags[tick]=true;

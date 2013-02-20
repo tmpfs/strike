@@ -635,7 +635,9 @@ require 'tasks/module';
 console -c "color message for you ... %s" "abc def ghi";
 console -n "simple message for you ... %s" "abc";
 console -n2 "simple error message for you ... %s" "abc";
-console -2 --red --prefix="[warning]" "simple %s message for you ... %s" "warning" "a value for you";
+
+console -2 --color=red --prefix="[red]" "simple %s message for you ... %s" "warning" "a value for you";
+console -2 --color=cyan --prefix="[cyan]" "simple %s message for you ... %s" "warning" "a value for you";
 
 # console.error "custom error";
 exit 0;
