@@ -4,13 +4,37 @@ console(3) -- console output
 
 ## SYNOPSIS
 
-Helper methods for printing ANSI formatted output to a terminal and redirecting output to log file(s).
+	console [options...] message [replacements...]
 
 ## DESCRIPTION
+
+Helper methods for printing ANSI formatted output to a terminal and redirecting output to log file(s).
 
 The console(3) module is a built in module available to all programs. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed.
 
 If either stdout or stderr is not a *tty* then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but *no formatting*.
+
+## OPTIONS
+
+* `-1`:
+
+Print to *stdout*.
+
+* `-2`:
+
+Print to *stderr*.
+
+* `--color=[color]`:
+
+Set *color* as the overall message color.
+
+* `--prefix=[prefix]`:
+
+Prepend *prefix* to the beginning of the message.
+
+* `--debug`:
+
+Do not interpret ANSI sequences, print them.
 
 ## USAGE
 
@@ -86,9 +110,13 @@ The console(3) module provides methods for exiting the program (optionally with 
 
 The console(3) module parses the program options (but does not modify them) looking for the following options:
 
-* `--no-format`:
+* `--no-color`:
 
 	Do not perform any ANSI color or formatting modifications to the output.
+	
+# ITERM2
+
+It is recommended that users of iTerm2 uncheck the *Draw bold text in bright colors* option in *Profiles > Text* for highlighted replacement values to appear consistently with the main message colour.
 	
 ## VARIABLES
 
@@ -118,10 +146,31 @@ ronn:markdown
 declare -g __stdout_log_file="";
 declare -g __stderr_log_file="";
 
+#Black       0;30     Dark Gray     1;30
+#Blue        0;34     Light Blue    1;34
+#Green       0;32     Light Green   1;32
+#Cyan        0;36     Light Cyan    1;36
+#Red         0;31     Light Red     1;31
+#Purple      0;35     Light Purple  1;35
+#Brown       0;33     Yellow        1;33
+#Light Gray  0;37     White         1;37
+
 declare -Ag console_styles;
 console_styles[bold]="\033[1m";
-console_styles[red]="\033[0;37;0;31m";
+console_styles[underline]="\033[4m";
+
+console_styles[black]="\033[0;30m";
+console_styles[red]="\033[0;31m";
+console_styles[green]="\033[0;32m";
+console_styles[brown]="\033[0;33m";
+console_styles[blue]="\033[0;34m";
+console_styles[magenta]="\033[0;35m";
+
 console_styles[cyan]="\033[0;36m";
+console_styles[gray]="\033[0;37m";
+
+console_styles[yellow]="\033[1;33m";
+console_styles[white]="\033[1;37m";
 
 # generic console output command
 console() {
@@ -138,8 +187,11 @@ console() {
 	fi
 	
 	local color="";
+	local prefix_color="";
+	local highlight_color="";
 	
 	declare -A flags;
+	flags[debug]=false;
 	flags[program.prefix]=false;
 	flags[message.prefix]=true;
 	flags[ansi]=true;
@@ -153,8 +205,6 @@ console() {
 	
 	console.options.parse "$@";
 	
-	# list of available colors
-	local colors=( red cyan );
 	if [ -n "${color}" ]; then
 		console.color.validate "${color}";
 	fi
@@ -186,6 +236,8 @@ console() {
 		console.noansi;
 	elif ${flags[stderr]} && [ ! -t 2 ]; then
 		console.noansi;
+	elif [ "$TERM" != "xterm" ]; then
+		console.noansi;
 	fi
 	
 	if [ -n "${cmd}" ]; then
@@ -195,10 +247,48 @@ console() {
 	fi
 }
 
+## COMMANDS
+
+# log a message with no prefix
+console.commands.log() {
+	console "$@";
+}
+
+# print an info message with a prefix
+console.commands.info() {
+	console --prefix="${console_prefixes[info]}" "$@";
+}
+
+# print an error message with a prefix
+console.commands.error() {
+	console -2 --color=red --prefix="${console_prefixes[error]}" "$@";
+}
+
+# print a warning message with a prefix
+console.commands.warn() {
+	console -2 --color=magenta --prefix="${console_prefixes[warn]}" "$@";
+}
+
+# print a stack trace as a series of error messages
+console.commands.trace() {
+	local offset="${1:-0}";
+	local frame=$offset line;
+	local data=( $( caller $frame ) );
+	while [ "${#data[@]}" -gt 0 ]; do
+		console -2 --color=red --prefix="${console_prefixes[trace]}" \
+			"%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
+		: $((frame++));
+		data=( $( caller $frame ) );
+	done
+	return 0;
+}
+
+## INTERNAL
+
 # validate a color name
 console.color.validate() {
 	local val="$1";
-	if ! array.contains? "${val}" "${colors[@]}"; then
+	if ! array.contains? "${val}" "${!console_styles[@]}"; then
 		console -2 --color=red --prefix="[console]" "invalid color ${val}";
 		exit 2;
 	fi
@@ -206,7 +296,6 @@ console.color.validate() {
 
 # switch off ANSI escape sequences completely
 console.noansi() {
-	echo "no ansi called...";
 	flags[ansi]=false;
 	flags[color]=false;
 	flags[replace.bold]=false;
@@ -215,7 +304,7 @@ console.noansi() {
 
 # main 
 console.main() {
-	console.debugger;	
+	# console.debugger;	
 	if ${flags[replace]}; then
 		console.replace;
 	fi
@@ -224,10 +313,14 @@ console.main() {
 
 # print parsed result
 console.output() {
+	local opts="-e";
+	if ${flags[debug]}; then
+		opts="";
+	fi
 	if ! ${flags[stderr]}; then
-		echo -e "$parsed";
+		echo $opts "$parsed";
 	else
-		echo -e "$parsed" >&2;
+		echo $opts "$parsed" >&2;
 	fi
 }
 
@@ -265,7 +358,7 @@ console.replace() {
 
 		# handle overall message color
 		if ${flags[ansi]} && ${flags[color]} && [ -n "$color" ]; then
-			echo "add overall message color ..."
+			# echo "add overall message color ..."
 			parsed="${console_styles[$color]}${parsed}";
 		fi
 	fi
@@ -275,22 +368,12 @@ console.replace() {
 	if ${flags[ansi]}; then
 		parsed="${parsed}${terminator}";
 	fi
-	
-
-	# should be done after setting the prefix
-	# if ${flags[color]}; then
-	# 	#echo "should color message: ${flags[color]}";
-	# 	if ${flags[color]} && [ -n "$color" ]; then
-	# 		echo "add overall message color ..."
-	# 		parsed="${console_styles[$color]}${parsed}${terminator}";
-	# 	fi
-	# fi
 }
 
 # prepend prefix(es)
 console.prefix() {
 	if [ -n "${prefix}" ] && ${flags[message.prefix]}; then	
-		echo "prepend prefix ... $message : $prefix : ${flags[color]}";
+		# echo "prepend prefix ... $message : $prefix : ${flags[color]}";
 		if ${flags[color]}; then
 			if ${flags[prefix.bold]}; then
 				prefix="${console_styles[bold]}${prefix}${terminator}";
@@ -342,6 +425,9 @@ console.options.parse() {
 	                    opt=${OPTARG%=$val};
 						color="${val}";
 	                    ;;
+	                debug)
+						flags[debug]=true;
+	                    ;;	
 	                tick)
 						flags[tick]=true;
 	                    ;;
@@ -387,6 +473,46 @@ console.options.parse() {
 			messages+=( "$opt" );
 	done
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function console.log.stdout {
 	touch "$1" || warn "could not create stdout log file %s" "$1";
@@ -742,14 +868,14 @@ function console.throw {
 	console.trace 1;
 }
 
-# inspect the program options looking for a --no-format option
+# inspect the program options looking for a --no-color option
 function console.parse {
 	local l=$#;
 	local i val;
 	for((i = 1;i < l+1;i++))
 		do
 			eval val="$"$i;
-			if [ "$val" == "--no-format" ]; then
+			if [ "$val" == "--no-color" ]; then
 				console_no_format="on";
 			fi
 	done

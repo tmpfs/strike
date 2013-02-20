@@ -632,7 +632,30 @@ require 'tasks/module';
 
 #console -h "color message for you ... %s" "abc";
 
-console -c "color message for you ... %s" "abc def ghi";
+# colors
+console --color=bold "a %s message" "bold";
+console --color=underline "a %s message" "underline";
+# console --color=black "a %s message" "black";
+console --color=red "a %s message" "red";
+console --color=green "a %s message" "green";
+console --color=brown "a %s message" "brown";
+console --color=blue "a %s message" "blue";
+console --color=magenta "a %s message" "magenta";
+
+console --color=cyan "a %s message" "cyan";
+console --color=gray "a %s message" "gray";
+
+console --color=yellow "a %s message" "yellow";
+console --color=white "a %s message" "white";
+
+# message types
+console log "a %s for %s" "log message" "you my friend";
+console info "an %s for %s" "info message" "you my friend";
+console error "an %s for %s" "error message" "you my friend";
+console warn "a %s for %s" "warning message" "you my friend";
+console trace;
+
+console -c "standard message for you ... %s" "abc def ghi";
 console -n "simple message for you ... %s" "abc";
 console -n2 "simple error message for you ... %s" "abc";
 
