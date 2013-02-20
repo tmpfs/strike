@@ -61,10 +61,10 @@ function rlx.shell.help {
 
 # quit the shell
 function rlx.shell.quit {
-	console.success;
+	console success;
 }
 
 # alias for the `quit` command
 function rlx.shell.exit {
-	console.success;
+	console success;
 }

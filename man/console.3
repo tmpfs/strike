@@ -21,7 +21,7 @@ Helper methods for printing ANSI formatted output to a terminal and redirecting 
 The console(3) module is a built in module available to all programs\. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed\.
 .
 .P
-If either stdout or stderr is not a \fItty\fR then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but \fIno formatting\fR\.
+If either stdout or stderr is not a \fItty\fR then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but no formatting\.
 .
 .SH "OPTIONS"
 .
@@ -44,14 +44,21 @@ Print to \fIstderr\fR\.
 
 .
 .P
-Set \fIcolor\fR as the overall message color\.
+Set \fIcolor\fR as the message color\.
 .
 .TP
 \fB\-\-prefix=[prefix]\fR:
 
 .
 .P
-Prepend \fIprefix\fR to the beginning of the message\.
+Prepend \fIprefix\fR to the message\.
+.
+.TP
+\fB\-\-suffix=[suffix]\fR:
+
+.
+.P
+Append \fIsuffix\fR to the message\.
 .
 .TP
 \fB\-\-no\-prefix\fR:
@@ -59,6 +66,13 @@ Prepend \fIprefix\fR to the beginning of the message\.
 .
 .P
 Do not print the prefix\.
+.
+.TP
+\fB\-\-readline\fR:
+
+.
+.P
+Use escape sequences compatible with passing to \fBread \-ep\fR\. This allows formatting to be applied to interactive prompts using \fBread\fR\. When this option is used nothing is printed but the result of formatting the message is assigned to the \fBPS9\fR variable\.
 .
 .TP
 \fB\-\-cross\fR:
@@ -112,7 +126,7 @@ Prints a log message\. This method \fIdoes not perform any formatting\fR or prin
 To print to standard error use the following methods\.
 .
 .TP
-\fBconsole\.warn\fR:
+\fBconsole warn\fR:
 .
 .IP
 Prints a warning message\.

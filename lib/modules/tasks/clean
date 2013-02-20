@@ -83,7 +83,7 @@ tasks.clean() {
 		if [ $? -gt 0 ]; then
 			console quit $? "could not rm %s" "$rmopts" "$target";
 		else
-			console.success;
+			console success;
 		fi
 	}
 

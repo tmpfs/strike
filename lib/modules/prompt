@@ -13,7 +13,9 @@ declare -g prompt_command;
 declare -ag prompt_command_options;
 
 # custom ps prompt
-declare -g prompt_ps;
+declare -g PS9;
+
+# $'\001\033[1m\002ABC\001\033[0m\002'
 
 # add a boolean prompt
 # $1 id
@@ -154,8 +156,8 @@ function __prompt.show.boolean {
 
 	if [ -t 0 ]; then
 		prompt.before;
-		if [ -n "${prompt_ps:-}" ]; then
-			read -ep "${prompt_ps}" value;
+		if [ -n "${PS9:-}" ]; then
+			read -ep "${PS9}" value;
 		else
 			# show the prompt message
 			console prompt "$@";
@@ -180,8 +182,8 @@ function __prompt.show.data {
 	if [ -t 0 ]; then
 		
 		prompt.before;
-		if [ -n "${prompt_ps:-}" ]; then
-			read -ep "${prompt_ps}" value;
+		if [ -n "${PS9:-}" ]; then
+			read -ep "${PS9}" value;
 		else
 			# show the prompt message
 			console prompt $@;			

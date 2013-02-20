@@ -64,7 +64,7 @@ boilerplate "$@";
 ######################################################################
 
 # switch on strict mode
-# process.use strict;
+process.use strict;
 
 # configure help
 require 'help';
@@ -110,7 +110,7 @@ console.test.colors() {
 	# colors
 	console --color=bold "a %s message" "bold";
 	console --color=underline "an %s message" "underline";
-	# console --color=black "a %s message" "black";
+	console --color=black "a %s message" "black";
 	console --color=red "a %s message" "red";
 	console --color=green "a %s message" "green";
 	console --color=brown "a %s message" "brown";
@@ -161,13 +161,40 @@ console.test.types() {
 console.test.prompt() {
 	local title="${1:-PROMPT}";
 	local opts="${2:-}";
+	local value;
 	console print "${title}";
 	console header;
 	
-	console prompt "ps";
-	printf "\n";
+	# test prompt for comparison
+	# read -ep $'\001\033[1m\002bold\001\033[0m\002 prompt'" ${characters[lightning]} " value;
+	# local start=$'\001\033[1m\002';
+	# local terminator=$'\001\033[0m\002';	
+	# local PS9="${start}bold${terminator} prompt ${characters[lightning]} ";
+	# read -ep "${PS9}" value;
 	
-	console header;	
+	console prompt "%s prompt" "bold";
+	read -ep "$PS9" value;
+	console prompt --color=underline "%s prompt" "underline";
+	read -ep "$PS9" value;
+	
+	console prompt --color=black "%s prompt" "black";
+	read -ep "$PS9" value;	
+	console prompt --color=red "%s prompt" "red";
+	read -ep "$PS9" value;
+	console prompt --color=green "%s prompt" "green";
+	read -ep "$PS9" value;
+	console prompt --color=brown "%s prompt" "brown";
+	read -ep "$PS9" value;
+	console prompt --color=blue "%s prompt" "blue";
+	read -ep "$PS9" value;
+	console prompt --color=magenta "%s prompt" "magenta";
+	read -ep "$PS9" value;
+	console prompt --color=cyan "%s prompt" "cyan";
+	read -ep "$PS9" value;
+	console prompt --color=gray "%s prompt" "gray";
+	read -ep "$PS9" value;	
+	
+	console header;
 }
 
 # print test messages

@@ -179,7 +179,7 @@ function prj.tasks.project.init {
 	if [ ! -f "$prjfile" ]; then
 		!project.file.missing.quit;
 	fi
-	console.success "project file %s created %s" "$prjfile" "✓";
+	console success "project file %s created %s" "$prjfile" "✓";
 }
 
 function prj.tasks.project.exists {
@@ -194,7 +194,7 @@ function prj.tasks.project.exists {
 	prj_id="${1:-}";
 	!project.id.validate;
 	if !project.exists?; then
-		console.success "project %s %s" "$prj_id";
+		console success "project %s %s" "$prj_id";
 	else
 		console quit 1 "no project %s %s" "$prj_id";
 	fi
@@ -292,7 +292,7 @@ function prj.tasks.project.count {
 	!project.file.read;
 	!project.list;
 	console print "${#projects[@]}";
-	console.success;
+	console success;
 }
 
 function prj.tasks.project.set {
@@ -480,7 +480,7 @@ function prj.tasks.project.rm {
 	
 	!project.file.write!;
 	
-	#console.success "removed %s projects" "${length}";
+	#console success "removed %s projects" "${length}";
 }
 
 function prj.tasks.project.print {

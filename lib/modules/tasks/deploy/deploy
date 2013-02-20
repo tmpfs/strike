@@ -1277,12 +1277,12 @@ dly.parse() {
 				local IFS="$newline";
 				local all="${all_profiles[@]}";
 				echo "$all";
-				console.success;
+				console success;
 			fi
 		fi
 	elif ${flags[print.profiles]}; then
 		console print "${defaults[profile.name]}";
-		console.success;
+		console success;
 	fi
 }
 
@@ -1326,9 +1326,9 @@ dly.complete() {
 	# output success information
 	dly.complete.notify true;
 	if ${flags[print.json]} || ${flags[print.script]}; then
-		console.success;
+		console success;
 	else
-		console.success "deploy %s complete %s" \
+		console success "deploy %s complete %s" \
 			"${deploy_name}";
 	fi
 }

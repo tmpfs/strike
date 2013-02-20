@@ -115,7 +115,7 @@ script.lint() {
 	fi
 	# don't call complete as we are just
 	# verifying the script, nothing was deployed
-	console.success;
+	console success;
 }
 
 # write the script header

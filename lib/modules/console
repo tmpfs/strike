@@ -12,7 +12,7 @@ Helper methods for printing ANSI formatted output to a terminal and redirecting 
 
 The console(3) module is a built in module available to all programs. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed.
 
-If either stdout or stderr is not a *tty* then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but *no formatting*.
+If either stdout or stderr is not a *tty* then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but no formatting.
 
 ## OPTIONS
 
@@ -26,7 +26,7 @@ Print to *stderr*.
 
 * `--color=[color]`:
 
-Set *color* as the overall message color.
+Set *color* as the message color.
 
 * `--prefix=[prefix]`:
 
@@ -39,6 +39,10 @@ Append *suffix* to the message.
 * `--no-prefix`:
 
 Do not print the prefix.
+
+* `--readline`:
+
+Use escape sequences compatible with passing to `read -ep`. This allows formatting to be applied to interactive prompts using `read`. When this option is used nothing is printed but the result of formatting the message is assigned to the `PS9` variable.
 
 * `--cross`:
 
@@ -86,7 +90,7 @@ To print to standard error use the following methods.
 
 	Prints an error message.
 	
-* `console.throw`:
+* `console throw`:
 
 	Prints an error message followed by a stack trace of the current method call stack.
 	
@@ -114,7 +118,7 @@ The console(3) module supports redirecting stdout/stderr to log file(s).
 
 The console(3) module provides methods for exiting the program (optionally with a formatted message).
 
-* `console.success`:
+* `console success`:
 
 	Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message.
 
@@ -181,14 +185,28 @@ console_styles[green]="\033[0;32m";
 console_styles[brown]="\033[0;33m";
 console_styles[blue]="\033[0;34m";
 console_styles[magenta]="\033[0;35m";
-
 console_styles[cyan]="\033[0;36m";
 console_styles[gray]="\033[0;37m";
 
 console_styles[yellow]="\033[1;33m";
 console_styles[white]="\033[1;37m";
 
-# generic console output command
+declare -Ag prompt_styles;
+prompt_styles[bold]=$'\001\033[1m\002';
+prompt_styles[underline]=$'\001\033[4m\002';
+
+prompt_styles[black]=$'\001\033[0;30m\002';
+prompt_styles[red]=$'\001\033[0;31m\002';
+prompt_styles[green]=$'\001\033[0;32m\002';
+prompt_styles[brown]=$'\001\033[0;33m\002';
+prompt_styles[blue]=$'\001\033[0;34m\002';
+prompt_styles[magenta]=$'\001\033[0;35m\002';
+prompt_styles[cyan]=$'\001\033[0;36m\002';
+prompt_styles[gray]=$'\001\033[0;37m\002';
+
+#$'\001\033[1m\002ABC\001\033[0m\002'
+
+# main console entry point
 console() {
 	# style terminator
 	local terminator="\033[0m";
@@ -203,12 +221,21 @@ console() {
 		exit 2;
 	fi
 	
+	# copy the style list
+	declare -A styles;
+	local style;
+	for style in "${!console_styles[@]}"
+		do
+			styles[$style]="${console_styles[$style]}";
+	done
+	
 	local color="";
 	local prefix_color="";
 	local highlight_color="";
 	
 	declare -A flags;
 	flags[debug]=false;
+	flags[readline]=false;
 	flags[program.prefix]=false;
 	flags[message.prefix]=true;
 	flags[ansi]=true;
@@ -230,7 +257,17 @@ console() {
 	if [ "${#messages[@]}" -eq 0 ]; then
 		echo "no console message supplied";
 		exit 2;
-	fi	
+	fi
+	
+	# handle read -ep style formatting
+	if ${flags[readline]}; then
+		# overwrite styles for console formatting		
+		terminator=$'\001\033[0m\002';
+		for style in "${!prompt_styles[@]}"
+			do
+				styles[$style]="${prompt_styles[$style]}";
+		done
+	fi
 	
 	# list of available commands
 	local namespace="console.commands";
@@ -314,7 +351,8 @@ console.commands.print() {
 # print a prompt with no newline
 # and a space as the suffix
 console.commands.prompt() {
-	console print --no-newline --suffix="${console_prompt_suffix:-}" "$@";
+	console print --no-newline --readline \
+		--suffix="${console_prompt_suffix:-}" "$@";
 }
 
 # print a log message with a prefix
@@ -397,7 +435,7 @@ console.commands.success() {
 # validate a color name
 console.color.validate() {
 	local val="$1";
-	if ! array.contains? "${val}" "${!console_styles[@]}"; then
+	if ! array.contains? "${val}" "${!styles[@]}"; then
 		console -2 --color=red --prefix="[console]" "invalid color ${val}";
 		exit 2;
 	fi
@@ -425,7 +463,11 @@ console.output() {
 	local opts="-e";
 	if ! ${flags[newline]}; then
 		opts="${opts}n";
-	fi	
+	fi
+	if ${flags[readline]}; then
+		PS9="$parsed";
+		return 0;
+	fi
 	if ${flags[debug]}; then
 		opts="";
 	fi
@@ -451,19 +493,19 @@ console.replace() {
 				do
 					val="${replacements[$i]}";
 					if ${flags[replace.bold]}; then
-						replacements[$i]="${console_styles[bold]}${val}${terminator}";
+						replacements[$i]="${styles[bold]}${val}${terminator}";
 					fi
 					# ensure replacements respect the overall colour
 					if ${flags[color]} && [ -n "$color" ]; then
 						highlight_color="$color";
 					fi
 					if [ -n "${highlight_color}" ]; then
-						replacements[$i]="${console_styles[$highlight_color]}${replacements[$i]}${terminator}";
+						replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
 					fi
 					if ${flags[color]} && [ -n "$color" ]; then
 						# start the message colour again for parts in
 						# between replacements
-						replacements[$i]="${replacements[$i]}${console_styles[$color]}";
+						replacements[$i]="${replacements[$i]}${styles[$color]}";
 					fi
 			done
 			parsed=$( printf -- "${message}" "${replacements[@]:-}" );
@@ -472,7 +514,7 @@ console.replace() {
 		# handle overall message color
 		if ${flags[ansi]} && ${flags[color]} && [ -n "$color" ]; then
 			# echo "add overall message color ..."
-			parsed="${console_styles[$color]}${parsed}";
+			parsed="${styles[$color]}${parsed}";
 		fi
 	fi
 	console.prefix;
@@ -489,10 +531,10 @@ console.prefix() {
 		# echo "prepend prefix ... $message : $prefix : ${flags[color]}";
 		if ${flags[color]}; then
 			if ${flags[prefix.bold]}; then
-				prefix="${console_styles[bold]}${prefix}${terminator}";
+				prefix="${styles[bold]}${prefix}${terminator}";
 			fi
 			if [ -n "${color}" ]; then
-				prefix="${console_styles[$color]}${prefix}${terminator}";
+				prefix="${styles[$color]}${prefix}${terminator}";
 			fi
 		fi
 		parsed="${prefix} ${parsed}";
@@ -546,6 +588,9 @@ console.options.parse() {
 	                no-prefix)
 						flags[message.prefix]=false;
 	                    ;;
+	                readline)
+						flags[readline]=true;
+	                    ;;	
 	                no-newline)
 						flags[newline]=false;
 	                    ;;	
