@@ -30,7 +30,11 @@ Set *color* as the overall message color.
 
 * `--prefix=[prefix]`:
 
-Prepend *prefix* to the beginning of the message.
+Prepend *prefix* to the message.
+
+* `--suffix=[suffix]`:
+
+Append *suffix* to the message.
 
 * `--no-prefix`:
 
@@ -190,6 +194,7 @@ console() {
 	local terminator="\033[0m";
 	# message prefix
 	local prefix="";
+	local suffix="";
 	local messages=();
 	local parsed="";
 	
@@ -208,6 +213,7 @@ console() {
 	flags[message.prefix]=true;
 	flags[ansi]=true;
 	flags[color]=true;
+	flags[newline]=true;
 	flags[replace]=true;
 	flags[replace.bold]=true;
 	flags[prefix.bold]=true;
@@ -229,7 +235,22 @@ console() {
 	# list of available commands
 	local namespace="console.commands";
 	local cmd="";
-	local commands=( info warn error throw debug log header trace quit success print ok notok );
+	local commands=(
+		info
+		warn
+		error
+		throw
+		debug
+		log
+		header
+		trace
+		quit
+		success
+		print
+		ok
+		notok
+		prompt
+	);
 	
 	local code=1;
 	if array.contains? "$1" "${commands[@]}"; then
@@ -243,7 +264,10 @@ console() {
 		fi
 	fi
 	
-	local message="${messages[0]}";
+	local message="${messages[0]:-}";
+	if [ -n "${suffix}" ]; then
+		message="${message} ${suffix}";
+	fi
 	if ${flags[cross]}; then
 		message="${message} ${characters[cross]}";
 	fi
@@ -279,12 +303,18 @@ console() {
 
 # print the generic message header
 console.commands.header() {
-	console "$@" "${header}";
+	console print "$@" "${header}";
 }
 
 # print a message with no prefix
 console.commands.print() {
-	console "$@";
+	console -1 "$@";
+}
+
+# print a prompt with no newline
+# and a space as the suffix
+console.commands.prompt() {
+	console print --no-newline --suffix="${console_prompt_suffix:-}" "$@";
 }
 
 # print a log message with a prefix
@@ -393,6 +423,9 @@ console.main() {
 # print parsed result
 console.output() {
 	local opts="-e";
+	if ! ${flags[newline]}; then
+		opts="${opts}n";
+	fi	
 	if ${flags[debug]}; then
 		opts="";
 	fi
@@ -500,6 +533,11 @@ console.options.parse() {
 	                    opt=${OPTARG%=$val};
 						prefix="${val}";
 	                    ;;
+	                suffix=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						suffix="${val}";
+	                    ;;	
 	                color=*)
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
@@ -508,6 +546,9 @@ console.options.parse() {
 	                no-prefix)
 						flags[message.prefix]=false;
 	                    ;;
+	                no-newline)
+						flags[newline]=false;
+	                    ;;	
 	                debug)
 						flags[debug]=true;
 	                    ;;	
@@ -574,7 +615,21 @@ console.parse() {
 console.parse "$@";
 
 
-
+# # executed before showing a prompt
+# console error.before() {
+# 	# save stderr in file descriptor #7
+# 	exec 7>&2;
+# 	# redirect stderr to stdout
+# 	exec 2>&1;
+# }
+# 
+# # executed after showing a prompt
+# console error.after() {
+# 	# restore stderr and close file descriptor #7
+# 	if [ -f 7 ]; then
+# 		exec 2>&7 7>&-;
+# 	fi
+# }
 
 
 
@@ -820,7 +875,7 @@ function console.log.stderr.close {
 # 	echo -e "$prefix $msg";
 # }
 # 
-# function console.prompt {
+# function console prompt {
 # 	local status="${console_prefixes[$FUNCNAME]}";
 # 	local prefix="$status";	
 # 	local msg="";
@@ -899,21 +954,6 @@ function console.log.stderr.close {
 # 	echo -e "$prefix $msg" >&2;
 # }
 # 
-# # # executed before showing a prompt
-# # console error.before() {
-# # 	# save stderr in file descriptor #7
-# # 	exec 7>&2;
-# # 	# redirect stderr to stdout
-# # 	exec 2>&1;
-# # }
-# # 
-# # # executed after showing a prompt
-# # console error.after() {
-# # 	# restore stderr and close file descriptor #7
-# # 	if [ -f 7 ]; then
-# # 		exec 2>&7 7>&-;
-# # 	fi
-# # }
 # 
 # #outputs an error message
 # function console error {

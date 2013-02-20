@@ -100,11 +100,9 @@ function __prompt.trigger {
 	local IFS=' ';
 	local methods=( $1 );
 	shift;
-	unset IFS;	
-	# echo "trigger called with ${#methods[@]} : ${methods[@]}";
+	unset IFS;
 	for m in ${methods[@]}
 		do
-			#echo "callback : $m";
 			if method.exists? "$m"; then
 				$m "$@";
 			fi
@@ -153,15 +151,14 @@ function __prompt.show.boolean {
 	shift;
 	
 	prompt_current=( $@ );
-	
+
 	if [ -t 0 ]; then
-		
 		prompt.before;
 		if [ -n "${prompt_ps:-}" ]; then
 			read -ep "${prompt_ps}" value;
 		else
 			# show the prompt message
-			console.prompt $@;	
+			console prompt "$@";
 			read -e value;
 		fi
 		prompt.after;
@@ -187,7 +184,7 @@ function __prompt.show.data {
 			read -ep "${prompt_ps}" value;
 		else
 			# show the prompt message
-			console.prompt $@;			
+			console prompt $@;			
 			read -e value;
 		fi
 		prompt.after;
@@ -198,26 +195,3 @@ function __prompt.show.data {
 		fi
 	fi
 }
-
-# function __prompt.show {
-# 	local value;	
-# 	if [ -t 0 ]; then
-# 		if [ -n "${prompt_ps:-}" ]; then
-# 			read -ep "${prompt_ps}" value;
-# 		else
-# 			read -e value;
-# 		fi
-# 		if [ "$value" == "$accept" ]; then
-# 			__prompt.accepted $@;
-# 		elif [ "$value" == "$reject" ]; then
-# 			__prompt.rejected $@;
-# 		else
-# 			__prompt.invalid $@;
-# 		fi
-# 	fi
-# }
-
-# TODO: !?
-# function __prompt.validate {
-# 	echo "validating prompt data ... $@";
-# }

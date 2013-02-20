@@ -403,7 +403,7 @@ function __semver.change.confirm {
 	}
 	
 	rejected() {
-		console.success "aborted";		
+		console.quit 1 "aborted";
 	}
 	
 	# define a boolean prompt
@@ -464,7 +464,7 @@ function __semver.release.confirm {
 	}
 	
 	rejected() {
-		console.success "aborted";		
+		console.quit 1 "aborted";		
 	}
 	
 	# define a boolean prompt
@@ -505,7 +505,7 @@ function __semver.release.confirmed {
 	# validate release version is 1.0.0 or prompt to switch to 1.0.0 version
 	semver.callback() {
 		if [ ${semver[major]} -eq 1 ] && [ ${semver[minor]} -eq 0 ] && [ ${semver[patch]} -eq 0 ]; then
-			echo "release version is already at 1.0.0";
+			console print "release version is already at 1.0.0";
 			next;
 		else
 			# # define a boolean prompt

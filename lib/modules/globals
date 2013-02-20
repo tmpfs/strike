@@ -213,3 +213,6 @@ characters[lightning]="⚡";
 
 # 75 character header used as a delimiter for program output
 declare -g header="+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
+
+# generic suffic for prompts
+declare -g console_prompt_suffix="${characters[lightning]} ";

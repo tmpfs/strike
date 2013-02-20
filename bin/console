@@ -157,13 +157,28 @@ console.test.types() {
 	console header;	
 }
 
+# test displaying a prompt
+console.test.prompt() {
+	local title="${1:-PROMPT}";
+	local opts="${2:-}";
+	console print "${title}";
+	console header;
+	
+	console prompt "ps";
+	printf "\n";
+	
+	console header;	
+}
+
 # print test messages
 console.test() {
 	console.test.headers;
 	console.test.colors;
 	console.test.types;
+	console.test.prompt;
 	
-	console.test.types "TYPES (NO PREFIX)" "--no-prefix";
+	# console.test.types "TYPES (NO PREFIX)" "--no-prefix";
+
 
 	# console -c "standard message for you ... %s" "abc def ghi";
 	# console -n "simple message for you ... %s" "abc";
