@@ -140,7 +140,9 @@ prompt.before() {
 # executed after showing a prompt
 prompt.after() {
 	# restore stderr and close file descriptor #7
-	exec 2>&7 7>&-;
+	if [ -f 7 ]; then
+		exec 2>&7 7>&-;
+	fi
 }
 
 function __prompt.show.boolean {
