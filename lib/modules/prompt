@@ -8,12 +8,19 @@ declare -g prompt_invalid;
 
 declare -g prompt_current;
 
+# current prompt command
+declare -g prompt_command;
+declare -ag prompt_command_options;
+
+# custom ps prompt
+declare -g prompt_ps;
+
 # add a boolean prompt
 # $1 id
 # $2 true string
 # $3 false string
 # $4..$# message parameters ...
-function prompt.boolean {
+prompt.boolean() {
 	local key="${1:-}";
 	shift;
 	# store newline separated
@@ -26,7 +33,7 @@ function prompt.boolean {
 # add a data prompt - read a non-empty string
 # $1 id
 # $2..$# message parameters ...
-function prompt.data {
+prompt.data() {
 	local key="${1:-}";
 	shift;
 	# store newline separated
@@ -37,50 +44,49 @@ function prompt.data {
 }
 
 # show a prompt by id
-function prompt.show {
+prompt.show() {
 	local key="${1:-}";
 	shift;
-	
 	if [ -n "${prompt_boolean["$key"]:-}" ]; then
 		local IFS=$'\n';
 		local values=( ${prompt_boolean["$key"]} );
+		prompt_command_options=( ${values[@]} );
+		prompt_command='__prompt.show.boolean';
 		__prompt.show.boolean ${values[@]};
 		return $?;
 	elif [ -n "${prompt_data["$key"]:-}" ]; then
 		local IFS=$'\n';
 		local values=( ${prompt_data["$key"]} );
+		prompt_command_options=( ${values[@]} );		
+		prompt_command='__prompt.show.data';
 		__prompt.show.data ${values[@]};
 		return $?;
 	fi
-
 	console.warn "no prompt data for %s" "$key";
 	return 1;
 }
 
-# sets `accept` callback method(s)
-function prompt.accepts {
+# sets accept callback method
+prompt.accepts() {
 	prompt_accepted="$@";
 }
 
-# sets `rejects` callback method(s)
-function prompt.rejects {
+# sets rejects callback method
+prompt.rejects() {
 	prompt_rejected="$@";
 }
 
-# sets `invalid` callback method(s)
-function prompt.invalid {
+# sets invalid callback method
+prompt.invalid() {
 	prompt_invalid="$@";
 }
 
-# clean all prompt data
-function prompt.clean {
+# clean prompt data
+prompt.clean() {
 	unset prompt_data;
 	unset prompt_boolean;
-	
 	declare -Ag prompt_data;
-	declare -Ag prompt_boolean;	
-	
-	#echo "prompt after clean : ${!prompt_data}";
+	declare -Ag prompt_boolean;
 }
 
 ######################################################################
@@ -106,13 +112,11 @@ function __prompt.trigger {
 }
 
 function __prompt.accepted {
-	#echo "$FUNCNAME"
 	__prompt.trigger $prompt_accepted "$@";
 	return 0;
 }
 
 function __prompt.rejected {
-	#echo "$FUNCNAME"
 	__prompt.trigger $prompt_rejected "$@";
 	return 0;
 }
@@ -121,43 +125,27 @@ function __prompt.invalid {
 	if [ -n "${prompt_invalid:-}" ]; then
 		__prompt.trigger $prompt_invalid;
 	fi
-	# show prompt on invalid input by default
-	console.prompt ${prompt_current[@]};
-	__prompt.show;
+	$prompt_command ${prompt_command_options[@]:-};
 	return 0;
 }
 
 function __prompt.show.boolean {
+	local value;	
 	local accept="$1";
 	shift;
 	local reject="$1";
 	shift;
 	
-	# show the prompt message
-	console.prompt $@;
-	prompt_current=( $@ );
-	__prompt.show;
-}
-
-function __prompt.show.data {
-	# show the prompt message
-	console.prompt $@;
 	prompt_current=( $@ );
 	
 	if [ -t 0 ]; then
-		read -e value;
-		if [ -n "${value:-}" ]; then
-			__prompt.accepted "${value}";
+		if [ -n "${prompt_ps:-}" ]; then
+			read -ep "${prompt_ps}" value;
 		else
-			__prompt.rejected "${value}";
+			# show the prompt message
+			console.prompt $@;	
+			read -e value;
 		fi
-	fi
-}
-
-function __prompt.show {
-	# only prompt if stdin is a tty
-	if [ -t 0 ]; then
-		read -e value;
 		if [ "$value" == "$accept" ]; then
 			__prompt.accepted $@;
 		elif [ "$value" == "$reject" ]; then
@@ -168,7 +156,46 @@ function __prompt.show {
 	fi
 }
 
-# TODO: !?
-function __prompt.validate {
-	echo "validating prompt data ... $@";
+function __prompt.show.data {
+	local value;
+	
+	prompt_current=( $@ );
+	
+	if [ -t 0 ]; then
+		if [ -n "${prompt_ps:-}" ]; then
+			read -ep "${prompt_ps}" value;
+		else
+			# show the prompt message
+			console.prompt $@;			
+			read -e value;
+		fi
+		if [ -n "${value:-}" ]; then
+			__prompt.accepted "${value}";
+		else
+			__prompt.rejected "${value}";
+		fi
+	fi
 }
+
+# function __prompt.show {
+# 	local value;	
+# 	if [ -t 0 ]; then
+# 		if [ -n "${prompt_ps:-}" ]; then
+# 			read -ep "${prompt_ps}" value;
+# 		else
+# 			read -e value;
+# 		fi
+# 		if [ "$value" == "$accept" ]; then
+# 			__prompt.accepted $@;
+# 		elif [ "$value" == "$reject" ]; then
+# 			__prompt.rejected $@;
+# 		else
+# 			__prompt.invalid $@;
+# 		fi
+# 	fi
+# }
+
+# TODO: !?
+# function __prompt.validate {
+# 	echo "validating prompt data ... $@";
+# }

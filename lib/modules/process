@@ -122,6 +122,11 @@ function process.initialize {
 	
 	process.lock.test;
 	
+	# redirect stderr to console.error
+	# so that all error messages are highlighted
+	# wherever possible
+	exec 2> >(while read line; do console.error "$line" >&2; done)
+	
 	# initialize registry of signal
 	# callback methods
 	local signal;
