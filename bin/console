@@ -165,9 +165,20 @@ console.test.printf() {
 	console print "${title}";
 	console header;
 	
-	console info "a %s value" "string";
+	console info "a %s value" "string";	
+	
+	# too many format strongs
+	console info "a %s value %s %s" "string";
+	
+	# hyphenated messages/replacements
 	console info -- "-a %s value" "-hyphenated";
+	
+	# quoting a value, using bash's %q
 	console info "a %q value" "quoted value []";
+	
+	#console info "a %.2f value" "3.1432423434";
+	
+	#printf "a %.2f value\n" "3.1432423434";
 	
 	console header;
 }
