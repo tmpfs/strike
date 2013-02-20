@@ -129,6 +129,20 @@ function __prompt.invalid {
 	return 0;
 }
 
+# executed before showing a prompt
+prompt.before() {
+	# save stderr in file descriptor #7
+	exec 7>&2;
+	# redirect stderr to stdout
+	exec 2>&1;
+}
+
+# executed after showing a prompt
+prompt.after() {
+	# restore stderr and close file descriptor #7
+	exec 2>&7 7>&-;
+}
+
 function __prompt.show.boolean {
 	local value;	
 	local accept="$1";
@@ -139,6 +153,8 @@ function __prompt.show.boolean {
 	prompt_current=( $@ );
 	
 	if [ -t 0 ]; then
+		
+		prompt.before;
 		if [ -n "${prompt_ps:-}" ]; then
 			read -ep "${prompt_ps}" value;
 		else
@@ -146,6 +162,7 @@ function __prompt.show.boolean {
 			console.prompt $@;	
 			read -e value;
 		fi
+		prompt.after;
 		if [ "$value" == "$accept" ]; then
 			__prompt.accepted $@;
 		elif [ "$value" == "$reject" ]; then
@@ -162,6 +179,8 @@ function __prompt.show.data {
 	prompt_current=( $@ );
 	
 	if [ -t 0 ]; then
+		
+		prompt.before;
 		if [ -n "${prompt_ps:-}" ]; then
 			read -ep "${prompt_ps}" value;
 		else
@@ -169,6 +188,7 @@ function __prompt.show.data {
 			console.prompt $@;			
 			read -e value;
 		fi
+		prompt.after;
 		if [ -n "${value:-}" ]; then
 			__prompt.accepted "${value}";
 		else
