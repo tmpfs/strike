@@ -761,7 +761,7 @@ function __semver.file.exists? {
 
 function __semver.sync.quit {
 	console error "semver %s to sync semvers" "sync package|version|semver";
-	quit 1 "semver %s %s" "$version" "✘";	
+	console quit 1 "semver %s %s" "$version";	
 }
 
 function __semver.missing.files.info {
@@ -795,5 +795,5 @@ function __semver.files.missing.quit {
 }
 
 function __semver.file.missing.warn {
-	console warn "%s %s" "$1" "✘";
+	console notok "%s" "$1";
 }

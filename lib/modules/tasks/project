@@ -194,9 +194,9 @@ function prj.tasks.project.exists {
 	prj_id="${1:-}";
 	!project.id.validate;
 	if !project.exists?; then
-		console.success "project %s %s" "$prj_id" "✓";
+		console.success "project %s %s" "$prj_id";
 	else
-		console quit 1 "no project %s %s" "$prj_id" "✘";
+		console quit 1 "no project %s %s" "$prj_id";
 	fi
 }
 

@@ -88,7 +88,7 @@ tasks.clean() {
 	}
 
 	rejected() {
- 		console quit 1 "aborted %s" "${characters[cross]}";
+ 		console quit 1 "aborted";
 	}
 	
 	# cannot interact, just try to clean

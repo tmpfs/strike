@@ -1292,8 +1292,8 @@ dly.fail() {
 	if [ $# -gt 0 ]; then
 		console error "$@";
 	fi
-	console quit 1 "deploy %s failed %s" \
-			"${deploy_name}" "${characters[cross]}";
+	console quit 1 "deploy %s failed" \
+			"${deploy_name}";
 }
 
 # attempts to notify via `growlnotify` when available
