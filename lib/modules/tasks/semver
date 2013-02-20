@@ -268,8 +268,8 @@ function sv.tasks.semver.sync {
 							# don't compare to self
 							if [ "$key" != "$subkey" ]; then
 								if [ "${versions[$key]}" != "${versions[$subkey]}" ]; then
-									console.warn "%s != %s" "${versions[$key]}" "${versions[$subkey]}";
-									console.warn "%s != %s" "${files[$key]}" "${files[$subkey]}";
+									console warn "%s != %s" "${versions[$key]}" "${versions[$subkey]}";
+									console warn "%s != %s" "${files[$key]}" "${files[$subkey]}";
 									valid=1;
 								fi
 							fi
@@ -440,18 +440,18 @@ function __semver.release.warn {
 	local header="$_result";
 
 	console print "$header";	
-	console.warn "You are about to go from major version %s to major version %s" "0" "1";
-	console.warn "creating a public version of your software.";
+	console warn "You are about to go from major version %s to major version %s" "0" "1";
+	console warn "creating a public version of your software.";
 	console print "";
-	console.warn "This means you are about to create a %s for your software" "PUBLIC API";
-	console.warn "and you should be certain that you wish to proceed.";
+	console warn "This means you are about to create a %s for your software" "PUBLIC API";
+	console warn "and you should be certain that you wish to proceed.";
 	console print "";	
-	console.warn "You should perform the following actions before creating version %s:" "1";
+	console warn "You should perform the following actions before creating version %s:" "1";
 	console print "";	
-	console.warn "	* Run unit tests using %s or %s" "npm test" "bake test";
-	console.warn "	* Check for %s and %s tags" "BUG" "FIXME";
-	console.warn "	* Generate documentation using %s" "bake doc.build";
-	console.warn "	* Publish documentation using %s" "bake doc.pages.push";
+	console warn "	* Run unit tests using %s or %s" "npm test" "bake test";
+	console warn "	* Check for %s and %s tags" "BUG" "FIXME";
+	console warn "	* Generate documentation using %s" "bake doc.build";
+	console warn "	* Publish documentation using %s" "bake doc.pages.push";
 	console print "$header";
 }
 
@@ -779,7 +779,7 @@ function __semver.file.write.quit {
 }
 
 function __semver.invalid.warn {
-	console.warn "semver %s is not ok" "$1";
+	console warn "semver %s is not ok" "$1";
 }
 
 function __semver.invalid.quit {
@@ -795,5 +795,5 @@ function __semver.files.missing.quit {
 }
 
 function __semver.file.missing.warn {
-	console.warn "%s %s" "$1" "✘";
+	console warn "%s %s" "$1" "✘";
 }

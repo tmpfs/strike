@@ -398,7 +398,7 @@ function __todo.options.parse {
 					file="${root}/${file}";
 				fi
 				if [ ! -f "$file" ]; then
-					console.warn "file %s is invalid" "$file";
+					console warn "file %s is invalid" "$file";
 				else
 					fs.path.expand "$file";
 					file="$_result";
@@ -418,11 +418,11 @@ function __todo.options.parse {
 				if [ -d "${dir}" ]; then
 					scandirs+=( "$1" );
 				else
- 					console.warn "invalid scan directory %s" "$dir";
+ 					console warn "invalid scan directory %s" "$dir";
 				fi
 				;;
 			* )
-				console.warn "usage: todo [command] [options...]";
+				console warn "usage: todo [command] [options...]";
 				console quit 1 "unkown option %s" "$1";
 				;;
 		esac

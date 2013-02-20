@@ -237,7 +237,7 @@ function http.curl.execute {
 	else
 		# TODO: remove this warning or prevent for the `rest dl` command?
 		# TODO: don't show this if the request is HEAD
-		console.warn "no http output file %s after request" "$http_body_file";
+		console warn "no http output file %s after request" "$http_body_file";
 	fi
 }
 

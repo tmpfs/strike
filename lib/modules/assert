@@ -237,17 +237,6 @@ function assert.summary {
 	return 0;
 }
 
-function assert.header {
-	local method="${1:-}";
-	if [ -z "$method" ]; then
-		method="${output:-}";
-	fi
-	if [ -z "$method" ]; then
-		method="console header";
-	fi
-	$method "$assert_header";
-}
-
 ######################################################################
 #
 #	PRIVATE METHODS
@@ -360,45 +349,46 @@ function __assert.print.summary {
 	# based on any assertions failing
 	local output="console info";
 	
+	output_options="--no-prefix"
+	
 	# some assertions failed
+	
 	if [ ${summary[assertions.fail]} -gt 0 ]; then
 		# TODO: ensure [warn] prefix is not displayed, after console(3) refactoring
 		output="console warn";
+		output_options="${output_options} --color=magenta";
 	fi
 	
-	assert.header $output;
-	$output "RESULT";
-	assert.header $output;	
+	console header $output_options;
+	$output $output_options "RESULT";
+	console header $output_options;
 	
-	$output "suites (total): %s" "${summary[total]}";
-	$output "suites (binary): %s" "${summary[executables]}";
-	$output "suites (test): %s" "${summary[suites]}";
-	$output "methods: %s" "${summary[methods]}";
-	$output "assertions: %s" "${summary[assertions]}";
-	$output "assertions (pass): %s" "${summary[assertions.pass]}";
+	$output $output_options "suites (total): %s" "${summary[total]}";
+	$output $output_options "suites (binary): %s" "${summary[executables]}";
+	$output $output_options "suites (test): %s" "${summary[suites]}";
+	$output $output_options "methods: %s" "${summary[methods]}";
+	$output $output_options "assertions: %s" "${summary[assertions]}";
+	$output $output_options "assertions (pass): %s" "${summary[assertions.pass]}";
 	
-	if [ ${summary[assertions.fail]} -eq 0 ]; then
-		console info "assertions (fail): %s" "${summary[assertions.fail]}";
-	else
-		console warn "assertions (fail): %s" "${summary[assertions.fail]}";
-	fi
+	$output $output_options \
+		"assertions (fail): %s" "${summary[assertions.fail]}";
 	
 	if [ ${summary[assertions.fail]} -eq 0 ]; then
-		assert.header;
-		console success "test(s) passed %s";
+		console header $output_options;
+		console success "test(s) passed";
 	else
 		
-		assert.header;
-		console warn "# FAILURES";
-		assert.header;
+		console header $output_options;
+		$output $output_options "FAILURES";
+		console header $output_options;
 		
 		if [ -n "${stdout:-}" ]; then
-			console warn "# STDOUT: %s" "$stdout";
+			$output $output_options "STDOUT: %s" "$stdout";
 		fi
 		if [ -n "${stderr:-}" ]; then
-			console warn "# STDERR: %s" "$stderr";
+			$output $output_options "STDERR: %s" "$stderr";
 		fi
-		assert.header;
+		console header $output_options;
 		
 		local debuginfo;
 		for debuginfo in ${!failures[@]}
@@ -410,9 +400,6 @@ function __assert.print.summary {
 				console error "$frame";
 		done
 		
-		assert.header;		
-		
-		console error "test(s) failed %s" "✘";
-		exit ${summary[assertions.fail]};
+		console quit ${summary[assertions.fail]} "test(s) failed";
 	fi
 }

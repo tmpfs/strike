@@ -16,7 +16,7 @@ checksum.sha() {
 		opts="";
 	fi
 	if [ -z "${exe}" ]; then
-		console.warn "cannot generate sha checksum missing one of %s" \
+		console warn "cannot generate sha checksum missing one of %s" \
 			"${binaries[*]}";
 		return 1;
 	else

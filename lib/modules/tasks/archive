@@ -446,8 +446,8 @@ function __archive.dir.process {
 	# overrides any dir specified with the -d | --dir option
 	if [[ "$namedir" =~ ^/ ]]; then
 		if [ -n "${archive_dir}" ]; then
-			console.warn "redundant %s value %s with absolute archive path %s" "-d | --dir" "${archive_dir}" "${namedir}";
-			console.warn "using %s" "${namedir}";
+			console warn "redundant %s value %s with absolute archive path %s" "-d | --dir" "${archive_dir}" "${namedir}";
+			console warn "using %s" "${namedir}";
 		fi
 		archive_dir="${namedir}";
 		return 0;
@@ -505,7 +505,7 @@ function __archive.name.process {
 		# echo "infer archive type from name $archive_name";
 		__archive.type.infer;
 		if ! $inferred; then
-			console.warn "could not infer archive type from %s, using %s" "${archive_name}" "${default_archive_type}";
+			console warn "could not infer archive type from %s, using %s" "${archive_name}" "${default_archive_type}";
 		fi
 	fi
 	

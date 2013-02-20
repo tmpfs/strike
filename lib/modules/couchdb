@@ -61,7 +61,7 @@ couchdb.session.login() {
 			
 		local cookie="${http_header_0_set_cookie:-}";
 		if [ -z "$cookie" ]; then
-			console.warn "could not retrieve cookie header information for couchdb session login";
+			console warn "could not retrieve cookie header information for couchdb session login";
 		else
 			#AuthSession=ZmZzeXM6NTBGNjgwOEM6ROf3Gcfux_kfV_x3VDmRPCGaQ84; Version=1; Path=/; HttpOnly
 			couchdb_session_login_auth_token="${cookie%%;*}";

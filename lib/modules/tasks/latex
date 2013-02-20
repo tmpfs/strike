@@ -277,8 +277,8 @@ function __latex.compile {
 				cat "$logfile" >&2;
 			fi
 		fi
-		console.warn "log file %s" "${output}/${nm}.log";
-		console.warn "log file %s" "$logfile";
+		console warn "log file %s" "${output}/${nm}.log";
+		console warn "log file %s" "$logfile";
 		console quit 1 "failed to compile %s" "$file";
 	fi
 	cd "$owd" || console quit 1 "could not cd to %s" "${owd}";

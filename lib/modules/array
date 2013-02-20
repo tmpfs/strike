@@ -169,7 +169,7 @@ function array.write {
 	local file="${1:-}";
 	local flags="${2:-g}";
 	if [ -z "$file" ]; then
-		console.warn "no file passed to array.write";
+		console warn "no file passed to array.write";
 	else
 		echo -ne "" >| "$file" || quit 1 "could not create array.write file %s" "$file";
 		local stdin;

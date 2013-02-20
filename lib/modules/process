@@ -252,7 +252,7 @@ function process.signal.on {
 	local method="${1:-process.trap}";
 	local signal;
 	if ! method.exists? "$method"; then
-		console.warn "%s cannot add non-existent callback method %s" "$FUNCNAME" "$method";
+		console warn "%s cannot add non-existent callback method %s" "$FUNCNAME" "$method";
 	else
 		# got some signals specified
 		if [ $# -gt 1 ]; then
@@ -269,13 +269,13 @@ function process.signal.on {
 						# remove a leading space delimiter
 						process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]# }";
 					else
-						console.warn "%s invalid signal %s" "$FUNCNAME" "$signal";
+						console warn "%s invalid signal %s" "$FUNCNAME" "$signal";
 					fi
 					# process next signal name
 					shift;
 			done
 		else
-			console.warn "%s no signals specified" "$FUNCNAME";
+			console warn "%s no signals specified" "$FUNCNAME";
 		fi
 	fi
 }
@@ -327,7 +327,7 @@ function process.signal.off {
 				shift;
 		done
 	else
-		console.warn "%s no signals specified" "$FUNCNAME";
+		console warn "%s no signals specified" "$FUNCNAME";
 	fi
 	
 	# clean up the iterator
@@ -422,7 +422,7 @@ function process.daemon.start! {
 		process_loop=true;
 		__process.daemonize "$method";
 	else
-		console.warn "attempt to daemonize with no callback method %s" "$method";
+		console warn "attempt to daemonize with no callback method %s" "$method";
 	fi
 }
 
@@ -605,7 +605,7 @@ function __process.pid.clean {
 	process.pid.file;
 	local file="$_result";
 	if test -f "$file"; then
-		rm "$file" >| /dev/null 2>&1 || console.warn "could not remove pid file %s" "$file";
+		rm "$file" >| /dev/null 2>&1 || console warn "could not remove pid file %s" "$file";
 	fi
 }
 
@@ -621,6 +621,6 @@ function __process.lock.clean {
 	process.lock.file;
 	local file="$_result";
 	if test -f "$file"; then
-		rm "$file" >| /dev/null 2>&1 || console.warn "could not remove lock file %s" "$file";
+		rm "$file" >| /dev/null 2>&1 || console warn "could not remove lock file %s" "$file";
 	fi
 }

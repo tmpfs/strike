@@ -282,14 +282,14 @@ function rlx.password.read {
 	# create a newline
 	echo "";
 	if [ -z "$password" ]; then
-		console.warn "enter a password";
+		console warn "enter a password";
 		rlx.password.read;
 	elif $validate; then
 		if [ ${#password} -lt $minimum ]; then
-			console.warn "minimum 8 characters";
+			console warn "minimum 8 characters";
 			rlx.password.read;
 		elif [[ "$password" =~ ^[a-zA-Z]+$ ]] || [[ "$password" =~ ^[0-9]+$ ]]; then
-			console.warn "must contain letters %s numbers" "and";
+			console warn "must contain letters %s numbers" "and";
 			rlx.password.read;
 		fi
 	fi

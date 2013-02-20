@@ -31,7 +31,7 @@ function rlx.shell.db {
 		local cmd="${1:-}";
 		shift;
 		if ! method.exists? "rlx.shell.db.${cmd}"; then
-			console.warn "invalid db command %s" "$cmd";
+			console warn "invalid db command %s" "$cmd";
 		fi
 		"rlx.shell.db.${cmd}" "$@";
 	fi
@@ -40,7 +40,7 @@ function rlx.shell.db {
 function rlx.shell.db.add {
 	local name="${1:-}";
 	if ! couchdb.db.name.valid? "$name"; then
-		console.warn "invalid database name %s" "$name";
+		console warn "invalid database name %s" "$name";
 		return 0;
 	fi
 	

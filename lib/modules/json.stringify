@@ -45,7 +45,7 @@ function json.stringify {
 	#echo "json_data: $json_data";
 	
 	if [ -z "$json_data" ]; then
-		console.warn "invalid json.stringify call, usage: json.stringify <<< \"varname\"";
+		console warn "invalid json.stringify call, usage: json.stringify <<< \"varname\"";
 		return 1;
 	fi
 	

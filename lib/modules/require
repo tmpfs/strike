@@ -266,7 +266,7 @@ function __require_source {
 			console quit 1 "module %s is not a file or unreadable" "$abs";
 		fi
 	else
-		console.warn "skipping require on loaded module %s" "$abs";
+		console warn "skipping require on loaded module %s" "$abs";
 	fi
 }
 

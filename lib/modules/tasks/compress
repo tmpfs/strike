@@ -280,7 +280,7 @@ function __compress.files.get {
 				fi
 				
 				if [ ! -e "$file" ]; then
-					console.warn "skipping non-existent file %s" "$file";
+					console warn "skipping non-existent file %s" "$file";
 					continue;
 				fi
 				
@@ -406,7 +406,7 @@ function __compress.output {
 			fs.dirname "$out" "parent";
 			local relative="${parent#$compress_dir}";
 			if [ "$relative" == "$out" ]; then
-				console.warn "output file %s is not relative to %s" "$out" "$compress_dir";
+				console warn "output file %s is not relative to %s" "$out" "$compress_dir";
 			fi
 			relative="${relative#/}";
 			relative="${compress_output}/${relative}";

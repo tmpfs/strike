@@ -400,7 +400,7 @@ dly.profiles() {
 		do
 			if [ "${profile}" != "${defaults[profile.name]}" ]; then
 				if ! array.contains? "${profile}" "${all_profiles[@]:-}"; then
-					console.warn "profile %s does not exist in %s" "${profile}" "${descriptor}";
+					console warn "profile %s does not exist in %s" "${profile}" "${descriptor}";
 					continue;
 				fi
 			fi

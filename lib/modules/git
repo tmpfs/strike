@@ -14,7 +14,7 @@ Utility commands for working with git(1) repositories.
 		if git.valid? "$dir"; then
 			console info "%s is a git repository" "$dir";
 		else
-			console.warn "%s is %s a git repository" "$dir" "not";
+			console warn "%s is %s a git repository" "$dir" "not";
 		fi
 	}
 	git.info;
@@ -76,7 +76,7 @@ function git.exists? {
 	if [ -z "$git" ]; then
 		executable.validate --test git;
 		if [ -z "${executables[git]}" ]; then
-			console.warn "git is not available";
+			console warn "git is not available";
 			return 1;
 		fi
 	fi

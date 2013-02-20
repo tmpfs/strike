@@ -62,7 +62,7 @@ prompt.show() {
 		__prompt.show.data ${values[@]};
 		return $?;
 	fi
-	console.warn "no prompt data for %s" "$key";
+	console warn "no prompt data for %s" "$key";
 	return 1;
 }
 

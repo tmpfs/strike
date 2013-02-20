@@ -74,7 +74,7 @@ To print to standard output use the following methods.
 
 To print to standard error use the following methods.
 
-* `console.warn`:
+* `console warn`:
 
 	Prints a warning message.
 	
@@ -624,7 +624,7 @@ function console.log.stdout {
 function console.log.stdout.close {
 	if [ ! -z "$__stdout_log_file" ]; then
 		# restore stdout and close file descriptor #3
-		exec 1>&3 3>&- || console.warn "no file descriptor for stdout log file";
+		exec 1>&3 3>&- || console warn "no file descriptor for stdout log file";
 		__stdout_log_file="";
 	fi
 }
@@ -647,7 +647,7 @@ function console.log.stderr.close {
 	
 	if [ ! -z "$__stderr_log_file" ]; then
 		# restore stdout and close file descriptor #3
-		exec 2>&4 4>&- || console.warn "no file descriptor for stderr log file";
+		exec 2>&4 4>&- || console warn "no file descriptor for stderr log file";
 		__stderr_log_file="";
 	fi
 }
@@ -876,7 +876,7 @@ function console.log.stderr.close {
 # }
 # 
 # #outputs a warning message
-# function console.warn {	
+# function console warn {	
 # 	local status="${console_prefixes[$FUNCNAME]}";
 # 	local prefix="$status";
 # 	local msg="";
@@ -983,6 +983,6 @@ alias "console.log=console log";
 
 # alias "info=console info";
 # alias "error=console error";
-# alias "warn=console.warn";
+# alias "warn=console warn";
 # alias "success=console.success";
 # alias "quit=console quit";
