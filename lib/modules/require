@@ -78,7 +78,7 @@ function require.library {
 # 	local path="${1:-}";
 # 	if [ -n "${path}" ]; then
 # 		if [ ! -d "${path}" ]; then
-# 			console.quit 1 "require path %s is not a directory" "${path}";
+# 			console quit 1 "require path %s is not a directory" "${path}";
 # 		fi
 # 		__require_paths+=( "${path}" );
 # 	fi
@@ -253,7 +253,7 @@ function __require_source {
 		if [ -f "${abs}/${name}" ]; then			
 			abs="${abs}/${name}";
 		else
-			console.quit 1 "module %s is a directory" "$abs";
+			console quit 1 "module %s is a directory" "$abs";
 		fi
 	fi
 	
@@ -263,7 +263,7 @@ function __require_source {
 		if [ -f "$abs" ] && [ -r "$abs" ]; then
 			. "$abs";
 		else
-			console.quit 1 "module %s is not a file or unreadable" "$abs";
+			console quit 1 "module %s is not a file or unreadable" "$abs";
 		fi
 	else
 		console.warn "skipping require on loaded module %s" "$abs";

@@ -70,12 +70,12 @@ devel_excludes=(
 
 tasks.devel() {
     if [ $# -eq 0  ]; then
-        console.quit 1 "no %s command specified" "devel";
+        console quit 1 "no %s command specified" "devel";
     fi
     local cmd="${1:-}";
     shift;
     if ! method.exists? "devel.$cmd"; then
-        console.quit 1 "invalid %s command %s" "devel" "$cmd";
+        console quit 1 "invalid %s command %s" "devel" "$cmd";
     fi
 
     declare -A prj_doc;
@@ -94,11 +94,11 @@ devel.push() {
 	printf "" >| "${log}";
     local id="${1:-}";
     if [ -z "${id}"  ]; then
-        console.quit 1 "no id specified";
+        console quit 1 "no id specified";
     fi
 
     if ! !project.exists? "${id}"; then
-        console.quit 1 "project %s does not exist" "${id}";
+        console quit 1 "project %s does not exist" "${id}";
     fi
 
     #TODO: check whether a devel-target has been set for the project
@@ -106,7 +106,7 @@ devel.push() {
     local path="${prj_doc[projects.$id.path]}";
 
     if [ ! -d "${path}"  ] || [ ! -e "${path}" ]; then
-        console.quit 1 "project path %s does not exist or is not a directory" "${path}";
+        console quit 1 "project path %s does not exist or is not a directory" "${path}";
     fi
 
     local name;
@@ -122,7 +122,7 @@ devel.push() {
 	destination="$_result";
 	if [ ! -d "${destination}" ]; then
 		mkdir -p "${destination}" \
-			|| console.quit 1 "could not create %s" "${destination}";
+			|| console quit 1 "could not create %s" "${destination}";
 	fi
 
     #echo "copy project to target ... with id $id : $path : $destination"

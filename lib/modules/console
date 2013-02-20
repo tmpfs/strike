@@ -32,6 +32,18 @@ Set *color* as the overall message color.
 
 Prepend *prefix* to the beginning of the message.
 
+* `--no-prefix`:
+
+Do not print the prefix.
+
+* `--cross`:
+
+Append a single space and a cross character to the message.
+
+* `--tick`:
+
+Append a single space and a tick character to the message.
+
 * `--debug`:
 
 Do not interpret ANSI sequences, print them.
@@ -102,7 +114,7 @@ The console(3) module provides methods for exiting the program (optionally with 
 
 	Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message.
 
-* `console.quit`:
+* `console quit`:
 
 	Exits the program with a non-zero exit code and optional error message. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code.
 	
@@ -312,10 +324,19 @@ console.commands.warn() {
 	console -2 --color=magenta --prefix="${console_prefixes[warn]}" "$@";
 }
 
+# throw a stack trace with
+# preceeding error message
+console.commands.throw() {
+	local message="${1:-Unknown error}";
+	console error "$message";
+	console trace 1;
+}
+
 # print a stack trace as a series of error messages
 console.commands.trace() {
 	local offset="${1:-0}";
-	local frame=$offset line;
+	local frame="$offset";
+	local line;
 	local data=( $( caller $frame ) );
 	while [ "${#data[@]}" -gt 0 ]; do
 		console -2 --color=red --prefix="${console_prefixes[trace]}" \
@@ -375,8 +396,6 @@ console.output() {
 	if ${flags[debug]}; then
 		opts="";
 	fi
-	
-	#echo "parsed : $parsed";
 	
 	if ! ${flags[stderr]}; then
 		echo $opts "$parsed";
@@ -485,6 +504,9 @@ console.options.parse() {
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						color="${val}";
+	                    ;;
+	                no-prefix)
+						flags[message.prefix]=false;
 	                    ;;
 	                debug)
 						flags[debug]=true;
@@ -713,7 +735,7 @@ function console.log.stderr.close {
 # #(if [ -t 1 ] ; then echo terminal; fi) | echo
 # 
 # #quits a program with a message and exit code
-# function console.quit {
+# function console quit {
 # 	local code="${1:-1}";
 # 	if [ $# -gt 1 ]; then
 # 		local params=("${@:2}");
@@ -963,4 +985,4 @@ alias "console.log=console log";
 # alias "error=console.error";
 # alias "warn=console.warn";
 # alias "success=console.success";
-# alias "quit=console.quit";
+# alias "quit=console quit";

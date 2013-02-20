@@ -174,7 +174,7 @@ function tasks.compress {
 		local cmd="${1:-}";
 		local cmdmethod="${commands[$cmd]:-}";
 		if [ -z "$cmdmethod" ]; then
-			console.quit 1 "invalid compress command %s" "$1";
+			console quit 1 "invalid compress command %s" "$1";
 		fi
 
 		# remove the command option
@@ -185,7 +185,7 @@ function tasks.compress {
 		local opts=( $_result );
 		delegate "cmp.${FUNCNAME}" "$cmdmethod" "${opts[@]:-}";
 	else
-		console.quit 1 "no compress command specified";
+		console quit 1 "no compress command specified";
 	fi
 }
 
@@ -240,7 +240,7 @@ function __compress.files.get {
 		fi
 		
 		if [ ${#files[@]} -eq 0 ]; then
-			console.quit 1 "no files specified";
+			console quit 1 "no files specified";
 		fi
 		
 		local file;
@@ -290,7 +290,7 @@ function __compress.files.get {
 				fi
 				
 				if [ ! -f "$file" ]; then
-					console.quit 1 "invalid file %s" "$f";
+					console quit 1 "invalid file %s" "$f";
 				fi
 				
 				"$callback";
@@ -346,7 +346,7 @@ function __compress.deflate {
 		rm "$file" || quit 1 "could not delete %s" "$file";
 	fi
 	if [ $status -gt 0 ]; then
-		console.quit 1 "failed to compress %s" "$file";
+		console quit 1 "failed to compress %s" "$file";
 	fi
 	if $compress_verbose; then
 		console.info "%s > %s (%s)" "$nm" "$name" "${results[${#results[@]}-1]}";
@@ -376,7 +376,7 @@ function __compress.inflate {
 		rm "$file" || quit 1 "could not delete %s" "$file";
 	fi
 	if [ $status -gt 0 ]; then
-		console.quit 1 "failed to extract %s" "$file";
+		console quit 1 "failed to extract %s" "$file";
 	fi
 	if $compress_verbose; then
 		console.info "%s < %s (%s)" "$name" "$nm" "${results[${#results[@]}-1]}";
@@ -454,13 +454,13 @@ function __compress.parse {
 				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then
-					console.quit 1 "no directory specified for the %s option" "-d | --dir";
+					console quit 1 "no directory specified for the %s option" "-d | --dir";
 				fi
 				if [ ! -d "$value" ]; then
-					console.quit 1 "%s not a directory" "$value";
+					console quit 1 "%s not a directory" "$value";
 				fi
 				if [ ! -w "$value" ]; then
-					console.quit 1 "%s not writable" "$value";
+					console quit 1 "%s not writable" "$value";
 				fi
 				compress_dir="$value";
 				;;
@@ -468,10 +468,10 @@ function __compress.parse {
 				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then
-					console.quit 1 "no directory specified for the %s option" "-o | --output";
+					console quit 1 "no directory specified for the %s option" "-o | --output";
 				fi
 				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
-					console.quit 1 "invalid output directory %s" "$value";
+					console quit 1 "invalid output directory %s" "$value";
 				fi
 				# remove any trailing slash
 				value="${value%/}";
@@ -496,9 +496,9 @@ function __compress.parse {
 }
 
 function __compress.invalid.pattern {
-	console.quit 2 "invalid pattern %s" "$ptn";
+	console quit 2 "invalid pattern %s" "$ptn";
 }
 
 function __compress.missing.files {
-	console.quit 1 "no files specified";
+	console quit 1 "no files specified";
 }

@@ -128,7 +128,7 @@ function rlx {
 	local rlxlib="${exedir}/../lib/rlx";
 	local commands="${rlxlib}/commands";
 	if [ ! -f "${commands}/${cmd}" ]; then
-		console.quit 1 "invalid %s command %s" "$process_name" "$cmd";
+		console quit 1 "invalid %s command %s" "$process_name" "$cmd";
 	fi
 	
 	# common code

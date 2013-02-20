@@ -7,15 +7,15 @@ require.once 'json';
 tasks.npm() {
 	local descriptor="${root}/package.json";	
 	if [ ! -f "${descriptor}" ]; then
-		console.quit 1 "no %s package descriptor %s" "npm" "${descriptor}";
+		console quit 1 "no %s package descriptor %s" "npm" "${descriptor}";
 	fi
 	if [ $# -eq 0 ]; then
-		console.quit 1 "no npm command specififed";
+		console quit 1 "no npm command specififed";
 	fi
 	local cmd="${1:-}";
 	shift;
 	if ! method.exists? ":tasks.npm.${cmd}"; then
-		console.quit 1 "invalid %s command %s" "npm" "${cmd}";
+		console quit 1 "invalid %s command %s" "npm" "${cmd}";
 	fi
 	# always parse the json package descriptor
 	json.parse < "$descriptor";	
@@ -28,7 +28,7 @@ tasks.npm() {
 # create the npm tarball and move to ${target}
 :tasks.npm.pkg() {
 	{ npm pack && mv "${root}/${archive}" "${target}"; } \
-		|| console.quit 1 "could not create archive %s" "${root}/${archive}";
+		|| console quit 1 "could not create archive %s" "${root}/${archive}";
 }
 
 # print the package information

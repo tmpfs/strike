@@ -281,7 +281,7 @@ function tasks.todo {
 	if [ $# -gt 0 ]; then
 		local method="td.${FUNCNAME}.${1}";
 		if ! method.exists? "$method"; then
-			console.quit 1 "invalid todo command %s" "$1";
+			console quit 1 "invalid todo command %s" "$1";
 		else
 			delegate "td.${FUNCNAME}" "$1" ${@:2};
 		fi
@@ -392,7 +392,7 @@ function __todo.options.parse {
 				shift;
 				local file="${1:-}";
 				if [ -z "$file" ]; then
-					console.quit 1 "no file specified to %s" "--file";
+					console quit 1 "no file specified to %s" "--file";
 				fi
 				if [[ ! "$file" =~ ^(\.+)?/ ]]; then
 					file="${root}/${file}";
@@ -411,7 +411,7 @@ function __todo.options.parse {
 				shift;
 				local dir="${1:-}";
 				if [ -z "$dir" ]; then
-					console.quit 1 "no directory specified to %s" "--dir";
+					console quit 1 "no directory specified to %s" "--dir";
 				fi
 				dir="${dir#/}";
 				dir="${root}/${dir}";
@@ -423,7 +423,7 @@ function __todo.options.parse {
 				;;
 			* )
 				console.warn "usage: todo [command] [options...]";
-				console.quit 1 "unkown option %s" "$1";
+				console quit 1 "unkown option %s" "$1";
 				;;
 		esac
 		if [ $# -ne 0 ]; then
@@ -647,8 +647,8 @@ function __todo.count {
 function __todo.exit {
 	if [ ${#count[bug]} -gt 0 ] || [ ${#count[fixme]} -gt 0 ]; then
 		local total=$(( ${count[bug]} + ${count[fixme]} ));
-		console.quit $total;
+		console quit $total;
 	else
-		console.quit 0;
+		console quit 0;
 	fi
 }

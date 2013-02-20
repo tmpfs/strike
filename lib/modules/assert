@@ -243,7 +243,7 @@ function assert.header {
 		method="${output:-}";
 	fi
 	if [ -z "$method" ]; then
-		method="console info";
+		method="console header";
 	fi
 	$method "$assert_header";
 }
@@ -384,9 +384,8 @@ function __assert.print.summary {
 	fi
 	
 	if [ ${summary[assertions.fail]} -eq 0 ]; then
-		assert.header;		
-		console ok "test(s) passed %s" "✓";
-		console success;
+		assert.header;
+		console success "test(s) passed %s";
 	else
 		
 		assert.header;

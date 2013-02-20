@@ -13,7 +13,7 @@ function rlx.init {
 	local dir subdirs=( "$db" "$log" );
 	# create main storage directory
 	mkdir -p "$rlx_home" \
-		|| console.quit 1 "could not create %s" "$rlx_home";
+		|| console quit 1 "could not create %s" "$rlx_home";
 	if [ -d "$rlx_home" ]; then
 		console.info "created %s" "$rlx_home";
 	fi
@@ -22,7 +22,7 @@ function rlx.init {
 		do
 			dir="${rlx_home}/${dir}";
 			mkdir -p "$dir" \
-				|| console.quit 1 "could not create %s" "$dir";
+				|| console quit 1 "could not create %s" "$dir";
 			if [ -d "$dir" ]; then
 				console.info "created %s" "$dir";
 			fi
@@ -33,10 +33,10 @@ function rlx.init {
 	master="$password";
 	crypto.enc.aes256cbc - "${auth}" "$password" <<< "{}";
 	if [ ! -f "${auth}" ]; then
-		console.quit 1 "could not generate encrypted authentication file";
+		console quit 1 "could not generate encrypted authentication file";
 	fi
 	# switch the encrypted to the plain json extension
-	chmod -R 700 "$auth" || console.quit 1 "could not change permissions on %s" "$auth";
+	chmod -R 700 "$auth" || console quit 1 "could not change permissions on %s" "$auth";
 	
 	if [ -f "$auth" ]; then
 		console.info "generated encrypted auth file %s" "$auth";
@@ -312,7 +312,7 @@ function rlx.response {
 	if [ $http_response_status -eq 401 ]; then
 		console.info "authorization required for %s" "$host";
 		if [ -v PS1 ]; then
-			console.quit 1 "not a tty, cannot prompt for authentication credentials";
+			console quit 1 "not a tty, cannot prompt for authentication credentials";
 		else
 			authenticating=true;
 			rlx.authenticate;

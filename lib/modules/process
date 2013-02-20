@@ -224,7 +224,7 @@ function process.tmp.dir {
 			# so as not to pollute project directories
 			local dir="${library_dirs[root]}/tmp";
 			if [ ! -d "$dir" ] ;then
-				mkdir -p "$dir" || console.quit 1 "could not create temporary directory %s" "$dir";
+				mkdir -p "$dir" || console quit 1 "could not create temporary directory %s" "$dir";
 			fi
 			_result="$dir";
 		else
@@ -462,7 +462,7 @@ function process.lock.test {
 	process.lock.file;
 	local file="$_result";
 	if [ -f "$file" ]; then
-		console.quit 1 "lock file %s exists" "$file";
+		console quit 1 "lock file %s exists" "$file";
 	fi	
 }
 

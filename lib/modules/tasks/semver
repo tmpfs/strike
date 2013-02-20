@@ -210,7 +210,7 @@ function tasks.semver {
 	if [ $# -gt 0 ]; then
 		local method="sv.${FUNCNAME}.${1}";
 		if ! method.exists? "$method"; then
-			console.quit 1 "invalid semver command %s" "$1";
+			console quit 1 "invalid semver command %s" "$1";
 		else
 			delegate "sv.${FUNCNAME}" "$1" ${@:2};
 		fi
@@ -224,7 +224,7 @@ function tasks.semver {
 function sv.tasks.semver.test {
 	local semver;
 	if [ $# -eq 0 ]; then
-		console.quit 1 "no semver specified to test";
+		console quit 1 "no semver specified to test";
 	else
 		if semver.valid? "$1"; then
 			console.info "semver %s is ok" "$1";
@@ -278,7 +278,7 @@ function sv.tasks.semver.sync {
 		done
 		
 		if [ $valid -eq 0 ]; then
-			console.ok "semver %s %s" "$version" "✓";
+			console.ok "semver %s %s" "$version";
 		else
 			__semver.sync.quit;
 		fi
@@ -775,7 +775,7 @@ function __semver.file.semver.info {
 }
 
 function __semver.file.write.quit {
-	console.quit 1 "could not write %s" "$1";
+	console quit 1 "could not write %s" "$1";
 }
 
 function __semver.invalid.warn {
@@ -783,15 +783,15 @@ function __semver.invalid.warn {
 }
 
 function __semver.invalid.quit {
-	console.quit 1 "invalid semver %s" "$1";
+	console quit 1 "invalid semver %s" "$1";
 }
 
 function __semver.file.exists.info {
-	console.info "%s %s" "$1" "✓";
+	console.ok "%s" "$1";
 }
 
 function __semver.files.missing.quit {
-	console.quit 1 "no semver files available";	
+	console quit 1 "no semver files available";	
 }
 
 function __semver.file.missing.warn {

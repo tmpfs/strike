@@ -61,7 +61,7 @@ tasks.clean() {
 	
 	# option validation
 	if [ $# -gt 1 ]; then
-		console.quit 1 "too many options";
+		console quit 1 "too many options";
 	fi
 	
 	if [ "${1:-}" == "-v" ]; then
@@ -73,7 +73,7 @@ tasks.clean() {
 	# as bake(1) always creates `target`
 	# it's a just in case test
 	if [ ! -d "${target}" ]; then
-		console.quit 1 "%s does not exist";
+		console quit 1 "%s does not exist";
 	fi
 
 	console.info "rm ${rmopts} %s" "${target}";
@@ -81,14 +81,14 @@ tasks.clean() {
 	accepted() {		
 		rm "${rmopts}" "${target}";
 		if [ $? -gt 0 ]; then
-			console.quit $? "could not rm %s" "$rmopts" "$target";
+			console quit $? "could not rm %s" "$rmopts" "$target";
 		else
 			console.success;
 		fi
 	}
 
 	rejected() {
- 		console.quit 1 "aborted %s" "${characters[cross]}";
+ 		console quit 1 "aborted %s" "${characters[cross]}";
 	}
 	
 	# cannot interact, just try to clean

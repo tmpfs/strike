@@ -670,11 +670,11 @@ bake() {
 		shift;
 		local func="${namespace}.${cmd}";
 		if ! method.exists? "$func"; then
-			quit 2 "task %s not found" "$cmd";
+			console quit 2 "task %s not found" "$cmd";
 		fi
 		
 		# invoke the task function
-		delegate "${namespace}" "$cmd" "$@" || quit $? "task %s failed" "$func";
+		delegate "${namespace}" "$cmd" "$@" || console quit $? "task %s failed" "$func";
 	fi
 }
 

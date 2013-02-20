@@ -197,7 +197,7 @@ function tasks.test {
 		else
 			# look for a command method
 			if ! method.exists? "$method"; then
-				console.quit 1 "invalid test command %s" "$1";
+				console quit 1 "invalid test command %s" "$1";
 			else
 				delegate "tdd.${FUNCNAME}" "$cmd" $@;
 			fi
@@ -259,18 +259,18 @@ function tdd.tasks.test.ls {
 	#echo "got list command ${#suites[@]}";
 	
 	if [ ${#suites[@]} -eq 0 ]; then
-		console.quit 1 "no test suites found";
+		console quit 1 "no test suites found";
 	fi
 	
 	for unit in ${suites[@]}
 		do
 			path="${paths["$unit"]}";
-			console print "$unit ${paths["$unit"]}";
+			console.log "$unit ${paths["$unit"]}";
 			if array.isset? "$unit" "testmethods"; then
 				local m methods=( ${testmethods["$unit"]} );
 				for m in ${methods[@]}
 					do
-						console print "$unit $m";
+						console.log "$unit $m";
 				done
 			fi
 	done
@@ -278,7 +278,7 @@ function tdd.tasks.test.ls {
 	for unit in ${!__test_excluded[@]}
 		do
 			path="${__test_excluded["$unit"]}";
-			console print "!${unit} $path";
+			console.log "!${unit} $path";
 	done
 }
 
@@ -312,7 +312,7 @@ tdd.runner.global.setup() {
 	# source in global common variables from `lib/globals`
 	local globals="${root}/test/lib/globals";
 	if [ -f "${globals}" ]; then
-		. "$globals" || console.quit 1 "failed to source globals %s" "${globals}";
+		. "$globals" || console quit 1 "failed to source globals %s" "${globals}";
 	fi
 	
 	# TODO: allow for this to be done
@@ -320,7 +320,7 @@ tdd.runner.global.setup() {
 	# TODO: when multiple search paths are allowed
 	local global_setup="${root}/test/lib/setup";
 	if [ -f "${global_setup}" ]; then
-		. "$global_setup" || console.quit 1 "failed to source global setup %s" "${global_setup}";
+		. "$global_setup" || console quit 1 "failed to source global setup %s" "${global_setup}";
 		if method.exists? "tdd.setup"; then
 			tdd.setup 1>> "$stdout" 2>> "$stderr";
 			method.remove tdd.setup;
@@ -336,7 +336,7 @@ tdd.runner.global.teardown() {
 	# TODO: when multiple search paths are allowed
 	local global_teardown="${root}/test/lib/teardown";
 	if [ -f "${global_teardown}" ]; then
-		. "$global_teardown" || console.quit 1 "failed to source global teardown %s" "${global_teardown}";
+		. "$global_teardown" || console quit 1 "failed to source global teardown %s" "${global_teardown}";
 		if method.exists? "tdd.teardown"; then
 			tdd.teardown 1>> "$stdout" 2>> "$stderr";
 			method.remove tdd.teardown;
@@ -349,7 +349,7 @@ function __assert.run {
 	local unit path;
 	
 	if [ ${#suites[@]} -eq 0 ]; then
-		console.quit 1 "no test suites found";
+		console quit 1 "no test suites found";
 	fi
 	
 	local tests=0;
@@ -424,7 +424,7 @@ function __assert_get_suites {
 			do
 				if [[ "$suite" =~ : ]]; then
 					if [[ "$suite" =~ ^: ]] || [[ "$suite" =~ :$ ]]; then
-						console.quit 1 "invalid test suite %s, leading or trailing colon" "$suite";
+						console quit 1 "invalid test suite %s, leading or trailing colon" "$suite";
 					fi
 					# remove method specifications
 					# suite="${suite%%:*}";

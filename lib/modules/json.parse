@@ -237,7 +237,7 @@ function __json.throw {
 		console.throw "$*";
 		json_error=true;
 		if $json_exit; then
-			console.quit 1;
+			console quit 1;
 		fi		
 	fi
 }

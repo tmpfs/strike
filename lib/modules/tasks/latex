@@ -172,7 +172,7 @@ function ltx.tasks.latex.compile {
 function ltx.tasks.latex.all {
 	__latex.files.get;
 	if [ ${#latex_files[@]} -eq 0 ]; then
-		console.quit 1 "no %s files in %s" ".tex" "$latex_dir";
+		console quit 1 "no %s files in %s" ".tex" "$latex_dir";
 	else
 		__latex.compile.all;
 	fi
@@ -247,7 +247,7 @@ function __latex.compile {
 		output="${output}${parent}";
 		
 		if [ ! -d "$output" ]; then
-			mkdir -p "$output" || console.quit 1 "could not create output directory %s" "$output";
+			mkdir -p "$output" || console quit 1 "could not create output directory %s" "$output";
 		fi
 	fi
 	
@@ -265,7 +265,7 @@ function __latex.compile {
 	local owd=$( pwd );
 	# run in subshell so the `cd` does no affect working
 	# directory of the parent shell
-	cd "${target}" || console.quit 1 "could not cd to %s" "${target}";
+	cd "${target}" || console quit 1 "could not cd to %s" "${target}";
 	# TODO: quote options passed to latex to allow spaces in file paths
 	"${executables[pdflatex]}" "${latex_options[@]:-}" "$file" >| "$logfile" 2>&1;
 	if [ $? -gt 0 ]; then
@@ -279,9 +279,9 @@ function __latex.compile {
 		fi
 		console.warn "log file %s" "${output}/${nm}.log";
 		console.warn "log file %s" "$logfile";
-		console.quit 1 "failed to compile %s" "$file";
+		console quit 1 "failed to compile %s" "$file";
 	fi
-	cd "$owd" || console.quit 1 "could not cd to %s" "${owd}";
+	cd "$owd" || console quit 1 "could not cd to %s" "${owd}";
 }
 
 # parse command line options
@@ -342,13 +342,13 @@ function __latex.parse {
 				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then
-					console.quit 1 "no directory specified for the %s option" "-d | --dir";
+					console quit 1 "no directory specified for the %s option" "-d | --dir";
 				fi
 				if [ ! -d "$value" ]; then
-					console.quit 1 "%s not a directory" "$value";
+					console quit 1 "%s not a directory" "$value";
 				fi
 				if [ ! -r "$value" ]; then
-					console.quit 1 "%s not readable" "$value";
+					console quit 1 "%s not readable" "$value";
 				fi
 				latex_dir="$value";
 				;;
@@ -356,10 +356,10 @@ function __latex.parse {
 				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then
-					console.quit 1 "no directory specified for the %s option" "-o | --output";
+					console quit 1 "no directory specified for the %s option" "-o | --output";
 				fi
 				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
-					console.quit 1 "invalid output directory %s" "$value";
+					console quit 1 "invalid output directory %s" "$value";
 				fi
 				# remove any trailing slash
 				value="${value%/}";

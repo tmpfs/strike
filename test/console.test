@@ -1,57 +1,54 @@
 # test for info messages
 function test.console.info {
-	console.info "this is an info message, %s" 'but nothing really to report';
+	console info "this is an info message, %s" 'but nothing really to report';
 	assert.eq "0" "$?";
 }
 
 # test for error messages
 function test.console.error {
-	console.error "this is an error message, %s" 'but nothing is wrong';
+	console error "this is an error message, %s" 'but nothing is wrong';
 	assert.eq "0" "$?";
 }
 
 # test for warn messages
 function test.console.warn {
-	console.warn "this is a warning, %s" 'but nothing really went wrong';
+	console warn "this is a warning, %s" 'but nothing really went wrong';
 	assert.eq "0" "$?";
 }
 
 # test for stack trace
 function test.console.trace {
-	console.trace;
-	assert.eq "0" "$?";
+	console trace;
 }
 
 # test for throwing an unknown error
 function test.console.throw.unknown {
-	console.throw;
-	assert.eq "0" "$?";
+	console throw;
 }
 
 # test for calling success
 function test.console.success {
-	success "success, everything is really fine with this test" &
+	console success "success, everything is really fine with this test" &
 	wait %%;
 	assert.eq "0" "$?";
 }
 
 # test for calling quit with no options
 function test.console.quit {
-	quit &
-	wait %%;
+	console quit & wait %%;
 	assert.eq "1" "$?";
 }
 
 # test for calling quit with a specific exit code
 function test.console.quit.code {
-	quit 127 &
+	console quit 127 &
 	wait %%;
 	assert.eq "127" "$?";
 }
 
 # test for calling quit with a specific exit code and error message
 function test.console.quit.code.message {
-	quit 127 "we quit the program with %s, but everything is really fine" "127" &
+	console quit 127 "we quit the program with %s, but everything is really fine" "127" &
 	wait %%;
 	assert.eq "127" "$?";
 }
@@ -64,7 +61,7 @@ function test.console.stdout.log {
 	console.log.stdout "$logfile";
 	
 	# send the message to the log file
-	console.info "this is a message redirected to a stdout log file %s" "$logfile";
+	console info "this is a message redirected to a stdout log file %s" "$logfile";
 	
 	# assert
 	local expected="[info] this is a message redirected to a stdout log file $logfile";
@@ -90,7 +87,7 @@ function test.console.stderr.log {
 	console.log.stderr "$logfile";
 	
 	# send the error message to the log file
-	console.error "this is a message redirected to a stderr log file %s" "$logfile";
+	console error "this is a message redirected to a stderr log file %s" "$logfile";
 	
 	# assert
 	local expected="[error] this is a message redirected to a stderr log file $logfile";

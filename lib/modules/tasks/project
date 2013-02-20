@@ -160,7 +160,7 @@ function tasks.project {
 	if [ $# -gt 0 ]; then
 		local method="prj.${FUNCNAME}.${1}";
 		if ! method.exists? "$method"; then
-			console.quit 1 "invalid project command %s" "$1";
+			console quit 1 "invalid project command %s" "$1";
 		else
 			delegate "prj.${FUNCNAME}" "$1" ${@:2};
 		fi
@@ -196,7 +196,7 @@ function prj.tasks.project.exists {
 	if !project.exists?; then
 		console.success "project %s %s" "$prj_id" "✓";
 	else
-		console.quit 1 "no project %s %s" "$prj_id" "✘";
+		console quit 1 "no project %s %s" "$prj_id" "✘";
 	fi
 }
 
@@ -254,7 +254,7 @@ function prj.tasks.project.add {
 	
 	# test for id existence and prompt to overwrite?
 	if ! $force && !project.exists?; then
-		console.quit 1 "project %s exists use %s to overwrite" "$prj_id" "-f | --force";
+		console quit 1 "project %s exists use %s to overwrite" "$prj_id" "-f | --force";
 	fi
 	
 	prj_doc["projects.$prj_id.path"]="$prj_path";
@@ -281,7 +281,7 @@ function !project.file.write! {
 
 # failed to write file
 function !project.file.write.quit {
-	console.quit 1 "coult not write project file %s" "$prjfile";
+	console quit 1 "coult not write project file %s" "$prjfile";
 }
 
 function prj.tasks.project.count {
@@ -321,7 +321,7 @@ function prj.tasks.project.set {
 	!project.id.validate "$prj_meta_name";
 	
 	if [ $# -eq 0 ]; then
-		console.quit 1 "no property value specified";
+		console quit 1 "no property value specified";
 	fi
 	
 	# gobble all remaining options as the value
@@ -412,7 +412,7 @@ function prj.tasks.project.del {
 	fi
 	
 	if [ $# -lt 2 ]; then
-		console.quit 1 "too few options for %s" "project del";
+		console quit 1 "too few options for %s" "project del";
 	fi
 	
 	# get the id
@@ -592,14 +592,14 @@ function !project.id.validate {
 		id="$prj_id";
 	fi
 	if [[ ! "$id" =~ $project_id_regexp ]]; then
-		console.quit 1 "invalid identifier %s, mush match %s" "$id" "$project_id_regexp";
+		console quit 1 "invalid identifier %s, mush match %s" "$id" "$project_id_regexp";
 	fi
 }
 
 # validate a project path
 function !project.path.validate {
 	if [[ ! "$prj_path" =~ $project_path_regexp ]]; then
-		console.quit 1 "invalid path %s, mush match %s" "$prj_path" "$project_path_regexp";
+		console quit 1 "invalid path %s, mush match %s" "$prj_path" "$project_path_regexp";
 	fi
 }
 
@@ -642,12 +642,12 @@ function !project.project.missing.quit {
 	if [ -z "$id" ]; then 
 		id="${prj_id}";
 	fi
-	console.quit 1 "no project %s exists, use %s" "$id" "project add";
+	console quit 1 "no project %s exists, use %s" "$id" "project add";
 }
 
 # quit on no identifier
 function !project.id.missing.quit {
-	console.quit 1 "no project identifier specified";
+	console quit 1 "no project identifier specified";
 }
 
 # add generator information to project.json
@@ -662,7 +662,7 @@ function !project.write! {
 
 # quit if project file exists
 function !project.file.exists.quit {
-	console.quit 1 "project file %s exists" "$prjfile";
+	console quit 1 "project file %s exists" "$prjfile";
 }
 
 # info on creating a project file
@@ -672,10 +672,10 @@ function !project.file.missing.info {
 
 # quit if no project file is available
 function !project.file.missing.quit {
-	console.quit 1 "no project file %s" "$prjfile";
+	console quit 1 "no project file %s" "$prjfile";
 }
 
 # quit if we could not write the project file
 function !project.file.write.quit {
-	console.quit 1 "could not write project file %s" "$prjfile";
+	console quit 1 "could not write project file %s" "$prjfile";
 }

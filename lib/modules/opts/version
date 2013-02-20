@@ -42,7 +42,7 @@ ronn:markdown
 version.show() {
 	local versionfile="${process_dirs[root]}/version";
 	if [ ! -f "$versionfile" ] || [ ! -r "$versionfile" ]; then
-		console.quit 1 "no version information available";
+		console quit 1 "no version information available";
 	fi
 	local version=$( cat "$versionfile" );
 	# TODO: use --no-prefix when it is implemented

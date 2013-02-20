@@ -1,6 +1,6 @@
 function rlx.shell {
 	if [ ! -t 0 ] || [ ! -t 1 ] || [ ! -t 2 ]; then
-		console.quit 1 "$process_name shell must be run from a tty";
+		console quit 1 "$process_name shell must be run from a tty";
 	fi
 	
 	host="${1:-}";
@@ -8,7 +8,7 @@ function rlx.shell {
 	
 	# TODO: add prompt to specify the host?
 	if [ $# -eq 0 ]; then
-		console.quit 1 "no host specified";
+		console quit 1 "no host specified";
 	fi
 	
 	# TODO: test if db-name has been specified

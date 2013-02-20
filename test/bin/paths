@@ -67,7 +67,7 @@ function paths {
 			fi
 			"$path" ls && console.info "$msg (%s)" "$path";
 			if [ $? -ne 0 ]; then
-				console.quit 1 "path test failed for %s" "$path";
+				console quit 1 "path test failed for %s" "$path";
 			fi
 	done
 	

@@ -1292,7 +1292,7 @@ dly.fail() {
 	if [ $# -gt 0 ]; then
 		console.error "$@";
 	fi
-	console.quit 1 "deploy %s failed %s" \
+	console quit 1 "deploy %s failed %s" \
 			"${deploy_name}" "${characters[cross]}";
 }
 
@@ -1329,7 +1329,7 @@ dly.complete() {
 		console.success;
 	else
 		console.success "deploy %s complete %s" \
-			"${deploy_name}" "${characters[tick]}";
+			"${deploy_name}";
 	fi
 }
 

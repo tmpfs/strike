@@ -89,7 +89,7 @@ console.test.headers() {
 	console print "${title}";
 	console header;
 	console header $opts --color=bold;
-	console header $opts --color=underline;
+	# console header $opts --color=underline;
 	console header $opts --color=red;
 	console header $opts --color=green;
 	console header $opts --color=brown;
@@ -131,25 +131,40 @@ console.test.types() {
 	local opts="${2:-}";
 	console print "${title}";
 	console header;
+	
+	#echo "using opts: $opts"
+	
+	console header;
+	console print "STDOUT";
+	console header;
+	
 	console log $opts "a %s message" "log";
 	console info $opts "an %s message" "info";
-	console ok $opts "an %s message" "ok";	
+	console ok $opts "an %s message" "ok";
+	
+	console header;
+	console print "STDERR";
+	console header;
 	
 	console debug $opts "a %s message" "debug";
-	console warn $opts "a %s message" "warning";	
+	console warn $opts "a %s message" "warning";
 	console error $opts "an %s message" "error";
-	console trace $opts;
-	console notok $opts "a %s message" "not ok";	
+	console throw $opts "an error message with a stack trace";
+	console notok $opts "a %s message" "not ok";
 	console header;
-	( console quit 127 "a %s message" "quit" );
-	( console success "a %s message" "success" );
+	( console quit 127 $opts "a %s message" "quit" );
+	( console success $opts "a %s message" "success" );
+	
+	console header;	
 }
 
 # print test messages
 console.test() {
-	console.test.headers;	
-	console.test.colors;
-	console.test.types;
+	# console.test.headers;
+	# console.test.colors;
+	# console.test.types;
+	
+	console.test.types "TYPES (NO PREFIX)" "--no-prefix";
 
 	# console -c "standard message for you ... %s" "abc def ghi";
 	# console -n "simple message for you ... %s" "abc";

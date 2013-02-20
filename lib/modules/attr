@@ -95,7 +95,7 @@ function __attr.options.validate {
 	local callback="$1";
 	shift;
 	if [ $# -eq 0  ]; then
-		console.quit 1 "%s: too few options" "${name}";
+		console quit 1 "%s: too few options" "${name}";
 	fi
 	
 	# handle flags
@@ -107,7 +107,7 @@ function __attr.options.validate {
 	
 	# validate method/variable name
 	if [[ ! "$1" =~ $regexp ]]; then
-		console.quit 1 "%s: invalid option %s, must match %s" "${name}" "$opt" "$regexp";
+		console quit 1 "%s: invalid option %s, must match %s" "${name}" "$opt" "$regexp";
 	fi
 	local value;
 	if [ $# -gt 1 ]; then

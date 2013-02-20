@@ -163,7 +163,7 @@ function tasks.archive {
 		local cmd="${1:-}";
 		local cmdmethod="${commands[$cmd]:-}";
 		if [ -z "$cmdmethod" ]; then
-			console.quit 1 "invalid archive command %s" "$1";
+			console quit 1 "invalid archive command %s" "$1";
 		fi
 
 		# remove the command option
@@ -174,7 +174,7 @@ function tasks.archive {
 		local opts=( $_result );
 		delegate "arc.${FUNCNAME}" "$cmdmethod" "${opts[@]:-}";
 	else
-		console.quit 1 "no archive command specified";
+		console quit 1 "no archive command specified";
 	fi
 }
 
@@ -192,7 +192,7 @@ function arc.tasks.archive.create {
 	
 	# should always have at least 3 arguments
 	if [ $# -lt 2 ]; then
-		console.quit 1 "too few options, usage: %s" "-c [options...] [archive] [files...]";
+		console quit 1 "too few options, usage: %s" "-c [options...] [archive] [files...]";
 	fi
 	
 	# process the archive name
@@ -204,7 +204,7 @@ function arc.tasks.archive.create {
 	
 	local files=( $@ );
 	if [ ${#files[@]} -eq 0 ]; then
-		console.quit 1 "no files specified";
+		console quit 1 "no files specified";
 	fi
 	
 	__archive.executable.get true;
@@ -237,7 +237,7 @@ function arc.tasks.archive.list {
 	
 	# should always have at least 3 arguments
 	if [ $# -lt 1 ]; then
-		console.quit 1 "too few options, usage: %s" "-l [options...] [archive] [files...]";
+		console quit 1 "too few options, usage: %s" "-l [options...] [archive] [files...]";
 	fi
 	
 	# process the archive name
@@ -273,13 +273,13 @@ function arc.tasks.archive.list {
 	
 	"$archive_executable" ${archive_executable_options[@]} "$archive";
 	if [ $? -gt 0 ]; then
-		console.quit 1 "failed to list archive contents of %s" "$archive_name";
+		console quit 1 "failed to list archive contents of %s" "$archive_name";
 	fi
 }
 
 function arc.tasks.archive.extract {
 	if [ $# -lt 1 ]; then
-		console.quit 1 "too few options, usage: %s" "-x [options...] [archive] [files...]";
+		console quit 1 "too few options, usage: %s" "-x [options...] [archive] [files...]";
 	fi
 	
 	# process the archive name
@@ -383,13 +383,13 @@ function __archive.parse {
 				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then
-					console.quit 1 "no directory specified for the %s option" "-d | --dir";
+					console quit 1 "no directory specified for the %s option" "-d | --dir";
 				fi
 				if [ ! -d "$value" ]; then
-					console.quit 1 "%s not a directory" "$value";
+					console quit 1 "%s not a directory" "$value";
 				fi
 				if [ ! -w "$value" ]; then
-					console.quit 1 "%s not writable" "$value";
+					console quit 1 "%s not writable" "$value";
 				fi
 				archive_dir="$value";
 				;;
@@ -397,10 +397,10 @@ function __archive.parse {
 				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then
-					console.quit 1 "no archive type specified for the %s option" "-t | --type";
+					console quit 1 "no archive type specified for the %s option" "-t | --type";
 				fi
 				if [ -z "${extensions[$value]:-}" ]; then
-					console.quit 1 "invalid archive type %s, use %s" "$value" "${!extensions[*]}";
+					console quit 1 "invalid archive type %s, use %s" "$value" "${!extensions[*]}";
 				fi
 				archive_type="$value";
 				;;
@@ -408,10 +408,10 @@ function __archive.parse {
 				shift;
 				value="${1:-}";
 				if [ -z "$value" ]; then
-					console.quit 1 "no directory specified for the %s option" "-o | --output";
+					console quit 1 "no directory specified for the %s option" "-o | --output";
 				fi
 				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
-					console.quit 1 "invalid output directory %s" "$value";
+					console quit 1 "invalid output directory %s" "$value";
 				fi
 				# remove any trailing slash
 				value="${value%/}";
@@ -477,15 +477,15 @@ function __archive.dir.process {
 	fi
 	
 	if [ ! -d "${archive_dir}" ]; then
-		console.quit 1 "%s not a directory" "${archive_dir}";
+		console quit 1 "%s not a directory" "${archive_dir}";
 	fi
 	
 	if [ ! -d "${archive_dir}" ]; then
-		console.quit 1 "%s not readable" "${archive_dir}";
+		console quit 1 "%s not readable" "${archive_dir}";
 	fi	
 	
 	if [ ! -w "${archive_dir}" ]; then
-		console.quit 1 "%s not writable" "${archive_dir}";
+		console quit 1 "%s not writable" "${archive_dir}";
 	fi
 }
 
@@ -576,12 +576,12 @@ function __archive.binary.validate {
 
 function __archive.name.validate {
 	if [ -z "${archive_name}" ];then
-		console.quit 1 "invalid archive name";
+		console quit 1 "invalid archive name";
 	fi
 }
 
 function __arvhive.type.validate {
 	if ! array.contains? "${archive_type:-}" "${types[@]}"; then
-		console.quit 1 "invalid archive type %s" "${archive_type}";
+		console quit 1 "invalid archive type %s" "${archive_type}";
 	fi
 }

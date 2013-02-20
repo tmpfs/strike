@@ -72,7 +72,7 @@ function executable.validate {
 			fi
 			cmd=$( command -v "$opt" );
 			if [ -z "$cmd" ] && $strict; then
-				console.quit 1 "%s is not available" "$opt";
+				console quit 1 "%s is not available" "$opt";
 			fi
 			if [ ! -x "$cmd" ]; then
 				# under some circumstances command -v returns
@@ -82,7 +82,7 @@ function executable.validate {
 				if [ -n "$_result" ]; then
 					cmd="$_result";
 				elif $strict; then
-					console.quit 1 "%s at %s is not executable" "$opt" "$cmd";
+					console quit 1 "%s at %s is not executable" "$opt" "$cmd";
 				fi
 			fi
 			executables["$opt"]="$cmd";
