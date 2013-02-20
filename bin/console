@@ -157,6 +157,21 @@ console.test.types() {
 	console header;	
 }
 
+# test for using printf
+console.test.printf() {
+	local title="${1:-PRINTF}";
+	local opts="${2:-}";
+	local value;
+	console print "${title}";
+	console header;
+	
+	console info "a %s value" "string";
+	console info -- "-a %s value" "-hyphenated";
+	console info "a %q value" "quoted value []";
+	
+	console header;
+}
+
 # test displaying a prompt
 console.test.prompt() {
 	local title="${1:-PROMPT}";
@@ -202,6 +217,7 @@ console.test() {
 	console.test.headers;
 	console.test.colors;
 	console.test.types;
+	console.test.printf;
 	console.test.prompt;
 	
 	# console.test.types "TYPES (NO PREFIX)" "--no-prefix";

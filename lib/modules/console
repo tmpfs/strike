@@ -56,6 +56,10 @@ Append a single space and a tick character to the message.
 
 Do not interpret ANSI sequences, print them.
 
+* `--`:
+
+Stop processing options. Use the `--` option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed.
+
 ## USAGE
 
 The general syntax for printing output is:
@@ -570,6 +574,9 @@ console.options.parse() {
 	    case "${optchar}" in
 	        -)
 	            case "${OPTARG}" in
+					'')
+						break;
+						;;
 	                prefix=*)
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
@@ -633,10 +640,15 @@ console.options.parse() {
 	# replacement values
 	local opt opts=( "$@" );
 	local i length="$#";
+	local stopped=false;
 	for((i = 0;i < $length;i++))
 		do
-			opt="${opts[$i]}"
-			if [[ "$opt" =~ ^- ]]; then
+			opt="${opts[$i]}";
+			if [ "$opt" == "--" ]; then
+				stopped=true;
+				continue;
+			fi
+			if ! $stopped && [[ "$opt" =~ ^- ]]; then
 				continue;
 			fi
 			messages+=( "$opt" );
