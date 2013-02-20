@@ -56,10 +56,6 @@ function paths {
 	paths+=( "../bin/bake" );
 	paths+=( "../bake" );
 	
-	
-	# echo "running paths";
-	# exit 0;	
-	
 	for path in ${paths[@]}
 		do
 			msg="${messages["$path"]}";
@@ -72,7 +68,7 @@ function paths {
 				console warn "%s is not executable" "$path";
 				exit 1;
 			fi
-			"$path" ls;
+			"$path" ls && console info "$msg (%s)" "$path";
 			if [ $? -ne 0 ]; then
 				console quit 1 "path test failed for %s" "$path";
 			fi
