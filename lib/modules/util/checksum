@@ -10,7 +10,8 @@ checksum.sha() {
 	local binaries=( shasum "${target}" );
 	executable.validate --test "${binaries[@]}";
 	local exe="${executables[shasum]}";
-	local opts=( --portable --binary --algorithm $algorithm );
+	# --portable --binary ?
+	local opts=( --algorithm $algorithm );
 	if [ -z "${exe}" ]; then
 		exe="${executables[${target}]}";
 		opts="";
