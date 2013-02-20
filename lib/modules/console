@@ -78,7 +78,7 @@ To print to standard error use the following methods.
 
 	Prints a warning message.
 	
-* `console.error`:
+* `console error`:
 
 	Prints an error message.
 	
@@ -739,7 +739,7 @@ function console.log.stderr.close {
 # 	local code="${1:-1}";
 # 	if [ $# -gt 1 ]; then
 # 		local params=("${@:2}");
-# 		console.error "${params[@]}";
+# 		console error "${params[@]}";
 # 	fi
 # 	exit $code;
 # }
@@ -900,7 +900,7 @@ function console.log.stderr.close {
 # }
 # 
 # # # executed before showing a prompt
-# # console.error.before() {
+# # console error.before() {
 # # 	# save stderr in file descriptor #7
 # # 	exec 7>&2;
 # # 	# redirect stderr to stdout
@@ -908,7 +908,7 @@ function console.log.stderr.close {
 # # }
 # # 
 # # # executed after showing a prompt
-# # console.error.after() {
+# # console error.after() {
 # # 	# restore stderr and close file descriptor #7
 # # 	if [ -f 7 ]; then
 # # 		exec 2>&7 7>&-;
@@ -916,7 +916,7 @@ function console.log.stderr.close {
 # # }
 # 
 # #outputs an error message
-# function console.error {
+# function console error {
 # 	local status="${console_prefixes[$FUNCNAME]}";
 # 	local prefix="$status";
 # 	local msg="";
@@ -945,7 +945,7 @@ function console.log.stderr.close {
 # 	local frame=$offset line;
 # 	local data=( $( caller $frame ) );
 # 	while [ "${#data[@]}" -gt 0 ]; do
-# 		console.error "%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
+# 		console error "%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
 # 		: $((frame++));
 # 		data=( $( caller $frame ) );
 # 	done
@@ -961,7 +961,7 @@ function console.log.stderr.close {
 # function console.throw {
 # 	local message="${1:-Unknown error}";
 # 	#echo "throw message: $message";
-# 	console.error "$message";
+# 	console error "$message";
 # 	console.trace 1;
 # }
 
@@ -982,7 +982,7 @@ alias "console.prompt=console prompt";
 alias "console.log=console log";
 
 # alias "info=console info";
-# alias "error=console.error";
+# alias "error=console error";
 # alias "warn=console.warn";
 # alias "success=console.success";
 # alias "quit=console quit";

@@ -12,7 +12,7 @@ declare -g process_pid="";
 declare -g process_tmp_dir="";
 
 # TODO: add the process.use "debug"
-# to force console.error to always throw
+# to force console error to always throw
 # a stack trace
 
 # POSIX signals
@@ -122,7 +122,7 @@ function process.initialize {
 	
 	process.lock.test;
 	
-	# redirect stderr to console.error
+	# redirect stderr to console error
 	# so that all error messages are highlighted
 	# wherever possible
 	# NOTE: this must be done before setting noclobber

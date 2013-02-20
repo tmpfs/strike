@@ -74,7 +74,7 @@ function rlx.auth.save {
 		crypto.dec.aes256cbc "${auth}" "${plain}" "$master" 2>| "${rlx_home}/log/openssl.log";
 		local code=$?;
 		if [ $code -gt 0 ]; then
-			console.error "openssl(%s) could not decrypt %s, bad password" "$code" "${auth}";
+			console error "openssl(%s) could not decrypt %s, bad password" "$code" "${auth}";
 			master="";
 			rlx.auth.save.clean;
 			rlx.auth.save;
@@ -100,7 +100,7 @@ function rlx.auth.save {
 			crypto.enc.aes256cbc "${plain}" "${auth}" "$master";
 			code=$?;
 			if [ $code -gt 0 ]; then
-				console.error "openssl(%s) could not encrypt to %s" "${auth}";
+				console error "openssl(%s) could not encrypt to %s" "${auth}";
 			else
 				console info "saved %s @ %s" "$couchdb_user" "$host";
 			fi
@@ -115,7 +115,7 @@ function rlx.auth.save {
 # clean up plain text version
 # TODO: add an exit handler to remove this file if it exists!
 function rlx.auth.save.clean {
-	rm "${plain}" || console.error "could not delete %s" "${plain}";
+	rm "${plain}" || console error "could not delete %s" "${plain}";
 }
 
 # -o comp-option

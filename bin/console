@@ -159,9 +159,9 @@ console.test.types() {
 
 # print test messages
 console.test() {
-	# console.test.headers;
-	# console.test.colors;
-	# console.test.types;
+	console.test.headers;
+	console.test.colors;
+	console.test.types;
 	
 	console.test.types "TYPES (NO PREFIX)" "--no-prefix";
 

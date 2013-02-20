@@ -910,14 +910,14 @@ dly.commands.read.group() {
 			cmd="";
 			exe="${json_doc[${group}.$i.command]:-}";
 			if [ -z "$exe" ]; then
-				console.error "invalid command %s in %s" "$exe" "$descriptor";
+				console error "invalid command %s in %s" "$exe" "$descriptor";
 				dly.fail "%s may not be a blank string" "command";
 			fi
 			
 			# echo "got exe: $exe";
 			
 			if [[ "$exe" =~ $whitespace ]]; then
-				console.error "invalid command %s in %s" "$exe" "$descriptor";
+				console error "invalid command %s in %s" "$exe" "$descriptor";
 				dly.fail "%s may not contain whitespace" "command";
 			fi
 			
@@ -963,7 +963,7 @@ ${opt}";
 dly.unbound.variable()
 {
 	# console.throw "probable reference to unbound variable";
-	console.error "probable reference to unbound variable";
+	console error "probable reference to unbound variable";
 	dly.fail "invalid command %s" "${cmd//$newline/ }";
 }
 
@@ -1231,7 +1231,7 @@ dly.parse() {
 	json_exit=false;
 	json.parse < "${descriptor}" >> "$log" 2>&1;
 	if [ $json_exit_code -gt 0 ]; then
-		console.error "invalid json in %s" "$descriptor";
+		console error "invalid json in %s" "$descriptor";
 		dly.fail "stack trace in %s" "$log";
 	fi	
 	# fetch all profile names in to
@@ -1290,7 +1290,7 @@ dly.parse() {
 dly.fail() {
 	dly.complete.notify false;
 	if [ $# -gt 0 ]; then
-		console.error "$@";
+		console error "$@";
 	fi
 	console quit 1 "deploy %s failed %s" \
 			"${deploy_name}" "${characters[cross]}";
@@ -1348,8 +1348,8 @@ dly.name.valid?() {
 dly.name.quit() {
 	local var="$1";
 	local value="$2";
-	console.error "names may not start with a hyphen and must match %s" "${regex[name]}";	
-	console.error "invalid $var name %s" "$value";
+	console error "names may not start with a hyphen and must match %s" "${regex[name]}";	
+	console error "invalid $var name %s" "$value";
 	dly.fail;
 }
 
