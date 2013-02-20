@@ -156,11 +156,13 @@ function __prompt.show.boolean {
 
 	if [ -t 0 ]; then
 		prompt.before;
+		
+		# show the prompt message
+		console prompt "$@";	
+		
 		if [ -n "${PS9:-}" ]; then
 			read -ep "${PS9}" value;
 		else
-			# show the prompt message
-			console prompt "$@";
 			read -e value;
 		fi
 		prompt.after;
@@ -182,11 +184,13 @@ function __prompt.show.data {
 	if [ -t 0 ]; then
 		
 		prompt.before;
+		
+		# show the prompt message
+		console prompt $@;
+		
 		if [ -n "${PS9:-}" ]; then
 			read -ep "${PS9}" value;
-		else
-			# show the prompt message
-			console prompt $@;			
+		else		
 			read -e value;
 		fi
 		prompt.after;
