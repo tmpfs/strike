@@ -125,6 +125,7 @@ function process.initialize {
 	# redirect stderr to console.error
 	# so that all error messages are highlighted
 	# wherever possible
+	# NOTE: this must be done before setting noclobber
 	exec 2> >(while read line; do console.error "$line" >&2; done)
 	
 	# initialize registry of signal
@@ -153,10 +154,9 @@ function process.use {
 				process_strict="on";
 				# TODO: make these options an array
 				set -o errtrace;
-				set -o errexit;
+				# set -o errexit;
 				set -o nounset;
 				set -o noclobber;
-				#set -o;
 			elif [ "$val" == "debug" ]; then
 				process_debug="on";
 			elif [ "$val" == "test" ]; then
@@ -198,7 +198,7 @@ function process.debug! {
 function process.strict! {
 	process_strict="";
 	set +o errtrace;
-	set +o errexit;
+	#set +o errexit;
 	set +o nounset;
 	set +o noclobber;
 }
