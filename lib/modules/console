@@ -981,6 +981,12 @@ alias "console.ok=console ok";
 alias "console.prompt=console prompt";
 alias "console.log=console log";
 
+# mask the info system executable
+# legacy due to the old info command declaration
+info() {
+	console info "$@";
+}
+
 # alias "info=console info";
 # alias "error=console error";
 # alias "warn=console warn";

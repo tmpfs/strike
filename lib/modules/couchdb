@@ -128,7 +128,7 @@ couchdb.view() {
 
 # DEPRECATED
 function couchdb_print {
-	info "[%s] %s %s" "$couchdb_result_status" "$couchdb_result_method" "$couchdb_result_url";
+	console info "[%s] %s %s" "$couchdb_result_status" "$couchdb_result_method" "$couchdb_result_url";
 }
 
 function couchdb_head {

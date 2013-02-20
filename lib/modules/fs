@@ -86,7 +86,7 @@ function fs.walk {
 #	$1 		The path to the directory.
 ######################################################################
 function directory {
-	info "$CHECK_DIRECTORY" "$1";
+	console info "$CHECK_DIRECTORY" "$1";
 	test -d "$1";
 	#if [ -d $1 ]; then
 	#	return 0;
@@ -107,7 +107,7 @@ function copy {
 	local dest="$2";
 	cp -rf "$src" "$dest" > /dev/null 2>&1;
 	if [ $? -eq 0 ]; then
-			info "$COPY_SUCCESS" "$src" "$dest";
+			console info "$COPY_SUCCESS" "$src" "$dest";
 			return 0;
 		else
 			error "$COPY_ERROR" "$src" "$dest";
@@ -128,7 +128,7 @@ function move {
 	local dest="$2";
 	mv "$src" "$dest"  > /dev/null 2>&1;
 	if [ $? -eq 0 ]; then
-			info "$MOVE_SUCCESS" "$src" "$dest";
+			console info "$MOVE_SUCCESS" "$src" "$dest";
 			return 0;
 		else
 			error "$MOVE_ERROR" "$src" "$dest";
@@ -156,7 +156,7 @@ function symlink {
 	fi
 	ln -s "$src" "$dest" > /dev/null 2>&1;
 	if [ $? -eq 0 ]; then
-			info "$SYM_LINK_SUCCESS" "$src" "$dest";
+			console info "$SYM_LINK_SUCCESS" "$src" "$dest";
 			return 0;
 		else
 			error "$SYM_LINK_ERROR" "$src" "$dest";
@@ -175,7 +175,7 @@ function mkdirp {
 		mkdir -p "$dir";
 	fi
 	if [ $? -eq 0 ]; then
-			info "$CREATED_DIRECTORY" "$dir";
+			console info "$CREATED_DIRECTORY" "$dir";
 			return 0;
 		else
 			error "$DIRECTORY_CREATE_FAIL" "$dir";
@@ -192,7 +192,7 @@ function cdir {
 	local dir="$1";
 	cd "$dir";
 	if [ $? -eq 0 ]; then
-			info "$CHANGED_DIRECTORY" "$dir";
+			console info "$CHANGED_DIRECTORY" "$dir";
 			return 0;
 		else
 			error "$DIRECTORY_CHANGE_FAIL" "$dir";
@@ -225,7 +225,7 @@ function validate_rmdir {
 # 	validate_rmdir "$dir";
 # 	rm -rf "$dir";
 # 	if [ $? -eq 0 ]; then
-# 			info "$REMOVED_DIRECTORY" "$dir";
+# 			console info "$REMOVED_DIRECTORY" "$dir";
 # 			return 0;
 # 		else
 # 			error "$DIRECTORY_REMOVE_FAIL" "$dir";
@@ -246,7 +246,7 @@ function sudo_rmdir {
 	validate_rmdir "$dir";
 	sudo rm -rf "$dir";
 	if [ $? -eq 0 ]; then
-			info "$SUDO_REMOVED_DIRECTORY" "$dir";
+			console info "$SUDO_REMOVED_DIRECTORY" "$dir";
 			return 0;
 		else
 			error "$SUDO_DIRECTORY_REMOVE_FAIL" "$dir";

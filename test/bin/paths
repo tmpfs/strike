@@ -26,7 +26,7 @@ function boilerplate {
 boilerplate "$@";
 ######################################################################
 
-require.once assert;
+require.once 'assert';
 
 # let assert(3) know if this test
 # is being run standalone or as
@@ -34,6 +34,7 @@ require.once assert;
 assert.parse "$@";
 
 function paths {
+	
 	local parent="`dirname ${BASH_SOURCE[0]}`";
 	parent="`dirname "$parent"`";
 	declare -A messages;
@@ -49,9 +50,16 @@ function paths {
 
 	local changed=false;
 	
+	#  && console info "$msg (%s)" "$path"
+	
 	# relative should come last
 	paths+=( "../bin/bake" );
 	paths+=( "../bake" );
+	
+	
+	# echo "running paths";
+	# exit 0;	
+	
 	for path in ${paths[@]}
 		do
 			msg="${messages["$path"]}";
@@ -64,7 +72,7 @@ function paths {
 				console warn "%s is not executable" "$path";
 				exit 1;
 			fi
-			"$path" ls && console info "$msg (%s)" "$path";
+			"$path" ls;
 			if [ $? -ne 0 ]; then
 				console quit 1 "path test failed for %s" "$path";
 			fi
