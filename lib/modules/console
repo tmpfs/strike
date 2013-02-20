@@ -238,6 +238,7 @@ console() {
 	if ${flags[tick]}; then
 		message="${message} ${characters[tick]}";
 	fi
+	messages[0]="${message}";
 	
 	local replacements=( "${messages[@]:1}" );
 	
@@ -375,6 +376,8 @@ console.output() {
 		opts="";
 	fi
 	
+	#echo "parsed : $parsed";
+	
 	if ! ${flags[stderr]}; then
 		echo $opts "$parsed";
 	else
@@ -386,7 +389,7 @@ console.output() {
 # on the primary message
 console.replace() {
 	local i length val;
-	if ! ${flags[color]}; then
+	if ! ${flags[color]} || ! ${flags[ansi]}; then
 		parsed=$( printf -- "${messages[@]}" );
 	else
 		if ${flags[ansi]}; then

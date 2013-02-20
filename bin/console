@@ -78,6 +78,30 @@ version.parse "$@";
 
 require.once 'console';
 
+# read -ep $'\001\033[1m\002ABC\001\033[0m\002' value;
+# exit 0;
+
+# test header colours
+console.test.headers() {
+	local title="${1:-HEADER COLORS}";
+	local opts="${2:-}";
+	console header;	
+	console print "${title}";
+	console header;
+	console header $opts --color=bold;
+	console header $opts --color=underline;
+	console header $opts --color=red;
+	console header $opts --color=green;
+	console header $opts --color=brown;
+	console header $opts --color=blue;
+	console header $opts --color=magenta;
+	console header $opts --color=cyan;
+	console header $opts --color=gray;
+	console header $opts --color=yellow;
+	console header $opts --color=white;
+	console header;
+}
+
 # test colors
 console.test.colors() {
 	console header;
@@ -123,6 +147,7 @@ console.test.types() {
 
 # print test messages
 console.test() {
+	console.test.headers;	
 	console.test.colors;
 	console.test.types;
 
