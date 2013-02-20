@@ -118,8 +118,6 @@ ronn:markdown
 declare -g __stdout_log_file="";
 declare -g __stderr_log_file="";
 
-declare -g console_bypass_generic_error_handler=false;
-
 declare -Ag console_styles;
 console_styles[bold]="\033[1m";
 console_styles[red]="\033[0;37;0;31m";
@@ -171,6 +169,19 @@ console() {
 	local message="${messages[0]}";
 	local replacements=( "${messages[@]:1}" );
 	
+	# echo "1 is tty " `test -t 1`;
+	# echo "2 is tty " `test -t 2`;
+	
+	#test -t 2; echo "got stderr $?";
+	
+	# switch off ansi escapes for non-tty
+	if ! ${flags[stderr]} && [ ! -t 1 ]; then
+		console.noansi;
+	elif ${flags[stderr]} && [ ! -t 0 ]; then
+		echo "stderr calling nonansi";
+		console.noansi;
+	fi
+	
 	if [ -n "${cmd}" ]; then
 		delegate "$namespace" "$cmd" "$@";
 	else
@@ -178,12 +189,20 @@ console() {
 	fi
 }
 
+# switch off ANSI escape sequences completely
+console.noansi() {
+	echo "no ansi called...";
+	flags[color]=false;
+	flags[replace.bold]=false;
+	flags[prefix.bold]=false;
+}
+
 # main 
 console.main() {
+	console.debugger;	
 	if ${flags[replace]}; then
 		console.replace;
 	fi
-	# console.debugger;
 	console.output;
 }
 
@@ -212,24 +231,36 @@ console.replace() {
 			done
 			parsed=$( printf -- "${message}" "${replacements[@]:-}" );
 		fi
-		
+
 		# handle overall message color
-		if [ -n "$color" ]; then
+		if ${flags[color]} && [ -n "$color" ]; then
+			echo "add overall message color ..."
 			parsed="${console_styles[$color]}${parsed}${terminator}";
 		fi
 	fi
+	console.prefix;
 	
-	console.prefix;	
+
+	# should be done after setting the prefix
+	# if ${flags[color]}; then
+	# 	#echo "should color message: ${flags[color]}";
+	# 	if ${flags[color]} && [ -n "$color" ]; then
+	# 		echo "add overall message color ..."
+	# 		parsed="${console_styles[$color]}${parsed}${terminator}";
+	# 	fi
+	# fi
 }
 
 # prepend prefix(es)
 console.prefix() {
 	if [ -n "${prefix}" ] && ${flags[message.prefix]}; then	
-		echo "prepend prefix ... $message : $prefix";
+		echo "prepend prefix ... $message : $prefix : ${flags[color]}";
 		if ${flags[color]}; then
-			echo "ADDING COLOR PREFIX";
 			if ${flags[prefix.bold]}; then
 				prefix="${console_styles[bold]}${prefix}${terminator}";
+			fi
+			if [ -n "${color}" ]; then
+				prefix="${console_styles[$color]}${prefix}${terminator}";
 			fi
 		fi
 		parsed="${prefix} ${parsed}";
@@ -604,9 +635,7 @@ function console.warn {
 	
 	#output everything
 	__console_print_program_prefix;
-	console_bypass_generic_error_handler=true;
 	echo -e "$prefix $msg" >&2;
-	console_bypass_generic_error_handler=false;
 }
 
 # # executed before showing a prompt
