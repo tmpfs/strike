@@ -110,17 +110,25 @@ console.test.colors() {
 	# colors
 	console --color=bold "a %s message" "bold";
 	console --color=underline "an %s message" "underline";
+	
 	console --color=black "a %s message" "black";
 	console --color=red "a %s message" "red";
 	console --color=green "a %s message" "green";
 	console --color=brown "a %s message" "brown";
 	console --color=blue "a %s message" "blue";
 	console --color=magenta "a %s message" "magenta";
-
 	console --color=cyan "a %s message" "cyan";
 	console --color=gray "a %s message" "gray";
-	console --color=yellow "a %s message" "yellow";
+	
+	console --color=darkgray "a %s message" "darkgray";
+	console --color=bright-red "a %s message" "bright-red";
+	console --color=bright-green "a %s message" "bright-green";
+	console --color=yellow "a %s message" "yellow";	
+	console --color=bright-blue "a %s message" "bright-blue";
+	console --color=bright-magenta "a %s message" "bright-magenta";
+	console --color=bright-cyan "a %s message" "bright-cyan";
 	console --color=white "a %s message" "white";	
+	
 	console header;
 }
 
