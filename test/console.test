@@ -93,7 +93,7 @@ function test.console.stderr.log {
 	console.error "this is a message redirected to a stderr log file %s" "$logfile";
 	
 	# assert
-	local expected="[not ok] this is a message redirected to a stderr log file $logfile";
+	local expected="[error] this is a message redirected to a stderr log file $logfile";
 	local received="`cat "$logfile"`";
 	assert.equal "$expected" "$received";
 	

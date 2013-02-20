@@ -79,7 +79,7 @@ tasks.module() {
 	local m;
 	for m in "${modules[@]}"
 		do
-			console.log "${m}";
+			console print "${m}";
 	done
 }
 

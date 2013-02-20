@@ -595,7 +595,7 @@ function __todo.line {
 # log output
 function __todo.log {
 	if ! $silent; then
-		console.log "$@";
+		console print "$@";
 	fi
 }
 
@@ -612,8 +612,8 @@ function __todo.output {
 			echo "# $tag $frame" >&2;
 			echo "$todo" >&2;
 		else		
-			console.log "# %s %s" "$tag" "$frame";
-			console.log "$todo";
+			console print "# %s %s" "$tag" "$frame";
+			console print "$todo";
 		fi
 	fi
 }

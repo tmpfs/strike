@@ -217,12 +217,12 @@ console() {
 	# list of available commands
 	local namespace="console.commands";
 	local cmd="";
-	local commands=( info warn error throw debug log header trace quit success print );
+	local commands=( info warn error throw debug log header trace quit success print ok notok );
 	
 	local code=1;
 	if array.contains? "$1" "${commands[@]}"; then
 		cmd="$1";
-		prefix="${console_prefixes[$cmd]}";
+		prefix="${console_prefixes[$cmd]:-}";
 		shift;
 		
 		if [ "$cmd" == quit ] && [ $# -gt 0 ]; then
@@ -232,6 +232,13 @@ console() {
 	fi
 	
 	local message="${messages[0]}";
+	if ${flags[cross]}; then
+		message="${message} ${characters[cross]}";
+	fi
+	if ${flags[tick]}; then
+		message="${message} ${characters[tick]}";
+	fi
+	
 	local replacements=( "${messages[@]:1}" );
 	
 	# switch off ansi escapes for non-tty
@@ -246,6 +253,9 @@ console() {
 	fi
 	
 	if [ -n "${cmd}" ]; then
+		if ! method.exists? "${namespace}.${cmd}"; then
+			console quit 2 "invalid command %s" "${cmd}";
+		fi
 		delegate "$namespace" "$cmd" "$@";
 	else
 		console.main;
@@ -269,6 +279,11 @@ console.commands.log() {
 	console --prefix="${console_prefixes[log]}" "$@";
 }
 
+# print an ok message with a prefix
+console.commands.ok() {
+	console --tick --prefix="${console_prefixes[ok]}" "$@";
+}
+
 # print an info message with a prefix
 console.commands.info() {
 	console --prefix="${console_prefixes[info]}" "$@";
@@ -279,6 +294,11 @@ console.commands.info() {
 # print a debug message to stderr
 console.commands.debug() {
 	console -2  --color=cyan --prefix="${console_prefixes[debug]}" "$@";
+}
+
+# print a not ok message to stderr
+console.commands.notok() {
+	console -2 --color=red --cross --prefix="${console_prefixes[notok]}" "$@";
 }
 
 # print an error message to stderr
@@ -304,13 +324,20 @@ console.commands.trace() {
 	done
 }
 
-# quit the program
+# exit with a failure
 console.commands.quit() {
 	if [ $# -gt 0 ]; then
-		console -2 --color=red --prefix="${console_prefixes[quit]}" "$@";
+		console notok "$@";
 	fi
-	echo "exiting ... $code";
 	exit $code;
+}
+
+# exit
+console.commands.success() {
+	if [ $# -gt 0 ]; then
+		console ok "$@";
+	fi
+	exit 0;
 }
 
 ## INTERNAL
@@ -347,6 +374,7 @@ console.output() {
 	if ${flags[debug]}; then
 		opts="";
 	fi
+	
 	if ! ${flags[stderr]}; then
 		echo $opts "$parsed";
 	else
@@ -598,12 +626,12 @@ function console.log.stderr.close {
 		__stderr_log_file="";
 	fi
 }
-
-function console.log {
-	console.sprintf "${@}";
-	msg="$_result";
-	echo -e "$msg";
-}
+# 
+# function console print {
+# 	console.sprintf "${@}";
+# 	msg="$_result";
+# 	echo -e "$msg";
+# }
 
 
 ######################################################################
@@ -614,303 +642,303 @@ function console.log {
 #	$3 		The printf format string.
 #	$4-#	The remaining string replacements to be highlighted.
 ######################################################################
-function console.colorize {
-	#function used to start the main color
-	local start_function="$1";
-	#function used to highlight each replacement parameter
-	local highlight_function="$2";
-	local message="$3";
-	local replacements=("${@:3}");
-	local output=( "$message" );
-	local c=0;
-	local i;
-	for i in "${replacements[@]}"
-		do
-			if [ $c -ne 0 ]; then
-				#highlight each replacement parameter
-				eval "$highlight_function" "'$i'";
-				local res="$_result";
-				eval "$start_function";
-				#concatenate together
-				res="$res$_result";
-				#and push back on to the output data
-				output=( "${output[@]}" "$res" );
-			fi
-			c=$[$c+1];
-	done
-	#get the overall start
-	eval "$start_function";
-	local start="$_result";
-	
-	#always end with a style terminator
-	style_terminator;
-	local end="$_result";
-	
-	# TODO: use the shared console.sprintf message
-	#perform the replacement on the message template string
-	_result=$(printf "${output[@]}");
-	
-	#wrap the replaced message with the start and end highlighting
-	local full="$start${_result[@]}$end";
-	
-	#return the output
-	_result="$full";
-	#echo "got FULL RESULT: $full";
-	#echo -e "$full";
-	#echo "this is a normal message";
-}
-
-######################################################################
-#	Performs replacement without performing any highlighting
-#	appropriate for output to a non-terminal.
-#
-#	$1 		The printf format string.
-#	$2-@	The remaining string replacements to be highlighted.
-######################################################################
-function console.sprintf {
-	#echo "sprintf length : $#"
-	# escape hyphens
-	#local var="$@";
-	#var="${var//-/\-}";
-	#echo "var is: '''$var'''"
-	_result=$(printf "$@");
-	#_result="${_result//\\-/-}";
-}
-
-#TODO : integrate this logic so no highlighting is performed when not a terminal
-#if [ -t 1 ] ; then echo terminal; fi
-#(if [ -t 1 ] ; then echo terminal; fi) | echo
-
-#quits a program with a message and exit code
-function console.quit {
-	local code="${1:-1}";
-	if [ $# -gt 1 ]; then
-		local params=("${@:2}");
-		console.error "${params[@]}";
-	fi
-	exit $code;
-}
-
-#prints a message with the default output formatting
-function print {
-	local msg="$1";
-	__console_print_program_prefix;
-	echo -e "$msg";
-}
-
-function __console_print_program_prefix {
-	local prefix="[${process_name:-}]";
-	local include_prefix=${console_print_program_prefix:-};
-	if [ ! -z "$include_prefix" ]; then
-		if [ -t 1 ] && [ -z "$console_no_color" ]; then	
-			if [ "$prefix" != "" ]; then
-				gray "$prefix";
-				echo -ne "$_result";
-				echo -ne " ";
-			fi
-		else
-			echo -n "$prefix ";
-		fi
-	fi
-}
-
-#exits a program with a success message
-function console.success {
-	
-	if [ $# -eq 0 ]; then
-		exit 0;
-	fi
-	
-	local status="${console_prefixes[$FUNCNAME]}";
-	local prefix="$status";
-	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_color" ]; then
-		#get the message prefix
-		bold "$status";
-		prefix="$_result";
-
-		#highlight the message and parameters
-		msgs=( "default_style" "bold" "${@}" );
-		console.colorize "${msgs[@]}";
-		msg="$_result";
-	else
-		console.sprintf "${@}";
-		msg="$_result";
-	fi
-	
-	#output everything
-	__console_print_program_prefix;
-	echo -e "$prefix $msg";
-	exit 0;
-}
-
-function console.ok {
-	local status="${console_prefixes[$FUNCNAME]}";
-	local prefix="$status";
-	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_color" ]; then
-		#get the message prefix
-		bold "$status";
-		prefix="$_result";
-
-		#highlight the message and parameters
-		msgs=( "default_style" "bold" "${@}" );
-		console.colorize "${msgs[@]}";
-		msg="$_result";
-	else
-		console.sprintf "${@}";
-		msg="$_result";
-	fi
-	
-	#output everything
-	__console_print_program_prefix;
-	echo -e "$prefix $msg";
-}
-
-function console.prompt {
-	local status="${console_prefixes[$FUNCNAME]}";
-	local prefix="$status";	
-	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_color" ]; then
-		#get the message prefix
-		bold "$status";
-		prefix="$_result";
-
-		#highlight the message and parameters
-		msgs=( "default_style" "bold" "${@}" );
-		console.colorize "${msgs[@]}";
-		msg="$_result";
-	else
-		console.sprintf "${@}";
-		msg="$_result";
-	fi
-	
-	#output everything
-	__console_print_program_prefix;
-	echo -ne "$msg ";
-}
-
-#outputs an info message
-function console.info {	
-	local status="${console_prefixes[$FUNCNAME]}";
-	local prefix="$status";
-	local msg="";
-	if [ -t 1 ] && [ -z "$console_no_color" ]; then
-		#get the message prefix
-		bold "$status";
-		prefix="$_result";
-
-		#highlight the message and parameters
-		msgs=( "default_style" "bold" "${@}" );
-		console.colorize "${msgs[@]}";
-		msg="$_result";
-	else
-		console.sprintf "${@}";
-		msg="$_result";
-	fi
-	
-	#output everything
-	__console_print_program_prefix;
-	echo -e "$prefix $msg";
-}
-
-# output a info message when the process is in debug mode
-function console.debug {
-	# TODO: change prefix to debug
-	if process.debug?; then
-		console.info "$@";
-	fi
-}
-
-#outputs a warning message
-function console.warn {	
-	local status="${console_prefixes[$FUNCNAME]}";
-	local prefix="$status";
-	local msg="";
-	if [ -t 2 ] && [ -z "$console_no_color" ]; then
-		#get the message prefix
-		boldpurple "$status";
-		prefix="$_result";
-
-		#highlight the message and parameters
-		msgs=( "start_purple" "boldpurple" "${@}" );
-		console.colorize "${msgs[@]}";
-		msg="$_result";
-	else
-		console.sprintf "${@}";
-		msg="$_result";
-	fi
-	
-	#output everything
-	__console_print_program_prefix;
-	echo -e "$prefix $msg" >&2;
-}
-
-# # executed before showing a prompt
-# console.error.before() {
-# 	# save stderr in file descriptor #7
-# 	exec 7>&2;
-# 	# redirect stderr to stdout
-# 	exec 2>&1;
+# function console.colorize {
+# 	#function used to start the main color
+# 	local start_function="$1";
+# 	#function used to highlight each replacement parameter
+# 	local highlight_function="$2";
+# 	local message="$3";
+# 	local replacements=("${@:3}");
+# 	local output=( "$message" );
+# 	local c=0;
+# 	local i;
+# 	for i in "${replacements[@]}"
+# 		do
+# 			if [ $c -ne 0 ]; then
+# 				#highlight each replacement parameter
+# 				eval "$highlight_function" "'$i'";
+# 				local res="$_result";
+# 				eval "$start_function";
+# 				#concatenate together
+# 				res="$res$_result";
+# 				#and push back on to the output data
+# 				output=( "${output[@]}" "$res" );
+# 			fi
+# 			c=$[$c+1];
+# 	done
+# 	#get the overall start
+# 	eval "$start_function";
+# 	local start="$_result";
+# 	
+# 	#always end with a style terminator
+# 	style_terminator;
+# 	local end="$_result";
+# 	
+# 	# TODO: use the shared console.sprintf message
+# 	#perform the replacement on the message template string
+# 	_result=$(printf "${output[@]}");
+# 	
+# 	#wrap the replaced message with the start and end highlighting
+# 	local full="$start${_result[@]}$end";
+# 	
+# 	#return the output
+# 	_result="$full";
+# 	#echo "got FULL RESULT: $full";
+# 	#echo -e "$full";
+# 	#echo "this is a normal message";
 # }
 # 
-# # executed after showing a prompt
-# console.error.after() {
-# 	# restore stderr and close file descriptor #7
-# 	if [ -f 7 ]; then
-# 		exec 2>&7 7>&-;
+# ######################################################################
+# #	Performs replacement without performing any highlighting
+# #	appropriate for output to a non-terminal.
+# #
+# #	$1 		The printf format string.
+# #	$2-@	The remaining string replacements to be highlighted.
+# ######################################################################
+# function console.sprintf {
+# 	#echo "sprintf length : $#"
+# 	# escape hyphens
+# 	#local var="$@";
+# 	#var="${var//-/\-}";
+# 	#echo "var is: '''$var'''"
+# 	_result=$(printf "$@");
+# 	#_result="${_result//\\-/-}";
+# }
+# 
+# #TODO : integrate this logic so no highlighting is performed when not a terminal
+# #if [ -t 1 ] ; then echo terminal; fi
+# #(if [ -t 1 ] ; then echo terminal; fi) | echo
+# 
+# #quits a program with a message and exit code
+# function console.quit {
+# 	local code="${1:-1}";
+# 	if [ $# -gt 1 ]; then
+# 		local params=("${@:2}");
+# 		console.error "${params[@]}";
+# 	fi
+# 	exit $code;
+# }
+# 
+# #prints a message with the default output formatting
+# function print {
+# 	local msg="$1";
+# 	__console_print_program_prefix;
+# 	echo -e "$msg";
+# }
+# 
+# function __console_print_program_prefix {
+# 	local prefix="[${process_name:-}]";
+# 	local include_prefix=${console_print_program_prefix:-};
+# 	if [ ! -z "$include_prefix" ]; then
+# 		if [ -t 1 ] && [ -z "$console_no_color" ]; then	
+# 			if [ "$prefix" != "" ]; then
+# 				gray "$prefix";
+# 				echo -ne "$_result";
+# 				echo -ne " ";
+# 			fi
+# 		else
+# 			echo -n "$prefix ";
+# 		fi
 # 	fi
 # }
-
-#outputs an error message
-function console.error {
-	local status="${console_prefixes[$FUNCNAME]}";
-	local prefix="$status";
-	local msg="";
-	if [ -t 2 ] && [ -z "$console_no_color" ]; then
-		#get the message prefix
-		boldred "$status";
-		prefix="$_result";
-
-		#highlight the message and parameters
-		msgs=( "start_red" "boldred" "${@}" );
-		console.colorize "${msgs[@]}";
-		msg="$_result";
-	else
-		console.sprintf "${@}";
-		msg="$_result";
-	fi
-	
-	#output everything
-	__console_print_program_prefix;
-	echo -e "$prefix $msg" >&2;
-}
-
-# generates a stack trace
-function console.trace {
-	local offset="${1:-0}";
-	local frame=$offset line;
-	local data=( $( caller $frame ) );
-	while [ "${#data[@]}" -gt 0 ]; do
-		console.error "%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
-		: $((frame++));
-		data=( $( caller $frame ) );
-	done
-	return 0;
-}
-
-# print the generic header delimiter
-function console.header() {
-	printf "${header:-}\n";
-}
-
-# throws an error message and prints the stack trace
-function console.throw {
-	local message="${1:-Unknown error}";
-	#echo "throw message: $message";
-	console.error "$message";
-	console.trace 1;
-}
+# 
+# #exits a program with a success message
+# function console.success {
+# 	
+# 	if [ $# -eq 0 ]; then
+# 		exit 0;
+# 	fi
+# 	
+# 	local status="${console_prefixes[$FUNCNAME]}";
+# 	local prefix="$status";
+# 	local msg="";
+# 	if [ -t 1 ] && [ -z "$console_no_color" ]; then
+# 		#get the message prefix
+# 		bold "$status";
+# 		prefix="$_result";
+# 
+# 		#highlight the message and parameters
+# 		msgs=( "default_style" "bold" "${@}" );
+# 		console.colorize "${msgs[@]}";
+# 		msg="$_result";
+# 	else
+# 		console.sprintf "${@}";
+# 		msg="$_result";
+# 	fi
+# 	
+# 	#output everything
+# 	__console_print_program_prefix;
+# 	echo -e "$prefix $msg";
+# 	exit 0;
+# }
+# 
+# function console.ok {
+# 	local status="${console_prefixes[$FUNCNAME]}";
+# 	local prefix="$status";
+# 	local msg="";
+# 	if [ -t 1 ] && [ -z "$console_no_color" ]; then
+# 		#get the message prefix
+# 		bold "$status";
+# 		prefix="$_result";
+# 
+# 		#highlight the message and parameters
+# 		msgs=( "default_style" "bold" "${@}" );
+# 		console.colorize "${msgs[@]}";
+# 		msg="$_result";
+# 	else
+# 		console.sprintf "${@}";
+# 		msg="$_result";
+# 	fi
+# 	
+# 	#output everything
+# 	__console_print_program_prefix;
+# 	echo -e "$prefix $msg";
+# }
+# 
+# function console.prompt {
+# 	local status="${console_prefixes[$FUNCNAME]}";
+# 	local prefix="$status";	
+# 	local msg="";
+# 	if [ -t 1 ] && [ -z "$console_no_color" ]; then
+# 		#get the message prefix
+# 		bold "$status";
+# 		prefix="$_result";
+# 
+# 		#highlight the message and parameters
+# 		msgs=( "default_style" "bold" "${@}" );
+# 		console.colorize "${msgs[@]}";
+# 		msg="$_result";
+# 	else
+# 		console.sprintf "${@}";
+# 		msg="$_result";
+# 	fi
+# 	
+# 	#output everything
+# 	__console_print_program_prefix;
+# 	echo -ne "$msg ";
+# }
+# 
+# #outputs an info message
+# function console.info {	
+# 	local status="${console_prefixes[$FUNCNAME]}";
+# 	local prefix="$status";
+# 	local msg="";
+# 	if [ -t 1 ] && [ -z "$console_no_color" ]; then
+# 		#get the message prefix
+# 		bold "$status";
+# 		prefix="$_result";
+# 
+# 		#highlight the message and parameters
+# 		msgs=( "default_style" "bold" "${@}" );
+# 		console.colorize "${msgs[@]}";
+# 		msg="$_result";
+# 	else
+# 		console.sprintf "${@}";
+# 		msg="$_result";
+# 	fi
+# 	
+# 	#output everything
+# 	__console_print_program_prefix;
+# 	echo -e "$prefix $msg";
+# }
+# 
+# # output a info message when the process is in debug mode
+# function console.debug {
+# 	# TODO: change prefix to debug
+# 	if process.debug?; then
+# 		console.info "$@";
+# 	fi
+# }
+# 
+# #outputs a warning message
+# function console.warn {	
+# 	local status="${console_prefixes[$FUNCNAME]}";
+# 	local prefix="$status";
+# 	local msg="";
+# 	if [ -t 2 ] && [ -z "$console_no_color" ]; then
+# 		#get the message prefix
+# 		boldpurple "$status";
+# 		prefix="$_result";
+# 
+# 		#highlight the message and parameters
+# 		msgs=( "start_purple" "boldpurple" "${@}" );
+# 		console.colorize "${msgs[@]}";
+# 		msg="$_result";
+# 	else
+# 		console.sprintf "${@}";
+# 		msg="$_result";
+# 	fi
+# 	
+# 	#output everything
+# 	__console_print_program_prefix;
+# 	echo -e "$prefix $msg" >&2;
+# }
+# 
+# # # executed before showing a prompt
+# # console.error.before() {
+# # 	# save stderr in file descriptor #7
+# # 	exec 7>&2;
+# # 	# redirect stderr to stdout
+# # 	exec 2>&1;
+# # }
+# # 
+# # # executed after showing a prompt
+# # console.error.after() {
+# # 	# restore stderr and close file descriptor #7
+# # 	if [ -f 7 ]; then
+# # 		exec 2>&7 7>&-;
+# # 	fi
+# # }
+# 
+# #outputs an error message
+# function console.error {
+# 	local status="${console_prefixes[$FUNCNAME]}";
+# 	local prefix="$status";
+# 	local msg="";
+# 	if [ -t 2 ] && [ -z "$console_no_color" ]; then
+# 		#get the message prefix
+# 		boldred "$status";
+# 		prefix="$_result";
+# 
+# 		#highlight the message and parameters
+# 		msgs=( "start_red" "boldred" "${@}" );
+# 		console.colorize "${msgs[@]}";
+# 		msg="$_result";
+# 	else
+# 		console.sprintf "${@}";
+# 		msg="$_result";
+# 	fi
+# 	
+# 	#output everything
+# 	__console_print_program_prefix;
+# 	echo -e "$prefix $msg" >&2;
+# }
+# 
+# # generates a stack trace
+# function console.trace {
+# 	local offset="${1:-0}";
+# 	local frame=$offset line;
+# 	local data=( $( caller $frame ) );
+# 	while [ "${#data[@]}" -gt 0 ]; do
+# 		console.error "%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
+# 		: $((frame++));
+# 		data=( $( caller $frame ) );
+# 	done
+# 	return 0;
+# }
+# 
+# # print the generic header delimiter
+# function console.header() {
+# 	printf "${header:-}\n";
+# }
+# 
+# # throws an error message and prints the stack trace
+# function console.throw {
+# 	local message="${1:-Unknown error}";
+# 	#echo "throw message: $message";
+# 	console.error "$message";
+# 	console.trace 1;
+# }
 
 # must set this option so that aliases are expanded
 shopt -s expand_aliases;
@@ -918,20 +946,18 @@ shopt -s expand_aliases;
 # set up aliases for backward compatability
 # WARNING: these aliases will be removed in a future
 # version and you should use console.info etc.
-alias "info=console.info";
-alias "error=console.error";
-alias "warn=console.warn";
-alias "success=console.success";
-alias "quit=console.quit";
+alias "console.info=console info";
+alias "console.error=console error";
+alias "console.warn=console warn";
+alias "console.success=console success";
+alias "console.quit=console quit";
+alias "console.header=console header";
+alias "console.ok=console ok";
+alias "console.prompt=console prompt";
+alias "console.log=console log";
 
-# info "this is an info message";
-# error "this is an error message";
-# warn "this is a warning";
-
-#quit;
-#quit 127;
-#quit 127 "this is an error message";
-#success "success";
-#success;
-
-#alias;
+# alias "info=console.info";
+# alias "error=console.error";
+# alias "warn=console.warn";
+# alias "success=console.success";
+# alias "quit=console.quit";

@@ -1281,7 +1281,7 @@ dly.parse() {
 			fi
 		fi
 	elif ${flags[print.profiles]}; then
-		console.log "${defaults[profile.name]}";
+		console print "${defaults[profile.name]}";
 		console.success;
 	fi
 }

@@ -291,7 +291,7 @@ function prj.tasks.project.count {
 	fi	
 	!project.file.read;
 	!project.list;
-	console.log "${#projects[@]}";
+	console print "${#projects[@]}";
 	console.success;
 }
 
@@ -395,7 +395,7 @@ function prj.tasks.project.get {
 						k="${k#projects.}";
 						p="${k%%.*}";
 						k="${k##*.}";
-						console.log "$p $k $v";
+						console print "$p $k $v";
 					fi
 			done
 	done
@@ -549,7 +549,7 @@ function !project.list {
 				fi
 				projects["$k"]="$v";
 				if $print; then
-					console.log "$k $v";
+					console print "$k $v";
 				fi
 			fi
 	done

@@ -7,7 +7,7 @@ function test.process.lib? {
 # test for process.pid output
 function test.process.pid {
 	local pid=`process.pid`;
-	console.log "$FUNCNAME $pid";
+	console print "$FUNCNAME $pid";
 	assert.match "^[0-9]+$" "$pid";
 }
 

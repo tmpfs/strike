@@ -152,7 +152,7 @@ function assert.file.exists? {
 	local expected="0";
 	`test -f "$1"`;
 	local received="$?";
-	console.info "$FUNCNAME %s" "$1";	
+	console info "$FUNCNAME %s" "$1";	
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else
@@ -166,7 +166,7 @@ function assert.file.exists! {
 	local expected="1";
 	`test -f "$1"`;
 	local received="$?";
-	console.info "$FUNCNAME %s" "$1";
+	console info "$FUNCNAME %s" "$1";
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else
@@ -180,7 +180,7 @@ function assert.dir.exists? {
 	local expected="0";
 	`test -d "$1"`;
 	local received="$?";
-	console.info "$FUNCNAME %s" "$1";	
+	console info "$FUNCNAME %s" "$1";	
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else
@@ -194,7 +194,7 @@ function assert.dir.exists! {
 	local expected="1";
 	`test -d "$1"`;
 	local received="$?";
-	console.info "$FUNCNAME %s" "$1";	
+	console info "$FUNCNAME %s" "$1";	
 	if [ "$expected" == "$received" ]; then
 		__assert_ok "$FUNCNAME";
 	else
@@ -243,7 +243,7 @@ function assert.header {
 		method="${output:-}";
 	fi
 	if [ -z "$method" ]; then
-		method="console.info";
+		method="console info";
 	fi
 	$method "$assert_header";
 }
@@ -302,10 +302,10 @@ function __assert_ok {
 	fi
 
 	if [ $# -eq 1 ]; then
-		console.info "$assertion %s" "$method";
+		console info "$assertion %s" "$method";
 	elif [ $# -gt 1 ]; then
 		# custom message
-		console.info "${@:2}";
+		console info "${@:2}";
 	fi
 	
 	if [ ! -z "$ttyout" ]; then	
@@ -335,12 +335,12 @@ function __assert_err {
 	fi
 	
 	if [ $# -eq 1 ]; then
-		console.error "$assertion %s" "$method";	
-		console.error "$frame";
-		console.error "expected %s, got %s" "$expected" "$received";
+		console error "$assertion %s" "$method";	
+		console error "$frame";
+		console error "expected %s, got %s" "$expected" "$received";
 	elif [ $# -gt 1 ]; then
 		# custom message
-		console.error "${@:2}";
+		console error "${@:2}";
 	fi
 	
 	# FIXME: correct this test for the presence of the failures list?
@@ -358,12 +358,12 @@ function __assert.print.summary {
 	
 	# switch output method for summary
 	# based on any assertions failing
-	local output="console.info";
+	local output="console info";
 	
 	# some assertions failed
 	if [ ${summary[assertions.fail]} -gt 0 ]; then
 		# TODO: ensure [warn] prefix is not displayed, after console(3) refactoring
-		output="console.warn";
+		output="console warn";
 	fi
 	
 	assert.header $output;
@@ -378,26 +378,26 @@ function __assert.print.summary {
 	$output "assertions (pass): %s" "${summary[assertions.pass]}";
 	
 	if [ ${summary[assertions.fail]} -eq 0 ]; then
-		console.info "assertions (fail): %s" "${summary[assertions.fail]}";
+		console info "assertions (fail): %s" "${summary[assertions.fail]}";
 	else
-		console.warn "assertions (fail): %s" "${summary[assertions.fail]}";
+		console warn "assertions (fail): %s" "${summary[assertions.fail]}";
 	fi
 	
 	if [ ${summary[assertions.fail]} -eq 0 ]; then
 		assert.header;		
-		console.ok "test(s) passed %s" "✓";
-		console.success;
+		console ok "test(s) passed %s" "✓";
+		console success;
 	else
 		
 		assert.header;
-		console.warn "# FAILURES";
+		console warn "# FAILURES";
 		assert.header;
 		
 		if [ -n "${stdout:-}" ]; then
-			console.warn "# STDOUT: %s" "$stdout";
+			console warn "# STDOUT: %s" "$stdout";
 		fi
 		if [ -n "${stderr:-}" ]; then
-			console.warn "# STDERR: %s" "$stderr";
+			console warn "# STDERR: %s" "$stderr";
 		fi
 		assert.header;
 		
@@ -407,13 +407,13 @@ function __assert.print.summary {
 				local assertion="${failures[$debuginfo]}";
 				local frame=${debuginfo%:*};
 				local method=${debuginfo##*:};
-				console.error "$assertion %s" "$method";
-				console.error "$frame";
+				console error "$assertion %s" "$method";
+				console error "$frame";
 		done
 		
 		assert.header;		
 		
-		console.error "test(s) failed %s" "✘";
+		console error "test(s) failed %s" "✘";
 		exit ${summary[assertions.fail]};
 	fi
 }

@@ -131,7 +131,7 @@ function require.dirs {
 	local searchpaths=( $_result ) d;
 	for d in "${searchpaths[@]}"
 		do
-			console.log "$d";
+			console print "$d";
 	done
 }
 

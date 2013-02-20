@@ -395,7 +395,7 @@ function __compress.print {
 		size=( $( du -h "$file" ) );
 		size=" ${size[0]}";
 	fi
-	console.log "${file}%s" "$size";
+	console print "${file}%s" "$size";
 }
 
 # massage $out depending upon the --output and --dir options

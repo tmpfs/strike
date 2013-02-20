@@ -54,6 +54,6 @@ function !test.json.parse.print {
 	for k in "${!json_doc[@]}"
 		do
 			v="${json_doc[$k]}";
-			console.log "$k=$v";
+			console print "$k=$v";
 	done
 }

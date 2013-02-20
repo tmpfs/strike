@@ -98,7 +98,7 @@ console.test.colors() {
 	console --color=gray "a %s message" "gray";
 	console --color=yellow "a %s message" "yellow";
 	console --color=white "a %s message" "white";	
-	console.header;	
+	console header;
 }
 
 # test message types
@@ -109,19 +109,16 @@ console.test.types() {
 	console header;
 	console log $opts "a %s message" "log";
 	console info $opts "an %s message" "info";
+	console ok $opts "an %s message" "ok";	
+	
 	console debug $opts "a %s message" "debug";
 	console warn $opts "a %s message" "warning";	
 	console error $opts "an %s message" "error";
-
-	(
-		console quit 127 "a %s message" "quit"
-	);
-	
-	echo "AFTER QUIT !!!"
-	
 	console trace $opts;
-	
-	console.header;
+	console notok $opts "a %s message" "not ok";	
+	console header;
+	( console quit 127 "a %s message" "quit" );
+	( console success "a %s message" "success" );
 }
 
 # print test messages

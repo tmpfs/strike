@@ -439,20 +439,20 @@ function __semver.release.warn {
 	string.repeat "+" 80;
 	local header="$_result";
 
-	console.log "$header";	
+	console print "$header";	
 	console.warn "You are about to go from major version %s to major version %s" "0" "1";
 	console.warn "creating a public version of your software.";
-	console.log "";
+	console print "";
 	console.warn "This means you are about to create a %s for your software" "PUBLIC API";
 	console.warn "and you should be certain that you wish to proceed.";
-	console.log "";	
+	console print "";	
 	console.warn "You should perform the following actions before creating version %s:" "1";
-	console.log "";	
+	console print "";	
 	console.warn "	* Run unit tests using %s or %s" "npm test" "bake test";
 	console.warn "	* Check for %s and %s tags" "BUG" "FIXME";
 	console.warn "	* Generate documentation using %s" "bake doc.build";
 	console.warn "	* Publish documentation using %s" "bake doc.pages.push";
-	console.log "$header";
+	console print "$header";
 }
 
 # initial release confirmation

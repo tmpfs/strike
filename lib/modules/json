@@ -72,6 +72,6 @@ function json.print {
 	for key in "${!json_doc[@]}"
 		do
 			val="${json_doc["$key"]}";
-			console.log "${key}=${val}";
+			console print "${key}=${val}";
 	done
 }

@@ -256,7 +256,7 @@ function __latex.compile {
 	# echo "using output: $output";
 	
 	if $latex_debug; then
-		console.log "${executables[pdflatex]} ${latex_options[*]} %s" "$file";
+		console print "${executables[pdflatex]} ${latex_options[*]} %s" "$file";
 	fi
 
 	local logfile="${output}/${nm}.compile.log";

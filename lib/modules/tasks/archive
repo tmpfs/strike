@@ -184,8 +184,8 @@ function arc.tasks.archive.test {
 	shift;
 	__archive.dir.process;
 	__archive.name.process;
-	console.log "${archive_type} ${archive_name}";
-	console.log "${archive_dir}";
+	console print "${archive_type} ${archive_name}";
+	console print "${archive_dir}";
 }
 
 function arc.tasks.archive.create {
