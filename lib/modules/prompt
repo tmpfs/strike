@@ -145,7 +145,7 @@ function __prompt.show.data {
 	prompt_current=( $@ );
 	
 	if [ -t 0 ]; then
-		read value;
+		read -e value;
 		if [ -n "${value:-}" ]; then
 			__prompt.accepted "${value}";
 		else
@@ -157,7 +157,7 @@ function __prompt.show.data {
 function __prompt.show {
 	# only prompt if stdin is a tty
 	if [ -t 0 ]; then
-		read value;
+		read -e value;
 		if [ "$value" == "$accept" ]; then
 			__prompt.accepted $@;
 		elif [ "$value" == "$reject" ]; then
