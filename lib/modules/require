@@ -338,7 +338,7 @@ function __require_load {
 		fi
 		
 		if [ $loaded -eq 0 ]; then
-			quit 1 "failed to load module %s" "$name";
+			console quit 1 "failed to load module %s" "$name";
 		fi
 		
 		# echo "testing for delegate method : $name";
