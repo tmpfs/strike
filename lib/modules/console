@@ -118,6 +118,100 @@ ronn:markdown
 declare -g __stdout_log_file="";
 declare -g __stderr_log_file="";
 
+declare -g console_bypass_generic_error_handler=false;
+
+# generic console output command
+console() {
+	
+	# message prefix
+	local prefix="";
+	local messages=();
+	
+	declare -A flags;
+	flags[print.program.prefix]=false;
+	flags[print.message.prefix]=true;
+	flags[color]=true;
+	flags[stderr]=false;	
+	console.options.parse "$@";
+	
+	if [ "${#messages[@]}" -eq 0 ]; then
+		echo "no console message supplied";
+		return 1;
+	fi
+	
+	local flag;
+	for flag in ${!flags[@]}
+		do
+			echo "flag $flag :: ${flags[$flag]}";
+	done
+	
+	echo "prefix is : ${prefix}"
+
+	echo "messages length : ${#messages[@]}";
+	echo "messages are : ${messages}";
+}
+
+# parse console options
+console.options.parse() {
+	echo "$FUNCNAME : $*";
+	local optspec=":cn12-:";
+	local optchar val opt;
+	OPTIND=0;
+	while getopts "$optspec" optchar; do
+		echo "got optchar $optchar";
+	    case "${optchar}" in
+	        -)
+				echo "parsing double hyphen option ... ${OPTARG}";
+	            case "${OPTARG}" in
+	                prefix=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+	                    # echo "Parsing option: '--${opt}', value: '${val}'" >&2
+						prefix="${val}";
+	                    ;;
+	                *)
+	                    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+	                        echo "Unknown option --${OPTARG}" >&2
+	                    fi
+	                    ;;
+	            esac;;
+	        c)
+				flags[color]=true;
+	            #echo "Parsing option: '-${optchar}'";
+	            ;;
+	        n)
+				flags[color]=false;
+	            #echo "Parsing option: '-${optchar}'";
+	            ;;
+	        1)
+				flags[stderr]=false;
+	            #echo "Parsing option: '-${optchar}'";
+	            ;;
+	        2)
+				flags[stderr]=true;
+	            #echo "Parsing option: '-${optchar}'";
+	            ;;
+	        *)
+	            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
+	                echo "Non-option argument: '-${OPTARG}'" >&2
+	            fi
+	            ;;
+	    esac
+	done
+	
+	local opt opts=( "$@" );
+	local i length="$#";
+	for((i = 0;i < $length;i++))
+		do
+			opt="${opts[$i]}"
+			if [[ "$opt" =~ ^- ]]; then
+				continue;
+			fi
+			echo "got non-option value : $opt";
+			messages+=( "$opt" );
+	done
+}
+
 function console.log.stdout {
 	touch "$1" || warn "could not create stdout log file %s" "$1";
 	if [ -f "$1" ]; then
@@ -382,87 +476,6 @@ function console.debug {
 	fi
 }
 
-#outputs an important info message
-# function important {
-# 	local status="[info]";
-# 	local prefix="$status";
-# 	local msg="";
-# 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
-# 		#get the message prefix
-# 		bold "$status";
-# 		prefix="$_result";
-# 
-# 		#highlight the message and parameters
-# 		msgs=( "start_blue" "boldblue" "${@}" );
-# 		console.colorize "${msgs[@]}";
-# 		msg="$_result";
-# 	else
-# 		console.sprintf "${@}";
-# 		msg="$_result";
-# 	fi
-# 	
-# 	#output everything
-# 	__console_print_program_prefix;
-# 	echo -e "$prefix $msg";
-# }
-
-#outputs a usage message
-# function usage {
-# 	local status="[usage]";
-# 	local prefix="$status";
-# 	local msg="";
-# 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
-# 		#get the message prefix
-# 		bold "$status";
-# 		prefix="$_result";
-# 
-# 		#highlight the message and parameters
-# 		msgs=( "default_style" "bold" "${@}" );
-# 		console.colorize "${msgs[@]}";
-# 		msg="$_result";
-# 	else
-# 		console.sprintf "${@}";
-# 		msg="$_result";
-# 	fi
-# 	
-# 	#output everything
-# 	__console_print_program_prefix;
-# 	echo -e "$prefix $msg";
-# }
-
-#output a usage description with no formatting
-# function usage_description {
-# 	local status="[usage]";
-# 	local prefix="$status";
-# 	local msg="";
-# 	if [ -t 1 ] && [ -z "$console_no_format" ]; then
-# 		#get the message prefix
-# 		bold "$status";
-# 		prefix="$_result";
-# 
-# 		#no highlight for usage descriptions
-# 		msgs=( "default_style" "default_style" "${@}" );
-# 		console.colorize "${msgs[@]}";
-# 		msg="$_result";
-# 	else
-# 		console.sprintf "${@}";
-# 		msg="$_result";
-# 	fi
-# 	
-# 	#get the message prefix
-# 	#bold "[usage]";
-# 	#local prefix="$_result";
-# 	
-# 	#highlight the message and parameters
-# 	#msgs=( "default_style" "default_style" "${@}" );
-# 	#console.colorize "${msgs[@]}";
-# 	#local msg="$_result";
-# 	
-# 	#output everything
-# 	__console_print_program_prefix;
-# 	echo -e "$prefix $msg";
-# }
-
 #outputs a warning message
 function console.warn {	
 	local status="${console_prefixes[$FUNCNAME]}";
@@ -484,8 +497,26 @@ function console.warn {
 	
 	#output everything
 	__console_print_program_prefix;
+	console_bypass_generic_error_handler=true;
 	echo -e "$prefix $msg" >&2;
+	console_bypass_generic_error_handler=false;
 }
+
+# # executed before showing a prompt
+# console.error.before() {
+# 	# save stderr in file descriptor #7
+# 	exec 7>&2;
+# 	# redirect stderr to stdout
+# 	exec 2>&1;
+# }
+# 
+# # executed after showing a prompt
+# console.error.after() {
+# 	# restore stderr and close file descriptor #7
+# 	if [ -f 7 ]; then
+# 		exec 2>&7 7>&-;
+# 	fi
+# }
 
 #outputs an error message
 function console.error {

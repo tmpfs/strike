@@ -625,6 +625,26 @@ require 'tasks/doc';
 require 'tasks/semver';
 require 'tasks/module';
 
+# printf '\033[1m%s\033[0m' ABC
+# read -ep value
+# 
+# exit 0;
+
+#console -h "color message for you ... %s" "abc";
+
+console -c "color message for you ... %s" "abc";
+
+echo "after colour message"
+
+console -n "simple message for you ... %s" "abc";
+
+console -n2 "simple error message for you ... %s" "abc";
+
+console -n2 --prefix="[warning]" "simple error message for you ... %s" "abc";
+
+# console.error "custom error";
+exit 0;
+
 bake() {
 	# method namespace
 	local namespace="tasks";

@@ -126,7 +126,14 @@ function process.initialize {
 	# so that all error messages are highlighted
 	# wherever possible
 	# NOTE: this must be done before setting noclobber
-	exec 2> >(while read line; do console.error "$line" >&2; done)
+	
+	process.error() {
+		while read line;
+			do
+				console.error "$line" >&2;
+		done
+	}
+	exec 2> >(process.error)
 	
 	# initialize registry of signal
 	# callback methods
