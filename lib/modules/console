@@ -221,7 +221,7 @@ ansi=(
 	[octal.terminator]=$'\001\033[0m\002'
 	[octal.start]=$'\001\033['
 	[octal.end]=$'m\002'
-	[emulators]="xterm xterm-color"
+	[emulators]="xterm xterm-color vt100 ansi"
 )
 readonly -A ansi;
 
