@@ -152,13 +152,13 @@ console.test.types() {
 	console log $opts "a %s message" "log";
 	console info $opts "an %s message" "info";
 	console ok $opts "an %s message" "ok";
+	console debug $opts "a %s message" "debug";
+	console warn $opts "a %s message" "warning";	
 	
 	console header;
 	console print "STDERR";
 	console header;
 	
-	console debug $opts "a %s message" "debug";
-	console warn $opts "a %s message" "warning";
 	console error $opts "an %s message" "error";
 	console throw $opts "an error message with a stack trace";
 	console notok $opts "a %s message" "not ok";
@@ -197,6 +197,10 @@ console.test.printf() {
 
 # test displaying a prompt
 console.test.prompt() {
+	if [ ! -t 0 ] || [ ! -t 1 ]; then
+		return 0;
+	fi
+	
 	local title="${1:-PROMPT}";
 	local opts="${2:-}";
 	local value;
@@ -245,16 +249,14 @@ console.test.custom() {
 
 	console print --attribute=bright \
 		"a %s message %s" "bright";
+		
+	console print --attribute=faint \
+		"a %s message %s" "faint";
+	console print --attribute=italic \
+		"a %s message %s" "italic";
+		
 	console print --attribute=underline \
-		"an %s message %s" "underline";	
-	console print --attribute=framed \
-		"an %s message %s" "framed";
-		
-	console print --attribute=encircled \
-		"an %s message %s" "encircled";
-		
-	console print --attribute=overlined \
-		"an %s message %s" "overlined";
+		"an %s message %s" "underline";
 		
 	console print --color=gray --background=magenta \
 		"a %s message %s" "custom" "with color gray and background magenta";
@@ -273,6 +275,9 @@ console.test() {
 	console.test.types;
 	console.test.printf;
 	console.test.custom;
+	
+	local tester="${unbound_variable}";
+	
 	console.test.prompt;
 	
 	# console.test.types "TYPES (NO PREFIX)" "--no-prefix";

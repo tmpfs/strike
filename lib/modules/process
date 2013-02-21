@@ -122,20 +122,6 @@ function process.initialize {
 	
 	process.lock.test;
 	
-	# redirect stderr to console error
-	# so that all error messages are highlighted
-	# wherever possible
-	# NOTE: this must be done before setting noclobber
-	
-	process.error() {
-		while read line;
-			do
-				# console -2 --red "$line" >&2;
-				echo "$line";
-		done
-	}
-	# exec 2> >(process.error)
-	
 	# initialize registry of signal
 	# callback methods
 	local signal;

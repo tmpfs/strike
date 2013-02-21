@@ -47,6 +47,10 @@ prompt.data() {
 
 # show a prompt by id
 prompt.show() {
+	if [ ! -t 0 ]; then
+		return 0;
+	fi
+	
 	local key="${1:-}";
 	shift;
 	if [ -n "${prompt_boolean["$key"]:-}" ]; then
