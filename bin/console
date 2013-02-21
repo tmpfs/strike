@@ -247,6 +247,15 @@ console.test.custom() {
 		"a %s message %s" "bright";
 	console print --attribute=underline \
 		"an %s message %s" "underline";	
+	console print --attribute=framed \
+		"an %s message %s" "framed";
+		
+	console print --attribute=encircled \
+		"an %s message %s" "encircled";
+		
+	console print --attribute=overlined \
+		"an %s message %s" "overlined";
+		
 	console print --color=gray --background=magenta \
 		"a %s message %s" "custom" "with color gray and background magenta";
 	console print --color=gray --background=magenta --attribute=negative \

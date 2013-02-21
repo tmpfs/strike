@@ -207,17 +207,21 @@ ansi=(
 	[colors.cyan]="6"
 	[colors.gray]="7"
 	[colors.normal]="9"
-	[attributes]="normal bright underline blink positive"
+	[attributes]="normal bright underline blink positive framed encircled overlined"
 	[attr.normal]="0"
 	[attr.bright]="1"
 	[attr.underline]="4"
 	[attr.blink]="5"
 	[attr.negative]="7"
 	[attr.positive]="27"
+	[attr.framed]="51"
+	[attr.encircled]="52"
+	[attr.overlined]="53"
 	
 	[octal.terminator]=$'\001\033[0m\002'
 	[octal.start]=$'\001\033['
 	[octal.end]=$'m\002'
+	[emulators]="xterm xterm-color"
 )
 readonly -A ansi;
 
@@ -349,12 +353,13 @@ console() {
 	
 	local replacements=( "${messages[@]:1}" );
 	
+	local emulators=( ${ansi[emulators]} );
 	# switch off ansi escapes for non-tty
 	if ! ${flags[stderr]} && [ ! -t 1 ]; then
 		console.noansi;
 	elif ${flags[stderr]} && [ ! -t 2 ]; then
 		console.noansi;
-	elif [ "$TERM" != "xterm" ]; then
+	elif ! array.contains? "$TERM" "${emulators[@]}"; then
 		console.noansi;
 	elif ${console_no_color}; then
 		console.noansi;
