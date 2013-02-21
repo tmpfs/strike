@@ -206,12 +206,13 @@ ansi=(
 	[colors.magenta]="5"
 	[colors.cyan]="6"
 	[colors.gray]="7"
-	[attributes]="normal bright underline blink negative"
+	[attributes]="normal bright underline blink positive"
 	[attr.normal]="0"
 	[attr.bright]="1"
 	[attr.underline]="4"
 	[attr.blink]="5"
 	[attr.negative]="7"
+	[attr.positive]="27"
 	
 	[octal.terminator]=$'\001\033[0m\002'
 	[octal.start]=$'\001\033['
