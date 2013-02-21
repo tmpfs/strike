@@ -182,6 +182,8 @@ ronn:markdown
 
 # {ESC} or \033 represents the ANSI escape-sequence. {attr} represents the outputs attributes (properties such as blinking and bold text), {fg} is the # foreground color, {bg} is the background color, m means the sequence ends.
 
+
+
 # NOTE: read -ep octal formatting example
 # SEE: http://lists.gnu.org/archive/html/help-bash/2013-02/msg00007.html
 # $'\001\033[1m\002ABC\001\033[0m\002'
@@ -204,12 +206,12 @@ ansi=(
 	[colors.magenta]="5"
 	[colors.cyan]="6"
 	[colors.gray]="7"
-	[attributes]="normal bright underline blink-slow blink-rapid"
+	[attributes]="normal bright underline blink negative"
 	[attr.normal]="0"
 	[attr.bright]="1"
 	[attr.underline]="4"
-	[attr.blink-slow]="5"
-	[attr.blink-rapid]="6"
+	[attr.blink]="5"
+	[attr.negative]="7"
 	
 	[octal.terminator]=$'\001\033[0m\002'
 	[octal.start]=$'\001\033['
