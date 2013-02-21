@@ -56,16 +56,19 @@ prompt.show() {
 	if [ -n "${prompt_boolean["$key"]:-}" ]; then
 		local IFS=$'\n';
 		local values=( ${prompt_boolean["$key"]} );
+		unset IFS;		
 		prompt_command_options=( ${values[@]} );
 		prompt_command='__prompt.show.boolean';
 		__prompt.show.boolean ${values[@]};
+		unset IFS;
 		return $?;
 	elif [ -n "${prompt_data["$key"]:-}" ]; then
 		local IFS=$'\n';
 		local values=( ${prompt_data["$key"]} );
+		unset IFS;		
 		prompt_command_options=( ${values[@]} );		
 		prompt_command='__prompt.show.data';
-		__prompt.show.data ${values[@]};
+		__prompt.show.data ${values[@]};		
 		return $?;
 	fi
 	console warn "no prompt data for %s" "$key";

@@ -276,7 +276,7 @@ console.test() {
 	console.test.printf;
 	console.test.custom;
 	
-	local tester="${unbound_variable}";
+	# local tester="${unbound_variable}";
 	
 	console.test.prompt;
 	

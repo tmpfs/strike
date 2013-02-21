@@ -97,13 +97,13 @@ tasks.clean() {
 	fi
 
 	# confirmation prompt
-	prompt.boolean confirm y n "${prompt} are you sure? (y/n)";
+	console prompt "${prompt} are you sure? (y/n)";
+	prompt.boolean confirm y n;
 	prompt.accepts accepted;
 	prompt.rejects rejected;
 	prompt.show confirm;
 	prompt.clean;
 }
-
 
 clean.options.parse() {
 	echo "get opts"

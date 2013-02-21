@@ -629,9 +629,7 @@ console.output() {
 	if ! ${flags[stderr]}; then
 		echo $opts "$parsed";
 	else
-		#console.error.before;
 		echo $opts "$parsed" >&2;
-		#console.error.after;
 	fi
 }
 
@@ -850,26 +848,9 @@ console.shell.error() {
 	fi
 }
 
-exec 2> >( while read line; do console.shell.error >&2; done);
+# exec 2> >( while read line; do console.shell.error >&2; done);
 
 # exec 2> >(while read line; do echo -e "\033[1;31m[bash] $line\033[0m" >&2; done)
-
-# executed before showing a prompt
-console.error.before() {
-	# save stderr in file descriptor #7
-	exec 7>&2;
-	# # redirect stderr to stdout
-	# exec 2>&1;
-}
-
-# executed after showing a prompt
-console.error.after() {
-	# restore stderr and close file descriptor #7
-	if [ -f 7 ]; then
-		exec 2>&7 7>&-;
-	fi
-}
-
 
 
 
