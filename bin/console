@@ -87,8 +87,9 @@ console.test.headers() {
 	console header;	
 	console print "${title}";
 	console header;
-	console header $opts --color=bold;
+	console header $opts --color=bright;
 	# console header $opts --color=underline;
+	console header $opts --color=black;	
 	console header $opts --color=red;
 	console header $opts --color=green;
 	console header $opts --color=brown;
@@ -96,8 +97,10 @@ console.test.headers() {
 	console header $opts --color=magenta;
 	console header $opts --color=cyan;
 	console header $opts --color=gray;
-	console header $opts --color=yellow;
-	console header $opts --color=white;
+	
+	# console header $opts --color=yellow;
+	# console header $opts --color=white;
+	
 	console header;
 }
 
@@ -108,7 +111,7 @@ console.test.colors() {
 	console header;
 	
 	# colors
-	console --color=bold "a %s message" "bold";
+	console --color=bright "a %s message" "bright";
 	console --color=underline "an %s message" "underline";
 	
 	console --color=black "a %s message" "black";
@@ -120,14 +123,14 @@ console.test.colors() {
 	console --color=cyan "a %s message" "cyan";
 	console --color=gray "a %s message" "gray";
 	
-	console --color=darkgray "a %s message" "darkgray";
-	console --color=bright-red "a %s message" "bright-red";
-	console --color=bright-green "a %s message" "bright-green";
-	console --color=yellow "a %s message" "yellow";	
-	console --color=bright-blue "a %s message" "bright-blue";
-	console --color=bright-magenta "a %s message" "bright-magenta";
-	console --color=bright-cyan "a %s message" "bright-cyan";
-	console --color=white "a %s message" "white";	
+	# console --color=darkgray "a %s message" "darkgray";
+	# console --color=bright-red "a %s message" "bright-red";
+	# console --color=bright-green "a %s message" "bright-green";
+	# console --color=yellow "a %s message" "yellow";	
+	# console --color=bright-blue "a %s message" "bright-blue";
+	# console --color=bright-magenta "a %s message" "bright-magenta";
+	# console --color=bright-cyan "a %s message" "bright-cyan";
+	# console --color=white "a %s message" "white";	
 	
 	console header;
 }
@@ -206,7 +209,7 @@ console.test.prompt() {
 	# local PS9="${start}bold${terminator} prompt ${characters[lightning]} ";
 	# read -ep "${PS9}" value;
 	
-	console prompt "%s prompt" "bold";
+	console prompt "%s prompt" "bright";
 	read -ep "$PS9" value;
 	console prompt --color=underline "%s prompt" "underline";
 	read -ep "$PS9" value;
