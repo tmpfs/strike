@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash -i
 
 : <<'ronn:markdown'
 console(1) -- test program for console(3)

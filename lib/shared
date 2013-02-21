@@ -31,8 +31,8 @@ __initialize__() {
 	source "${dir}/modules/variable";
 	source "${dir}/modules/string";	
 	source "${dir}/modules/method";
-	source "${dir}/modules/color";
 	source "${dir}/modules/console";
+	
 	source "${dir}/modules/array";
 	source "${dir}/modules/fs";
 	
@@ -82,7 +82,6 @@ __initialize__() {
 	__require_register "variable" "${dir}/modules/variable";
 	__require_register "string" "${dir}/modules/string";
 	__require_register "method" "${dir}/modules/method";
-	__require_register "color" "${dir}/modules/color";
 	__require_register "console" "${dir}/modules/console";
 	__require_register "array" "${dir}/modules/array";
 	__require_register "require" "${dir}/modules/require";
@@ -102,7 +101,6 @@ __initialize__() {
 	
 	# require.delegate "variable";
 	# require.delegate "method";
-	# require.delegate "color";
 	# require.delegate "console";
 	# require.delegate "array";
 
