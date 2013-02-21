@@ -236,6 +236,10 @@ console.test.prompt() {
 
 # print test messages
 console.test() {
+	
+	console print --color=gray --background=magenta --attribute=blink-rapid "a %s message %s" "custom" "with some text";
+	exit 0;
+	
 	console.test.headers;
 	console.test.colors;
 	console.test.types;

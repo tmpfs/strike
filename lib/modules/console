@@ -26,7 +26,11 @@ Print to *stderr*.
 
 * `--color=[color]`:
 
-Set *color* as the message color.
+Set *color* as the foreground color.
+
+* `--background=[color]`:
+
+Set *color* as the background color.
 
 * `--prefix=[prefix]`:
 
@@ -165,9 +169,6 @@ The number of replacement parameters must match exactly the number of `%s` occur
 globals-api(3)
 ronn:markdown
 
-declare -g __stdout_log_file="";
-declare -g __stderr_log_file="";
-
 #Black       0;30     Dark Gray     1;30
 #Blue        0;34     Light Blue    1;34
 #Green       0;32     Light Green   1;32
@@ -181,13 +182,13 @@ declare -g __stderr_log_file="";
 
 # {ESC} or \033 represents the ANSI escape-sequence. {attr} represents the outputs attributes (properties such as blinking and bold text), {fg} is the # foreground color, {bg} is the background color, m means the sequence ends.
 
-# declare -g ansi_start="\033[";
-# declare -g ansi_delimiter=";";
-# declare -g ansi_end="m";
-# declare -g ansi_bright_prefix="bright";
+# NOTE: read -ep octal formatting example
+# SEE: http://lists.gnu.org/archive/html/help-bash/2013-02/msg00007.html
+# $'\001\033[1m\002ABC\001\033[0m\002'
 
 declare -Ag ansi;
 ansi=(
+	[terminator]="\033[0m"
 	[start]="\033["
 	[delimiter]=";"
 	[end]="m"
@@ -195,95 +196,35 @@ ansi=(
 	[foreground]="3"
 	[background]="4"
 	[colors]="black red green brown blue magenta cyan gray"
-	[attributes]="normal bright underline"	
+	[colors.black]="0"
+	[colors.red]="1"
+	[colors.green]="2"
+	[colors.brown]="3"
+	[colors.blue]="4"
+	[colors.magenta]="5"
+	[colors.cyan]="6"
+	[colors.gray]="7"
+	[attributes]="normal bright underline blink-slow blink-rapid"
 	[attr.normal]="0"
 	[attr.bright]="1"
 	[attr.underline]="4"
+	[attr.blink-slow]="5"
+	[attr.blink-rapid]="6"
+	
+	[octal.terminator]=$'\001\033[0m\002'
+	[octal.start]=$'\001\033['
+	[octal.end]=$'m\002'
 )
 readonly -A ansi;
 
-# declare -Ag ansi_attributes;
-# ansi_attributes[normal]="0";
-# ansi_attributes[bright]="1";
-# ansi_attributes[underline]="4";
-# readonly -A ansi_attributes;
-
-# declare -ag attribute_names;
-# attribute_names=(
-# 	normal
-# 	bright
-# 	underline
-# )
-# readonly -a attribute_names;
-
-# list of primary color names
-# declare -ag color_names;
-# color_names=(
-# 	black
-# 	red
-# 	green
-# 	brown
-# 	blue
-# 	magenta
-# 	cyan
-# 	gray
-# );
-# readonly -a color_names;
-
-# declare -g foreground_prefix="3";
-# declare -g background_prefix="4";
-
-# declare -Ag console_foreground;
-# console_foreground[black]="30";
-# console_foreground[red]="31";
-# console_foreground[green]="32";
-# console_foreground[brown]="33";
-# console_foreground[blue]="34";
-# console_foreground[magenta]="35";
-# console_foreground[cyan]="36";
-# console_foreground[gray]="37";
-
-# declare -Ag console_styles;
-# console_styles[bright]="\033[1m";
-# console_styles[underline]="\033[4m";
-# 
-# console_styles[black]="\033[0;30m";
-# console_styles[red]="\033[0;31m";
-# console_styles[green]="\033[0;32m";
-# console_styles[brown]="\033[0;33m";
-# console_styles[blue]="\033[0;34m";
-# console_styles[magenta]="\033[0;35m";
-# console_styles[cyan]="\033[0;36m";
-# console_styles[gray]="\033[0;37m";
-# 
-# console_styles[darkgray]="\033[1;30m";
-# console_styles[bright-red]="\033[1;31m";
-# console_styles[bright-green]="\033[1;32m";
-# console_styles[yellow]="\033[1;33m";
-# console_styles[bright-blue]="\033[1;34m";
-# console_styles[bright-magenta]="\033[1;35m";
-# console_styles[bright-cyan]="\033[1;36m";
-# console_styles[white]="\033[1;37m";
-
-declare -Ag prompt_styles;
-prompt_styles[bright]=$'\001\033[1m\002';
-prompt_styles[underline]=$'\001\033[4m\002';
-
-prompt_styles[black]=$'\001\033[0;30m\002';
-prompt_styles[red]=$'\001\033[0;31m\002';
-prompt_styles[green]=$'\001\033[0;32m\002';
-prompt_styles[brown]=$'\001\033[0;33m\002';
-prompt_styles[blue]=$'\001\033[0;34m\002';
-prompt_styles[magenta]=$'\001\033[0;35m\002';
-prompt_styles[cyan]=$'\001\033[0;36m\002';
-prompt_styles[gray]=$'\001\033[0;37m\002';
-
-#$'\001\033[1m\002ABC\001\033[0m\002'
+# TODO: deprecated
+declare -g __stdout_log_file="";
+declare -g __stderr_log_file="";
 
 # main console entry point
 console() {
 	# style terminator
-	local terminator="\033[0m";
+	local terminator start end;
 	# message prefix
 	local prefix="";
 	local suffix="";
@@ -298,9 +239,12 @@ console() {
 	# the style list
 	declare -A styles;
 	
-	# echo "got ansi values ${ansi[@]}"; exit 0;	
-	
+	# message style names
 	local color="";
+	local background="";
+	local attribute="";
+	
+	
 	local prefix_color="";
 	local highlight_color="";
 	
@@ -326,7 +270,28 @@ console() {
 	
 	if [ -n "${color}" ]; then
 		console.color.validate "${color}";
-	fi	
+	fi
+	if [ -n "${background}" ]; then
+		console.color.validate "${background}";
+	fi
+
+	# echo "after parse : $color";
+	# echo "after parse : $background";
+	# echo "after parse : $attribute";
+	
+	declare -A settings;
+	# main message color
+	if [ -n "${color:-}" ]; then
+		settings[color]="${styles[$color]}";
+	else
+		settings[color]="";
+	fi
+	
+	if [ -n "${color}" ]; then
+		if [ -n "${background}" ] || [ -n "${attribute}" ]; then
+			console.color.update;
+		fi
+	fi
 	
 	if [ "${#messages[@]}" -eq 0 ]; then
 		echo "no console message supplied";
@@ -353,6 +318,7 @@ console() {
 		prompt
 	);
 	
+	# exit code
 	local code=1;
 	if array.contains? "$1" "${commands[@]}"; then
 		cmd="$1";
@@ -400,21 +366,66 @@ console() {
 	fi
 }
 
+# updates the color to include
+# attribute / background information
+console.color.update() {
+	local key="${1:-color}";
+	local fgname="${color:-}";
+	local bgname="${background:-}";
+	local attrname="${attribute:-}";
+	local fgindex="${ansi[colors.${fgname}]:-}";
+	local bgindex="${ansi[colors.${bgname}]:-}";
+	
+	local fgvalue="${ansi[foreground]}${fgindex}";
+	local bgvalue="${ansi[background]}${bgindex}";
+	local attrvalue="${ansi[attr.${attrname}]:-}";
+	
+	local updated="${start}";
+	if [ -n "${attribute:-}" ]; then
+		updated="${updated}${attrvalue}";
+	fi
+	
+	if [ -n "${background:-}" ]; then
+		if [ -n "${attribute:-}" ]; then
+			updated="${updated}${ansi[delimiter]}";
+		fi
+		updated="${updated}${bgvalue}";
+	fi
+	if [ -n "${color:-}" ]; then
+		if [ -n "${background:-}" ]; then
+			updated="${updated}${ansi[delimiter]}";
+		fi
+		updated="${updated}${fgvalue}";
+	fi
+	updated="${updated}${end}";
+	echo "current : ${settings[$key]}";
+	echo "$FUNCNAME : $fgname : $bgname : $attrname : $fgindex : $bgindex : $attrvalue";
+	echo "$FUNCNAME : $updated";
+	settings[$key]="${updated}";
+}
+
 # initialize the style list
 console.styles() {
 	local style;
+	
+	# standard escape sequences
 	if ! ${flags[readline]}; then
+		terminator="${ansi[terminator]}";
+		start="${ansi[start]}";
+		end="${ansi[end]}";
+		
 		console.styles.attributes;
 		console.styles.standard;
 		console.styles.standard bright;
-	# handle read -ep style formatting		
+	# handle read -ep octal formatting
 	else
-		# overwrite styles for console formatting
-		terminator=$'\001\033[0m\002';
-		for style in "${!prompt_styles[@]}"
-			do
-				styles[$style]="${prompt_styles[$style]}";
-		done
+		terminator="${ansi[octal.terminator]}";
+		start="${ansi[octal.start]}";
+		end="${ansi[octal.end]}";
+
+		console.styles.attributes;
+		console.styles.standard;
+		console.styles.standard bright;
 	fi
 }
 
@@ -422,17 +433,14 @@ console.styles() {
 console.styles.attributes() {
 	local cnames=( ${ansi[attributes]} );
 	local i length="${#cnames[@]}";
-	local octal=false;
 	local prefix="";
 	local cname attribute;
 	for((i =0;i < $length;i++))
 		do
 			cname="${cnames[$i]}";
 			attribute="$cname";
-			#echo "using attribute : $attribute";
 			console.styles.prefix true;
 			styles[$cname]="${prefix}";
-			#echo "attribute style: $cname $i : $prefix";
 	done
 }
 
@@ -442,7 +450,6 @@ console.styles.standard() {
 	local i length="${#cnames[@]}";
 	local attribute=${1:-normal};
 	local foreground=true;
-	local octal=false;
 	local prefix="";
 	local cprefix="";
 	local cname;
@@ -450,34 +457,27 @@ console.styles.standard() {
 		do
 			cname="${cnames[$i]}";
 			console.styles.prefix;
-			
 			if [ "$attribute" == "${ansi[bright.prefix]}" ]; then
 				cname="${ansi[bright.prefix]}-${cname}";
 			fi
-			
 			if $foreground; then
 				cprefix="${ansi[foreground]}${i}";
 			else
 				cprefix="${ansi[background]}${i}";
 			fi
 			prefix="${prefix}${cprefix}";
-			prefix="${prefix}${ansi[end]}";
-			
+			prefix="${prefix}${end}";
 			styles[$cname]="${prefix}";
-			
-			#echo "standard style: $cname $i : $prefix";
 	done
 }
 
 console.styles.prefix() {
 	local terminate="${1:-false}";
-	if ! $octal; then
-		prefix="${ansi[start]}${ansi[attr.${attribute}]}";
-	fi
+	prefix="${start}${ansi[attr.${attribute}]}";
 	if ! $terminate; then
 		prefix="${prefix}${ansi[delimiter]}";
 	else
-		prefix="${prefix}${ansi[end]}";
+		prefix="${prefix}${end}";
 	fi
 }
 
@@ -647,10 +647,11 @@ console.replace() {
 					if [ -n "${highlight_color}" ]; then
 						replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
 					fi
+					
+					# start the message colour again for parts in
+					# between replacements					
 					if ${flags[color]} && [ -n "$color" ]; then
-						# start the message colour again for parts in
-						# between replacements
-						replacements[$i]="${replacements[$i]}${styles[$color]}";
+						replacements[$i]="${replacements[$i]}${settings[color]}";
 					fi
 			done
 			parsed=$( printf -- "${message}" "${replacements[@]:-}" );
@@ -659,7 +660,7 @@ console.replace() {
 		# handle overall message color
 		if ${flags[ansi]} && ${flags[color]} && [ -n "$color" ]; then
 			# echo "add overall message color ..."
-			parsed="${styles[$color]}${parsed}";
+			parsed="${settings[color]}${parsed}";
 		fi
 	fi
 	console.prefix;
@@ -679,7 +680,7 @@ console.prefix() {
 				prefix="${styles[bright]}${prefix}${terminator}";
 			fi
 			if [ -n "${color}" ]; then
-				prefix="${styles[$color]}${prefix}${terminator}";
+				prefix="${settings[color]}${prefix}${terminator}";
 			fi
 		fi
 		parsed="${prefix} ${parsed}";
@@ -733,6 +734,16 @@ console.options.parse() {
 	                    opt=${OPTARG%=$val};
 						color="${val}";
 	                    ;;
+	                background=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						background="${val}";
+	                    ;;
+	                attribute=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						attribute="${val}";
+	                    ;;		
 	                no-prefix)
 						flags[message.prefix]=false;
 	                    ;;
