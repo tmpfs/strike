@@ -197,7 +197,7 @@ ansi=(
 	[bright.prefix]="bright"
 	[foreground]="3"
 	[background]="4"
-	[colors]="black red green brown blue magenta cyan gray"
+	[colors]="black red green brown blue magenta cyan gray normal"
 	[colors.black]="0"
 	[colors.red]="1"
 	[colors.green]="2"
@@ -206,6 +206,7 @@ ansi=(
 	[colors.magenta]="5"
 	[colors.cyan]="6"
 	[colors.gray]="7"
+	[colors.normal]="9"
 	[attributes]="normal bright underline blink positive"
 	[attr.normal]="0"
 	[attr.bright]="1"
@@ -243,13 +244,11 @@ console() {
 	declare -A styles;
 	
 	# message style names
-	local color="";
+	local color="normal";
 	local background="";
 	local attribute="";
 	
-	
 	local prefix_color="";
-	local highlight_color="";
 	
 	declare -A flags;
 	flags[debug]=false;
@@ -290,8 +289,10 @@ console() {
 		settings[color]="";
 	fi
 	
+	local has_custom_message_color=false;
 	if [ -n "${color}" ]; then
 		if [ -n "${background}" ] || [ -n "${attribute}" ]; then
+			has_custom_message_color=true;
 			console.color.update;
 		fi
 	fi
@@ -395,15 +396,15 @@ console.color.update() {
 		updated="${updated}${bgvalue}";
 	fi
 	if [ -n "${color:-}" ]; then
-		if [ -n "${background:-}" ]; then
+		if [ -n "${background:-}" ] || [ -n "${attribute:-}" ]; then
 			updated="${updated}${ansi[delimiter]}";
 		fi
 		updated="${updated}${fgvalue}";
 	fi
 	updated="${updated}${end}";
-	echo "current : ${settings[$key]}";
-	echo "$FUNCNAME : $fgname : $bgname : $attrname : $fgindex : $bgindex : $attrvalue";
-	echo "$FUNCNAME : $updated";
+	# echo "current : ${settings[$key]}";
+	# echo "$FUNCNAME : $fgname : $bgname : $attrname : $fgindex : $bgindex : $attrvalue";
+	# echo "$FUNCNAME : $updated";
 	settings[$key]="${updated}";
 }
 
@@ -640,19 +641,22 @@ console.replace() {
 			for((i = 0;i < $length;i++))
 				do
 					val="${replacements[$i]}";
-					if ${flags[replace.bold]}; then
-						replacements[$i]="${styles[bright]}${val}${terminator}";
+					if $has_custom_message_color; then
+						replacements[$i]="${settings[color]}${replacements[$i]}${terminator}";
+					else
+						if ${flags[replace.bold]}; then
+							replacements[$i]="${styles[bright]}${val}${terminator}";
+						fi
+						# ensure replacements respect the overall colour
+						if ${flags[color]} && [ -n "$color" ]; then
+							highlight_color="$color";
+						fi
+						if [ -n "${highlight_color}" ]; then
+							replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
+						fi
 					fi
-					# ensure replacements respect the overall colour
-					if ${flags[color]} && [ -n "$color" ]; then
-						highlight_color="$color";
-					fi
-					if [ -n "${highlight_color}" ]; then
-						replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
-					fi
-					
 					# start the message colour again for parts in
-					# between replacements					
+					# between replacements
 					if ${flags[color]} && [ -n "$color" ]; then
 						replacements[$i]="${replacements[$i]}${settings[color]}";
 					fi

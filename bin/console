@@ -87,8 +87,7 @@ console.test.headers() {
 	console header;	
 	console print "${title}";
 	console header;
-	console header $opts --color=bright;
-	# console header $opts --color=underline;
+	
 	console header $opts --color=black;	
 	console header $opts --color=red;
 	console header $opts --color=green;
@@ -98,8 +97,14 @@ console.test.headers() {
 	console header $opts --color=cyan;
 	console header $opts --color=gray;
 	
-	# console header $opts --color=yellow;
-	# console header $opts --color=white;
+	console header $opts --color=bright-black;	
+	console header $opts --color=bright-red;
+	console header $opts --color=bright-green;
+	console header $opts --color=bright-brown;
+	console header $opts --color=bright-blue;
+	console header $opts --color=bright-magenta;
+	console header $opts --color=bright-cyan;
+	console header $opts --color=bright-gray;
 	
 	console header;
 }
@@ -110,10 +115,6 @@ console.test.colors() {
 	console print "COLORS";
 	console header;
 	
-	# colors
-	console --color=bright "a %s message" "bright";
-	console --color=underline "an %s message" "underline";
-	
 	console --color=black "a %s message" "black";
 	console --color=red "a %s message" "red";
 	console --color=green "a %s message" "green";
@@ -123,14 +124,14 @@ console.test.colors() {
 	console --color=cyan "a %s message" "cyan";
 	console --color=gray "a %s message" "gray";
 	
-	# console --color=darkgray "a %s message" "darkgray";
-	# console --color=bright-red "a %s message" "bright-red";
-	# console --color=bright-green "a %s message" "bright-green";
-	# console --color=yellow "a %s message" "yellow";	
-	# console --color=bright-blue "a %s message" "bright-blue";
-	# console --color=bright-magenta "a %s message" "bright-magenta";
-	# console --color=bright-cyan "a %s message" "bright-cyan";
-	# console --color=white "a %s message" "white";	
+	console --color=bright-black "a %s message" "bright-black";
+	console --color=bright-red "a %s message" "bright-red";
+	console --color=bright-green "a %s message" "bright-green";
+	console --color=bright-brown "a %s message" "bright-brown";	
+	console --color=bright-blue "a %s message" "bright-blue";
+	console --color=bright-magenta "a %s message" "bright-magenta";
+	console --color=bright-cyan "a %s message" "bright-cyan";
+	console --color=bright-gray "a %s message" "bright-gray";	
 	
 	console header;
 }
@@ -234,16 +235,35 @@ console.test.prompt() {
 	console header;
 }
 
+# test custom message
+console.test.custom() {
+	local title="${1:-CUSTOM}";
+	local opts="${2:-}";
+	local value;
+	console print "${title}";
+	console header;
+
+	console print --attribute=bright \
+		"a %s message %s" "bright";
+	console print --attribute=underline \
+		"an %s message %s" "underline";	
+	console print --color=gray --background=magenta \
+		"a %s message %s" "custom" "with color gray and background magenta";
+	console print --color=gray --background=magenta --attribute=negative \
+		"a %s message %s" "negative" "with color gray and background magenta";
+	console print --background=black \
+		"a %s message %s" "background" "with a black background and normal text";
+	console header;
+}
+
 # print test messages
 console.test() {
-	
-	console print --color=gray --background=magenta --attribute=negative "a %s message %s" "custom" "with some text";
-	exit 0;
 	
 	console.test.headers;
 	console.test.colors;
 	console.test.types;
 	console.test.printf;
+	console.test.custom;
 	console.test.prompt;
 	
 	# console.test.types "TYPES (NO PREFIX)" "--no-prefix";
