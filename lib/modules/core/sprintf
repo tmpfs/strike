@@ -74,6 +74,7 @@ sprintf() {
 	local background="";
 	local attribute="";
 	local varname="";
+	local vartype="";
 	
 	local prefix_color="";
 	
@@ -306,7 +307,7 @@ sprintf.output() {
 
 	# export the value as a variable
 	if [ -n "${varname}" ]; then
-		variable.set "${varname}" "$parsed" "export";
+		variable.set "${varname}" "$parsed" "${vartype}";
 		return 0;
 	fi
 	
@@ -453,6 +454,7 @@ sprintf.options.parse() {
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						varname="${val}";
+						vartype="export";
 	                    ;;
 	                no-prefix)
 						flags[message.prefix]=false;

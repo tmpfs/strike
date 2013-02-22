@@ -37,7 +37,7 @@ Prepend *prefix* to the message.
 
 Append *suffix* to the message.
 
-* `--name=[name]`:
+* `--export=[name]`:
 
 Do not print the message export to the environment variable identified by *name*.
 
