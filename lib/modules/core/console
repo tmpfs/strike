@@ -52,6 +52,7 @@ console.print() {
 # and a space as the suffix
 console.prompt() {
 	sprintf --no-newline --readline \
+		--name=PS9 \
 		--suffix="${PS9_SUFFIX:-}" "$@";
 }
 

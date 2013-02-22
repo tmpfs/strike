@@ -19,10 +19,16 @@ function variable.get {
 function variable.set {
 	local name="$1";
 	local value="$2";
+	local declaration="${3:-}";
+	
+	# add space delimiter
+	if [ -n "${declaration}" ]; then
+		declaration="${declaration} ";
+	fi
 	
 	#echo "variable.set: $name : $value";
 	
-	eval "$name"="'$value'";
+	eval "${declaration}${name}"="'${value}'";
 	
 	#variable.get "$name";
 	#echo "$_result";

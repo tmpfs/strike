@@ -73,6 +73,7 @@ sprintf() {
 	local color="normal";
 	local background="";
 	local attribute="";
+	local varname="";
 	
 	local prefix_color="";
 	
@@ -302,10 +303,18 @@ sprintf.output() {
 	if ! ${flags[newline]}; then
 		opts="${opts}n";
 	fi
-	if ${flags[readline]}; then
-		PS9="$parsed";
+
+	# export the value as a variable
+	if [ -n "${varname}" ]; then
+		variable.set "${varname}" "$parsed" "export";
 		return 0;
 	fi
+	
+	# if ${flags[readline]}; then
+	# 	PS9="$parsed";
+	# 	return 0;
+	# fi
+	
 	if ${flags[debug]}; then
 		opts="";
 	fi
@@ -439,7 +448,12 @@ sprintf.options.parse() {
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						attribute="${val}";
-	                    ;;		
+	                    ;;
+	                name=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						varname="${val}";
+	                    ;;
 	                no-prefix)
 						flags[message.prefix]=false;
 	                    ;;
