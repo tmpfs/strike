@@ -158,7 +158,7 @@ function require.exists? {
 			require.path.exists? "$module";
 			return $?;
 		else
-			# echo "testing for module by name : $module : ${module_paths[*]}";
+			#echo "testing for module by name : $module ";
 			require.name.exists? "$module";
 			return $?;
 		fi
@@ -168,7 +168,9 @@ function require.exists? {
 
 # determines whether a module exists by name
 function require.name.exists? {
-	if string.contains? "${module_paths[*]}" "$1"; then
+	#echo "testing for name: ${module_paths[@]}";
+	if string.contains? "${module_paths[*]}" "${1:-}"; then
+		#echo "found module by name : ${1:-}";
 		return 0;
 	fi
 	return 1;
@@ -176,7 +178,8 @@ function require.name.exists? {
 
 # determines whether a module exists by absolute path
 function require.path.exists? {
-	if string.contains? "${!module_paths[*]}" "$1"; then
+	# echo "testing for path $1 : ${!module_paths[*]}";
+	if string.contains? "${!module_paths[*]}" "${1:-}"; then
 		return 0;
 	fi
 	return 1;
@@ -234,6 +237,8 @@ function __require_register {
 		# 
 		# module_methods["$path"]="${methods[@]:-}";
 		# module_private_methods["$path"]="${private[@]:-}";
+		
+		module_names["$name"]="$path";
 	
 		if [ ! -z "$path" ]; then
 			module_paths["$path"]="$name";

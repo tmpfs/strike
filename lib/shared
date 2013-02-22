@@ -23,18 +23,21 @@ __initialize__() {
 	__check_version__;
 	
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
-
+	dir=$( cd "$dir" && echo "$PWD" );
+	
+	local core="${dir}/modules/core";	
+	
 	# global variable declarations
-	source "${dir}/modules/globals";
+	source "${core}/globals";
 	
 	# we need these modules before we include require(3)
-	source "${dir}/modules/variable";
-	source "${dir}/modules/string";	
-	source "${dir}/modules/method";
-	source "${dir}/modules/sprintf";	
-	source "${dir}/modules/console";
-	source "${dir}/modules/array";
-	source "${dir}/modules/fs";
+	source "${core}/variable";
+	source "${core}/string";	
+	source "${core}/method";
+	source "${core}/sprintf";	
+	source "${core}/console";
+	source "${core}/array";
+	source "${core}/fs";
 	
 	#NOTE: directories must be configured prior to including require(3)
 	# configure program directories
@@ -76,26 +79,26 @@ __initialize__() {
 	library_dirs[semver]="${dir_root}/semver.json";
 
 	# main module loader and require(3) definition
-	source "${dir}/modules/require";
+	source "${core}/require";
 
 	# manually register these modules
-	__require_register "variable" "${dir}/modules/variable";
-	__require_register "string" "${dir}/modules/string";
-	__require_register "method" "${dir}/modules/method";
-	__require_register "sprintf" "${dir}/modules/sprintf";
-	__require_register "console" "${dir}/modules/console";
-	__require_register "array" "${dir}/modules/array";
-	__require_register "require" "${dir}/modules/require";
-	__require_register "fs" "${dir}/modules/fs";
+	__require_register "variable" "${core}/variable";
+	__require_register "string" "${core}/string";
+	__require_register "method" "${core}/method";
+	__require_register "sprintf" "${core}/sprintf";
+	__require_register "console" "${core}/console";
+	__require_register "array" "${core}/array";
+	__require_register "require" "${core}/require";
+	__require_register "fs" "${core}/fs";
 	
 	# require(3) the remaining core modules
 	# the order here is *very* important
 	
 	# TODO: move these to `source`!
-	require.once 'delegate';
-	require.once 'executable';
-	require.once 'system';
-	require.once 'process';
+	require.once 'core/delegate';
+	require.once 'core/executable';
+	require.once 'core/system';
+	require.once 'core/process';
 }
 
 __initialize__ "$@";

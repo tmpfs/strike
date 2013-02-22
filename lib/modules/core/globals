@@ -183,6 +183,8 @@ Associative array of loaded modules. Each key is the absolute filesystem path to
 api:ronn:markdown
 declare -Agx module_paths;
 
+declare -Agx module_names;
+
 : <<'api:ronn:markdown'
 * `module_methods`:
 

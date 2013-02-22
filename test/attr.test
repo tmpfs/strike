@@ -1,4 +1,4 @@
-require.once 'attr';
+require.once 'experimental/attr';
 
 # TODO: add test(s) for -* flag options passed to declare
 
