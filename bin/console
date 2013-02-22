@@ -152,13 +152,13 @@ console.test.types() {
 	console log $opts "a %s message" "log";
 	console info $opts "an %s message" "info";
 	console ok $opts "an %s message" "ok";
-	console debug $opts "a %s message" "debug";
-	console warn $opts "a %s message" "warning";	
 	
 	console header;
 	console print "STDERR";
 	console header;
 	
+	console debug $opts "a %s message" "debug";
+	console warn $opts "a %s message" "warning";
 	console error $opts "an %s message" "error";
 	console throw $opts "an error message with a stack trace";
 	console notok $opts "a %s message" "not ok";
@@ -247,23 +247,24 @@ console.test.custom() {
 	console print "${title}";
 	console header;
 
-	console print --attribute=bright \
+	sprintf --attribute=bright \
 		"a %s message %s" "bright";
 		
-	console print --attribute=faint \
+	sprintf --attribute=faint \
 		"a %s message %s" "faint";
-	console print --attribute=italic \
+	sprintf --attribute=italic \
 		"a %s message %s" "italic";
 		
-	console print --attribute=underline \
+	sprintf --attribute=underline \
 		"an %s message %s" "underline";
 		
-	console print --color=gray --background=magenta \
+	sprintf --color=gray --background=magenta \
 		"a %s message %s" "custom" "with color gray and background magenta";
-	console print --color=gray --background=magenta --attribute=negative \
+	sprintf --color=gray --background=magenta --attribute=negative \
 		"a %s message %s" "negative" "with color gray and background magenta";
-	console print --background=black \
+	sprintf --background=black \
 		"a %s message %s" "background" "with a black background and normal text";
+		
 	console header;
 }
 

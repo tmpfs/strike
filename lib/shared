@@ -31,6 +31,7 @@ __initialize__() {
 	source "${dir}/modules/variable";
 	source "${dir}/modules/string";	
 	source "${dir}/modules/method";
+	source "${dir}/modules/sprintf";	
 	source "${dir}/modules/console";
 	
 	source "${dir}/modules/array";
@@ -82,6 +83,7 @@ __initialize__() {
 	__require_register "variable" "${dir}/modules/variable";
 	__require_register "string" "${dir}/modules/string";
 	__require_register "method" "${dir}/modules/method";
+	__require_register "console" "${dir}/modules/sprintf";
 	__require_register "console" "${dir}/modules/console";
 	__require_register "array" "${dir}/modules/array";
 	__require_register "require" "${dir}/modules/require";

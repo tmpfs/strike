@@ -1,0 +1,594 @@
+: <<'ronn:markdown'
+sprintf(3) -- tty printf
+=============================================
+
+## SYNOPSIS
+
+	sprintf [options...] message [replacements...]
+
+## DESCRIPTION
+
+Print ANSI formatted output to a terminal.
+
+## OPTIONS
+
+* `-1`:
+
+Print to *stdout*.
+
+* `-2`:
+
+Print to *stderr*.
+
+* `--color=[color]`:
+
+Set *color* as the foreground color.
+
+* `--background=[color]`:
+
+Set *color* as the background color.
+
+* `--prefix=[prefix]`:
+
+Prepend *prefix* to the message.
+
+* `--suffix=[suffix]`:
+
+Append *suffix* to the message.
+
+* `--no-prefix`:
+
+Do not print the prefix.
+
+* `--readline`:
+
+Use escape sequences compatible with passing to `read -ep`. This allows formatting to be applied to interactive prompts using `read`. When this option is used nothing is printed but the result of formatting the message is assigned to the `PS9` variable.
+
+* `--cross`:
+
+Append a single space and a cross character to the message.
+
+* `--tick`:
+
+Append a single space and a tick character to the message.
+
+* `--debug`:
+
+Do not interpret ANSI sequences, print them.
+
+* `--`:
+
+Stop processing options. Use the `--` option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed.
+	
+# ITERM2
+
+It is recommended that users of iTerm2 uncheck the *Draw bold text in bright colors* option in *Profiles > Text* for highlighted replacement values to appear consistently with the main message colour.
+	
+## VARIABLES
+
+The read only `ansi` associative array stores color names and ANSI escape sequence information.
+
+## BUGS
+
+The number of replacement parameters must match exactly the number of `%s` occurences in the message otherwise unexpected behaviour will occur.
+
+**sprintf** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**sprintf** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+globals-api(3)
+ronn:markdown
+
+#Black       0;30     Dark Gray     1;30
+#Blue        0;34     Light Blue    1;34
+#Green       0;32     Light Green   1;32
+#Cyan        0;36     Light Cyan    1;36
+#Red         0;31     Light Red     1;31
+#Purple      0;35     Light Purple  1;35
+#Brown       0;33     Yellow        1;33
+#Light Gray  0;37     White         1;37
+
+# The ANSI sequence: {ESC}[{attr};{bg};{256colors};{fg}m
+
+# {ESC} or \033 represents the ANSI escape-sequence. {attr} represents the outputs attributes (properties such as blinking and bold text), {fg} is the # foreground color, {bg} is the background color, m means the sequence ends.
+
+# NOTE: read -ep octal formatting example
+# SEE: http://lists.gnu.org/archive/html/help-bash/2013-02/msg00007.html
+# $'\001\033[1m\002ABC\001\033[0m\002'
+
+declare -Ag ansi;
+ansi=(
+	[terminator]="\033[0m"
+	[start]="\033["
+	[delimiter]=";"
+	[end]="m"
+	[bright.prefix]="bright"
+	[foreground]="3"
+	[background]="4"
+	[colors]="black red green brown blue magenta cyan gray normal"
+	[colors.black]="0"
+	[colors.red]="1"
+	[colors.green]="2"
+	[colors.brown]="3"
+	[colors.blue]="4"
+	[colors.magenta]="5"
+	[colors.cyan]="6"
+	[colors.gray]="7"
+	[colors.normal]="9"
+	[attributes]="normal bright faint italic underline blink negative positive"
+	[attr.normal]="0"
+	[attr.bright]="1"
+	[attr.faint]="2"
+	[attr.italic]="3"
+	[attr.underline]="4"
+	[attr.blink]="5"
+	[attr.negative]="7"
+	[attr.strikethrough]="9"
+	[attr.positive]="27"
+	
+	[octal.terminator]=$'\001\033[0m\002'
+	[octal.start]=$'\001\033['
+	[octal.end]=$'m\002'
+	[emulators]="xterm xterm-color vt100 ansi"
+)
+readonly -A ansi;
+
+# main sprintf entry point
+sprintf() {
+	# style terminator
+	local terminator start end;
+	# message prefix
+	local prefix="";
+	local suffix="";
+	local messages=();
+	local parsed="";
+	
+	if [ $# -eq 0 ]; then
+		echo "sprintf: too few options" >&2;
+		exit 2;
+	fi
+	
+	# the style list
+	declare -A styles;
+	
+	# message style names
+	local color="normal";
+	local background="";
+	local attribute="";
+	
+	local prefix_color="";
+	
+	declare -A flags;
+	flags[debug]=false;
+	flags[readline]=false;
+	flags[program.prefix]=false;
+	flags[message.prefix]=true;
+	flags[ansi]=true;
+	flags[color]=true;
+	flags[newline]=true;
+	flags[replace]=true;
+	flags[replace.bold]=true;
+	flags[prefix.bold]=true;
+	flags[stderr]=false;
+	flags[tick]=false;
+	flags[cross]=false;
+	
+	sprintf.options.parse "$@";
+	
+	# initialize styles
+	sprintf.styles;
+	
+	if [ -n "${color}" ]; then
+		sprintf.color.validate "${color}";
+	fi
+	if [ -n "${background}" ]; then
+		sprintf.color.validate "${background}";
+	fi
+
+	# echo "after parse : $color";
+	# echo "after parse : $background";
+	# echo "after parse : $attribute";
+	
+	declare -A settings;
+	# main message color
+	if [ -n "${color:-}" ]; then
+		settings[color]="${styles[$color]}";
+	else
+		settings[color]="";
+	fi
+	
+	local has_custom_message_color=false;
+	if [ -n "${color}" ]; then
+		if [ -n "${background}" ] || [ -n "${attribute}" ]; then
+			has_custom_message_color=true;
+			sprintf.color.update;
+		fi
+	fi
+	
+	if [ "${#messages[@]}" -eq 0 ]; then
+		echo "sprintf: no message supplied" >&2;
+		exit 2;
+	fi
+	
+	local message="${messages[0]:-}";
+	if [ -n "${suffix}" ]; then
+		message="${message} ${suffix}";
+	fi
+	if ${flags[cross]}; then
+		message="${message} ${characters[cross]}";
+	fi
+	if ${flags[tick]}; then
+		message="${message} ${characters[tick]}";
+	fi
+	messages[0]="${message}";
+	
+	local replacements=( "${messages[@]:1}" );
+	
+	local emulators=( ${ansi[emulators]} );
+	# switch off ansi escapes for non-tty
+	if ! ${flags[stderr]} && [ ! -t 1 ]; then
+		sprintf.noansi;
+	elif ${flags[stderr]} && [ ! -t 2 ]; then
+		sprintf.noansi;
+	elif ! array.contains? "$TERM" "${emulators[@]}"; then
+		sprintf.noansi;
+	elif ${console_no_color}; then
+		sprintf.noansi;
+	fi
+	
+	sprintf.main;
+}
+
+# main 
+sprintf.main() {
+	# sprintf.debugger;	
+	if ${flags[replace]}; then
+		sprintf.replace;
+	fi
+	sprintf.output;
+}
+
+# updates the color to include
+# attribute / background information
+sprintf.color.update() {
+	local key="${1:-color}";
+	local fgname="${color:-}";
+	local bgname="${background:-}";
+	local attrname="${attribute:-}";
+	local fgindex="${ansi[colors.${fgname}]:-}";
+	local bgindex="${ansi[colors.${bgname}]:-}";
+	
+	local fgvalue="${ansi[foreground]}${fgindex}";
+	local bgvalue="${ansi[background]}${bgindex}";
+	local attrvalue="${ansi[attr.${attrname}]:-}";
+	
+	local updated="${start}";
+	if [ -n "${attribute:-}" ]; then
+		updated="${updated}${attrvalue}";
+	fi
+	
+	if [ -n "${background:-}" ]; then
+		if [ -n "${attribute:-}" ]; then
+			updated="${updated}${ansi[delimiter]}";
+		fi
+		updated="${updated}${bgvalue}";
+	fi
+	if [ -n "${color:-}" ]; then
+		if [ -n "${background:-}" ] || [ -n "${attribute:-}" ]; then
+			updated="${updated}${ansi[delimiter]}";
+		fi
+		updated="${updated}${fgvalue}";
+	fi
+	updated="${updated}${end}";
+	# echo "current : ${settings[$key]}";
+	# echo "$FUNCNAME : $fgname : $bgname : $attrname : $fgindex : $bgindex : $attrvalue";
+	# echo "$FUNCNAME : $updated";
+	settings[$key]="${updated}";
+}
+
+# initialize the style list
+sprintf.styles() {
+	local style;
+	
+	# standard escape sequences
+	if ! ${flags[readline]}; then
+		terminator="${ansi[terminator]}";
+		start="${ansi[start]}";
+		end="${ansi[end]}";
+		
+		sprintf.styles.attributes;
+		sprintf.styles.standard;
+		sprintf.styles.standard bright;
+	# handle read -ep octal formatting
+	else
+		terminator="${ansi[octal.terminator]}";
+		start="${ansi[octal.start]}";
+		end="${ansi[octal.end]}";
+
+		sprintf.styles.attributes;
+		sprintf.styles.standard;
+		sprintf.styles.standard bright;
+	fi
+}
+
+# set up attribute styles
+sprintf.styles.attributes() {
+	local cnames=( ${ansi[attributes]} );
+	local i length="${#cnames[@]}";
+	local prefix="";
+	local cname attribute;
+	for((i =0;i < $length;i++))
+		do
+			cname="${cnames[$i]}";
+			attribute="$cname";
+			sprintf.styles.prefix true;
+			styles[$cname]="${prefix}";
+	done
+}
+
+# set up standard styles
+sprintf.styles.standard() {
+	local cnames=( ${ansi[colors]} );
+	local i length="${#cnames[@]}";
+	local attribute=${1:-normal};
+	local foreground=true;
+	local prefix="";
+	local cprefix="";
+	local cname;
+	for((i =0;i < $length;i++))
+		do
+			cname="${cnames[$i]}";
+			sprintf.styles.prefix;
+			if [ "$attribute" == "${ansi[bright.prefix]}" ]; then
+				cname="${ansi[bright.prefix]}-${cname}";
+			fi
+			if $foreground; then
+				cprefix="${ansi[foreground]}${i}";
+			else
+				cprefix="${ansi[background]}${i}";
+			fi
+			prefix="${prefix}${cprefix}";
+			prefix="${prefix}${end}";
+			styles[$cname]="${prefix}";
+	done
+}
+
+sprintf.styles.prefix() {
+	local terminate="${1:-false}";
+	prefix="${start}${ansi[attr.${attribute}]}";
+	if ! $terminate; then
+		prefix="${prefix}${ansi[delimiter]}";
+	else
+		prefix="${prefix}${end}";
+	fi
+}
+
+## INTERNAL
+
+# validate a color name
+sprintf.color.validate() {
+	local val="$1";
+	if ! array.contains? "${val}" "${!styles[@]}"; then
+		sprintf -2 --color=red --prefix="[sprintf]" "invalid color ${val}";
+		exit 2;
+	fi
+}
+
+# switch off ANSI escape sequences completely
+sprintf.noansi() {
+	flags[ansi]=false;
+	flags[color]=false;
+	flags[replace.bold]=false;
+	flags[prefix.bold]=false;
+}
+
+# print parsed result
+sprintf.output() {
+	local opts="-e";
+	if ! ${flags[newline]}; then
+		opts="${opts}n";
+	fi
+	if ${flags[readline]}; then
+		PS9="$parsed";
+		return 0;
+	fi
+	if ${flags[debug]}; then
+		opts="";
+	fi
+	
+	if ! ${flags[stderr]}; then
+		echo $opts "$parsed";
+	else
+		echo $opts "$parsed" >&2;
+	fi
+}
+
+# performs printf replacement
+# on the primary message
+sprintf.replace() {
+	local i length val;
+	if ! ${flags[color]} || ! ${flags[ansi]}; then
+		parsed=$( printf -- "${messages[@]}" );
+	else
+		if ${flags[ansi]}; then
+			length="${#replacements[@]}";
+			local highlight_color="";
+			for((i = 0;i < $length;i++))
+				do
+					val="${replacements[$i]}";
+					if $has_custom_message_color; then
+						replacements[$i]="${settings[color]}${replacements[$i]}${terminator}";
+					else
+						if ${flags[replace.bold]}; then
+							replacements[$i]="${styles[bright]}${val}${terminator}";
+						fi
+						# ensure replacements respect the overall colour
+						if ${flags[color]} && [ -n "$color" ]; then
+							highlight_color="$color";
+						fi
+						if [ -n "${highlight_color}" ]; then
+							replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
+						fi
+					fi
+					# start the message colour again for parts in
+					# between replacements
+					if ${flags[color]} && [ -n "$color" ]; then
+						replacements[$i]="${replacements[$i]}${settings[color]}";
+					fi
+			done
+			parsed=$( printf -- "${message}" "${replacements[@]:-}" );
+		fi
+
+		# handle overall message color
+		if ${flags[ansi]} && ${flags[color]} && [ -n "$color" ]; then
+			# echo "add overall message color ..."
+			parsed="${settings[color]}${parsed}";
+		fi
+	fi
+	sprintf.prefix;
+	
+	# always add final terminator
+	if ${flags[ansi]}; then
+		parsed="${parsed}${terminator}";
+	fi
+}
+
+# prepend prefix(es)
+sprintf.prefix() {
+	if [ -n "${prefix}" ] && ${flags[message.prefix]}; then	
+		# echo "prepend prefix ... $message : $prefix : ${flags[color]}";
+		if ${flags[color]}; then
+			if ${flags[prefix.bold]}; then
+				prefix="${styles[bright]}${prefix}${terminator}";
+			fi
+			if [ -n "${color}" ]; then
+				prefix="${settings[color]}${prefix}${terminator}";
+			fi
+		fi
+		parsed="${prefix} ${parsed}";
+	fi
+}
+
+# debug parsed options
+sprintf.debugger() {
+	echo "$header";
+	local flag;
+	for flag in ${!flags[@]}
+		do
+			echo "flag $flag :: ${flags[$flag]}";
+	done
+	echo "prefix is : ${prefix}"
+	echo "messages length : ${#messages[@]}";
+	echo "messages are : ${messages}";
+	echo "primary message: $message";
+	echo "replacements length: ${#replacements[@]}";
+	if [ "${#replacements[@]}" -gt 0 ]; then
+		echo "replacements: ${replacements[@]}";	
+	fi
+	echo "$header";	
+}
+
+# parse sprintf options
+sprintf.options.parse() {
+	#echo "$FUNCNAME : $*";
+	local optspec=":cn12-:";
+	local optchar val opt;
+	OPTIND=0;
+	while getopts "$optspec" optchar; do
+	    case "${optchar}" in
+	        -)
+	            case "${OPTARG}" in
+					'')
+						break;
+						;;
+	                prefix=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						prefix="${val}";
+	                    ;;
+	                suffix=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						suffix="${val}";
+	                    ;;	
+	                color=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						color="${val}";
+	                    ;;
+	                background=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						background="${val}";
+	                    ;;
+	                attribute=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						attribute="${val}";
+	                    ;;		
+	                no-prefix)
+						flags[message.prefix]=false;
+	                    ;;
+	                readline)
+						flags[readline]=true;
+	                    ;;	
+	                no-newline)
+						flags[newline]=false;
+	                    ;;	
+	                debug)
+						flags[debug]=true;
+	                    ;;	
+	                tick)
+						flags[tick]=true;
+	                    ;;
+	                cross)
+						flags[cross]=true;
+	                    ;;
+	                *)
+	                    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+	                        echo "sprintf: unknown option --${OPTARG}" >&2
+	                    fi
+	                    ;;
+	            esac;;
+	        c)
+				flags[color]=true;
+	            ;;
+	        n)
+				flags[color]=false;
+	            ;;
+	        1)
+				flags[stderr]=false;
+	            ;;
+	        2)
+				flags[stderr]=true;
+	            ;;
+	        *)
+	            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
+	                echo "sprintf: non-option '-${OPTARG}'" >&2
+	            fi
+	            ;;
+	    esac
+	done
+	
+	# get remaining message and printf
+	# replacement values
+	local opt opts=( "$@" );
+	local i length="$#";
+	local stopped=false;
+	for((i = 0;i < $length;i++))
+		do
+			opt="${opts[$i]}";
+			if [ "$opt" == "--" ]; then
+				stopped=true;
+				continue;
+			fi
+			if ! $stopped && [[ "$opt" =~ ^- ]]; then
+				continue;
+			fi
+			messages+=( "$opt" );
+	done
+}
