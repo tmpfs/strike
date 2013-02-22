@@ -568,24 +568,6 @@ process.use strict;
 # echo "got to end of test..."
 # exit 0;
 
-# console info "this is an info message";
-# console.log.stdout "./target/test.log";
-# console info "this is a log file message";
-# console.log.stdout.close;
-# console info "this is a message after log file close";
-# 
-# exit 0;
-
-# console.log.stderr.close;
-
-# console.error "this is an error message";
-# console.log.stderr "./target/test.log";
-# console.error "this is an error log file message";
-# console.log.stderr.close;
-# console.error "this is an error message after log file close";
-# 
-# exit 0;
-
 # function :accessor {
 # 	echo ":accessor called ... ";
 # }

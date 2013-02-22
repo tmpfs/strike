@@ -8,7 +8,7 @@ console(3) -- console module
 
 ## DESCRIPTION
 
-Helper commands for printing ANSI formatted output to a terminal and redirecting output to log file(s).
+Helper commands for printing ANSI formatted output to a terminal.
 
 The console(3) module is a built in module available to all programs. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed.
 
@@ -253,92 +253,16 @@ console.parse "$@";
 # so that all error messages are highlighted
 # wherever possible
 # NOTE: this must be done before setting noclobber
-console.shell.error() {
-	if [ -t 2 ]; then
-		echo -e "\033[1;31m$line\033[0m";
-	else
-		echo "$line";
-	fi
-}
+# console.shell.error() {
+# 	if [ -t 2 ]; then
+# 		echo -e "\033[1;31m$line\033[0m";
+# 	else
+# 		echo "$line";
+# 	fi
+# }
 
 # exec 2> >( while read line; do console.shell.error >&2; done);
-
 # exec 2> >(while read line; do echo -e "\033[1;31m[bash] $line\033[0m" >&2; done)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# DEPRECATED
-
-function console.log.stdout {
-	touch "$1" || warn "could not create stdout log file %s" "$1";
-	if [ -f "$1" ]; then
-		__stdout_log_file="$1";		
-		# save stdout in file descriptor #3
-		exec 3>&1;
-		exec 1>> "$1";
-	fi
-}
-
-function console.log.stdout.close {
-	if [ ! -z "$__stdout_log_file" ]; then
-		# restore stdout and close file descriptor #3
-		exec 1>&3 3>&- || console warn "no file descriptor for stdout log file";
-		__stdout_log_file="";
-	fi
-}
-
-function console.log.stderr {
-	touch "$1" || warn "could not create stderr log file %s" "$1";
-	if [ -f "$1" ]; then
-		__stderr_log_file="$1";
-		# save stderr in file descriptor #4
-		exec 4>&2;
-		exec 2>> "$1";
-	fi
-}
-
-function console.log.stderr.close {
-	
-	# TODO: potential test for an open file descriptor?
-	# requires testing cross-platform
-	# ls -la /dev/fd/4
-	
-	if [ ! -z "$__stderr_log_file" ]; then
-		# restore stdout and close file descriptor #3
-		exec 2>&4 4>&- || console warn "no file descriptor for stderr log file";
-		__stderr_log_file="";
-	fi
-}
 
 # must set this option so that aliases are expanded
 shopt -s expand_aliases;
