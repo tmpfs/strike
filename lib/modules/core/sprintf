@@ -48,6 +48,9 @@ ansi=(
 	[octal.start]=$'\001\033['
 	[octal.end]=$'m\002'
 	[emulators]="xterm xterm-color vt100 ansi"
+	
+	[block.start]="${strike_block_start:-[}"
+	[block.end]="${strike_block_start:-]}"
 )
 readonly -A ansi;
 
@@ -157,6 +160,12 @@ sprintf() {
 	fi
 	
 	sprintf.main;
+}
+
+# wrap a parameter in the standard
+# block start and end characters
+sprintf.block() {
+	echo "${ansi[block.start]}${1:-}${ansi[block.end]}";
 }
 
 # main 
@@ -419,7 +428,7 @@ sprintf.prefix() {
 # prepend the program name to a prefix
 sprintf.prefix.program() {
 	local pname="${process_name:-}";
-	local begin="[$pname]";
+	local begin=$( sprintf.block "$pname" );
 	if [ -n "${prefix:-}" ]; then
 		begin="${begin} ${prefix}";
 	fi

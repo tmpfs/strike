@@ -59,41 +59,48 @@ console.prompt() {
 
 # print a log message with a prefix
 console.log() {
-	sprintf --prefix="${console_prefixes[log]}" "$@";
+	local prefix=$( sprintf.block "${console_prefixes[log]}" );
+	sprintf --prefix="${prefix}" "$@";
 }
 
 # print an ok message with a prefix
 console.ok() {
+	local prefix=$( sprintf.block "${console_prefixes[ok]}" );
 	sprintf --suffix="${characters[tick]}" \
-		--prefix="${console_prefixes[ok]}" "$@";
+		--prefix="${prefix}" "$@";
 }
 
 # print an info message with a prefix
 console.info() {
-	sprintf --prefix="${console_prefixes[info]}" "$@";
+	local prefix=$( sprintf.block "${console_prefixes[info]}" );
+	sprintf --prefix="${prefix}" "$@";
 }
 
 ## ERROR COMMANDS
 
 # print a debug message to stderr
 console.debug() {
-	sprintf -2 --color=cyan --prefix="${console_prefixes[debug]}" "$@";
+	local prefix=$( sprintf.block "${console_prefixes[debug]}" );	
+	sprintf -2 --color=cyan --prefix="${prefix}" "$@";
 }
 
 # print a not ok message to stderr
 console.notok() {
+	local prefix=$( sprintf.block "${console_prefixes[notok]}" );
 	sprintf -2 --color=red --suffix="${characters[cross]}" \
-		--prefix="${console_prefixes[notok]}" "$@";
+		--prefix="${prefix}" "$@";
 }
 
 # print an error message to stderr
 console.error() {
-	sprintf -2 --color=red --prefix="${console_prefixes[error]}" "$@";
+	local prefix=$( sprintf.block "${console_prefixes[error]}" );	
+	sprintf -2 --color=red --prefix="${prefix}" "$@";
 }
 
 # print a warning message to stderr
 console.warn() {
-	sprintf -2 --color=magenta --prefix="${console_prefixes[warn]}" "$@";
+	local prefix=$( sprintf.block "${console_prefixes[warn]}" );
+	sprintf -2 --color=magenta --prefix="${prefix}" "$@";
 }
 
 # throw a stack trace with
@@ -106,12 +113,13 @@ console.throw() {
 
 # print a stack trace as a series of error messages
 console.trace() {
+	local prefix=$( sprintf.block "${console_prefixes[trace]}" );
 	local offset="${1:-0}";
 	local frame="$offset";
 	local line;
 	local data=( $( caller $frame ) );
 	while [ "${#data[@]}" -gt 0 ]; do
-		sprintf -2 --color=red --prefix="${console_prefixes[trace]}" \
+		sprintf -2 --color=red --prefix="${prefix}" \
 			"%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
 		: $((frame++));
 		data=( $( caller $frame ) );

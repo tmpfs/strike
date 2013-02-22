@@ -153,16 +153,17 @@ Associative array of prefixes used by console(3) methods.
 
 api:ronn:markdown
 declare -Agx console_prefixes;
-console_prefixes['info']="[info]";
-console_prefixes['error']="[error]";
-console_prefixes['warn']="[warn]";
-console_prefixes['ok']="[ok]";
-console_prefixes['notok']="[not ok]";
-console_prefixes['prompt']="[prompt]";
-console_prefixes['trace']="[trace]";
-console_prefixes['debug']="[debug]";
+console_prefixes['info']="info";
+console_prefixes['error']="error";
+console_prefixes['warn']="warn";
+console_prefixes['ok']="ok";
+console_prefixes['notok']="not ok";
+console_prefixes['prompt']="prompt";
+console_prefixes['trace']="trace";
+console_prefixes['debug']="debug";
+console_prefixes['log']="log";
+
 console_prefixes['header']="";
-console_prefixes['log']="[log]";
 console_prefixes['print']="";
 
 ######################################################################

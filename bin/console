@@ -287,7 +287,7 @@ console.test.misc() {
 		else
 			str=$( date +%s );
 		fi
-		local begin="[$str]";
+		local begin=$( sprintf.block "$str" );
 		if [ -n "${prefix:-}" ]; then
 			begin="${begin} ${prefix}";
 		fi
