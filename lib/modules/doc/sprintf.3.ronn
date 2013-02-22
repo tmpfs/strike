@@ -1,0 +1,83 @@
+sprintf(3) -- tty printf
+=============================================
+
+## SYNOPSIS
+
+	sprintf [options...] message [replacements...]
+
+## DESCRIPTION
+
+Print ANSI formatted output to a terminal.
+
+If either stdout or stderr is not a *tty* then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but no formatting.
+
+## OPTIONS
+
+* `-1`:
+
+Print to *stdout*.
+
+* `-2`:
+
+Print to *stderr*.
+
+* `--color=[color]`:
+
+Set *color* as the foreground color.
+
+* `--background=[color]`:
+
+Set *color* as the background color.
+
+* `--prefix=[prefix]`:
+
+Prepend *prefix* to the message.
+
+* `--suffix=[suffix]`:
+
+Append *suffix* to the message.
+
+* `--no-prefix`:
+
+Do not print the prefix.
+
+* `--readline`:
+
+Use escape sequences compatible with passing to `read -ep`. This allows formatting to be applied to interactive prompts using `read`. When this option is used nothing is printed but the result of formatting the message is assigned to the `PS9` variable.
+
+* `--debug`:
+
+Do not interpret ANSI sequences, print them.
+
+## HYPHENS
+
+Use the `--` option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed.
+
+## TERMINAL EMULATORS
+
+The `$TERM` variable must report one of the following values for ANSI replacement to be performed:
+
+* xterm
+* xterm-color
+* vt100
+* ansi
+	
+## ITERM2
+
+It is recommended that users of iTerm2 uncheck the `Draw bold text in bright colors` option in `Profiles > Text` for highlighted replacement values to appear consistently with the main message colour.
+	
+## VARIABLES
+
+The read only `ansi` associative array stores color names and ANSI escape sequence information.
+
+## BUGS
+
+**sprintf** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**sprintf** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+console(3)

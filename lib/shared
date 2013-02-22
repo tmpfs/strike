@@ -107,7 +107,7 @@ __initialize__() {
 	# require.delegate "array";
 
 	# TODO: remove these dependencies
-	source "${dir}/constants";
+	# source "${dir}/constants";
 	source "${dir}/messages";
 
 	#TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
