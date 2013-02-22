@@ -234,7 +234,7 @@ console.test.prompt() {
 	console prompt --color=cyan "%s prompt" "cyan";
 	read -ep "$PS9" value;
 	console prompt --color=gray "%s prompt" "gray";
-	read -ep "$PS9" value;	
+	read -ep "$PS9" value;
 	
 	console header;
 }
@@ -268,6 +268,23 @@ console.test.custom() {
 	console header;
 }
 
+# test miscellanous functionality
+console.test.misc() {
+	local title="${1:-MISCELLANEOUS}";
+	local opts="${2:-}";
+	local value;
+	console title "${title}";
+	console header;
+
+	sprintf --program \
+		"a message %s" "prefixed with the program name";
+		
+	console info --program \
+		"an %s message %s" "info" "prefixed with the program name";
+		
+	console header;
+}
+
 # print test messages
 console.test() {
 	
@@ -276,6 +293,7 @@ console.test() {
 	console.test.types;
 	console.test.printf;
 	console.test.custom;
+	console.test.misc;
 	
 	# local tester="${unbound_variable}";
 	

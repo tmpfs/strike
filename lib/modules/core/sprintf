@@ -73,10 +73,15 @@ sprintf() {
 	local color="normal";
 	local background="";
 	local attribute="";
+	
+	# variable name / declaration
+	# used to assign result to a variable
 	local varname="";
 	local vartype="";
 	
-	local prefix_color="";
+	# a command to execute to
+	# modify or generate a prefix
+	local prefix_command="";
 	
 	declare -A flags;
 	flags[debug]=false;
@@ -311,11 +316,6 @@ sprintf.output() {
 		return 0;
 	fi
 	
-	# if ${flags[readline]}; then
-	# 	PS9="$parsed";
-	# 	return 0;
-	# fi
-	
 	if ${flags[debug]}; then
 		opts="";
 	fi
@@ -379,17 +379,38 @@ sprintf.replace() {
 
 # prepend prefix(es)
 sprintf.prefix() {
-	if [ -n "${prefix}" ] && ${flags[message.prefix]}; then	
-		if ${flags[color]}; then
-			if ${flags[prefix.bright]}; then
-				prefix="${styles[bright]}${prefix}${terminator}";
-			fi
-			if [ -n "${color}" ]; then
-				prefix="${settings[color]}${prefix}${terminator}";
-			fi
+	if ${flags[message.prefix]}; then	
+		
+		# call a prefix command
+		
+		# echo "prefix command is: ${prefix_command:-}";
+		
+		if method.exists? "${prefix_command:-}"; then
+			${prefix_command};
 		fi
-		parsed="${prefix} ${parsed}";
+		
+		if [ -n "${prefix}" ]; then
+			if ${flags[color]}; then
+				if ${flags[prefix.bright]}; then
+					prefix="${styles[bright]}${prefix}${terminator}";
+				fi
+				if [ -n "${color}" ]; then
+					prefix="${settings[color]}${prefix}${terminator}";
+				fi
+			fi
+			parsed="${prefix} ${parsed}";
+		fi
 	fi
+}
+
+# prepend the program name to a prefix
+sprintf.prefix.program() {
+	local pname="${process_name:-}";
+	local begin="[$pname]";
+	if [ -n "${prefix:-}" ]; then
+		begin="${begin} ${prefix}";
+	fi
+	prefix="${begin}";
 }
 
 # debug parsed options
@@ -449,12 +470,20 @@ sprintf.options.parse() {
 	                    opt=${OPTARG%=$val};
 						attribute="${val}";
 	                    ;;
-	                name=*)
+	                export=*)
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						varname="${val}";
 						vartype="export";
 	                    ;;
+	                prefix-command=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						prefix_command="${val}";
+	                    ;;
+	                program)
+						prefix_command="sprintf.prefix.program";
+	                    ;;	
 	                no-prefix)
 						flags[message.prefix]=false;
 	                    ;;	
