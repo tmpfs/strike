@@ -91,43 +91,29 @@ It is recommended that users of iTerm2 uncheck the *Draw bold text in bright col
 sprintf(3), globals-api(3)
 ronn:markdown
 
-# TODO: deprecated
-declare -g __stdout_log_file="";
-declare -g __stderr_log_file="";
-
 # main console entry point
 console() {
 	# list of available commands
-	local namespace="console.commands";
+	local namespace="console";
 	local cmd="";
-	local commands=(
-		info
-		warn
-		error
-		throw
-		debug
-		log
-		header
-		trace
-		quit
-		success
-		print
-		ok
-		notok
-		prompt
-	);
+	if [ $# -eq 0 ]; then
+		console quit 2 \
+			"no command specified";
+	fi
+	
+	if ! method.exists? "${namespace}${delegate_delimiter}${1}"; then
+		console quit 2 \
+			"invalid command %s" "${1}";
+	fi
 	
 	# exit code
 	local code=1;
-	if array.contains? "$1" "${commands[@]}"; then
-		cmd="$1";
-		prefix="${console_prefixes[$cmd]:-}";
+	cmd="$1";
+	shift;
+	
+	if [ "$cmd" == quit ] && [ $# -gt 0 ]; then
+		code="$1";
 		shift;
-		
-		if [ "$cmd" == quit ] && [ $# -gt 0 ]; then
-			code="$1";
-			shift;
-		fi
 	fi
 	
 	if [ -n "${cmd}" ]; then
@@ -141,71 +127,71 @@ console() {
 ## COMMANDS
 
 # print the generic message header
-console.commands.header() {
+console.header() {
 	sprintf "$@" "${header}";
 }
 
 # print a message with no prefix
-console.commands.print() {
+console.print() {
 	sprintf --no-prefix "$@";
 }
 
 # print a prompt with no newline
 # and a space as the suffix
-console.commands.prompt() {
+console.prompt() {
 	sprintf --no-newline --readline \
 		--suffix="${PS9_SUFFIX:-}" "$@";
 }
 
 # print a log message with a prefix
-console.commands.log() {
+console.log() {
 	sprintf --prefix="${console_prefixes[log]}" "$@";
 }
 
 # print an ok message with a prefix
-console.commands.ok() {
+console.ok() {
 	sprintf --suffix="${characters[tick]}" \
 		--prefix="${console_prefixes[ok]}" "$@";
 }
 
 # print an info message with a prefix
-console.commands.info() {
+console.info() {
 	sprintf --prefix="${console_prefixes[info]}" "$@";
 }
 
 ## ERROR COMMANDS
 
 # print a debug message to stderr
-console.commands.debug() {
+console.debug() {
 	sprintf -2 --color=cyan --prefix="${console_prefixes[debug]}" "$@";
 }
 
 # print a not ok message to stderr
-console.commands.notok() {
+console.notok() {
 	sprintf -2 --color=red --suffix="${characters[cross]}" \
 		--prefix="${console_prefixes[notok]}" "$@";
 }
 
 # print an error message to stderr
-console.commands.error() {
+console.error() {
 	sprintf -2 --color=red --prefix="${console_prefixes[error]}" "$@";
 }
 
 # print a warning message to stderr
-console.commands.warn() {
+console.warn() {
 	sprintf -2 --color=magenta --prefix="${console_prefixes[warn]}" "$@";
 }
 
 # throw a stack trace with
 # preceeding error message
-console.commands.throw() {
+console.throw() {
 	local message="${1:-Unknown error}";
 	console error "$message";
 	console trace 1;
 }
 
 # print a stack trace as a series of error messages
-console.commands.trace() {
+console.trace() {
 	local offset="${1:-0}";
 	local frame="$offset";
 	local line;
@@ -219,15 +205,15 @@ console.commands.trace() {
 }
 
 # exit with a failure
-console.commands.quit() {
+console.quit() {
 	if [ $# -gt 0 ]; then
 		console notok "$@";
 	fi
 	exit $code;
 }
 
-# exit
-console.commands.success() {
+# exit successfully
+console.success() {
 	if [ $# -gt 0 ]; then
 		console ok "$@";
 	fi
@@ -265,20 +251,11 @@ console.parse "$@";
 # exec 2> >(while read line; do echo -e "\033[1;31m[bash] $line\033[0m" >&2; done)
 
 # must set this option so that aliases are expanded
-shopt -s expand_aliases;
+# shopt -s expand_aliases;
 
 # set up aliases for backward compatability
 # WARNING: these aliases will be removed in a future
 # version and you should use console info etc.
-alias "console.info=console info";
-alias "console.error=console error";
-alias "console.warn=console warn";
-alias "console.success=console success";
-alias "console.quit=console quit";
-alias "console.header=console header";
-alias "console.ok=console ok";
-alias "console.prompt=console prompt";
-alias "console.log=console log";
 
 # mask the info system executable
 # legacy due to the old info command declaration

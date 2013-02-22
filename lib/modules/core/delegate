@@ -65,9 +65,12 @@ ronn:markdown
 #	$2	A method name.
 #	$@	Options to pass to the invoked method.
 ######################################################################
-function delegate {
+
+declare -grx delegate_delimiter=".";
+
+delegate() {
 	# method pseudo-namespace delimiter
-	local delimiter=".";
+	local delimiter="${delegate_delimiter}";
 	
 	local module=${1:-};
 	shift;

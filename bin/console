@@ -116,23 +116,23 @@ console.test.colors() {
 	console print "COLORS";
 	console header;
 	
-	console --color=black "a %s message" "black";
-	console --color=red "a %s message" "red";
-	console --color=green "a %s message" "green";
-	console --color=brown "a %s message" "brown";
-	console --color=blue "a %s message" "blue";
-	console --color=magenta "a %s message" "magenta";
-	console --color=cyan "a %s message" "cyan";
-	console --color=gray "a %s message" "gray";
+	console print --color=black "a %s message" "black";
+	console print --color=red "a %s message" "red";
+	console print --color=green "a %s message" "green";
+	console print --color=brown "a %s message" "brown";
+	console print --color=blue "a %s message" "blue";
+	console print --color=magenta "a %s message" "magenta";
+	console print --color=cyan "a %s message" "cyan";
+	console print --color=gray "a %s message" "gray";
 	
-	console --color=bright-black "a %s message" "bright-black";
-	console --color=bright-red "a %s message" "bright-red";
-	console --color=bright-green "a %s message" "bright-green";
-	console --color=bright-brown "a %s message" "bright-brown";	
-	console --color=bright-blue "a %s message" "bright-blue";
-	console --color=bright-magenta "a %s message" "bright-magenta";
-	console --color=bright-cyan "a %s message" "bright-cyan";
-	console --color=bright-gray "a %s message" "bright-gray";	
+	console print --color=bright-black "a %s message" "bright-black";
+	console print --color=bright-red "a %s message" "bright-red";
+	console print --color=bright-green "a %s message" "bright-green";
+	console print --color=bright-brown "a %s message" "bright-brown";	
+	console print --color=bright-blue "a %s message" "bright-blue";
+	console print --color=bright-magenta "a %s message" "bright-magenta";
+	console print --color=bright-cyan "a %s message" "bright-cyan";
+	console print --color=bright-gray "a %s message" "bright-gray";	
 	
 	console header;
 }
