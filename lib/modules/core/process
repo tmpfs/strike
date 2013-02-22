@@ -1,14 +1,9 @@
 # TODO: move to global variables?
 declare -gx process_strict="";
-
 declare -g process_debug="";
-
 declare -g process_test="";
-
 declare -g process_lock="";
-
 declare -g process_pid="";
-
 declare -g process_tmp_dir="";
 
 # TODO: add the process.use "debug"
@@ -251,6 +246,8 @@ function process.signal.on {
 					# validate the signal is recognized					
 					if process.signal.valid? "$signal"; then
 						# add the callback method
+						# echo "using signal: $signal : ${!process_signal_callbacks[@]}";
+						# console throw;
 						process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]} ${method}";
 						# remove a leading space delimiter
 						process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]# }";
@@ -610,3 +607,6 @@ function __process.lock.clean {
 		rm "$file" >| /dev/null 2>&1 || console warn "could not remove lock file %s" "$file";
 	fi
 }
+
+# invoke initialize
+process.initialize;

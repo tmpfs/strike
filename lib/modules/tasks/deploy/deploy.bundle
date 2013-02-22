@@ -300,13 +300,16 @@ bundle.contents.xpmignore?() {
 bundle.scripts.group() {
 	local i k file nm dir destination;
 	local length="${1:-0}";
-	local prefix="${2:-}";
+	local key_prefix="${2:-}";
 	for((i = 0;i < $length;i++))
 		do
 			destination="${scripts_path}";
-			k="${prefix}.${i}";
+			k="${key_prefix}.${i}";
 			file="${json_doc[${k}.file]:-}";
 			dir="${json_doc[${k}.dir]:-}";
+			
+			echo "bundling with key: $k : $file";
+			
 			if [ -z "$file" ]; then
 				dly.fail "script entry does not declare the %s field" "file";
 			fi

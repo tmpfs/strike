@@ -331,6 +331,9 @@ function __assert_err {
 		console error "${@:2}";
 	fi
 	
+	# TODO: allos stack traces to be switched off
+	console trace;
+	
 	# FIXME: correct this test for the presence of the failures list?
 	if [ "${!failures[@]}" ]; then
 		failures["${frame}:${method}"]="$assertion";

@@ -371,6 +371,9 @@ tdd.deploy.bundle.scripts() {
 	descriptor="${project_source}/${profile}.json";
 	local opts=( ${options[@]} );
 	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
+	
+	echo "bundling with opts : $opts";
+	
 	( tasks.deploy "${opts[@]}" );
 	assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
@@ -381,7 +384,7 @@ tdd.deploy.bundle.scripts() {
 assert.bundle() {
 	local final="$1";
 	assert.file.exists? "${final}.tgz";
-	assert.file.exists? "${final}.tgz.sha${algorithm}";	
+	assert.file.exists? "${final}.tgz.sha${algorithm}";
 }
 
 # assert on files that should be present

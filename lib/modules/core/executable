@@ -55,7 +55,7 @@ Sometimes it can be useful to test for an executable but do not quit the program
 require(3)
 ronn:markdown
 
-function executable.validate {
+executable.validate() {
 	
 	local opt cmd="";
 	local strict=true;
@@ -90,7 +90,7 @@ function executable.validate {
 }
 
 # converts $PATH to an array
-function executable.path {
+executable.path() {
 	_result="";
 	# TODO: move to string.split
 	local IFS=":";
@@ -100,7 +100,7 @@ function executable.path {
 }
 
 # finds the first executable in $PATH
-function executable.find {
+executable.find() {
 	local opt paths path;
 	for opt in ${@}
 		do

@@ -370,7 +370,7 @@ function __require_load {
 		# if the module explicitly marks it using
 		# the delegate variable
 		local delegate=${delegate:-false};
-		if $delegate; then		
+		if $delegate; then
 			require.delegate "$name";			
 		fi
 		# remove the require delegate flag
