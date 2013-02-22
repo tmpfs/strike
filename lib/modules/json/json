@@ -56,18 +56,18 @@ The json(3) module is derived from json-sh(1).
 strike(7)
 ronn:markdown
 
-require.once json.parse;
-require.once json.stringify;
+require.library json.parse;
+require.library json.stringify;
 
 # cleans all global data set by
 # json.parse and json.stringify
-function json.clean {
+json.clean() {
 	json.parse.clean;
 }
 
 # prints key/value pairs from the last call
 # to json.parse
-function json.print {
+json.print() {
 	local key val;
 	for key in "${!json_doc[@]}"
 		do

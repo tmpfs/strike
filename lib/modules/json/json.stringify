@@ -4,7 +4,7 @@
 # regexp for number matching
 declare -g json_number_regexp="^-?[0-9]+((\.[0-9]+)?([eE][-+]?[0-9]+)?)?$";
 
-function json.stringify {
+json.stringify() {
 	local json="";
 	local objstart="{";
 	local objend="}";
@@ -105,7 +105,7 @@ function json.stringify {
 #
 ######################################################################
 
-function __json.stringify.array {
+__json.stringify.array() {
 	local arrkeys=();
 	eval arrkeys="(\${!$json_data[@]})";
 	
@@ -211,7 +211,7 @@ function __json.stringify.array {
 	: $((depth--));
 }
 
-function __json.stringify.indent {
+__json.stringify.indent() {
 	local add="${1:-0}";
 	local amount=$((depth+add));
 	string.repeat "${indent}" "${amount}";
@@ -219,7 +219,7 @@ function __json.stringify.indent {
 
 # this method is passed the nested object key
 # if it exists to handle --pretty output
-function __json.stringify.array.start {
+__json.stringify.array.start() {
 	local whitespace="";
 	#echo "starting array with nested key: ${1:-}";
 	if $pretty; then
@@ -237,7 +237,7 @@ function __json.stringify.array.start {
 }
 
 
-function __json.stringify.array.end {
+__json.stringify.array.end() {
 	local whitespace="";
 	if $pretty; then
 		__json.stringify.indent;
@@ -252,7 +252,7 @@ function __json.stringify.array.end {
 	printf -- "${whitespace}${arrend}";
 }
 
-function __json.stringify.object {
+__json.stringify.object() {
 	local keys;
 	local key value;
 	local json_data="$1";
@@ -420,7 +420,7 @@ function __json.stringify.object {
 	: $((depth--));
 }
 
-function __json.stringify.object.start.nested {
+__json.stringify.object.start.nested() {
 	local whitespace="";
 	if $pretty; then
 		__json.stringify.indent 1;
@@ -435,7 +435,7 @@ function __json.stringify.object.start.nested {
 	printf -- "${whitespace}${_result}:";
 }
 
-function __json.stringify.object.start {
+__json.stringify.object.start() {
 	local whitespace="";
 	if $pretty; then
 		if [ $depth -gt 0 ]; then
@@ -446,7 +446,7 @@ function __json.stringify.object.start {
 	printf -- "${whitespace}${objstart}";
 }
 
-function __json.stringify.object.end {
+__json.stringify.object.end() {
 	local whitespace="";
 	if $pretty; then
 		__json.stringify.indent;
@@ -462,7 +462,7 @@ function __json.stringify.object.end {
 }
 
 # add an array value
-function __json.add.value {
+__json.add.value() {
 	local whitespace="";
 	if $pretty; then
 		# get indent at this level
@@ -477,7 +477,7 @@ function __json.add.value {
 }
 
 # add an object key/value pair
-function __json.add.key.value {
+__json.add.key.value() {
 	local whitespace="";
 	if $pretty; then
 		whitespace="${newline}";
@@ -506,7 +506,7 @@ function __json.add.key.value {
 	echo -ne "${_result}";
 }
 
-function __json.stringify.quote {
+__json.stringify.quote() {
 	local val="${1:-}";
 	# escape quotes in the value being quoted
 	val="${val//\"/\\\"}";
@@ -514,7 +514,7 @@ function __json.stringify.quote {
 	_result="\"$val\"";
 }
 
-function __json.stringify.value {
+__json.stringify.value() {
 	_result="";
 	# unquoted value for null, true, false and numbers
 	if [ "$1" == "null" ] || [ "$1" == true ] || [ "$1" == false ] || [[ "$1" =~ $json_number_regexp ]]; then
