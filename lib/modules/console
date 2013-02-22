@@ -1,5 +1,5 @@
 : <<'ronn:markdown'
-console(3) -- console output module
+console(3) -- console module
 =============================================
 
 ## SYNOPSIS
@@ -8,155 +8,77 @@ console(3) -- console output module
 
 ## DESCRIPTION
 
-Helper methods for printing ANSI formatted output to a terminal and redirecting output to log file(s).
+Helper commands for printing ANSI formatted output to a terminal and redirecting output to log file(s).
 
 The console(3) module is a built in module available to all programs. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed.
 
-If either stdout or stderr is not a *tty* then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but no formatting.
+## COMMANDS
 
-## OPTIONS
+### Standard Output
 
-* `-1`:
+To print to standard output use the following commands:
 
-Print to *stdout*.
-
-* `-2`:
-
-Print to *stderr*.
-
-* `--color=[color]`:
-
-Set *color* as the foreground color.
-
-* `--background=[color]`:
-
-Set *color* as the background color.
-
-* `--prefix=[prefix]`:
-
-Prepend *prefix* to the message.
-
-* `--suffix=[suffix]`:
-
-Append *suffix* to the message.
-
-* `--no-prefix`:
-
-Do not print the prefix.
-
-* `--readline`:
-
-Use escape sequences compatible with passing to `read -ep`. This allows formatting to be applied to interactive prompts using `read`. When this option is used nothing is printed but the result of formatting the message is assigned to the `PS9` variable.
-
-* `--cross`:
-
-Append a single space and a cross character to the message.
-
-* `--tick`:
-
-Append a single space and a tick character to the message.
-
-* `--debug`:
-
-Do not interpret ANSI sequences, print them.
-
-* `--`:
-
-Stop processing options. Use the `--` option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed.
-
-## USAGE
-
-The general syntax for printing output is:
-
-console info "message to print with %s information" "important";
-	
-Whereby the `%s` substring in the main message will be highlighted and replaced with the string *important*, generating:
-
-message to print with `important` information
-
-## STDOUT
-
-To print to standard output use the following methods.
-
-* `console print`:
+* `print`:
 
 	Print a message with no prefix.
 
-* `console info`:
+* `info`:
 
 	Print an info message.
 	
-* `console.log`:
+* `log`:
 
 	Print a log message.
 	
-## STDERR
+* `ok`:
 
-To print to standard error use the following methods.
+	Print an ok message. This message type appends a suffix of  ✓ (\\u2713).
+	
+* `prompt`:
 
-* `console warn`:
+	Create a message suitable for passing to `read -ep` and assign the result to the `PS9` variable.
+	
+### Standard Error
+
+To print to standard error use the following commands:
+
+* `warn`:
 
 	Print a warning message.
 	
-* `console error`:
+* `error`:
 
 	Print an error message.
 	
-* `console throw`:
+* `notok`:
 
-	Print an error message followed by a stack trace of the current method call stack.
+	Print a not ok message. This message type appends a suffix of ✘ (\\u2718).
 	
-## LOG FILE REDIRECTION
+* `throw`:
 
-The console(3) module supports redirecting stdout/stderr to log file(s). 
-
-* `console.log.stdout`:
-
-	Redirect stdout to a log file and store stdout in file descriptor #3.
+	Print an error message followed by a stack trace of the current command call stack.
 	
-* `console.log.stdout.close`:
+### Exit Commands
 
-	Close redirection of stdout, restoring stdout and closing file descriptor #3.
-	
-* `console.log.stderr`:
+The console(3) module provides commands for exiting the program (optionally with a formatted message).
 
-	Redirect stderr to a log file and store stderr in file descriptor #4.
-
-* `console.log.stderr.close`:
-
-	Close redirection of stderr, restoring stderr and closing file descriptor #4.
-	
-## EXIT METHODS
-
-The console(3) module provides methods for exiting the program (optionally with a formatted message).
-
-* `console success`:
+* `success`:
 
 	Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message.
 
-* `console quit`:
+* `quit`:
 
 	Exits the program with a non-zero exit code and optional error message. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code.
 	
 ## OPTIONS
 
-The console(3) module parses the program options (but does not modify them) looking for the following options:
-
-* `--no-color`:
-
-	Do not perform any ANSI color or formatting modifications to the output.
+The console(3) module supports all the options available to the sprintf(3) module.
 	
 # ITERM2
 
 It is recommended that users of iTerm2 uncheck the *Draw bold text in bright colors* option in *Profiles > Text* for highlighted replacement values to appear consistently with the main message colour.
-	
-## VARIABLES
-
-See the globals-api(3) documentation.
 
 ## BUGS
-
-The number of replacement parameters must match exactly the number of `%s` occurences in the message otherwise unexpected behaviour will occur.
 
 **console** is written in bash and depends upon `bash` >= 4.2.
 

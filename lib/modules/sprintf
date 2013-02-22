@@ -10,6 +10,8 @@ sprintf(3) -- tty printf
 
 Print ANSI formatted output to a terminal.
 
+If either stdout or stderr is not a *tty* then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but no formatting.
+
 ## OPTIONS
 
 * `-1`:
@@ -48,21 +50,28 @@ Use escape sequences compatible with passing to `read -ep`. This allows formatti
 
 Do not interpret ANSI sequences, print them.
 
-* `--`:
+## HYPHENS
 
-Stop processing options. Use the `--` option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed.
+Use the `--` option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed.
+
+## TERMINAL EMULATORS
+
+The `$TERM` variable must report one of the following values for ANSI replacement to be performed:
+
+* xterm
+* xterm-color
+* vt100
+* ansi
 	
-# ITERM2
+## ITERM2
 
-It is recommended that users of iTerm2 uncheck the *Draw bold text in bright colors* option in *Profiles > Text* for highlighted replacement values to appear consistently with the main message colour.
+It is recommended that users of iTerm2 uncheck the `Draw bold text in bright colors` option in `Profiles > Text` for highlighted replacement values to appear consistently with the main message colour.
 	
 ## VARIABLES
 
 The read only `ansi` associative array stores color names and ANSI escape sequence information.
 
 ## BUGS
-
-The number of replacement parameters must match exactly the number of `%s` occurences in the message otherwise unexpected behaviour will occur.
 
 **sprintf** is written in bash and depends upon `bash` >= 4.2.
 
@@ -72,7 +81,7 @@ The number of replacement parameters must match exactly the number of `%s` occur
 
 ## SEE ALSO
 
-globals-api(3)
+console(3)
 ronn:markdown
 
 #Black       0;30     Dark Gray     1;30
@@ -121,7 +130,6 @@ ansi=(
 	[attr.negative]="7"
 	[attr.strikethrough]="9"
 	[attr.positive]="27"
-	
 	[octal.terminator]=$'\001\033[0m\002'
 	[octal.start]=$'\001\033['
 	[octal.end]=$'m\002'
@@ -229,7 +237,6 @@ sprintf() {
 
 # main 
 sprintf.main() {
-	# sprintf.debugger;	
 	if ${flags[replace]}; then
 		sprintf.replace;
 	fi
@@ -301,7 +308,9 @@ sprintf.styles() {
 
 # set up attribute styles
 sprintf.styles.attributes() {
+	local IFS=' ';
 	local cnames=( ${ansi[attributes]} );
+	unset IFS;
 	local i length="${#cnames[@]}";
 	local prefix="";
 	local cname attribute;
@@ -316,7 +325,9 @@ sprintf.styles.attributes() {
 
 # set up standard styles
 sprintf.styles.standard() {
+	local IFS=' ';	
 	local cnames=( ${ansi[colors]} );
+	unset IFS;	
 	local i length="${#cnames[@]}";
 	local attribute=${1:-normal};
 	local foreground=true;
@@ -343,6 +354,7 @@ sprintf.styles.standard() {
 
 sprintf.styles.prefix() {
 	local terminate="${1:-false}";
+	# echo "using attribute: $attribute";	
 	prefix="${start}${ansi[attr.${attribute}]}";
 	if ! $terminate; then
 		prefix="${prefix}${ansi[delimiter]}";
@@ -458,23 +470,23 @@ sprintf.prefix() {
 }
 
 # debug parsed options
-sprintf.debugger() {
-	echo "$header";
-	local flag;
-	for flag in ${!flags[@]}
-		do
-			echo "flag $flag :: ${flags[$flag]}";
-	done
-	echo "prefix is : ${prefix}"
-	echo "messages length : ${#messages[@]}";
-	echo "messages are : ${messages}";
-	echo "primary message: $message";
-	echo "replacements length: ${#replacements[@]}";
-	if [ "${#replacements[@]}" -gt 0 ]; then
-		echo "replacements: ${replacements[@]}";	
-	fi
-	echo "$header";	
-}
+# sprintf.debugger() {
+# 	echo "$header";
+# 	local flag;
+# 	for flag in ${!flags[@]}
+# 		do
+# 			echo "flag $flag :: ${flags[$flag]}";
+# 	done
+# 	echo "prefix is : ${prefix}"
+# 	echo "messages length : ${#messages[@]}";
+# 	echo "messages are : ${messages}";
+# 	echo "primary message: $message";
+# 	echo "replacements length: ${#replacements[@]}";
+# 	if [ "${#replacements[@]}" -gt 0 ]; then
+# 		echo "replacements: ${replacements[@]}";	
+# 	fi
+# 	echo "$header";	
+# }
 
 # parse sprintf options
 sprintf.options.parse() {

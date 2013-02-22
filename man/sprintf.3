@@ -1,0 +1,121 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "SPRINTF" "3" "February 2013" "" ""
+.
+.SH "NAME"
+\fBsprintf\fR \- tty printf
+.
+.SH "SYNOPSIS"
+.
+.nf
+
+sprintf [options\.\.\.] message [replacements\.\.\.]
+.
+.fi
+.
+.SH "DESCRIPTION"
+Print ANSI formatted output to a terminal\.
+.
+.P
+If either stdout or stderr is not a \fItty\fR then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but no formatting\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-1\fR:
+
+.
+.P
+Print to \fIstdout\fR\.
+.
+.TP
+\fB\-2\fR:
+
+.
+.P
+Print to \fIstderr\fR\.
+.
+.TP
+\fB\-\-color=[color]\fR:
+
+.
+.P
+Set \fIcolor\fR as the foreground color\.
+.
+.TP
+\fB\-\-background=[color]\fR:
+
+.
+.P
+Set \fIcolor\fR as the background color\.
+.
+.TP
+\fB\-\-prefix=[prefix]\fR:
+
+.
+.P
+Prepend \fIprefix\fR to the message\.
+.
+.TP
+\fB\-\-suffix=[suffix]\fR:
+
+.
+.P
+Append \fIsuffix\fR to the message\.
+.
+.TP
+\fB\-\-no\-prefix\fR:
+
+.
+.P
+Do not print the prefix\.
+.
+.TP
+\fB\-\-readline\fR:
+
+.
+.P
+Use escape sequences compatible with passing to \fBread \-ep\fR\. This allows formatting to be applied to interactive prompts using \fBread\fR\. When this option is used nothing is printed but the result of formatting the message is assigned to the \fBPS9\fR variable\.
+.
+.TP
+\fB\-\-debug\fR:
+
+.
+.P
+Do not interpret ANSI sequences, print them\.
+.
+.SH "HYPHENS"
+Use the \fB\-\-\fR option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed\.
+.
+.SH "TERMINAL EMULATORS"
+The \fB$TERM\fR variable must report one of the following values for ANSI replacement to be performed:
+.
+.IP "\[ci]" 4
+xterm
+.
+.IP "\[ci]" 4
+xterm\-color
+.
+.IP "\[ci]" 4
+vt100
+.
+.IP "\[ci]" 4
+ansi
+.
+.IP "" 0
+.
+.SH "ITERM2"
+It is recommended that users of iTerm2 uncheck the \fBDraw bold text in bright colors\fR option in \fBProfiles > Text\fR for highlighted replacement values to appear consistently with the main message colour\.
+.
+.SH "VARIABLES"
+The read only \fBansi\fR associative array stores color names and ANSI escape sequence information\.
+.
+.SH "BUGS"
+\fBsprintf\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBsprintf\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+console(3)

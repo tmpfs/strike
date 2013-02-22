@@ -209,8 +209,7 @@ function __tasks.doc.parse {
 	local inside=0;
 	local heredoc="";
 	local filename="";
-	local IFS="
-";
+	local IFS=$'\n';
 	while read line
 		do
 			#echo "got line $line";
@@ -247,6 +246,7 @@ function __tasks.doc.parse {
 ";
 			fi
 	done < "$file";
+	unset IFS;	
 	if [ ! -z "$heredoc" ]; then
 		echo -n "$heredoc" >| "$outputfile" && console info "generated %s" "$outputfile";
 	fi
@@ -255,7 +255,6 @@ function __tasks.doc.parse {
 	if [ "$api" -eq 1 ]; then
 		__tasks.doc.parse "$output" "$file" "$apidoc" "api:ronn:markdown";
 	fi
-	unset IFS;
 }
 
 # retrieves the doc search paths
