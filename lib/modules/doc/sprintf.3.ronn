@@ -23,11 +23,15 @@ Print to *stderr*.
 
 * `--color=[color]`:
 
-Set *color* as the foreground color.
+Set *color* as the foreground color. See `COLOR NAMES`.
 
 * `--background=[color]`:
 
-Set *color* as the background color.
+Set *color* as the background color. See `COLOR NAMES`.
+
+* `--attribute=[name]`:
+
+Set *name* as the message attribute. See `ATTRIBUTE NAMES`.
 
 * `--prefix=[prefix]`:
 
@@ -43,7 +47,15 @@ Execute *command* to generate the message prefix. The *command* has access to th
 
 * `--program`:
 
-Sets the prefix command to `sprintf.prefix.program` which prepends the program name to a message prefix.
+Prepend the program name to a message.
+
+* `--date`:
+
+Append a date to the message prefix.
+
+* `--timestamp`:
+
+Append a timestamp to the message prefix.
 
 * `--export=[name]`:
 
@@ -59,7 +71,7 @@ Do not apply bright styling to the message prefix.
 
 * `--readline`:
 
-Use escape sequences compatible with passing to `read -ep`. This allows formatting to be applied to interactive prompts using `read`. When this option is used nothing is printed but the result of formatting the message is assigned to the `PS9` variable.
+Use escape sequences compatible with passing to `read -ep`. This allows formatting to be applied to interactive prompts using `read`. When this option is used nothing is printed, you should use this option in conjunction with `--export` and pass the resulting variable as the prompt to `read -ep`.
 
 * `--debug`:
 
@@ -68,6 +80,44 @@ Do not interpret ANSI sequences, print them.
 ## HYPHENS
 
 Use the `--` option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed.
+
+## COLOR NAMES
+
+The available color names are:
+
+* normal
+* black
+* red
+* green
+* brown
+* blue
+* magenta
+* cyan
+* gray
+
+Each color is also available using a *bright* prefix:
+
+* bright-black
+* bright-red
+* bright-green
+* bright-brown
+* bright-blue
+* bright-magenta
+* bright-cyan
+* bright-gray
+
+## ATTRIBUTE NAMES
+
+The available attribute names are:
+
+* normal
+* bright
+* faint (not widely supported)
+* italic (not widely supported)
+* underline
+* blink
+* negative
+* positive
 
 ## TERMINAL EMULATORS
 

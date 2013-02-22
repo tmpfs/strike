@@ -329,6 +329,10 @@ sprintf.output() {
 		return 0;
 	fi
 	
+	if ${flags[readline]}; then
+		return 0;
+	fi
+	
 	if ${flags[debug]}; then
 		opts="";
 	fi
@@ -444,21 +448,21 @@ sprintf.prefix.program() {
 # prepend a date
 sprintf.prefix.date() {
 	local date=$( date );
-	local begin=$( sprintf.block "$date" );
+	local value=$( sprintf.block "$date" );
 	if [ -n "${prefix:-}" ]; then
-		begin="${begin} ${prefix}";
+		value="${prefix} ${value}";
 	fi
-	prefix="${begin}";
+	prefix="${value}";
 }
 
 # prepend a timestamp
 sprintf.prefix.timestamp() {
 	local date=$( date +%s );
-	local begin=$( sprintf.block "$date" );
+	local value=$( sprintf.block "$date" );
 	if [ -n "${prefix:-}" ]; then
-		begin="${begin} ${prefix}";
+		value="${prefix} ${value}";
 	fi
-	prefix="${begin}";
+	prefix="${value}";
 }
 
 # debug parsed options

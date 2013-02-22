@@ -7,10 +7,13 @@
 \fBversion\fR \- print version information
 .
 .SH "SYNOPSIS"
-Parses options and attempts to print version information\.
+Prints version information from a \fIversion\fR file\.
 .
 .SH "DESCRIPTION"
-The version(3) module inspects the options passed to the \fBversion\.parse\fR method and if it encounters a \fI\-\-version\fR option it attempts to print version information using the \fBversion\.show\fR method\. If no \fI\-\-version\fR option is found then nothing is done\.
+The version(3) module inspects the program options and if it encounters a \fB\-\-version\fR option it attempts to print version information from the \fIversion\fR file\. If no \fB\-\-version\fR option is found then nothing is done\.
+.
+.P
+If the \fB\-\-version\fR option is specified but no \fIversion\fR file exists the program exits with a non\-zero exit code\.
 .
 .SH "USAGE"
 .

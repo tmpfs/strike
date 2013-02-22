@@ -41,14 +41,21 @@ Print to \fIstderr\fR\.
 
 .
 .P
-Set \fIcolor\fR as the foreground color\.
+Set \fIcolor\fR as the foreground color\. See \fBCOLOR NAMES\fR\.
 .
 .TP
 \fB\-\-background=[color]\fR:
 
 .
 .P
-Set \fIcolor\fR as the background color\.
+Set \fIcolor\fR as the background color\. See \fBCOLOR NAMES\fR\.
+.
+.TP
+\fB\-\-attribute=[name]\fR:
+
+.
+.P
+Set \fIname\fR as the message attribute\. See \fBATTRIBUTE NAMES\fR\.
 .
 .TP
 \fB\-\-prefix=[prefix]\fR:
@@ -65,6 +72,41 @@ Prepend \fIprefix\fR to the message\.
 Append \fIsuffix\fR to the message\.
 .
 .TP
+\fB\-\-prefix\-command=[command]\fR:
+
+.
+.P
+Execute \fIcommand\fR to generate the message prefix\. The \fIcommand\fR has access to the \fBprefix\fR variable containing any current prefix and should set this variable to modify the message prefix\.
+.
+.TP
+\fB\-\-program\fR:
+
+.
+.P
+Prepend the program name to a message\.
+.
+.TP
+\fB\-\-date\fR:
+
+.
+.P
+Append a date to the message prefix\.
+.
+.TP
+\fB\-\-timestamp\fR:
+
+.
+.P
+Append a timestamp to the message prefix\.
+.
+.TP
+\fB\-\-export=[name]\fR:
+
+.
+.P
+Do not print the message export to the environment variable identified by \fIname\fR\.
+.
+.TP
 \fB\-\-no\-prefix\fR:
 
 .
@@ -72,11 +114,18 @@ Append \fIsuffix\fR to the message\.
 Do not print the prefix\.
 .
 .TP
+\fB\-\-no\-bright\-prefix\fR:
+
+.
+.P
+Do not apply bright styling to the message prefix\.
+.
+.TP
 \fB\-\-readline\fR:
 
 .
 .P
-Use escape sequences compatible with passing to \fBread \-ep\fR\. This allows formatting to be applied to interactive prompts using \fBread\fR\. When this option is used nothing is printed but the result of formatting the message is assigned to the \fBPS9\fR variable\.
+Use escape sequences compatible with passing to \fBread \-ep\fR\. This allows formatting to be applied to interactive prompts using \fBread\fR\. When this option is used nothing is printed, you should use this option in conjunction with \fB\-\-export\fR and pass the resulting variable as the prompt to \fBread \-ep\fR\.
 .
 .TP
 \fB\-\-debug\fR:
@@ -87,6 +136,96 @@ Do not interpret ANSI sequences, print them\.
 .
 .SH "HYPHENS"
 Use the \fB\-\-\fR option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed\.
+.
+.SH "COLOR NAMES"
+The available color names are:
+.
+.IP "\[ci]" 4
+normal
+.
+.IP "\[ci]" 4
+black
+.
+.IP "\[ci]" 4
+red
+.
+.IP "\[ci]" 4
+green
+.
+.IP "\[ci]" 4
+brown
+.
+.IP "\[ci]" 4
+blue
+.
+.IP "\[ci]" 4
+magenta
+.
+.IP "\[ci]" 4
+cyan
+.
+.IP "\[ci]" 4
+gray
+.
+.IP "" 0
+.
+.P
+Each color is also available using a \fIbright\fR prefix:
+.
+.IP "\[ci]" 4
+bright\-black
+.
+.IP "\[ci]" 4
+bright\-red
+.
+.IP "\[ci]" 4
+bright\-green
+.
+.IP "\[ci]" 4
+bright\-brown
+.
+.IP "\[ci]" 4
+bright\-blue
+.
+.IP "\[ci]" 4
+bright\-magenta
+.
+.IP "\[ci]" 4
+bright\-cyan
+.
+.IP "\[ci]" 4
+bright\-gray
+.
+.IP "" 0
+.
+.SH "ATTRIBUTE NAMES"
+The available attribute names are:
+.
+.IP "\[ci]" 4
+normal
+.
+.IP "\[ci]" 4
+bright
+.
+.IP "\[ci]" 4
+faint (not widely supported)
+.
+.IP "\[ci]" 4
+italic (not widely supported)
+.
+.IP "\[ci]" 4
+underline
+.
+.IP "\[ci]" 4
+blink
+.
+.IP "\[ci]" 4
+negative
+.
+.IP "\[ci]" 4
+positive
+.
+.IP "" 0
 .
 .SH "TERMINAL EMULATORS"
 The \fB$TERM\fR variable must report one of the following values for ANSI replacement to be performed:

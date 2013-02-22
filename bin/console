@@ -279,6 +279,8 @@ console.test.misc() {
 	console title "${title}";
 	console header;
 	
+	# command for generating a
+	# custom message prefix
 	user.hostname() {
 		local id=$( id -nu );
 		local host=$( hostname );
@@ -320,19 +322,9 @@ console.test() {
 	console.test.printf;
 	console.test.custom;
 	console.test.misc;
-	
-	# local tester="${unbound_variable}";
-	
 	console.test.prompt;
 	
-	# console.test.types "TYPES (NO PREFIX)" "--no-prefix";
-
-	# console -c "standard message for you ... %s" "abc def ghi";
-	# console -n "simple message for you ... %s" "abc";
-	# console -n2 "simple error message for you ... %s" "abc";
-	# 
-	# console -2 --color=red --prefix="[red]" "simple %s message for you ... %s" "warning" "a value for you";
-	# console -2 --color=cyan --prefix="[cyan]" "simple %s message for you ... %s" "warning" "a value for you";	
+	# local tester="${unbound_variable}";	
 }
 
 if [ $# -eq 0 ]; then
