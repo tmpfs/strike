@@ -88,7 +88,7 @@ sprintf() {
 	flags[newline]=true;
 	flags[replace]=true;
 	flags[replace.bold]=true;
-	flags[prefix.bold]=true;
+	flags[prefix.bright]=true;
 	flags[stderr]=false;
 	
 	sprintf.options.parse "$@";
@@ -295,7 +295,7 @@ sprintf.noansi() {
 	flags[ansi]=false;
 	flags[color]=false;
 	flags[replace.bold]=false;
-	flags[prefix.bold]=false;
+	flags[prefix.bright]=false;
 }
 
 # print parsed result
@@ -380,9 +380,8 @@ sprintf.replace() {
 # prepend prefix(es)
 sprintf.prefix() {
 	if [ -n "${prefix}" ] && ${flags[message.prefix]}; then	
-		# echo "prepend prefix ... $message : $prefix : ${flags[color]}";
 		if ${flags[color]}; then
-			if ${flags[prefix.bold]}; then
+			if ${flags[prefix.bright]}; then
 				prefix="${styles[bright]}${prefix}${terminator}";
 			fi
 			if [ -n "${color}" ]; then
@@ -458,6 +457,9 @@ sprintf.options.parse() {
 	                    ;;
 	                no-prefix)
 						flags[message.prefix]=false;
+	                    ;;	
+	                no-bright-prefix)
+						flags[prefix.bright]=false;
 	                    ;;
 	                readline)
 						flags[readline]=true;

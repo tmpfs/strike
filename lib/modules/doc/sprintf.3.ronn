@@ -45,6 +45,10 @@ Do not print the message export to the environment variable identified by *name*
 
 Do not print the prefix.
 
+* `--no-bright-prefix`:
+
+Do not apply bright styling to the message prefix.
+
 * `--readline`:
 
 Use escape sequences compatible with passing to `read -ep`. This allows formatting to be applied to interactive prompts using `read`. When this option is used nothing is printed but the result of formatting the message is assigned to the `PS9` variable.

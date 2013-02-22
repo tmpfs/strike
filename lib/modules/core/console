@@ -40,7 +40,8 @@ console.header() {
 
 # print a header title
 console.title() {
-	sprintf --prefix="${header_character:-}" "$@";
+	sprintf --no-bright-prefix \
+		--prefix="${header_character:-}" "$@";
 }
 
 # print a message with no prefix
