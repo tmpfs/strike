@@ -97,6 +97,8 @@ sprintf() {
 	flags[prefix.bright]=true;
 	flags[stderr]=false;
 	
+	# echo "sprintf got opts: $*"; 
+	
 	sprintf.options.parse "$@";
 	
 	# initialize styles
@@ -320,7 +322,6 @@ sprintf.output() {
 	if ${flags[debug]}; then
 		opts="";
 	fi
-	
 	if ! ${flags[stderr]}; then
 		echo $opts "$parsed";
 	else
@@ -381,9 +382,6 @@ sprintf.replace() {
 # prepend prefix(es)
 sprintf.prefix() {
 	if ${flags[message.prefix]}; then
-		
-		local start_prefix="${prefix}";
-		
 		# call a prefix command
 		if [ -n "${prefix_command:-}" ]; then
 			local commands=( ${prefix_command} );
@@ -397,6 +395,9 @@ sprintf.prefix() {
 			sprintf.prefix.program;
 		fi
 		
+		local plain_prefix="${prefix}";
+		
+		
 		# colour the prefix
 		if ${flags[ansi]}; then
 			if ${flags[prefix.bright]}; then
@@ -408,8 +409,8 @@ sprintf.prefix() {
 		fi
 		
 		# update parsed value
-		if [ -n "${start_prefix:-}" ]; then
-			# echo "add prefix: '$prefix' : '$start_prefix'";
+		if [ -n "${plain_prefix:-}" ]; then
+			# echo "add prefix: '$prefix' : '$plain_prefix'";
 			parsed="${prefix} ${parsed}";
 		fi
 	fi

@@ -214,6 +214,9 @@ console.test.prompt() {
 	# local PS9="${start}bold${terminator} prompt ${characters[lightning]} ";
 	# read -ep "${PS9}" value;
 	
+	console prompt --program "%s prompt" "program name";
+	read -ep "$PS9" value;
+	
 	console prompt "%s prompt" "bright";
 	read -ep "$PS9" value;
 	console prompt --color=underline "%s prompt" "underline";
@@ -235,7 +238,7 @@ console.test.prompt() {
 	read -ep "$PS9" value;
 	console prompt --color=gray "%s prompt" "gray";
 	read -ep "$PS9" value;
-	
+		
 	console header;
 }
 
