@@ -406,8 +406,9 @@ function __semver.change.confirm {
 		console.quit 1 "aborted";
 	}
 	
+	console prompt "${prefix}%s > %s, are you sure? (y/n)" "$version" "$newversion";
 	# define a boolean prompt
-	prompt.boolean confirm y n "${prefix}%s > %s, are you sure? (y/n)" "$version" "$newversion";
+	prompt.boolean confirm y n;
 	# set accept/reject callback(s)
 	prompt.accepts accepted;
 	prompt.rejects rejected;
@@ -467,8 +468,9 @@ function __semver.release.confirm {
 		console.quit 1 "aborted";		
 	}
 	
+	console prompt "are you sure you want to release to %s? (y/n)" "$newversion";
 	# define a boolean prompt
-	prompt.boolean confirm y n "are you sure you want to release to %s? (y/n)" "$newversion";
+	prompt.boolean confirm y n;
 	# set accept/reject callback(s)
 	prompt.accepts accepted;
 	prompt.rejects rejected;
@@ -508,8 +510,9 @@ function __semver.release.confirmed {
 			console print "release version is already at 1.0.0";
 			next;
 		else
+			console prompt "would you prefer to use %s instead of %s? (y/n)" "1.0.0" "$newversion";
 			# # define a boolean prompt
-			prompt.boolean confirm y n "would you prefer to use %s instead of %s? (y/n)" "1.0.0" "$newversion";
+			prompt.boolean confirm y n;
 			# set accept/reject callback(s)
 			prompt.accepts accepted;
 			prompt.rejects rejected;
