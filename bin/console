@@ -279,14 +279,10 @@ console.test.misc() {
 	console title "${title}";
 	console header;
 	
-	date.prefix() {
-		local str;
-		local timestamp=${1:-false};
-		if ! $timestamp; then
-			str=$( date );
-		else
-			str=$( date +%s );
-		fi
+	user.hostname() {
+		local id=$( id -nu );
+		local host=$( hostname );
+		local str="${id}@${host}";
 		local begin=$( sprintf.block "$str" );
 		if [ -n "${prefix:-}" ]; then
 			begin="${begin} ${prefix}";
@@ -300,22 +296,24 @@ console.test.misc() {
 	console info --program \
 		"an %s message %s" "info" "prefixed with the program name";
 		
-	console info --prefix-command="date.prefix" \
+	console info --date \
 		"an %s message %s" "info" "prefixed with the date";	
 		
-	console info --prefix-command="date.prefix true" \
+	console info --timestamp \
 		"an %s message %s" "info" "prefixed with a timestamp";
 		
-	console info --prefix-command="date.prefix true" \
+	console info --timestamp \
 		--program \
 		"an %s message %s" "info" "prefixed with a timestamp and program name";
+		
+	console print --prefix-command="user.hostname" -- \
+		"a message %s using %s" "with a custom prefix" "--prefix-command";
 		
 	console header;
 }
 
 # print test messages
-console.test() {
-	
+console.test() {	
 	console.test.headers;
 	console.test.colors;
 	console.test.types;

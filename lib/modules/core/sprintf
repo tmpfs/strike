@@ -90,7 +90,8 @@ sprintf() {
 	flags[debug]=false;
 	flags[readline]=false;
 	flags[program]=false;
-	flags[program.prefix]=false;
+	flags[date]=false;
+	flags[timestamp]=false;
 	flags[message.prefix]=true;
 	flags[ansi]=true;
 	flags[color]=true;
@@ -399,13 +400,19 @@ sprintf.prefix() {
 			fi
 		fi
 		
-		# prefix program name
+		# prefix flags
+		if ${flags[timestamp]}; then
+			sprintf.prefix.timestamp;
+		fi
+		if ${flags[date]}; then
+			sprintf.prefix.date;
+		fi
 		if ${flags[program]}; then
 			sprintf.prefix.program;
-		fi
+		fi		
 		
+		# prefix before any ANSI sequences
 		local plain_prefix="${prefix}";
-		
 		
 		# colour the prefix
 		if ${flags[ansi]}; then
@@ -419,13 +426,12 @@ sprintf.prefix() {
 		
 		# update parsed value
 		if [ -n "${plain_prefix:-}" ]; then
-			# echo "add prefix: '$prefix' : '$plain_prefix'";
 			parsed="${prefix} ${parsed}";
 		fi
 	fi
 }
 
-# prepend the program name to a prefix
+# prepend the program name
 sprintf.prefix.program() {
 	local pname="${process_name:-}";
 	local begin=$( sprintf.block "$pname" );
@@ -435,29 +441,49 @@ sprintf.prefix.program() {
 	prefix="${begin}";
 }
 
+# prepend a date
+sprintf.prefix.date() {
+	local date=$( date );
+	local begin=$( sprintf.block "$date" );
+	if [ -n "${prefix:-}" ]; then
+		begin="${begin} ${prefix}";
+	fi
+	prefix="${begin}";
+}
+
+# prepend a timestamp
+sprintf.prefix.timestamp() {
+	local date=$( date +%s );
+	local begin=$( sprintf.block "$date" );
+	if [ -n "${prefix:-}" ]; then
+		begin="${begin} ${prefix}";
+	fi
+	prefix="${begin}";
+}
+
 # debug parsed options
-# sprintf.debugger() {
-# 	echo "$header";
-# 	local flag;
-# 	for flag in ${!flags[@]}
-# 		do
-# 			echo "flag $flag :: ${flags[$flag]}";
-# 	done
-# 	echo "prefix is : ${prefix}"
-# 	echo "messages length : ${#messages[@]}";
-# 	echo "messages are : ${messages}";
-# 	echo "primary message: $message";
-# 	echo "replacements length: ${#replacements[@]}";
-# 	if [ "${#replacements[@]}" -gt 0 ]; then
-# 		echo "replacements: ${replacements[@]}";	
-# 	fi
-# 	echo "$header";	
-# }
+sprintf.debugger() {
+	echo "$header";
+	local flag;
+	for flag in ${!flags[@]}
+		do
+			echo "flag $flag :: ${flags[$flag]}";
+	done
+	echo "prefix is : ${prefix}"
+	echo "messages length : ${#messages[@]}";
+	echo "messages are : ${messages}";
+	echo "primary message: $message";
+	echo "replacements length: ${#replacements[@]}";
+	if [ "${#replacements[@]}" -gt 0 ]; then
+		echo "replacements: ${replacements[@]}";	
+	fi
+	echo "$header";	
+}
 
 # parse sprintf options
 sprintf.options.parse() {
 	#echo "$FUNCNAME : $*";
-	local optspec=":cn12-:";
+	local optspec=":12-:";
 	local optchar val opt;
 	OPTIND=0;
 	while getopts "$optspec" optchar; do
@@ -502,9 +528,16 @@ sprintf.options.parse() {
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						prefix_command="${val}";
+						flags[message.prefix]=true;
 	                    ;;
 	                program)
 						flags[program]=true;
+	                    ;;
+	                date)
+						flags[date]=true;
+	                    ;;
+	                timestamp)
+						flags[timestamp]=true;
 	                    ;;
 	                no-prefix)
 						flags[message.prefix]=false;
@@ -527,12 +560,6 @@ sprintf.options.parse() {
 	                    fi
 	                    ;;
 	            esac;;
-	        c)
-				flags[color]=true;
-	            ;;
-	        n)
-				flags[color]=false;
-	            ;;
 	        1)
 				flags[stderr]=false;
 	            ;;
