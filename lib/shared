@@ -33,7 +33,6 @@ __initialize__() {
 	source "${dir}/modules/method";
 	source "${dir}/modules/sprintf";	
 	source "${dir}/modules/console";
-	
 	source "${dir}/modules/array";
 	source "${dir}/modules/fs";
 	
@@ -83,7 +82,7 @@ __initialize__() {
 	__require_register "variable" "${dir}/modules/variable";
 	__require_register "string" "${dir}/modules/string";
 	__require_register "method" "${dir}/modules/method";
-	__require_register "console" "${dir}/modules/sprintf";
+	__require_register "sprintf" "${dir}/modules/sprintf";
 	__require_register "console" "${dir}/modules/console";
 	__require_register "array" "${dir}/modules/array";
 	__require_register "require" "${dir}/modules/require";
@@ -97,21 +96,6 @@ __initialize__() {
 	require.once 'executable';
 	require.once 'system';
 	require.once 'process';
-	
-	# add delegates for modules that were not required
-	# must be done after the delegate module is available
-	
-	# require.delegate "variable";
-	# require.delegate "method";
-	# require.delegate "console";
-	# require.delegate "array";
-
-	# TODO: remove these dependencies
-	# source "${dir}/constants";
-	source "${dir}/messages";
-
-	#TODO: CHECK THESE AS THE REMOVAL WILL HAVE BROKEN SOME OTHER EXTERNAL PROGRAMS
-	#source "${dir}/archive-util";
 }
 
 __initialize__ "$@";

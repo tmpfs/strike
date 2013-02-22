@@ -1,6 +1,6 @@
 # test existence of built in modules
 function test.require.exists? {
-	local modules=( variable string method color console array require fs );
+	local modules=( variable string method sprintf console array require fs );
 	local module;
 	for module in ${modules[@]}
 		do
