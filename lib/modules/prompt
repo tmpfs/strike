@@ -162,7 +162,7 @@ function __prompt.show.boolean {
 		prompt.before;
 		
 		# show the prompt message
-		console prompt "$@";
+		# console prompt "$@";
 		
 		if [ -n "${PS9:-}" ]; then
 			read -ep "${PS9}" value;
@@ -190,7 +190,7 @@ function __prompt.show.data {
 		prompt.before;
 		
 		# show the prompt message
-		console prompt $@;
+		# console prompt $@;
 		
 		if [ -n "${PS9:-}" ]; then
 			read -ep "${PS9}" value;
