@@ -215,4 +215,7 @@ characters[lightning]="⚡";
 declare -g header="+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
 
 # generic suffic for prompts
-declare -g console_prompt_suffix="${characters[lightning]} ";
+export PS9_SUFFIX="${characters[lightning]} ";
+
+# custom ps prompt
+export PS9=" ${PS9_SUFFIX}";

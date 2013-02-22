@@ -12,9 +12,6 @@ declare -g prompt_current;
 declare -g prompt_command;
 declare -ag prompt_command_options;
 
-# custom ps prompt
-declare -g PS9;
-
 # $'\001\033[1m\002ABC\001\033[0m\002'
 
 # add a boolean prompt

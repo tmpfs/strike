@@ -154,7 +154,7 @@ console.commands.print() {
 # and a space as the suffix
 console.commands.prompt() {
 	sprintf --no-newline --readline \
-		--suffix="${console_prompt_suffix:-}" "$@";
+		--suffix="${PS9_SUFFIX:-}" "$@";
 }
 
 # print a log message with a prefix
