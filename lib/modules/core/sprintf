@@ -86,6 +86,7 @@ sprintf() {
 	declare -A flags;
 	flags[debug]=false;
 	flags[readline]=false;
+	flags[program]=false;
 	flags[program.prefix]=false;
 	flags[message.prefix]=true;
 	flags[ansi]=true;
@@ -379,25 +380,36 @@ sprintf.replace() {
 
 # prepend prefix(es)
 sprintf.prefix() {
-	if ${flags[message.prefix]}; then	
+	if ${flags[message.prefix]}; then
+		
+		local start_prefix="${prefix}";
 		
 		# call a prefix command
-		
-		# echo "prefix command is: ${prefix_command:-}";
-		
-		if method.exists? "${prefix_command:-}"; then
-			${prefix_command};
+		if [ -n "${prefix_command:-}" ]; then
+			local commands=( ${prefix_command} );
+			if method.exists? "${commands[0]}"; then
+				${commands[0]} ${commands[@]:1};
+			fi
 		fi
 		
-		if [ -n "${prefix}" ]; then
-			if ${flags[color]}; then
-				if ${flags[prefix.bright]}; then
-					prefix="${styles[bright]}${prefix}${terminator}";
-				fi
-				if [ -n "${color}" ]; then
-					prefix="${settings[color]}${prefix}${terminator}";
-				fi
+		# prefix program name
+		if ${flags[program]}; then
+			sprintf.prefix.program;
+		fi
+		
+		# colour the prefix
+		if ${flags[ansi]}; then
+			if ${flags[prefix.bright]}; then
+				prefix="${styles[bright]}${prefix}${terminator}";
 			fi
+			if [ -n "${color}" ]; then
+				prefix="${settings[color]}${prefix}${terminator}";
+			fi
+		fi
+		
+		# update parsed value
+		if [ -n "${start_prefix:-}" ]; then
+			# echo "add prefix: '$prefix' : '$start_prefix'";
 			parsed="${prefix} ${parsed}";
 		fi
 	fi
@@ -482,20 +494,20 @@ sprintf.options.parse() {
 						prefix_command="${val}";
 	                    ;;
 	                program)
-						prefix_command="sprintf.prefix.program";
-	                    ;;	
+						flags[program]=true;
+	                    ;;
 	                no-prefix)
 						flags[message.prefix]=false;
-	                    ;;	
+	                    ;;
 	                no-bright-prefix)
 						flags[prefix.bright]=false;
 	                    ;;
 	                readline)
 						flags[readline]=true;
-	                    ;;	
+	                    ;;
 	                no-newline)
 						flags[newline]=false;
-	                    ;;	
+	                    ;;
 	                debug)
 						flags[debug]=true;
 	                    ;;

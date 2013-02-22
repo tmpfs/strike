@@ -275,12 +275,37 @@ console.test.misc() {
 	local value;
 	console title "${title}";
 	console header;
+	
+	date.prefix() {
+		local str;
+		local timestamp=${1:-false};
+		if ! $timestamp; then
+			str=$( date );
+		else
+			str=$( date +%s );
+		fi
+		local begin="[$str]";
+		if [ -n "${prefix:-}" ]; then
+			begin="${begin} ${prefix}";
+		fi
+		prefix="${begin}";
+	}
 
 	sprintf --program \
 		"a message %s" "prefixed with the program name";
 		
 	console info --program \
 		"an %s message %s" "info" "prefixed with the program name";
+		
+	console info --prefix-command="date.prefix" \
+		"an %s message %s" "info" "prefixed with the date";	
+		
+	console info --prefix-command="date.prefix true" \
+		"an %s message %s" "info" "prefixed with a timestamp";
+		
+	console info --prefix-command="date.prefix true" \
+		--program \
+		"an %s message %s" "info" "prefixed with a timestamp and program name";
 		
 	console header;
 }
