@@ -242,7 +242,8 @@ console.commands.log() {
 
 # print an ok message with a prefix
 console.commands.ok() {
-	sprintf --tick --prefix="${console_prefixes[ok]}" "$@";
+	sprintf --suffix="${characters[tick]}" \
+		--prefix="${console_prefixes[ok]}" "$@";
 }
 
 # print an info message with a prefix
@@ -259,7 +260,8 @@ console.commands.debug() {
 
 # print a not ok message to stderr
 console.commands.notok() {
-	sprintf -2 --color=red --cross --prefix="${console_prefixes[notok]}" "$@";
+	sprintf -2 --color=red --suffix="${characters[cross]}" \
+		--prefix="${console_prefixes[notok]}" "$@";
 }
 
 # print an error message to stderr

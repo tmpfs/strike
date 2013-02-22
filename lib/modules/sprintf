@@ -44,14 +44,6 @@ Do not print the prefix.
 
 Use escape sequences compatible with passing to `read -ep`. This allows formatting to be applied to interactive prompts using `read`. When this option is used nothing is printed but the result of formatting the message is assigned to the `PS9` variable.
 
-* `--cross`:
-
-Append a single space and a cross character to the message.
-
-* `--tick`:
-
-Append a single space and a tick character to the message.
-
 * `--debug`:
 
 Do not interpret ANSI sequences, print them.
@@ -174,8 +166,6 @@ sprintf() {
 	flags[replace.bold]=true;
 	flags[prefix.bold]=true;
 	flags[stderr]=false;
-	flags[tick]=false;
-	flags[cross]=false;
 	
 	sprintf.options.parse "$@";
 	
@@ -217,12 +207,6 @@ sprintf() {
 	local message="${messages[0]:-}";
 	if [ -n "${suffix}" ]; then
 		message="${message} ${suffix}";
-	fi
-	if ${flags[cross]}; then
-		message="${message} ${characters[cross]}";
-	fi
-	if ${flags[tick]}; then
-		message="${message} ${characters[tick]}";
 	fi
 	messages[0]="${message}";
 	
@@ -541,12 +525,6 @@ sprintf.options.parse() {
 	                    ;;	
 	                debug)
 						flags[debug]=true;
-	                    ;;	
-	                tick)
-						flags[tick]=true;
-	                    ;;
-	                cross)
-						flags[cross]=true;
 	                    ;;
 	                *)
 	                    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
