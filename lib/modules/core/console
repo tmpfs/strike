@@ -1,96 +1,3 @@
-: <<'ronn:markdown'
-console(3) -- console module
-=============================================
-
-## SYNOPSIS
-
-	console [command] [options...] message [replacements...]
-
-## DESCRIPTION
-
-Helper commands for printing ANSI formatted output to a terminal.
-
-The console(3) module is a built in module available to all programs. It is responsible for printing messages with optional replacement parameters which are highlighted when the message is printed.
-
-## COMMANDS
-
-### Standard Output
-
-To print to standard output use the following commands:
-
-* `print`:
-
-	Print a message with no prefix.
-
-* `info`:
-
-	Print an info message.
-	
-* `log`:
-
-	Print a log message.
-	
-* `ok`:
-
-	Print an ok message. This message type appends a suffix of  ✓ (\\u2713).
-	
-* `prompt`:
-
-	Create a message suitable for passing to `read -ep` and assign the result to the `PS9` variable.
-	
-### Standard Error
-
-To print to standard error use the following commands:
-
-* `warn`:
-
-	Print a warning message.
-	
-* `error`:
-
-	Print an error message.
-	
-* `notok`:
-
-	Print a not ok message. This message type appends a suffix of ✘ (\\u2718).
-	
-* `throw`:
-
-	Print an error message followed by a stack trace of the current command call stack.
-	
-### Exit Commands
-
-The console(3) module provides commands for exiting the program (optionally with a formatted message).
-
-* `success`:
-
-	Marks the program as completed successfully (exiting with a zero exit code) and optionally prints a formatted message.
-
-* `quit`:
-
-	Exits the program with a non-zero exit code and optional error message. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code.
-	
-## OPTIONS
-
-The console(3) module supports all the options available to the sprintf(3) module.
-	
-# ITERM2
-
-It is recommended that users of iTerm2 uncheck the *Draw bold text in bright colors* option in *Profiles > Text* for highlighted replacement values to appear consistently with the main message colour.
-
-## BUGS
-
-**console** is written in bash and depends upon `bash` >= 4.2.
-
-## COPYRIGHT
-
-**console** is copyright (c) 2012 muji <http://xpm.io>
-
-## SEE ALSO
-
-sprintf(3), globals-api(3)
-ronn:markdown
-
 # main console entry point
 console() {
 	# list of available commands
@@ -129,6 +36,11 @@ console() {
 # print the generic message header
 console.header() {
 	sprintf "$@" "${header}";
+}
+
+# print a header title
+console.title() {
+	echo "$FUNCNAME";
 }
 
 # print a message with no prefix
@@ -234,6 +146,23 @@ console.parse() {
 	done
 }
 console.parse "$@";
+
+# mark functions as read only
+readonly -f console \
+	console.header \
+	console.title \
+	console.print \
+	console.log \
+	console.ok \
+	console.info \
+	console.debug \
+	console.warn \
+	console.notok \
+	console.error \
+	console.throw \
+	console.trace \
+	console.quit \
+	console.success;
 
 # redirect stderr to console error
 # so that all error messages are highlighted

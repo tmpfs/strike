@@ -76,8 +76,6 @@ help.parse "$@";
 require 'opts/version';
 version.parse "$@";
 
-require.once 'console';
-
 # read -ep $'\001\033[1m\002ABC\001\033[0m\002' value;
 # exit 0;
 
@@ -283,7 +281,6 @@ console.test() {
 	console.test.prompt;
 	
 	# console.test.types "TYPES (NO PREFIX)" "--no-prefix";
-
 
 	# console -c "standard message for you ... %s" "abc def ghi";
 	# console -n "simple message for you ... %s" "abc";
