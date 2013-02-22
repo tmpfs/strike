@@ -84,7 +84,7 @@ console.test.headers() {
 	local title="${1:-HEADER COLORS}";
 	local opts="${2:-}";
 	console header;	
-	console print "${title}";
+	console title "${title}";
 	console header;
 	
 	console header $opts --color=black;	
@@ -110,8 +110,9 @@ console.test.headers() {
 
 # test colors
 console.test.colors() {
+	local title="${1:-COLORS}";
 	console header;
-	console print "COLORS";
+	console title "${title}";
 	console header;
 	
 	console print --color=black "a %s message" "black";
@@ -139,13 +140,13 @@ console.test.colors() {
 console.test.types() {
 	local title="${1:-TYPES}";
 	local opts="${2:-}";
-	console print "${title}";
+	console title "${title}";
 	console header;
 	
 	#echo "using opts: $opts"
 	
 	console header;
-	console print "STDOUT";
+	console title "STDOUT";
 	console header;
 	
 	console log $opts "a %s message" "log";
@@ -153,7 +154,7 @@ console.test.types() {
 	console ok $opts "an %s message" "ok";
 	
 	console header;
-	console print "STDERR";
+	console title "STDERR";
 	console header;
 	
 	console debug $opts "a %s message" "debug";
@@ -173,7 +174,7 @@ console.test.printf() {
 	local title="${1:-PRINTF}";
 	local opts="${2:-}";
 	local value;
-	console print "${title}";
+	console title "${title}";
 	console header;
 	
 	console info "a %s value" "string";	
@@ -203,7 +204,7 @@ console.test.prompt() {
 	local title="${1:-PROMPT}";
 	local opts="${2:-}";
 	local value;
-	console print "${title}";
+	console title "${title}";
 	console header;
 	
 	# test prompt for comparison
@@ -243,7 +244,7 @@ console.test.custom() {
 	local title="${1:-CUSTOM}";
 	local opts="${2:-}";
 	local value;
-	console print "${title}";
+	console title "${title}";
 	console header;
 
 	sprintf --attribute=bright \

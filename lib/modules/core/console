@@ -40,7 +40,7 @@ console.header() {
 
 # print a header title
 console.title() {
-	echo "$FUNCNAME";
+	sprintf --prefix="${header_character:-}" "$@";
 }
 
 # print a message with no prefix

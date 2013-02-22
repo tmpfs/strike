@@ -38,7 +38,7 @@
 # ${string,,}   hello, world! # All characters to lowercase
 
 
-function string.split {
+string.split() {
 	_result="";
 	local array i;
 	local IFS="${1:-}";
@@ -82,11 +82,11 @@ function string.split {
 	unset IFS;
 }
 
-function string.quote {
+string.quote() {
 	_result=$( printf %q "$1" );
 }
 
-function string.contains? {
+string.contains?() {
 	local haystack="${1:-}";
 	local needle="${2:-}";
 	if [[ "$haystack" == *$needle* ]]; then
@@ -95,33 +95,35 @@ function string.contains? {
 	return 1;
 }
 
-function string.upper {
+string.upper() {
 	local str="${1:-}";
 	_result="${str^^}";
 }
 
-function string.lower {
+string.lower() {
 	local str="${1:-}";
 	_result="${str,,}";
 }
 
-#string.upper "abc";
-
-function string.repeat {
-	_result="";
-	local repeat="${2:-1}";
-	if [ $repeat -gt 0 ]; then
-		# do this with a loop rather than
-		# printf so that any string may be repeated easily
-		local i;
-		for((i = 0;i < repeat;i++))
-			do
-				_result="${_result}$1";
-		done
+string.repeat() {
+	local repeated="";
+	local str="${1:-}";
+	declare -i end="${2:-1}";
+	local varname="${3:-}";
+	declare -i start="${4:-1}";
+	if [ -n "${str}" ] && [ ${end} -gt 0 ]; then
+		local seq=$(eval echo {${start}..${end}});
+		repeated=$( printf "${str}%.0s" $seq );
+		if [ -n "${varname}" ]; then
+			variable.set "${varname}" "${repeated}";
+			return 0;
+		fi
 	fi
+	# DEPRECATED
+	_result="${repeated}";
 }
 
-function string.ltrim {
+string.ltrim() {
 	local value="${@}";
 	read  -rd '' value <<< "$value";
 	_result="$value";

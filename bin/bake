@@ -574,6 +574,18 @@ process.use strict;
 # 
 # :accessor;
 
+# len=5;
+# printf '++%.0s' {1..5}
+# exit 0;
+# 
+# start=1;
+# end=5;
+# seq="";
+# seq=$(eval echo {${start}..${end}});
+# 
+# echo "got seq : $seq";
+# exit 0;
+
 # configure help
 require 'help';
 help.man.page "default" "bake.1";

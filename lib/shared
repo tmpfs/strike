@@ -39,6 +39,10 @@ __initialize__() {
 	source "${core}/array";
 	source "${core}/fs";
 	
+	# set up program header
+	string.repeat "${header_character}" \
+		"${header_repeat}" "header";
+	
 	#NOTE: directories must be configured prior to including require(3)
 	# configure program directories
 	local dir_root="$exedir";
