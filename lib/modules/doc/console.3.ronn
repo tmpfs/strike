@@ -75,7 +75,7 @@ The console(3) module supports all the options available to the sprintf(3) modul
 	
 # ITERM2
 
-It is recommended that users of iTerm2 uncheck the *Draw bold text in bright colors* option in *Profiles > Text* for highlighted replacement values to appear consistently with the main message colour.
+It is recommended that users of iTerm2 uncheck the `Draw bold text in bright colors` option in `Profiles > Text` for highlighted replacement values to appear consistently with the main message colour.
 
 ## BUGS
 

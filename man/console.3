@@ -10,7 +10,7 @@
 .
 .nf
 
-console [command] [options\.\.\.] message [replacements\.\.\.]
+console [command] [options\.\.\.] message [parameters\.\.\.]
 .
 .fi
 .
@@ -98,7 +98,7 @@ Marks the program as completed successfully (exiting with a zero exit code) and 
 Exits the program with a non\-zero exit code and optional error message\. Note that the signature for this method differs from the general syntax for console(3) methods as it expects the first parameter to be the exit code\.
 .
 .SH "OPTIONS"
-The console(3) module supports all the options available to the sprintf(3) module\.It is recommended that users of iTerm2 uncheck the \fIDraw bold text in bright colors\fR option in \fIProfiles > Text\fR for highlighted replacement values to appear consistently with the main message colour\.
+The console(3) module supports all the options available to the sprintf(3) module\.It is recommended that users of iTerm2 uncheck the \fBDraw bold text in bright colors\fR option in \fBProfiles > Text\fR for highlighted replacement values to appear consistently with the main message colour\.
 .
 .SH "BUGS"
 \fBconsole\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
