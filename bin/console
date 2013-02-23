@@ -174,55 +174,158 @@ console.test.printf() {
 	local title="${1:-PRINTF}";
 	local opts="${2:-}";
 	local prefix format parameter;
+	local pi="3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
 	console title "${title}";
 	console header;
 	
 	# console info "a %k invalid format string" "abc";
 	# console info "a %s %q %f value %f %c %s" "string" "quoted value[]" "3.1432423434" "3.123" "x";
-
-	# string (%s)
-	format="%s";
-	parameter="string";
-	prefix=$(sprintf.block "${format} ${parameter}");
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
 	
+	# printf ("Characters: %c %c \n", 'a', 65);
+	# printf ("Decimals: %d %ld\n", 1977, 650000L);
+	# printf ("Preceding with blanks: %10d \n", 1977);
+	# printf ("Preceding with zeros: %010d \n", 1977);
+	# printf ("Some different radixes: %d %x %o %#x %#o \n", 100, 100, 100, 100, 100);
+	# printf ("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416);
+	# printf ("Width trick: %*d \n", 5, 10);
+	# printf ("%s \n", "A string");	
+	
+	# signed decimal integer (%d)
+	format="%d";
+	parameter="512";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# signed decimal integer (%i)
+	format="%i";
+	parameter="1024";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# unsigned octal (%o)
+	format="%o";
+	parameter="493";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";	
+	
+	# unsigned hexadecimal integer (%x)
+	format="%x";
+	parameter="255";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";	
+	
+	# unsigned hexadecimal integer (%X)
+	format="%X";
+	parameter="127";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# floating point (%f)
+	format="%f";
+	parameter="${pi}";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# floating point (%F)
+	format="%F";
+	parameter="${pi}";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# floating point (%.2f)
+	format="%.2f";
+	parameter="${pi}";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# scientific notation (mantissa/exponent), lowercase (%e)
+	format="%e";
+	parameter="${pi}";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# scientific notation (mantissa/exponent), uppercase (%E)
+	format="%E";
+	parameter="${pi}";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# use the shortest representation: %e or %f (%g)
+	format="%g";
+	parameter="${pi}";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# use the shortest representation: %E or %F (%G)
+	format="%G";
+	parameter="${pi}";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	# hexadecimal floating point, lowercase (%a)
+	format="%a";
+	parameter="${pi}";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";	
+	
+	# hexadecimal floating point, uppercase (%A)
+	format="%A";
+	parameter="${pi}";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+		
 	# character (%c)
 	format="%c";
 	parameter="xyz";
 	prefix=$(sprintf.block "${format} ${parameter}");
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# floating point (%f)
-	format="%f";	
-	parameter="3.14";	
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+		
+	# string (%s)
+	format="%s";
+	parameter="string";
 	prefix=$(sprintf.block "${format} ${parameter}");
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
 	
-	# floating point (%.2f)
-	format="%.2f";
+	# nothing printed (%n)
+	format="%n";
+	parameter="b8000000";
 	prefix=$(sprintf.block "${format} ${parameter}");
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
 	
-	# multiple string replacement
-	console info "a %s value %s more data %%" "string" "with";
+	# literal percent (%%)
+	format="%%";
+	parameter="";
+	prefix=$(sprintf.block "${format}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})";
 	
-	# too many format strongs
-	console info "a %s value %s %s" "string";
+	# BASH
 	
-	# hyphenated messages/replacements
-	console info -- "-a %s value" "-hyphenated";
+	# quoted (%q)
+	format="%q";
+	parameter="value with spaces []";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
 	
-	# %f - default precision
-	console info "%f - floating point value (default precision)" "3.1432423434";
-	
-	# %f - default precision
-	console info "%f - padded floating point value (default precision)" "3.14";
-	
-	# %f - precision to two decimal places
-	console info "%.2f - floating point value (precision .2)" "3.1432423434";
-	
-	# quoting a value, using bash's %q
-	console info "a %q - quoted value" "value with spaces []";
+	# # multiple string replacement
+	# console info "a %s value %s more data %%" "string" "with";
+	# 
+	# # too many format strongs
+	# console info "a %s value %s %s" "string";
+	# 
+	# # hyphenated messages/replacements
+	# console info -- "-a %s value" "-hyphenated";
+	# 
+	# # %f - default precision
+	# console info "%f - floating point value (default precision)" "3.1432423434";
+	# 
+	# # %f - default precision
+	# console info "%f - padded floating point value (default precision)" "3.14";
+	# 
+	# # %f - precision to two decimal places
+	# console info "%.2f - floating point value (precision .2)" "3.1432423434";
+	# 
+	# # quoting a value, using bash's %q
+	# console info "a %q - quoted value" "value with spaces []";
 	
 	console header;
 }
@@ -357,12 +460,14 @@ console.test.misc() {
 
 # print test messages
 console.test() {
-	console.test.headers;
-	console.test.colors;
-	console.test.types;
+	# console.test.headers;
+	# console.test.colors;
+	# console.test.types;
+	
 	console.test.printf;
-	console.test.custom;
-	console.test.misc;
+	
+	# console.test.custom;
+	# console.test.misc;
 	# console.test.prompt;
 	
 	# local tester="${unbound_variable}";

@@ -420,6 +420,8 @@ sprintf.format() {
 		
 		# printf: %[flags][width][.precision][length]specifier
 		
+		# NOTE: %p for a pointer address is not supported
+		
 		# 1. ([^%]+)* == possible start value before specifier
 		# 2. %{1,} == match format string start
 		# 3. [#0 +-]? == optional flags
@@ -429,7 +431,7 @@ sprintf.format() {
 		# 7. ([%fFeEgGaAdiuoxXscpnqb]){1,}) == required specifier
 		# 8. ([^%]+)* == remaining part of the message until next match
 		
-		local regexp="([^%]+)*(%{1,}[#0 +-]?([0-9]+|\*)?(\.([0-9]+|\*))?(hh|h|l|ll|j|z|t|L)?([%fFeEgGaAdiuoxXscpnqb]){1,})([^%]+)*";
+		local regexp="([^%]+)*(%{1,}[#0 +-]?([0-9]+|\*)?(\.([0-9]+|\*))?(hh|h|l|ll|j|z|t|L)?([%fFeEgGaAdiuoxXscnqb]){1,})([^%]+)*";
 		local index=0;
 		#local specifier;
 		
