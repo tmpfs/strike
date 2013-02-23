@@ -78,6 +78,11 @@ version.parse "$@";
 
 # read -ep $'\001\033[1m\002ABC\001\033[0m\002' value;
 # exit 0;
+# style="\033[1m";
+# terminator="\033[0m";
+# format="this %b%s%b for you";
+# printf -- "$format" "$style" "a message" "$terminator";
+# exit 0;
 
 # test header colours
 console.test.headers() {
@@ -202,7 +207,7 @@ console.test.printf() {
 	prefix=$(sprintf.block "${format}");
 	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
 	
-	exit 0;
+	#exit 0;
 	
 	# signed decimal integer (%d)
 	format="%d";
@@ -468,15 +473,15 @@ console.test.misc() {
 
 # print test messages
 console.test() {
-	# console.test.headers;
-	# console.test.colors;
-	# console.test.types;
+	console.test.headers;
+	console.test.colors;
+	console.test.types;
 	
 	console.test.printf;
 	
-	# console.test.custom;
-	# console.test.misc;
-	# console.test.prompt;
+	console.test.custom;
+	console.test.misc;
+	console.test.prompt;
 	
 	# local tester="${unbound_variable}";
 }

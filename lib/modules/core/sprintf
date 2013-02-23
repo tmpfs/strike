@@ -435,7 +435,7 @@ sprintf.format() {
 		local index=0;
 		local specifier;
 		
-		echo "testing on '${formatted}'";
+		#echo "testing on '${formatted}'";
 		
 		# if [ "$formatted" == "%%" ]; then
 		# 	output="%";
@@ -446,13 +446,13 @@ sprintf.format() {
 					#echo "got match keys : ${!BASH_REMATCH[@]}";
 					#echo "got match values : ${BASH_REMATCH[@]}";
 					
-					echo "got format: ${BASH_REMATCH[2]}";
+					#echo "got format: ${BASH_REMATCH[2]}";
 					
 					# 
 					specifier="${BASH_REMATCH[7]:-}";
 					
 					# 
-					echo "got specifier: $specifier";
+					#echo "got specifier: $specifier";
 					
 					value="${params[$index]:-}";
 				
@@ -466,13 +466,13 @@ sprintf.format() {
 						output="${output}${BASH_REMATCH[8]:-}";
 					# no parameter for the match, this could output a warning?
 					else
-						echo "non-parameter match... $specifier"
+						# echo "non-parameter match... $specifier"
 						output="${output}${match}";
 					fi
 					#echo "got match : ${#BASH_REMATCH[*]} : ${BASH_REMATCH[@]}";
 					formatted="${formatted#$match}";
-					echo "updated formatted: '$formatted'";
-					echo "output is: '$output'";
+					#echo "updated formatted: '$formatted'";
+					#echo "output is: '$output'";
 					: $((index++));
 					
 					if [ $index -gt ${#replacements[@]} ]; then
