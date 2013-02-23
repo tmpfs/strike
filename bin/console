@@ -177,7 +177,7 @@ console.test.printf() {
 	console title "${title}";
 	console header;
 	
-	console info "a %s value" "string";	
+	console info "a %s value %s more data" "string" "with";
 	
 	# too many format strongs
 	console info "a %s value %s %s" "string";
@@ -188,7 +188,10 @@ console.test.printf() {
 	# quoting a value, using bash's %q
 	console info "a %q value" "quoted value []";
 	
-	#console info "a %.2f value" "3.1432423434";
+	# quoting a value, using %c
+	console info "a %c value" "c";
+	
+	console info "a %f value" "3.1432423434";
 	
 	#printf "a %.2f value\n" "3.1432423434";
 	
@@ -324,7 +327,7 @@ console.test.misc() {
 }
 
 # print test messages
-console.test() {	
+console.test() {
 	console.test.headers;
 	console.test.colors;
 	console.test.types;
@@ -333,7 +336,7 @@ console.test() {
 	console.test.misc;
 	console.test.prompt;
 	
-	# local tester="${unbound_variable}";	
+	# local tester="${unbound_variable}";
 }
 
 if [ $# -eq 0 ]; then

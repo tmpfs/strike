@@ -382,48 +382,116 @@ sprintf.output() {
 	fi
 }
 
+# 
+sprintf.format() {
+	# echo "$FUNCNAME message: '$message'";
+	local formatted="${message:-}";
+	if [ ${#replacements[@]} -gt 0 ]; then
+		local padding="%s";
+		local params=( "${replacements[@]:-}" );
+		local i length=${#params[@]};
+		for((i = 0;i < $length;i++))
+			do
+				# echo "padding: ${params[$i]}";
+				params[$i]="${padding}${params[$i]}${padding}";
+		done
+		formatted=$( printf -- "${message}" "${params[@]}" );
+		echo -n "${formatted}";
+		return 0;
+	fi
+	echo -n "${formatted}";
+}
+
+#
+sprintf.param.append() {
+	local style="$1";
+	local terminator="$2";
+	params+=( "$style" );
+	params+=( "$terminator" );
+}
+
 # performs printf replacement
 # on the primary message
 sprintf.replace() {
-	local i length val;
 	if ! ${flags[color]} || ! ${flags[ansi]}; then
 		parsed=$( printf -- "${messages[@]}" );
 	else
 		if ${flags[ansi]}; then
-			length="${#replacements[@]}";
-			local highlight_color="";
-			local custom_style;
-			for((i = 0;i < $length;i++))
-				do
-					val="${replacements[$i]}";
-					custom_style="${settings[param.${i}]:-}";
+			
+			if [ ${#replacements[@]} -eq 0 ]; then
+				parsed="${message}";
+			else			
+				local i length val;
+				local formatted;
+				local params=();
+				formatted=$( sprintf.format );
+				#echo "got formatted: ${formatted}";
+				length="${#replacements[@]}";
+				local highlight_color="";
+				local style;
+				local custom_style;
+				for((i = 0;i < $length;i++))
+					do
+						val="${replacements[$i]}";
+						custom_style="${settings[param.${i}]:-}";
+						highlight_color="";
+						style="";
+						
+						# ensure replacements respect the overall colour
+						if ${flags[color]} && [ -n "$color" ]; then
+							highlight_color="$color";
+						fi
+						if [ -n "${highlight_color}" ]; then
+							# replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
+							
+							style="${style}${styles[$highlight_color]}";
+						fi
 					
-					# a 0-9 index based style for this parameter
-					if [ -n "${custom_style}" ]; then
-						replacements[$i]="${custom_style}${replacements[$i]}${terminator}";
-					else
-						if $has_custom_message_color; then
-							replacements[$i]="${settings[color]}${replacements[$i]}${terminator}";
+						# a 0-9 index based style for this parameter
+						if [ -n "${custom_style}" ]; then
+							#replacements[$i]="${custom_style}${replacements[$i]}${terminator}";
+							
+							#sprintf.param.append "${custom_style}" "${val}" "${terminator}";
+							
+							style="${custom_style}";
 						else
-							if ${flags[replace.bold]}; then
-								replacements[$i]="${styles[bright]}${val}${terminator}";
-							fi
-							# ensure replacements respect the overall colour
-							if ${flags[color]} && [ -n "$color" ]; then
-								highlight_color="$color";
-							fi
-							if [ -n "${highlight_color}" ]; then
-								replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
+							if $has_custom_message_color; then
+								#replacements[$i]="${settings[color]}${replacements[$i]}${terminator}";
+								
+								# sprintf.param.append "${settings[color]}" "${val}" "${terminator}";
+								
+								style="${settings[color]}";
+							else
+								if ${flags[replace.bold]}; then
+									#replacements[$i]="${styles[bright]}${val}${terminator}";
+									
+									#sprintf.param.append "${styles[bright]}" "${val}" "${terminator}";
+									
+									style="${style}${styles[bright]}";
+								fi
 							fi
 						fi
-					fi
-					# start the message colour again for parts in
-					# between replacements
-					if ${flags[color]} && [ -n "$color" ]; then
-						replacements[$i]="${replacements[$i]}${settings[color]}";
-					fi
-			done
-			parsed=$( printf -- "${message}" "${replacements[@]:-}" );
+						# start the message colour again for parts in
+						# between replacements
+						if ${flags[color]} && [ -n "$color" ]; then
+							#TODO
+							#replacements[$i]="${replacements[$i]}${settings[color]}";
+							
+							sprintf.param.append "${style}" "${terminator}${settings[color]}";
+						else
+							sprintf.param.append "${style}" "${terminator}";
+						fi
+				done
+				
+				#echo "got params length: ${#params[@]}";
+				#echo "got params: ${params[@]}";
+				#echo "got formatted: ${formatted}";
+				parsed=$( printf -- "${formatted}" "${params[@]:-}" );
+				#echo "got parsed: ${parsed}";
+				#exit 0;
+				
+				#parsed=$( printf -- "${message}" "${replacements[@]:-}" );
+			fi
 		fi
 
 		# handle overall message color
