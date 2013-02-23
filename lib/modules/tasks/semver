@@ -403,7 +403,7 @@ function __semver.change.confirm {
 	}
 	
 	rejected() {
-		console.quit 1 "aborted";
+		console quit 1 "aborted";
 	}
 	
 	console prompt "${prefix}%s > %s, are you sure? (y/n)" "$version" "$newversion";
@@ -465,7 +465,7 @@ function __semver.release.confirm {
 	}
 	
 	rejected() {
-		console.quit 1 "aborted";		
+		console quit 1 "aborted";		
 	}
 	
 	console prompt "are you sure you want to release to %s? (y/n)" "$newversion";

@@ -136,7 +136,7 @@ console.quit() {
 	if [ $# -gt 0 ]; then
 		console notok "$@";
 	fi
-	exit $code;
+	exit ${code:-1};
 }
 
 # exit successfully
