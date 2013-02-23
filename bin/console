@@ -190,6 +190,12 @@ console.test.printf() {
 	# printf ("Width trick: %*d \n", 5, 10);
 	# printf ("%s \n", "A string");	
 	
+	# literal percent (%%)
+	format="%%";
+	parameter="";
+	prefix=$(sprintf.block "${format}");
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})";
+	
 	# signed decimal integer (%d)
 	format="%d";
 	parameter="512";
@@ -291,12 +297,6 @@ console.test.printf() {
 	parameter="b8000000";
 	prefix=$(sprintf.block "${format} ${parameter}");
 	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
-	
-	# literal percent (%%)
-	format="%%";
-	parameter="";
-	prefix=$(sprintf.block "${format}");
-	sprintf --prefix="${prefix}" "printf: ${format} (%${format})";
 	
 	# BASH
 	

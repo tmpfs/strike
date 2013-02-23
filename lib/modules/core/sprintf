@@ -428,47 +428,59 @@ sprintf.format() {
 		# 4. ([0-9]+|\*)? == optional width
 		# 5. (\.([0-9]+|\*))? == optional precision
 		# 6. (hh|h|l|ll|j|z|t|L)? == optional length
-		# 7. ([%fFeEgGaAdiuoxXscpnqb]){1,}) == required specifier
+		# 7. ([%fFeEgGaAdiuoxXscpnqb]){1,0}) == required specifier
 		# 8. ([^%]+)* == remaining part of the message until next match
 		
 		local regexp="([^%]+)*(%{1,}[#0 +-]?([0-9]+|\*)?(\.([0-9]+|\*))?(hh|h|l|ll|j|z|t|L)?([%fFeEgGaAdiuoxXscnqb]){1,})([^%]+)*";
 		local index=0;
-		#local specifier;
+		# local specifier;
 		
 		#echo "testing on '${formatted}'";
 		
-		while [[ "$formatted" =~ $regexp ]];
-			do
-				# echo "got match count : ${#BASH_REMATCH[*]}";
-				# echo "got match keys : ${!BASH_REMATCH[@]}";
-				# echo "got match values : ${BASH_REMATCH[@]}";
+		# if [ "$formatted" == "%%" ]; then
+		# 	output="%";
+		# else
+			while [[ "$formatted" =~ $regexp ]];
+				do
+					# echo "got match count : ${#BASH_REMATCH[*]}";
+					# echo "got match keys : ${!BASH_REMATCH[@]}";
+					# echo "got match values : ${BASH_REMATCH[@]}";
+					
+					# 
+					#specifier="${BASH_REMATCH[7]:-}";
+					# 
+					#echo "got specifier: $specifier";
 				
-				#specifier="${BASH_REMATCH[4]:-}";
+					match="${BASH_REMATCH[0]}";
+					# echo "got match: $match";
+					replaced=$( printf -- "${BASH_REMATCH[2]}" "${params[$index]:-}" );
 				
-				#echo "got specifier: $specifier";
-				
-				match="${BASH_REMATCH[0]}";
-				# echo "got match: $match";
-				replaced=$( printf -- "${BASH_REMATCH[2]}" "${params[$index]:-}" );
-				
-				# got a parameter for the match
-				if [ -n "${params[$index]:-}" ]; then
-					output="${output}${BASH_REMATCH[1]}%s${replaced}%s";
-					output="${output}${BASH_REMATCH[${#BASH_REMATCH[@]}-1]:-}";
-				# no parameter for the match, this could output a warning?
-				else
-					output="${output}${match}";
-				fi
-				#echo "got match : ${#BASH_REMATCH[*]} : ${BASH_REMATCH[@]}";
-				formatted="${formatted#$match}";
-				#echo "got formatted: $formatted";
-				: $((index++));
-		done
+					# got a parameter for the match
+					if [ -n "${params[$index]:-}" ]; then
+						output="${output}${BASH_REMATCH[1]}%s${replaced}%s";
+						output="${output}${BASH_REMATCH[${#BASH_REMATCH[@]}-1]:-}";
+					# no parameter for the match, this could output a warning?
+					else
+						output="${output}${match}";
+					fi
+					#echo "got match : ${#BASH_REMATCH[*]} : ${BASH_REMATCH[@]}";
+					formatted="${formatted#$match}";
+					#echo "got formatted: $formatted";
+					: $((index++));
+					
+					if [ $index -gt ${#replacements[@]} ]; then
+						break;
+					fi
+			done
 		
-		# format string is invalid
-		if [ -z "$output" ]; then
-			output="${message}";
-		fi
+			# format string is invalid
+			if [ -z "$output" ]; then
+				output="${message}";
+			fi
+		
+		# fi
+		
+		#output="${output//%%/%}";
 		
 		# echo "$FUNCNAME message: '$message'";
 		# echo "$FUNCNAME output: '$output'";
