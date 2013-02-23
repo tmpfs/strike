@@ -191,10 +191,18 @@ console.test.printf() {
 	# printf ("%s \n", "A string");	
 	
 	# literal percent (%%)
-	format="%%";
-	parameter="";
+	# format="%%";
+	# parameter="";
+	# prefix=$(sprintf.block "${format}");
+	# sprintf --prefix="${prefix}" "printf: ${format} (${format})";	
+	
+	# literal percent after format specifier (%%)
+	format="%d%%";
+	parameter="80";
 	prefix=$(sprintf.block "${format}");
-	sprintf --prefix="${prefix}" "printf: ${format} (%${format})";
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	
+	exit 0;
 	
 	# signed decimal integer (%d)
 	format="%d";
