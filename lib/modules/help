@@ -38,9 +38,11 @@ function help.man.page {
 function help.man.show {
 	local man="${executables[man]}";	
 	local page="${1:-}";
+	local default="${2:-false}";
+	echo "attempting to show man page: $page";
 	local name=${page%%.*};
 	# always prefer mapped help pages
-	if [ -n "${__help_manpages[$name]:-}" ]; then
+	if ! $default && [ -n "${__help_manpages[$name]:-}" ]; then
 		page="${__help_manpages[$name]}";
 	fi
 	local path file displayed=0;
@@ -69,7 +71,7 @@ function help.man.show.default {
 	if [ -z "$manpage" ]; then
 		quit 1 "no help available for %s" "`basename $0`";
 	fi			
-	help.man.show "$manpage";
+	help.man.show "$manpage" true;
 	help.exit "$?";
 }
 

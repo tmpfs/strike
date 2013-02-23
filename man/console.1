@@ -15,13 +15,19 @@ console [options] message [replacements\.\.\.]
 .fi
 .
 .SH "DESCRIPTION"
-Prints messages using ANSI sequences\.
+Test program for console(3) and sprintf(3)\.
 .
-.SH "USAGE"
-When invoked with no options this program prints a series of test messages for console(3)\. When options are specified they are passed on to console(3)\.
+.SH "OPTIONS"
+.
+.TP
+\fB\-\-color=[auto|never|always]\fR:
+
 .
 .P
-Run \fBconsole help console\fR to view the console(3) manual\.
+Sets the environment variable for sprintf(3) that overrides any \fB\-\-color\fR options passed to sprintf(3)\.
+.
+.SH "USAGE"
+When invoked with no options this program prints a series of test messages\. When options are specified they are passed on to sprintf(3)\.
 .
 .SH "EXAMPLES"
 Print test messages:
@@ -37,13 +43,130 @@ console
 .IP "" 0
 .
 .P
-Print test messages with no ANSI sequences:
+Print test messages with no color:
 .
 .IP "" 4
 .
 .nf
 
-console \-\-no\-color
+console \-\-color=never
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Print test messages with color set to \fIalways\fR overriding sprintf(3) \fB\-\-color=never\fR option in tests:
+.
+.IP "" 4
+.
+.nf
+
+console \-\-color=always
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Pipe to \fBless\fR with color:
+.
+.IP "" 4
+.
+.nf
+
+console \-\-color=always 2>&1 | less \-R
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Pipe to \fBless\fR with no color:
+.
+.IP "" 4
+.
+.nf
+
+console \-\-color=never 2>&1 | less
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Pipe to \fBcat\fR with color:
+.
+.IP "" 4
+.
+.nf
+
+console \-\-color=always 2>&1 | cat
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Pipe to \fBcat\fR with no color:
+.
+.IP "" 4
+.
+.nf
+
+console \-\-color=never 2>&1 | cat
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Redirect output to a file with no color:
+.
+.IP "" 4
+.
+.nf
+
+console \-\-color=never > console\.log 2>&1
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Show the console(3) manual:
+.
+.IP "" 4
+.
+.nf
+
+console help console
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Show the sprintf(3) manual:
+.
+.IP "" 4
+.
+.nf
+
+console help sprintf
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Show this manual:
+.
+.IP "" 4
+.
+.nf
+
+console help
 .
 .fi
 .
@@ -56,4 +179,4 @@ console \-\-no\-color
 \fBconsole\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-console(3)
+console(3), sprintf(3)

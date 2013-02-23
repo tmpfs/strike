@@ -41,7 +41,7 @@ Print to \fIstderr\fR\.
 
 .
 .P
-Determines when ANSI sequences are generated\. The value \fIauto\fR is the default behaviour\. Use \fInever\fR to never add ANSI sequences to a message and \fIalways\fR to force adding ANSI sequences to a message even if the output is not a \fItty\fR\.
+Determines when ANSI sequences are generated\. The value \fIauto\fR is the default behaviour\. Use \fInever\fR to never add ANSI sequences to a message and \fIalways\fR to force adding ANSI sequences to a message even if the output is not a tty\.
 .
 .TP
 \fB\-\-text=[color]\fR:
@@ -111,7 +111,7 @@ Append a timestamp to the message prefix\.
 
 .
 .P
-Do not print the message export to the environment variable identified by \fIname\fR\.
+Do not print the message assign to the variable \fIname\fR\.
 .
 .TP
 \fB\-\-no\-prefix\fR:
@@ -139,7 +139,7 @@ Use escape sequences compatible with passing to \fBread \-ep\fR\. This allows fo
 
 .
 .P
-Do not interpret ANSI sequences, print them\.
+Print debugging information\.
 .
 .SH "PARAMETER OPTIONS"
 ANSI sequences may be applied to individual parameters by using the parameter index in the range [0\-9]\.
@@ -280,6 +280,15 @@ It is recommended that users of iTerm2 uncheck the \fBDraw bold text in bright c
 .
 .SH "VARIABLES"
 The read only \fBansi\fR associative array stores color names and ANSI escape sequence information\.
+.
+.SH "ENVIRONMENT"
+.
+.TP
+\fBsprintf_color\fR:
+
+.
+.P
+If set to one of \fIauto\fR, \fIalways\fR or \fInever\fR this variable overrides the behaviour of any \fB\-\-color\fR option passed to sprintf(3)\.
 .
 .SH "BUGS"
 \fBsprintf\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.

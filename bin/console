@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -i
+#!/usr/bin/env bash
 
 : <<'ronn:markdown'
 console(1) -- test program for console(3)
@@ -10,13 +10,17 @@ console(1) -- test program for console(3)
 
 ## DESCRIPTION
 
-Prints messages using ANSI sequences.
+Test program for console(3) and sprintf(3).
+
+## OPTIONS
+
+* `--color=[auto|never|always]`:
+
+Sets the environment variable for sprintf(3) that overrides any `--color` options passed to sprintf(3).
 
 ## USAGE
 
-When invoked with no options this program prints a series of test messages for console(3). When options are specified they are passed on to console(3).
-
-Run `console help console` to view the console(3) manual.
+When invoked with no options this program prints a series of test messages. When options are specified they are passed on to sprintf(3).
 
 ## EXAMPLES
 
@@ -24,9 +28,45 @@ Print test messages:
 
 	console
 	
-Print test messages with no ANSI sequences:
+Print test messages with no color:
 
-	console --no-color
+	console --color=never
+	
+Print test messages with color set to *always* overriding sprintf(3) `--color=never` option in tests:
+
+	console --color=always
+	
+Pipe to `less` with color:
+
+	console --color=always 2>&1 | less -R
+	
+Pipe to `less` with no color:
+
+	console --color=never 2>&1 | less
+	
+Pipe to `cat` with color:
+	
+	console --color=always 2>&1 | cat
+	
+Pipe to `cat` with no color:
+
+	console --color=never 2>&1 | cat
+	
+Redirect output to a file with no color:
+
+	console --color=never > console.log 2>&1
+	
+Show the console(3) manual:
+
+	console help console
+	
+Show the sprintf(3) manual:
+
+	console help sprintf
+	
+Show this manual:
+
+	console help
 
 ## BUGS
 
@@ -38,7 +78,7 @@ Print test messages with no ANSI sequences:
 
 ## SEE ALSO
 
-console(3)
+console(3), sprintf(3)
 ronn:markdown
 
 ######################################################################

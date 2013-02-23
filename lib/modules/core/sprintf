@@ -379,23 +379,22 @@ sprintf.noansi() {
 	flags[prefix.bright]=false;
 }
 
-# print parsed result
+# print output or assign
+# to variable, when printing
+# redirection is to the correct
+# output stream
 sprintf.output() {
-	
 	if ${flags[newline]}; then
 		results[0]="${results[0]}\n";
 	fi
-	
 	# export the value as a variable
 	if [ -n "${varname}" ]; then
 		printf -v "${varname}" -- "${results[@]}";
 		return 0;
 	fi
-	
 	if ${flags[readline]}; then
 		return 0;
 	fi
-	
 	if ! ${flags[stderr]}; then
 		printf -- "${results[@]}";
 	else
@@ -487,14 +486,12 @@ sprintf.format() {
 					
 					: $((count[matches]++));
 					
-					output="${output}${start}%b${format}%b";
-					: $((count[injected]+=2));						
+					output="${output}${start}%b${format}%b";				
 					
 					if [ -n "${remainder}" ]; then
 						trailing[$index]=true;
 						if [ -n "$color" ]; then
 							output="${output}%b${remainder}";
-							: $((count[injected]+=1));
 						else
 							output="${output}${remainder}";
 						fi
@@ -530,14 +527,12 @@ sprintf.colour.start() {
 	if [ ${#params[@]} -gt 0 ]; then
 		if [ -n "$color" ]; then
 			message="%b${message}";
-			: $((count[injected]+=1));	
 			params=( "${settings[color]}" "${params[@]}" );
 		fi
 		results=( "${message}" "${params[@]}" );		
 	else
 		if [ -n "$color" ]; then
 			message="%b${message}";
-			: $((count[injected]+=1));	
 			params=( "${settings[color]}" );
 		fi
 		results=( "${message}" );
@@ -552,81 +547,72 @@ sprintf.replace() {
 	declare -A count;
 	count[specifiers]=0;
 	count[matches]=0;
-	count[injected]=0;
 	
 	# no ANSI
 	if ! ${flags[ansi]}; then
 		sprintf.prefix;
 		results=( "${message}" "${replacements[@]:-}" );
-	else
-		if ${flags[ansi]}; then
-			# no replacement parameters
-			if [ ${#replacements[@]} -eq 0 ]; then
-				sprintf.prefix;
-				sprintf.colour.start;
-				results=( "${message}" "${params[@]:-}" );
-			else
-				
-				#echo "replace with ansi paramaters";
-				local output="";
-				
-				# keep track of parameters that
-				# have trailing text and need the main
-				# message colour to start again
-				local trailing=();
-				# wrap each format specification in %b
-				sprintf.format;
-				message="${output}";
-				
-				# echo "GOT FORMATTED MESSAGE: $message";
-				#exit 0;
-				
-				# must be done after modifying
-				# the message format
-				sprintf.prefix;
-				
-				local i length val;
-				local custom_style;
-				length="${#replacements[@]}";
-				for((i = 0;i < $length;i++))
-					do
-						val="${replacements[$i]}";
-						custom_style="${settings[param.${i}]:-}";
-						# a 0-9 index based style for this parameter
-						if [ -n "${custom_style}" ]; then
-							params+=( "${custom_style}" "${val}" "${terminator}" );
-						# an overall message colour is set so use that
-						# instead of the default bright highlighting
-						# for replacement parameters
-						elif $has_custom_message_color; then
-							params+=( "${settings[color]}" "${val}" "${terminator}" );
-						# standard highlighting of paramers
-						elif ${flags[replace.bold]}; then
-							params+=( "${styles[bright]}" "${val}" "${terminator}" );
-						fi
-						# start main message color for parts
-						# in between parameters
-						if [ -n "${trailing[$i]:-}" ]; then
-							params+=( "${settings[color]:-}" );
-						fi
-				done
-				
-				# start colour for the entire message
-				sprintf.colour.start;
-				
-				results=( "${message}" "${params[@]}" );
-			fi
+	elif ${flags[ansi]}; then
+		# no replacement parameters
+		if [ ${#replacements[@]} -eq 0 ]; then
+			sprintf.prefix;
+			sprintf.colour.start;
+			results=( "${message}" "${params[@]:-}" );
+		else
+			
+			#echo "replace with ansi paramaters";
+			local output="";
+			
+			# keep track of parameters that
+			# have trailing text and need the main
+			# message colour to start again
+			local trailing=();
+			
+			# wrap each format specifier in %b
+			sprintf.format;
+			message="${output}";
+			
+			# must be done after modifying
+			# the message format
+			sprintf.prefix;
+			
+			local i length val;
+			local custom_style;
+			length="${#replacements[@]}";
+			for((i = 0;i < $length;i++))
+				do
+					val="${replacements[$i]}";
+					custom_style="${settings[param.${i}]:-}";
+					# a 0-9 index based style for this parameter
+					if [ -n "${custom_style}" ]; then
+						params+=( "${custom_style}" "${val}" "${terminator}" );
+					# an overall message colour is set so use that
+					# instead of the default bright highlighting
+					# for replacement parameters
+					elif $has_custom_message_color; then
+						params+=( "${settings[color]}" "${val}" "${terminator}" );
+					# standard highlighting of paramers
+					elif ${flags[replace.bold]}; then
+						params+=( "${styles[bright]}" "${val}" "${terminator}" );
+					fi
+					# start main message color for parts
+					# in between parameters
+					if [ -n "${trailing[$i]:-}" ]; then
+						params+=( "${settings[color]:-}" );
+					fi
+			done
+			
+			# start colour for the entire message
+			sprintf.colour.start;
+			
+			results=( "${message}" "${params[@]}" );
 		fi
 	fi	
 
+	# always add final terminator
 	if ${flags[ansi]}; then
-		#local last="${results[${#results[@]}-1]}";
-		#if [ "$last" != "$terminator" ]; then
-			# always add final terminator
-			results[0]="${results[0]}%b";
-			: $((count[injected]+=1));
-			results+=( "${terminator}" );			
-		#fi
+		results[0]="${results[0]}%b";
+		results+=( "${terminator}" );
 	fi
 	
 	# DEBUG
@@ -635,7 +621,6 @@ sprintf.replace() {
 		echo "got original: '${original}'";
 		echo "got message: '${message}'";
 		echo "got specifiers (length): ${count[specifiers]}";
-		echo "got injected (length): ${count[injected]}";
 		echo "got replacement matches (length): ${count[matches]}";
 		echo "got results (length): ${#results[@]}";
 		echo "got result (length): ${results[@]}";
@@ -690,11 +675,9 @@ sprintf.prefix() {
 					# restart main colour after prefix
 					if [ -n "${color}" ]; then
 						message="%b%s%b%b ${message}";
-						: $((count[injected]+=3));
 						params=( "${styles[bright]}" "${prefix}" "${terminator}" "${settings[color]}" );
 					else					
 						message="%b%s%b ${message}";
-						: $((count[injected]+=2));
 						params=( "${styles[bright]}" "${prefix}" "${terminator}" );
 					fi
 				else
@@ -856,7 +839,7 @@ sprintf.options.parse() {
 	done
 	
 	# get remaining message and printf
-	# replacement values
+	# parameter values
 	local opt opts=( "$@" );
 	local i length="$#";
 	local stopped=false;

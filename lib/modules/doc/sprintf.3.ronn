@@ -23,7 +23,7 @@ Print to *stderr*.
 
 * `--color=[auto|always|never]`:
 
-Determines when ANSI sequences are generated. The value *auto* is the default behaviour. Use *never* to never add ANSI sequences to a message and *always* to force adding ANSI sequences to a message even if the output is not a *tty*.
+Determines when ANSI sequences are generated. The value *auto* is the default behaviour. Use *never* to never add ANSI sequences to a message and *always* to force adding ANSI sequences to a message even if the output is not a tty.
 
 * `--text=[color]`:
 
@@ -63,7 +63,7 @@ Append a timestamp to the message prefix.
 
 * `--export=[name]`:
 
-Do not print the message export to the environment variable identified by *name*.
+Do not print the message assign to the variable *name*.
 
 * `--no-prefix`:
 
@@ -79,7 +79,7 @@ Use escape sequences compatible with passing to `read -ep`. This allows formatti
 
 * `--debug`:
 
-Do not interpret ANSI sequences, print them.
+Print debugging information.
 
 ## PARAMETER OPTIONS
 
@@ -155,6 +155,12 @@ It is recommended that users of iTerm2 uncheck the `Draw bold text in bright col
 ## VARIABLES
 
 The read only `ansi` associative array stores color names and ANSI escape sequence information.
+
+## ENVIRONMENT
+
+* `sprintf_color`:
+
+If set to one of *auto*, *always* or *never* this variable overrides the behaviour of any `--color` option passed to sprintf(3).
 
 ## BUGS
 
