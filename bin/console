@@ -474,6 +474,11 @@ console.test.misc() {
 # print test messages
 console.test() {
 	
+	# console error "an %s message" "error";
+	
+	console throw "an error message with a stack trace";
+	exit 0;
+	
 	sprintf --text=red -- "message %s" "for you";
 	
 	sprintf --prefix="[prefix]" --text=red -- "message %s with some extra text" "for you";

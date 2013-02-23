@@ -93,7 +93,7 @@ console.notok() {
 
 # print an error message to stderr
 console.error() {
-	local prefix=$( sprintf.block "${console_prefixes[error]}" );	
+	local prefix=$( sprintf.block "${console_prefixes[error]}" );
 	sprintf -2 --text=red --prefix="${prefix}" "$@";
 }
 

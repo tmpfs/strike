@@ -547,37 +547,24 @@ sprintf.format() {
 # performs printf replacement
 # on the primary message
 sprintf.replace() {
-	
 	local params=();
 	
 	# no ANSI
 	if ! ${flags[ansi]}; then
-		#parsed=$( printf -- "${messages[@]}" );
-		#parsed="${messages[@]}";
-		
 		sprintf.prefix;
-		
 		results=( "${message}" "${replacements[@]:-}" );
 	else
 		if ${flags[ansi]}; then
-				
-		
-			
 			# no replacement parameters
 			if [ ${#replacements[@]} -eq 0 ]; then
-				# echo "got message : ${message}";
-				#parsed=$( printf -- "${message}" );
-				
-				# parsed="${message}";
+				sprintf.prefix;				
 				
 				####################### START MESSAGE  COLOUR
 				if [ -n "$color" ]; then
-					#echo "add overall message color ..."
+					#echo "add overall message color ... for no replacements!!!"
 					message="%b${message}";
-					params=( "${settings[color]}" );
+					params=( "${settings[color]}" "${params[@]}" );
 				fi
-				
-				sprintf.prefix;
 				
 				results=( "${message}" "${params[@]}" );
 			else
@@ -591,9 +578,6 @@ sprintf.replace() {
 				message="${output}";
 				
 				sprintf.prefix;
-				
-				#echo "got wrapped message: ${message}";
-				#exit 0;
 				
 				local i length val;
 				length="${#replacements[@]}";
