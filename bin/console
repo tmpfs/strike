@@ -476,15 +476,15 @@ console.test() {
 	
 	sprintf --text=red -- "message %s" "for you";
 	
-	sprintf --text=red -- "message %s with some extra text" "for you";
+	sprintf --prefix="[prefix]" --text=red -- "message %s with some extra text" "for you";
 	
-	sprintf --color=never -- "message %s %.2f" "for you" "3.1445656";
+	sprintf --prefix="[prefix]" --color=never -- "message %s %.2f" "for you" "3.1445656";
 	
 	sprintf --text=red -- "message";
 	
-	# console.test.headers;
-	# console.test.colors;
-	# console.test.types;
+	console.test.headers;
+	console.test.colors;
+	console.test.types;
 	# 
 	# console.test.printf;
 	# 

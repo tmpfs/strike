@@ -387,7 +387,10 @@ sprintf.output() {
 			printf '\n';
 		fi
 	else
-		echo $opts "$parsed" >&2;
+		printf -- "${results[@]}" >&2;
+		if ${flags[newline]}; then
+			printf '\n' >&2;
+		fi
 	fi
 	
 	# if ! ${flags[stderr]}; then
@@ -545,15 +548,18 @@ sprintf.format() {
 # on the primary message
 sprintf.replace() {
 	
+	local params=();
+	
 	# no ANSI
 	if ! ${flags[ansi]}; then
 		#parsed=$( printf -- "${messages[@]}" );
 		#parsed="${messages[@]}";
 		
-		results=( "${messages[@]}" );
+		sprintf.prefix;
+		
+		results=( "${message}" "${replacements[@]:-}" );
 	else
 		if ${flags[ansi]}; then
-			local params=();
 				
 		
 			
@@ -571,6 +577,8 @@ sprintf.replace() {
 					params=( "${settings[color]}" );
 				fi
 				
+				sprintf.prefix;
+				
 				results=( "${message}" "${params[@]}" );
 			else
 				
@@ -581,6 +589,8 @@ sprintf.replace() {
 				# wrap each format specification in %b
 				sprintf.format;
 				message="${output}";
+				
+				sprintf.prefix;
 				
 				#echo "got wrapped message: ${message}";
 				#exit 0;
@@ -699,8 +709,6 @@ sprintf.replace() {
 		# fi
 	fi
 	
-	#sprintf.prefix;
-	
 	# if ${flags[ansi]}; then
 	# 	parsed="${parsed}${terminator}";
 	# fi	
@@ -743,19 +751,27 @@ sprintf.prefix() {
 		# prefix before any ANSI sequences
 		local plain_prefix="${prefix}";
 		
-		# colour the prefix
-		if ${flags[ansi]}; then
-			if ${flags[prefix.bright]}; then
-				prefix="${styles[bright]}${prefix}${terminator}";
-			fi
-			if [ -n "${color}" ]; then
-				prefix="${settings[color]}${prefix}${terminator}";
-			fi
-		fi
+		# echo "GOT PREFIX: $plain_prefix";
 		
-		# update parsed value
 		if [ -n "${plain_prefix:-}" ]; then
-			parsed="${prefix} ${parsed}";
+			# colour the prefix
+			if ${flags[ansi]}; then
+				if ${flags[prefix.bright]}; then
+					# restart main colour after prefix
+					if [ -n "${color}" ]; then
+						message="%b%s%b%b ${message}";
+						params=( "${styles[bright]}" "${prefix}" "${terminator}" "${settings[color]}" );
+					else					
+						message="%b%s%b ${message}";
+						params=( "${styles[bright]}" "${prefix}" "${terminator}" );
+					fi
+				else
+					message="%s ${message}";
+					params=( "${prefix}" );
+				fi
+			else
+				message="${prefix} ${message}";
+			fi
 		fi
 	fi
 }
