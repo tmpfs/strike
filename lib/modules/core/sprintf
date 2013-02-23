@@ -368,6 +368,7 @@ sprintf.output() {
 
 	# export the value as a variable
 	if [ -n "${varname}" ]; then
+		local parsed=$( printf -- "${results[@]}" );
 		variable.set "${varname}" "$parsed" "${vartype}";
 		return 0;
 	fi

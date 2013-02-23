@@ -509,14 +509,10 @@ console.test() {
 	console.test.headers;
 	console.test.colors;
 	console.test.types;
-	# 
 	console.test.printf;
-	# 
 	console.test.custom;
 	console.test.misc;
-	
-	# broken
-	#console.test.prompt;
+	console.test.prompt;
 	
 	# local tester="${unbound_variable}";
 }
