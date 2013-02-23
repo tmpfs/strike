@@ -23,7 +23,7 @@ Print to *stderr*.
 
 * `--color=[color]`:
 
-Set *color* as the foreground color. See `COLOR NAMES`.
+Set *color* as the text color. See `COLOR NAMES`.
 
 * `--background=[color]`:
 
@@ -76,6 +76,22 @@ Use escape sequences compatible with passing to `read -ep`. This allows formatti
 * `--debug`:
 
 Do not interpret ANSI sequences, print them.
+
+## PARAMETER OPTIONS
+
+ANSI sequences may be applied to individual parameters by using the parameter index in the range [0-9].
+
+* `--text[n]=[color]`:
+
+Set *color* as the text color for parameter *n*. See `COLOR NAMES`.
+
+* `--background[n]=[color]`:
+
+Set *color* as the background color for parameter *n*. See `COLOR NAMES`.
+
+* `--attribute[n]=[name]`:
+
+Set *name* as the attribute for parameter *n*. See `ATTRIBUTE NAMES`.
 
 ## HYPHENS
 

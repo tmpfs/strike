@@ -41,7 +41,7 @@ Print to \fIstderr\fR\.
 
 .
 .P
-Set \fIcolor\fR as the foreground color\. See \fBCOLOR NAMES\fR\.
+Set \fIcolor\fR as the text color\. See \fBCOLOR NAMES\fR\.
 .
 .TP
 \fB\-\-background=[color]\fR:
@@ -133,6 +133,30 @@ Use escape sequences compatible with passing to \fBread \-ep\fR\. This allows fo
 .
 .P
 Do not interpret ANSI sequences, print them\.
+.
+.SH "PARAMETER OPTIONS"
+ANSI sequences may be applied to individual parameters by using the parameter index in the range [0\-9]\.
+.
+.TP
+\fB\-\-text[n]=[color]\fR:
+
+.
+.P
+Set \fIcolor\fR as the text color for parameter \fIn\fR\. See \fBCOLOR NAMES\fR\.
+.
+.TP
+\fB\-\-background[n]=[color]\fR:
+
+.
+.P
+Set \fIcolor\fR as the background color for parameter \fIn\fR\. See \fBCOLOR NAMES\fR\.
+.
+.TP
+\fB\-\-attribute[n]=[name]\fR:
+
+.
+.P
+Set \fIname\fR as the attribute for parameter \fIn\fR\. See \fBATTRIBUTE NAMES\fR\.
 .
 .SH "HYPHENS"
 Use the \fB\-\-\fR option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed\.
