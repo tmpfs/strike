@@ -205,7 +205,7 @@ console.test.printf() {
 	format="%d%%";
 	parameter="80";
 	prefix=$(sprintf.block "${format}");
-	sprintf --prefix="${prefix}" "printf: ${format} (%${format})" "${parameter}";
+	sprintf --prefix="${prefix}" "printf: ${format} (%${format}%%)" "${parameter}";
 	
 	#exit 0;
 	
@@ -399,15 +399,15 @@ console.test.custom() {
 	console header;
 
 	sprintf --attribute=bright \
-		"a %s message %s" "bright";
+		"a %s message" "bright";
 		
 	sprintf --attribute=faint \
-		"a %s message %s (not widely supported)" "faint";
+		"a %s message (not widely supported)" "faint";
 	sprintf --attribute=italic \
-		"an %s message %s (not widely supported)" "italic";
+		"an %s message (not widely supported)" "italic";
 		
 	sprintf --attribute=underline \
-		"an %s message %s" "underline";
+		"an %s message" "underline";
 		
 	sprintf --text=gray --background=magenta \
 		"a %s message %s" "custom" "with color gray and background magenta";
@@ -478,6 +478,11 @@ console.test() {
 	
 	#exit 0;
 	
+	# sprintf --attribute=bright --debug \
+	# 	"a %s message" "bright";
+	# 	
+	# exit 0;	
+	# 
 	
 	sprintf --prefix="[prefix]" --color=never -- "message %s %.2f" "for you" "3.1445656";	
 	
@@ -505,11 +510,13 @@ console.test() {
 	console.test.colors;
 	console.test.types;
 	# 
-	# console.test.printf;
+	console.test.printf;
 	# 
 	console.test.custom;
-	# console.test.misc;
-	# console.test.prompt;
+	console.test.misc;
+	
+	# broken
+	#console.test.prompt;
 	
 	# local tester="${unbound_variable}";
 }

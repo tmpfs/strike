@@ -601,12 +601,17 @@ sprintf.replace() {
 				sprintf.prefix;
 				
 				local i length val;
+				local custom_style;
 				length="${#replacements[@]}";
 				for((i = 0;i < $length;i++))
 					do
-						val="${replacements[$i]}";					
+						val="${replacements[$i]}";
+						custom_style="${settings[param.${i}]:-}";			
 						
-						if ${flags[replace.bold]}; then
+						# a 0-9 index based style for this parameter
+						if [ -n "${custom_style}" ]; then
+							params+=( "${custom_style}" "${val}" "${terminator}" );
+						elif ${flags[replace.bold]}; then
 							params+=( "${styles[bright]}" "${val}" "${terminator}" );
 						else
 							params+=( "${val}" );
