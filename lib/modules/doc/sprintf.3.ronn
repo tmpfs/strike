@@ -21,6 +21,10 @@ Print to *stdout*.
 
 Print to *stderr*.
 
+* `--color=[auto|always|never]`:
+
+Determines when ANSI sequences are generated. The value *auto* is the default behaviour. Use *never* to never add ANSI sequences to a message and *always* to force adding ANSI sequences to a message even if the output is not a *tty*.
+
 * `--text=[color]`:
 
 Set *color* as the text color. See `COLOR NAMES`.

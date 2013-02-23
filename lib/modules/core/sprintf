@@ -97,7 +97,10 @@ sprintf() {
 	flags[date]=false;
 	flags[timestamp]=false;
 	flags[message.prefix]=true;
+	
 	flags[ansi]=true;
+	flags[always]=false;
+	
 	flags[color]=true;
 	flags[newline]=true;
 	flags[replace]=true;
@@ -158,15 +161,18 @@ sprintf() {
 	local replacements=( "${messages[@]:1}" );
 	
 	local emulators=( ${ansi[emulators]} );
-	# switch off ansi escapes for non-tty
-	if ! ${flags[stderr]} && [ ! -t 1 ]; then
-		sprintf.noansi;
-	elif ${flags[stderr]} && [ ! -t 2 ]; then
-		sprintf.noansi;
-	elif ! array.contains? "$TERM" "${emulators[@]}"; then
-		sprintf.noansi;
-	elif ${console_no_color}; then
-		sprintf.noansi;
+	
+	if ! ${flags[always]}; then
+		# switch off ansi escapes for non-tty
+		if ! ${flags[stderr]} && [ ! -t 1 ]; then
+			sprintf.noansi;
+		elif ${flags[stderr]} && [ ! -t 2 ]; then
+			sprintf.noansi;
+		elif ! array.contains? "$TERM" "${emulators[@]}"; then
+			sprintf.noansi;
+		elif ${console_no_color}; then
+			sprintf.noansi;
+		fi
 	fi
 	
 	sprintf.main;
@@ -927,6 +933,14 @@ sprintf.options.parse() {
 	                color=never)
 						flags[ansi]=false;
 	                    ;;
+	                color=always)
+						flags[ansi]=true;
+						flags[always]=true;
+	                    ;;
+	                color=auto)
+						flags[ansi]=true;	
+						flags[always]=false;
+	                    ;;	
 	                program)
 						flags[program]=true;
 	                    ;;

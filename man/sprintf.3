@@ -37,7 +37,14 @@ Print to \fIstdout\fR\.
 Print to \fIstderr\fR\.
 .
 .TP
-\fB\-\-color=[color]\fR:
+\fB\-\-color=[auto|always|never]\fR:
+
+.
+.P
+Determines when ANSI sequences are generated\. The value \fIauto\fR is the default behaviour\. Use \fInever\fR to never add ANSI sequences to a message and \fIalways\fR to force adding ANSI sequences to a message even if the output is not a \fItty\fR\.
+.
+.TP
+\fB\-\-text=[color]\fR:
 
 .
 .P
