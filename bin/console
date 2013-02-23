@@ -195,13 +195,12 @@ console.test.printf() {
 	# printf ("Width trick: %*d \n", 5, 10);
 	# printf ("%s \n", "A string");	
 	
-	# literal percent (%%)
-	# format="%%";
-	# parameter="";
-	# prefix=$(sprintf.block "${format}");
-	# sprintf --prefix="${prefix}" "printf: ${format} (${format})";	
+	prefix=$(sprintf.block "printf");	
 	
-	prefix=$(sprintf.block "printf");
+	# literal percent (%%)
+	format="%%";
+	parameter="";
+	sprintf --prefix="${prefix}" "${format} (%%${format})";
 	
 	# literal percent after format specifier (%%)
 	format="%d%%";
