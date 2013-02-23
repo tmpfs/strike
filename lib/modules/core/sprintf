@@ -15,6 +15,9 @@
 # SEE: http://lists.gnu.org/archive/html/help-bash/2013-02/msg00007.html
 # $'\001\033[1m\002ABC\001\033[0m\002'
 
+# SEE: http://en.wikipedia.org/wiki/ANSI_escape_code
+# SEE: http://misc.flogisoft.com/bash/tip_colors_and_formatting
+
 declare -Ag ansi;
 ansi=(
 	[terminator]="\033[0m"
@@ -103,6 +106,9 @@ sprintf() {
 	
 	# echo "sprintf got opts: $*"; 
 	
+	declare -A settings;
+	local parameter_styles=();
+	
 	sprintf.options.parse "$@";
 	
 	# initialize styles
@@ -119,7 +125,6 @@ sprintf() {
 	# echo "after parse : $background";
 	# echo "after parse : $attribute";
 	
-	declare -A settings;
 	# main message color
 	if [ -n "${color:-}" ]; then
 		settings[color]="${styles[$color]}";
@@ -169,6 +174,8 @@ sprintf.block() {
 	echo "${ansi[block.start]}${1:-}${ansi[block.end]}";
 }
 
+## INTERNAL
+
 # main 
 sprintf.main() {
 	if ${flags[replace]}; then
@@ -177,13 +184,31 @@ sprintf.main() {
 	sprintf.output;
 }
 
+# register a custom parameter style
+sprintf.parameter.style() {
+	local index=0;
+	local option="$1";
+	local value="$2";
+	local param_type="$3";
+	local regexp="([0-9])$";
+	#echo "$option : $value : $param_type";
+	if [[ "$option" =~ ${regexp} ]]; then
+		index="${BASH_REMATCH[0]}";
+		settings["${param_type}.${index}"]="$value";
+		parameter_styles["${index}"]=true;
+	fi
+}
+
 # updates the color to include
 # attribute / background information
 sprintf.color.update() {
 	local key="${1:-color}";
-	local fgname="${color:-}";
-	local bgname="${background:-}";
-	local attrname="${attribute:-}";
+	local fgname="${2:-$color}";
+	local bgname="${3:-$background}";
+	local attrname="${4:-$attribute}";
+	
+	# echo "UPDATE: $key : $fgname : $bgname: $attrname";
+	
 	local fgindex="${ansi[colors.${fgname}]:-}";
 	local bgindex="${ansi[colors.${bgname}]:-}";
 	
@@ -192,18 +217,18 @@ sprintf.color.update() {
 	local attrvalue="${ansi[attr.${attrname}]:-}";
 	
 	local updated="${start}";
-	if [ -n "${attribute:-}" ]; then
+	if [ -n "${attrname:-}" ]; then
 		updated="${updated}${attrvalue}";
 	fi
 	
-	if [ -n "${background:-}" ]; then
-		if [ -n "${attribute:-}" ]; then
+	if [ -n "${bgname:-}" ]; then
+		if [ -n "${attrname:-}" ]; then
 			updated="${updated}${ansi[delimiter]}";
 		fi
 		updated="${updated}${bgvalue}";
 	fi
-	if [ -n "${color:-}" ]; then
-		if [ -n "${background:-}" ] || [ -n "${attribute:-}" ]; then
+	if [ -n "${fgname:-}" ]; then
+		if [ -n "${bgname:-}" ] || [ -n "${attrname:-}" ]; then
 			updated="${updated}${ansi[delimiter]}";
 		fi
 		updated="${updated}${fgvalue}";
@@ -237,6 +262,22 @@ sprintf.styles() {
 		sprintf.styles.attributes;
 		sprintf.styles.standard;
 		sprintf.styles.standard bright;
+	fi
+	
+	if [ ${#parameter_styles[@]} -gt 0 ]; then
+		# echo "GOT CUSTOM PARAMETER STYLES ... ";
+		local ind key;
+		for ind in "${!parameter_styles[@]}"
+			do
+				key="param.${ind}";
+				#echo "got parameter style index: $ind : $key";
+				sprintf.color.update "$key" \
+					"${settings[fg.${ind}]:-}" \
+					"${settings[bg.${ind}]:-}" \
+					"${settings[attr.${ind}]:-}";
+					
+				#echo "got parsed value : ${settings[$key]}";
+		done
 	fi
 }
 
@@ -297,8 +338,6 @@ sprintf.styles.prefix() {
 	fi
 }
 
-## INTERNAL
-
 # validate a color name
 sprintf.color.validate() {
 	local val="$1";
@@ -353,21 +392,29 @@ sprintf.replace() {
 		if ${flags[ansi]}; then
 			length="${#replacements[@]}";
 			local highlight_color="";
+			local custom_style;
 			for((i = 0;i < $length;i++))
 				do
 					val="${replacements[$i]}";
-					if $has_custom_message_color; then
-						replacements[$i]="${settings[color]}${replacements[$i]}${terminator}";
+					custom_style="${settings[param.${i}]:-}";
+					
+					# a 0-9 index based style for this parameter
+					if [ -n "${custom_style}" ]; then
+						replacements[$i]="${custom_style}${replacements[$i]}${terminator}";
 					else
-						if ${flags[replace.bold]}; then
-							replacements[$i]="${styles[bright]}${val}${terminator}";
-						fi
-						# ensure replacements respect the overall colour
-						if ${flags[color]} && [ -n "$color" ]; then
-							highlight_color="$color";
-						fi
-						if [ -n "${highlight_color}" ]; then
-							replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
+						if $has_custom_message_color; then
+							replacements[$i]="${settings[color]}${replacements[$i]}${terminator}";
+						else
+							if ${flags[replace.bold]}; then
+								replacements[$i]="${styles[bright]}${val}${terminator}";
+							fi
+							# ensure replacements respect the overall colour
+							if ${flags[color]} && [ -n "$color" ]; then
+								highlight_color="$color";
+							fi
+							if [ -n "${highlight_color}" ]; then
+								replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
+							fi
 						fi
 					fi
 					# start the message colour again for parts in
@@ -534,6 +581,21 @@ sprintf.options.parse() {
 						prefix_command="${val}";
 						flags[message.prefix]=true;
 	                    ;;
+	                text[0-9]=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						sprintf.parameter.style "$opt" "$val" "fg";
+	                    ;;
+	                background[0-9]=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						sprintf.parameter.style "$opt" "$val" "bg";						
+	                    ;;
+	                attribute[0-9]=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						sprintf.parameter.style "$opt" "$val" "attr";
+	                    ;;
 	                program)
 						flags[program]=true;
 	                    ;;
@@ -559,7 +621,7 @@ sprintf.options.parse() {
 						flags[debug]=true;
 	                    ;;
 	                *)
-	                    if [ "$OPTERR" = 1 ] && [ "${optspec:0:1}" != ":" ]; then
+	                    if [ "$OPTERR" == 1 ] && [ "${optspec:0:1}" != ":" ]; then
 	                        echo "sprintf: unknown option --${OPTARG}" >&2
 	                    fi
 	                    ;;
@@ -571,7 +633,7 @@ sprintf.options.parse() {
 				flags[stderr]=true;
 	            ;;
 	        *)
-	            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" = ":" ]; then
+	            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" == ":" ]; then
 	                echo "sprintf: non-option '-${OPTARG}'" >&2
 	            fi
 	            ;;

@@ -254,9 +254,9 @@ console.test.custom() {
 		"a %s message %s" "bright";
 		
 	sprintf --attribute=faint \
-		"a %s message %s" "faint";
+		"a %s message %s (not widely supported)" "faint";
 	sprintf --attribute=italic \
-		"a %s message %s" "italic";
+		"an %s message %s (not widely supported)" "italic";
 		
 	sprintf --attribute=underline \
 		"an %s message %s" "underline";
@@ -267,6 +267,15 @@ console.test.custom() {
 		"a %s message %s" "negative" "with color gray and background magenta";
 	sprintf --background=black \
 		"a %s message %s" "background" "with a black background and normal text";
+		
+	sprintf --text0=cyan \
+		--background0=black --attribute1=underline \
+		--attribute2=bright \
+		--attribute3=blink \
+		"a message with %s %s %s that can %s <- %s" \
+			"custom" "parameter" "styles" "blink" "that's dangerous";
+			
+	# --color=blue 
 		
 	console header;
 }

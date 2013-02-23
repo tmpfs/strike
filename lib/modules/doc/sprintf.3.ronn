@@ -3,7 +3,7 @@ sprintf(3) -- tty printf
 
 ## SYNOPSIS
 
-	sprintf [options...] message [replacements...]
+	sprintf [options...] message [parameters...]
 
 ## DESCRIPTION
 

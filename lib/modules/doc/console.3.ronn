@@ -3,7 +3,7 @@ console(3) -- console module
 
 ## SYNOPSIS
 
-	console [command] [options...] message [replacements...]
+	console [command] [options...] message [parameters...]
 
 ## DESCRIPTION
 
