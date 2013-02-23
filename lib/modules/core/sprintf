@@ -55,6 +55,10 @@ ansi=(
 	
 	[block.start]="${strike_block_start:-[}"
 	[block.end]="${strike_block_start:-]}"
+	
+	[auto]="auto"
+	[always]="always"
+	[never]="never"
 )
 readonly -A ansi;
 
@@ -116,6 +120,18 @@ sprintf() {
 	local parameter_styles=();
 	
 	sprintf.options.parse "$@";
+	
+	# handle the environment configuration
+	# for color after parsing options
+	# so that the environment take precedence
+	local sprintf_color="${sprintf_color:-}";
+	if [ "$sprintf_color" == "${ansi[auto]}" ]; then
+		sprintf.color.auto;
+	elif [ "$sprintf_color" == "${ansi[always]}" ]; then
+		sprintf.color.always;
+	elif [ "$sprintf_color" == "${ansi[never]}" ]; then
+		sprintf.color.never;
+	fi
 	
 	# initialize styles
 	sprintf.styles;
@@ -185,6 +201,23 @@ sprintf.block() {
 }
 
 ## INTERNAL
+
+# set to automatically color
+sprintf.color.auto() {
+	flags[ansi]=true;	
+	flags[always]=false;	
+}
+
+# set to never color
+sprintf.color.never() {
+	flags[ansi]=false;
+}
+
+# set to always color
+sprintf.color.always() {
+	flags[ansi]=true;
+	flags[always]=true;	
+}
 
 # main 
 sprintf.main() {
@@ -931,15 +964,13 @@ sprintf.options.parse() {
 						sprintf.parameter.style "$opt" "$val" "attr";
 	                    ;;
 	                color=never)
-						flags[ansi]=false;
+						sprintf.color.never;
 	                    ;;
 	                color=always)
-						flags[ansi]=true;
-						flags[always]=true;
+						sprintf.color.always;
 	                    ;;
 	                color=auto)
-						flags[ansi]=true;	
-						flags[always]=false;
+						sprintf.color.auto;
 	                    ;;	
 	                program)
 						flags[program]=true;

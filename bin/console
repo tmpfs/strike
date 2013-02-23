@@ -538,6 +538,8 @@ console.test() {
 	# local tester="${unbound_variable}";
 }
 
+sprintf_color="always";
+
 if [ $# -eq 0 ]; then
 	console.test;
 else
