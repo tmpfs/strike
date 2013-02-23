@@ -105,6 +105,8 @@ sprintf() {
 	flags[prefix.bright]=true;
 	flags[stderr]=false;
 	
+	local results=();
+	
 	# echo "sprintf got opts: $*"; 
 	
 	declare -A settings;
@@ -343,7 +345,7 @@ sprintf.styles.prefix() {
 sprintf.color.validate() {
 	local val="$1";
 	if ! array.contains? "${val}" "${!styles[@]}"; then
-		sprintf -2 --color=red --prefix="[sprintf]" "invalid color ${val}";
+		sprintf -2 --text=red --prefix="[sprintf]" "invalid color ${val}";
 		exit 2;
 	fi
 }
@@ -376,11 +378,23 @@ sprintf.output() {
 	if ${flags[debug]}; then
 		opts="";
 	fi
+	
+	# echo "send output with parsed... ${parsed}";
+	
 	if ! ${flags[stderr]}; then
-		echo $opts "$parsed";
+		printf -- "${results[@]}";
+		if ${flags[newline]}; then
+			printf '\n';
+		fi
 	else
 		echo $opts "$parsed" >&2;
 	fi
+	
+	# if ! ${flags[stderr]}; then
+	# 	echo $opts "$parsed";
+	# else
+	# 	echo $opts "$parsed" >&2;
+	# fi
 }
 
 # %[flags][width][.precision][length]specifier 
@@ -433,6 +447,7 @@ sprintf.format() {
 		
 		local regexp="([^%]+)*(%{1,1}[#0 +-]?([0-9]+|\*)?(\.([0-9]+|\*))?(hh|h|l|ll|j|z|t|L)?([%fFeEgGaAdiuoxXscnqb]){1,})([^%]+)*";
 		local index=0;
+		local format;
 		local specifier;
 		
 		#echo "testing on '${formatted}'";
@@ -442,11 +457,16 @@ sprintf.format() {
 		# else
 			while [[ "$formatted" =~ $regexp ]];
 				do
+					trailing=false;
 					#echo "got match count : ${#BASH_REMATCH[*]}";
 					#echo "got match keys : ${!BASH_REMATCH[@]}";
 					#echo "got match values : ${BASH_REMATCH[@]}";
 					
 					#echo "got format: ${BASH_REMATCH[2]}";
+					
+					format="${BASH_REMATCH[2]}";
+					
+					# echo "got format: ${format}";
 					
 					# 
 					specifier="${BASH_REMATCH[7]:-}";
@@ -458,12 +478,15 @@ sprintf.format() {
 				
 					match="${BASH_REMATCH[0]}";
 					# echo "got match: $match";
-					replaced=$( printf -- "${BASH_REMATCH[2]}" "${value}" );
+					#replaced=$( printf -- "${BASH_REMATCH[2]}" "${value}" );
 				
 					# got a parameter for the match
 					if [ -n "${params[$index]:-}" ]; then
-						output="${output}${BASH_REMATCH[1]}%s${replaced}%s";
-						output="${output}${BASH_REMATCH[8]:-}";
+						output="${output}${BASH_REMATCH[1]}%b${format}%b";
+						if [ -n "${BASH_REMATCH[8]:-}" ]; then
+							trailing=true;
+							output="${output}%b${BASH_REMATCH[8]:-}";
+						fi
 					# no parameter for the match, this could output a warning?
 					else
 						# echo "non-parameter match... $specifier"
@@ -511,95 +534,145 @@ sprintf.format() {
 }
 
 #
-sprintf.param.append() {
-	local style="$1";
-	local terminator="$2";
-	params+=( "$style" );
-	params+=( "$terminator" );
-}
+# sprintf.param.append() {
+# 	local style="$1";
+# 	local terminator="$2";
+# 	params+=( "$style" );
+# 	params+=( "$terminator" );
+# }
 
 # performs printf replacement
 # on the primary message
 sprintf.replace() {
-	if ! ${flags[color]} || ! ${flags[ansi]}; then
-		parsed=$( printf -- "${messages[@]}" );
+	
+	# no ANSI
+	if ! ${flags[ansi]}; then
+		#parsed=$( printf -- "${messages[@]}" );
+		#parsed="${messages[@]}";
+		
+		results=( "${messages[@]}" );
 	else
 		if ${flags[ansi]}; then
+			local params=();
+				
+		
 			
+			# no replacement parameters
 			if [ ${#replacements[@]} -eq 0 ]; then
 				# echo "got message : ${message}";
-				parsed=$( printf -- "${message}" );
+				#parsed=$( printf -- "${message}" );
+				
+				# parsed="${message}";
+				
+				####################### START MESSAGE  COLOUR
+				if [ -n "$color" ]; then
+					#echo "add overall message color ..."
+					message="%b${message}";
+					params=( "${settings[color]}" );
+				fi
+				
+				results=( "${message}" "${params[@]}" );
 			else
-				local i length val;
-				local formatted;
-				local params=();
-				#formatted=$( sprintf.format );
+				
+				#echo "replace with ansi paramaters";
+				
 				local output="";
+				local trailing=false;
+				# wrap each format specification in %b
 				sprintf.format;
-				# echo "got output: $output";
+				message="${output}";
+				
+				#echo "got wrapped message: ${message}";
 				#exit 0;
-				#echo "got formatted: ${formatted}";
+				
+				local i length val;
 				length="${#replacements[@]}";
-				local highlight_color="";
-				local style;
-				local custom_style;
 				for((i = 0;i < $length;i++))
 					do
 						val="${replacements[$i]}";
-						custom_style="${settings[param.${i}]:-}";
-						highlight_color="";
-						style="";
 						
-						# ensure replacements respect the overall colour
-						if ${flags[color]} && [ -n "$color" ]; then
-							highlight_color="$color";
-						fi
-						if [ -n "${highlight_color}" ]; then
-							# replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
-							
-							style="${style}${styles[$highlight_color]}";
-						fi
-					
-						# a 0-9 index based style for this parameter
-						if [ -n "${custom_style}" ]; then
-							#replacements[$i]="${custom_style}${replacements[$i]}${terminator}";
-							
-							#sprintf.param.append "${custom_style}" "${val}" "${terminator}";
-							
-							style="${custom_style}";
+						if ${flags[replace.bold]}; then
+							params+=( "${styles[bright]}" "${val}" "${terminator}" );
 						else
-							if $has_custom_message_color; then
-								#replacements[$i]="${settings[color]}${replacements[$i]}${terminator}";
-								
-								# sprintf.param.append "${settings[color]}" "${val}" "${terminator}";
-								
-								style="${settings[color]}";
-							else
-								if ${flags[replace.bold]}; then
-									#replacements[$i]="${styles[bright]}${val}${terminator}";
-									
-									#sprintf.param.append "${styles[bright]}" "${val}" "${terminator}";
-									
-									style="${style}${styles[bright]}";
-								fi
-							fi
+							params+=( "${val}" );
 						fi
-						# start the message colour again for parts in
-						# between replacements
-						if ${flags[color]} && [ -n "$color" ]; then
-							#TODO
-							#replacements[$i]="${replacements[$i]}${settings[color]}";
-							
-							sprintf.param.append "${style}" "${terminator}${settings[color]}";
-						else
-							sprintf.param.append "${style}" "${terminator}";
+						
+						if [ -n "$color" ] && $trailing; then
+							#echo "ADDING START COLOR AGAIN... ${settings[color]} $i : $length : $trailing";
+							params+=( "${settings[color]:-}" );
 						fi
 				done
+				
+				# local i length val;
+				# local formatted;
+				# 
+				# #formatted=$( sprintf.format );
+				# local output="";
+				# #sprintf.format;
+				# # echo "got output: $output";
+				# #exit 0;
+				# #echo "got formatted: ${formatted}";
+				# length="${#replacements[@]}";
+				# local highlight_color="";
+				# local style;
+				# local custom_style;
+				# for((i = 0;i < $length;i++))
+				# 	do
+				# 		val="${replacements[$i]}";
+				# 		custom_style="${settings[param.${i}]:-}";
+				# 		highlight_color="";
+				# 		style="";
+				# 		
+				# 		# ensure replacements respect the overall colour
+				# 		if ${flags[color]} && [ -n "$color" ]; then
+				# 			highlight_color="$color";
+				# 		fi
+				# 		if [ -n "${highlight_color}" ]; then
+				# 			# replacements[$i]="${styles[$highlight_color]}${replacements[$i]}${terminator}";
+				# 			
+				# 			style="${style}${styles[$highlight_color]}";
+				# 		fi
+				# 	
+				# 		# a 0-9 index based style for this parameter
+				# 		if [ -n "${custom_style}" ]; then
+				# 			#replacements[$i]="${custom_style}${replacements[$i]}${terminator}";
+				# 			
+				# 			#sprintf.param.append "${custom_style}" "${val}" "${terminator}";
+				# 			
+				# 			style="${custom_style}";
+				# 		else
+				# 			if $has_custom_message_color; then
+				# 				#replacements[$i]="${settings[color]}${replacements[$i]}${terminator}";
+				# 				
+				# 				# sprintf.param.append "${settings[color]}" "${val}" "${terminator}";
+				# 				
+				# 				style="${settings[color]}";
+				# 			else
+				# 				if ${flags[replace.bold]}; then
+				# 					#replacements[$i]="${styles[bright]}${val}${terminator}";
+				# 					
+				# 					#sprintf.param.append "${styles[bright]}" "${val}" "${terminator}";
+				# 					
+				# 					style="${style}${styles[bright]}";
+				# 				fi
+				# 			fi
+				# 		fi
+				# 		# start the message colour again for parts in
+				# 		# between replacements
+				# 		if ${flags[color]} && [ -n "$color" ]; then
+				# 			#TODO
+				# 			#replacements[$i]="${replacements[$i]}${settings[color]}";
+				# 			
+				# 			sprintf.param.append "${style}" "${terminator}${settings[color]}";
+				# 		else
+				# 			sprintf.param.append "${style}" "${terminator}";
+				# 		fi
+				# done
 				
 				#echo "got params length: ${#params[@]}";
 				#echo "got params: ${params[@]}";
 				#echo "got formatted: ${formatted}";
-				parsed=$( printf -- "${output}" "${params[@]:-}" );
+				#parsed=$( printf -- "${output}" "${params[@]:-}" );
 				
 				#parsed="${parsed//%%/%}";
 				
@@ -607,21 +680,42 @@ sprintf.replace() {
 				#exit 0;
 				
 				#parsed=$( printf -- "${message}" "${replacements[@]:-}" );
+				
+				####################### START MESSAGE  COLOUR
+				if [ -n "$color" ]; then
+					#echo "add overall message color ..."
+					message="%b${message}";
+					params=( "${settings[color]}" "${params[@]}" );
+				fi
+				
+				results=( "${message}" "${params[@]}" );
 			fi
 		fi
 
 		# handle overall message color
-		if ${flags[ansi]} && ${flags[color]} && [ -n "$color" ]; then
-			# echo "add overall message color ..."
-			parsed="${settings[color]}${parsed}";
-		fi
+		# if ${flags[ansi]} && ${flags[color]} && [ -n "$color" ]; then
+		# 	# echo "add overall message color ..."
+		# 	parsed="${settings[color]}${parsed}";
+		# fi
 	fi
-	sprintf.prefix;
 	
-	# always add final terminator
+	#sprintf.prefix;
+	
+	# if ${flags[ansi]}; then
+	# 	parsed="${parsed}${terminator}";
+	# fi	
+
 	if ${flags[ansi]}; then
-		parsed="${parsed}${terminator}";
+		#if [[ ! "${results[0]}" =~ %b$ ]]; then
+			# always add final terminator
+			results[0]="${results[0]}%b";
+			results+=( "${terminator}" );
+		#fi
 	fi
+	
+	
+	# echo "GOT RESULTS (length): ${#results[@]}";
+	# echo "GOT RESULTS (length): ${results[@]}";	
 }
 
 # prepend prefix(es)
@@ -738,7 +832,7 @@ sprintf.options.parse() {
 	                    opt=${OPTARG%=$val};
 						suffix="${val}";
 	                    ;;	
-	                color=*)
+	                text=*)
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						color="${val}";
@@ -779,6 +873,9 @@ sprintf.options.parse() {
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						sprintf.parameter.style "$opt" "$val" "attr";
+	                    ;;
+	                color=never)
+						flags[ansi]=false;
 	                    ;;
 	                program)
 						flags[program]=true;

@@ -81,26 +81,26 @@ console.info() {
 # print a debug message to stderr
 console.debug() {
 	local prefix=$( sprintf.block "${console_prefixes[debug]}" );	
-	sprintf -2 --color=cyan --prefix="${prefix}" "$@";
+	sprintf -2 --text=cyan --prefix="${prefix}" "$@";
 }
 
 # print a not ok message to stderr
 console.notok() {
 	local prefix=$( sprintf.block "${console_prefixes[notok]}" );
-	sprintf -2 --color=red --suffix="${characters[cross]}" \
+	sprintf -2 --text=red --suffix="${characters[cross]}" \
 		--prefix="${prefix}" "$@";
 }
 
 # print an error message to stderr
 console.error() {
 	local prefix=$( sprintf.block "${console_prefixes[error]}" );	
-	sprintf -2 --color=red --prefix="${prefix}" "$@";
+	sprintf -2 --text=red --prefix="${prefix}" "$@";
 }
 
 # print a warning message to stderr
 console.warn() {
 	local prefix=$( sprintf.block "${console_prefixes[warn]}" );
-	sprintf -2 --color=magenta --prefix="${prefix}" "$@";
+	sprintf -2 --text=magenta --prefix="${prefix}" "$@";
 }
 
 # throw a stack trace with
@@ -119,7 +119,7 @@ console.trace() {
 	local line;
 	local data=( $( caller $frame ) );
 	while [ "${#data[@]}" -gt 0 ]; do
-		sprintf -2 --color=red --prefix="${prefix}" \
+		sprintf -2 --text=red --prefix="${prefix}" \
 			"%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
 		: $((frame++));
 		data=( $( caller $frame ) );

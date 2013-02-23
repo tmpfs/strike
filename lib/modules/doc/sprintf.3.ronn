@@ -21,7 +21,7 @@ Print to *stdout*.
 
 Print to *stderr*.
 
-* `--color=[color]`:
+* `--text=[color]`:
 
 Set *color* as the text color. See `COLOR NAMES`.
 

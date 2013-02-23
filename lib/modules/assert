@@ -358,7 +358,7 @@ function __assert.print.summary {
 	if [ ${summary[assertions.fail]} -gt 0 ]; then
 		# TODO: ensure [warn] prefix is not displayed, after console(3) refactoring
 		output="console warn";
-		output_options="${output_options} --color=magenta";
+		output_options="${output_options} --text=magenta";
 	fi
 	
 	console header $output_options;

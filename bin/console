@@ -92,23 +92,23 @@ console.test.headers() {
 	console title "${title}";
 	console header;
 	
-	console header $opts --color=black;	
-	console header $opts --color=red;
-	console header $opts --color=green;
-	console header $opts --color=brown;
-	console header $opts --color=blue;
-	console header $opts --color=magenta;
-	console header $opts --color=cyan;
-	console header $opts --color=gray;
+	console header $opts --text=black;	
+	console header $opts --text=red;
+	console header $opts --text=green;
+	console header $opts --text=brown;
+	console header $opts --text=blue;
+	console header $opts --text=magenta;
+	console header $opts --text=cyan;
+	console header $opts --text=gray;
 	
-	console header $opts --color=bright-black;	
-	console header $opts --color=bright-red;
-	console header $opts --color=bright-green;
-	console header $opts --color=bright-brown;
-	console header $opts --color=bright-blue;
-	console header $opts --color=bright-magenta;
-	console header $opts --color=bright-cyan;
-	console header $opts --color=bright-gray;
+	console header $opts --text=bright-black;	
+	console header $opts --text=bright-red;
+	console header $opts --text=bright-green;
+	console header $opts --text=bright-brown;
+	console header $opts --text=bright-blue;
+	console header $opts --text=bright-magenta;
+	console header $opts --text=bright-cyan;
+	console header $opts --text=bright-gray;
 	
 	console header;
 }
@@ -120,23 +120,23 @@ console.test.colors() {
 	console title "${title}";
 	console header;
 	
-	console print --color=black "a %s message" "black";
-	console print --color=red "a %s message" "red";
-	console print --color=green "a %s message" "green";
-	console print --color=brown "a %s message" "brown";
-	console print --color=blue "a %s message" "blue";
-	console print --color=magenta "a %s message" "magenta";
-	console print --color=cyan "a %s message" "cyan";
-	console print --color=gray "a %s message" "gray";
+	console print --text=black "a %s message" "black";
+	console print --text=red "a %s message" "red";
+	console print --text=green "a %s message" "green";
+	console print --text=brown "a %s message" "brown";
+	console print --text=blue "a %s message" "blue";
+	console print --text=magenta "a %s message" "magenta";
+	console print --text=cyan "a %s message" "cyan";
+	console print --text=gray "a %s message" "gray";
 	
-	console print --color=bright-black "a %s message" "bright-black";
-	console print --color=bright-red "a %s message" "bright-red";
-	console print --color=bright-green "a %s message" "bright-green";
-	console print --color=bright-brown "a %s message" "bright-brown";	
-	console print --color=bright-blue "a %s message" "bright-blue";
-	console print --color=bright-magenta "a %s message" "bright-magenta";
-	console print --color=bright-cyan "a %s message" "bright-cyan";
-	console print --color=bright-gray "a %s message" "bright-gray";	
+	console print --text=bright-black "a %s message" "bright-black";
+	console print --text=bright-red "a %s message" "bright-red";
+	console print --text=bright-green "a %s message" "bright-green";
+	console print --text=bright-brown "a %s message" "bright-brown";	
+	console print --text=bright-blue "a %s message" "bright-blue";
+	console print --text=bright-magenta "a %s message" "bright-magenta";
+	console print --text=bright-cyan "a %s message" "bright-cyan";
+	console print --text=bright-gray "a %s message" "bright-gray";	
 	
 	console header;
 }
@@ -367,24 +367,24 @@ console.test.prompt() {
 	
 	console prompt "%s prompt" "bright";
 	read -ep "$PS9" value;
-	console prompt --color=underline "%s prompt" "underline";
+	console prompt --text=underline "%s prompt" "underline";
 	read -ep "$PS9" value;
 	
-	console prompt --color=black "%s prompt" "black";
+	console prompt --text=black "%s prompt" "black";
 	read -ep "$PS9" value;	
-	console prompt --color=red "%s prompt" "red";
+	console prompt --text=red "%s prompt" "red";
 	read -ep "$PS9" value;
-	console prompt --color=green "%s prompt" "green";
+	console prompt --text=green "%s prompt" "green";
 	read -ep "$PS9" value;
-	console prompt --color=brown "%s prompt" "brown";
+	console prompt --text=brown "%s prompt" "brown";
 	read -ep "$PS9" value;
-	console prompt --color=blue "%s prompt" "blue";
+	console prompt --text=blue "%s prompt" "blue";
 	read -ep "$PS9" value;
-	console prompt --color=magenta "%s prompt" "magenta";
+	console prompt --text=magenta "%s prompt" "magenta";
 	read -ep "$PS9" value;
-	console prompt --color=cyan "%s prompt" "cyan";
+	console prompt --text=cyan "%s prompt" "cyan";
 	read -ep "$PS9" value;
-	console prompt --color=gray "%s prompt" "gray";
+	console prompt --text=gray "%s prompt" "gray";
 	read -ep "$PS9" value;
 		
 	console header;
@@ -409,9 +409,9 @@ console.test.custom() {
 	sprintf --attribute=underline \
 		"an %s message %s" "underline";
 		
-	sprintf --color=gray --background=magenta \
+	sprintf --text=gray --background=magenta \
 		"a %s message %s" "custom" "with color gray and background magenta";
-	sprintf --color=gray --background=magenta --attribute=negative \
+	sprintf --text=gray --background=magenta --attribute=negative \
 		"a %s message %s" "negative" "with color gray and background magenta";
 	sprintf --background=black \
 		"a %s message %s" "background" "with a black background and normal text";
@@ -423,7 +423,7 @@ console.test.custom() {
 		"a message with %s %s %s that can %s <- %s" \
 			"custom" "parameter" "styles" "blink" "that's dangerous";
 			
-	# --color=blue 
+	# --text=blue 
 		
 	console header;
 }
@@ -473,15 +473,24 @@ console.test.misc() {
 
 # print test messages
 console.test() {
-	console.test.headers;
-	console.test.colors;
-	console.test.types;
 	
-	console.test.printf;
+	sprintf --text=red -- "message %s" "for you";
 	
-	console.test.custom;
-	console.test.misc;
-	console.test.prompt;
+	sprintf --text=red -- "message %s with some extra text" "for you";
+	
+	sprintf --color=never -- "message %s %.2f" "for you" "3.1445656";
+	
+	sprintf --text=red -- "message";
+	
+	# console.test.headers;
+	# console.test.colors;
+	# console.test.types;
+	# 
+	# console.test.printf;
+	# 
+	# console.test.custom;
+	# console.test.misc;
+	# console.test.prompt;
 	
 	# local tester="${unbound_variable}";
 }
