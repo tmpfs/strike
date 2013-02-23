@@ -173,11 +173,38 @@ console.test.types() {
 console.test.printf() {
 	local title="${1:-PRINTF}";
 	local opts="${2:-}";
-	local value;
+	local prefix format parameter;
 	console title "${title}";
 	console header;
 	
-	console info "a %s value %s more data" "string" "with";
+	# console info "a %k invalid format string" "abc";
+	# console info "a %s %q %f value %f %c %s" "string" "quoted value[]" "3.1432423434" "3.123" "x";
+
+	# string (%s)
+	format="%s";
+	parameter="string";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+	
+	# character (%c)
+	format="%c";
+	parameter="xyz";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+	
+	# floating point (%f)
+	format="%f";	
+	parameter="3.14";	
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+	
+	# floating point (%.2f)
+	format="%.2f";
+	prefix=$(sprintf.block "${format} ${parameter}");
+	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+	
+	# multiple string replacement
+	console info "a %s value %s more data %%" "string" "with";
 	
 	# too many format strongs
 	console info "a %s value %s %s" "string";
@@ -185,15 +212,17 @@ console.test.printf() {
 	# hyphenated messages/replacements
 	console info -- "-a %s value" "-hyphenated";
 	
+	# %f - default precision
+	console info "%f - floating point value (default precision)" "3.1432423434";
+	
+	# %f - default precision
+	console info "%f - padded floating point value (default precision)" "3.14";
+	
+	# %f - precision to two decimal places
+	console info "%.2f - floating point value (precision .2)" "3.1432423434";
+	
 	# quoting a value, using bash's %q
-	console info "a %q value" "quoted value []";
-	
-	# quoting a value, using %c
-	console info "a %c value" "c";
-	
-	console info "a %f value" "3.1432423434";
-	
-	#printf "a %.2f value\n" "3.1432423434";
+	console info "a %q - quoted value" "value with spaces []";
 	
 	console header;
 }
@@ -334,7 +363,7 @@ console.test() {
 	console.test.printf;
 	console.test.custom;
 	console.test.misc;
-	console.test.prompt;
+	# console.test.prompt;
 	
 	# local tester="${unbound_variable}";
 }

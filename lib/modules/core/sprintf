@@ -17,6 +17,7 @@
 
 # SEE: http://en.wikipedia.org/wiki/ANSI_escape_code
 # SEE: http://misc.flogisoft.com/bash/tip_colors_and_formatting
+# SEE: http://www.cplusplus.com/reference/cstdio/printf/
 
 declare -Ag ansi;
 ansi=(
@@ -382,24 +383,110 @@ sprintf.output() {
 	fi
 }
 
+# %[flags][width][.precision][length]specifier 
+# 
+# Where the specifier character at the end is the most significant component, since it defines the type and the interpretation of its corresponding argument:
+# specifier	Output	Example
+# d or i	Signed decimal integer	392
+# u	Unsigned decimal integer	7235
+# o	Unsigned octal	610
+# x	Unsigned hexadecimal integer	7fa
+# X	Unsigned hexadecimal integer (uppercase)	7FA
+# f	Decimal floating point, lowercase	392.65
+# F	Decimal floating point, uppercase	392.65
+# e	Scientific notation (mantissa/exponent), lowercase	3.9265e+2
+# E	Scientific notation (mantissa/exponent), uppercase	3.9265E+2
+# g	Use the shortest representation: %e or %f	392.65
+# G	Use the shortest representation: %E or %F	392.65
+# a	Hexadecimal floating point, lowercase	-0xc.90fep-2
+# A	Hexadecimal floating point, uppercase	-0XC.90FEP-2
+# c	Character	a
+# s	String of characters	sample
+# p	Pointer address	b8000000
+# n	Nothing printed.
+# The corresponding argument must be a pointer to a signed int.
+# The number of characters written so far is stored in the pointed location.	
+# %	A % followed by another % character will write a single % to the stream.	%
+
 # 
 sprintf.format() {
 	# echo "$FUNCNAME message: '$message'";
-	local formatted="${message:-}";
 	if [ ${#replacements[@]} -gt 0 ]; then
-		local padding="%s";
+		
+		local formatted="${message:-}";
 		local params=( "${replacements[@]:-}" );
-		local i length=${#params[@]};
-		for((i = 0;i < $length;i++))
+		local replaced="";
+		local match="";
+		
+		# printf: %[flags][width][.precision][length]specifier
+		
+		# 1. ([^%]+)* == possible start value before specifier
+		# 2. %{1,} == match format string start
+		# 3. [#0 +-]? == optional flags
+		# 4. ([0-9]+|\*)? == optional width
+		# 5. (\.([0-9]+|\*))? == optional precision
+		# 6. (hh|h|l|ll|j|z|t|L)? == optional length
+		# 7. ([%fFeEgGaAdiuoxXscpnqb]){1,}) == required specifier
+		# 8. ([^%]+)* == remaining part of the message until next match
+		
+		local regexp="([^%]+)*(%{1,}[#0 +-]?([0-9]+|\*)?(\.([0-9]+|\*))?(hh|h|l|ll|j|z|t|L)?([%fFeEgGaAdiuoxXscpnqb]){1,})([^%]+)*";
+		local index=0;
+		#local specifier;
+		
+		#echo "testing on '${formatted}'";
+		
+		while [[ "$formatted" =~ $regexp ]];
 			do
-				# echo "padding: ${params[$i]}";
-				params[$i]="${padding}${params[$i]}${padding}";
+				# echo "got match count : ${#BASH_REMATCH[*]}";
+				# echo "got match keys : ${!BASH_REMATCH[@]}";
+				# echo "got match values : ${BASH_REMATCH[@]}";
+				
+				#specifier="${BASH_REMATCH[4]:-}";
+				
+				#echo "got specifier: $specifier";
+				
+				match="${BASH_REMATCH[0]}";
+				# echo "got match: $match";
+				replaced=$( printf -- "${BASH_REMATCH[2]}" "${params[$index]:-}" );
+				
+				# got a parameter for the match
+				if [ -n "${params[$index]:-}" ]; then
+					output="${output}${BASH_REMATCH[1]}%s${replaced}%s";
+					output="${output}${BASH_REMATCH[${#BASH_REMATCH[@]}-1]:-}";
+				# no parameter for the match, this could output a warning?
+				else
+					output="${output}${match}";
+				fi
+				#echo "got match : ${#BASH_REMATCH[*]} : ${BASH_REMATCH[@]}";
+				formatted="${formatted#$match}";
+				#echo "got formatted: $formatted";
+				: $((index++));
 		done
-		formatted=$( printf -- "${message}" "${params[@]}" );
-		echo -n "${formatted}";
-		return 0;
+		
+		# format string is invalid
+		if [ -z "$output" ]; then
+			output="${message}";
+		fi
+		
+		# echo "$FUNCNAME message: '$message'";
+		# echo "$FUNCNAME output: '$output'";
+		#exit 0;
+		
+		#echo -n "${output}";
+		
+		# local padding="%s";
+		# local i length=${#params[@]};
+		# for((i = 0;i < $length;i++))
+		# 	do
+		# 		# echo "padding: ${params[$i]}";
+		# 		params[$i]="${padding}${params[$i]}${padding}";
+		# done
+		# formatted=$( printf -- "${message}" "${params[@]}" );
+		# echo -n "${formatted}";
+	else
+		#echo -n "${message:-}";
+		output="${message:-}";
 	fi
-	echo -n "${formatted}";
 }
 
 #
@@ -424,7 +511,11 @@ sprintf.replace() {
 				local i length val;
 				local formatted;
 				local params=();
-				formatted=$( sprintf.format );
+				#formatted=$( sprintf.format );
+				local output="";
+				sprintf.format;
+				# echo "got output: $output";
+				#exit 0;
 				#echo "got formatted: ${formatted}";
 				length="${#replacements[@]}";
 				local highlight_color="";
@@ -486,7 +577,7 @@ sprintf.replace() {
 				#echo "got params length: ${#params[@]}";
 				#echo "got params: ${params[@]}";
 				#echo "got formatted: ${formatted}";
-				parsed=$( printf -- "${formatted}" "${params[@]:-}" );
+				parsed=$( printf -- "${output}" "${params[@]:-}" );
 				#echo "got parsed: ${parsed}";
 				#exit 0;
 				
