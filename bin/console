@@ -344,5 +344,5 @@ else
 		console.test;
 		exit 0;
 	fi
-	console "$@";
+	sprintf "$@";
 fi
