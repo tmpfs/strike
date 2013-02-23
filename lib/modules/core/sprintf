@@ -550,7 +550,9 @@ sprintf.format() {
 					# to remove the matching part
 					formatted="${formatted#$match}";
 					
-					: $((index++));					
+					: $((index++));	
+					
+					# echo "looping with index: $index";
 					
 					if [ $index -gt ${#replacements[@]} ]; then
 						break;
@@ -900,7 +902,7 @@ sprintf.debugger() {
 
 # parse sprintf options
 sprintf.options.parse() {
-	#echo "$FUNCNAME : $*";
+	# echo "$FUNCNAME : $*";
 	local optspec=":12-:";
 	local optchar val opt;
 	OPTIND=0;
@@ -1034,3 +1036,33 @@ sprintf.options.parse() {
 			messages+=( "$opt" );
 	done
 }
+
+# parse options for all programs
+sprintf.parse() {
+	#echo "$FUNCNAME : $*";
+	local value="";
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+			--color=auto )
+				value="auto";
+				shift;
+				;;
+			--color=never )
+				value="never";
+				shift;				
+				;;
+			--color=always )
+				value="always";
+				shift;
+				;;
+			*)
+				shift;
+				;;
+		esac
+	done
+	if [ -n "${value}" ]; then
+		export sprintf_color="${value}";
+	fi
+}
+
+sprintf.parse "$@";
