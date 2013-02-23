@@ -474,25 +474,28 @@ console.test.misc() {
 # print test messages
 console.test() {
 	
-	# console error "an %s message" "error";
+	#console error --debug "a message";
+	
+	#exit 0;
 	
 	
 	sprintf --prefix="[prefix]" --color=never -- "message %s %.2f" "for you" "3.1445656";	
 	
 	sprintf --text=red -- "message %s" "for you";
 	
-	exit 0;
-	
 	sprintf --prefix="[prefix]" --text=red -- "message %s with some extra text" "for you";
 	
 	sprintf --text=red -- "message";
 	
+	#exit 0;	
+		
 	# sprintf -2 --text=red --prefix="[trace]" \
 	# 	"%s:%s %s" "file" "line" "method";	
+	
 		
 	sprintf -2 --text=red --prefix="[trace]" \
 		"%s:%s" "file" "line";
-	exit 0;
+	#exit 0;
 	
 	#console throw "an error message with a stack trace";
 	#exit 0;
@@ -504,7 +507,7 @@ console.test() {
 	# 
 	# console.test.printf;
 	# 
-	# console.test.custom;
+	console.test.custom;
 	# console.test.misc;
 	# console.test.prompt;
 	

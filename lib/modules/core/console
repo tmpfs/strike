@@ -119,8 +119,13 @@ console.trace() {
 	local line;
 	local data=( $( caller $frame ) );
 	while [ "${#data[@]}" -gt 0 ]; do
+		
+		# occassionally the line number is reported with a leading hyphen???
+		line="${data[0]#-}";
+		#echo "got data: ${data[@]}";
+		
 		sprintf -2 --text=red --prefix="${prefix}" \
-			"%s:%s %s" "${data[2]}" "${data[0]}" "${data[1]}";
+			"%s:%s %s" "${data[2]}" "$line" "${data[1]}";
 		: $((frame++));
 		data=( $( caller $frame ) );
 	done
