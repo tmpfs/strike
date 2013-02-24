@@ -30,11 +30,20 @@ prompt() {
 
 	# configuration settings
 	declare -A settings;
+	
+	# custom data associated with the prompt
+	settings[data.id]="";
+	
+	# boolean settings
 	settings[boolean.strict]=false;
 	settings[boolean.yes]="yes";
 	settings[boolean.no]="no";
 	settings[boolean.accepted]="";
 	settings[boolean.rejected]="";
+	
+	# command callbacks
+	settings[commands.before]="";
+	settings[commands.response]="";
 	
 	prompt.options.parse "$@";
 	delegate "${namespace}" "${cmd}" "$@";
@@ -72,12 +81,20 @@ prompt.commands.boolean() {
 		compare="${compare,,}";
 	fi
 	
-	# echo "after boolean prompt ... $value";
-	
 	if [[ "$compare" =~ $accept_regexp ]]; then
-		prompt.trigger 'boolean.accepted';
+		prompt.trigger 'commands.response' \
+			true "${settings[data.id]:-}" "${value:-}";
+		
+		#
+		prompt.trigger 'boolean.accepted' "${value:-}";
+		
 	elif [[ "$compare" =~ $reject_regexp ]]; then
-		prompt.trigger 'boolean.rejected';
+		prompt.trigger 'commands.response' \
+			false "${settings[data.id]:-}" "${value:-}";
+		
+		#
+		prompt.trigger 'boolean.rejected' "${value:-}";
+		
 	else
 		# show the prompt again
 		# on invalid input
@@ -87,32 +104,24 @@ prompt.commands.boolean() {
 
 # show a string prompt accepting
 # any non-empty string value
-prompt.commands.string() {
+prompt.commands.value() {
 	prompt.read;
-	echo "after string prompt ... $value";
+	if [ -n "${value:-}" ]; then
+		prompt.trigger 'commands.response' \
+			"${value:-}" "${settings[data.id]:-}";
+	else
+		# show the prompt again
+		# on empty input
+		prompt.commands.value;
+	fi
 }
 
 # INTERNAL
 
-# invoke a comamnd
-prompt.trigger() {
-	local key="${1:-}";
-	echo "trigger command with key: $key";
-	if [ -n "$key" ]; then
-		local cmd="${settings[$key]:-}";
-		if [ -n "$key" ] && method.exists? "$cmd"; then
-			"$cmd" "${value}";
-		fi
-	fi
-}
-
-# handle option parsing
-prompt.options.parse() {
-	echo "$FUNCNAME : $*";
-}
-
 # show a prompt using read
 prompt.read() {
+	# echo "calling before: '${settings[data.id]:-}' "
+	prompt.trigger 'commands.before' "${settings[data.id]:-}";
 	if [ -t 0 ]; then
 		prompt.before;
 		if [ -n "${PS9:-}" ]; then
@@ -121,12 +130,6 @@ prompt.read() {
 			read -e value;
 		fi
 		prompt.after;
-		# 
-		# if [ -n "${value:-}" ]; then
-		# 	__prompt.accepted "${value}";
-		# else
-		# 	__prompt.rejected "${value}";
-		# fi
 	fi
 }
 
@@ -144,6 +147,66 @@ prompt.after() {
 	if [ -f 7 ]; then
 		exec 2>&7 7>&-;
 	fi
+}
+
+# invoke a comamnd
+prompt.trigger() {
+	local key="${1:-}";
+	local arguments=( "${@:2}" );
+	# echo "trigger command with arguments: $arguments";
+	if [ -n "$key" ]; then
+		local cmd="${settings[$key]:-}";
+		#echo "got cmd: $cmd";
+		if [ -n "$cmd" ] && method.exists? "$cmd"; then
+			"$cmd" "${arguments[@]:-}";
+		fi
+	fi
+}
+
+# handle option parsing
+prompt.options.parse() {
+	#echo "parsing opts $*";
+	local optspec=":12-:";
+	local optchar val opt;
+	OPTIND=0;
+	while getopts "$optspec" optchar; do
+	    case "${optchar}" in
+	        -)
+	            case "${OPTARG}" in
+					'')
+						break;
+						;;
+	                before=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[commands.before]="${val}";
+	                    ;;
+	                response=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[commands.response]="${val}";
+	                    ;;
+	                id=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[data.id]="${val}";
+	                    ;;
+	                *)
+	                    if [ "$OPTERR" == 1 ] && [ "${optspec:0:1}" != ":" ]; then
+	                        echo "prompt: unknown option --${OPTARG}" >&2
+	                    fi
+	                    ;;
+	            esac;;
+	        1)
+				echo "got flag"
+	            ;;
+	        *)
+	            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" == ":" ]; then
+	                echo "prompt: non-option '-${OPTARG}'" >&2
+	            fi
+	            ;;
+	    esac
+	done	
 }
 
 

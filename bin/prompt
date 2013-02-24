@@ -75,14 +75,52 @@ help.parse "$@";
 require 'opts/version';
 version.parse "$@";
 
-# print test prompts
-prompt.test() {
-	
-	console prompt "are you sure? (y/n)";
-	prompt boolean;
+declare -A messages;
+messages[confirm]="are you sure? (y/n)";
+messages[name]="enter a name";
 
-	console prompt "enter a name";
-	prompt string;
+declare -A responses;
+
+# a before command callback
+prompt.test.before() {
+	local key="${1:-}";
+	if [ -n "${key}" ]; then
+		local msg="${messages[$key]:-}";
+		console prompt "${msg}";
+	fi
+}
+
+# a response command callback
+prompt.test.response() {
+	local value="${1:-}";
+	local key="${2:-}";
+	# echo "$FUNCNAME : $# : $*";
+	if [ -n "${value}" ] && [ -n "${key}" ]; then
+		responses[$key]="$value";
+	fi
+}
+
+# print a summary of input
+prompt.test.summary() {
+	console header;
+	console title "SUMMARY";
+	console header;
+	local k v;
+	for k in "${!responses[@]}"
+		do
+			v="${responses[$k]}";
+			console print "${k}=%s" "${v}";
+	done
+	console header;
+}
+
+# print test prompts
+prompt.test() {	
+	local opts="--before=prompt.test.before --response=prompt.test.response";
+	prompt boolean $opts --id=confirm;
+	prompt value $opts --id=name;
+	
+	prompt.test.summary;
 }
 
 if [ $# -eq 0 ]; then
