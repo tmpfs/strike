@@ -146,38 +146,26 @@ prompt.read() {
 	fi
 	prompt.trigger 'commands.before' "${settings[data.id]:-}";
 	if prompt.interactive?; then
-		prompt.before;
+		local read_options=( -e );
 		if [ -n "${PS9:-}" ]; then
-			while
-				HISTSIZE="${settings[hist.size]}"
-				HISTFILESIZE="${settings[hist.filesize]}";
-				HISTFILE="${hist_file}";
-				HISTCONTROL="${settings[hist.control]}";
-				read -ep "${PS9}" value;
-				do
-					if [ -f "${HISTFILE}" ] \
-						&& [ -w "${HISTFILE}" ]; then
-						history -s "$value";
-						history -w "$HISTFILE";
-					fi
-					break;
-			done
-		else
-			while
-				HISTSIZE="${settings[hist.size]}"
-				HISTFILESIZE="${settings[hist.filesize]}";
-				HISTFILE="${hist_file}";
-				HISTCONTROL="${settings[hist.control]}";
-				read -e value;
-				do
-					if [ -f "${HISTFILE}" ] \
-						&& [ -w "${HISTFILE}" ]; then
-						history -s "$value";
-						history -w "$HISTFILE";
-					fi
-					break;
-			done
+			read_options+=( -p "${PS9}" );
 		fi
+		
+		prompt.before;
+		while
+			HISTSIZE="${settings[hist.size]}"
+			HISTFILESIZE="${settings[hist.filesize]}";
+			HISTFILE="${hist_file}";
+			HISTCONTROL="${settings[hist.control]}";
+			read "${read_options[@]}" value;
+			do
+				if [ -f "${HISTFILE}" ] \
+					&& [ -w "${HISTFILE}" ]; then
+					history -s "$value";
+					history -w "$HISTFILE";
+				fi
+				break;
+		done
 		prompt.after;
 	fi
 }
