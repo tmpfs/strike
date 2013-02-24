@@ -48,8 +48,18 @@ prompt() {
 	settings[hist.control]="erasedups:ignoredups";
 	settings[hist.size]="500";
 	settings[hist.filesize]="500";
+	settings[hist.file]="";	
 	
 	prompt.options.parse "$@";
+	
+	# try to create a history file when possible
+	if [ -n "${settings[hist.file]}" ] \
+		&& [ ! -f "${settings[hist.file]}" ]; then
+		touch "${settings[hist.file]}" \
+			|| console quit 1 "could not create %s" \
+				"${settings[hist.file]}";
+	fi
+	
 	delegate "${namespace}" "${cmd}" "$@";
 }
 
@@ -72,9 +82,6 @@ prompt.commands.boolean() {
 		accept_regexp="^${accept}";
 		reject_regexp="^${reject}";
 	fi
-	
-	# echo "show boolean prompt: ${accept:0:1}";
-	# echo "show boolean prompt: ${reject:0:1}";
 	
 	prompt.read;
 	local compare="${value}";
@@ -132,17 +139,11 @@ prompt.interactive?() {
 
 # show a prompt using read
 prompt.read() {
-	
-	# HISTSIZE=500;
-	# HISTFILESIZE=500;
-	# HISTCONTROL=erasedups:ignoredups;
-	# HISTFILE="$rlx_history";	
-	
-	local hist_file="${process_dirs[target]}/prompt.history.log";
-	touch $hist_file;
-	
-	# echo "using history: $hist_file";
-	
+	local hist_file="${settings[hist.file]}";
+	# load history entries
+	if [ -n "${hist_file:-}" ] && [ -f "${hist_file}" ]; then
+		history -n "${hist_file}";
+	fi
 	prompt.trigger 'commands.before' "${settings[data.id]:-}";
 	if prompt.interactive?; then
 		prompt.before;
@@ -233,6 +234,11 @@ prompt.options.parse() {
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						settings[commands.response]="${val}";
+	                    ;;
+	                hist-file=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[hist.file]="${val}";
 	                    ;;
 	                id=*)
 	                    val=${OPTARG#*=};
