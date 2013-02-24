@@ -45,6 +45,10 @@ prompt() {
 	settings[commands.before]="";
 	settings[commands.response]="";
 	
+	settings[hist.control]="erasedups:ignoredups";
+	settings[hist.size]="500";
+	settings[hist.filesize]="500";
+	
 	prompt.options.parse "$@";
 	delegate "${namespace}" "${cmd}" "$@";
 }
@@ -118,16 +122,60 @@ prompt.commands.value() {
 
 # INTERNAL
 
+# determine if interactivity is possible
+prompt.interactive?() {
+	if [ -t 0 ]; then
+		return 0;
+	fi
+	return 1;
+}
+
 # show a prompt using read
 prompt.read() {
-	# echo "calling before: '${settings[data.id]:-}' "
+	
+	# HISTSIZE=500;
+	# HISTFILESIZE=500;
+	# HISTCONTROL=erasedups:ignoredups;
+	# HISTFILE="$rlx_history";	
+	
+	local hist_file="${process_dirs[target]}/prompt.history.log";
+	touch $hist_file;
+	
+	# echo "using history: $hist_file";
+	
 	prompt.trigger 'commands.before' "${settings[data.id]:-}";
-	if [ -t 0 ]; then
+	if prompt.interactive?; then
 		prompt.before;
 		if [ -n "${PS9:-}" ]; then
-			read -ep "${PS9}" value;
-		else		
-			read -e value;
+			while
+				HISTSIZE="${settings[hist.size]}"
+				HISTFILESIZE="${settings[hist.filesize]}";
+				HISTFILE="${hist_file}";
+				HISTCONTROL="${settings[hist.control]}";
+				read -ep "${PS9}" value;
+				do
+					if [ -f "${HISTFILE}" ] \
+						&& [ -w "${HISTFILE}" ]; then
+						history -s "$value";
+						history -w "$HISTFILE";
+					fi
+					break;
+			done
+		else
+			while
+				HISTSIZE="${settings[hist.size]}"
+				HISTFILESIZE="${settings[hist.filesize]}";
+				HISTFILE="${hist_file}";
+				HISTCONTROL="${settings[hist.control]}";
+				read -e value;
+				do
+					if [ -f "${HISTFILE}" ] \
+						&& [ -w "${HISTFILE}" ]; then
+						history -s "$value";
+						history -w "$HISTFILE";
+					fi
+					break;
+			done
 		fi
 		prompt.after;
 	fi
