@@ -28,9 +28,13 @@ Run test prompt sequence:
 
 	prompt
 	
-Show a default boolean prompt:
+Run test prompt sequence with no color:
 
-	prompt boolean
+	prompt --color=never
+	
+Show a default confirmation prompt:
+
+	prompt confirm
 	
 Show a default value prompt:
 
@@ -134,7 +138,7 @@ prompt.test() {
 		--response=prompt.test.response
 		--hist-file="$hist_file"
 	);
-	prompt boolean ${opts[@]} --id=confirm;
+	prompt confirm ${opts[@]} --id=confirm;
 	prompt value ${opts[@]} --id=name;
 	prompt.test.summary;
 }

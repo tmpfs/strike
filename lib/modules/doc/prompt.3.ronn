@@ -11,7 +11,7 @@ Captures user input using `read`.
 
 ## COMMANDS
 
-* `boolean`:
+* `confirm`:
 
 Capture a boolean response, this is useful for confirmation prompts. By default, the values *yes* and *no* are used as the strings for comparison as to whether the confirmation was accepted or rejected. Comparison is done in a case-insensitive comparison on the first character of the received input.
 

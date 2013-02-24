@@ -70,8 +70,8 @@ prompt() {
 
 # COMMANDS
 
-# show a boolean prompt
-prompt.commands.boolean() {
+# show a confirmation prompt
+prompt.commands.confirm() {
 	local accept="${settings[boolean.yes]}";
 	local reject="${settings[boolean.no]}";
 	
