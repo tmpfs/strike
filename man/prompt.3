@@ -27,7 +27,7 @@ Captures user input using \fBread\fR\.
 Capture a confirmation response, this is useful for confirmation prompts\. By default, the values \fIyes\fR and \fIno\fR are used as the strings for comparison as to whether the confirmation was accepted or rejected\. Comparison is done in a case\-insensitive comparison on the first character of the received input\.
 .
 .P
-If the input does not match and accept or reject value then the prompt is re\-displayed\.
+If the input does not match a accept or reject value then the prompt is re\-displayed\.
 .
 .TP
 \fBline\fR:
@@ -74,6 +74,13 @@ Execute \fIcommand\fR when input is received\.
 Use \fIseconds\fR as the prompt timeout\. If \fIseconds\fR is non\-numeric or zero it is ignored\.
 .
 .TP
+\fB\-\-quit=[words]\fR:
+
+.
+.P
+Use in conjunction with the \fB\-\-infinite\fR option to stop an infinite prompt if the entered value matches any word in \fIwords\fR\.
+.
+.TP
 \fB\-m | \-\-multiline\fR:
 
 .
@@ -87,6 +94,13 @@ Allow multiline input so that a backslash escape followed by a newline continues
 .P
 Allow shell command execution\. When this option is present each line entered is executed as a shell command using \fBbash \-c\fR so that redirection, pipes and other more complex shell commands are possible\.
 .
+.TP
+\fB\-i | \-\-infinite\fR:
+
+.
+.P
+Show a prompt infinitely\. After a line has been read then the prompt is re\-displayed\.
+.
 .SH "BUGS"
 \fBprompt\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
 .
@@ -94,4 +108,4 @@ Allow shell command execution\. When this option is present each line entered is
 \fBprompt\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-prompt(1)
+prompt(1), console(3)
