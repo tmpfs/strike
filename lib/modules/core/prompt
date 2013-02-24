@@ -124,13 +124,9 @@ prompt.commands.confirm() {
 		prompt.trigger 'boolean.rejected' "${value:-}";
 		
 	else		
-		if ! $PROMPT_TIMEOUT; then
-			# show the prompt again
-			# on invalid input
-			prompt.commands.confirm;
-		else
-			printf '\n';
-		fi
+		# show the prompt again
+		# on invalid input
+		prompt.commands.confirm;
 	fi
 }
 
@@ -144,13 +140,9 @@ prompt.commands.line() {
 		prompt.trigger 'commands.response' \
 			"${value:-}" "${settings[data.id]:-}";
 	else
-		if ! $PROMPT_TIMEOUT; then
-			# show the prompt again
-			# on empty input
-			prompt.commands.line;
-		else
-			printf '\n';
-		fi
+		# show the prompt again
+		# on empty input
+		prompt.commands.line;
 	fi
 }
 
@@ -217,7 +209,7 @@ prompt.read() {
 		if [ $PROMPT_READ_EXIT_CODE -gt 128 ]; then
 			PROMPT_TIMEOUT=true;
 			prompt.trigger 'commands.timeout' "${settings[data.id]:-}";
-			return 0;
+			printf '\n';
 		fi
 		prompt.after;
 		
@@ -226,7 +218,7 @@ prompt.read() {
 				settings[infinite]=false;
 				settings[execute]=false;
 			fi
-		fi		
+		fi
 		
 		if ${settings[execute]}; then
 			# NOTE: must run in a sub-shell

@@ -163,6 +163,7 @@ prompt.test() {
 	
 	#  --timeout=1
 	
+	#  --timeout=2
 	prompt line ${opts[@]} --quit="q quit exit" --exec --infinite --id=execute;
 	
 	prompt confirm ${opts[@]} --id=confirm;
