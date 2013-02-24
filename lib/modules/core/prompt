@@ -59,6 +59,8 @@ prompt() {
 	settings[commands.before]="";
 	settings[commands.response]="";
 	settings[commands.timeout]="";
+	settings[commands.accepted]="";
+	settings[commands.rejected]="";
 	
 	# history control
 	settings[hist.control]="erasedups:ignoredups";
@@ -114,15 +116,14 @@ prompt.commands.confirm() {
 		prompt.trigger 'commands.response' \
 			true "${settings[data.id]:-}" "${value:-}";
 		
-		#
-		prompt.trigger 'boolean.accepted' "${value:-}";
+		prompt.trigger 'commands.accepted' "${value:-}";
 		
 	elif [[ "$compare" =~ $reject_regexp ]]; then
 		prompt.trigger 'commands.response' \
 			false "${settings[data.id]:-}" "${value:-}";
 		
 		#
-		prompt.trigger 'boolean.rejected' "${value:-}";
+		prompt.trigger 'commands.rejected' "${value:-}";
 		
 	else		
 		# show the prompt again
@@ -287,6 +288,16 @@ prompt.options.parse() {
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						settings[commands.response]="${val}";
+	                    ;;
+	                accepted=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[commands.accepted]="${val}";
+	                    ;;
+	                rejected=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[commands.rejected]="${val}";
 	                    ;;
 	                hist-file=*)
 	                    val=${OPTARG#*=};

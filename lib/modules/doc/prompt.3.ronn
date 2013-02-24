@@ -13,9 +13,9 @@ Captures user input using `read`.
 
 * `confirm`:
 
-Capture a confirmation response, this is useful for confirmation prompts. By default, the values *yes* and *no* are used as the strings for comparison as to whether the confirmation was accepted or rejected. Comparison is done in a case-insensitive comparison on the first character of the received input.
+Capture a boolean response, this is useful for confirmation prompts. By default, the values *yes* and *no* are used as the strings for comparison as to whether the confirmation was accepted or rejected. Comparison is done in a case-insensitive comparison on the first character of the received input.
 
-If the input does not match a accept or reject value then the prompt is re-displayed.
+If the input does not match an accept or reject value then the prompt is re-displayed.
 
 * `line`:
 
@@ -39,6 +39,14 @@ Execute *command* before reading input.
 
 Execute *command* when input is received.
 
+* `--acccepted=[command]`:
+
+Execute *command* when a confirm prompt is accepted.
+
+* `--rejected=[command]`:
+
+Execute *command* when a confirm prompt is rejected.
+
 * `--timeout=[seconds]`:
 
 Use *seconds* as the prompt timeout. If *seconds* is non-numeric or zero it is ignored.
@@ -46,6 +54,10 @@ Use *seconds* as the prompt timeout. If *seconds* is non-numeric or zero it is i
 * `--quit=[words]`:
 
 Use in conjunction with the `--infinite` option to stop an infinite prompt if the entered value matches any word in *words*.
+
+* `--default=[value]`:
+
+Use *value* when the user input is empty. This option may be used to override the default behaviour of re-displaying a prompt when no input is received.
 
 * `-m | --multiline`:
 

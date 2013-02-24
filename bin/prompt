@@ -99,7 +99,7 @@ messages[confirm]="are you sure? (y/n)";
 messages[name]="enter a name";
 
 declare -A descriptions;
-descriptions[execute]="This is a prompt that may execute arbitrary commands. It is infinite. You may exit the program with ctrl+c. Or enter q, quit or exit to move on to the next prompt. Redirection and pipes are supported. Commands are executed in a subshell.";
+descriptions[execute]="This is a prompt that may execute arbitrary commands. It is infinite. You may exit the program with ctrl+c. Or enter q, quit or exit to move on to the next prompt. Redirection and pipes are supported. Commands are executed in a subshell. You may use a backslash newline escape to execute a command that spans several lines.";
 descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
 descriptions[name]="This is a prompt that captures a single line of input.";
 descriptions[timeout]="This is a prompt that will timeout in 5 seconds, if you do not enter anything in that time the next prompt is displayed.";
@@ -155,6 +155,16 @@ prompt.test.summary() {
 	console header;
 }
 
+# accepted confirmation
+confirm.accepted() {
+	console ok "confirmation was accepted";
+}
+
+# rejected confirmation
+confirm.rejected() {
+	console notok "confirmation was rejected";
+}
+
 # run a test
 prompt.test.run() {
 	runner="$*";
@@ -177,10 +187,11 @@ prompt.test() {
 	
 	prompt.test.run \
 		prompt line ${opts[@]} \
-		--quit="q quit exit" --exec --infinite --id=execute;
+		--multiline --quit="q quit exit" --exec --infinite --id=execute;
 	
 	prompt.test.run \
-		prompt confirm ${opts[@]} --id=confirm;
+		prompt confirm ${opts[@]} --id=confirm \
+		--accepted=confirm.accepted --rejected=confirm.rejected;
 		
 	prompt.test.run \
 		prompt line ${opts[@]} --id=name;

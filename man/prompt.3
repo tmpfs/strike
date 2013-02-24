@@ -24,10 +24,10 @@ Captures user input using \fBread\fR\.
 
 .
 .P
-Capture a confirmation response, this is useful for confirmation prompts\. By default, the values \fIyes\fR and \fIno\fR are used as the strings for comparison as to whether the confirmation was accepted or rejected\. Comparison is done in a case\-insensitive comparison on the first character of the received input\.
+Capture a boolean response, this is useful for confirmation prompts\. By default, the values \fIyes\fR and \fIno\fR are used as the strings for comparison as to whether the confirmation was accepted or rejected\. Comparison is done in a case\-insensitive comparison on the first character of the received input\.
 .
 .P
-If the input does not match a accept or reject value then the prompt is re\-displayed\.
+If the input does not match an accept or reject value then the prompt is re\-displayed\.
 .
 .TP
 \fBline\fR:
@@ -67,6 +67,20 @@ Execute \fIcommand\fR before reading input\.
 Execute \fIcommand\fR when input is received\.
 .
 .TP
+\fB\-\-acccepted=[command]\fR:
+
+.
+.P
+Execute \fIcommand\fR when a confirm prompt is accepted\.
+.
+.TP
+\fB\-\-rejected=[command]\fR:
+
+.
+.P
+Execute \fIcommand\fR when a confirm prompt is rejected\.
+.
+.TP
 \fB\-\-timeout=[seconds]\fR:
 
 .
@@ -79,6 +93,13 @@ Use \fIseconds\fR as the prompt timeout\. If \fIseconds\fR is non\-numeric or ze
 .
 .P
 Use in conjunction with the \fB\-\-infinite\fR option to stop an infinite prompt if the entered value matches any word in \fIwords\fR\.
+.
+.TP
+\fB\-\-default=[value]\fR:
+
+.
+.P
+Use \fIvalue\fR when the user input is empty\. This option may be used to override the default behaviour of re\-displaying a prompt when no input is received\.
 .
 .TP
 \fB\-m | \-\-multiline\fR:
