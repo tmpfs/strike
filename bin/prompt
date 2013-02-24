@@ -6,11 +6,11 @@ prompt(1) -- test program for prompt(3)
 
 ## SYNOPSIS
 
-	prompt [options] message [replacements...]
+	prompt [options]
 
 ## DESCRIPTION
 
-Test program for prompt(3) and console(3).
+Test program for prompt(3).
 
 ## OPTIONS
 
@@ -24,9 +24,17 @@ When invoked with no options this program prints a series of test prompts. When 
 
 ## EXAMPLES
 
-Print test prompts:
+Run test prompt sequence:
 
 	prompt
+	
+Show a default boolean prompt:
+
+	prompt boolean
+	
+Show a default value prompt:
+
+	prompt value
 
 ## BUGS
 
@@ -38,7 +46,7 @@ Print test prompts:
 
 ## SEE ALSO
 
-console(3), sprintf(3)
+prompt(3), console(3)
 ronn:markdown
 
 ######################################################################
@@ -94,7 +102,6 @@ prompt.test.before() {
 prompt.test.response() {
 	local value="${1:-}";
 	local key="${2:-}";
-	# echo "$FUNCNAME : $# : $*";
 	if [ -n "${value}" ] && [ -n "${key}" ]; then
 		responses[$key]="$value";
 	fi
@@ -150,6 +157,5 @@ else
 		prompt.test;
 		exit 0;
 	fi
-
 	prompt "$@";
 fi

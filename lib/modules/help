@@ -39,7 +39,6 @@ function help.man.show {
 	local man="${executables[man]}";	
 	local page="${1:-}";
 	local default="${2:-false}";
-	echo "attempting to show man page: $page";
 	local name=${page%%.*};
 	# always prefer mapped help pages
 	if ! $default && [ -n "${__help_manpages[$name]:-}" ]; then

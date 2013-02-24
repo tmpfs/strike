@@ -10,12 +10,12 @@
 .
 .nf
 
-prompt [options] message [replacements\.\.\.]
+prompt [options]
 .
 .fi
 .
 .SH "DESCRIPTION"
-Test program for prompt(3) and console(3)\.
+Test program for prompt(3)\.
 .
 .SH "OPTIONS"
 .
@@ -30,13 +30,39 @@ Sets the environment variable for sprintf(3) that overrides any \fB\-\-color\fR 
 When invoked with no options this program prints a series of test prompts\. When options are specified they are passed on to prompt(3)\.
 .
 .SH "EXAMPLES"
-Print test prompts:
+Run test prompt sequence:
 .
 .IP "" 4
 .
 .nf
 
 prompt
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Show a default boolean prompt:
+.
+.IP "" 4
+.
+.nf
+
+prompt boolean
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Show a default value prompt:
+.
+.IP "" 4
+.
+.nf
+
+prompt value
 .
 .fi
 .
@@ -49,4 +75,4 @@ prompt
 \fBprompt\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-console(3), sprintf(3)
+prompt(3), console(3)

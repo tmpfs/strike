@@ -12,6 +12,9 @@ declare -g prompt_current;
 declare -g prompt_command;
 declare -ag prompt_command_options;
 
+# TOOD: validate
+# TODO: silent
+
 # main entry point
 prompt() {
 	if [ $# -eq 0 ]; then
@@ -30,6 +33,8 @@ prompt() {
 
 	# configuration settings
 	declare -A settings;
+	
+	settings[multiline]=false;
 	
 	# custom data associated with the prompt
 	settings[data.id]="";
@@ -137,6 +142,16 @@ prompt.interactive?() {
 	return 1;
 }
 
+# -a ANAME	The words are assigned to sequential indexes of the array variable ANAME, starting at 0. All elements are removed from ANAME before the assignment. Other NAME arguments are ignored.
+# -d DELIM	The first character of DELIM is used to terminate the input line, rather than newline.
+# -e	readline is used to obtain the line.
+# -n NCHARS	read returns after reading NCHARS characters rather than waiting for a complete line of input.
+# -p PROMPT	Display PROMPT, without a trailing newline, before attempting to read any input. The prompt is displayed only if input is coming from a terminal.
+# -r	If this option is given, backslash does not act as an escape character. The backslash is considered to be part of the line. In particular, a backslash-newline pair may not be used as a line continuation.
+# -s	Silent mode. If input is coming from a terminal, characters are not echoed.
+# -t TIMEOUT	Cause read to time out and return failure if a complete line of input is not read within TIMEOUT seconds. This option has no effect if read is not reading input from the terminal or from a pipe.
+# -u FD	Read input from file descriptor FD.
+
 # show a prompt using read
 prompt.read() {
 	local hist_file="${settings[hist.file]}";
@@ -147,6 +162,9 @@ prompt.read() {
 	prompt.trigger 'commands.before' "${settings[data.id]:-}";
 	if prompt.interactive?; then
 		local read_options=( -e );
+		if ! ${settings[multiline]}; then
+			read_options+=( -r );
+		fi
 		if [ -n "${PS9:-}" ]; then
 			read_options+=( -p "${PS9}" );
 		fi

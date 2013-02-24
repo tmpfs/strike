@@ -1,0 +1,43 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "PROMPT" "3" "February 2013" "" ""
+.
+.SH "NAME"
+\fBprompt\fR \- user input module
+.
+.SH "SYNOPSIS"
+.
+.nf
+
+prompt [command] [options\.\.\.]
+.
+.fi
+.
+.SH "DESCRIPTION"
+Captures user input using \fBread\fR\.
+.
+.SH "COMMANDS"
+.
+.TP
+\fBboolean\fR:
+
+.
+.P
+Capture a boolean response, this is useful for confirmation prompts\. By default, the values \fIyes\fR and \fIno\fR are used as the strings for comparison as to whether the confirmation was accepted or rejected\. Comparison is done in a case\-insensitive comparison on the first character of the received input\.
+.
+.TP
+\fBvalue\fR:
+
+.
+.P
+Capture a non\-empty string value\.
+.
+.SH "BUGS"
+\fBprompt\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBprompt\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+prompt(1)

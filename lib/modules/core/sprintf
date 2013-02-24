@@ -167,7 +167,13 @@ sprintf() {
 	local message="${messages[0]:-}";
 	local original="${message}";
 	if [ -n "${suffix}" ]; then
-		message="${message} ${suffix}";
+		# concatenate with message
+		if [ -n "${message}" ]; then
+			message="${message} ${suffix}";
+		# empty message so just use suffix
+		else
+			message="${suffix}";
+		fi
 	fi
 	messages[0]="${message}";
 	
@@ -662,7 +668,7 @@ sprintf.prefix() {
 		fi
 		if ${flags[program]}; then
 			sprintf.prefix.program;
-		fi		
+		fi
 		
 		# prefix before any ANSI sequences
 		local plain_prefix="${prefix}";
