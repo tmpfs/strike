@@ -194,7 +194,11 @@ characters[lightning]="⚡";
 declare -g header="";
 declare -g header_character="${strike_header_character:-+}";
 declare -g header_repeat="${strike_header_repeat:-75}";
-declare -g fmt_width="${strike_fmt_width:-75}";
+declare -g fmt_width="${strike_fmt_width:-}";
+
+if [ -n "${header_repeat}" ]; then
+	header_repeat=$( tput cols );
+fi
 
 # generic suffic for prompts
 export PS9_SUFFIX="${characters[lightning]} ";

@@ -1,16 +1,16 @@
-declare -Ag prompt_data;
-declare -Ag prompt_boolean;
-
-# callback lists
-declare -g prompt_accepted;
-declare -g prompt_rejected;
-declare -g prompt_invalid;
-
-declare -g prompt_current;
-
-# current prompt command
-declare -g prompt_command;
-declare -ag prompt_command_options;
+# declare -Ag prompt_data;
+# declare -Ag prompt_boolean;
+# 
+# # callback lists
+# declare -g prompt_accepted;
+# declare -g prompt_rejected;
+# declare -g prompt_invalid;
+# 
+# declare -g prompt_current;
+# 
+# # current prompt command
+# declare -g prompt_command;
+# declare -ag prompt_command_options;
 
 # TOOD: validate
 # TODO: silent
@@ -35,6 +35,7 @@ prompt() {
 	declare -A settings;
 	
 	settings[multiline]=false;
+	settings[timeout]=0;
 	
 	# custom data associated with the prompt
 	settings[data.id]="";
@@ -49,6 +50,7 @@ prompt() {
 	# command callbacks
 	settings[commands.before]="";
 	settings[commands.response]="";
+	settings[commands.timeout]="";
 	
 	settings[hist.control]="erasedups:ignoredups";
 	settings[hist.size]="500";
@@ -111,10 +113,14 @@ prompt.commands.confirm() {
 		#
 		prompt.trigger 'boolean.rejected' "${value:-}";
 		
-	else
-		# show the prompt again
-		# on invalid input
-		prompt.commands.boolean;
+	else		
+		if ! $PROMPT_TIMEOUT; then
+			# show the prompt again
+			# on invalid input
+			prompt.commands.confirm;
+		else
+			printf '\n';
+		fi
 	fi
 }
 
@@ -126,9 +132,13 @@ prompt.commands.value() {
 		prompt.trigger 'commands.response' \
 			"${value:-}" "${settings[data.id]:-}";
 	else
-		# show the prompt again
-		# on empty input
-		prompt.commands.value;
+		if ! $PROMPT_TIMEOUT; then
+			# show the prompt again
+			# on empty input
+			prompt.commands.value;
+		else
+			printf '\n';
+		fi
 	fi
 }
 
@@ -154,6 +164,9 @@ prompt.interactive?() {
 
 # show a prompt using read
 prompt.read() {
+	
+	export PROMPT_TIMEOUT=false;
+	
 	local hist_file="${settings[hist.file]}";
 	# load history entries
 	if [ -n "${hist_file:-}" ] && [ -f "${hist_file}" ]; then
@@ -169,6 +182,11 @@ prompt.read() {
 			read_options+=( -p "${PS9}" );
 		fi
 		
+		if [[ "${settings[timeout]}" =~ ^[0-9]+$ ]] \
+			&& [ "${settings[timeout]}" -gt 0 ]; then
+			read_options+=( -t "${settings[timeout]}" );
+		fi
+		
 		prompt.before;
 		while
 			HISTSIZE="${settings[hist.size]}"
@@ -176,6 +194,7 @@ prompt.read() {
 			HISTFILE="${hist_file}";
 			HISTCONTROL="${settings[hist.control]}";
 			read "${read_options[@]}" value;
+			export PROMPT_READ_EXIT_CODE=$?;
 			do
 				if [ -f "${HISTFILE}" ] \
 					&& [ -w "${HISTFILE}" ]; then
@@ -184,6 +203,10 @@ prompt.read() {
 				fi
 				break;
 		done
+		if [ $PROMPT_READ_EXIT_CODE -gt 128 ]; then
+			PROMPT_TIMEOUT=true;
+			prompt.trigger 'commands.timeout' "${settings[data.id]:-}";
+		fi
 		prompt.after;
 	fi
 }
@@ -220,8 +243,7 @@ prompt.trigger() {
 
 # handle option parsing
 prompt.options.parse() {
-	#echo "parsing opts $*";
-	local optspec=":12-:";
+	local optspec=":m-:";
 	local optchar val opt;
 	OPTIND=0;
 	while getopts "$optspec" optchar; do
@@ -251,14 +273,22 @@ prompt.options.parse() {
 	                    opt=${OPTARG%=$val};
 						settings[data.id]="${val}";
 	                    ;;
+	                timeout=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[timeout]="${val}";
+	                    ;;
+					multiline)
+						settings[multiline]=true;
+						;;
 	                *)
 	                    if [ "$OPTERR" == 1 ] && [ "${optspec:0:1}" != ":" ]; then
 	                        echo "prompt: unknown option --${OPTARG}" >&2
 	                    fi
 	                    ;;
 	            esac;;
-	        1)
-				echo "got flag"
+	        m)
+				settings[multiline]=true;
 	            ;;
 	        *)
 	            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" == ":" ]; then
@@ -285,189 +315,189 @@ prompt.options.parse() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-# add a boolean prompt
-# $1 id
-# $2 true string
-# $3 false string
-# $4..$# message parameters ...
-prompt.boolean() {
-	local key="${1:-}";
-	shift;
-	# store newline separated
-	local quoted="";
-	local IFS=$'\n';
-	quoted=( $@ );
-	prompt_boolean["$key"]="${quoted[*]}";
-}
-
-# add a data prompt - read a non-empty string
-# $1 id
-# $2..$# message parameters ...
-prompt.data() {
-	local key="${1:-}";
-	shift;
-	# store newline separated
-	local quoted="";
-	local IFS=$'\n';
-	quoted=( $@ );
-	prompt_data["$key"]="${quoted[*]}";
-}
-
-# show a prompt by id
-prompt.show() {
-	if [ ! -t 0 ]; then
-		return 0;
-	fi
-	
-	local key="${1:-}";
-	shift;
-	if [ -n "${prompt_boolean["$key"]:-}" ]; then
-		local IFS=$'\n';
-		local values=( ${prompt_boolean["$key"]} );
-		unset IFS;		
-		prompt_command_options=( ${values[@]} );
-		prompt_command='__prompt.show.boolean';
-		__prompt.show.boolean ${values[@]};
-		unset IFS;
-		return $?;
-	elif [ -n "${prompt_data["$key"]:-}" ]; then
-		local IFS=$'\n';
-		local values=( ${prompt_data["$key"]} );
-		unset IFS;		
-		prompt_command_options=( ${values[@]} );		
-		prompt_command='__prompt.show.data';
-		__prompt.show.data ${values[@]};		
-		return $?;
-	fi
-	console warn "no prompt data for %s" "$key";
-	return 1;
-}
-
-# sets accept callback method
-prompt.accepts() {
-	prompt_accepted="$@";
-}
-
-# sets rejects callback method
-prompt.rejects() {
-	prompt_rejected="$@";
-}
-
-# sets invalid callback method
-prompt.invalid() {
-	prompt_invalid="$@";
-}
-
-# clean prompt data
-prompt.clean() {
-	unset prompt_data;
-	unset prompt_boolean;
-	declare -Ag prompt_data;
-	declare -Ag prompt_boolean;
-}
-
-######################################################################
-#
-#	PRIVATE METHODS
-#
-######################################################################
-
-function __prompt.trigger {
-	local m;
-	local IFS=' ';
-	local methods=( $1 );
-	shift;
-	unset IFS;
-	for m in ${methods[@]}
-		do
-			if method.exists? "$m"; then
-				$m "$@";
-			fi
-	done
-}
-
-function __prompt.accepted {
-	__prompt.trigger $prompt_accepted "$@";
-	return 0;
-}
-
-function __prompt.rejected {
-	__prompt.trigger $prompt_rejected "$@";
-	return 0;
-}
-
-function __prompt.invalid {
-	if [ -n "${prompt_invalid:-}" ]; then
-		__prompt.trigger $prompt_invalid;
-	fi
-	$prompt_command ${prompt_command_options[@]:-};
-	return 0;
-}
-
-function __prompt.show.boolean {
-	local value;	
-	local accept="$1";
-	shift;
-	local reject="$1";
-	shift;
-	
-	prompt_current=( $@ );
-
-	if [ -t 0 ]; then
-		prompt.before;
-		
-		# show the prompt message
-		# console prompt "$@";
-		
-		if [ -n "${PS9:-}" ]; then
-			read -ep "${PS9}" value;
-		else
-			read -e value;
-		fi
-		prompt.after;
-		if [ "$value" == "$accept" ]; then
-			__prompt.accepted $@;
-		elif [ "$value" == "$reject" ]; then
-			__prompt.rejected $@;
-		else
-			__prompt.invalid $@;
-		fi
-	fi
-}
-
-function __prompt.show.data {
-	local value;
-	
-	prompt_current=( $@ );
-	
-	if [ -t 0 ]; then
-		
-		prompt.before;
-		
-		# show the prompt message
-		# console prompt $@;
-		
-		if [ -n "${PS9:-}" ]; then
-			read -ep "${PS9}" value;
-		else		
-			read -e value;
-		fi
-		prompt.after;
-		if [ -n "${value:-}" ]; then
-			__prompt.accepted "${value}";
-		else
-			__prompt.rejected "${value}";
-		fi
-	fi
-}
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# # add a boolean prompt
+# # $1 id
+# # $2 true string
+# # $3 false string
+# # $4..$# message parameters ...
+# prompt.boolean() {
+# 	local key="${1:-}";
+# 	shift;
+# 	# store newline separated
+# 	local quoted="";
+# 	local IFS=$'\n';
+# 	quoted=( $@ );
+# 	prompt_boolean["$key"]="${quoted[*]}";
+# }
+# 
+# # add a data prompt - read a non-empty string
+# # $1 id
+# # $2..$# message parameters ...
+# prompt.data() {
+# 	local key="${1:-}";
+# 	shift;
+# 	# store newline separated
+# 	local quoted="";
+# 	local IFS=$'\n';
+# 	quoted=( $@ );
+# 	prompt_data["$key"]="${quoted[*]}";
+# }
+# 
+# # show a prompt by id
+# prompt.show() {
+# 	if [ ! -t 0 ]; then
+# 		return 0;
+# 	fi
+# 	
+# 	local key="${1:-}";
+# 	shift;
+# 	if [ -n "${prompt_boolean["$key"]:-}" ]; then
+# 		local IFS=$'\n';
+# 		local values=( ${prompt_boolean["$key"]} );
+# 		unset IFS;		
+# 		prompt_command_options=( ${values[@]} );
+# 		prompt_command='__prompt.show.boolean';
+# 		__prompt.show.boolean ${values[@]};
+# 		unset IFS;
+# 		return $?;
+# 	elif [ -n "${prompt_data["$key"]:-}" ]; then
+# 		local IFS=$'\n';
+# 		local values=( ${prompt_data["$key"]} );
+# 		unset IFS;		
+# 		prompt_command_options=( ${values[@]} );		
+# 		prompt_command='__prompt.show.data';
+# 		__prompt.show.data ${values[@]};		
+# 		return $?;
+# 	fi
+# 	console warn "no prompt data for %s" "$key";
+# 	return 1;
+# }
+# 
+# # sets accept callback method
+# prompt.accepts() {
+# 	prompt_accepted="$@";
+# }
+# 
+# # sets rejects callback method
+# prompt.rejects() {
+# 	prompt_rejected="$@";
+# }
+# 
+# # sets invalid callback method
+# prompt.invalid() {
+# 	prompt_invalid="$@";
+# }
+# 
+# # clean prompt data
+# prompt.clean() {
+# 	unset prompt_data;
+# 	unset prompt_boolean;
+# 	declare -Ag prompt_data;
+# 	declare -Ag prompt_boolean;
+# }
+# 
+# ######################################################################
+# #
+# #	PRIVATE METHODS
+# #
+# ######################################################################
+# 
+# function __prompt.trigger {
+# 	local m;
+# 	local IFS=' ';
+# 	local methods=( $1 );
+# 	shift;
+# 	unset IFS;
+# 	for m in ${methods[@]}
+# 		do
+# 			if method.exists? "$m"; then
+# 				$m "$@";
+# 			fi
+# 	done
+# }
+# 
+# function __prompt.accepted {
+# 	__prompt.trigger $prompt_accepted "$@";
+# 	return 0;
+# }
+# 
+# function __prompt.rejected {
+# 	__prompt.trigger $prompt_rejected "$@";
+# 	return 0;
+# }
+# 
+# function __prompt.invalid {
+# 	if [ -n "${prompt_invalid:-}" ]; then
+# 		__prompt.trigger $prompt_invalid;
+# 	fi
+# 	$prompt_command ${prompt_command_options[@]:-};
+# 	return 0;
+# }
+# 
+# function __prompt.show.boolean {
+# 	local value;	
+# 	local accept="$1";
+# 	shift;
+# 	local reject="$1";
+# 	shift;
+# 	
+# 	prompt_current=( $@ );
+# 
+# 	if [ -t 0 ]; then
+# 		prompt.before;
+# 		
+# 		# show the prompt message
+# 		# console prompt "$@";
+# 		
+# 		if [ -n "${PS9:-}" ]; then
+# 			read -ep "${PS9}" value;
+# 		else
+# 			read -e value;
+# 		fi
+# 		prompt.after;
+# 		if [ "$value" == "$accept" ]; then
+# 			__prompt.accepted $@;
+# 		elif [ "$value" == "$reject" ]; then
+# 			__prompt.rejected $@;
+# 		else
+# 			__prompt.invalid $@;
+# 		fi
+# 	fi
+# }
+# 
+# function __prompt.show.data {
+# 	local value;
+# 	
+# 	prompt_current=( $@ );
+# 	
+# 	if [ -t 0 ]; then
+# 		
+# 		prompt.before;
+# 		
+# 		# show the prompt message
+# 		# console prompt $@;
+# 		
+# 		if [ -n "${PS9:-}" ]; then
+# 			read -ep "${PS9}" value;
+# 		else		
+# 			read -e value;
+# 		fi
+# 		prompt.after;
+# 		if [ -n "${value:-}" ]; then
+# 			__prompt.accepted "${value}";
+# 		else
+# 			__prompt.rejected "${value}";
+# 		fi
+# 	fi
+# }

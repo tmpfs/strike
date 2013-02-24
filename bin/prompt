@@ -91,12 +91,24 @@ declare -A messages;
 messages[confirm]="are you sure? (y/n)";
 messages[name]="enter a name";
 
+declare -A descriptions;
+descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
+
 declare -A responses;
 
 # a before command callback
 prompt.test.before() {
 	local key="${1:-}";
 	if [ -n "${key}" ]; then
+		local description=$( echo "${descriptions[$key]:-}" | fmt -w 70 );
+		console header;
+		console title "${key^^}";
+		if [ -n "${description}" ]; then
+			console title "";
+			console title "${description}";
+		fi
+		console header;
+		
 		local msg="${messages[$key]:-}";
 		console prompt --program "${msg}";
 	fi
@@ -138,6 +150,9 @@ prompt.test() {
 		--response=prompt.test.response
 		--hist-file="$hist_file"
 	);
+	
+	#  --timeout=1
+	
 	prompt confirm ${opts[@]} --id=confirm;
 	prompt value ${opts[@]} --id=name;
 	prompt.test.summary;

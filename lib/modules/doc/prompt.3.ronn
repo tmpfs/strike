@@ -19,6 +19,32 @@ Capture a boolean response, this is useful for confirmation prompts. By default,
 
 Capture a non-empty string value.
 
+## OPTIONS
+
+* `--id=[identifier]`:
+
+Associate *id* with a prompt.
+
+* `--hist-file=[file]`:
+
+Use *file* for the history file. If this option is not specified no history is maintained, if *file* does not exist it is created.
+
+* `--before=[command]`:
+
+Execute *command* before reading input.
+
+* `--response=[command]`:
+
+Execute *command* when input is received.
+
+* `--timeout=[seconds]`:
+
+Use *seconds* as the prompt timeout. If *seconds* is non-numeric or zero it is ignored.
+
+* `-m | --multiline`:
+
+Allow multiline input so that a backslash escape followed by a newline continues capturing data for a prompt.
+
 ## BUGS
 
 **prompt** is written in bash and depends upon `bash` >= 4.2.

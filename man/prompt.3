@@ -20,7 +20,7 @@ Captures user input using \fBread\fR\.
 .SH "COMMANDS"
 .
 .TP
-\fBboolean\fR:
+\fBconfirm\fR:
 
 .
 .P
@@ -32,6 +32,22 @@ Capture a boolean response, this is useful for confirmation prompts\. By default
 .
 .P
 Capture a non\-empty string value\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-\-id=[identifier]\fR:
+
+.
+.P
+Associate \fIid\fR with a prompt\.
+.
+.TP
+\fB\-\-hist\-file=[file]\fR:
+
+.
+.P
+Use \fIfile\fR for the history file\. If this option is not specified no history is maintained, if \fIfile\fR does not exist it is created\.
 .
 .SH "BUGS"
 \fBprompt\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
