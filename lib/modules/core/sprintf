@@ -182,8 +182,6 @@ sprintf() {
 			sprintf.noansi;
 		elif ! array.contains? "$TERM" "${emulators[@]}"; then
 			sprintf.noansi;
-		elif ${console_no_color}; then
-			sprintf.noansi;
 		fi
 	fi
 	

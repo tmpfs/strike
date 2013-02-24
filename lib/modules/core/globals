@@ -120,38 +120,14 @@ declare -Agx executables;
 ### CONSOLE
 
 See console(3) for related information.
-
-: <<'api:ronn:markdown'
-* `console_no_color`:
-
-Controls whether console output uses ANSI escape sequences.
-A non-empty string value causes console to omit
-all formatting of output, switched on with the global
---no-color option, see console(3).
-
 api:ronn:markdown
-declare -gx console_no_color=false;
-declare -gx console_no_color_option="--no-color";
-
-
-# TODO: implement this parameter in console(3)
-: <<'api:ronn:markdown'
-* `console_no_prefix`:
-
-Controls whether console output generates a prefix.
-A non-empty string value causes console to omit a prefix
-when printing output, switched on with the global 
---no-prefix option.
-
-api:ronn:markdown
-declare -gx console_no_prefix="";
 
 : <<'api:ronn:markdown'
 * `console_prefixes`:
 
 Associative array of prefixes used by console(3) methods.
-
 api:ronn:markdown
+
 declare -Agx console_prefixes;
 console_prefixes['info']="info";
 console_prefixes['error']="error";

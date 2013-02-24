@@ -147,21 +147,6 @@ console.success() {
 	exit 0;
 }
 
-# inspect the program options 
-# looking for a --no-color option
-console.parse() {
-	local l=$#;
-	local i val;
-	for((i = 1;i < l+1;i++))
-		do
-			eval val="$"$i;
-			if [ "$val" == "${console_no_color_option}" ]; then
-				console_no_color=true;
-			fi
-	done
-}
-console.parse "$@";
-
 # mark functions as read only
 readonly -f console \
 	console.header \
