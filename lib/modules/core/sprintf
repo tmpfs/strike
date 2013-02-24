@@ -51,7 +51,6 @@ ansi=(
 	[octal.terminator]=$'\001\033[0m\002'
 	[octal.start]=$'\001\033['
 	[octal.end]=$'m\002'
-	[emulators]="xterm xterm-color xterm-256color vt100 vt102 ansi"
 	
 	[block.start]="${strike_block_start:-[}"
 	[block.end]="${strike_block_start:-]}"
@@ -179,14 +178,15 @@ sprintf() {
 	
 	local replacements=( "${messages[@]:1}" );
 	
-	local emulators=( ${ansi[emulators]} );
+	local number_colors=$( tput colors 2> /dev/null || echo 0 );
+	
 	if ! ${flags[always]}; then
 		# switch off ansi escapes for non-tty
 		if ! ${flags[stderr]} && [ ! -t 1 ]; then
 			sprintf.noansi;
 		elif ${flags[stderr]} && [ ! -t 2 ]; then
 			sprintf.noansi;
-		elif ! array.contains? "$TERM" "${emulators[@]}"; then
+		elif [ $number_colors -lt 8 ]; then
 			sprintf.noansi;
 		fi
 	fi

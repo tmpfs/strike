@@ -193,10 +193,10 @@ characters[lightning]="⚡";
 # 75 character header used as a delimiter for program output
 declare -g header="";
 declare -g header_character="${strike_header_character:-+}";
-declare -g header_repeat="${strike_header_repeat:-75}";
-declare -g fmt_width="${strike_fmt_width:-}";
+declare -g header_repeat="${strike_header_repeat:-auto}";
 
-if [ -n "${header_repeat}" ]; then
+if [ -n "${header_repeat:-}" ] \
+	|| [ "${header_repeat}" == "auto" ]; then
 	header_repeat=$( tput cols );
 fi
 
