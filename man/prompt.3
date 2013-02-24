@@ -24,14 +24,17 @@ Captures user input using \fBread\fR\.
 
 .
 .P
-Capture a boolean response, this is useful for confirmation prompts\. By default, the values \fIyes\fR and \fIno\fR are used as the strings for comparison as to whether the confirmation was accepted or rejected\. Comparison is done in a case\-insensitive comparison on the first character of the received input\.
+Capture a confirmation response, this is useful for confirmation prompts\. By default, the values \fIyes\fR and \fIno\fR are used as the strings for comparison as to whether the confirmation was accepted or rejected\. Comparison is done in a case\-insensitive comparison on the first character of the received input\.
+.
+.P
+If the input does not match and accept or reject value then the prompt is re\-displayed\.
 .
 .TP
-\fBvalue\fR:
+\fBline\fR:
 
 .
 .P
-Capture a non\-empty string value\.
+Capture a non\-empty string value from a single line of input\. If the received line is empty then the prompt is re\-displayed\.
 .
 .SH "OPTIONS"
 .
@@ -48,6 +51,41 @@ Associate \fIid\fR with a prompt\.
 .
 .P
 Use \fIfile\fR for the history file\. If this option is not specified no history is maintained, if \fIfile\fR does not exist it is created\.
+.
+.TP
+\fB\-\-before=[command]\fR:
+
+.
+.P
+Execute \fIcommand\fR before reading input\.
+.
+.TP
+\fB\-\-response=[command]\fR:
+
+.
+.P
+Execute \fIcommand\fR when input is received\.
+.
+.TP
+\fB\-\-timeout=[seconds]\fR:
+
+.
+.P
+Use \fIseconds\fR as the prompt timeout\. If \fIseconds\fR is non\-numeric or zero it is ignored\.
+.
+.TP
+\fB\-m | \-\-multiline\fR:
+
+.
+.P
+Allow multiline input so that a backslash escape followed by a newline continues capturing data for a prompt\.
+.
+.TP
+\fB\-e | \-\-exec\fR:
+
+.
+.P
+Allow shell command execution\. When this option is present each line entered is executed as a shell command using \fBbash \-c\fR so that redirection, pipes and other more complex shell commands are possible\.
 .
 .SH "BUGS"
 \fBprompt\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.

@@ -36,9 +36,13 @@ Show a default confirmation prompt:
 
 	prompt confirm
 	
-Show a default value prompt:
+Show a default line prompt:
 
-	prompt value
+	prompt line
+	
+Run an infinite set of prompts that can execute shell commands:
+	
+	prompt line -i -e --quit="q quit exit"
 
 ## BUGS
 
@@ -93,8 +97,9 @@ messages[confirm]="are you sure? (y/n)";
 messages[name]="enter a name";
 
 declare -A descriptions;
-descriptions[execute]="This is a prompt that may execute arbitrary simple commands. It is infinite. You may exit with ctrl+c. Or enter q or quit to move on to the next prompt.";
+descriptions[execute]="This is a prompt that may execute arbitrary simple commands. It is infinite. You may exit the program with ctrl+c. Or enter q, quit or exit to move on to the next prompt.";
 descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
+descriptions[name]="This is a prompt that captures a single line of input.";
 
 declare -A responses;
 
@@ -158,10 +163,10 @@ prompt.test() {
 	
 	#  --timeout=1
 	
-	prompt value ${opts[@]} --exec --infinite --id=execute;	
+	prompt line ${opts[@]} --quit="q quit exit" --exec --infinite --id=execute;
 	
 	prompt confirm ${opts[@]} --id=confirm;
-	prompt value ${opts[@]} --id=name;
+	prompt line ${opts[@]} --id=name;
 	prompt.test.summary;
 }
 

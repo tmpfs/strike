@@ -42,6 +42,7 @@ prompt() {
 	settings[execute]=false;
 	settings[infinite]=false;
 	settings[timeout]=0;
+	settings[quit]="";
 	
 	# custom data associated with the prompt
 	settings[data.id]="";
@@ -58,6 +59,7 @@ prompt() {
 	settings[commands.response]="";
 	settings[commands.timeout]="";
 	
+	# history control
 	settings[hist.control]="erasedups:ignoredups";
 	settings[hist.size]="500";
 	settings[hist.filesize]="500";
@@ -134,7 +136,7 @@ prompt.commands.confirm() {
 
 # show a string prompt accepting
 # any non-empty string value
-prompt.commands.value() {
+prompt.commands.line() {
 	current="$FUNCNAME";
 	options=( "$@" );		
 	prompt.read;
@@ -145,7 +147,7 @@ prompt.commands.value() {
 		if ! $PROMPT_TIMEOUT; then
 			# show the prompt again
 			# on empty input
-			prompt.commands.value;
+			prompt.commands.line;
 		else
 			printf '\n';
 		fi
@@ -219,9 +221,16 @@ prompt.read() {
 		fi
 		prompt.after;
 		
+		if [ -n "${settings[quit]}" ]; then
+			if array.contains? "${value:-}" ${settings[quit]}; then
+				settings[infinite]=false;
+				settings[execute]=false;
+			fi
+		fi		
+		
 		if ${settings[execute]}; then
 			# NOTE: must run in a sub-shell
-			( exec $value; )
+			( /usr/bin/env bash -c "$value"; )
 		fi
 		
 		if ${settings[infinite]} && method.exists? "$current"; then
@@ -262,7 +271,7 @@ prompt.trigger() {
 
 # handle option parsing
 prompt.options.parse() {
-	local optspec=":m-:";
+	local optspec=":mei-:";
 	local optchar val opt;
 	OPTIND=0;
 	while getopts "$optspec" optchar; do
@@ -297,6 +306,11 @@ prompt.options.parse() {
 	                    opt=${OPTARG%=$val};
 						settings[timeout]="${val}";
 	                    ;;
+	                quit=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[quit]="${val}";
+	                    ;;	
 					exec)
 						settings[execute]=true;
 						;;	
@@ -314,6 +328,12 @@ prompt.options.parse() {
 	            esac;;
 	        m)
 				settings[multiline]=true;
+	            ;;
+	        e)
+				settings[execute]=true;
+	            ;;
+	        i)
+				settings[infinite]=true;
 	            ;;
 	        *)
 	            if [ "$OPTERR" != 1 ] || [ "${optspec:0:1}" == ":" ]; then
