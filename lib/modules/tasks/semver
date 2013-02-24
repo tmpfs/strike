@@ -156,7 +156,6 @@ ronn:markdown
 
 require.once 'semver';
 require.once 'json';
-require.once 'prompt';
 
 # tasks for working with semver data
 function tasks.semver {

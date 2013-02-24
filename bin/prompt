@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+
+: <<'ronn:markdown'
+prompt(1) -- test program for prompt(3)
+=============================================
+
+## SYNOPSIS
+
+	prompt [options] message [replacements...]
+
+## DESCRIPTION
+
+Test program for prompt(3) and console(3).
+
+## OPTIONS
+
+* `--color=[auto|never|always]`:
+
+Sets the environment variable for sprintf(3) that overrides any `--color` options passed to sprintf(3).
+
+## USAGE
+
+When invoked with no options this program prints a series of test prompts. When options are specified they are passed on to prompt(3).
+
+## EXAMPLES
+
+Print test prompts:
+
+	prompt
+
+## BUGS
+
+**prompt** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**prompt** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+console(3), sprintf(3)
+ronn:markdown
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+export exedir;
+function boilerplate {
+	local src="${BASH_SOURCE[0]}"
+	exedir="$( dirname "$src" )"
+	while [ -h "$src" ]
+		do 
+			src="$(readlink "$src")";
+			[[ $src != /* ]] && src="$exedir/$src";
+			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+	done
+	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+	unset src;
+	source "$exedir/../lib/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+# switch on strict mode
+process.use strict;
+
+# configure help
+require 'help';
+help.man.page "default" "prompt.1";
+help.man.page "prompt" "prompt.3";
+help.parse "$@";
+
+require 'opts/version';
+version.parse "$@";
+
+# print test prompts
+prompt.test() {
+	
+	console prompt "are you sure? (y/n)";
+	prompt boolean;
+
+	console prompt "enter a name";
+	prompt string;
+}
+
+if [ $# -eq 0 ]; then
+	prompt.test;
+else
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+			--color=auto | --color=never | --color=always )
+				shift;
+				;;
+			* )
+				break;
+				;;
+		esac
+	done
+	
+	if [ $# -eq 0 ]; then
+		prompt.test;
+		exit 0;
+	fi
+
+	prompt "$@";
+fi

@@ -38,6 +38,7 @@ __initialize__() {
 	source "${core}/console";
 	source "${core}/array";
 	source "${core}/fs";
+	source "${core}/prompt";
 	
 	# set up program header
 	string.repeat "${header_character}" \
@@ -94,6 +95,7 @@ __initialize__() {
 	__require_register "array" "${core}/array";
 	__require_register "require" "${core}/require";
 	__require_register "fs" "${core}/fs";
+	__require_register "prompt" "${core}/prompt";
 	
 	# require(3) the remaining core modules
 	# the order here is *very* important
