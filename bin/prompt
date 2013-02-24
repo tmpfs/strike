@@ -93,16 +93,26 @@ version.parse "$@";
 
 declare -a runner;
 
+filelist=( $( find . ! -name . -prune -type f ) );
+filelist+=( other );
+
 declare -A messages;
-messages[execute]="exec";
 messages[confirm]="are you sure? (y/n)";
 messages[name]="enter a name";
+messages[selection]="select a file";
+messages[timeout]="timeout";
+messages[password1]="enter password";
+messages[password2]="confirm password";
+messages[execute]="exec";
 
 declare -A descriptions;
-descriptions[execute]="This is a prompt that may execute arbitrary commands. It is infinite. You may exit the program with ctrl+c. Or enter q, quit or exit to move on to the next prompt. Redirection and pipes are supported. Commands are executed in a subshell. You may use a backslash newline escape to execute a command that spans several lines.";
 descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
 descriptions[name]="This is a prompt that captures a single line of input.";
+descriptions[selection]="This is a prompt that allows selection by number.";
 descriptions[timeout]="This is a prompt that will timeout in 5 seconds, if you do not enter anything in that time the next prompt is displayed.";
+descriptions[password1]="This is a prompt that captures sensitive input - input is not printed.";
+descriptions[password2]="This is a prompt that illustrates custom validation. You must enter the same password to proceed";
+descriptions[execute]="This is a prompt that may execute arbitrary commands. It is infinite. You may exit the program with ctrl+c. Or enter q, quit or exit to move on to the next prompt. Redirection and pipes are supported. Commands are executed in a subshell. You may use a backslash newline escape to execute a command that spans several lines.";
 
 declare -A responses;
 
@@ -165,6 +175,16 @@ confirm.rejected() {
 	console notok "confirmation was rejected";
 }
 
+# validate that passwords match
+validate.password() {
+	local value="${1:-}";
+	if [ "${responses[password1]}" != "${value}" ]; then
+		console notok "passwords do not match";
+		return 1;
+	fi
+	return 0;
+}
+
 # run a test
 prompt.test.run() {
 	runner="$*";
@@ -186,18 +206,28 @@ prompt.test() {
 	);
 	
 	prompt.test.run \
-		prompt line ${opts[@]} \
-		--multiline --quit="q quit exit" --exec --infinite --id=execute;
+		prompt select ${opts[@]} --selection="${filelist[*]}" --id=selection;
 	
 	prompt.test.run \
 		prompt confirm ${opts[@]} --id=confirm \
-		--accepted=confirm.accepted --rejected=confirm.rejected;
+		--accepted=confirm.accepted --rejected=confirm.rejected;	
 		
 	prompt.test.run \
 		prompt line ${opts[@]} --id=name;
 		
 	prompt.test.run \
 		prompt line ${opts[@]} --timeout=5 --default=5 --id=timeout;
+		
+	prompt.test.run \
+		prompt line ${opts[@]} --silent --id=password1;
+		
+	prompt.test.run \
+		prompt line ${opts[@]} --silent \
+		--validate=validate.password --id=password2;
+		
+	prompt.test.run \
+		prompt line ${opts[@]} \
+		--multiline --quit="q quit exit" --exec --infinite --id=execute;
 
 	prompt.test.summary;
 }

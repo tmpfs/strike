@@ -37,13 +37,14 @@ prompt() {
 
 	# configuration settings
 	declare -A settings;
-	
+	settings[silent]=false;
 	settings[multiline]=false;
 	settings[execute]=false;
 	settings[infinite]=false;
 	settings[timeout]=0;
 	settings[quit]="";
 	settings[default]="";
+	settings[selection]="";
 	
 	# custom data associated with the prompt
 	settings[data.id]="";
@@ -61,6 +62,7 @@ prompt() {
 	settings[commands.timeout]="";
 	settings[commands.accepted]="";
 	settings[commands.rejected]="";
+	settings[commands.validate]="";
 	
 	# history control
 	settings[hist.control]="erasedups:ignoredups";
@@ -82,6 +84,33 @@ prompt() {
 }
 
 # COMMANDS
+
+# show a select menu
+prompt.commands.select() {
+	current="$FUNCNAME";
+	options=( "$@" );
+	prompt.trigger 'commands.before' "${settings[data.id]:-}";
+	if [ -n "${PS9:-}" ]; then
+		export PS3="${PS9}";
+		#printf '\n' | read -u 1 -ep "$PS9";
+	fi
+	
+	local selection=( ${settings[selection]:-} );
+	if [ ${#selection[@]} -eq 0 ]; then
+		console warn "nothing to select";
+	fi
+	
+	local word;
+	select word in ${selection[@]:-};
+		do
+			# if [ "$word" == "$other" ]; then
+			# 	iox.scaffold.category.other;
+			# else
+			# 	doc[package.category]="$word";
+			# fi
+			break;
+	done
+}
 
 # show a confirmation prompt
 prompt.commands.confirm() {
@@ -183,13 +212,18 @@ prompt.read() {
 		if ! ${settings[multiline]}; then
 			read_options+=( -r );
 		fi
-		if [ -n "${PS9:-}" ]; then
-			read_options+=( -p "${PS9}" );
-		fi
 		
 		if [[ "${settings[timeout]}" =~ ^[0-9]+$ ]] \
 			&& [ "${settings[timeout]}" -gt 0 ]; then
 			read_options+=( -t "${settings[timeout]}" );
+		fi
+		
+		if ${settings[silent]}; then
+			read_options+=( -s );
+		fi
+		
+		if [ -n "${PS9:-}" ]; then
+			read_options+=( -p "${PS9}" );
 		fi
 		
 		prompt.before;
@@ -208,15 +242,31 @@ prompt.read() {
 				fi
 				break;
 		done
+		
+		
 		if [ $PROMPT_READ_EXIT_CODE -gt 128 ]; then
 			PROMPT_TIMEOUT=true;
 			prompt.trigger 'commands.timeout' "${settings[data.id]:-}";
-			printf '\n';
 		fi
 		prompt.after;
 		
+		# print additional newline in these situations
+		if [ $PROMPT_READ_EXIT_CODE -gt 128 ] \
+			|| ${settings[silent]}; then
+			printf '\n';
+		fi
+		
 		if [ -z "${value}" ] && [ -n "${settings[default]}" ]; then
 			value="${settings[default]}";
+		fi
+			
+		# handle value validation
+		if [ -n "${settings[commands.validate]}" ]; then
+			prompt.trigger 'commands.validate' "${value}";
+			if [ $? -gt 0 ]; then
+				$current "${options[@]:-}";
+				return 0;
+			fi
 		fi
 		
 		if [ -n "${settings[quit]}" ]; then
@@ -269,7 +319,7 @@ prompt.trigger() {
 
 # handle option parsing
 prompt.options.parse() {
-	local optspec=":mei-:";
+	local optspec=":smei-:";
 	local optchar val opt;
 	OPTIND=0;
 	while getopts "$optspec" optchar; do
@@ -299,6 +349,11 @@ prompt.options.parse() {
 	                    opt=${OPTARG%=$val};
 						settings[commands.rejected]="${val}";
 	                    ;;
+	                validate=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[commands.validate]="${val}";
+	                    ;;
 	                hist-file=*)
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
@@ -324,6 +379,14 @@ prompt.options.parse() {
 	                    opt=${OPTARG%=$val};
 						settings[default]="${val}";
 	                    ;;
+	                selection=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[selection]="${val}";
+	                    ;;
+					silent)
+						settings[silent]=true;
+						;;
 					exec)
 						settings[execute]=true;
 						;;	
@@ -339,6 +402,9 @@ prompt.options.parse() {
 	                    fi
 	                    ;;
 	            esac;;
+	        s)
+				settings[silent]=true;
+	            ;;	
 	        m)
 				settings[multiline]=true;
 	            ;;

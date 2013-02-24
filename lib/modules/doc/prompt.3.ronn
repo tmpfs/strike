@@ -47,9 +47,13 @@ Execute *command* when a confirm prompt is accepted.
 
 Execute *command* when a confirm prompt is rejected.
 
+* `--validate=[command]`:
+
+Execute *command* to validate a value, if the exit code of the command is greater than zero the prompt is re-displayed. The command is passed a single argument containing the value.
+
 * `--timeout=[seconds]`:
 
-Use *seconds* as the prompt timeout. If *seconds* is non-numeric or zero it is ignored.
+Use *seconds* as the prompt timeout. If *seconds* is non-numeric or zero it is ignored. Equivalent to `read -t`.
 
 * `--quit=[words]`:
 
@@ -59,9 +63,13 @@ Use in conjunction with the `--infinite` option to stop an infinite prompt if th
 
 Use *value* when the user input is empty. This option may be used to override the default behaviour of re-displaying a prompt when no input is received.
 
+* `-s | --silent`:
+
+Do not echo input. Use this when capturing sensitive information such as passwords. Equivalent to `read -s`.
+
 * `-m | --multiline`:
 
-Allow multiline input so that a backslash escape followed by a newline continues capturing data for a prompt.
+Allow multiline input so that a backslash escape followed by a newline continues capturing data for a prompt. Equivalent to `read -r`.
 
 * `-e | --exec`:
 
