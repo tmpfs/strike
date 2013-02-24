@@ -18,6 +18,14 @@ Test program for console(3) and sprintf(3).
 
 Sets the environment variable for sprintf(3) that overrides any `--color` options passed to sprintf(3).
 
+* `--debug`:
+
+Set `-x`.
+
+* `--printf`:
+
+Only invoke the printf tests.
+
 ## USAGE
 
 When invoked with no options this program prints a series of test messages. When options are specified they are passed on to sprintf(3).
@@ -512,6 +520,14 @@ else
 			--color=auto | --color=never | --color=always )
 				shift;
 				;;
+			--debug )
+				set -x;
+				shift;
+				;;
+			--printf )
+				console.test.printf;
+				exit 0;
+				;;			
 			* )
 				break;
 				;;

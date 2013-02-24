@@ -382,8 +382,10 @@ sprintf.noansi() {
 # redirection is to the correct
 # output stream
 sprintf.output() {
+	local IFS=' ';
 	if ${flags[newline]}; then
 		results[0]="${results[0]}\n";
+		# echo "after new line : ${results[0]}";
 	fi
 	# export the value as a variable
 	if [ -n "${varname}" ]; then
@@ -398,6 +400,7 @@ sprintf.output() {
 	else
 		printf -- "${results[@]}" >&2;
 	fi
+	unset IFS;
 }
 
 # %[flags][width][.precision][length]specifier 

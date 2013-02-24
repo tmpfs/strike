@@ -1,0 +1,52 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "PROMPT" "1" "February 2013" "" ""
+.
+.SH "NAME"
+\fBprompt\fR \- test program for prompt(3)
+.
+.SH "SYNOPSIS"
+.
+.nf
+
+prompt [options] message [replacements\.\.\.]
+.
+.fi
+.
+.SH "DESCRIPTION"
+Test program for prompt(3) and console(3)\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-\-color=[auto|never|always]\fR:
+
+.
+.P
+Sets the environment variable for sprintf(3) that overrides any \fB\-\-color\fR options passed to sprintf(3)\.
+.
+.SH "USAGE"
+When invoked with no options this program prints a series of test prompts\. When options are specified they are passed on to prompt(3)\.
+.
+.SH "EXAMPLES"
+Print test prompts:
+.
+.IP "" 4
+.
+.nf
+
+prompt
+.
+.fi
+.
+.IP "" 0
+.
+.SH "BUGS"
+\fBprompt\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBprompt\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+console(3), sprintf(3)

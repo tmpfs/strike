@@ -48,7 +48,7 @@ prompt() {
 	settings[hist.control]="erasedups:ignoredups";
 	settings[hist.size]="500";
 	settings[hist.filesize]="500";
-	settings[hist.file]="";	
+	settings[hist.file]="";
 	
 	prompt.options.parse "$@";
 	
