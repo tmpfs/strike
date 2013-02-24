@@ -91,6 +91,8 @@ help.parse "$@";
 require 'opts/version';
 version.parse "$@";
 
+declare -a runner;
+
 declare -A messages;
 messages[execute]="exec";
 messages[confirm]="are you sure? (y/n)";
@@ -100,6 +102,7 @@ declare -A descriptions;
 descriptions[execute]="This is a prompt that may execute arbitrary commands. It is infinite. You may exit the program with ctrl+c. Or enter q, quit or exit to move on to the next prompt. Redirection and pipes are supported. Commands are executed in a subshell.";
 descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
 descriptions[name]="This is a prompt that captures a single line of input.";
+descriptions[timeout]="This is a prompt that will timeout in 5 seconds, if you do not enter anything in that time the next prompt is displayed.";
 
 declare -A responses;
 
@@ -117,6 +120,11 @@ prompt.test.before() {
 					printf "${header_character} ${line}\n";
 			done <<< "${description}";
 		fi
+		
+		console title "";
+		console title --no-newline "";
+		console.print --text=gray "$runner";
+		console title "";
 		console header;
 		
 		local msg="${messages[$key]:-}";
@@ -147,6 +155,12 @@ prompt.test.summary() {
 	console header;
 }
 
+# run a test
+prompt.test.run() {
+	runner="$*";
+	"$@";
+}
+
 # print test prompts
 prompt.test() {
 	if [ ! -d "${process_dirs[target]}" ]; then
@@ -161,13 +175,19 @@ prompt.test() {
 		--hist-file="$hist_file"
 	);
 	
-	#  --timeout=1
+	prompt.test.run \
+		prompt line ${opts[@]} \
+		--quit="q quit exit" --exec --infinite --id=execute;
 	
-	#  --timeout=2
-	prompt line ${opts[@]} --quit="q quit exit" --exec --infinite --id=execute;
-	
-	prompt confirm ${opts[@]} --id=confirm;
-	prompt line ${opts[@]} --id=name;
+	prompt.test.run \
+		prompt confirm ${opts[@]} --id=confirm;
+		
+	prompt.test.run \
+		prompt line ${opts[@]} --id=name;
+		
+	prompt.test.run \
+		prompt line ${opts[@]} --timeout=5 --default=5 --id=timeout;
+
 	prompt.test.summary;
 }
 

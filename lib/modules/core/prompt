@@ -43,6 +43,7 @@ prompt() {
 	settings[infinite]=false;
 	settings[timeout]=0;
 	settings[quit]="";
+	settings[default]="";
 	
 	# custom data associated with the prompt
 	settings[data.id]="";
@@ -213,6 +214,10 @@ prompt.read() {
 		fi
 		prompt.after;
 		
+		if [ -z "${value}" ] && [ -n "${settings[default]}" ]; then
+			value="${settings[default]}";
+		fi
+		
 		if [ -n "${settings[quit]}" ]; then
 			if array.contains? "${value:-}" ${settings[quit]}; then
 				settings[infinite]=false;
@@ -302,7 +307,12 @@ prompt.options.parse() {
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						settings[quit]="${val}";
-	                    ;;	
+	                    ;;
+	                default=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[default]="${val}";
+	                    ;;
 					exec)
 						settings[execute]=true;
 						;;	
