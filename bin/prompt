@@ -97,7 +97,7 @@ messages[confirm]="are you sure? (y/n)";
 messages[name]="enter a name";
 
 declare -A descriptions;
-descriptions[execute]="This is a prompt that may execute arbitrary simple commands. It is infinite. You may exit the program with ctrl+c. Or enter q, quit or exit to move on to the next prompt.";
+descriptions[execute]="This is a prompt that may execute arbitrary commands. It is infinite. You may exit the program with ctrl+c. Or enter q, quit or exit to move on to the next prompt. Redirection and pipes are supported. Commands are executed in a subshell.";
 descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
 descriptions[name]="This is a prompt that captures a single line of input.";
 
