@@ -30,11 +30,17 @@ prompt() {
 	
 	# valud entered by user
 	local value;
+	
+	# current command
+	local current;
+	local options;
 
 	# configuration settings
 	declare -A settings;
 	
 	settings[multiline]=false;
+	settings[execute]=false;
+	settings[infinite]=false;
 	settings[timeout]=0;
 	
 	# custom data associated with the prompt
@@ -74,6 +80,8 @@ prompt() {
 
 # show a confirmation prompt
 prompt.commands.confirm() {
+	current="$FUNCNAME";
+	options=( "$@" );
 	local accept="${settings[boolean.yes]}";
 	local reject="${settings[boolean.no]}";
 	
@@ -127,6 +135,8 @@ prompt.commands.confirm() {
 # show a string prompt accepting
 # any non-empty string value
 prompt.commands.value() {
+	current="$FUNCNAME";
+	options=( "$@" );		
 	prompt.read;
 	if [ -n "${value:-}" ]; then
 		prompt.trigger 'commands.response' \
@@ -164,7 +174,6 @@ prompt.interactive?() {
 
 # show a prompt using read
 prompt.read() {
-	
 	export PROMPT_TIMEOUT=false;
 	
 	local hist_file="${settings[hist.file]}";
@@ -206,8 +215,18 @@ prompt.read() {
 		if [ $PROMPT_READ_EXIT_CODE -gt 128 ]; then
 			PROMPT_TIMEOUT=true;
 			prompt.trigger 'commands.timeout' "${settings[data.id]:-}";
+			return 0;
 		fi
 		prompt.after;
+		
+		if ${settings[execute]}; then
+			# NOTE: must run in a sub-shell
+			( exec $value; )
+		fi
+		
+		if ${settings[infinite]} && method.exists? "$current"; then
+			$current "${options[@]:-}";
+		fi
 	fi
 }
 
@@ -278,6 +297,12 @@ prompt.options.parse() {
 	                    opt=${OPTARG%=$val};
 						settings[timeout]="${val}";
 	                    ;;
+					exec)
+						settings[execute]=true;
+						;;	
+					infinite)
+						settings[infinite]=true;
+						;;
 					multiline)
 						settings[multiline]=true;
 						;;

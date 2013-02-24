@@ -88,10 +88,12 @@ require 'opts/version';
 version.parse "$@";
 
 declare -A messages;
+messages[execute]="exec";
 messages[confirm]="are you sure? (y/n)";
 messages[name]="enter a name";
 
 declare -A descriptions;
+descriptions[execute]="This is a prompt that may execute arbitrary simple commands. It is infinite. You may exit with ctrl+c. Or enter q or quit to move on to the next prompt.";
 descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
 
 declare -A responses;
@@ -105,7 +107,10 @@ prompt.test.before() {
 		console title "${key^^}";
 		if [ -n "${description}" ]; then
 			console title "";
-			console title "${description}";
+			while read line;
+				do
+					printf "${header_character} ${line}\n";
+			done <<< "${description}";
 		fi
 		console header;
 		
@@ -152,6 +157,8 @@ prompt.test() {
 	);
 	
 	#  --timeout=1
+	
+	prompt value ${opts[@]} --exec --infinite --id=execute;	
 	
 	prompt confirm ${opts[@]} --id=confirm;
 	prompt value ${opts[@]} --id=name;
