@@ -197,7 +197,8 @@ declare -g header_repeat="${strike_header_repeat:-auto}";
 
 if [ -n "${header_repeat:-}" ] \
 	|| [ "${header_repeat}" == "auto" ]; then
-	header_repeat=$( tput cols );
+	header_repeat=$( tput cols || printf '80' );
+	COLUMNS="${header_repeat}";
 fi
 
 # generic suffic for prompts
