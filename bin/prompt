@@ -93,7 +93,8 @@ version.parse "$@";
 
 declare -a runner;
 
-filelist=( $( find . ! -name . -prune -type f ) );
+#filelist=( $( find . ! -name . -prune -type f ) );
+filelist=( "my file" "another file with spaces" );
 filelist+=( other );
 
 declare -A messages;
@@ -205,8 +206,9 @@ prompt.test() {
 		--hist-file="$hist_file"
 	);
 	
+	declare -ag PROMPT_SELECTION=( "${filelist[@]}" );
 	prompt.test.run \
-		prompt select ${opts[@]} --selection="${filelist[*]}" --id=selection;
+		prompt select ${opts[@]} --id=selection;
 		
 	exit 0;
 	

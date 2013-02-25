@@ -92,22 +92,20 @@ prompt.commands.select() {
 	prompt.trigger 'commands.before' "${settings[data.id]:-}";
 	export PS3_ORIGINAL="${PS3:-}";
 	if [ -n "${PS9:-}" ]; then
-		#export PS3="${PS9}";
 		export PS3='';
-		#printf '\n' | read -u 1 -ep "$PS9";
 	fi
 	
-	local selection=( ${settings[selection]:-} );
-	if [ ${#selection[@]} -eq 0 ]; then
+	if [ -z "${PROMPT_SELECTION[*]:-}" ]; then
 		console warn "nothing to select";
+		return 0;
 	fi
 	
-	local word;
+	local selection=( "${PROMPT_SELECTION[@]:-}" );
 	
 	# NOTE: we show the select menu in this manner
 	# NOTE: to prevent the select builtin from showing
 	# NOTE: the prompt which does not support readline
-	local menu=$( printf '' | select word in ${selection[@]:-};
+	local menu=$( printf '' | select word in "${selection[@]:-}";
 		do
 			break;
 	done )
@@ -120,7 +118,7 @@ prompt.commands.select() {
 	if [[ "$value" =~ $valid_regexp ]]; then
 		if [ "$value" -gt 0 ] && [ "$value" -lt $maximum ]; then
 			local index=$((value-1));
-			word="${selection[$index]}";
+			local word="${selection[$index]}";
 			echo "got valid selection $index : $word";
 		else
 			echo "got numeric selection out of range";
