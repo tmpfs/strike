@@ -127,6 +127,8 @@ prompt.commands.select() {
 			local word="${selection[$index]}";
 			prompt.trigger 'commands.selection' \
 				"${word:-}" "${index:-}" "${value:-}" "${settings[data.id]:-}";
+			prompt.trigger 'commands.response' \
+				"${word:-}" "${settings[data.id]:-}";
 		else
 			prompt.trigger 'commands.selection.range' \
 			 	"${value:-}" "${settings[data.id]:-}";
