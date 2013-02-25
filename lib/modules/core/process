@@ -113,6 +113,8 @@ declare -g process_loop=false;
 
 #  TODO: add process.fork to run a process in the background and maintain a list of pids ? see jobs
 
+#shopt -s checkwinsize;
+
 function process.initialize {
 	
 	process.lock.test;
@@ -124,6 +126,19 @@ function process.initialize {
 		do
 			process_signal_callbacks["$signal"]="";
 	done
+	
+	# echo "PID IS: $$";
+	# # send SIGWINCH
+	# # so that COLUMNS is set correctly
+	# kill -28 $$;
+	# echo "after sigwinch: ${COLUMNS:-}";
+	
+	# ( printf '' | select word in a b c;
+	# 	do
+	# 		break;
+	# done )
+	
+	#echo "after sigwinch: ${COLUMNS:-}";
 }
 
 # is this process running in the context

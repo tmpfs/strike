@@ -63,6 +63,10 @@ prompt() {
 	settings[commands.accepted]="";
 	settings[commands.rejected]="";
 	settings[commands.validate]="";
+
+	settings[commands.selection]="";
+	settings[commands.selection.error]="";
+	settings[commands.selection.range]="";
 	
 	# history control
 	settings[hist.control]="erasedups:ignoredups";
@@ -110,6 +114,8 @@ prompt.commands.select() {
 			break;
 	done )
 	
+	#echo "got columns: ${COLUMNS:-}";
+	
 	prompt.read false;
 	
 	local valid_regexp="^[0-9]+$";
@@ -119,12 +125,17 @@ prompt.commands.select() {
 		if [ "$value" -gt 0 ] && [ "$value" -lt $maximum ]; then
 			local index=$((value-1));
 			local word="${selection[$index]}";
-			echo "got valid selection $index : $word";
+			prompt.trigger 'commands.selection' \
+				"${word:-}" "${index:-}" "${value:-}" "${settings[data.id]:-}";
 		else
-			echo "got numeric selection out of range";
+			prompt.trigger 'commands.selection.range' \
+			 	"${value:-}" "${settings[data.id]:-}";
+			prompt.commands.select;
 		fi
 	else
-		echo "got invalid selection"
+		prompt.trigger 'commands.selection.error' \
+		 	"${value:-}" "${settings[data.id]:-}";
+		prompt.commands.select;
 	fi
 	
 	# restore PS3
@@ -404,10 +415,20 @@ prompt.options.parse() {
 	                    opt=${OPTARG%=$val};
 						settings[default]="${val}";
 	                    ;;
-	                selection=*)
+	                select=*)
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
-						settings[selection]="${val}";
+						settings[commands.selection]="${val}";
+	                    ;;	
+	                select-error=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[commands.selection.error]="${val}";
+	                    ;;
+	                select-range-error=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						settings[commands.selection.range]="${val}";
 	                    ;;
 					silent)
 						settings[silent]=true;

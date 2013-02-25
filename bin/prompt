@@ -93,23 +93,23 @@ version.parse "$@";
 
 declare -a runner;
 
-#filelist=( $( find . ! -name . -prune -type f ) );
-filelist=( "my file" "another file with spaces" );
+filelist=( $( find . ! -name . -prune -type f ) );
+#filelist=( "my file" "another file with spaces" );
 filelist+=( other );
 
 declare -A messages;
+messages[selection]="select a file";
 messages[confirm]="are you sure? (y/n)";
 messages[name]="enter a name";
-messages[selection]="select a file";
 messages[timeout]="timeout";
 messages[password1]="enter password";
 messages[password2]="confirm password";
 messages[execute]="exec";
 
 declare -A descriptions;
+descriptions[selection]="This is a prompt that allows selection by numeric index.";
 descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
 descriptions[name]="This is a prompt that captures a single line of input.";
-descriptions[selection]="This is a prompt that allows selection by number.";
 descriptions[timeout]="This is a prompt that will timeout in 5 seconds, if you do not enter anything in that time the next prompt is displayed.";
 descriptions[password1]="This is a prompt that captures sensitive input - input is not printed.";
 descriptions[password2]="This is a prompt that illustrates custom validation. You must enter the same password to proceed";
@@ -176,6 +176,25 @@ confirm.rejected() {
 	console notok "confirmation was rejected";
 }
 
+# valid selection
+selection.valid() {
+	local word="${1:-}";
+	console ok "selected %s" "${word}";
+}
+
+# input error
+selection.error() {
+	local value="${1:-}";
+	console error "invalid selection %s" "${value:-}";
+}
+
+# input range error
+selection.range() {
+	local value="${1:-}";
+	console error "invalid selection %s, must be in the range %s-%s" \
+		"${value}" "1" "${#PROMPT_SELECTION[@]}";
+}
+
 # validate that passwords match
 validate.password() {
 	local value="${1:-}";
@@ -207,10 +226,14 @@ prompt.test() {
 	);
 	
 	declare -ag PROMPT_SELECTION=( "${filelist[@]}" );
+	
 	prompt.test.run \
-		prompt select ${opts[@]} --id=selection;
+		prompt select ${opts[@]} --id=selection \
+			--select=selection.valid \
+			--select-error=selection.error \
+			--select-range-error=selection.range;
 		
-	exit 0;
+	#exit 0;
 	
 	prompt.test.run \
 		prompt confirm ${opts[@]} --id=confirm \

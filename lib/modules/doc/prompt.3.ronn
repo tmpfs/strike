@@ -21,6 +21,10 @@ If the input does not match an accept or reject value then the prompt is re-disp
 
 Capture a non-empty string value from a single line of input. If the received line is empty then the prompt is re-displayed.
 
+* `select`:
+
+Display a menu using the `select` builtin.
+
 ## OPTIONS
 
 * `--id=[identifier]`:
@@ -50,6 +54,14 @@ Execute *command* when a confirm prompt is rejected.
 * `--validate=[command]`:
 
 Execute *command* to validate a value, if the exit code of the command is greater than zero the prompt is re-displayed. The command is passed a single argument containing the value.
+
+* `--select-error=[command]`:
+
+Execute *command* when a select menu receives input that is non-numeric.
+
+* `--select-range-error=[command]`:
+
+Execute *command* when a select menu receives input that is numeric but falls outside of the range.
 
 * `--timeout=[seconds]`:
 
