@@ -90,8 +90,10 @@ prompt.commands.select() {
 	current="$FUNCNAME";
 	options=( "$@" );
 	prompt.trigger 'commands.before' "${settings[data.id]:-}";
+	export PS3_ORIGINAL="${PS3:-}";
 	if [ -n "${PS9:-}" ]; then
-		export PS3="${PS9}";
+		#export PS3="${PS9}";
+		export PS3='';
 		#printf '\n' | read -u 1 -ep "$PS9";
 	fi
 	
@@ -101,15 +103,35 @@ prompt.commands.select() {
 	fi
 	
 	local word;
-	select word in ${selection[@]:-};
+	
+	# NOTE: we show the select menu in this manner
+	# NOTE: to prevent the select builtin from showing
+	# NOTE: the prompt which does not support readline
+	local menu=$( printf '' | select word in ${selection[@]:-};
 		do
-			# if [ "$word" == "$other" ]; then
-			# 	iox.scaffold.category.other;
-			# else
-			# 	doc[package.category]="$word";
-			# fi
 			break;
-	done
+	done )
+	
+	prompt.read false;
+	
+	local valid_regexp="^[0-9]+$";
+	local maximum="${#selection[@]}";
+	: $((maximum++));
+	if [[ "$value" =~ $valid_regexp ]]; then
+		if [ "$value" -gt 0 ] && [ "$value" -lt $maximum ]; then
+			local index=$((value-1));
+			word="${selection[$index]}";
+			echo "got valid selection $index : $word";
+		else
+			echo "got numeric selection out of range";
+		fi
+	else
+		echo "got invalid selection"
+	fi
+	
+	# restore PS3
+	export PS3="${PS3_ORIGINAL:-}";
+	unset PS3_ORIGINAL;	
 }
 
 # show a confirmation prompt
@@ -201,12 +223,17 @@ prompt.interactive?() {
 prompt.read() {
 	export PROMPT_TIMEOUT=false;
 	
+	local before="${1:-true}";
+	
 	local hist_file="${settings[hist.file]}";
 	# load history entries
 	if [ -n "${hist_file:-}" ] && [ -f "${hist_file}" ]; then
 		history -n "${hist_file}";
 	fi
-	prompt.trigger 'commands.before' "${settings[data.id]:-}";
+	
+	if $before; then
+		prompt.trigger 'commands.before' "${settings[data.id]:-}";
+	fi
 	if prompt.interactive?; then
 		local read_options=( -e );
 		if ! ${settings[multiline]}; then

@@ -207,10 +207,12 @@ prompt.test() {
 	
 	prompt.test.run \
 		prompt select ${opts[@]} --selection="${filelist[*]}" --id=selection;
+		
+	exit 0;
 	
 	prompt.test.run \
 		prompt confirm ${opts[@]} --id=confirm \
-		--accepted=confirm.accepted --rejected=confirm.rejected;	
+		--accepted=confirm.accepted --rejected=confirm.rejected;
 		
 	prompt.test.run \
 		prompt line ${opts[@]} --id=name;
