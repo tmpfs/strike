@@ -623,7 +623,7 @@ bake() {
 	fs.walk "$tasks_file_name";
 	local f="$_result";
 	if [ ! -f "$f" ]; then
-		quit 1 "no %s file in %s (or any of the parent directories)" \
+		console quit 1 "no %s file in %s (or any of the parent directories)" \
             "$tasks_file_name" "${PWD}";
 	else
 		# variables to expose to the task(s)

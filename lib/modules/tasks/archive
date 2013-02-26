@@ -127,7 +127,7 @@ function tasks.archive {
 	# mapping between archive types and file extensions
 	declare -A extensions;
 	extensions=(
-		[tar]="tar.gz tar gz"
+		[tar]="tar.gz tar gz tgz"
 		[bz2]="bz2"
 		[zip]="zip"
 	);
@@ -505,7 +505,8 @@ function __archive.name.process {
 		# echo "infer archive type from name $archive_name";
 		__archive.type.infer;
 		if ! $inferred; then
-			console warn "could not infer archive type from %s, using %s" "${archive_name}" "${default_archive_type}";
+			console warn "could not infer archive type from %s, using %s" \
+				"${archive_name}" "${default_archive_type}";
 		fi
 	fi
 	
