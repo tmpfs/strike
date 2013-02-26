@@ -19,6 +19,11 @@
 # SEE: http://misc.flogisoft.com/bash/tip_colors_and_formatting
 # SEE: http://www.cplusplus.com/reference/cstdio/printf/
 
+# FIXME: allow empty parameters
+
+# TODO: build style cache when the
+# TODO: module loads not on every call
+
 declare -Ag ansi;
 ansi=(
 	[terminator]="\033[0m"
