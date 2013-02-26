@@ -97,12 +97,8 @@ tasks.clean() {
 	fi
 
 	# confirmation prompt
-	console prompt "${prompt} are you sure? (y/n)";
-	prompt.boolean confirm y n;
-	prompt.accepts accepted;
-	prompt.rejects rejected;
-	prompt.show confirm;
-	prompt.clean;
+	console prompt --program "are you sure? (y/n)";
+	prompt confirm --accepted=accepted --rejected=rejected;
 }
 
 clean.options.parse() {
