@@ -407,12 +407,6 @@ function __semver.change.confirm {
 	
 	console prompt "${prefix}%s > %s, are you sure? (y/n)" "$version" "$newversion";
 	prompt confirm --accepted=accepted --rejected=rejected;
-	
-	# # set accept/reject callback(s)
-	# prompt.accepts accepted;
-	# prompt.rejects rejected;
-	# prompt.show confirm;
-	# prompt.clean;
 }
 
 # semver change confirmation
@@ -471,14 +465,6 @@ function __semver.release.confirm {
 	
 	console prompt "are you sure you want to release to %s? (y/n)" "$newversion";
 	prompt confirm --accepted=accepted --rejected=rejected;
-	
-	# # define a boolean prompt
-	# prompt.boolean confirm y n;
-	# # set accept/reject callback(s)
-	# prompt.accepts accepted;
-	# prompt.rejects rejected;
-	# prompt.show confirm;
-	# prompt.clean;
 }
 
 # accepted the release process
@@ -515,14 +501,6 @@ function __semver.release.confirmed {
 		else
 			console prompt "would you prefer to use %s instead of %s? (y/n)" "1.0.0" "$newversion";
 			prompt confirm --accepted=accepted --rejected=rejected;
-			
-			# # # define a boolean prompt
-			# prompt.boolean confirm y n;
-			# # set accept/reject callback(s)
-			# prompt.accepts accepted;
-			# prompt.rejects rejected;
-			# prompt.show confirm;
-			# prompt.clean;
 		fi
 	}
 	semver.parse "$newversion" "semver.callback";
