@@ -406,13 +406,13 @@ function __semver.change.confirm {
 	}
 	
 	console prompt "${prefix}%s > %s, are you sure? (y/n)" "$version" "$newversion";
-	# define a boolean prompt
-	prompt.boolean confirm y n;
-	# set accept/reject callback(s)
-	prompt.accepts accepted;
-	prompt.rejects rejected;
-	prompt.show confirm;
-	prompt.clean;
+	prompt confirm --accepted=accepted --rejected=rejected;
+	
+	# # set accept/reject callback(s)
+	# prompt.accepts accepted;
+	# prompt.rejects rejected;
+	# prompt.show confirm;
+	# prompt.clean;
 }
 
 # semver change confirmation
@@ -436,23 +436,25 @@ function __semver.release {
 }
 
 function __semver.release.warn {
-	string.repeat "+" 80;
-	local header="$_result";
+	#string.repeat "+" 80;
+	#local header="$_result";
+	
+	local opts="--text=magenta";
 
-	console print "$header";	
-	console warn "You are about to go from major version %s to major version %s" "0" "1";
-	console warn "creating a public version of your software.";
-	console print "";
-	console warn "This means you are about to create a %s for your software" "PUBLIC API";
-	console warn "and you should be certain that you wish to proceed.";
-	console print "";	
-	console warn "You should perform the following actions before creating version %s:" "1";
-	console print "";	
-	console warn "	* Run unit tests using %s or %s" "npm test" "bake test";
-	console warn "	* Check for %s and %s tags" "BUG" "FIXME";
-	console warn "	* Generate documentation using %s" "bake doc.build";
-	console warn "	* Publish documentation using %s" "bake doc.pages.push";
-	console print "$header";
+	console header $opts;	
+	console title $opts "You are about to go from major version %s to major version %s" "0" "1";
+	console title $opts "creating a public version of your software.";
+	console title $opts "";
+	console title $opts "This means you are about to create a %s for your software" "PUBLIC API";
+	console title $opts "and you should be certain that you wish to proceed.";
+	console title $opts "";	
+	console title $opts "You should perform the following actions before creating version %s:" "1";
+	console title $opts "";	
+	console title $opts "	* Run unit tests using %s or %s" "npm test" "bake test";
+	console title $opts "	* Check for %s and %s tags" "BUG" "FIXME";
+	console title $opts "	* Generate documentation using %s" "bake doc.build";
+	console title $opts "	* Publish documentation using %s" "bake doc.pages.push";
+	console header $opts;
 }
 
 # initial release confirmation
@@ -468,13 +470,15 @@ function __semver.release.confirm {
 	}
 	
 	console prompt "are you sure you want to release to %s? (y/n)" "$newversion";
-	# define a boolean prompt
-	prompt.boolean confirm y n;
-	# set accept/reject callback(s)
-	prompt.accepts accepted;
-	prompt.rejects rejected;
-	prompt.show confirm;
-	prompt.clean;
+	prompt confirm --accepted=accepted --rejected=rejected;
+	
+	# # define a boolean prompt
+	# prompt.boolean confirm y n;
+	# # set accept/reject callback(s)
+	# prompt.accepts accepted;
+	# prompt.rejects rejected;
+	# prompt.show confirm;
+	# prompt.clean;
 }
 
 # accepted the release process
@@ -510,13 +514,15 @@ function __semver.release.confirmed {
 			next;
 		else
 			console prompt "would you prefer to use %s instead of %s? (y/n)" "1.0.0" "$newversion";
-			# # define a boolean prompt
-			prompt.boolean confirm y n;
-			# set accept/reject callback(s)
-			prompt.accepts accepted;
-			prompt.rejects rejected;
-			prompt.show confirm;
-			prompt.clean;
+			prompt confirm --accepted=accepted --rejected=rejected;
+			
+			# # # define a boolean prompt
+			# prompt.boolean confirm y n;
+			# # set accept/reject callback(s)
+			# prompt.accepts accepted;
+			# prompt.rejects rejected;
+			# prompt.show confirm;
+			# prompt.clean;
 		fi
 	}
 	semver.parse "$newversion" "semver.callback";
