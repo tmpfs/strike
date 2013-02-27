@@ -264,6 +264,20 @@ prompt.read() {
 			read_options+=( -p "${PS9}" );
 		fi
 		
+		set -o emacs;
+		bind 'set bell-style visible';
+		bind 'set show-all-if-ambiguous on';
+		bind 'set completion-ignore-case on';
+		# bind 'set match-hidden-files off';
+		
+		tab() {
+			echo "$FUNCNAME";
+		}
+		
+		complete -C tab db;
+		
+		# bind 'TAB:dynamic-complete-history';
+		
 		# read_options=( -e -s -n1 );
 		
 		#echo "${read_options[@]}";

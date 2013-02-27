@@ -111,6 +111,23 @@ process.use strict;
 # 
 # exit 0;
 
+# IFS=$'\n' 
+# while true ;do
+#   read -s -e -n 1 c
+#   ((${#c}==0)) && break # Exit the loop. Input length is 0  
+#                         # ie. The user has pressed Enter
+#   #echo "xx=$(echo -n "$c"|xxd -p)="
+#   # 1b 5b 32 7e  "INS"
+#   # 1b 5b 33 7e  "DEL"
+#   # 1b 5b 43     "RIGHT"
+#   # 1b 5b 44     "LEFT"
+#   # 1b 5b 46     "END"
+#   # 1b 5b 48     "HOME"
+#   # 7f           "BACKSPACE"
+# done
+# 
+# exit;
+
 # configure help
 require 'help';
 help.man.page "default" "prompt.1";
