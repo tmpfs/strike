@@ -82,6 +82,35 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+# rbind() {
+# 	bind -x '"\t":tab';
+# }
+# 
+# tab() {
+# 	echo "$FUNCNAME : ${READLINE_LINE} : ${READLINE_POINT}"
+# }
+# 
+# # . "${process_dirs[root]}/inputrc";
+# 
+# rbind;
+# 
+# while
+# 	read -ep "$ " value;
+# 	do
+# 		echo "$value";
+# done
+# 
+# exit 0;
+
+# while loop
+# while IFS= read -s -r -n1 char
+# do
+#         # display one character at a time
+# 	printf  "$char"
+# done
+# 
+# exit 0;
+
 # configure help
 require 'help';
 help.man.page "default" "prompt.1";

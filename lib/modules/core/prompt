@@ -264,12 +264,19 @@ prompt.read() {
 			read_options+=( -p "${PS9}" );
 		fi
 		
+		# read_options=( -e -s -n1 );
+		
+		#echo "${read_options[@]}";
+		
 		prompt.before;
 		while
 			HISTSIZE="${settings[hist.size]}"
 			HISTFILESIZE="${settings[hist.filesize]}";
 			HISTFILE="${hist_file}";
 			HISTCONTROL="${settings[hist.control]}";
+			# PROMPT_LINE="";
+			# PROMPT_DELIMITER=$'\n';
+			# IFS=;
 			read "${read_options[@]}" value;
 			export PROMPT_READ_EXIT_CODE=$?;
 			do
@@ -279,6 +286,12 @@ prompt.read() {
 					history -w "$HISTFILE";
 				fi
 				break;
+				# printf "$value";
+				# PROMPT_LINE="${PROMPT_LINE}${value}";
+				# if [ "$value" == $'\n' ]; then
+				# 	echo "breaking .."
+				# 	break;
+				# fi
 		done
 		
 		
