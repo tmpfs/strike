@@ -265,22 +265,54 @@ prompt.read() {
 		fi
 		
 		set -o emacs;
-		bind 'set bell-style visible';
-		bind 'set show-all-if-ambiguous on';
-		bind 'set completion-ignore-case on';
+		#bind 'set bell-style visible';
+		#bind 'set show-all-if-ambiguous on';
+		#bind 'set completion-ignore-case on';
 		# bind 'set match-hidden-files off';
+		
+		# shopt -s progcomp;
+		
+		directories() {
+			compgen -o "default" -A "directory" "$READLINE_LINE" | column -x;
+		}
+		
+		functions() {
+			compgen -o "default" -A "function" "$READLINE_LINE" | pr -4 -t -w $COLUMNS -;
+		}
+		
+		# custom() {
+		# 	COMPREPLY=( "abc def ghi agh" )
+		# }
+		
+		#complete -A directory -o dirnames -F directories /;
 		
 		completion() {
 			# echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
-			# if method.exists? console; then
+			# if method.exists? console; then	
 			# 	echo "console method exists...";
 			# fi
 			
-			#complete_filename;
+			# compgen -W "hello there this is a lot of words to complete" "$READLINE_LINE";
+
+			#complete -o dirnames "$READLINE_LINE";
 			
-			#complete -p;
+			#echo "$READLINE_LINE";
 			
-			compgen -W "hello there this is a lot of words to complete" "$READLINE_LINE";
+			#complete -W "" "$READLINE_LINE";
+			
+			#complete -F "directories" "$READLINE_LINE";
+			
+			#directories;
+			
+			#functions;
+			
+			#compgen -W "${COMPREPLY}" "$READLINE_LINE";
+
+			#complete -D -F "functions" "$READLINE_LINE";
+			
+			functions;
+			
+			#complete -F "custom" "$READLINE_LINE";
 			
 			return 0;
 		}
