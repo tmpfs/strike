@@ -270,17 +270,21 @@ prompt.read() {
 		bind 'set completion-ignore-case on';
 		# bind 'set match-hidden-files off';
 		
-		tab() {
-			echo "$FUNCNAME";
+		completion() {
+			# echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
+			# if method.exists? console; then
+			# 	echo "console method exists...";
+			# fi
+			
+			#complete_filename;
+			
+			#complete -p;
+			
+			compgen -W "hello there this is a lot of words to complete" "$READLINE_LINE";
+			
+			return 0;
 		}
-		
-		complete -C tab db;
-		
-		# bind 'TAB:dynamic-complete-history';
-		
-		# read_options=( -e -s -n1 );
-		
-		#echo "${read_options[@]}";
+		bind -x '"\t":"completion"';
 		
 		prompt.before;
 		while
