@@ -421,11 +421,22 @@ prompt.completion() {
 		compgen -o "default" -o "bashdefault" "$READLINE_LINE" | pr -4 -t -w $COLUMNS -;
 	fi
 	
-	# TODO: calculate columns	
+	if [ -z "${COMPREPLY:-}" ]; then
+		console bell;
+		return;
+	fi
 	
 	if [ "${#COMPREPLY[@]:-0}" -gt 0 ]; then
+		
+		# we've got some completions
+		# show the prompt
+		# before listing completions
+		
+		# read -ep "${PS9}";
+		
 		local IFS=$'\n';
 		local reply="${COMPREPLY[*]}";
+		# TODO: calculate columns	
 		printf -- "$reply" | pr -4 -t -w $COLUMNS -;
 		unset IFS;
 		unset COMPREPLY;
@@ -446,13 +457,13 @@ prompt.bind() {
 	
 	# shopt -s progcomp;
 	
-	directories() {
-		compgen -o "default" -A "directory" "$READLINE_LINE" | column -x;
-	}
-	
-	functions() {
-		compgen -o "default" -A "function" "$READLINE_LINE" | pr -4 -t -w $COLUMNS -;
-	}
+	# directories() {
+	# 	compgen -o "default" -A "directory" "$READLINE_LINE" | column -x;
+	# }
+	# 
+	# functions() {
+	# 	compgen -o "default" -A "function" "$READLINE_LINE" | pr -4 -t -w $COLUMNS -;
+	# }
 	
 	# custom() {
 	# 	COMPREPLY=( "abc def ghi agh" )

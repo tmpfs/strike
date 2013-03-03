@@ -33,6 +33,10 @@ console() {
 
 ## COMMANDS
 
+console.bell() {
+	printf "\a";
+}
+
 # print the generic message header
 console.header() {
 	sprintf "$@" "${header}";

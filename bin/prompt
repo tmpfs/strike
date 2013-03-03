@@ -144,7 +144,7 @@ filelist=( $( find . ! -name . -prune -type f ) );
 filelist+=( other );
 
 declare -A messages;
-messages[completion]="completion";
+messages[completion]="functions";
 messages[selection]="select a file";
 messages[confirm]="are you sure? (y/n)";
 messages[name]="enter a name";
@@ -154,7 +154,7 @@ messages[password2]="confirm password";
 messages[execute]="exec";
 
 declare -A descriptions;
-descriptions[completion]="This is a prompt with custom tab key completion.";
+descriptions[completion]="This is a prompt with custom tab key completion. It completes on available shell functions.";
 descriptions[selection]="This is a prompt that allows selection by numeric index.";
 descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
 descriptions[name]="This is a prompt that captures a single line of input.";
@@ -257,7 +257,7 @@ validate.password() {
 prompt.test.completion() {
 	# echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
 	local cur="${COMP_WORDS[$COMP_CWORD]}";
-	echo "$FUNCNAME :${#COMP_WORDS[@]}:$COMP_CWORD:'$cur'";
+	# echo "$FUNCNAME :${#COMP_WORDS[@]}:$COMP_CWORD:'$cur'";
 	
 	COMPREPLY=( $( compgen -o "default" -A "function" -- "$cur" ) );
 }
