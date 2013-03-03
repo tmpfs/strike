@@ -368,15 +368,46 @@ prompt.completion() {
 	
 	#complete -F "custom" "$READLINE_LINE";
 	
-	# split out the line into words
-	COMP_WORDS=( $READLINE_LINE );
+	COMP_CWORD=0;
 	
-	# TODO: work out COMP_CWORD index
+	if [ -z "${READLINE_LINE:-}" ]; then
+		COMP_WORDS=( "" );
+	else
+		# split out the line into words
+		COMP_WORDS=( $READLINE_LINE );
+		
+		local i c;
+		local word="";
+		for((i = $READLINE_POINT;i > -1;i--))
+			do
+				c="${READLINE_LINE:$i:1}";
+				#echo "got char $c";
+				if [ "${c}" != ' ' ]; then
+					word="${c}${word}";
+				fi
+				if [ -n "${word}" ]; then
+					if [ "${c}" == ' ' ]; then
+						break;
+					fi
+				fi
+		done
+		
+		# additional useful variable containing
+		# the current word nearest the cursor position
+		READLINE_WORD="${word}";
+		
+		local i;
+		for i in "${!COMP_WORDS[@]}"
+			do
+				v="${COMP_WORDS[$i]}";
+				if [ "${v}" == "${word}" ]; then
+					COMP_CWORD="$i";
+					break;
+				fi
+		done
+	fi
 	
 	local length="${#completions[@]:-0}";
-	
-	# TODO: calculate columns
-	
 	if [ $length -gt 0 ]; then
 		local func;
 		for func in "${completions[@]:-}"
@@ -388,6 +419,16 @@ prompt.completion() {
 	else
 		# default completion
 		compgen -o "default" -o "bashdefault" "$READLINE_LINE" | pr -4 -t -w $COLUMNS -;
+	fi
+	
+	# TODO: calculate columns	
+	
+	if [ "${#COMPREPLY[@]:-0}" -gt 0 ]; then
+		local IFS=$'\n';
+		local reply="${COMPREPLY[*]}";
+		printf -- "$reply" | pr -4 -t -w $COLUMNS -;
+		unset IFS;
+		unset COMPREPLY;
 	fi
 	
 	return 0;

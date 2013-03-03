@@ -256,7 +256,10 @@ validate.password() {
 # mock tab completion function
 prompt.test.completion() {
 	# echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
-	echo "$FUNCNAME : ${COMP_WORDS[@]:-}";
+	local cur="${COMP_WORDS[$COMP_CWORD]}";
+	echo "$FUNCNAME :${#COMP_WORDS[@]}:$COMP_CWORD:'$cur'";
+	
+	COMPREPLY=( $( compgen -o "default" -A "function" -- "$cur" ) );
 }
 
 # run a test
