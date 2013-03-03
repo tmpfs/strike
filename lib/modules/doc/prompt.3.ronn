@@ -63,6 +63,12 @@ Execute *command* when a select menu receives input that is non-numeric.
 
 Execute *command* when a select menu receives input that is numeric but falls outside of the range.
 
+* `--complete=[function]`:
+
+Execute *function* when the tab key is pressed to generate custom completion specifications. This option is repeatable, functions are executed in declaration order.
+
+When this option is not specified the default readline completion is used, otherwise the complete functions override the default behaviour.
+
 * `--timeout=[seconds]`:
 
 Use *seconds* as the prompt timeout. If *seconds* is non-numeric or zero it is ignored. Equivalent to `read -t`.

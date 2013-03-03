@@ -34,6 +34,9 @@ prompt() {
 	# current command
 	local current;
 	local options;
+	
+	# list of competion functions
+	declare -a completions;
 
 	# configuration settings
 	declare -A settings;
@@ -264,6 +267,9 @@ prompt.read() {
 			read_options+=( -p "${PS9}" );
 		fi
 		
+		# bind tab key
+		prompt.bind;
+		
 		prompt.before;
 		while
 			HISTSIZE="${settings[hist.size]}"
@@ -334,8 +340,64 @@ prompt.read() {
 	fi
 }
 
+prompt.completion() {
+	# echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
+	# if method.exists? console; then	
+	# 	echo "console method exists...";
+	# fi
+	
+	# compgen -W "hello there this is a lot of words to complete" "$READLINE_LINE";
+
+	#complete -o dirnames "$READLINE_LINE";
+	
+	#echo "$READLINE_LINE";
+	
+	#complete -W "" "$READLINE_LINE";
+	
+	#complete -F "directories" "$READLINE_LINE";
+	
+	#directories;
+	
+	#functions;
+	
+	#compgen -W "${COMPREPLY}" "$READLINE_LINE";
+
+	#complete -D -F "functions" "$READLINE_LINE";
+	
+	#functions;
+	
+	#complete -F "custom" "$READLINE_LINE";
+	
+	# split out the line into words
+	COMP_WORDS=( $READLINE_LINE );
+	
+	# TODO: work out COMP_CWORD index
+	
+	local length="${#completions[@]:-0}";
+	
+	# TODO: calculate columns
+	
+	if [ $length -gt 0 ]; then
+		local func;
+		for func in "${completions[@]:-}"
+			do
+				if method.exists? "${func}"; then
+					"$func";
+				fi
+		done
+	else
+		# default completion
+		compgen -o "default" -o "bashdefault" "$READLINE_LINE" | pr -4 -t -w $COLUMNS -;
+	fi
+	
+	return 0;
+}
+
 prompt.bind() {
 	set -o emacs;
+	
+	# bind -p;
+	
 	#bind 'set bell-style visible';
 	#bind 'set show-all-if-ambiguous on';
 	#bind 'set completion-ignore-case on';
@@ -357,37 +419,9 @@ prompt.bind() {
 	
 	#complete -A directory -o dirnames -F directories /;
 	
-	completion() {
-		# echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
-		# if method.exists? console; then	
-		# 	echo "console method exists...";
-		# fi
-		
-		# compgen -W "hello there this is a lot of words to complete" "$READLINE_LINE";
-
-		#complete -o dirnames "$READLINE_LINE";
-		
-		#echo "$READLINE_LINE";
-		
-		#complete -W "" "$READLINE_LINE";
-		
-		#complete -F "directories" "$READLINE_LINE";
-		
-		#directories;
-		
-		#functions;
-		
-		#compgen -W "${COMPREPLY}" "$READLINE_LINE";
-
-		#complete -D -F "functions" "$READLINE_LINE";
-		
-		functions;
-		
-		#complete -F "custom" "$READLINE_LINE";
-		
-		return 0;
-	}
-	bind -x '"\t":"completion"';	
+	# bind -x '"\t":"prompt.completion"';
+	
+	bind -x '"\t":"prompt.completion"';
 }
 
 # executed before showing a prompt
@@ -456,6 +490,11 @@ prompt.options.parse() {
 	                    val=${OPTARG#*=};
 	                    opt=${OPTARG%=$val};
 						settings[commands.validate]="${val}";
+	                    ;;
+	                complete=*)
+	                    val=${OPTARG#*=};
+	                    opt=${OPTARG%=$val};
+						completions+=( "${val}" );
 	                    ;;
 	                hist-file=*)
 	                    val=${OPTARG#*=};
