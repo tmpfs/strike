@@ -496,7 +496,7 @@ sprintf.format() {
 				trailing[$index]="";
 			
 				# got a parameter for the match
-				if [ -n "${value}" ]; then
+				#if [ -n "${value}" ]; then
 					
 					: $((count[matches]++));
 					
@@ -511,10 +511,10 @@ sprintf.format() {
 						fi
 					fi
 				# no parameter for the match, this could output a warning?
-				else
-					# echo "non-parameter match... $specifier"
-					output="${output}${match}";
-				fi
+				# else
+				# 	echo "non-parameter match... $specifier"
+				# 	output="${output}${match}";
+				# fi
 				
 				# update the formatted string
 				# to remove the matching part
