@@ -370,6 +370,8 @@ prompt.completion() {
 	
 	COMP_CWORD=0;
 	
+	READLINE_WORD="";
+	
 	if [ -z "${READLINE_LINE:-}" ]; then
 		COMP_WORDS=( "" );
 	else
@@ -418,7 +420,7 @@ prompt.completion() {
 		done
 	else
 		# default completion
-		compgen -o "default" -o "bashdefault" "$READLINE_LINE" | pr -4 -t -w $COLUMNS -;
+		COMPREPLY=( $( compgen -o "default" -o "bashdefault" "$READLINE_WORD" ) );
 	fi
 	
 	if [ -z "${COMPREPLY:-}" ]; then
@@ -431,18 +433,15 @@ prompt.completion() {
 		# we've got some completions
 		# show the prompt
 		# before listing completions
-		
-		# read -ep "${PS9}";
+		( read -u 1 -ep "${PS9}" <<< "${READLINE_LINE}" );
 		
 		local IFS=$'\n';
 		local reply="${COMPREPLY[*]}";
-		# TODO: calculate columns	
+		# TODO: calculate columns
 		printf -- "$reply" | pr -4 -t -w $COLUMNS -;
 		unset IFS;
 		unset COMPREPLY;
 	fi
-	
-	return 0;
 }
 
 prompt.bind() {
