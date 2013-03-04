@@ -340,6 +340,7 @@ prompt.read() {
 	fi
 }
 
+# responds to the tab key binding
 prompt.completion() {
 	# echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
 	# if method.exists? console; then	
@@ -369,7 +370,6 @@ prompt.completion() {
 	#complete -F "custom" "$READLINE_LINE";
 	
 	COMP_CWORD=0;
-	
 	READLINE_WORD="";
 	
 	if [ -z "${READLINE_LINE:-}" ]; then
@@ -383,7 +383,12 @@ prompt.completion() {
 		for((i = $READLINE_POINT;i > -1;i--))
 			do
 				c="${READLINE_LINE:$i:1}";
-				#echo "got char $c";
+				# echo "got char $c";
+				if [ -z "${word}" ] && [ "${c}" == ' ' ]; then
+					console bell;
+					return 0;
+				fi
+				
 				if [ "${c}" != ' ' ]; then
 					word="${c}${word}";
 				fi
@@ -428,7 +433,17 @@ prompt.completion() {
 		return;
 	fi
 	
-	if [ "${#COMPREPLY[@]:-0}" -gt 0 ]; then
+	# exact match - single completion
+	if [ "${#COMPREPLY[@]:-0}" -eq 1 ]; then
+		local completed="${COMPREPLY[0]}";
+		local remainder="${completed#$READLINE_WORD}";
+		# echo "got remainder ${remainder}";
+		tput ich 5;
+		printf -- "${remainder}";
+		#tput el1;
+		
+	# list of possible completions
+	elif [ "${#COMPREPLY[@]:-0}" -gt 1 ]; then
 		
 		# we've got some completions
 		# show the prompt

@@ -154,7 +154,7 @@ messages[password2]="confirm password";
 messages[execute]="exec";
 
 declare -A descriptions;
-descriptions[completion]="This is a prompt with custom tab key completion. It completes on available shell functions.";
+descriptions[completion]="This is a prompt with custom tab key completion. It completes on available shell functions. Press the tab key with no input to list all functions, type and press tab to complete the input against function names.";
 descriptions[selection]="This is a prompt that allows selection by numeric index.";
 descriptions[confirm]="A confirmation prompt you must enter y, n, Y or N. You may also enter yes, no, YES, NO or any word beginning with y or n.";
 descriptions[name]="This is a prompt that captures a single line of input.";
