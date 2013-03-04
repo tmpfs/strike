@@ -137,6 +137,14 @@ help.parse "$@";
 require 'opts/version';
 version.parse "$@";
 
+# set -o emacs;
+# tab() {
+# 	printf "abcdef" 1>&0;
+# }
+# bind -x '"\t":"tab"';
+# read -ep "$ ";
+# exit 0;
+
 declare -a runner;
 
 filelist=( $( find . ! -name . -prune -type f ) );

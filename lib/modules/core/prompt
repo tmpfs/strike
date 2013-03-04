@@ -438,10 +438,7 @@ prompt.completion() {
 		local completed="${COMPREPLY[0]}";
 		local remainder="${completed#$READLINE_WORD}";
 		# echo "got remainder ${remainder}";
-		tput ich 5;
 		printf -- "${remainder}";
-		#tput el1;
-		
 	# list of possible completions
 	elif [ "${#COMPREPLY[@]:-0}" -gt 1 ]; then
 		
