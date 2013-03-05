@@ -137,13 +137,19 @@ help.parse "$@";
 require 'opts/version';
 version.parse "$@";
 
-# set -o emacs;
-# tab() {
-# 	printf "abcdef" 1>&0;
-# }
-# bind -x '"\t":"tab"';
-# read -ep "$ ";
-# exit 0;
+set -o emacs;
+tab() {
+   printf "abcdef" <&0;
+   #tput cuu1; tput dl1;
+   #tput cuu1; tput cr; tput el; echo baz123;
+   #tput kDC5;
+  #tput clear;
+  #tput el1;
+  #tput cub1;
+}
+bind -x '"\t":"tab"';
+read -ep "$ ";
+exit 0;
 
 declare -a runner;
 
