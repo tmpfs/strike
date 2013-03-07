@@ -617,11 +617,20 @@ require 'tasks/semver';
 require 'tasks/module';
 
 bake() {
-	# method namespace
 	local namespace="tasks";
 	local tasks_file_name="${bake_file_name:-tasks}";
 	fs.walk "$tasks_file_name";
 	local f="$_result";
+	while [ "${1:-}" != "" ]; do
+		case $1 in
+			--color=auto | --color=never | --color=always )
+				shift;
+				;;
+            * )
+                break;
+                ;;
+		esac
+	done
 	if [ ! -f "$f" ]; then
 		console quit 1 "no %s file in %s (or any of the parent directories)" \
             "$tasks_file_name" "${PWD}";
@@ -630,21 +639,17 @@ bake() {
 		local root=$( dirname $f );
 		local target="${root}/target";
 		local tasks="$f";
-		
 		# expose project variable pointing to the 
 		# root so that submodules may access the root
 		# of the project using this variable
 		# this is because ${root} is changed when submodules
 		# are used
 		local project="${root}";
-		
 		if [ ! -d "${target}" ]; then
 			mkdir -p "${target}";
         fi
-		
 		# TODO: extract name/version from package.json
 		# if bake_use_npm is set and package.json exists
-		
         local project_name;
         fs.basename "${root}" "project_name";
 
@@ -653,11 +658,9 @@ bake() {
         if [ -f "${root}/version" ]; then
             project_version=$( cat "${root}/version" );
         fi
-		
 		# set the temporary directory to `target`
 		# for bake(1) processes
 		process.tmp.dir "${target}";
-		
 		require "$f";
 		local cmd="$1";
 		shift;
@@ -665,7 +668,6 @@ bake() {
 		if ! method.exists? "$func"; then
 			console quit 2 "task %s not found" "$cmd";
 		fi
-		
 		# invoke the task function
 		delegate "${namespace}" "$cmd" "$@" || console quit $? "task %s failed" "$func";
 	fi
