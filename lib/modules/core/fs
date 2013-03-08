@@ -78,211 +78,35 @@ function fs.walk {
 	fi
 }
 
-# DEPRECATED: all methods below are deprecated
-
-######################################################################
-#	Tests if a path exists and is a directory.
-#
-#	$1 		The path to the directory.
-######################################################################
-function directory {
-	console info "$CHECK_DIRECTORY" "$1";
-	test -d "$1";
-	#if [ -d $1 ]; then
-	#	return 0;
-	#fi
-	#return 1;
-}
-
-######################################################################
-#	Copies a file or directory recursively forcing an overwrite.
-#
-#	cp -rf
-#
-#	$1 		The source file or folder.
-#	$2 		The destination file or parent folder.
-######################################################################
-function copy {
-	local src="$1";
-	local dest="$2";
-	cp -rf "$src" "$dest" > /dev/null 2>&1;
-	if [ $? -eq 0 ]; then
-			console info "$COPY_SUCCESS" "$src" "$dest";
-			return 0;
-		else
-			error "$COPY_ERROR" "$src" "$dest";
-			return 1;
-	fi
-}
-
-######################################################################
-#	Moves a file or directory.
-#
-#	mv
-#
-#	$1 		The source file or folder.
-#	$2 		The destination file or parent folder.
-######################################################################
-function move {
-	local src="$1";
-	local dest="$2";
-	mv "$src" "$dest"  > /dev/null 2>&1;
-	if [ $? -eq 0 ]; then
-			console info "$MOVE_SUCCESS" "$src" "$dest";
-			return 0;
-		else
-			error "$MOVE_ERROR" "$src" "$dest";
-			return 1;
-	fi
-}
-
-######################################################################
-#	Creates a soft symbolic link.
-#
-#	If a symbolic link already exists then it is removed prior to 
-#	creation of the new symbolic link.
-#
-#	ln -s
-#
-#	$1 		The source for the symbolic link.
-#	$2 		The destination for the symbolic link.
-######################################################################
-function symlink {
-	local src="$1";
-	local dest="$2";
-	#symlink exists, attempt to remove it before creation
-	if [ -h "$dest" ]; then
-		rm "$dest";
-	fi
-	ln -s "$src" "$dest" > /dev/null 2>&1;
-	if [ $? -eq 0 ]; then
-			console info "$SYM_LINK_SUCCESS" "$src" "$dest";
-			return 0;
-		else
-			error "$SYM_LINK_ERROR" "$src" "$dest";
-			return 1;
-	fi
-}
-
-######################################################################
-#	Creates a directory including any non-existing directories.
-#
-#	$1 		The path to the directory.
-######################################################################
-function mkdirp {
-	local dir="$1";
-	if [ ! -d "$dir" ]; then
-		mkdir -p "$dir";
-	fi
-	if [ $? -eq 0 ]; then
-			console info "$CREATED_DIRECTORY" "$dir";
-			return 0;
-		else
-			error "$DIRECTORY_CREATE_FAIL" "$dir";
-			return 1;
-	fi
-}
-
-######################################################################
-#	Attempts to change directory and print the new working directory.
-#
-#	$1 		The path to the directory.
-######################################################################
-function cdir {
-	local dir="$1";
-	cd "$dir";
-	if [ $? -eq 0 ]; then
-			console info "$CHANGED_DIRECTORY" "$dir";
-			return 0;
-		else
-			error "$DIRECTORY_CHANGE_FAIL" "$dir";
-			return 1;
-	fi
-}
-
-######################################################################
-#	Attempts to verify whether a directory is allowed for removal.
-#
-#	$1 		The path to the directory.
-######################################################################
-function validate_rmdir {
-	local dir="$1";
-	if [ -z "$dir" -o "$dir" == "/" -o "$dir" == "." -o "$dir" == ".." -o "$dir" == "./" ]; then
-		quit 1 "deletion of %s not allowed" "$dir";
-	fi
-}
-
-######################################################################
-#	Attempts to remove a directory.
-#
-#	$1 		The path to the directory.
-######################################################################
-# function rmdir {
-# 	local dir="$1";
-# 	validate_rmdir "$dir";	
-# 	fs.path.expand "$dir";
-# 	dir=$_result;
-# 	validate_rmdir "$dir";
-# 	rm -rf "$dir";
-# 	if [ $? -eq 0 ]; then
-# 			console info "$REMOVED_DIRECTORY" "$dir";
-# 			return 0;
-# 		else
-# 			error "$DIRECTORY_REMOVE_FAIL" "$dir";
-# 			return 1;
-# 	fi
-# }
-
-######################################################################
-#	Attempts to remove a directory as the root user.
-#
-#	$1 		The path to the directory.
-######################################################################
-function sudo_rmdir {
-	local dir="$1";
-	validate_rmdir "$dir";	
-	fs.path.expand "$dir";
-	dir=$_result;
-	validate_rmdir "$dir";
-	sudo rm -rf "$dir";
-	if [ $? -eq 0 ]; then
-			console info "$SUDO_REMOVED_DIRECTORY" "$dir";
-			return 0;
-		else
-			error "$SUDO_DIRECTORY_REMOVE_FAIL" "$dir";
-			return 1;
-	fi
-}
-
 ######################################################################
 #	Finds symbolic links that point to themselves and will cause cp
 #	to fail.
 #
 #	$1 		The path to the directory to search.
 ######################################################################
-function find_recursive_symlinks {
-	local src="$1";
-	local links=( $(find "$src" -type l) );
-	local l;
-	local n;
-	local t;
-	local output=();
-	if [ ${#links[@]} -gt 0 ]; then
-		for l in ${links[@]}
-			do
-				t=`readlink "$l"`;
-				n=`basename $l`;
-				#ensure we always compare case-insensitive
-				n=`echo "$n" | tr '[:upper:]' '[:lower:]'`;
-				t=`echo "$t" | tr '[:upper:]' '[:lower:]'`;
-				if [ "$n" == "$t" ]; then
-					#echo "recursive $l : $n : $t";
-					output+=( "$l" );
-				fi
-		done
-	fi
-	_result="${output[@]:+${output[@]}}";
-}
+# function find_recursive_symlinks {
+# 	local src="$1";
+# 	local links=( $(find "$src" -type l) );
+# 	local l;
+# 	local n;
+# 	local t;
+# 	local output=();
+# 	if [ ${#links[@]} -gt 0 ]; then
+# 		for l in ${links[@]}
+# 			do
+# 				t=`readlink "$l"`;
+# 				n=`basename $l`;
+# 				#ensure we always compare case-insensitive
+# 				n=`echo "$n" | tr '[:upper:]' '[:lower:]'`;
+# 				t=`echo "$t" | tr '[:upper:]' '[:lower:]'`;
+# 				if [ "$n" == "$t" ]; then
+# 					#echo "recursive $l : $n : $t";
+# 					output+=( "$l" );
+# 				fi
+# 		done
+# 	fi
+# 	_result="${output[@]:+${output[@]}}";
+# }
 
 # WARNING: these aliases will be removed in a future version
 alias "expand_path=fs.path.expand";
