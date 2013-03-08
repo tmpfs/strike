@@ -1,0 +1,98 @@
+bake(1) -- make for bash
+=============================================
+
+## SYNOPSIS
+
+Delegates to task commands after setting a context.
+
+## DESCRIPTION
+
+**bake** is `make` for bash programs. It provides an extensible system for managing project tasks using modular code.
+
+## USAGE
+
+	bake [task] [task options...]
+	
+## BUILTIN TASKS
+
+All bake(1) projects have the following tasks built in task-test(7), task-clean(7), task-ls(7), task-doc(7) and task-semver(7).
+
+## REQUIRE TASKS
+
+The convention is that task methods are not declared in tasks(7) but are placed in modules and then included using require(3). So to include the task-todo(7) functionality into your project all you need to do is require(3) it:
+
+	require 'tasks/todo';
+
+## FILES
+
+The bake(1) program looks for a tasks(7) file in the current working directory. If no tasks(7) file is found in the current working directory then bake(1) will walk all parent directories looking for a tasks(7) file.
+
+It maps commands (the first option passed to bake(1)) to a task command either builtin or declared (or required) by the tasks file. A task is considered to be the first option passed to the `bake` executable, any other options specified on the command line are passed to the corresponding task command.
+
+## VARIABLES
+
+The following variables are available to each task command:
+
+* `root`:
+
+The directory where the `tasks` file is located.
+
+* `project_name`:
+
+The name of the project as determined by the name of the `${root}` directory.
+
+* `project`:
+
+This is the root of the project. For most projects this will be equivalent to `${root}` but is useful for multi-module projects where `${root}` points to the directory for the module and `${project}` is the root of the project.
+
+* `project_version`:
+
+The project version number, if no version information is available the value *0.0.0* is used.
+
+* `target`:
+
+A staging directory corresponding to `${root}/target`.
+
+* `tasks`:
+
+The file system path to the tasks file, eg: `${root}/tasks`.
+
+* `tasks_file_name`:
+
+The name of the `tasks` file, if `bake_file_name` has been set this will equal that value, otherwise the default *tasks* is used.
+
+## ENVIRONMENT
+
+* `bake_file_name`:
+
+Determines the name of the file that bake(1) looks for to load task command methods from, default is *tasks*. 
+
+## EXIT CODES
+
+A >0 exit code is used when no task(7) file could be located or no command is available, otherwise the exit code is deferred to the task being executed.
+
+* `1`:
+
+No task(7) file available in the current working directory (or any parent directories).
+
+* `2`:
+
+No task command available.
+
+* `>0`:
+
+The task command invocation returned a non-zero exit code but did not explicitly call `exit`.
+
+It is recommended that task command implementations explicitly exit the program using the `quit` and `success` commands declared by console(3).
+
+## BUGS
+
+**bake** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**bake** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+task-test(7), task-doc(7), task-clean(7), task-ls(7), task-semver(7)
