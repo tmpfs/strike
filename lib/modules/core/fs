@@ -4,7 +4,7 @@
 #
 #	$1 		The path to the directory.
 ######################################################################
-function fs.path.expand {
+fs.path.expand() {
 	local dir="${1:-}";
 	if [  -d "$dir" ]; then
 		local owd=`pwd`;
@@ -17,27 +17,26 @@ function fs.path.expand {
 		fs.path.expand "$dir";
 		_result="$_result/$nm";
 	fi
-	
 	if [ ! -e "$dir" -o ! -e "$_result" ]; then
-		error "unable to expand path %s" "$1";
+		console error "unable to expand path %s" "$dir";
 		_result="$1";
 	fi
 }
 
 # escapes leading dash characters
-function fs.path.dash.escape {
-	_result="${1:-}";
-	if [[ "${1:-}" =~ ^-+ ]]; then
-		local re="^-(.*)";
-		while [[ "$_result" =~ $re ]];
-			do
-				_result="\-${BASH_REMATCH[1]}";
-		done
-	fi
-}
+# fs.path.dash.escape() {
+# 	_result="${1:-}";
+# 	if [[ "${1:-}" =~ ^-+ ]]; then
+# 		local re="^-(.*)";
+# 		while [[ "$_result" =~ $re ]];
+# 			do
+# 				_result="\-${BASH_REMATCH[1]}";
+# 		done
+# 	fi
+# }
 
 # retrieve a dirname and assign the result to a variable ($2)
-function fs.dirname {
+fs.dirname() {
 	local path="${1:-}";
 	local varname="${2:-_result}";
 	local stripdot="${3:-false}";
@@ -49,7 +48,7 @@ function fs.dirname {
 }
 
 # retrieve a basename, and assign the result to a variable ($2)
-function fs.basename {
+fs.basename() {
 	local path="${1:-}";
 	local varname="${2:-_result}";
 	local stripdot="${3:-false}";
@@ -61,7 +60,7 @@ function fs.basename {
 }
 
 # walks the parent hierarchy looking for a file
-function fs.walk {
+fs.walk() {
 	local name="${1:-}";
 	local flag="${2:-"-f"}";
 	local dir="$PWD";
