@@ -19,7 +19,7 @@ __check_version__() {
 	fi
 }
 
-__initialize__() {
+initialize() {
 	__check_version__;
 	
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
@@ -108,6 +108,10 @@ __initialize__() {
 
 	# set up default interactive prompt
 	console prompt --program '';
+	
+	# remove this command as it's
+	# served it's purpose
+	method.remove "$FUNCNAME";
 }
 
-__initialize__ "$@";
+initialize "$@";
