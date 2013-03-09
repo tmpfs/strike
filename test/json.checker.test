@@ -7,14 +7,14 @@
 # SEE: https://github.com/zaach/jsonlint
 
 # test(s) to verify the test suite from: http://json.org/JSON_checker/
-function test.json.checker.testsuite {
+test.json.checker.testsuite() {
 	local jsoncheck="${target}/jsoncheck";
 	executable.validate --test gcc;
 	
 	# attempt to compile jsoncheck
 	if [ -n "${executables[gcc]}" ] && [ ! -x "${jsoncheck}" ]; then
-		tasks.json.checker.compile;
-	fi	
+		tasks.jsoncc;
+	fi
 	
 	# only run these tests if `jsonlint` is available
 	if [ -x "${jsoncheck}" ]; then
