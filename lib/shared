@@ -104,9 +104,10 @@ initialize() {
 	require.once 'core/process';
 	# set up default interactive prompt
 	console prompt --program '';
-	# remove this command as it's
-	# served it's purpose
-	method.remove "$FUNCNAME";
+	# remove commands that have
+	# served their purpose
+	method.remove "$FUNCNAME" \
+        boilerplate;
 }
 
 initialize "$@";
