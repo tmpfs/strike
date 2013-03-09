@@ -48,7 +48,8 @@ The following commands are available from the interactive prompt.
 * `build`:
 
   Developer command to build the man pages from the markdown source, 
-  requires ronn(1).
+  requires ronn(1). This is an alias for the task-doc(7) command that
+  corresponds to `bake doc man build`.
 
 * `?`:
 
@@ -86,4 +87,4 @@ Print program version and exit:
 
 ## SEE ALSO
 
-man(1), sprintf(3)
+man(1), sprintf(3), task-doc(7)

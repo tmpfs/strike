@@ -446,7 +446,7 @@ function __semver.release.warn {
 	console title $opts "";	
 	console title $opts "	* Run unit tests using %s or %s" "npm test" "bake test";
 	console title $opts "	* Check for %s and %s tags" "BUG" "FIXME";
-	console title $opts "	* Generate documentation using %s" "bake doc.build";
+	console title $opts "	* Generate documentation using %s" "bake doc man build";
 	console title $opts "	* Publish documentation using %s" "bake doc.pages.push";
 	console header $opts;
 }

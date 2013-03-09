@@ -126,7 +126,7 @@ Documentation for the repository is generated using [ronn(1)](https://github.com
 	
 Which is an alias for:
 
-	./bake doc.build
+	./bake doc man build
 	
 Note that currently you will need to apply [this patch](https://github.com/rtomayko/ronn/issues/69) to [ronn(1)](https://github.com/rtomayko/ronn) for documentation to build correctly.
 
