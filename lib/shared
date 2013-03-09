@@ -24,29 +24,23 @@ __check_version__() {
 
 initialize() {
 	__check_version__;
-	
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
 	dir=$( cd "$dir" && echo "$PWD" );
-	
-	local core="${dir}/modules/core";	
-	
+	local core="${dir}/modules/core";
 	# global variable declarations
 	source "${core}/globals";
-	
 	# we need these modules before we include require(3)
 	source "${core}/variable";
-	source "${core}/string";	
+	source "${core}/string";
 	source "${core}/method";
-	source "${core}/sprintf";	
+	source "${core}/sprintf";
 	source "${core}/console";
 	source "${core}/array";
 	source "${core}/fs";
 	source "${core}/prompt";
-	
 	# set up program header
 	string.repeat "${header_character}" \
 		"${header_repeat}" "header";
-	
 	#NOTE: directories must be configured prior to including require(3)
 	# configure program directories
 	local dir_root="$exedir";
@@ -70,11 +64,9 @@ initialize() {
 	process_dirs[package]="${dir_root}/package.json";
 	process_dirs[version]="${dir_root}/version";
 	process_dirs[semver]="${dir_root}/semver.json";
-
     if [ -f "${process_dirs[version]}" ]; then
         version=$( cat "${process_dirs[version]}" );
     fi
-
 	# configure library directories	
 	fs.path.expand "$dir";
 	dir="$_result";
@@ -103,19 +95,15 @@ initialize() {
 	__require_register "require" "${core}/require";
 	__require_register "fs" "${core}/fs";
 	__require_register "prompt" "${core}/prompt";
-	
 	# require(3) the remaining core modules
 	# the order here is *very* important
-	
 	# TODO: move these to `source`!
 	require.once 'core/delegate';
 	require.once 'core/executable';
 	require.once 'core/system';
 	require.once 'core/process';
-
 	# set up default interactive prompt
 	console prompt --program '';
-	
 	# remove this command as it's
 	# served it's purpose
 	method.remove "$FUNCNAME";
