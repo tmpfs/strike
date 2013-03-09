@@ -49,7 +49,6 @@ console header;
 declare -ag commands=(
   ls
   build
-  help
 );
 
 declare -Ag command_help;
@@ -95,7 +94,7 @@ manual.commands.build() {
 # tab completion output
 manual.commands.ls() {
   local pages="${process_dirs[man]}";
-  manual.completion;
+  manual.completion false;
   prompt.completion.print;
 }
 
@@ -103,10 +102,15 @@ manual.commands.ls() {
 
 # handle completion
 manual.completion() {
+  local cmds="${1:-true}";
 	local cur="${COMP_WORDS[${COMP_CWORD:-}]:-}";
   local pages="${process_dirs[man]}";
   local files=( $(ls "${pages}") );
-	COMPREPLY=( $( compgen -W "${commands[@]} ${files[*]}" -- "$cur" ) );
+  local words="${files[*]}";
+  if $cmds; then
+    words="${commands[*]} ${files[*]}";
+  fi
+	COMPREPLY=( $( compgen -W "${words}" -- "$cur" ) );
 }
 
 # handle input

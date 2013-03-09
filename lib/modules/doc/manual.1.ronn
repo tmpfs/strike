@@ -8,7 +8,8 @@ manual(1) -- interactive man page browser
 ## DESCRIPTION
 
 An interactive program for viewing the strike(7) manual pages. Tab completion
-is performed on the available man pages and interactive commands.
+is performed on the available man pages and interactive commands (with the
+exception of the *help* command).
 
 You may use the following sequences to exit the program:
 
