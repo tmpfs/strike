@@ -58,30 +58,28 @@ The following commands are then available to bake(1):
 bake(1)
 ronn:markdown
 
-function tasks.doc.initialize {
+tasks.doc.initialize() {
 	executable.validate git;
 }
 
 # generates, compiles and imports man pages
-function tasks.doc.all {
+tasks.doc.all() {
 	tasks.doc.build && tasks.doc.pages.push;
 }
 
 # generates, compiles and imports man pages
-function tasks.doc.build {
+tasks.doc.build() {
 	tasks.doc.generate && tasks.doc.compile && tasks.doc.man.import;
 }
 
 # generates ronn markdown documentation
 # from inline ronn:markdown heredoc
-function tasks.doc.generate {
+tasks.doc.generate() {
 	__tasks.doc.output;
 	local output="$_result";
-	
 	if [ ! -d "$output" ]; then
 		mkdir -p "$output";
 	fi
-	
 	__tasks.doc.path;
 	local paths=( "$_result" );
 	local path;
@@ -92,7 +90,7 @@ function tasks.doc.generate {
 }
 
 # removes man pages exported to ${root}/man
-function tasks.doc.man.clean {
+tasks.doc.man.clean() {
 	local man="${root}/man";
 	# clean any existing man pages
 	local cmd="rm -fv "${man}/*"";
@@ -100,7 +98,7 @@ function tasks.doc.man.clean {
 }
 
 # imports the compiled man page(s) into ${root}/man
-function tasks.doc.man.import {
+tasks.doc.man.import() {
 	local man="${root}/man";
 	local mantmp="${target}/doc";
 	if [ ! -d "$man" ]; then
@@ -122,13 +120,11 @@ function tasks.doc.man.import {
 # generates the man page documentation
 # and attempts to push the gh-pages branch
 # before switching back to develop
-function tasks.doc.pages.push {
+tasks.doc.pages.push() {
 	local git="${executables[git]}";
 	local man="${target}/doc";
-	
 	# check out the gh-pages branch
 	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
-	
 	# copy over the temporary man pages
 	cmd="cp -rfv "${man}/*" "${root}"";
 	cd "${root}" \
@@ -139,26 +135,23 @@ function tasks.doc.pages.push {
 		&& $git ls-files \
 		&& $git push origin gh-pages \
 		|| { $git checkout develop && quit 1 "could not rebuild docs"; };
-	
 	# switch back to the develop branch
 	$git checkout develop;
-	
 	# $git stash apply;
 }
 
 # compiles generated .ronn files to markdown and html
-function tasks.doc.compile {
+tasks.doc.compile() {
 	executable.validate ronn;
 	# copy over assets
 	__tasks.doc.assets.copy;
-	
 	__tasks.doc.output;
 	local output="$_result";
 	local ronn="${executables[ronn]}";
 	$ronn -w -s toc -r5 --markdown ${output}/*.ronn;
 }
 
-function __tasks.doc.assets.copy {
+__tasks.doc.assets.copy() {
 	__tasks.doc.assets;
 	local assets=( "$_result" );
 	__tasks.doc.output;
@@ -171,7 +164,7 @@ function __tasks.doc.assets.copy {
 }
 
 # walk a directory containing heredoc candidates
-function __tasks.doc.walk {
+__tasks.doc.walk() {
 	local path="$1";
 	if [ -d "$path" ]; then
 		local file;
@@ -193,19 +186,16 @@ function __tasks.doc.walk {
 }
 
 # parse heredoc in a file
-function __tasks.doc.parse {
+__tasks.doc.parse() {
 	local output="$1";
 	local file="$2";
 	local name="`basename $file`";
 	local ext="ronn";
 	local outputfile="${output}/${name}.${ext}";
-	
 	local docstart="${3:-": <<'ronn:markdown'"}";
 	local docend="${4:-"ronn:markdown"}";
-	
 	local apidoc=": <<'api:ronn:markdown'";	
 	local api=0;
-	
 	local inside=0;
 	local heredoc="";
 	local filename="";
@@ -218,21 +208,15 @@ function __tasks.doc.parse {
 				inside=1;
 				continue;
 			fi
-			
 			if [ "$line" == "$docend" ]; then
 				# echo "got docend on file : $file : $heredoc";
 				inside=0;
 				continue;
 			fi
-			
-			#echo "got line: $line";
-			
 			if [ "$line" == "$apidoc" ] && [ "$docstart" != "$apidoc" ]; then
 				api=1;
 			fi
-
 			if [ $inside -eq 1 ]; then
-
 				# parse .ronn file name
 				if [ -z "$heredoc" ] && [ -z "$filename" ] && [ ! -z "$line" ]; then
 					filename=${line%% *};
@@ -240,17 +224,15 @@ function __tasks.doc.parse {
 					filename=${filename//(/.};
 					outputfile="${output}/${filename}.${ext}";
 				fi
-				
 				# ensure the newline is present after each line
 				heredoc="${heredoc}${line}
 ";
 			fi
 	done < "$file";
-	unset IFS;	
+	unset IFS;
 	if [ ! -z "$heredoc" ]; then
 		echo -n "$heredoc" >| "$outputfile" && console info "generated %s" "$outputfile";
 	fi
-	
 	# also got some api documentation to parse
 	if [ "$api" -eq 1 ]; then
 		__tasks.doc.parse "$output" "$file" "$apidoc" "api:ronn:markdown";
@@ -258,7 +240,7 @@ function __tasks.doc.parse {
 }
 
 # retrieves the doc search paths
-function __tasks.doc.path {
+__tasks.doc.path() {
 	local paths=(
 		"${root}/bin"
 		"${root}/lib/modules"
@@ -267,12 +249,12 @@ function __tasks.doc.path {
 }
 
 # retrieves the doc generate output directory
-function __tasks.doc.output {
+__tasks.doc.output() {
 	_result="${target}/doc";
 }
 
 # retrieves a list of assets to be copied prior to compilation
-function __tasks.doc.assets {
+__tasks.doc.assets() {
 	local assets=(
 		"${root}/doc/index.txt"
 		"${root}/doc/index.html"

@@ -43,6 +43,10 @@ declare -Ag command_help;
 command_help[help]="Show command help";
 command_help[ls]="List available man pages";
 
+
+declare -Ag command_aliases;
+command_aliases[help]="? | help";
+
 # display help
 manual.commands.help() {
   printf "\n";
@@ -52,10 +56,17 @@ manual.commands.help() {
   for k in "${!command_help[@]}"
     do
       v="${command_help[$k]}";
+      if [ -n "${command_aliases[$k]:-}"  ]; then
+        k="${command_aliases[$k]}";
+      fi
       console print --color=always "\t%s" "${k}" | expand -t 2;
       printf "\t\t${v}" | expand -t 2 |  fmt;
       printf "\n";
   done
+}
+
+manual.commands.build() {
+  require.once 'tasks/doc';
 }
 
 manual.commands.ls() {
