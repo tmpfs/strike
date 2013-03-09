@@ -313,42 +313,13 @@ prompt.read() {
 
 # responds to the tab key binding
 prompt.completion() {
-	# echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
-	# if method.exists? console; then	
-	# 	echo "console method exists...";
-	# fi
-	
-	# compgen -W "hello there this is a lot of words to complete" "$READLINE_LINE";
-
-	#complete -o dirnames "$READLINE_LINE";
-	
-	#echo "$READLINE_LINE";
-	
-	#complete -W "" "$READLINE_LINE";
-	
-	#complete -F "directories" "$READLINE_LINE";
-	
-	#directories;
-	
-	#functions;
-	
-	#compgen -W "${COMPREPLY}" "$READLINE_LINE";
-
-	#complete -D -F "functions" "$READLINE_LINE";
-	
-	#functions;
-	
-	#complete -F "custom" "$READLINE_LINE";
-	
 	COMP_CWORD=0;
 	READLINE_WORD="";
-	
 	if [ -z "${READLINE_LINE:-}" ]; then
 		COMP_WORDS=( "" );
 	else
 		# split out the line into words
 		COMP_WORDS=( $READLINE_LINE );
-		
 		local i c;
 		local word="";
 		for((i = $READLINE_POINT;i > -1;i--))
@@ -359,7 +330,6 @@ prompt.completion() {
 					console bell;
 					return 0;
 				fi
-				
 				if [ "${c}" != ' ' ]; then
 					word="${c}${word}";
 				fi
@@ -369,11 +339,9 @@ prompt.completion() {
 					fi
 				fi
 		done
-		
 		# additional useful variable containing
 		# the current word nearest the cursor position
 		READLINE_WORD="${word}";
-		
 		local i;
 		for i in "${!COMP_WORDS[@]}"
 			do
@@ -384,7 +352,6 @@ prompt.completion() {
 				fi
 		done
 	fi
-	
 	local length="${#completions[@]:-0}";
 	if [ $length -gt 0 ]; then
 		local func;
@@ -398,35 +365,59 @@ prompt.completion() {
 		# default completion
 		COMPREPLY=( $( compgen -o "default" -o "bashdefault" "$READLINE_WORD" ) );
 	fi
-	
 	if [ -z "${COMPREPLY:-}" ]; then
 		console bell;
 		return;
 	fi
-	
 	# exact match - single completion
 	if [ "${#COMPREPLY[@]:-0}" -eq 1 ]; then
 		local completed="${COMPREPLY[0]}";
 		local remainder="${completed#$READLINE_WORD}";
-		# echo "got remainder ${remainder}";
-		#printf -- "${remainder}";
     READLINE_LINE="${READLINE_LINE:-}${remainder:-}";
     READLINE_POINT="${#READLINE_LINE}";
 	# list of possible completions
 	elif [ "${#COMPREPLY[@]:-0}" -gt 1 ]; then
-		
-		# we've got some completions
-		# show the prompt
-		# before listing completions
-		( read -u 1 -ep "${PS9}" <<< "${READLINE_LINE}" );
-		
-		local IFS=$'\n';
-		local reply="${COMPREPLY[*]}";
-		# TODO: calculate columns
-		printf -- "$reply" | pr -4 -t -w $COLUMNS -;
-		unset IFS;
-		unset COMPREPLY;
+    # we've got some completions
+    # show the prompt
+    # before listing completions
+    prompt.faux;
+    prompt.completion.print;
 	fi
+  unset IFS;
+  unset COMPREPLY;
+  unset COMP_CWORD;
+  unset COMP_WORDS;
+}
+
+# show a faux prompt mimicing the current
+# prompt and enter a newline
+prompt.faux() {
+  ( read -u 1 -ep "${PS9}" <<< "${READLINE_LINE:-}" );
+}
+
+# print the compreply
+prompt.completion.print() {
+  local IFS=$'\n';
+  local reply="${COMPREPLY[*]:-}";
+  local count=4;
+  prompt.columns;
+  printf -- "$reply" | pr -$count -t -w $COLUMNS -;
+}
+
+# calculate number of columns to
+# use for printing COMPREPLY
+prompt.columns() {
+  local len=0;
+  local padding=4;
+  local v;
+  for v in "${COMPREPLY[@]}"
+    do
+      if [ "${#v}" -gt $len ]; then
+        len="${#v}";
+      fi
+  done
+  len=$((len+padding));
+  count=$((COLUMNS/len));
 }
 
 prompt.bind() {

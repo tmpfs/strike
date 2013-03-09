@@ -40,6 +40,9 @@ console header;
 # COMMANDS
 
 declare -Ag command_help;
+command_help["page.[0-9]"]="Show a manual page using man(1), ";
+command_help["page.[0-9]"]+="use the ls command or tab completion ";
+command_help["page.[0-9]"]+="to list available manual pages";
 command_help[help]="Show command help";
 command_help[ls]="List available man pages";
 command_help[build]="Command for developers to ";
@@ -75,17 +78,20 @@ manual.commands.build() {
 
 manual.commands.ls() {
   local pages="${process_dirs[man]}";
-  ls "${pages}";
+  #ls "${pages}";
+  manual.completion;
+  prompt.completion.print;
 }
 
 # INTERNAL
 
 # handle completion
 manual.completion() {
-	local cur="${COMP_WORDS[$COMP_CWORD]}";
+	local cur="${COMP_WORDS[${COMP_CWORD:-}]:-}";
   local pages="${process_dirs[man]}";
   local files=( $(ls "${pages}") );
 	COMPREPLY=( $( compgen -W "${files[*]}" -- "$cur" ) );
+  #echo "got comp reply ${#COMPREPLY[@]}"
 }
 
 # handle input
