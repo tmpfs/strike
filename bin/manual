@@ -37,8 +37,8 @@ console header;
 console title "%s %s" "${process_name}" "${version}";
 console title "";
 console title "Type %s or %s for command information" "?" "help";
-console title "Type %s, %s or %s to exit the program" "q" "quit" "exit";
 console title "Use the %s key for completion on available man pages" "tab";
+console title "Type %s, %s or %s to exit the program" "q" "quit" "exit";
 console header;
 
 # list commands for tab completion

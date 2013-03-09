@@ -22,6 +22,13 @@ The console(3) module is a built in module available to all programs\. It is res
 .
 .SH "COMMANDS"
 .
+.TP
+\fBbell\fR:
+
+.
+.P
+Ring the terminal bell\.
+.
 .SS "Standard Output"
 To print to standard output use the following commands:
 .
@@ -53,7 +60,19 @@ Print an ok message\. This message type appends a suffix of ✓ (\eu2713)\.
 \fBprompt\fR:
 .
 .IP
-Create a message suitable for passing to \fBread \-ep\fR and assign the result to the \fBPS9\fR variable\.
+Create a message suitable for passing to \fBread \-ep\fR and assign the result to the \fBPS9\fR variable\. See prompt(3)\.
+.
+.TP
+\fBheader\fR:
+.
+.IP
+Print a header used to delimit sections of output\.
+.
+.TP
+\fBtitle\fR:
+.
+.IP
+Print a message prefixed with the header character, suitable for placing between calls to \fBheader\fR\.
 .
 .SS "Standard Error"
 To print to standard error use the following commands:
@@ -107,4 +126,4 @@ The console(3) module supports all the options available to the sprintf(3) modul
 \fBconsole\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-sprintf(3), globals\-api(3)
+sprintf(3), prompt(3)
