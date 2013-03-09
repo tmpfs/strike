@@ -24,6 +24,11 @@ boilerplate "$@";
 
 process.use strict;
 
+require 'opts/version';
+version.parse "$@";
+
+executable.validate man;
+
 console header;
 console title "manual";
 console title "";
@@ -31,10 +36,22 @@ console title "Type ? or help for interactive command help";
 console title "Type q, quit or exit to exit the program";
 console header;
 
+# COMMANDS
+
+declare -Ag command_help;
+command_help[help]="Show command help";
+command_help[ls]="List available man pages";
+
 # display help
 manual.commands.help() {
   echo "command help...";
 }
+
+manual.commands.ls() {
+  echo "$FUNCNAME";
+}
+
+# INTERNAL
 
 # handle completion
 manual.completion() {
@@ -46,7 +63,31 @@ manual.completion() {
 
 # handle input
 manual.response() {
-  echo "got response $*"
+  #echo "got response $*"
+  local namespace="manual.commands";
+  local help=( ? help );
+  local input="${1:-}";
+  local words=( $input );
+  if [ -z "${input}" ]; then
+    return 1;
+  fi
+  local pages="${process_dirs[man]}";
+  local page="${pages}/${input}";
+  # prefer showing man pages first
+  if [ -f "${page}" ]; then
+    man "${page}";
+  fi
+  # handle help
+  if array.contains? "${input}" "${help[@]}"; then
+    manual.commands.help;
+  else
+    if [ ${#words[@]} -gt 0 ]; then
+      local cmd="${namespace}.${words[0]}";
+      if method.exists? "${cmd}";then
+        "$cmd";
+      fi
+    fi
+  fi
 }
 
 # show the prompt
@@ -56,9 +97,6 @@ manual() {
 		--response=manual.response
 		--hist-file="$hist_file"
 	);
-
-  echo "got opts ${opts[@]}"
-
   prompt line --response=manual.response \
     --complete=manual.completion \
     --multiline --quit="q quit exit" \
