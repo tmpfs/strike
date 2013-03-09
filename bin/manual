@@ -49,6 +49,7 @@ console header;
 declare -ag commands=(
   ls
   build
+  paths
 );
 
 declare -Ag command_help;
@@ -80,6 +81,24 @@ manual.commands.help() {
 # show manual(1) man page
 manual.commands.man() {
   help.man.show.default false;
+}
+
+# list man page paths
+manual.commands.paths() {
+  local paths="${MANPATH:-}";
+  if test -z "${paths}"; then
+    console bell; return 1;
+  fi
+  local IFS=":";
+  local folders=( $paths );
+  if [ -z "${folders[*]}" ] || [ ${#folders[@]} -eq 0 ]; then
+    console bell; return 1;
+  fi
+  local d;
+  for d in "${folders[@]}"
+    do
+      printf -- "${d}\n";
+  done
 }
 
 # build latest man pages
@@ -115,7 +134,6 @@ manual.completion() {
 
 # handle input
 manual.response() {
-  #echo "got response $*"
   local namespace="manual.commands";
   local input="${1:-}";
   local words=( $input );
@@ -138,6 +156,8 @@ manual.response() {
       local cmd="${namespace}.${words[0]}";
       if method.exists? "${cmd}";then
         "$cmd";
+      else
+        console error "unknown command %s" "${input:-}";
       fi
     fi
   fi
