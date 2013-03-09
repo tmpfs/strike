@@ -1,19 +1,4 @@
-# declare -Ag prompt_data;
-# declare -Ag prompt_boolean;
-# 
-# # callback lists
-# declare -g prompt_accepted;
-# declare -g prompt_rejected;
-# declare -g prompt_invalid;
-# 
-# declare -g prompt_current;
-# 
-# # current prompt command
-# declare -g prompt_command;
-# declare -ag prompt_command_options;
-
 # TOOD: validate
-# TODO: silent
 
 # main entry point
 prompt() {
@@ -285,24 +270,19 @@ prompt.read() {
 				# 	break;
 				# fi
 		done
-		
-		
 		if [ $PROMPT_READ_EXIT_CODE -gt 128 ]; then
 			PROMPT_TIMEOUT=true;
 			prompt.trigger 'commands.timeout' "${settings[data.id]:-}";
 		fi
 		prompt.after;
-		
 		# print additional newline in these situations
 		if [ $PROMPT_READ_EXIT_CODE -gt 128 ] \
 			|| ${settings[silent]}; then
 			printf '\n';
 		fi
-		
 		if [ -z "${value}" ] && [ -n "${settings[default]}" ]; then
 			value="${settings[default]}";
 		fi
-			
 		# handle value validation
 		if [ -n "${settings[commands.validate]}" ]; then
 			prompt.trigger 'commands.validate' "${value}";
@@ -311,20 +291,21 @@ prompt.read() {
 				return 0;
 			fi
 		fi
-		
 		if [ -n "${settings[quit]}" ]; then
 			if array.contains? "${value:-}" ${settings[quit]}; then
 				settings[infinite]=false;
 				settings[execute]=false;
 			fi
 		fi
-		
 		if ${settings[execute]}; then
 			# NOTE: must run in a sub-shell
 			( /usr/bin/env bash -c "$value"; )
 		fi
-		
 		if ${settings[infinite]} && method.exists? "$current"; then
+      # ensure the repsonse command is triggered for
+      # infinite prompts
+		  prompt.trigger 'commands.response' \
+			  "${value:-}" "${settings[data.id]:-}";
 			$current "${options[@]:-}";
 		fi
 	fi
