@@ -1,0 +1,89 @@
+manual(1) -- interactive man page browser
+=============================================
+
+## SYNOPSIS
+
+  manual [command] [options...]
+
+## DESCRIPTION
+
+An interactive program for viewing the strike(7) manual pages. Tab completion
+is performed on the available man pages and interactive commands.
+
+You may use the following sequences to exit the program:
+
+* q
+* quit
+* exit
+
+## COMMANDS
+
+* `help`:
+
+  Show the manual(1) man page.
+
+## OPTIONS
+
+* `--version`:
+
+  Print the program version and exit.
+
+* `--color=auto|never|always`:
+
+  Change the configuration for printing ANSI color escape sequences.
+  The default value is *auto*. See sprintf(3).
+
+## INTERACTIVE COMMANDS
+
+The following commands are available from the interactive prompt.
+
+* `ls`:
+
+  List available manual pages.
+
+* `name.[1-8]`:
+
+  Open the named manual page using man(1)
+
+* `build`:
+
+  Developer command to build the man pages from the markdown source, 
+  requires ronn(1).
+
+* `?`:
+
+  Print command usage.
+
+* `help`:
+
+  Display this manual page.
+
+## EXAMPLES
+
+Launch the interactive browser:
+
+  manual
+
+Display this manual page:
+
+  manual help
+
+Switch off the color capability:
+
+  manual --color=never
+
+Print program version and exit:
+
+  manual --version
+
+## BUGS
+
+**manual** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**manual** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+man(1), sprintf(3)

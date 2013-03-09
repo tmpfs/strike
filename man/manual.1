@@ -1,0 +1,115 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "MANUAL" "1" "March 2013" "" ""
+.
+.SH "NAME"
+\fBmanual\fR \- interactive man page browser
+.
+.SH "SYNOPSIS"
+manual [command] [options\.\.\.]
+.
+.SH "DESCRIPTION"
+An interactive program for viewing the strike(7) manual pages\. Tab completion is performed on the available man pages and interactive commands\.
+.
+.P
+You may use the following sequences to exit the program:
+.
+.IP "\[ci]" 4
+q
+.
+.IP "\[ci]" 4
+quit
+.
+.IP "\[ci]" 4
+exit
+.
+.IP "" 0
+.
+.SH "COMMANDS"
+.
+.TP
+\fBhelp\fR:
+.
+.IP
+Show the manual(1) man page\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-\-version\fR:
+.
+.IP
+Print the program version and exit\.
+.
+.TP
+\fB\-\-color=auto|never|always\fR:
+.
+.IP
+Change the configuration for printing ANSI color escape sequences\. The default value is \fIauto\fR\. See sprintf(3)\.
+.
+.SH "INTERACTIVE COMMANDS"
+The following commands are available from the interactive prompt\.
+.
+.TP
+\fBls\fR:
+.
+.IP
+List available manual pages\.
+.
+.TP
+\fBname\.[1\-8]\fR:
+.
+.IP
+Open the named manual page using man(1)
+.
+.TP
+\fBbuild\fR:
+.
+.IP
+Developer command to build the man pages from the markdown source, requires ronn(1)\.
+.
+.TP
+\fB?\fR:
+.
+.IP
+Print command usage\.
+.
+.TP
+\fBhelp\fR:
+.
+.IP
+Display this manual page\.
+.
+.SH "EXAMPLES"
+Launch the interactive browser:
+.
+.P
+manual
+.
+.P
+Display this manual page:
+.
+.P
+manual help
+.
+.P
+Switch off the color capability:
+.
+.P
+manual \-\-color=never
+.
+.P
+Print program version and exit:
+.
+.P
+manual \-\-version
+.
+.SH "BUGS"
+\fBmanual\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBmanual\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+man(1), sprintf(3)

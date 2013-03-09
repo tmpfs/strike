@@ -65,12 +65,15 @@ help.man.show() {
 
 # attempt to show the default man page for a program
 help.man.show.default() {
+  local exiting="${1:-true}";
 	local manpage=${__help_manpages[default]:-};
 	if [ -z "$manpage" ]; then
 		console quit 1 "no help available for %s" "`basename $0`";
   fi
 	help.man.show "$manpage" true;
-	help.exit "$?";
+  if $exiting; then
+	  help.exit "$?";
+  fi
 }
 
 # handles exiting once a help option has been processed

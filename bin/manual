@@ -24,6 +24,12 @@ boilerplate "$@";
 
 process.use strict;
 
+
+# configure help
+require 'help';
+help.man.page "default" "manual.1";
+help.parse "$@";
+
 require 'opts/version';
 version.parse "$@";
 
@@ -39,20 +45,25 @@ console header;
 
 # COMMANDS
 
+# list commands for tab completion
+declare -ag commands=(
+  ls
+  build
+  help
+);
+
 declare -Ag command_help;
-command_help["page.[0-9]"]="Show a manual page using man(1), ";
-command_help["page.[0-9]"]+="use the ls command or tab completion ";
-command_help["page.[0-9]"]+="to list available manual pages";
-command_help[help]="Show command help";
+command_help["name.[1-8]"]="Show a manual page using man(1), ";
+command_help["name.[1-8]"]+="use the ls command or tab completion ";
+command_help["name.[1-8]"]+="to list available manual pages";
+command_help[?]="Print command help";
+command_help[help]="Show manual(1) man page";
 command_help[ls]="List available man pages";
 command_help[build]="Command for developers to ";
 command_help[build]+="generate latest versions of the man pages ";
 command_help[build]+="from the markdown source, requires ronn(1)";
 
-declare -Ag command_aliases;
-command_aliases[help]="? | help";
-
-# display help
+# print command information
 manual.commands.help() {
   printf "\n";
   console print "%s %s" "${process_name}" "${version}";
@@ -61,13 +72,15 @@ manual.commands.help() {
   for k in "${!command_help[@]}"
     do
       v="${command_help[$k]}";
-      if [ -n "${command_aliases[$k]:-}"  ]; then
-        k="${command_aliases[$k]}";
-      fi
       console print --color=always "\t%s" "${k}" | expand -t 2;
       printf "\t\t${v}" | expand -t 2 |  fmt;
       printf "\n";
   done
+}
+
+# show manual(1) man page
+manual.commands.man() {
+  help.man.show.default false;
 }
 
 # build latest man pages
@@ -76,9 +89,12 @@ manual.commands.build() {
   tasks.doc man build;
 }
 
+# list man pages using the same
+# logic as the tab completion so
+# that the columns match the default
+# tab completion output
 manual.commands.ls() {
   local pages="${process_dirs[man]}";
-  #ls "${pages}";
   manual.completion;
   prompt.completion.print;
 }
@@ -90,15 +106,13 @@ manual.completion() {
 	local cur="${COMP_WORDS[${COMP_CWORD:-}]:-}";
   local pages="${process_dirs[man]}";
   local files=( $(ls "${pages}") );
-	COMPREPLY=( $( compgen -W "${files[*]}" -- "$cur" ) );
-  #echo "got comp reply ${#COMPREPLY[@]}"
+	COMPREPLY=( $( compgen -W "${commands[@]} ${files[*]}" -- "$cur" ) );
 }
 
 # handle input
 manual.response() {
   #echo "got response $*"
   local namespace="manual.commands";
-  local help=( ? help );
   local input="${1:-}";
   local words=( $input );
   if [ -z "${input}" ]; then
@@ -111,8 +125,10 @@ manual.response() {
     man "${page}";
   fi
   # handle help
-  if array.contains? "${input}" "${help[@]}"; then
+  if [ "${input}" == "?" ]; then
     manual.commands.help;
+  elif [ "${input}" == "help" ]; then
+    manual.commands.man;
   else
     if [ ${#words[@]} -gt 0 ]; then
       local cmd="${namespace}.${words[0]}";
