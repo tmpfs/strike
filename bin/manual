@@ -177,10 +177,10 @@ manual() {
   if [ ! -f "${hist_file}" ]; then
     touch "${hist_file}";
   fi
-	local opts=(
-		--response=manual.response
-		--hist-file="$hist_file"
-	);
+  local opts=(
+    --response=manual.response
+    --hist-file="$hist_file"
+  );
   prompt line \
     --hist-file="$hist_file" \
     --response=manual.response \
