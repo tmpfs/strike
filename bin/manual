@@ -7,25 +7,23 @@
 ######################################################################
 export exedir;
 boilerplate() {
-	local src="${BASH_SOURCE[0]}"
-	exedir="$( dirname "$src" )"
-	while [ -h "$src" ]
-		do 
-			src="$(readlink "$src")";
-			[[ $src != /* ]] && src="$exedir/$src";
-			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
-	done
-	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
-	unset src;
-	. "$exedir/../lib/shared" "$@";
+  local src="${BASH_SOURCE[0]}"
+  exedir="$( dirname "$src" )"
+  while [ -h "$src" ]
+  do
+    src="$(readlink "$src")";
+    [[ $src != /* ]] && src="$exedir/$src";
+    exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+  done
+  exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+  unset src;
+  . "$exedir/../lib/shared" "$@";
 }
 boilerplate "$@";
 ######################################################################
 
 process.use strict;
 
-
-# configure help
 require 'help';
 help.man.page "default" "manual.1";
 help.parse "$@";
@@ -43,7 +41,6 @@ console title "Type %s, %s or %s to exit the program" "q" "quit" "exit";
 console title "Use the %s key for completion on available man pages" "tab";
 console header;
 
-
 # list commands for tab completion
 declare -ag commands=(
   build
@@ -55,11 +52,7 @@ declare -ag commands=(
   paths
 );
 
-declare -ag exits=(
-  q
-  quit
-  exit
-)
+declare -ag exits=( q quit exit );
 
 declare -Ag command_help;
 command_help["name.[1-8]"]="Show a manual page using man(1), ";
@@ -93,6 +86,7 @@ manual.commands.paths() {
   fi
   local IFS=":";
   local folders=( $paths );
+  unset IFS;
   if [ -z "${folders[*]}" ] || [ ${#folders[@]} -eq 0 ]; then
     console bell; return 1;
   fi
@@ -147,8 +141,6 @@ manual.commands.ls() {
 
 # print command information
 manual.help.show() {
-  printf "\n";
-  console print "%s %s" "${process_name}" "${version}";
   printf "\n";
   local k v;
   for k in "${!command_help[@]}"
@@ -211,7 +203,7 @@ manual.response() {
 
 # show the prompt
 manual() {
-	local hist_file=~/.manual.history.log;
+  local hist_file=~/.manual.history.log;
   if [ ! -f "${hist_file}" ]; then
     touch "${hist_file}";
   fi
