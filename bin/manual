@@ -43,14 +43,19 @@ console title "Type %s, %s or %s to exit the program" "q" "quit" "exit";
 console title "Use the %s key for completion on available man pages" "tab";
 console header;
 
-# COMMANDS
 
 # list commands for tab completion
 declare -ag commands=(
-  ls
   build
+  ls
   paths
 );
+
+declare -ag exits=(
+  q
+  quit
+  exit
+)
 
 declare -Ag command_help;
 command_help["name.[1-8]"]="Show a manual page using man(1), ";
@@ -63,25 +68,8 @@ command_help[build]="Command for developers to ";
 command_help[build]+="generate latest versions of the man pages ";
 command_help[build]+="from the markdown source, requires ronn(1)";
 
-# print command information
-manual.commands.help() {
-  printf "\n";
-  console print "%s %s" "${process_name}" "${version}";
-  printf "\n";
-  local k v;
-  for k in "${!command_help[@]}"
-    do
-      v="${command_help[$k]}";
-      console print --color=always "\t%s" "${k}" | expand -t 2;
-      printf "\t\t${v}" | expand -t 2 |  fmt;
-      printf "\n";
-  done
-}
 
-# show manual(1) man page
-manual.commands.man() {
-  help.man.show.default false;
-}
+# COMMANDS
 
 # list man page paths
 manual.commands.paths() {
@@ -119,6 +107,21 @@ manual.commands.ls() {
 
 # INTERNAL
 
+# print command information
+manual.help.show() {
+  printf "\n";
+  console print "%s %s" "${process_name}" "${version}";
+  printf "\n";
+  local k v;
+  for k in "${!command_help[@]}"
+    do
+      v="${command_help[$k]}";
+      console print --color=always "\t%s" "${k}" | expand -t 2;
+      printf "\t\t${v}" | expand -t 2 |  fmt;
+      printf "\n";
+  done
+}
+
 # handle completion
 manual.completion() {
   local cmds="${1:-true}";
@@ -136,6 +139,10 @@ manual.completion() {
 manual.response() {
   local namespace="manual.commands";
   local input="${1:-}";
+  # prevent error message on exit commands
+  if array.contains? "${input}" "${exits[@]}"; then
+    return 0;
+  fi
   local words=( $input );
   if [ -z "${input}" ]; then
     return 1;
@@ -148,9 +155,9 @@ manual.response() {
   fi
   # handle help
   if [ "${input}" == "?" ]; then
-    manual.commands.help;
+    manual.help.show;
   elif [ "${input}" == "help" ]; then
-    manual.commands.man;
+    help.man.show.default false;
   else
     if [ ${#words[@]} -gt 0 ]; then
       local cmd="${namespace}.${words[0]}";
@@ -174,10 +181,11 @@ manual() {
 		--hist-file="$hist_file"
 	);
   prompt line \
+    --hist-file="$hist_file" \
     --response=manual.response \
     --complete=manual.completion \
     --multiline \
-    --quit="q quit exit" \
+    --quit="${exits[*]}" \
     --infinite;
 }
 

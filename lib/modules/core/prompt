@@ -295,6 +295,7 @@ prompt.read() {
 			if array.contains? "${value:-}" ${settings[quit]}; then
 				settings[infinite]=false;
 				settings[execute]=false;
+        return 0;
 			fi
 		fi
 		if ${settings[execute]}; then

@@ -38,19 +38,20 @@ You may use the following sequences to exit the program:
 
 The following commands are available from the interactive prompt.
 
-* `ls`:
-
-  List available manual pages.
 
 * `name.[1-8]`:
 
-  Open the named manual page using man(1)
+  Open *name* manual page using man(1).
 
 * `build`:
 
   Developer command to build the man pages from the markdown source, 
   requires ronn(1). This is an alias for the task-doc(7) command that
   corresponds to `bake doc man build`.
+
+* `ls`:
+
+  List available manual pages.
 
 * `?`:
 
