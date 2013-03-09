@@ -30,9 +30,9 @@ version.parse "$@";
 executable.validate man fmt;
 
 console header;
-console title "manual";
+console title "%s" "manual";
 console title "";
-console title "Type ? or help for interactive command help";
+console title "Type %s or %s for command information" "?" "help";
 console title "Type q, quit or exit to exit the program";
 console header;
 
@@ -44,9 +44,6 @@ command_help[ls]="List available man pages";
 
 # display help
 manual.commands.help() {
-  local data=( ${!command_help[@]} );
-  #data+=( "${command_help[@]}" );
-  #echo "${data[*]}";
   local k v;
   for k in "${!command_help[@]}"
     do
@@ -58,7 +55,8 @@ manual.commands.help() {
 }
 
 manual.commands.ls() {
-  echo "$FUNCNAME";
+  local pages="${process_dirs[man]}";
+  ls "${pages}";
 }
 
 # INTERNAL
