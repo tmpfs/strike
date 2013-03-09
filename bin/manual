@@ -42,7 +42,9 @@ console header;
 declare -Ag command_help;
 command_help[help]="Show command help";
 command_help[ls]="List available man pages";
-
+command_help[build]="Command for developers to ";
+command_help[build]+="generate latest versions of the man pages ";
+command_help[build]+="from the markdown source, requires ronn(1)";
 
 declare -Ag command_aliases;
 command_aliases[help]="? | help";
@@ -65,8 +67,10 @@ manual.commands.help() {
   done
 }
 
+# build latest man pages
 manual.commands.build() {
   require.once 'tasks/doc';
+  tasks.doc man build;
 }
 
 manual.commands.ls() {
@@ -116,13 +120,18 @@ manual.response() {
 # show the prompt
 manual() {
 	local hist_file=~/.manual.history.log;
+  if [ ! -f "${hist_file}" ]; then
+    touch "${hist_file}";
+  fi
 	local opts=(
 		--response=manual.response
 		--hist-file="$hist_file"
 	);
-  prompt line --response=manual.response \
+  prompt line \
+    --response=manual.response \
     --complete=manual.completion \
-    --multiline --quit="q quit exit" \
+    --multiline \
+    --quit="q quit exit" \
     --infinite;
 }
 
