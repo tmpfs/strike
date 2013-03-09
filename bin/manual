@@ -85,7 +85,7 @@ manual.completion() {
 	local cur="${COMP_WORDS[$COMP_CWORD]}";
   local pages="${process_dirs[man]}";
   local files=( $(ls "${pages}") );
-	COMPREPLY=( $( compgen -o "default" -W "${files[*]}" -- "$cur" ) );
+	COMPREPLY=( $( compgen -W "${files[*]}" -- "$cur" ) );
 }
 
 # handle input
