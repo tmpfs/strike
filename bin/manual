@@ -70,7 +70,6 @@ command_help[compile]="Compile all ronn documents, requires ronn(1)";
 command_help[import]="Import compiled manual pages into the man directory";
 command_help[clean]="Remove all compiled manual pages from the man directory";
 
-
 # COMMANDS
 
 # list man page paths
@@ -150,7 +149,7 @@ manual.help.show() {
 # handle completion
 manual.completion() {
   local cmds="${1:-true}";
-	local cur="${COMP_WORDS[${COMP_CWORD:-}]:-}";
+  local cur="${COMP_WORDS[${COMP_CWORD:-}]:-}";
   local pages="${process_dirs[man]}";
   local files=( $(ls "${pages}") );
   local words="${files[*]:-}";
@@ -176,8 +175,7 @@ manual.response() {
   local page="${pages}/${input}";
   # prefer showing man pages first
   if [ -f "${page}" ]; then
-    man "${page}";
-    return 0;
+    man "${page}"; return 0;
   fi
   # handle help
   if [ "${input}" == "?" ]; then
