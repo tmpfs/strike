@@ -63,17 +63,12 @@ command_help["q | quit | exit"]="Exit the program";
 command_help[help]="Show manual(1) man page";
 command_help[paths]="Print paths in MANPATH";
 command_help[ls]="List available man pages";
-command_help[build]="Command for developers to ";
-command_help[build]+="generate latest versions of the man pages ";
+command_help[build]="Build latest versions of the man pages ";
 command_help[build]+="from the markdown source, requires ronn(1)";
-command_help[generate]="Command for developers to ";
-command_help[generate]+="generate ronn documents from inline heredocs";
-command_help[compile]="Command for developers to ";
-command_help[compile]+="compile all ronn documents, requires ronn(1)";
-command_help[import]="Command for developers to ";
-command_help[import]+="import compiled manual pages into the man directory";
-command_help[clean]="Command for developers to ";
-command_help[clean]+="remove all compiled manual pages from the man directory";
+command_help[generate]="Generate ronn documents from inline heredocs";
+command_help[compile]="Compile all ronn documents, requires ronn(1)";
+command_help[import]="Import compiled manual pages into the man directory";
+command_help[clean]="Remove all compiled manual pages from the man directory";
 
 
 # COMMANDS
@@ -158,9 +153,9 @@ manual.completion() {
 	local cur="${COMP_WORDS[${COMP_CWORD:-}]:-}";
   local pages="${process_dirs[man]}";
   local files=( $(ls "${pages}") );
-  local words="${files[*]}";
+  local words="${files[*]:-}";
   if $cmds; then
-    words="${commands[*]} ${files[*]}";
+    words="${commands[*]} ${files[*]:-}";
   fi
 	COMPREPLY=( $( compgen -W "${words}" -- "$cur" ) );
 }

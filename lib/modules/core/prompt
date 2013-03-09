@@ -411,7 +411,7 @@ prompt.columns() {
   local len=0;
   local padding=4;
   local v;
-  for v in "${COMPREPLY[@]}"
+  for v in "${COMPREPLY[@]:-}"
     do
       if [ "${#v}" -gt $len ]; then
         len="${#v}";
