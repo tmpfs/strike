@@ -14,28 +14,27 @@ __help_manpath=();
 
 # validates required executables and
 # sets up the default man search paths
-function help.initialize {
+help.initialize() {
 	executable.validate man;
-	
 	# set up default man paths
 	help.man.path "$exedir/man";
 	help.man.path "$exedir/../man";
 }
 
 # add a help man path search directory
-function help.man.path {
+help.man.path() {
 	__help_manpath+=( "$1" );
 }
 
 # add a help man page mapping
-function help.man.page {
+help.man.page() {
 	local name="${1:-}";
 	local filename="${2:-}";
 	__help_manpages[$name]=$filename;
 }
 
 # show a man page
-function help.man.show {
+help.man.show() {
 	local man="${executables[man]}";	
 	local page="${1:-}";
 	local default="${2:-false}";
@@ -65,20 +64,18 @@ function help.man.show {
 }
 
 # attempt to show the default man page for a program
-function help.man.show.default {
+help.man.show.default() {
 	local manpage=${__help_manpages[default]:-};
 	if [ -z "$manpage" ]; then
-		quit 1 "no help available for %s" "`basename $0`";
-	fi			
+		console quit 1 "no help available for %s" "`basename $0`";
+  fi
 	help.man.show "$manpage" true;
 	help.exit "$?";
 }
 
 # handles exiting once a help option has been processed
-function help.exit {
+help.exit() {
 	local code="$1";
-	# echo "got man page exit code: $code";
-	
 	# everything went ok so just quit
 	if [ $code -eq 0 ]; then
 		exit 0;
@@ -86,14 +83,14 @@ function help.exit {
 	elif [ $code -gt 0 ] && [ -f "$__help_stderr_file" ]; then
 		local err=`cat "$__help_stderr_file"`;
 		help.clean;
-		quit $code "$err";
+		console quit $code "$err";
 	elif [ $code -gt 0 ]; then
-		quit $code "no man page available";
+		console quit $code "no man page available";
 	fi
 }
 
 # cleans the file used for capturing `man` stderr
-function help.clean {
+help.clean() {
 	if [ -f "$__help_stderr_file" ]; then
 		rm "$__help_stderr_file";
 	fi
@@ -101,7 +98,7 @@ function help.clean {
 
 # inspect the program options looking for a help option
 # and display the appropriate man page if possible
-function help.parse {
+help.parse() {
 	help.clean;
 	local section;
 	local manpage;

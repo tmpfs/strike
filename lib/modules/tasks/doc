@@ -2,6 +2,7 @@ tasks.doc.initialize() {
 	executable.validate git;
 }
 
+# entry point for doc tasks
 tasks.doc() {
   if [ $# -eq 0 ]; then
     console quit 1 "too few options";
@@ -12,23 +13,49 @@ tasks.doc() {
   if ! method.exists? "${namespace}.${cmd}"; then
     console quit 1 "invalid command %s" "${cmd}";
   fi
+  # allow commands to operate on current
+  # process outside of a bake(1) context
+  if [ -z "${root:-}" ]; then
+    local root="${process_dirs[root]}";
+    local target="${process_dirs[target]}";
+    if [ ! -d "${target}" ]; then
+      mkdir -p "${target}";
+    fi
+  fi
+  delegate "${namespace}" "${cmd}" "$@";
+}
 
+# COMMANDS
+
+ #generates, compiles and imports man pages
+#doc.commands.all() {
+  #doc.commands.build && tasks.doc.pages.push;
+#}
+
+# delegate man sub-commands
+doc.commands.man() {
+  if [ $# -eq 0 ]; then
+    console quit 1 "too few options";
+  fi
+  local namespace="doc.man.commands";
+  local cmd="${1:-}";
+  shift;
+  if ! method.exists? "${namespace}.${cmd}"; then
+    console quit 1 "invalid man sub-command %s" "${cmd}";
+  fi
   delegate "${namespace}" "${cmd}" "$@";
 }
 
 # generates, compiles and imports man pages
-doc.commands.all() {
-	doc.commands.build && tasks.doc.pages.push;
-}
-
-# generates, compiles and imports man pages
-doc.commands.build() {
-	doc.comamnds.generate && tasks.doc.compile && tasks.doc.man.import;
+doc.man.commands.build() {
+	doc.man.commands.generate \
+    && doc.man.commands.compile \
+    && doc.man.commands.import;
 }
 
 # generates ronn markdown documentation
 # from inline ronn:markdown heredoc
-doc.commands.generate() {
+doc.man.commands.generate() {
 	__tasks.doc.output;
 	local output="$_result";
 	if [ ! -d "$output" ]; then
@@ -44,24 +71,19 @@ doc.commands.generate() {
 }
 
 # removes man pages exported to ${root}/man
-doc.commands.clean() {
+doc.man.commands.clean() {
 	local man="${root}/man";
-	# clean any existing man pages
-	#local cmd="rm -fv "${man}/*"";
-	#eval $cmd;
   rm -fv "${man}"/*;
 }
 
 # imports the compiled man page(s) into ${root}/man
-tasks.doc.man.import() {
+doc.man.commands.import() {
 	local man="${root}/man";
 	local mantmp="${target}/doc";
 	if [ ! -d "$man" ]; then
 		mkdirp "$man";
 	fi
-
-	tasks.doc.man.clean;
-
+	doc.man.commands.clean;
 	# copy over man pages
 	local i cmd;
 	for i in {1..8}
@@ -71,6 +93,19 @@ tasks.doc.man.import() {
 	done
 	return 0;
 }
+
+# compiles generated .ronn files to markdown and html
+doc.man.commands.compile() {
+	executable.validate ronn;
+	# copy over assets
+	__tasks.doc.assets.copy;
+	__tasks.doc.output;
+	local output="$_result";
+	local ronn="${executables[ronn]}";
+	$ronn -w -s toc -r5 --markdown ${output}/*.ronn;
+}
+
+# PAGES
 
 # generates the man page documentation
 # and attempts to push the gh-pages branch
@@ -92,19 +127,9 @@ tasks.doc.pages.push() {
 		|| { $git checkout develop && quit 1 "could not rebuild docs"; };
 	# switch back to the develop branch
 	$git checkout develop;
-	# $git stash apply;
 }
 
-# compiles generated .ronn files to markdown and html
-tasks.doc.compile() {
-	executable.validate ronn;
-	# copy over assets
-	__tasks.doc.assets.copy;
-	__tasks.doc.output;
-	local output="$_result";
-	local ronn="${executables[ronn]}";
-	$ronn -w -s toc -r5 --markdown ${output}/*.ronn;
-}
+# INTERNAL
 
 __tasks.doc.assets.copy() {
 	__tasks.doc.assets;
@@ -185,8 +210,9 @@ __tasks.doc.parse() {
 			fi
 	done < "$file";
 	unset IFS;
-	if [ ! -z "$heredoc" ]; then
-		echo -n "$heredoc" >| "$outputfile" && console info "generated %s" "$outputfile";
+	if [ -n "$heredoc" ]; then
+		echo -n "$heredoc" >| "$outputfile" \
+      && console info "generated %s" "$outputfile";
 	fi
 	# also got some api documentation to parse
 	if [ "$api" -eq 1 ]; then
