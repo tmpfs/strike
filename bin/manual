@@ -152,6 +152,7 @@ manual.response() {
   # prefer showing man pages first
   if [ -f "${page}" ]; then
     man "${page}";
+    return 0;
   fi
   # handle help
   if [ "${input}" == "?" ]; then

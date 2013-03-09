@@ -89,4 +89,4 @@ Print program version and exit:
 
 ## SEE ALSO
 
-man(1), sprintf(3), task-doc(7)
+man(1), sprintf(3), task-doc(7), ronn(1)
