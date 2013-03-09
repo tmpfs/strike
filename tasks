@@ -36,14 +36,9 @@ tasks.auto() {
 	./configure # && make && make install;
 }
 
-function tasks.json.checker.compile {
+tasks.jsoncc() {
 	executable.validate gcc;
 	local exename="jsoncheck";
 	"${executables[gcc]}" lib/json-checker/*.c lib/json-checker/*.h -o "target/$exename" \
 		|| quit 1 "could not compile json-checker source";
 }
-
-# test module delegation
-# tasks.module_delegate_test() {
-# 	tasks.module delegate "$@";
-# }
