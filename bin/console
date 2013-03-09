@@ -6,7 +6,7 @@
 #
 ######################################################################
 export exedir;
-function boilerplate {
+boilerplate() {
 	local src="${BASH_SOURCE[0]}"
 	exedir="$( dirname "$src" )"
 	while [ -h "$src" ]
@@ -17,7 +17,7 @@ function boilerplate {
 	done
 	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
 	unset src;
-	source "$exedir/../lib/shared" "$@";
+	. "$exedir/../lib/shared" "$@";
 }
 boilerplate "$@";
 ######################################################################
@@ -34,14 +34,6 @@ help.parse "$@";
 
 require 'opts/version';
 version.parse "$@";
-
-# read -ep $'\001\033[1m\002ABC\001\033[0m\002' value;
-# exit 0;
-# style="\033[1m";
-# terminator="\033[0m";
-# format="this %b%s%b for you";
-# printf -- "$format" "$style" "a message" "$terminator";
-# exit 0;
 
 # test header colours
 console.test.headers() {
