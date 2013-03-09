@@ -5,6 +5,9 @@
 ######################################################################
 
 #set -o pipefail;
+#
+
+declare -g version="";
 
 __check_version__() {
 	local tshell="bash";
@@ -67,6 +70,10 @@ initialize() {
 	process_dirs[package]="${dir_root}/package.json";
 	process_dirs[version]="${dir_root}/version";
 	process_dirs[semver]="${dir_root}/semver.json";
+
+    if [ -f "${process_dirs[version]}" ]; then
+        version=$( cat "${process_dirs[version]}" );
+    fi
 
 	# configure library directories	
 	fs.path.expand "$dir";

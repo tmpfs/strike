@@ -38,11 +38,19 @@ If a *--version* option is encountered but no version information is available t
 semver(3), task-semver(7)
 ronn:markdown
 
+# print version information
+version.print(){
+  if [ -n "${version}" ]; then
+	  console print "%s version %s" \
+      "$process_name" "$version";
+  fi
+}
+
 # display version information and exit with code 0
 # if version information is available or >0 if no
 # version information is available
 version.show() {
-	local versionfile="${process_dirs[root]}/version";
+	local versionfile="${process_dirs[version]}";
 	if [ ! -f "$versionfile" ] || [ ! -r "$versionfile" ]; then
 		console quit 1 "no version information available";
 	fi

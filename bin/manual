@@ -30,10 +30,11 @@ version.parse "$@";
 executable.validate man fmt;
 
 console header;
-console title "%s" "manual";
+console title "%s %s" "${process_name}" "${version}";
 console title "";
 console title "Type %s or %s for command information" "?" "help";
-console title "Type q, quit or exit to exit the program";
+console title "Type %s, %s or %s to exit the program" "q" "quit" "exit";
+console title "Use the %s key for completion on available man pages" "tab";
 console header;
 
 # COMMANDS
@@ -44,12 +45,15 @@ command_help[ls]="List available man pages";
 
 # display help
 manual.commands.help() {
+  printf "\n";
+  console print "%s %s" "${process_name}" "${version}";
+  printf "\n";
   local k v;
   for k in "${!command_help[@]}"
     do
       v="${command_help[$k]}";
-      console print "%s" "${k}";
-      echo "${v}" | fmt;
+      console print --color=always "\t%s" "${k}" | expand -t 2;
+      printf "\t\t${v}" | expand -t 2 |  fmt;
       printf "\n";
   done
 }
