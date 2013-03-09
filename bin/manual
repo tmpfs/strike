@@ -27,7 +27,7 @@ process.use strict;
 require 'opts/version';
 version.parse "$@";
 
-executable.validate man;
+executable.validate man fmt;
 
 console header;
 console title "manual";
@@ -44,7 +44,17 @@ command_help[ls]="List available man pages";
 
 # display help
 manual.commands.help() {
-  echo "command help...";
+  local data=( ${!command_help[@]} );
+  #data+=( "${command_help[@]}" );
+  #echo "${data[*]}";
+  local k v;
+  for k in "${!command_help[@]}"
+    do
+      v="${command_help[$k]}";
+      console print "%s" "${k}";
+      echo "${v}" | fmt;
+      printf "\n";
+  done
 }
 
 manual.commands.ls() {
