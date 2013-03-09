@@ -223,16 +223,6 @@ prompt.interactive?() {
 	return 1;
 }
 
-# -a ANAME	The words are assigned to sequential indexes of the array variable ANAME, starting at 0. All elements are removed from ANAME before the assignment. Other NAME arguments are ignored.
-# -d DELIM	The first character of DELIM is used to terminate the input line, rather than newline.
-# -e	readline is used to obtain the line.
-# -n NCHARS	read returns after reading NCHARS characters rather than waiting for a complete line of input.
-# -p PROMPT	Display PROMPT, without a trailing newline, before attempting to read any input. The prompt is displayed only if input is coming from a terminal.
-# -r	If this option is given, backslash does not act as an escape character. The backslash is considered to be part of the line. In particular, a backslash-newline pair may not be used as a line continuation.
-# -s	Silent mode. If input is coming from a terminal, characters are not echoed.
-# -t TIMEOUT	Cause read to time out and return failure if a complete line of input is not read within TIMEOUT seconds. This option has no effect if read is not reading input from the terminal or from a pipe.
-# -u FD	Read input from file descriptor FD.
-
 # show a prompt using read
 prompt.read() {
 	export PROMPT_TIMEOUT=false;
@@ -460,32 +450,6 @@ prompt.completion() {
 
 prompt.bind() {
 	set -o emacs;
-	
-	# bind -p;
-	
-	#bind 'set bell-style visible';
-	#bind 'set show-all-if-ambiguous on';
-	#bind 'set completion-ignore-case on';
-	# bind 'set match-hidden-files off';
-	
-	# shopt -s progcomp;
-	
-	# directories() {
-	# 	compgen -o "default" -A "directory" "$READLINE_LINE" | column -x;
-	# }
-	# 
-	# functions() {
-	# 	compgen -o "default" -A "function" "$READLINE_LINE" | pr -4 -t -w $COLUMNS -;
-	# }
-	
-	# custom() {
-	# 	COMPREPLY=( "abc def ghi agh" )
-	# }
-	
-	#complete -A directory -o dirnames -F directories /;
-	
-	# bind -x '"\t":"prompt.completion"';
-	
 	bind -x '"\t":"prompt.completion"';
 }
 

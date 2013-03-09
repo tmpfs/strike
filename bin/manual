@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+######################################################################
+#
+#	BOILERPLATE
+#
+######################################################################
+export exedir;
+boilerplate() {
+	local src="${BASH_SOURCE[0]}"
+	exedir="$( dirname "$src" )"
+	while [ -h "$src" ]
+		do 
+			src="$(readlink "$src")";
+			[[ $src != /* ]] && src="$exedir/$src";
+			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+	done
+	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
+	unset src;
+	. "$exedir/../lib/shared" "$@";
+}
+boilerplate "$@";
+######################################################################
+
+process.use strict;
+
+console header;
+console title "manual";
+console title "";
+console title "Type ? or help for interactive command help";
+console title "Type q, quit or exit to exit the program";
+console header;
+
+# display help
+manual.commands.help() {
+  echo "command help...";
+}
+
+# handle completion
+manual.completion() {
+	local cur="${COMP_WORDS[$COMP_CWORD]}";
+  local pages="${process_dirs[man]}";
+  local files=( $(ls "${pages}") );
+	COMPREPLY=( $( compgen -o "default" -W "${files[*]}" -- "$cur" ) );
+}
+
+# handle input
+manual.response() {
+  echo "got response $*"
+}
+
+# show the prompt
+manual() {
+	local hist_file=~/.manual.history.log;
+	local opts=(
+		--response=manual.response
+		--hist-file="$hist_file"
+	);
+
+  echo "got opts ${opts[@]}"
+
+  prompt line --response=manual.response \
+    --complete=manual.completion \
+    --multiline --quit="q quit exit" \
+    --infinite;
+}
+
+manual;
