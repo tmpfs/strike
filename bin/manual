@@ -47,6 +47,10 @@ console header;
 # list commands for tab completion
 declare -ag commands=(
   build
+  clean
+  compile
+  generate
+  import
   ls
   paths
 );
@@ -62,11 +66,21 @@ command_help["name.[1-8]"]="Show a manual page using man(1), ";
 command_help["name.[1-8]"]+="use the ls command or tab completion ";
 command_help["name.[1-8]"]+="to list available manual pages";
 command_help[?]="Print command help";
+command_help["q | quit | exit"]="Exit the program";
 command_help[help]="Show manual(1) man page";
+command_help[paths]="Print paths in MANPATH";
 command_help[ls]="List available man pages";
 command_help[build]="Command for developers to ";
 command_help[build]+="generate latest versions of the man pages ";
 command_help[build]+="from the markdown source, requires ronn(1)";
+command_help[generate]="Command for developers to ";
+command_help[generate]+="generate ronn documents from inline heredocs";
+command_help[compile]="Command for developers to ";
+command_help[compile]+="compile all ronn documents, requires ronn(1)";
+command_help[import]="Command for developers to ";
+command_help[import]+="import compiled manual pages into the man directory";
+command_help[clean]="Command for developers to ";
+command_help[clean]+="remove all compiled manual pages from the man directory";
 
 
 # COMMANDS
@@ -93,6 +107,30 @@ manual.commands.paths() {
 manual.commands.build() {
   require.once 'tasks/doc';
   tasks.doc man build;
+}
+
+# generate ronn documents from inline heredocs
+manual.commands.generate() {
+  require.once 'tasks/doc';
+  tasks.doc man generate;
+}
+
+# compile all ronn documents
+manual.commands.compile() {
+  require.once 'tasks/doc';
+  tasks.doc man compile;
+}
+
+# import compiled man pages
+manual.commands.import() {
+  require.once 'tasks/doc';
+  tasks.doc man import;
+}
+
+# remove manual pages
+manual.commands.clean() {
+  require.once 'tasks/doc';
+  tasks.doc man clean;
 }
 
 # list man pages using the same

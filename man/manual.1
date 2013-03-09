@@ -58,12 +58,6 @@ The following commands are available from the interactive prompt\.
 Open \fIname\fR manual page using man(1)\.
 .
 .TP
-\fBbuild\fR:
-.
-.IP
-Developer command to build the man pages from the markdown source, requires ronn(1)\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man build\fR\.
-.
-.TP
 \fBls\fR:
 .
 .IP
@@ -80,6 +74,39 @@ Print command usage\.
 .
 .IP
 Display this manual page\.
+.
+.SH "DEVELOPER COMMANDS"
+These commands are designed to be used by developers\.
+.
+.TP
+\fBbuild\fR:
+.
+.IP
+Command to build the man pages from the markdown source, requires ronn(1)\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man build\fR\.
+.
+.TP
+\fBgenerate\fR:
+.
+.IP
+Command to build the ronn documents from inline heredoc comments\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man generate\fR\.
+.
+.TP
+\fBcompile\fR:
+.
+.IP
+Command to compile all ronn documents to manual pages, requires ronn(1)\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man compile\fR\.
+.
+.TP
+\fBimport\fR:
+.
+.IP
+Import compiled manual pages into the man directory\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man import\fR\.
+.
+.TP
+\fBclean\fR:
+.
+.IP
+Remove compiled manual pages from the man directory\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man clean\fR\.
 .
 .SH "EXAMPLES"
 Launch the interactive browser:
@@ -112,4 +139,4 @@ manual \-\-version
 \fBmanual\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-man(1), sprintf(3), task\-doc(7)
+man(1), sprintf(3), task\-doc(7), ronn(1)

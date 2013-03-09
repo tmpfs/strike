@@ -43,11 +43,6 @@ The following commands are available from the interactive prompt.
 
   Open *name* manual page using man(1).
 
-* `build`:
-
-  Developer command to build the man pages from the markdown source, 
-  requires ronn(1). This is an alias for the task-doc(7) command that
-  corresponds to `bake doc man build`.
 
 * `ls`:
 
@@ -60,6 +55,40 @@ The following commands are available from the interactive prompt.
 * `help`:
 
   Display this manual page.
+
+## DEVELOPER COMMANDS
+
+These commands are designed to be used by developers.
+
+* `build`:
+
+  Command to build the man pages from the markdown source, 
+  requires ronn(1). This is an alias for the task-doc(7) command that
+  corresponds to `bake doc man build`.
+
+* `generate`:
+
+  Command to build the ronn documents from inline heredoc comments.
+  This is an alias for the task-doc(7) command that
+  corresponds to `bake doc man generate`.
+
+* `compile`:
+
+  Command to compile all ronn documents to manual pages, 
+  requires ronn(1). This is an alias for the task-doc(7) command that
+  corresponds to `bake doc man compile`.
+
+* `import`:
+
+  Import compiled manual pages into the man directory.
+  This is an alias for the task-doc(7) command that
+  corresponds to `bake doc man import`.
+
+* `clean`:
+
+  Remove compiled manual pages from the man directory.
+  This is an alias for the task-doc(7) command that
+  corresponds to `bake doc man clean`.
 
 ## EXAMPLES
 
