@@ -234,42 +234,30 @@ prompt.test() {
 		--response=prompt.test.response
 		--hist-file="$hist_file"
 	);
-	
 	declare -ag PROMPT_SELECTION=( "${filelist[@]}" );
-	
 	prompt.test.run \
 		prompt line ${opts[@]} --id=completion \
 			--complete=prompt.test.completion;
-	
 	prompt.test.run \
 		prompt select ${opts[@]} --id=selection \
 			--select=selection.valid \
 			--select-error=selection.error \
 			--select-range-error=selection.range;
-		
-	#exit 0;
-	
 	prompt.test.run \
 		prompt confirm ${opts[@]} --id=confirm \
 		--accepted=confirm.accepted --rejected=confirm.rejected;
-		
 	prompt.test.run \
 		prompt line ${opts[@]} --id=name;
-		
 	prompt.test.run \
 		prompt line ${opts[@]} --timeout=5 --default=5 --id=timeout;
-		
 	prompt.test.run \
 		prompt line ${opts[@]} --silent --id=password1;
-		
 	prompt.test.run \
 		prompt line ${opts[@]} --silent \
 		--validate=validate.password --id=password2;
-		
 	prompt.test.run \
 		prompt line ${opts[@]} \
 		--multiline --quit="q quit exit" --exec --infinite --id=execute;
-
 	prompt.test.summary;
 }
 
@@ -286,7 +274,6 @@ else
 				;;
 		esac
 	done
-	
 	if [ $# -eq 0 ]; then
 		prompt.test;
 		exit 0;
