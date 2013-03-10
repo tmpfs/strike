@@ -211,15 +211,12 @@ prompt.interactive?() {
 # show a prompt using read
 prompt.read() {
 	export PROMPT_TIMEOUT=false;
-	
 	local before="${1:-true}";
-	
 	local hist_file="${settings[hist.file]}";
 	# load history entries
 	if [ -n "${hist_file:-}" ] && [ -f "${hist_file}" ]; then
 		history -n "${hist_file}";
 	fi
-	
 	if $before; then
 		prompt.trigger 'commands.before' "${settings[data.id]:-}";
 	fi
@@ -228,32 +225,24 @@ prompt.read() {
 		if ! ${settings[multiline]}; then
 			read_options+=( -r );
 		fi
-		
 		if [[ "${settings[timeout]}" =~ ^[0-9]+$ ]] \
 			&& [ "${settings[timeout]}" -gt 0 ]; then
 			read_options+=( -t "${settings[timeout]}" );
 		fi
-		
 		if ${settings[silent]}; then
 			read_options+=( -s );
 		fi
-		
 		if [ -n "${PS9:-}" ]; then
 			read_options+=( -p "${PS9}" );
 		fi
-		
 		# bind tab key
 		prompt.bind;
-		
 		prompt.before;
 		while
 			HISTSIZE="${settings[hist.size]}"
 			HISTFILESIZE="${settings[hist.filesize]}";
 			HISTFILE="${hist_file}";
 			HISTCONTROL="${settings[hist.control]}";
-			# PROMPT_LINE="";
-			# PROMPT_DELIMITER=$'\n';
-			# IFS=;
 			read "${read_options[@]}" value;
 			export PROMPT_READ_EXIT_CODE=$?;
 			do
@@ -264,12 +253,6 @@ prompt.read() {
 					history -w "$HISTFILE";
 				fi
 				break;
-				# printf "$value";
-				# PROMPT_LINE="${PROMPT_LINE}${value}";
-				# if [ "$value" == $'\n' ]; then
-				# 	echo "breaking .."
-				# 	break;
-				# fi
 		done
 		if [ $PROMPT_READ_EXIT_CODE -gt 128 ]; then
 			PROMPT_TIMEOUT=true;
