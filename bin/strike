@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# #!/bin/bash.3.2.48
 
 : <<'ronn:markdown'
 strike(1) -- require(3) for bash
@@ -51,36 +50,8 @@ The strike(1) supports the following commands:
 bake(1)
 ronn:markdown
 
-set -o errtrace;
-set -o nounset;
-
-#dirs -p
-#popd /
-
-######################################################################
-#
-#	BOILERPLATE
-#
-######################################################################
-export exedir;
-function boilerplate {
-	local src="${BASH_SOURCE[0]}"
-	exedir="$( dirname "$src" )"
-	while [ -h "$src" ]
-		do 
-			src="$(readlink "$src")";
-			[[ $src != /* ]] && src="$exedir/$src";
-			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
-	done
-	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
-	unset src;
-	source "$exedir/../lib/shared" "$@";
-}
+. ~/.strike/boilerplate.sh;
 boilerplate "$@";
-######################################################################
-
-# set up the main delegate module as 'strike'
-module="$process_name";
 
 # configure help
 require 'help';
@@ -89,45 +60,39 @@ help.parse "$@";
 
 require 'tasks/ext/npm';
 
-function strike.info {
+strike.info() {
+  echo "$FUNCNAME"
 	system.print;
 }
 
-function strike.dirs {
+strike.dirs() {
 	system.dirs;
 }
 
-function strike.lib.dirs {
+strike.lib.dirs() {
 	system.lib.dirs;
 }
 
-function strike.module.list {
+strike.module.list() {
 	require.list;
 }
 
-function strike.module.dirs {
+strike.module.dirs() {
 	require.dirs;
 }
 
-function strike.method.list {
+strike.method.list() {
 	method.list;
 }
 
-function strike.pkg {
+strike.pkg() {
 	tasks.npm.package.print;
 }
 
-# configure options
-require 'options';
+strike() {
+  local cmd="$1"; shift;
+  delegate "$FUNCNAME" "$cmd" "$@";
+}
 
-options_minimum=1;
-options_fail_help=1;
-options_expects_command=( info dirs pkg lib.dirs module.dirs module.list method.list );
-options_map_command_method=1;
-#configure all the option defaults
-options configure;
-#parse the parameters
-options parse "$@";
-
-delegate "${module:-}" "${options_command_method:-}" "${module_options[@]:-}";
-exit 0;
+echo "calling strike..."
+strike "$@";

@@ -371,7 +371,7 @@ function __require_load {
 		# the delegate variable
 		local delegate=${delegate:-false};
 		if $delegate; then
-			require.delegate "$name";			
+			require.delegate "$name";
 		fi
 		# remove the require delegate flag
 		unset delegate;
@@ -386,18 +386,19 @@ function __require_load {
 		# NOTE: handle tasks/ext/build/ant style requires
 		# NOTE: constructor becomes: tasks.ant.initialize
 		local cname="${name}";
+    cname="${cname#*/}"
 		if [[ "$cname" =~ / ]]; then
 			local cprefix="${cname%%/*}";
 			local csuffix="${cname##*/}";
 			cname="${cprefix}.${csuffix}";
 		fi
-		
+		#echo "cname is $cname"
 		# always call the constructor if possible
 		local constructor="${cname}.initialize";
 		# invoke a contructor if present
 		if method.exists? "$constructor"; then
 			"$constructor";
-		fi		
+		fi
 	fi
 }
 

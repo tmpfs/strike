@@ -13,33 +13,27 @@
 # 		builtin return $exitcode;
 # 	fi
 # }
+#
+#
 
-function system.initialize {
-	
-	# TODO: deprecate: used by xpm
-	local OS_INSTALL="$OSTYPE-$HOSTTYPE";
-	#darwin12-x86_64 == Mountain Lion (bash 3.2.48) ?
-	#darwin10.0-x86_64 == Snow Leopard (10.6.8) (bash 3.2.48)
-	#darwin10.8.0-i386 == Snow Leopard (10.6.8) (bash 4.2)
-	if [ "$OS_INSTALL" == "darwin12-x86_64" ] || [ "$OS_INSTALL" == "darwin10.8.0-i386" ];
-		then OS_INSTALL="darwin10.0-x86_64";
-	fi
-	
-	system_info["bash"]="$BASH";
-	system_info["os_type"]="$OSTYPE";
-	system_info["host_type"]="$HOSTTYPE";
-	system_info["mach_type"]="$MACHTYPE";
-	system_info["os_install_key"]="$OS_INSTALL";
-	system_info["bash_version"]="$BASH_VERSION";
-	system_info["bash_major_version"]="${BASH_VERSINFO[0]}";
-	system_info["bash_minor_version"]="${BASH_VERSINFO[1]}";
-	system_info["bash_patch_level"]="${BASH_VERSINFO[2]}";
-	system_info["host_name"]="${HOSTNAME}";
-	system_info["home"]="${HOME}";
-}
+#declare -Ag system_info;
 
+#system.initialize() {
+#system_info["bash"]="$BASH";
+#system_info["os_type"]="$OSTYPE";
+#system_info["host_type"]="$HOSTTYPE";
+#system_info["mach_type"]="$MACHTYPE";
+#system_info["os_install_key"]="$OS_INSTALL";
+#system_info["bash_version"]="$BASH_VERSION";
+#system_info["bash_major_version"]="${BASH_VERSINFO[0]}";
+#system_info["bash_minor_version"]="${BASH_VERSINFO[1]}";
+#system_info["bash_patch_level"]="${BASH_VERSINFO[2]}";
+#system_info["host_name"]="${HOSTNAME}";
+#system_info["home"]="${HOME}";
+#}
 # prints system information
-function system.print {
+system.print() {
+  echo "$FUNCNAME"
 	local key value;
 	for key in "${!system_info[@]}"
 		do
@@ -49,7 +43,7 @@ function system.print {
 }
 
 # prints dirs information
-function system.dirs {
+system.dirs() {
 	local key value;
 	for key in "${!process_dirs[@]}"
 		do
@@ -59,7 +53,7 @@ function system.dirs {
 }
 
 # prints library dirs information
-function system.lib.dirs {
+system.lib.dirs() {
 	local key value;
 	for key in "${!library_dirs[@]}"
 		do

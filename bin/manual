@@ -1,26 +1,7 @@
 #!/usr/bin/env bash
 
-######################################################################
-#
-#	BOILERPLATE
-#
-######################################################################
-export exedir;
-boilerplate() {
-  local src="${BASH_SOURCE[0]}"
-  exedir="$( dirname "$src" )"
-  while [ -h "$src" ]
-  do
-    src="$(readlink "$src")";
-    [[ $src != /* ]] && src="$exedir/$src";
-    exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
-  done
-  exedir="$( cd -P "$( dirname "$src" )" && pwd )";
-  unset src;
-  . "$exedir/../lib/shared" "$@";
-}
+. ~/.strike/boilerplate.sh;
 boilerplate "$@";
-######################################################################
 
 process.use strict;
 

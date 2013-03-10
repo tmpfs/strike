@@ -17,8 +17,7 @@ __help_manpath=();
 help.initialize() {
 	executable.validate man;
 	# set up default man paths
-	help.man.path "$exedir/man";
-	help.man.path "$exedir/../man";
+	help.man.path "${process_dirs[man]}";
 }
 
 # add a help man path search directory
