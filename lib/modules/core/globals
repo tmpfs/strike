@@ -202,10 +202,14 @@ declare -g header_repeat="${strike_header_repeat:-auto}";
 
 if [ -n "${header_repeat:-}" ] \
 	|| [ "${header_repeat}" == "auto" ]; then
-	COLUMNS=$( tput cols || printf '80' );
+  #tput cols;
+	COLUMNS=$( tput cols );
+  #echo "set columns $COLUMNS";
 	LINES=$( tput lines || printf '24' );
 	header_repeat="${COLUMNS:-80}";
 fi
+
+#echo "got columns $COLUMNS"
 
 # generic suffic for prompts
 export PS9_SUFFIX="${characters[lightning]} ";
