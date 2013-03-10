@@ -179,7 +179,7 @@ function prj.tasks.project.init {
 	if [ ! -f "$prjfile" ]; then
 		!project.file.missing.quit;
 	fi
-	console success "project file %s created %s" "$prjfile" "✓";
+	console success "project file %s created" "$prjfile";
 }
 
 function prj.tasks.project.exists {

@@ -1,30 +1,7 @@
-#! /usr/bin/env bash 
-# -vx
+#! /usr/bin/env bash
 
-set -o errtrace;
-set -o nounset;
-
-######################################################################
-#
-#	BOILERPLATE
-#
-######################################################################
-export exedir;
-function boilerplate {
-	local src="${BASH_SOURCE[0]}"
-	exedir="$( dirname "$src" )"
-	while [ -h "$src" ]
-		do 
-			src="$(readlink "$src")";
-			[[ $src != /* ]] && src="$exedir/$src";
-			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
-	done
-	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
-	unset src;
-	source "$exedir/../../../lib/shared" "$@";
-}
+. ~/.strike/boilerplate.sh;
 boilerplate "$@";
-######################################################################
 
 # switch on strict mode
 process.use strict;
@@ -38,10 +15,8 @@ require 'tasks/todo';
 assert.parse "$@";
 
 # TODO: complete these tests
-function todo {
-	local file="$exedir/1.notes.todo";
-	#echo "test todo .. $exedir/notes.todo"
-	
+todo() {
+	local file="${process_dirs[root]}/1.notes.todo";
 	# mimic running from bake(1)
 	local root="${library_dirs[root]}";
 	local target="${root}/target";
@@ -50,7 +25,7 @@ function todo {
 	expects_count[1.notes.todo]="3";
 	local commands=( count );
 	# invocation type prefixes
-	local types=( "$exedir/bake" "tasks." "delegate" );
+	local types=( "${root}/bake" "tasks." "delegate" );
 	declare -A delimiters;
 	delimiters[0]=' ';
 	delimiters[1]='.';

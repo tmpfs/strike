@@ -1,29 +1,7 @@
 #! /usr/bin/env bash
 
-set -o errtrace;
-set -o nounset;
-
-######################################################################
-#
-#	BOILERPLATE
-#
-######################################################################
-export exedir;
-function boilerplate {
-	local src="${BASH_SOURCE[0]}"
-	exedir="$( dirname "$src" )"
-	while [ -h "$src" ]
-		do 
-			src="$(readlink "$src")";
-			[[ $src != /* ]] && src="$exedir/$src";
-			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
-	done
-	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
-	unset src;
-	source "$exedir/../../../lib/shared" "$@";
-}
+. ~/.strike/boilerplate.sh;
 boilerplate "$@";
-######################################################################
 
 process.use strict;
 
@@ -36,8 +14,7 @@ require.once 'tasks/project';
 assert.parse "$@";
 
 # tests for task-project(7)
-function test.project {
-	
+test.project() {
 	# mimic running from bake(1)
 	# and switch the `root` to `target`
 	# so we don't conflict with any projects.json
@@ -46,26 +23,23 @@ function test.project {
 	local root="${target}";
 	local tasks="tasks";
 	local projectfile="${target}/projects.json";
-	
 	# ensure we have a tmp `target` directory when
 	# run standalone
 	if [ ! -d "${target}" ]; then
 		mkdir -p "${target}" || quit 1 "could not create target directory %s" "${target}";
 	fi
-	
 	# potentially hanging around from a previous failure
 	# clean up to give us the best chance of success
 	if [ -f "${projectfile}" ]; then
 		rm "${projectfile}" || quit 1 "could not remove %s" "${projectfile}";
 	fi
-	
 	declare -A json_expected;
-	json_expected[init]=$( < "$exedir/init.json" );
-	json_expected[added1]=$( < "$exedir/added.1.json" );
-	json_expected[added1meta]=$( < "$exedir/added.1.meta.json" );
-	json_expected[added2]=$( < "$exedir/added.2.json" );
-	json_expected[added2nometa]=$( < "$exedir/added.2.nometa.json" );	
-	json_expected[added3]=$( < "$exedir/added.3.json" );
+	json_expected[init]=$( < "${process_dirs[root]}/init.json" );
+	json_expected[added1]=$( < "${process_dirs[root]}/added.1.json" );
+	json_expected[added1meta]=$( < "${process_dirs[root]}/added.1.meta.json" );
+	json_expected[added2]=$( < "${process_dirs[root]}/added.2.json" );
+	json_expected[added2nometa]=$( < "${process_dirs[root]}/added.2.nometa.json" );
+	json_expected[added3]=$( < "${process_dirs[root]}/added.3.json" );
 	
 	# last exit code
 	local code=1;

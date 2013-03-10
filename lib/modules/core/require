@@ -386,7 +386,7 @@ function __require_load {
 		# NOTE: handle tasks/ext/build/ant style requires
 		# NOTE: constructor becomes: tasks.ant.initialize
 		local cname="${name}";
-    cname="${cname#*/}"
+    #cname="${cname#*/}"
 		if [[ "$cname" =~ / ]]; then
 			local cprefix="${cname%%/*}";
 			local csuffix="${cname##*/}";

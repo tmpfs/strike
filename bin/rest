@@ -130,31 +130,8 @@ The `--print-*` options control what is output after a request has been made.
 curl(1)
 ronn:markdown
 
-set -o errtrace;
-set -o nounset;
-
-######################################################################
-#
-#	BOILERPLATE
-#
-######################################################################
-export exedir;
-function boilerplate {
-	local src="${BASH_SOURCE[0]}"
-	exedir="$( dirname "$src" )"
-	while [ -h "$src" ]
-		do 
-			src="$(readlink "$src")";
-			[[ $src != /* ]] && src="$exedir/$src";
-			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
-	done
-	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
-	unset src;
-	source "$exedir/../lib/shared" "$@";
-}
+. ~/.strike/boilerplate.sh;
 boilerplate "$@";
-######################################################################
-
 
 # configure help
 require 'help';

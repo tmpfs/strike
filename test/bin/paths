@@ -4,27 +4,8 @@
 # from various filesystems paths
 # relative, absolute, relative parent
 
-######################################################################
-#
-#	BOILERPLATE
-#
-######################################################################
-export exedir;
-function boilerplate {
-	local src="${BASH_SOURCE[0]}"
-	exedir="$( dirname "$src" )"
-	while [ -h "$src" ]
-		do 
-			src="$(readlink "$src")";
-			[[ $src != /* ]] && src="$exedir/$src";
-			exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
-	done
-	exedir="$( cd -P "$( dirname "$src" )" && pwd )";
-	unset src;
-	source "$exedir/../../lib/shared" "$@";
-}
+. ~/.strike/boilerplate.sh;
 boilerplate "$@";
-######################################################################
 
 require.once 'assert';
 
