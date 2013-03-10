@@ -1,5 +1,3 @@
-# TOOD: validate
-
 # main entry point
 prompt() {
 	if [ $# -eq 0 ]; then
@@ -20,7 +18,7 @@ prompt() {
 	declare -a completions;
 	# configuration settings
 	declare -A settings;
-	settings[silent]=false;
+  settings[silent]=false;
 	settings[multiline]=false;
 	settings[execute]=false;
 	settings[infinite]=false;
@@ -73,14 +71,11 @@ prompt.commands.select() {
 	if [ -n "${PS9:-}" ]; then
 		export PS3='';
 	fi
-	
 	if [ -z "${PROMPT_SELECTION[*]:-}" ]; then
 		console warn "nothing to select";
 		return 0;
-	fi
-	
+  fi
 	local selection=( "${PROMPT_SELECTION[@]:-}" );
-	
 	# NOTE: we show the select menu in this manner
 	# NOTE: to prevent the select builtin from showing
 	# NOTE: the prompt which does not support readline
@@ -88,11 +83,7 @@ prompt.commands.select() {
 		do
 			break;
 	done )
-	
-	#echo "got columns: ${COLUMNS:-}";
-	
 	prompt.read false;
-	
 	local valid_regexp="^[0-9]+$";
 	local maximum="${#selection[@]}";
 	: $((maximum++));
@@ -114,7 +105,6 @@ prompt.commands.select() {
 		 	"${value:-}" "${settings[data.id]:-}";
 		prompt.commands.select;
 	fi
-	
 	# restore PS3
 	export PS3="${PS3_ORIGINAL:-}";
 	unset PS3_ORIGINAL;	
@@ -126,43 +116,32 @@ prompt.commands.confirm() {
 	options=( "$@" );
 	local accept="${settings[boolean.yes]}";
 	local reject="${settings[boolean.no]}";
-	
 	local accept_regexp="^${accept}$";
 	local reject_regexp="^${reject}$";
-	
 	# comparse against first character
 	if ! ${settings[boolean.strict]}; then
 		accept="${accept:0:1}";
 		reject="${reject:0:1}";
-		
 		# only needs to start with for non-strict mode
 		accept_regexp="^${accept}";
 		reject_regexp="^${reject}";
 	fi
-	
 	prompt.read;
 	local compare="${value}";
-	
 	# compare case-insensitive when
 	# not running strict
 	if ! ${settings[boolean.strict]}; then
 		compare="${compare,,}";
 	fi
-	
 	if [[ "$compare" =~ $accept_regexp ]]; then
 		prompt.trigger 'commands.response' \
 			true "${settings[data.id]:-}" "${value:-}";
-		
 		prompt.trigger 'commands.accepted' "${value:-}";
-		
 	elif [[ "$compare" =~ $reject_regexp ]]; then
 		prompt.trigger 'commands.response' \
 			false "${settings[data.id]:-}" "${value:-}";
-		
-		#
 		prompt.trigger 'commands.rejected' "${value:-}";
-		
-	else		
+	else
 		# show the prompt again
 		# on invalid input
 		prompt.commands.confirm;
@@ -173,7 +152,7 @@ prompt.commands.confirm() {
 # any non-empty string value
 prompt.commands.line() {
 	current="$FUNCNAME";
-	options=( "$@" );		
+	options=( "$@" );
 	prompt.read;
 	if [ -n "${value:-}" ]; then
 		prompt.trigger 'commands.response' \
