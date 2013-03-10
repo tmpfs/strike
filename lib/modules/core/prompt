@@ -258,7 +258,8 @@ prompt.read() {
 			export PROMPT_READ_EXIT_CODE=$?;
 			do
 				if [ -f "${HISTFILE}" ] \
-					&& [ -w "${HISTFILE}" ]; then
+					&& [ -w "${HISTFILE}" ] \
+          && ! ${settings[silent]}; then
 					history -s "$value";
 					history -w "$HISTFILE";
 				fi
