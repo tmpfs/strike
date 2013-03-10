@@ -207,6 +207,9 @@ if [ -n "${header_repeat:-}" ] \
   #echo "set columns $COLUMNS";
 	LINES=$( tput lines || printf '24' );
 	header_repeat="${COLUMNS:-80}";
+
+  #cols=$(tput cols); echo $cols;
+
 fi
 
 #echo "got columns $COLUMNS"
