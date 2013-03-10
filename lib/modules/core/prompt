@@ -57,7 +57,7 @@ prompt() {
 	settings[commands.selection.range]="";
 	
 	# history control
-	settings[hist.control]="erasedups:ignoredups";
+	settings[hist.control]="erasedups:ignoredups:ignoreboth";
 	settings[hist.size]="500";
 	settings[hist.filesize]="500";
 	settings[hist.file]="";
@@ -248,7 +248,8 @@ prompt.read() {
 			do
 				if [ -f "${HISTFILE}" ] \
 					&& [ -w "${HISTFILE}" ] \
-          && ! ${settings[silent]}; then
+          && ! ${settings[silent]} \
+          && [ -n "${value}" ]; then
 					history -s "$value";
 					history -w "$HISTFILE";
 				fi
