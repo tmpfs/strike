@@ -43,6 +43,11 @@ resolve() {
   walk "lib/${script}" "$base";
   if [ -f "$file" ]; then
     import "${file}"; return 0;
+  else
+    walk "node_modules/${name}/lib/${script}";
+    if [ -f "${file}" ]; then
+      import "${file}"; return 0;
+    fi
   fi
   printf "fatal: could not locate %s\n" "${script}"; exit 1;
 }
