@@ -16,6 +16,11 @@ globals-api(3) -- API for global variables
 
 api:ronn:markdown
 
+# constant of framework name used
+# for building process specific
+# data directories
+declare -r framework="strike";
+
 : <<'api:ronn:markdown'
 ### PROGRAM
 

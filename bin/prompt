@@ -223,12 +223,8 @@ prompt.test.run() {
 
 # print test prompts
 prompt.test() {
-	if [ ! -d "${process_dirs[target]}" ]; then
-		mkdir -p "${process_dirs[target]}" \
-			|| console quit 1 "could not create %s" \
-				"${process_dirs[target]}";
-	fi
-	local hist_file="${process_dirs[target]}/prompt.history.log";
+  process.directory;
+	local hist_file="${process_dirs[data]}/history.log";
 	local opts=(
 		--before=prompt.test.before
 		--response=prompt.test.response

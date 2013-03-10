@@ -143,14 +143,14 @@ function process.initialize {
 
 # is this process running in the context
 # of the main library code
-function process.lib? {
+process.lib?() {
 	if [ "${process_dirs[root]}" == "${library_dirs[root]}" ]; then
 		return 0;
 	fi
 	return 1;
 }
 
-function process.use {
+process.use() {
 	while [ $# -gt 0 ];
 		do
 			local val="${1:-}";
@@ -169,8 +169,18 @@ function process.use {
 	done
 }
 
+# create process data directory
+# if it does not exist
+process.directory() {
+  if [ ! -d "${process_dirs[data]}" ]; then
+    mkdir -p ${process_dirs[data]} \
+      || console quit 1 "could not create %s" \
+        "${process_dirs[data]}";
+  fi
+}
+
 # retrieves the process uptime in seconds
-function process.uptime {
+process.uptime() {
 	local start=${process_time[start]};
 	local now=`date +%s`;
 	local uptime=$(( $now - $start ));

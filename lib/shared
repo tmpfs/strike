@@ -15,7 +15,8 @@ __check_version__() {
 	local major="${BASH_VERSINFO[0]}";
 	local minor="${BASH_VERSINFO[1]}";
 	if { test "$major" -lt "${required[0]}"; } \
-		|| { test "$major" -eq "${required[0]}" && test "$minor" -lt "${required[1]}"; }; then
+		|| { test "$major" -eq "${required[0]}" \
+        && test "$minor" -lt "${required[1]}"; }; then
 		local version="${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}.${BASH_VERSINFO[2]}";
 		printf "$tshell >= ${required[0]}.${required[1]} is required, got %s\n" "$version";
 		exit 1;
@@ -64,6 +65,7 @@ initialize() {
 	process_dirs[package]="${dir_root}/package.json";
 	process_dirs[version]="${dir_root}/version";
 	process_dirs[semver]="${dir_root}/semver.json";
+	process_dirs[data]=~/.${framework}/"${process_name}";
     if [ -f "${process_dirs[version]}" ]; then
         version=$( cat "${process_dirs[version]}" );
     fi

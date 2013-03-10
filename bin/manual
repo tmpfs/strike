@@ -196,7 +196,8 @@ manual.response() {
 
 # show the prompt
 manual() {
-  local hist_file=~/.manual.history.log;
+  process.directory;
+  local hist_file="${process_dirs[data]}/history.log";
   if [ ! -f "${hist_file}" ]; then
     touch "${hist_file}";
   fi
