@@ -28,6 +28,7 @@ import() {
 # set of paths
 resolve() {
   local base="$1"; shift;
+  #echo "testing with base $base"
   local name="strike";
   local script="${name}.sh";
   local file="";
@@ -42,11 +43,11 @@ resolve() {
         import "${f}"; return 0;
       fi
   done
-  walk "lib/${script}" "$base";
+  walk "lib/${script}" "${base}";
   if [ -f "$file" ]; then
     import "${file}"; return 0;
   else
-    walk "node_modules/${name}/lib/${script}";
+    walk "node_modules/${name}/lib/${script}" "${base}";
     if [ -f "${file}" ]; then
       import "${file}"; return 0;
     fi
