@@ -1,21 +1,23 @@
 declare -g version="";
 
-__check_version__() {
+installer() {
 	local tshell="bash";
 	local required=( 4 2 );
 	local major="${BASH_VERSINFO[0]}";
 	local minor="${BASH_VERSINFO[1]}";
+	local patch="${BASH_VERSINFO[2]}";
 	if { test "$major" -lt "${required[0]}"; } \
 		|| { test "$major" -eq "${required[0]}" \
         && test "$minor" -lt "${required[1]}"; }; then
-		local version="${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}.${BASH_VERSINFO[2]}";
-		printf "$tshell >= ${required[0]}.${required[1]} is required, got %s\n" "$version";
+		local version="${major}.${minor}.${patch}";
+		printf "$tshell >= ${required[0]}.${required[1]} is required, got %s\n" \
+      "$version";
 		exit 1;
 	fi
 }
 
 initialize() {
-	__check_version__;
+	installer;
 	local dir=`dirname "${BASH_SOURCE[0]}"`;
 	dir=$( cd "$dir" && echo "$PWD" );
 	local core="${dir}/modules/core";
@@ -99,6 +101,7 @@ initialize() {
 	console prompt --program '';
 	# remove commands that have
 	# served their purpose
-	method.remove "$FUNCNAME";
+	method.remove initialize \
+    installer;
 }
 initialize "$@";
