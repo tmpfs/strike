@@ -2,7 +2,7 @@
 # variables names
 declare -g variable_name_sanitize_regexp="[^a-zA-Z0-9_]";
 
-function variable.get {
+variable.get() {
 	local name="$1";
 	set +o nounset;
 	#array.is.array? "$name";
@@ -16,53 +16,24 @@ function variable.get {
 	set -o nounset;
 }
 
-function variable.set {
+variable.set() {
 	local name="$1";
 	local value="$2";
 	local declaration="${3:-}";
-	
 	# add space delimiter
 	if [ -n "${declaration}" ]; then
 		declaration="${declaration} ";
 	fi
-	
 	#echo "variable.set: $name : $value";
-	
 	eval "${declaration}${name}"="'${value}'";
-	
 	#variable.get "$name";
 	#echo "$_result";
 }
 
 # determine if a variable has been set
-function variable.isset? {
-	eval '[ ${'$1'+a} ]';
-}
-
-function variable_declare {
-	local name="$1";
-	local value="$2";
-	local options="${3:-}";
-	if [ ! -z "$options" ]; then
-		options="-${options}";
-	fi
-	local expression="declare $options $name";
-	eval $expression;
-	variable.set "$name" "$value";
-	
-	#echo "variable_declare: $name";
-}
-
-# TODO: implement
-function variable_unset {
-	local prefix="$1";
-	local expression="\${!${prefix}_*}";
-	local opt;
-	for opt in "$expression"
-		do
-			unset "$opt";
-	done
-}
+# variable.isset?() {
+# 	eval '[ ${'$1'+a} ]';
+# }
 
 #            | unset |   set    | set and  | meaning
 #             |       | but null | not null |
@@ -74,7 +45,3 @@ function variable_unset {
 #  $var       |   F   |     F    |    T     | var is set and not null
 # ------------+-------+----------+----------+-----------------------------
 #  ${!var[@]} |   F   |     T    |    T     | var is set
-
-function variable.exists? {
-	echo "variable.exists?"
-}
