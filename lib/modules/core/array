@@ -58,33 +58,8 @@ Attempting to write and read associative arrays with spaces in the *keys* will r
 require(3)
 ronn:markdown
 
-# array.isset? : http://stackoverflow.com/questions/13219634/easiest-way-to-check-for-an-index-or-a-key-in-an-array
-
-# if test "${myArray['key_or_index']+isset}"
-#     then
-#         echo "yes"
-#     else
-#         echo "no"
-# fi
-
-# determine if a key exists in an array or assoc array
-# faster is to do it yourself: test "${arr['key_or_index']+isset}"
-# 
-# function array.isset? {
-# 	local key="${1:-}";
-# 	local name="${2:-}";
-# 	
-# 	echo "key: $key";
-# 	echo "key: $name";
-# 	
-# 	# local arr=( ${@:2} );
-# 	# # echo "key: $1"
-# 	# # echo "arr: ${arr[@]}";
-# 	# array.contains? "$key" "${arr[@]}";
-# }
-
 # adapted from: http://stackoverflow.com/questions/13219634/easiest-way-to-check-for-an-index-or-a-key-in-an-array
-function array.isset? {
+array.isset?() {
 	if [ $# -lt 2 ]; then
 		return 1;
 	fi 
@@ -92,54 +67,35 @@ function array.isset? {
 }
 
 # "a string" "${array[@]}"
-function array.contains? {
+array.contains?() {
 	local e;
 	for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
 	return 1;
 }
 
-function array.join {
+array.join() {
 	#TODO: strip leading delimiter
 	local delimiter="${1:-,}";
 	local elements=( "${@:2}" );
 	_result=$(printf "${delimiter}%s" "${elements[@]}");
 }
 
-
-function array.is.array? {
+array.is.array?() {
 	declare -p "${1:-}" 2> /dev/null | grep -q 'declare \-a';
 }
 
-function array.is.assoc? {
+array.is.assoc?() {
 	declare -p "${1:-}" 2> /dev/null | grep -q 'declare \-A';
 }
 
 # TODO: rename to array.last as it cannot pop
-function array.pop {
-	#local arr=( "$@" );
-	#_result=arr[${#arr[@]}-1];
-	#unset arr[${#arr[@]}-1];
-	
-	#echo "1: $1";
-	#echo "2: $2";
-	
+array.pop() {
 	local opts=( "$@" );	
 	_result=${opts[${#opts[@]}-1]};
 	unset opts[${#opts[@]}-1];
-	#echo "got opts: ${opts[@]}";
-	#echo "got opts length: ${#opts[@]}";
-	
-	#_result="";
-	
-	#while [ $# -gt 0 ]
-	#	do
-	#		_result="$1";			
-	#		shift;
-	#		echo "shifted..."
-	#done
 }
 
-function array.each {
+array.each() {
 	local name="${1:-}";
 	local iterator="${2:-}";
 	local key value;
@@ -164,7 +120,7 @@ function array.each {
 #TODO: allow for spaces in associative array key names
 
 # write array(s) to name=value pairs
-function array.write {
+array.write() {
 	local opts=( "$@" );
 	local file="${1:-}";
 	local flags="${2:-g}";
@@ -208,7 +164,7 @@ function array.write {
 }
 
 # read a name=value pair array(s) file
-function array.read {
+array.read() {
 	local opts=( "$@" );
 	local file="${1:-}";
 	local arrayname="";
