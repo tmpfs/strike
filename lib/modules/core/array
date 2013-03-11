@@ -4,42 +4,7 @@ array(3) -- array module
 
 ## SYNOPSIS
 
-Module methods for writing, reading, modifiying and inspecting arrays.
-
-## DESCRIPTION
-
-The array(3) modules can be used to write *global* array(s) to file(s) and read the file(s) back into array declarations.
-
-## USAGE
-
-To write an array file, declare the *global* array(s) and call `array.write`.
-
-	write_array() {
-		local file="${process_dirs[root]}/arrays";
-		declare -a array1;
-		array1=( 3 2 1 "a test string" );
-		declare -A array2;
-		array2[key]="value";
-		array2[greeting]="hello world";
-		array.write "$file" <<< "array1 array2";	# specify the array names on stdin
-	}
-	write_array;
-	
-To read an array file back into array(s) use the `array.read` method.
-
-	read_array() {
-		local file="${process_dirs[root]}/arrays";
-		array.read < "$file";						# read from the `arrays` file
-		
-		# print array keys
-		console print "${!array1[*]}";
-		console print "${!array2[*]}";
-		
-		# print array values
-		console print "${array1[*]}";
-		console print "${array2[*]}";
-	}
-	read_array;
+Module commands for modifiying and inspecting arrays.
 
 ## BUGS
 
@@ -80,6 +45,7 @@ array.join() {
 	_result=$(printf "${delimiter}%s" "${elements[@]}");
 }
 
+
 array.is.array?() {
 	declare -p "${1:-}" 2> /dev/null | grep -q 'declare \-a';
 }
@@ -93,127 +59,4 @@ array.pop() {
 	local opts=( "$@" );	
 	_result=${opts[${#opts[@]}-1]};
 	unset opts[${#opts[@]}-1];
-}
-
-array.each() {
-	local name="${1:-}";
-	local iterator="${2:-}";
-	local key value;
-	local index=0;
-	if [ ! -z "$name" ]; then
-		eval keys="\${!$name[@]}";
-		echo "got array keys: ${keys}";
-		for key in ${keys}
-			do
-				eval value="\${$name[$key]}";
-				#echo "array.each got key : $key";
-				echo "got value : $value";
-				if method.exists? "$iterator"; then
-					"$iterator" "$key" "$value" "$index" \
-						|| quit 1 "%s iterator error %s" "$FUNCNAME" "$iterator";
-				fi
-				: $((index++));
-		done
-	fi
-}
-
-#TODO: allow for spaces in associative array key names
-
-# write array(s) to name=value pairs
-array.write() {
-	local opts=( "$@" );
-	local file="${1:-}";
-	local flags="${2:-g}";
-	if [ -z "$file" ]; then
-		console warn "no file passed to array.write";
-	else
-		echo -ne "" >| "$file" || quit 1 "could not create array.write file %s" "$file";
-		local stdin;
-		# this allows us to accept options and read from stdin
-		# with positional parameter expansion
-		if [ ! -t 0 ]; then
-			# read in stdin
-			read -a stdin;
-			# expand stdin data to positional parameters
-			set -- $( echo "${stdin[@]}" );
-		fi
-
-		iterator() {
-			local key="$1" value="$2" index="$3";
-			echo "${key}=${value}" >> "$file";
-		}
-		
-		local arrflags isassoc;
-		local i val;
-		for((i = 0;i < $#;i++))
-			do
-				eval val="$"$[i+1];
-				arrflags="-a";
-				if array.is.assoc? "$val"; then
-					arrflags="-A";
-				fi
-				arrflags="${arrflags}${flags}";
-				# write the array name header comment
-				echo "#¡ declare $arrflags $val" >> "$file";
-				array.each "$val" "iterator";
-		done
-
-		# clean up the iterator
-		method.remove "iterator";
-	fi
-}
-
-# read a name=value pair array(s) file
-array.read() {
-	local opts=( "$@" );
-	local file="${1:-}";
-	local arrayname="";
-	
-	# deal with comments 
-	array.read.comment() {
-		if [[ "$1" =~ ^#¡ ]]; then
-			local declaration=${1//#¡ /};
-			local name=${declaration##* };
-			# store the array name
-			arrayname="$name";
-			# declare the array
-			eval "$declaration";
-		fi
-	}
-	
-	# add an entry to the current array being processed
-	array.read.add() {
-		local __key__=${1%%=*};
-		local __value__=${1##*=};
-		if [ ! -z "$arrayname" ]; then
-			local setter="$arrayname[\"$__key__\"]=\"$__value__\";";
-			eval "$setter";
-		fi
-	}
-	
-	if [ ! -z "$file" ] && [ -f "$file" ] && [ -r "$file" ]; then
-		while read line
-			do
-				if [[ "$line" =~ ^# ]]; then
-					array.read.comment "$line";
-				else
-					array.read.add "$line";
-				fi
-		done < "$file"
-	elif [ ! -t 0 ]; then
-		while read line
-			do
-				if [[ "$line" =~ ^# ]]; then
-					array.read.comment "$line";
-				else
-					array.read.add "$line";
-				fi
-		done
-	else
-		quit 1 "invalid input to array.read, usage: array.read < file";
-	fi
-	
-	# clean up the internal methods
-	method.remove "array.read.comment";
-	method.remove "array.read.add";
 }

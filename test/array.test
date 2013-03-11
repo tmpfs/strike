@@ -1,4 +1,6 @@
-function test.array.write {
+require 'array/file';
+
+test.array.write() {
 	local file="${target}/${FUNCNAME}";
 	declare -ag arr;
 	arr=( 3 2 1 "this is a string value" );
@@ -23,7 +25,7 @@ function test.array.write {
 	!test.deserialized.array;
 }
 
-function !test.deserialized.array {
+!test.deserialized.array() {
 	
 	# plain array
 	assert.eq "4" "${#arr[@]}";

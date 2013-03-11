@@ -317,8 +317,6 @@ function process.signal.off {
 				signal="$1";
 				callbacks=( ${process_signal_callbacks["$signal"]} );
 				
-				# array.each "callbacks" "iterator";
-				
 				for((i = 0;i < ${#callbacks[@]};i++))
 					do
 						callback="${callbacks[$i]}";
