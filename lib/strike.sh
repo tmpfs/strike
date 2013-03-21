@@ -48,7 +48,8 @@ initialize() {
 		dir_root=`dirname "$exedir"`;
 	else
 		process_dirs[bin]="${dir_root}/bin";
-	fi
+  fi
+  process_dirs[exe]="${pdir}";
 	process_dirs[root]="${dir_root}";
 	process_dirs[lib]="${dir_root}/lib";
 	process_dirs[man]="${dir_root}/man";
