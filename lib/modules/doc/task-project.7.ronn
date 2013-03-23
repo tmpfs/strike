@@ -1,0 +1,115 @@
+task-project(7) -- project task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+Project task(s) for bake(1).
+
+## DESCRIPTION
+
+Maintains a list of related projects by unique identifier.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `project` task(s) using:
+
+	require 'tasks/project';
+
+## USAGE
+
+	bake project init
+	bake project add [flags...] [id] [path|url] [url...]
+	bake project exists [id]
+	bake project ls
+	bake project count
+	bake project set [id] [name] [value]
+	bake project get [id] [name]
+	bake project del [id] [name...]
+	bake project print [--pretty]
+	bake project rm [id...]
+	
+## IDENTIFIERS
+
+Project identifiers must be unique and must consist solely of the hyphen '-' and alphanumeric characters. They may not contain any other characters. These rules for project identifiers also apply to meta property names specified using the `set` command.
+	
+## COMMANDS
+
+* `init`:
+
+	Creates an empty projects file. This command will exit with >0 exit code if a projects file already exists.
+	
+* `add`:
+
+	Add a project, the first option to this command is the unique identifier for the project the second option is either a relative or absolute file system path to the project or a remote URL. Subsequent options to `add` are related URLs for the project. Note that when specifying URLs they *should* be URL encoded so they do not contain any whitespace (or quoted or escaped correctly).
+	
+	This command will create a projects file if it does not exist and overwrite any existing *projects.json* file.
+	
+	If the path specified is a filesystem path then it must point to a valid directory.
+	
+* `set`:
+
+	Set a meta data property for a project. Note that if multiple options are specified after the `name` option for the `value` then they are concatented into a single `value` using a space character as the delimiter. If the project property with the specified name exists it is overwritten.
+	
+	Attempting to set a property on a non-existent project will result in an error code >0.
+	
+* `get`:
+
+	Get a meta data property for a project. If no property name is specified all meta data for the project is output. If no project identifier is specified then all project properties are listed.
+	
+	The output of this command is the project identifier than a space followed by the property name (a further space) and finally the property value.
+	
+* `del`:
+
+	Deletes meta data properties for a project.
+	
+* `ls`:
+
+	List projects. The output of this command is the identifier followed by the path (or URL) delimited by a space.
+	
+* `exists`:
+
+	Determine whether a project with the specified identifier exists.
+	
+* `count`:
+
+	Count the number of projects. The output of this command is an integer corresponding to the number of projects in the projects file.
+	
+* `print`:
+
+	Print the raw JSON information.
+	
+* `rm`:
+
+	Remove project(s) with the specified identifier(s).
+	
+	If any of the project identifiers do not exist this command will exit with a code >0 and no further project identifiers will be processed.
+	
+## FLAG OPTIONS
+
+* `-f | --force`:
+
+	Add a project by force even if a project with the same identifier already exists.
+	
+* `--pretty`:
+
+	Use in conjunction with the `print` command to pretty print the JSON.
+	
+## FILES
+
+The projects meta information is stored in a file named *projects.json* in the `${root}` of the current project.
+
+## EXIT CODES
+
+A >0 exit code indicates failure while a 0 exit code indicates success.
+
+## BUGS
+
+**task-project** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-project** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
