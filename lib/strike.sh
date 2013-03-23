@@ -84,7 +84,6 @@ initialize() {
   # TODO: register these modules 
 	. "${core}/delegate";
 	. "${core}/executable";
-	. "${core}/system";
 	. "${core}/process";
 
 	# manually register these modules
