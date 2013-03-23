@@ -152,12 +152,12 @@ function tdd.tasks.test.ls {
 	for unit in ${suites[@]}
 		do
 			path="${paths["$unit"]}";
-			console.log "$unit ${paths["$unit"]}";
+			console print "$unit ${paths["$unit"]}";
 			if array.isset? "$unit" "testmethods"; then
 				local m methods=( ${testmethods["$unit"]} );
 				for m in ${methods[@]}
 					do
-						console.log "$unit $m";
+						console print "$unit $m";
 				done
 			fi
 	done
@@ -165,7 +165,7 @@ function tdd.tasks.test.ls {
 	for unit in ${!__test_excluded[@]}
 		do
 			path="${__test_excluded["$unit"]}";
-			console.log "!${unit} $path";
+			console print "!${unit} $path";
 	done
 }
 
