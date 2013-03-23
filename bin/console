@@ -18,413 +18,413 @@ version.parse "$@";
 
 # test header colours
 console.test.headers() {
-	local title="${1:-HEADER COLORS}";
-	local opts="${2:-}";
-	console header;	
-	console title "${title}";
-	console header;
-	
-	console header $opts --text=black;	
-	console header $opts --text=red;
-	console header $opts --text=green;
-	console header $opts --text=brown;
-	console header $opts --text=blue;
-	console header $opts --text=magenta;
-	console header $opts --text=cyan;
-	console header $opts --text=gray;
-	
-	console header $opts --text=bright-black;	
-	console header $opts --text=bright-red;
-	console header $opts --text=bright-green;
-	console header $opts --text=bright-brown;
-	console header $opts --text=bright-blue;
-	console header $opts --text=bright-magenta;
-	console header $opts --text=bright-cyan;
-	console header $opts --text=bright-gray;
-	
-	console header;
+  local title="${1:-HEADER COLORS}";
+  local opts="${2:-}";
+  console header; 
+  console title "${title}";
+  console header;
+  
+  console header $opts --text=black;  
+  console header $opts --text=red;
+  console header $opts --text=green;
+  console header $opts --text=brown;
+  console header $opts --text=blue;
+  console header $opts --text=magenta;
+  console header $opts --text=cyan;
+  console header $opts --text=gray;
+  
+  console header $opts --text=bright-black; 
+  console header $opts --text=bright-red;
+  console header $opts --text=bright-green;
+  console header $opts --text=bright-brown;
+  console header $opts --text=bright-blue;
+  console header $opts --text=bright-magenta;
+  console header $opts --text=bright-cyan;
+  console header $opts --text=bright-gray;
+  
+  console header;
 }
 
 # test colors
 console.test.colors() {
-	local title="${1:-COLORS}";
-	console header;
-	console title "${title}";
-	console header;
-	
-	console print --text=black "a %s message" "black";
-	console print --text=red "a %s message" "red";
-	console print --text=green "a %s message" "green";
-	console print --text=brown "a %s message" "brown";
-	console print --text=blue "a %s message" "blue";
-	console print --text=magenta "a %s message" "magenta";
-	console print --text=cyan "a %s message" "cyan";
-	console print --text=gray "a %s message" "gray";
-	
-	console print --text=bright-black "a %s message" "bright-black";
-	console print --text=bright-red "a %s message" "bright-red";
-	console print --text=bright-green "a %s message" "bright-green";
-	console print --text=bright-brown "a %s message" "bright-brown";	
-	console print --text=bright-blue "a %s message" "bright-blue";
-	console print --text=bright-magenta "a %s message" "bright-magenta";
-	console print --text=bright-cyan "a %s message" "bright-cyan";
-	console print --text=bright-gray "a %s message" "bright-gray";	
-	
-	console header;
+  local title="${1:-COLORS}";
+  console header;
+  console title "${title}";
+  console header;
+  
+  console print --text=black "a %s message" "black";
+  console print --text=red "a %s message" "red";
+  console print --text=green "a %s message" "green";
+  console print --text=brown "a %s message" "brown";
+  console print --text=blue "a %s message" "blue";
+  console print --text=magenta "a %s message" "magenta";
+  console print --text=cyan "a %s message" "cyan";
+  console print --text=gray "a %s message" "gray";
+  
+  console print --text=bright-black "a %s message" "bright-black";
+  console print --text=bright-red "a %s message" "bright-red";
+  console print --text=bright-green "a %s message" "bright-green";
+  console print --text=bright-brown "a %s message" "bright-brown";  
+  console print --text=bright-blue "a %s message" "bright-blue";
+  console print --text=bright-magenta "a %s message" "bright-magenta";
+  console print --text=bright-cyan "a %s message" "bright-cyan";
+  console print --text=bright-gray "a %s message" "bright-gray";  
+  
+  console header;
 }
 
 # test message types
 console.test.types() {
-	local title="${1:-TYPES}";
-	local opts="${2:-}";
-	console title "${title}";
-	console header;
-	
-	#echo "using opts: $opts"
-	
-	console header;
-	console title "STDOUT";
-	console header;
-	
-	console log $opts "a %s message" "log";
-	console info $opts "an %s message" "info";
-	console ok $opts "an %s message" "ok";
-	
-	console header;
-	console title "STDERR";
-	console header;
-	
-	console debug $opts "a %s message" "debug";
-	console warn $opts "a %s message" "warning";
-	console error $opts "an %s message" "error";
-	console throw $opts "an error message with a stack trace";
-	console notok $opts "a %s message" "not ok";
-	console header;
-	( console quit 127 $opts "a %s message" "quit" );
-	( console success $opts "a %s message" "success" );
-	
-	console header;	
+  local title="${1:-TYPES}";
+  local opts="${2:-}";
+  console title "${title}";
+  console header;
+  
+  #echo "using opts: $opts"
+  
+  console header;
+  console title "STDOUT";
+  console header;
+  
+  console log $opts "a %s message" "log";
+  console info $opts "an %s message" "info";
+  console ok $opts "an %s message" "ok";
+  
+  console header;
+  console title "STDERR";
+  console header;
+  
+  console debug $opts "a %s message" "debug";
+  console warn $opts "a %s message" "warning";
+  console error $opts "an %s message" "error";
+  console throw $opts "an error message with a stack trace";
+  console notok $opts "a %s message" "not ok";
+  console header;
+  ( console quit 127 $opts "a %s message" "quit" );
+  ( console success $opts "a %s message" "success" );
+  
+  console header; 
 }
 
 # test for using printf
 console.test.printf() {
-	local title="${1:-PRINTF}";
-	local opts="${2:-}";
-	local prefix format parameter;
-	local pi="3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
-	console title "${title}";
-	console header;
-	
-	# console info "a %k invalid format string" "abc";
-	# console info "a %s %q %f value %f %c %s" "string" "quoted value[]" "3.1432423434" "3.123" "x";
-	
-	# printf ("Characters: %c %c \n", 'a', 65);
-	# printf ("Decimals: %d %ld\n", 1977, 650000L);
-	# printf ("Preceding with blanks: %10d \n", 1977);
-	# printf ("Preceding with zeros: %010d \n", 1977);
-	# printf ("Some different radixes: %d %x %o %#x %#o \n", 100, 100, 100, 100, 100);
-	# printf ("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416);
-	# printf ("Width trick: %*d \n", 5, 10);
-	# printf ("%s \n", "A string");	
-	
-	prefix=$(sprintf.block "printf");	
-	
-	# literal percent (%%)
-	format="%%";
-	parameter="";
-	sprintf --prefix="${prefix}" "${format} (%%${format})";
-	
-	# literal percent after format specifier (%%)
-	format="%d%%";
-	parameter="80";
-	sprintf --prefix="${prefix}" "${format} (%${format}%%)" "${parameter}";
-	
-	# signed decimal integer (%d)
-	format="%d";
-	parameter="512";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# signed decimal integer (%i)
-	format="%i";
-	parameter="1024";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# unsigned octal (%o)
-	format="%o";
-	parameter="493";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# unsigned hexadecimal integer (%x)
-	format="%x";
-	parameter="255";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# unsigned hexadecimal integer (%X)
-	format="%X";
-	parameter="127";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# floating point (%f)
-	format="%f";
-	parameter="${pi}";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# floating point (%F)
-	format="%F";
-	parameter="${pi}";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# floating point (%.2f)
-	format="%.2f";
-	parameter="${pi}";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# scientific notation (mantissa/exponent), lowercase (%e)
-	format="%e";
-	parameter="${pi}";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# scientific notation (mantissa/exponent), uppercase (%E)
-	format="%E";
-	parameter="${pi}";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# use the shortest representation: %e or %f (%g)
-	format="%g";
-	parameter="${pi}";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# use the shortest representation: %E or %F (%G)
-	format="%G";
-	parameter="${pi}";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# hexadecimal floating point, lowercase (%a)
-	format="%a";
-	parameter="${pi}";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";	
-	
-	# hexadecimal floating point, uppercase (%A)
-	format="%A";
-	parameter="${pi}";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-		
-	# character (%c)
-	format="%c";
-	parameter="xyz";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-		
-	# string (%s)
-	format="%s";
-	parameter="string";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	# nothing printed (%n)
-	format="%n";
-	parameter="b8000000";
-	sprintf --prefix="${prefix}" "${format}(%${format})" "${parameter}";
-	
-	# BASH
-	
-	# quoted (%q)
-	format="%q";
-	parameter="value with spaces []";
-	sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
-	
-	console header;
+  local title="${1:-PRINTF}";
+  local opts="${2:-}";
+  local prefix format parameter;
+  local pi="3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
+  console title "${title}";
+  console header;
+  
+  # console info "a %k invalid format string" "abc";
+  # console info "a %s %q %f value %f %c %s" "string" "quoted value[]" "3.1432423434" "3.123" "x";
+  
+  # printf ("Characters: %c %c \n", 'a', 65);
+  # printf ("Decimals: %d %ld\n", 1977, 650000L);
+  # printf ("Preceding with blanks: %10d \n", 1977);
+  # printf ("Preceding with zeros: %010d \n", 1977);
+  # printf ("Some different radixes: %d %x %o %#x %#o \n", 100, 100, 100, 100, 100);
+  # printf ("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416);
+  # printf ("Width trick: %*d \n", 5, 10);
+  # printf ("%s \n", "A string"); 
+  
+  prefix=$(sprintf.block "printf"); 
+  
+  # literal percent (%%)
+  format="%%";
+  parameter="";
+  sprintf --prefix="${prefix}" "${format} (%%${format})";
+  
+  # literal percent after format specifier (%%)
+  format="%d%%";
+  parameter="80";
+  sprintf --prefix="${prefix}" "${format} (%${format}%%)" "${parameter}";
+  
+  # signed decimal integer (%d)
+  format="%d";
+  parameter="512";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # signed decimal integer (%i)
+  format="%i";
+  parameter="1024";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # unsigned octal (%o)
+  format="%o";
+  parameter="493";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # unsigned hexadecimal integer (%x)
+  format="%x";
+  parameter="255";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # unsigned hexadecimal integer (%X)
+  format="%X";
+  parameter="127";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # floating point (%f)
+  format="%f";
+  parameter="${pi}";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # floating point (%F)
+  format="%F";
+  parameter="${pi}";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # floating point (%.2f)
+  format="%.2f";
+  parameter="${pi}";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # scientific notation (mantissa/exponent), lowercase (%e)
+  format="%e";
+  parameter="${pi}";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # scientific notation (mantissa/exponent), uppercase (%E)
+  format="%E";
+  parameter="${pi}";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # use the shortest representation: %e or %f (%g)
+  format="%g";
+  parameter="${pi}";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # use the shortest representation: %E or %F (%G)
+  format="%G";
+  parameter="${pi}";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # hexadecimal floating point, lowercase (%a)
+  format="%a";
+  parameter="${pi}";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}"; 
+  
+  # hexadecimal floating point, uppercase (%A)
+  format="%A";
+  parameter="${pi}";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+    
+  # character (%c)
+  format="%c";
+  parameter="xyz";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+    
+  # string (%s)
+  format="%s";
+  parameter="string";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  # nothing printed (%n)
+  format="%n";
+  parameter="b8000000";
+  sprintf --prefix="${prefix}" "${format}(%${format})" "${parameter}";
+  
+  # BASH
+  
+  # quoted (%q)
+  format="%q";
+  parameter="value with spaces []";
+  sprintf --prefix="${prefix}" "${format} (%${format})" "${parameter}";
+  
+  console header;
 }
 
 # test displaying a prompt
 console.test.prompt() {
-	if [ ! -t 0 ] || [ ! -t 1 ]; then
-		return 0;
-	fi
-	
-	local title="${1:-PROMPT}";
-	local opts="${2:-}";
-	local value;
-	console title "${title}";
-	console header;
-	
-	# test prompt for comparison
-	# read -ep $'\001\033[1m\002bold\001\033[0m\002 prompt'" ${characters[lightning]} " value;
-	# local start=$'\001\033[1m\002';
-	# local terminator=$'\001\033[0m\002';	
-	# local PS9="${start}bold${terminator} prompt ${characters[lightning]} ";
-	# read -ep "${PS9}" value;
-	
-	console prompt --program "%s prompt" "program name";
-	read -ep "$PS9" value;
-	
-	console prompt "%s prompt" "bright";
-	read -ep "$PS9" value;
-	console prompt --text=underline "%s prompt" "underline";
-	read -ep "$PS9" value;
-	
-	console prompt --text=black "%s prompt" "black";
-	read -ep "$PS9" value;	
-	console prompt --text=red "%s prompt" "red";
-	read -ep "$PS9" value;
-	console prompt --text=green "%s prompt" "green";
-	read -ep "$PS9" value;
-	console prompt --text=brown "%s prompt" "brown";
-	read -ep "$PS9" value;
-	console prompt --text=blue "%s prompt" "blue";
-	read -ep "$PS9" value;
-	console prompt --text=magenta "%s prompt" "magenta";
-	read -ep "$PS9" value;
-	console prompt --text=cyan "%s prompt" "cyan";
-	read -ep "$PS9" value;
-	console prompt --text=gray "%s prompt" "gray";
-	read -ep "$PS9" value;
-		
-	console header;
+  if [ ! -t 0 ] || [ ! -t 1 ]; then
+    return 0;
+  fi
+  
+  local title="${1:-PROMPT}";
+  local opts="${2:-}";
+  local value;
+  console title "${title}";
+  console header;
+  
+  # test prompt for comparison
+  # read -ep $'\001\033[1m\002bold\001\033[0m\002 prompt'" ${characters[lightning]} " value;
+  # local start=$'\001\033[1m\002';
+  # local terminator=$'\001\033[0m\002';  
+  # local PS9="${start}bold${terminator} prompt ${characters[lightning]} ";
+  # read -ep "${PS9}" value;
+  
+  console prompt --program "%s prompt" "program name";
+  read -ep "$PS9" value;
+  
+  console prompt "%s prompt" "bright";
+  read -ep "$PS9" value;
+  console prompt --text=underline "%s prompt" "underline";
+  read -ep "$PS9" value;
+  
+  console prompt --text=black "%s prompt" "black";
+  read -ep "$PS9" value;  
+  console prompt --text=red "%s prompt" "red";
+  read -ep "$PS9" value;
+  console prompt --text=green "%s prompt" "green";
+  read -ep "$PS9" value;
+  console prompt --text=brown "%s prompt" "brown";
+  read -ep "$PS9" value;
+  console prompt --text=blue "%s prompt" "blue";
+  read -ep "$PS9" value;
+  console prompt --text=magenta "%s prompt" "magenta";
+  read -ep "$PS9" value;
+  console prompt --text=cyan "%s prompt" "cyan";
+  read -ep "$PS9" value;
+  console prompt --text=gray "%s prompt" "gray";
+  read -ep "$PS9" value;
+    
+  console header;
 }
 
 # test custom message
 console.test.custom() {
-	local title="${1:-CUSTOM}";
-	local opts="${2:-}";
-	local value;
-	console title "${title}";
-	console header;
+  local title="${1:-CUSTOM}";
+  local opts="${2:-}";
+  local value;
+  console title "${title}";
+  console header;
 
-	sprintf --attribute=bright \
-		"a %s message" "bright";
-		
-	sprintf --attribute=faint \
-		"a %s message (not widely supported)" "faint";
-	sprintf --attribute=italic \
-		"an %s message (not widely supported)" "italic";
-		
-	sprintf --attribute=underline \
-		"an %s message" "underline";
-		
-	sprintf --text=gray --background=magenta \
-		"a %s message %s" "custom" "with color gray and background magenta";
-	sprintf --text=gray --background=magenta --attribute=negative \
-		"a %s message %s" "negative" "with color gray and background magenta";
-	sprintf --background=black \
-		"a %s message %s" "background" "with a black background and normal text";
-		
-	sprintf --text0=cyan \
-		--background0=black --attribute1=underline \
-		--attribute2=bright \
-		--attribute3=blink \
-		"a message with %s %s %s that can %s <- %s" \
-			"custom" "parameter" "styles" "blink" "that's dangerous";
-			
-	# --text=blue 
-		
-	console header;
+  sprintf --attribute=bright \
+    "a %s message" "bright";
+    
+  sprintf --attribute=faint \
+    "a %s message (not widely supported)" "faint";
+  sprintf --attribute=italic \
+    "an %s message (not widely supported)" "italic";
+    
+  sprintf --attribute=underline \
+    "an %s message" "underline";
+    
+  sprintf --text=gray --background=magenta \
+    "a %s message %s" "custom" "with color gray and background magenta";
+  sprintf --text=gray --background=magenta --attribute=negative \
+    "a %s message %s" "negative" "with color gray and background magenta";
+  sprintf --background=black \
+    "a %s message %s" "background" "with a black background and normal text";
+    
+  sprintf --text0=cyan \
+    --background0=black --attribute1=underline \
+    --attribute2=bright \
+    --attribute3=blink \
+    "a message with %s %s %s that can %s <- %s" \
+      "custom" "parameter" "styles" "blink" "that's dangerous";
+      
+  # --text=blue 
+    
+  console header;
 }
 
 # test miscellanous functionality
 console.test.misc() {
-	local title="${1:-MISCELLANEOUS}";
-	local opts="${2:-}";
-	local value;
-	console title "${title}";
-	console header;
-	
-	# command for generating a
-	# custom message prefix
-	user.hostname() {
-		local id=$( id -nu );
-		local host=$( hostname );
-		local str="${id}@${host}";
-		local begin=$( sprintf.block "$str" );
-		if [ -n "${prefix:-}" ]; then
-			begin="${begin} ${prefix}";
-		fi
-		prefix="${begin}";
-	}
+  local title="${1:-MISCELLANEOUS}";
+  local opts="${2:-}";
+  local value;
+  console title "${title}";
+  console header;
+  
+  # command for generating a
+  # custom message prefix
+  user.hostname() {
+    local id=$( id -nu );
+    local host=$( hostname );
+    local str="${id}@${host}";
+    local begin=$( sprintf.block "$str" );
+    if [ -n "${prefix:-}" ]; then
+      begin="${begin} ${prefix}";
+    fi
+    prefix="${begin}";
+  }
 
-	sprintf --program \
-		"a message %s" "prefixed with the program name";
-		
-	console info --program \
-		"an %s message %s" "info" "prefixed with the program name";
-		
-	console info --date \
-		"an %s message %s" "info" "prefixed with the date";	
-		
-	console info --timestamp \
-		"an %s message %s" "info" "prefixed with a timestamp";
-		
-	console info --timestamp \
-		--program \
-		"an %s message %s" "info" "prefixed with a timestamp and program name";
-		
-	console print --prefix-command="user.hostname" -- \
-		"a message %s using %s" "with a custom prefix" "--prefix-command";
-		
-	console header;
+  sprintf --program \
+    "a message %s" "prefixed with the program name";
+    
+  console info --program \
+    "an %s message %s" "info" "prefixed with the program name";
+    
+  console info --date \
+    "an %s message %s" "info" "prefixed with the date"; 
+    
+  console info --timestamp \
+    "an %s message %s" "info" "prefixed with a timestamp";
+    
+  console info --timestamp \
+    --program \
+    "an %s message %s" "info" "prefixed with a timestamp and program name";
+    
+  console print --prefix-command="user.hostname" -- \
+    "a message %s using %s" "with a custom prefix" "--prefix-command";
+    
+  console header;
 }
 
 # always colour output
 console.test.always() {
-	local title="${1:-COLOR (--color=[auto|never|always])}";
-	local opts="${2:-}";
-	local value;
-	console title "${title}";
-	console header;
-	
-	console info --color=auto -- \
-		"an %s color message %s" "auto" "--color=auto";	
+  local title="${1:-COLOR (--color=[auto|never|always])}";
+  local opts="${2:-}";
+  local value;
+  console title "${title}";
+  console header;
+  
+  console info --color=auto -- \
+    "an %s color message %s" "auto" "--color=auto"; 
 
-	console info --color=always -- \
-		"an %s color message %s" "always" "--color=always";
-		
-	console info --color=never -- \
-		"a %s color message %s" "never" "--color=never";
-		
-	console header;
+  console info --color=always -- \
+    "an %s color message %s" "always" "--color=always";
+    
+  console info --color=never -- \
+    "a %s color message %s" "never" "--color=never";
+    
+  console header;
 }
 
 # print test messages
 console.test() {
-	console.test.headers;
-	console.test.colors;
-	console.test.types;
-	console.test.printf;
-	console.test.custom;
-	console.test.misc;
-	console.test.always;	
-	console.test.prompt;
-	
-	# local tester="${unbound_variable}";
+  console.test.headers;
+  console.test.colors;
+  console.test.types;
+  console.test.printf;
+  console.test.custom;
+  console.test.misc;
+  console.test.always;  
+  console.test.prompt;
+  
+  # local tester="${unbound_variable}";
 }
 
 if [ $# -eq 0 ]; then
-	console.test;
+  console.test;
 else
-	while [ "${1:-}" != "" ]; do
-		case $1 in
-			--color=auto | --color=never | --color=always )
-				shift;
-				;;
-			--debug )
-				set -x;
-				shift;
-				;;
-			--printf )
-				console.test.printf;
-				exit 0;
-				;;			
-			* )
-				break;
-				;;
-		esac
-	done
-	
-	if [ $# -eq 0 ]; then
-		console.test;
-		exit 0;
-	fi
-	
-	#type printf;
-	# TODO: work out why this fails
-	#echo "calling sprintf with $*";
-	sprintf "$@";
+  while [ "${1:-}" != "" ]; do
+    case $1 in
+      --color=auto | --color=never | --color=always )
+        shift;
+        ;;
+      --debug )
+        set -x;
+        shift;
+        ;;
+      --printf )
+        console.test.printf;
+        exit 0;
+        ;;      
+      * )
+        break;
+        ;;
+    esac
+  done
+  
+  if [ $# -eq 0 ]; then
+    console.test;
+    exit 0;
+  fi
+  
+  #type printf;
+  # TODO: work out why this fails
+  #echo "calling sprintf with $*";
+  sprintf "$@";
 fi

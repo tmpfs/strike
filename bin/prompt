@@ -44,159 +44,159 @@ declare -A responses;
 
 # a before command callback
 prompt.test.before() {
-	local key="${1:-}";
-	if [ -n "${key}" ]; then
-		local description=$( echo "${descriptions[$key]:-}" | fmt -w 70 );
-		console header;
-		console title "${key^^}";
-		if [ -n "${description}" ]; then
-			console title "";
-			while read line;
-				do
-					printf "${header_character} ${line}\n";
-			done <<< "${description}";
-		fi
-		
-		console title "";
-		console title --no-newline "";
-		console.print --text=gray "$runner";
-		console title "";
-		console header;
-		
-		local msg="${messages[$key]:-}";
-		console prompt --program "${msg}";
-	fi
+  local key="${1:-}";
+  if [ -n "${key}" ]; then
+    local description=$( echo "${descriptions[$key]:-}" | fmt -w 70 );
+    console header;
+    console title "${key^^}";
+    if [ -n "${description}" ]; then
+      console title "";
+      while read line;
+        do
+          printf "${header_character} ${line}\n";
+      done <<< "${description}";
+    fi
+    
+    console title "";
+    console title --no-newline "";
+    console.print --text=gray "$runner";
+    console title "";
+    console header;
+    
+    local msg="${messages[$key]:-}";
+    console prompt --program "${msg}";
+  fi
 }
 
 # a response command callback
 prompt.test.response() {
-	local value="${1:-}";
-	local key="${2:-}";
-	if [ -n "${value}" ] && [ -n "${key}" ]; then
-		responses[$key]="$value";
-	fi
+  local value="${1:-}";
+  local key="${2:-}";
+  if [ -n "${value}" ] && [ -n "${key}" ]; then
+    responses[$key]="$value";
+  fi
 }
 
 # print a summary of input
 prompt.test.summary() {
-	console header;
-	console title "SUMMARY";
-	console header;
-	local k v;
-	for k in "${!responses[@]}"
-		do
-			v="${responses[$k]}";
-			console print "${k}=%s" "${v}";
-	done
-	console header;
+  console header;
+  console title "SUMMARY";
+  console header;
+  local k v;
+  for k in "${!responses[@]}"
+    do
+      v="${responses[$k]}";
+      console print "${k}=%s" "${v}";
+  done
+  console header;
 }
 
 # accepted confirmation
 confirm.accepted() {
-	console ok "confirmation was accepted";
+  console ok "confirmation was accepted";
 }
 
 # rejected confirmation
 confirm.rejected() {
-	console notok "confirmation was rejected";
+  console notok "confirmation was rejected";
 }
 
 # valid selection
 selection.valid() {
-	local word="${1:-}";
-	console ok "selected %s" "${word}";
+  local word="${1:-}";
+  console ok "selected %s" "${word}";
 }
 
 # input error
 selection.error() {
-	local value="${1:-}";
-	console error "invalid selection %s" "${value:-}";
+  local value="${1:-}";
+  console error "invalid selection %s" "${value:-}";
 }
 
 # input range error
 selection.range() {
-	local value="${1:-}";
-	console error "invalid selection %s, must be in the range %s-%s" \
-		"${value}" "1" "${#PROMPT_SELECTION[@]}";
+  local value="${1:-}";
+  console error "invalid selection %s, must be in the range %s-%s" \
+    "${value}" "1" "${#PROMPT_SELECTION[@]}";
 }
 
 # validate that passwords match
 validate.password() {
-	local value="${1:-}";
-	if [ "${responses[password1]}" != "${value}" ]; then
-		console notok "passwords do not match";
-		return 1;
-	fi
-	return 0;
+  local value="${1:-}";
+  if [ "${responses[password1]}" != "${value}" ]; then
+    console notok "passwords do not match";
+    return 1;
+  fi
+  return 0;
 }
 
 # mock tab completion function
 prompt.test.completion() {
-	# echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
-	local cur="${COMP_WORDS[$COMP_CWORD]}";
-	# echo "$FUNCNAME :${#COMP_WORDS[@]}:$COMP_CWORD:'$cur'";
-	
-	COMPREPLY=( $( compgen -o "default" -A "function" -- "$cur" ) );
+  # echo "$FUNCNAME : $READLINE_LINE : $READLINE_POINT";
+  local cur="${COMP_WORDS[$COMP_CWORD]}";
+  # echo "$FUNCNAME :${#COMP_WORDS[@]}:$COMP_CWORD:'$cur'";
+  
+  COMPREPLY=( $( compgen -o "default" -A "function" -- "$cur" ) );
 }
 
 # run a test
 prompt.test.run() {
-	runner="$*";
-	"$@";
+  runner="$*";
+  "$@";
 }
 
 # print test prompts
 prompt.test() {
   process.directory;
-	local hist_file="${process_dirs[data]}/history.log";
-	local opts=(
-		--before=prompt.test.before
-		--response=prompt.test.response
-		--hist-file="$hist_file"
-	);
-	declare -ag PROMPT_SELECTION=( "${filelist[@]}" );
-	prompt.test.run \
-		prompt line ${opts[@]} --id=completion \
-			--complete=prompt.test.completion;
-	prompt.test.run \
-		prompt select ${opts[@]} --id=selection \
-			--select=selection.valid \
-			--select-error=selection.error \
-			--select-range-error=selection.range;
-	prompt.test.run \
-		prompt confirm ${opts[@]} --id=confirm \
-		--accepted=confirm.accepted --rejected=confirm.rejected;
-	prompt.test.run \
-		prompt line ${opts[@]} --id=name;
-	prompt.test.run \
-		prompt line ${opts[@]} --timeout=5 --default=5 --id=timeout;
-	prompt.test.run \
-		prompt line ${opts[@]} --silent --id=password1;
-	prompt.test.run \
-		prompt line ${opts[@]} --silent \
-		--validate=validate.password --id=password2;
-	prompt.test.run \
-		prompt line ${opts[@]} \
-		--multiline --quit="q quit exit" --exec --infinite --id=execute;
-	prompt.test.summary;
+  local hist_file="${process_dirs[data]}/history.log";
+  local opts=(
+    --before=prompt.test.before
+    --response=prompt.test.response
+    --hist-file="$hist_file"
+  );
+  declare -ag PROMPT_SELECTION=( "${filelist[@]}" );
+  prompt.test.run \
+    prompt line ${opts[@]} --id=completion \
+      --complete=prompt.test.completion;
+  prompt.test.run \
+    prompt select ${opts[@]} --id=selection \
+      --select=selection.valid \
+      --select-error=selection.error \
+      --select-range-error=selection.range;
+  prompt.test.run \
+    prompt confirm ${opts[@]} --id=confirm \
+    --accepted=confirm.accepted --rejected=confirm.rejected;
+  prompt.test.run \
+    prompt line ${opts[@]} --id=name;
+  prompt.test.run \
+    prompt line ${opts[@]} --timeout=5 --default=5 --id=timeout;
+  prompt.test.run \
+    prompt line ${opts[@]} --silent --id=password1;
+  prompt.test.run \
+    prompt line ${opts[@]} --silent \
+    --validate=validate.password --id=password2;
+  prompt.test.run \
+    prompt line ${opts[@]} \
+    --multiline --quit="q quit exit" --exec --infinite --id=execute;
+  prompt.test.summary;
 }
 
 if [ $# -eq 0 ]; then
-	prompt.test;
+  prompt.test;
 else
-	while [ "${1:-}" != "" ]; do
-		case $1 in
-			--color=auto | --color=never | --color=always )
-				shift;
-				;;
-			* )
-				break;
-				;;
-		esac
-	done
-	if [ $# -eq 0 ]; then
-		prompt.test;
-		exit 0;
-	fi
-	prompt "$@";
+  while [ "${1:-}" != "" ]; do
+    case $1 in
+      --color=auto | --color=never | --color=always )
+        shift;
+        ;;
+      * )
+        break;
+        ;;
+    esac
+  done
+  if [ $# -eq 0 ]; then
+    prompt.test;
+    exit 0;
+  fi
+  prompt "$@";
 fi

@@ -137,7 +137,7 @@ manual.completion() {
   if $cmds; then
     words="${commands[*]} ${files[*]:-}";
   fi
-	COMPREPLY=( $( compgen -W "${words}" -- "$cur" ) );
+  COMPREPLY=( $( compgen -W "${words}" -- "$cur" ) );
 }
 
 # handle input
