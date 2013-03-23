@@ -1,74 +1,62 @@
 require.once 'http';
 
-declare -Agx rest_print;
-
 rest() {
-  echo "rest called $*"
   local commands_namespace="rest.commands";
   local cmd="${1:-}";
   shift;
   if ! method.exists? "${commands_namespace}.$cmd"; then
     console quit 1 -- "unknown command %s" "$cmd";
   fi
-
   local url="";
-
+  declare -A flags;
+  flags[print.headers]=false;
+  flags[print.body]=false;
+  flags[print.env]=false;
   rest.options.parse $@;
-
   delegate "${commands_namespace}" "$cmd" "$@";
 }
 
-######################################################################
-#
-#	HTTP verb commands
-#
-######################################################################
+## COMMANDS
+
 rest.commands.get() {
 	http get "$url";
-	__rest_print;
+	rest.print;
 }
 
 rest.commands.head() {
 	http get "$url" "--head";
-	__rest_print;
+	rest.print;
 }
 
 rest.commands.post() {
 	http post "$url";
-	__rest_print;	
+	rest.print;	
 }
 
 rest.commands.put() {
 	http put "$url";
-	__rest_print;	
+	rest.print;	
 }
 
 rest.commands.delete() {
 	http delete "$url";
-	__rest_print;	
+	rest.print;	
 }
 
 rest.commands.options() {
 	http options "$url";
-	__rest_print;
+	rest.print;
 }
 
-######################################################################
-#
-#	Utility commands
-#
-######################################################################
 rest.commands.dl() {
 	# show download progress to the screen
 	http_print_stderr="on";
-	
-	array.pop "$@";
-	local url="$_result";
-	http.curl.execute "--location" "-#" "--write-out" "$http_curl_writeout" "--remote-name" "$url";
+	http.curl.execute "--location" "-#" \
+    "--write-out" "$http_curl_writeout" "--remote-name" "$url";
 }
 
 rest.commands.clean() {
-	console info "cleaning files in %s" "$http_home";
+	console info -- "cleaning files in %s" "$http_home";
 	http.clean > /dev/null || quit 1 "error cleaning files in %s" "$http_home";
 	console success "clean complete";
 }
@@ -80,7 +68,7 @@ rest.commands.redo() {
 	else
 		console quit 1 -- "no config file %s" "$http_config_file";
 	fi
-	__rest_print;
+	rest.print;
 }
 
 rest.commands.load() {
@@ -101,14 +89,40 @@ rest.commands.config() {
 	fi
 }
 
+## PRIVATE
+
+rest.print() {
+  ${flags[print.headers]} && rest.print.headers;
+  ${flags[print.body]} && rest.print.body;
+  ${flags[print.env]} && rest.print.env;
+}
+
+rest.print.headers() {
+	if [ -f "$http_head_dump_file" ]; then
+		cat "$http_head_dump_file";
+	fi
+}
+
+rest.print.body() {
+	if [ -f "$http_body_file" ]; then
+		cat "$http_body_file";
+	fi
+}
+
+rest.print.env() {
+	local name value;
+	for name in ${!http_*}
+		do
+			variable.get "$name";
+			value=$( printf %q "$value" );
+			echo "${name}=${value}";
+	done
+}
+
 rest.options.parse() {
-	#echo "parsing rest program options..."
 	local name;
 	local value;
 	while [ "${1:-}" != "" ]; do
-		
-		#echo "got option: $1";
-		
 		case $1 in
 		-H | --header )
 			shift;
@@ -155,13 +169,13 @@ rest.options.parse() {
 			http.option.add "--data-binary" "$value";
 			;;
 		--print-body )
-			rest_print[body]="on";
+      flags[print.body]=true;
 			;;
 		--print-headers )
-			rest_print[headers]="on";
+      flags[print.headers]=true;
 			;;
 		--print-env )
-			rest_print[env]="on";
+      flags[print.env]=true;
 			;;
 		* )
 			url+="${1:-}";
@@ -187,45 +201,4 @@ rest.options.parse() {
 			break;
 		fi
 	done
-}
-
-######################################################################
-#
-#	PRIVATE METHODS
-#
-######################################################################
-
-__rest_print() {
-	local p m exists;
-	for p in ${!rest_print[@]}
-		do
-			m="__rest_print_${p}";
-			if method.exists? "$m"; then
-				$m;
-			fi
-	done
-}
-
-__rest_print_env() {
-	local name value;
-	for name in ${!http_*}
-		do
-			variable.get "$name";
-			value=$( printf %q "$value" );
-			echo "${name}=${value}";
-	done
-}
-
-__rest_print_headers() {
-	if [ -f "$http_head_dump_file" ]; then
-		#echo "got http body file... $http_body_file"
-		cat "$http_head_dump_file";
-	fi
-}
-
-__rest_print_body() {
-	if [ -f "$http_body_file" ]; then
-		#echo "got http body file... $http_body_file"
-		cat "$http_body_file";
-	fi
 }
