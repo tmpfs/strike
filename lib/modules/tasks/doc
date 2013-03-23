@@ -44,8 +44,7 @@ doc.commands.man() {
 
 # generates, compiles and imports man pages
 doc.man.commands.build() {
-	doc.man.commands.generate \
-    && doc.man.commands.compile \
+  doc.man.commands.compile \
     && doc.man.commands.import;
 }
 
