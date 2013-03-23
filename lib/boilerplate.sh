@@ -1,8 +1,6 @@
 set -o errtrace;
 set -o nounset;
 
-#cols=$(tput cols); echo columns: $cols; exit 0;
-
 # walk parent hierarchy looking
 # for the script
 walk() {
