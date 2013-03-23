@@ -7,57 +7,7 @@
 \fBarray\fR \- array module
 .
 .SH "SYNOPSIS"
-Module methods for writing, reading, modifiying and inspecting arrays\.
-.
-.SH "DESCRIPTION"
-The array(3) modules can be used to write \fIglobal\fR array(s) to file(s) and read the file(s) back into array declarations\.
-.
-.SH "USAGE"
-To write an array file, declare the \fIglobal\fR array(s) and call \fBarray\.write\fR\.
-.
-.IP "" 4
-.
-.nf
-
-write_array() {
-    local file="${process_dirs[root]}/arrays";
-    declare \-a array1;
-    array1=( 3 2 1 "a test string" );
-    declare \-A array2;
-    array2[key]="value";
-    array2[greeting]="hello world";
-    array\.write "$file" <<< "array1 array2";    # specify the array names on stdin
-}
-write_array;
-.
-.fi
-.
-.IP "" 0
-.
-.P
-To read an array file back into array(s) use the \fBarray\.read\fR method\.
-.
-.IP "" 4
-.
-.nf
-
-read_array() {
-    local file="${process_dirs[root]}/arrays";
-    array\.read < "$file";                       # read from the `arrays` file
-
-    # print array keys
-    console print "${!array1[*]}";
-    console print "${!array2[*]}";
-
-    # print array values
-    console print "${array1[*]}";
-    console print "${array2[*]}";
-}
-read_array;
-.
-.fi
-.
-.IP "" 0
+Module commands for modifiying and inspecting arrays\.
 .
 .SH "BUGS"
 When writing and reading arrays, the variable declarations \fImust be global\fR\.
