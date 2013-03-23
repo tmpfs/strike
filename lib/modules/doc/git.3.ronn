@@ -1,0 +1,45 @@
+git(3) -- git utility commands
+=============================================
+
+## SYNOPSIS
+
+Utility commands for working with git(1) repositories.
+
+## USAGE
+
+	require 'git';
+	git.info() {
+		local dir="$PWD";
+		if git.valid? "$dir"; then
+			console info "%s is a git repository" "$dir";
+		else
+			console warn "%s is %s a git repository" "$dir" "not";
+		fi
+	}
+	git.info;
+
+# COMMANDS
+
+* `git.valid?`:
+
+Determine if a directory is a valid git(1) repository.
+
+* `git.branch.current`:
+
+Retrieve the name of the current branch.
+
+* `git.branch.hash`:
+
+Retrieve the hash of the last commit in the current branch or a specific branch.
+
+## BUGS
+
+**git** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**git** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+require(3)
