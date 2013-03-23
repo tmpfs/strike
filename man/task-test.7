@@ -16,7 +16,17 @@ Adds task methods for unit testing bash(1) programs, unit tests are defined in f
 Binary tests (in \fBtest/bin\fR) are determined using the \fB\-x\fR file test flag therefore it is important to ensure you \fIdo not make files executable that are not test executables\fR\.
 .
 .SH "REQUIRE"
-You do not need to require(3) this task as it is a builtin task\.
+In your tasks(7) file \fBrequire\fR the \fBtest\fR task(s) using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/test\';
+.
+.fi
+.
+.IP "" 0
 .
 .SH "USAGE"
 .

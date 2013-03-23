@@ -13,7 +13,17 @@ Collection of documentation tasks for bake(1)\.
 Adds task methods for generating and compiling inline heredoc documentation\.
 .
 .SH "REQUIRE"
-You do not need to require(3) this task as it is a builtin task\.
+In your tasks(7) file \fBrequire\fR the \fBdoc\fR task(s) using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/doc\';
+.
+.fi
+.
+.IP "" 0
 .
 .SH "USAGE"
 .

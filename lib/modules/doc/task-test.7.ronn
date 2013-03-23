@@ -13,7 +13,9 @@ Binary tests (in `test/bin`) are determined using the `-x` file test flag theref
 
 ## REQUIRE
 
-You do not need to require(3) this task as it is a builtin task.
+In your tasks(7) file `require` the `test` task(s) using:
+
+	require 'tasks/test';
 
 ## USAGE
 
