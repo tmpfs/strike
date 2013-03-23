@@ -1,36 +1,3 @@
-: <<'ronn:markdown'
-task-ls(7) -- list task(s) for bake(1)
-=============================================
-
-## SYNOPSIS
-
-List task(s) for bake(1).
-
-## DESCRIPTION
-
-Lists available tasks.
-
-## REQUIRE
-
-You do not need to require(3) this task as it is a builtin task.
-
-## USAGE
-
-	bake ls
-
-## BUGS
-
-**task-ls** is written in bash and depends upon `bash` >= 4.2.
-
-## COPYRIGHT
-
-**task-ls** is copyright (c) 2012 muji <http://xpm.io>
-
-## SEE ALSO
-
-bake(1)
-ronn:markdown
-
 declare -Ag task_info;
 taskinfo(){
   local key="${1:-}";
@@ -40,9 +7,9 @@ taskinfo(){
   fi
 }
 
-taskinfo ls "List task commands";
+taskinfo ls "List available tasks";
 tasks.ls() {
-	executable.validate 'egrep';
+	executable.validate egrep;
 	local egrep="${executables[egrep]}";
 	local methods=( $( method.list | $egrep "^tasks\.[a-zA-Z]+" ) );
 	local m;
@@ -54,8 +21,10 @@ tasks.ls() {
 			# not considered to be a task
 			if [[ "$m" =~ \.initialize$ ]]; then continue; fi
 			console print -- "%s" "$m";
-      if [ -n "${task_info[$m]:-}" ]; then
-        printf "\t${task_info[$m]}\n" | expand -t 2 | fmt;
+      if $verbose; then
+        if [ -n "${task_info[$m]:-}" ]; then
+          printf "\t${task_info[$m]}\n" | expand -t 2 | fmt;
+        fi
       fi
 	done
 }

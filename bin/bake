@@ -39,20 +39,11 @@ require 'tasks/semver';
 require 'tasks/module';
 
 bake() {
+  local verbose=false;
 	local namespace="tasks";
 	local tasks_file_name="${bake_file_name:-tasks}";
 	fs.walk "$tasks_file_name";
 	local f="$_result";
-	while [ "${1:-}" != "" ]; do
-		case $1 in
-			--color=auto | --color=never | --color=always )
-				shift;
-				;;
-            * )
-                break;
-                ;;
-		esac
-	done
 	if [ ! -f "$f" ]; then
 		console quit 1 -- "no %s file in %s (or any of the parent directories)" \
             "$tasks_file_name" "${PWD}";
@@ -86,14 +77,36 @@ bake() {
 		require "$f";
 		local cmd="$1";
 		shift;
+    local options=();
+    bake.options.parse $@;
 		local func="${namespace}.${cmd}";
 		if ! method.exists? "$func"; then
-			console quit 2 "task %s not found" "$cmd";
+			console quit 2 -- "task %s not found" "$cmd";
 		fi
 		# invoke the task function
-		delegate "${namespace}" "$cmd" "$@" \
+		delegate "${namespace}" "$cmd" "${options[@]:-}" \
       || console quit $? -- "task %s failed" "$func";
 	fi
+}
+
+bake.options.parse() {
+  local opts=( $@ );
+  local opt i length="${#opts[@]}";
+  for((i=0;i < $length;i++))
+    do
+      opt="${opts[$i]}";
+      case "$opt" in
+        --color=auto | --color=never | --color=always )
+          sprintf_color="${opt#*=}";
+          ;;
+        -v | --verbose )
+          verbose=true;
+          ;;
+        * )
+          options+=( "$opt" );
+          ;;
+      esac
+  done
 }
 
 bake "$@";

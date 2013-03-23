@@ -117,11 +117,13 @@ require.once 'command/find';
 require.once help;
 help.man.page "compress" "task-compress.7";
 
-function tasks.compress.initialize {
+tasks.compress.initialize() {
 	executable.validate gzip gunzip;
 }
 
-function tasks.compress {
+
+taskinfo compress "Utility for compressing multiple files, useful for creating compressed assets for web applications prior to deployment";
+tasks.compress() {
 	
 	# the extension for compressed files
 	local compress_extension="gz";
