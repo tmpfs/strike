@@ -60,9 +60,9 @@ initialize() {
 	process_dirs[version]="${dir_root}/version";
 	process_dirs[semver]="${dir_root}/semver.json";
 	process_dirs[data]=~/.${framework}/"${process_name}";
-    if [ -f "${process_dirs[version]}" ]; then
-        version=$( cat "${process_dirs[version]}" );
-    fi
+  if [ -f "${process_dirs[version]}" ]; then
+    version=$( cat "${process_dirs[version]}" );
+  fi
 	# configure library directories
 	fs.path.expand "$dir";
 	dir="$_result";

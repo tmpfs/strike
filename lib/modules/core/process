@@ -172,10 +172,15 @@ process.use() {
 # create process data directory
 # if it does not exist
 process.directory() {
-  if [ ! -d "${process_dirs[data]}" ]; then
-    mkdir -p ${process_dirs[data]} \
-      || console quit 1 "could not create %s" \
-        "${process_dirs[data]}";
+  local name="${1:-}";
+	local dir="${process_dirs[data]}";
+  if [ -n "${name}" ]; then
+	  dir=~/.${framework}/"${name}";
+  fi
+  if [ ! -d "${dir}" ]; then
+    mkdir -p "${dir}" \
+      || console quit 1  -- "could not create %s" \
+        "${dir}";
   fi
 }
 

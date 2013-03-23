@@ -12,7 +12,8 @@ require 'url';
 executable.validate curl tee;
 
 declare -g http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
-declare -g http_home="$HOME/.http";
+process.directory 'http';
+declare -g http_home=~/.${framework}/http;
 declare -g http_output_file="$http_home/http.out";
 declare -g http_head_file="$http_home/http.head";
 declare -g http_body_file="$http_home/http.body";
@@ -60,11 +61,11 @@ http_files=(
 declare -g http_auth_user="";
 declare -g http_auth_pass="";
 
-function http.config.save {
+http.config.save() {
 	local id="${1:-}";
 	if [ ! -z "$id" ] && [ -f "$http_config_file" ]; then
 		if [ ! -d "$http_config_dir" ]; then
-			mkdirp "$http_config_dir";
+			mkdir -p "$http_config_dir";
 		fi
 		local configfile="${http_config_dir}/${id}"
 		copy "$http_config_file" "$configfile" \
@@ -72,7 +73,7 @@ function http.config.save {
 	fi
 }
 
-function http.clean {
+http.clean() {
 	local f;
 	for f in ${http_files[@]}
 		do
@@ -80,13 +81,13 @@ function http.clean {
 	done
 }
 
-function http.initialize {
+http.initialize() {
 	if [ ! -d "$http_home" ]; then
-		mkdirp "$http_home";
+		mkdir -p "$http_home";
 	fi
 }
 
-function http.curl.execute {
+http.curl.execute() {
 	local cmd="${executables[curl]}";	
 	local tee="${executables[tee]}";
 	local results=();
@@ -152,14 +153,16 @@ function http.curl.execute {
 	if [ "$http_exit_code" != "0" ]; then
 		if [ ! -z "$http_strict" ]; then
 			if [ -f "$http_stderr_file" ]; then
-				error "`cat $http_stderr_file`";
+				console error -- "$( cat $http_stderr_file )";
 			fi
-			quit $http_exit_code "curl exited with non-zero status code (%s)" "$http_exit_code";
+			console quit $http_exit_code -- \
+        "curl exited with non-zero status code (%s)" "$http_exit_code";
 		else
 			if [ -f "$http_stderr_file" ]; then
-				warn "`cat $http_stderr_file`";
+				console warn -- "`cat $http_stderr_file`";
 			else
-				warn "curl exited with non-zero status code (%s" "$http_exit_code";
+				console warn \
+          "curl exited with non-zero status code (%s" "$http_exit_code";
 			fi
 		fi
 	fi
@@ -185,7 +188,7 @@ function http.curl.execute {
 	fi
 }
 
-function http.curl {
+http.curl() {
 	local method="${1:-GET}";
 	shift;
 	local path="${1:-}";
@@ -289,7 +292,7 @@ function http.curl {
 #	$2	The option value.
 #
 ######################################################################
-function http.option.add {
+http.option.add() {
 	local name=${1:-};
 	local value=${2:-};
 	if [ ! -z "$name" ] && [ ! -z "$value" ]; then
@@ -300,7 +303,7 @@ function http.option.add {
 	# echo "added command options: ${http_command_options[@]}";
 }
 
-function http.request.add.header {
+http.request.add.header() {
 	local name="$1";
 	local value="${2:-}";
 	local hname hvalue;
@@ -326,7 +329,7 @@ function http.request.add.header {
 #	PRIVATE METHODS
 #
 ######################################################################
-function __http_write_config {
+__http_write_config() {
 	#echo "writing config with options: ${@}";
 	
 	local f="$http_config_file";
@@ -366,7 +369,7 @@ function __http_write_config {
 	done
 }
 
-function __http_response_parse_status {
+__http_response_parse_status() {
 	local raw="${@:2}";
 	
 	local index="$1";
@@ -396,7 +399,7 @@ function __http_response_parse_status {
 	# echo "[http_response_header_message] : ${http_response_header_message}";
 }
 
-function __http_parse_header {
+__http_parse_header() {
 	#echo "__http_parse_header: $1 : $2";
 	
 	local index="$1";
@@ -420,7 +423,7 @@ function __http_parse_header {
 	export "http_header_${index}_${name}=${value}";
 }
 
-function __http_response_parse {
+__http_response_parse() {
 	#echo "parsing http response..$@";
 	
 	# number of redirects corresponds to the number of headers to parse

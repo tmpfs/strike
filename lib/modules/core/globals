@@ -19,7 +19,7 @@ api:ronn:markdown
 # constant of framework name used
 # for building process specific
 # data directories
-declare -r framework="strike";
+declare -rg framework="strike";
 
 : <<'api:ronn:markdown'
 ### PROGRAM
