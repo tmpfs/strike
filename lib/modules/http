@@ -1,15 +1,5 @@
-# allow delegation for this module
-declare delegate=true;
-
 require 'url';
 
-# TODO: validate that these executable later
-# TODO: just before we wish to use them
-
-# validate the curl executable is available
-# after validation the executable path
-# is available at: ${executables[curl]}
-executable.validate curl tee;
 
 declare -g http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
 process.directory 'http';
@@ -61,6 +51,47 @@ http_files=(
 declare -g http_auth_user="";
 declare -g http_auth_pass="";
 
+http() {
+  executable.validate curl tee;
+  local commands_namespace="http.commands";
+  local cmd="${1:-}";
+  shift;
+  if ! method.exists? "${commands_namespace}.$cmd"; then
+    console quit 1 -- "unknown http command %s" "$cmd";
+  fi  
+  delegate "${commands_namespace}" "$cmd" "$@";
+}
+
+http.commands.get() {
+	local url="${1:-}";
+	http.curl "GET" "$url";
+}
+
+http.commands.head() {
+	local url="${1:-}";
+	http.curl "GET" "$url" "--head";
+}
+
+http.commands.post() {
+	local url="${1:-}";
+	http.curl "POST" "$url";
+}
+
+http.commands.put() {
+	local url="${1:-}";
+	http.curl "PUT" "$url";
+}
+
+http.commands.delete() {
+	local url="${1:-}";
+	http.curl "DELETE" "$url";
+}
+
+http.commands.options() {
+	local url="${1:-}";
+	http.curl "OPTIONS" "$url";
+}
+
 http.config.save() {
 	local id="${1:-}";
 	if [ ! -z "$id" ] && [ -f "$http_config_file" ]; then
@@ -94,7 +125,7 @@ http.curl.execute() {
 	local runopts=( "$@" );
 	
 	if [ ! -x "$cmd" ]; then
-		quit 1 "could not locate curl executable %s" "$cmd";
+		console quit 1 "could not locate curl executable %s" "$cmd";
 	fi	
 	
 	#ensure all files are removed before we start
