@@ -81,6 +81,12 @@ initialize() {
 	# main module loader and require(3) definition
 	. "${core}/require";
 
+  # TODO: register these modules 
+	. "${core}/delegate";
+	. "${core}/executable";
+	. "${core}/system";
+	. "${core}/process";
+
 	# manually register these modules
 	__require_register "variable" "${core}/variable";
 	__require_register "string" "${core}/string";
@@ -91,13 +97,7 @@ initialize() {
 	__require_register "require" "${core}/require";
 	__require_register "fs" "${core}/fs";
 	__require_register "prompt" "${core}/prompt";
-	# require(3) the remaining core modules
-	# the order here is *very* important
-	# TODO: move these to `source`!
-	require.once 'core/delegate';
-	require.once 'core/executable';
-	require.once 'core/system';
-	require.once 'core/process';
+
 	# set up default interactive prompt
 	console prompt --program '';
 	# remove commands that have
