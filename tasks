@@ -1,3 +1,8 @@
+require 'tasks/test';
+require 'tasks/doc';
+require 'tasks/semver';
+require 'tasks/module';
+
 require 'tasks/deploy';
 
 # tasks we want to use/test
@@ -29,7 +34,6 @@ tdd.suite.exclude! "jsonlint";
 tdd.suite.exclude! "profile.sh";
 tdd.suite.exclude! "global.sh";
 tdd.suite.exclude! "custom-install.sh";
-
 
 taskinfo auto "Run autoreconf";
 tasks.auto() {

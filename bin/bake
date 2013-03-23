@@ -33,10 +33,10 @@ require 'tasks/ls';
 require 'tasks/clean';
 
 # TODO: remove these from being built in commands
-require 'tasks/test';
-require 'tasks/doc';
-require 'tasks/semver';
-require 'tasks/module';
+#require 'tasks/test';
+#require 'tasks/doc';
+#require 'tasks/semver';
+#require 'tasks/module';
 
 bake() {
   local verbose=false;
@@ -79,12 +79,13 @@ bake() {
 		shift;
     local options=();
     bake.options.parse $@;
+    set -- ${options[@]:-};
 		local func="${namespace}.${cmd}";
 		if ! method.exists? "$func"; then
 			console quit 2 -- "task %s not found" "$cmd";
 		fi
 		# invoke the task function
-		delegate "${namespace}" "$cmd" "${options[@]:-}" \
+		delegate "${namespace}" "$cmd" $@ \
       || console quit $? -- "task %s failed" "$func";
 	fi
 }
