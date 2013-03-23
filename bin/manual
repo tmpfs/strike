@@ -27,6 +27,7 @@ declare -ag commands=(
   build
   clean
   compile
+  copy
   generate
   import
   ls
@@ -90,6 +91,13 @@ manual.commands.compile() {
   tasks.doc man compile;
 }
 
+# copy source ronn documents into 
+# the staging directory
+manual.commands.copy() {
+  require.once 'tasks/doc';
+  tasks.doc man copy;
+}
+
 # import compiled man pages
 manual.commands.import() {
   require.once 'tasks/doc';
@@ -137,7 +145,7 @@ manual.completion() {
   if $cmds; then
     words="${commands[*]} ${files[*]:-}";
   fi
-  COMPREPLY=( $( compgen -W "${words}" -- "$cur" ) );
+	COMPREPLY=( $( compgen -W "${words}" -- "$cur" ) );
 }
 
 # handle input

@@ -23,11 +23,6 @@ tasks.doc() {
 
 # COMMANDS
 
- #generates, compiles and imports man pages
-#doc.commands.all() {
-  #doc.commands.build && tasks.doc.pages.push;
-#}
-
 # delegate man sub-commands
 doc.commands.man() {
   if [ $# -eq 0 ]; then
@@ -39,24 +34,28 @@ doc.commands.man() {
   if ! method.exists? "${namespace}.${cmd}"; then
     console quit 1 "invalid man sub-command %s" "${cmd}";
   fi
-  delegate "${namespace}" "${cmd}" "$@";
-}
-
-# generates, compiles and imports man pages
-doc.man.commands.build() {
-	doc.man.commands.generate \
-    && doc.man.commands.compile \
-    && doc.man.commands.import;
-}
-
-# generates ronn markdown documentation
-# from inline ronn:markdown heredoc
-doc.man.commands.generate() {
 	__tasks.doc.output;
 	local output="$_result";
 	if [ ! -d "$output" ]; then
 		mkdir -p "$output";
 	fi
+  delegate "${namespace}" "${cmd}" "$@";
+}
+
+# generates, compiles and imports man pages
+doc.man.commands.build() {
+	doc.man.commands.copy \
+    && doc.man.commands.compile \
+    && doc.man.commands.import;
+}
+
+doc.man.commands.copy() {
+  cp "${process_dirs[doc]}/ronn/"*.ronn "${output}";
+}
+
+# generates ronn markdown documentation
+# from inline ronn:markdown heredoc
+doc.man.commands.generate() {
 	__tasks.doc.path;
 	local paths=( "$_result" );
 	local path;
@@ -150,7 +149,8 @@ __tasks.doc.walk() {
 				# parse any files found
 				if [ -f "$file" ]; then
 					if [[ "$file" =~ .ronn$ ]]; then
-						cp "$file" "$output" || quit 1 "could not copy %s" "$file";
+						cp "$file" "$output" \
+              || console quit 1 "could not copy %s" "$file";
 					else
 						__tasks.doc.parse "$output" "$file";
 					fi
