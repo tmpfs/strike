@@ -22,7 +22,7 @@ deploy_property_names=(
 	"staging"
 );
 
-# deploy delegate
+taskinfo deploy "Deploy a project to a local or remote machine"
 tasks.deploy() {
 	executable.validate --test growlnotify;
 	

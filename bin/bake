@@ -6,8 +6,23 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
+require help;
+
+declare -Ag task_info;
+taskinfo(){
+  local key="${1:-}";
+  if [ -n "${key}" ]; then
+    shift;
+    task_info[$key]="$*";
+  fi
+}
+
+taskman() {
+  local key="${1:-}";
+  local page="${2:-}";
+  help.man.page "${key}" "${page}";
+}
 # configure help
-require 'help';
 help.man.page "default" "bake.1";
 help.man.page "ls" "task-ls.7";
 help.man.page "test" "task-test.7";
@@ -21,8 +36,8 @@ help.man.page "module" "task-module.7";
 help.parse "$@";
 
 if [ $# -eq 0 ]; then
-  help.man.show.default;
-  exit 0;
+	help.man.show.default;
+	exit 0;
 fi
 
 require 'opts/version';
@@ -40,54 +55,54 @@ require 'tasks/clean';
 
 bake() {
   local verbose=false;
-  local namespace="tasks";
-  local tasks_file_name="${bake_file_name:-tasks}";
-  fs.walk "$tasks_file_name";
-  local f="$_result";
-  if [ ! -f "$f" ]; then
-    console quit 1 -- "no %s file in %s (or any of the parent directories)" \
+	local namespace="tasks";
+	local tasks_file_name="${bake_file_name:-tasks}";
+	fs.walk "$tasks_file_name";
+	local f="$_result";
+	if [ ! -f "$f" ]; then
+		console quit 1 -- "no %s file in %s (or any of the parent directories)" \
             "$tasks_file_name" "${PWD}";
-  else
-    # variables to expose to the task(s)
-    local root=$( dirname $f );
-    local target="${root}/target";
-    local tasks="$f";
-    # expose project variable pointing to the 
-    # root so that submodules may access the root
-    # of the project using this variable
-    # this is because ${root} is changed when submodules
-    # are used
-    local project="${root}";
-    if [ ! -d "${target}" ]; then
-      mkdir -p "${target}";
-        fi
-    # TODO: extract name/version from package.json
-    # if bake_use_npm is set and package.json exists
-        local project_name;
-        fs.basename "${root}" "project_name";
+	else
+		# variables to expose to the task(s)
+		local root=$( dirname $f );
+		local target="${root}/target";
+		local tasks="$f";
+		# expose project variable pointing to the 
+		# root so that submodules may access the root
+		# of the project using this variable
+		# this is because ${root} is changed when submodules
+		# are used
+		local project="${root}";
+		if [ ! -d "${target}" ]; then
+			mkdir -p "${target}";
+    fi
+		# TODO: extract name/version from package.json
+		# if bake_use_npm is set and package.json exists
+    local project_name;
+    fs.basename "${root}" "project_name";
 
-        # TODO: use task/semver to retrieve version information
-        local project_version="0.0.0";
-        if [ -f "${root}/version" ]; then
-            project_version=$( cat "${root}/version" );
-        fi
-    # set the temporary directory to `target`
-    # for bake(1) processes
-    process.tmp.dir "${target}";
-    require "$f";
-    local cmd="$1";
-    shift;
+    # TODO: use task/semver to retrieve version information
+    local project_version="0.0.0";
+    if [ -f "${root}/version" ]; then
+      project_version=$( cat "${root}/version" );
+    fi
+		# set the temporary directory to `target`
+		# for bake(1) processes
+		process.tmp.dir "${target}";
+		require "$f";
+		local cmd="$1";
+		shift;
     local options=();
     bake.options.parse $@;
     set -- ${options[@]:-};
-    local func="${namespace}.${cmd}";
-    if ! method.exists? "$func"; then
-      console quit 2 -- "task %s not found" "$cmd";
-    fi
-    # invoke the task function
-    delegate "${namespace}" "$cmd" $@ \
+		local func="${namespace}.${cmd}";
+		if ! method.exists? "$func"; then
+			console quit 2 -- "task %s not found" "$cmd";
+		fi
+		# invoke the task function
+		delegate "${namespace}" "$cmd" $@ \
       || console quit $? -- "task %s failed" "$func";
-  fi
+	fi
 }
 
 bake.options.parse() {

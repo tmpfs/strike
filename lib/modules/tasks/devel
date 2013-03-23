@@ -8,6 +8,7 @@ devel_excludes=(
     "tmp$"
 );
 
+taskinfo devel "Push and pull between local projects"
 tasks.devel() {
     if [ $# -eq 0  ]; then
         console quit 1 "no %s command specified" "devel";

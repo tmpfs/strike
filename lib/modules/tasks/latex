@@ -35,8 +35,10 @@
 # -8bit                   make all characters printable by default
 # -help                   display this help and exit
 # -version                output version information and exit
+#
 
-function tasks.latex {
+taskinfo latex "Compile latex source to pdf or dvi"
+tasks.latex() {
 	executable.validate pdflatex;
 	
 	# default directory used to search for files

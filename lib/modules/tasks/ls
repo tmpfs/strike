@@ -1,12 +1,3 @@
-declare -Ag task_info;
-taskinfo(){
-  local key="${1:-}";
-  if [ -n "${key}" ]; then
-    shift;
-    task_info[$key]="$*";
-  fi
-}
-
 taskinfo ls "List available tasks";
 tasks.ls() {
 	executable.validate egrep;

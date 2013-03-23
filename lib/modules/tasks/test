@@ -9,6 +9,7 @@ __test_excludes=();
 # list of tests that have been excluded
 declare -Ag __test_excluded;
 
+taskinfo test "Language agnostic test runner";
 tasks.test() {
 	
 	# original working directory for

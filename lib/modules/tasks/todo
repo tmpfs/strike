@@ -50,8 +50,8 @@ todo_tags[xxx]="XXX[ 	,:]+[ 	]*(.*)";
 todo_tags[deprecated]="DEPRECATED[ 	,:]+[ 	]*(.*)";
 todo_tags[changed]="CHANGED[ 	,:]+[ 	]*(.*)";
 
-# tasks for working with todo tags
-function tasks.todo {
+taskinfo todo "Scan for todo comments";
+tasks.todo() {
 	executable.validate find;
 	
 	echo "$FUNCNAME";

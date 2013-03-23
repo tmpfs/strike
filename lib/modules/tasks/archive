@@ -12,6 +12,7 @@
 require.once help;
 help.man.page "archive" "task-archive.7";
 
+taskinfo archive "Archive helper task"
 tasks.archive() {
 	# a base working directory to resolve paths from
 	local archive_dir="";

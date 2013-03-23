@@ -11,8 +11,24 @@ Delegates to task commands after setting a context.
 
 ## USAGE
 
-	bake [task] [task options...]
-	
+  bake [task] [options...]
+
+## OPTIONS
+
+The following options are parsed by bake(1), all other options are passed on to the task command.
+
+* `-v | --verbose`:
+
+Set verbose mode for the task execution.
+
+* `--color=always|never|auto`:
+
+Define how ANSI escape sequences are generated, default is *auto*, see sprintf(3).
+
+* `--version`:
+
+Print the program version and exit.
+  
 ## BUILTIN TASKS
 
 All bake(1) projects have the following tasks built in:
@@ -20,11 +36,13 @@ All bake(1) projects have the following tasks built in:
 * ls
 * clean
 
+These commands will print more information if the `-v | --verbose` option is specified.
+
 ## REQUIRE TASKS
 
-The convention is that task methods are not declared in tasks(7) but are placed in modules and then included using require(3). So to include the task-todo(7) functionality into your project all you need to do is require(3) it:
+The convention is that task commands are not declared in tasks(7) but are placed in modules and then included using require(3). So to include the semantic versioning functionality into your project all you need to do is require(3) it:
 
-	require 'tasks/todo';
+  require tasks/semver;
 
 ## FILES
 
@@ -64,6 +82,10 @@ The file system path to the tasks file, eg: `${root}/tasks`.
 
 The name of the `tasks` file, if `bake_file_name` has been set this will equal that value, otherwise the default *tasks* is used.
 
+* `verbose`:
+
+Set to true if the `-v | --verbose` option was specified otherwise false.
+
 ## ENVIRONMENT
 
 * `bake_file_name`:
@@ -86,7 +108,7 @@ No task command available.
 
 The task command invocation returned a non-zero exit code but did not explicitly call `exit`.
 
-It is recommended that task command implementations explicitly exit the program using the `quit` and `success` commands declared by console(3).
+It is recommended that task command implementations explicitly exit the program using the `quit` and `success` sub-commands declared by console(3).
 
 ## BUGS
 
@@ -98,4 +120,4 @@ It is recommended that task command implementations explicitly exit the program 
 
 ## SEE ALSO
 
-task-test(7), task-doc(7), task-clean(7), task-ls(7), task-semver(7)
+sprintf(3), console(3), task-test(7), task-doc(7), task-clean(7), task-ls(7), task-semver(7)

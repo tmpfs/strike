@@ -8,6 +8,7 @@ declare -g project_path_regexp="^([a-zA-Z]+://|/|\./|\.\./)";
 declare -g project_remote_regexp="^[a-zA-Z]+://";
 declare -g project_file_name="projects.json";
 
+taskinfo project "Define local project dependencies";
 tasks.project() {
 	!project.file;
 	local prjfile="$_result";
