@@ -37,9 +37,8 @@ ronn:markdown
 require.once help;
 help.man.page "mvn" "task-mvn.7";
 
-# wrapper for the mvn executable
-function tasks.mvn {
+taskinfo mvn "Proxy to mvn(1)";
+tasks.mvn() {
 	executable.validate mvn;	
-	local mvn="${executables[mvn]}";
-	$mvn $@;
+	"${executables[mvn]}" $@;
 }

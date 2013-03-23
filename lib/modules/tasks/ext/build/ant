@@ -37,9 +37,8 @@ ronn:markdown
 require.once help;
 help.man.page "ant" "task-ant.7";
 
-# wrapper for the ant build tool
-function tasks.ant {
+taskinfo ant "Proxy to ant(1)";
+tasks.ant() {
 	executable.validate ant;	
-	local ant="${executables[ant]}";
-	$ant $@;
+	"${executables[ant]}" $@;
 }

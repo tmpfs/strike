@@ -47,7 +47,7 @@ Within the task command method in the root *tasks* file.
 bake(1)
 ronn:markdown
 
-# delegate method
+taskinfo module "Multi-module task support";
 tasks.module() {
 	# list of modules
 	local modules=();

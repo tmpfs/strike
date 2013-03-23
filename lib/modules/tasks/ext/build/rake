@@ -38,8 +38,8 @@ require.once help;
 help.man.page "rake" "task-rake.7";
 
 # wrapper for the rake executable
-function tasks.rake {
+taskinfo rake "Proxy to rake(1)";
+tasks.rake() {
 	executable.validate rake;	
-	local rake="${executables[rake]}";
-	$rake $@;
+	"${executables[rake]}" $@;
 }

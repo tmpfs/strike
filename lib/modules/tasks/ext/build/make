@@ -37,9 +37,8 @@ ronn:markdown
 require.once help;
 help.man.page "make" "task-make.7";
 
-# wrapper for the make executable
-function tasks.make {
-	executable.validate make;	
-	local make="${executables[make]}";
-	$make $@;
+taskinfo make "Proxy to make(1)";
+tasks.make() {
+  executable.validate make;	
+  "${executables[make]}" $@;
 }

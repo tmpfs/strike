@@ -29,9 +29,11 @@ require 'opts/version';
 version.parse "$@";
 
 # default builtin tasks
-require 'tasks/test';
-require 'tasks/clean';
 require 'tasks/ls';
+require 'tasks/clean';
+
+# TODO: remove these from being built in commands
+require 'tasks/test';
 require 'tasks/doc';
 require 'tasks/semver';
 require 'tasks/module';
@@ -52,7 +54,7 @@ bake() {
 		esac
 	done
 	if [ ! -f "$f" ]; then
-		console quit 1 "no %s file in %s (or any of the parent directories)" \
+		console quit 1 -- "no %s file in %s (or any of the parent directories)" \
             "$tasks_file_name" "${PWD}";
 	else
 		# variables to expose to the task(s)
@@ -89,7 +91,8 @@ bake() {
 			console quit 2 "task %s not found" "$cmd";
 		fi
 		# invoke the task function
-		delegate "${namespace}" "$cmd" "$@" || console quit $? "task %s failed" "$func";
+		delegate "${namespace}" "$cmd" "$@" \
+      || console quit $? -- "task %s failed" "$func";
 	fi
 }
 

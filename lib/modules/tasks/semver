@@ -157,8 +157,8 @@ ronn:markdown
 require.once 'semver';
 require.once 'json';
 
-# tasks for working with semver data
-function tasks.semver {
+taskinfo semver "Semantic versioning support";
+tasks.semver() {
 	# gather file information
 	declare -A files;
 	__semver.package.file;

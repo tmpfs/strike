@@ -31,8 +31,17 @@ You do not need to require(3) this task as it is a builtin task.
 bake(1)
 ronn:markdown
 
-# lists task methods
-function tasks.ls {
+declare -Ag task_info;
+taskinfo(){
+  local key="${1:-}";
+  if [ -n "${key}" ]; then
+    shift;
+    task_info[$key]="$*";
+  fi
+}
+
+taskinfo ls "List task commands";
+tasks.ls() {
 	executable.validate 'egrep';
 	local egrep="${executables[egrep]}";
 	local methods=( $( method.list | $egrep "^tasks\.[a-zA-Z]+" ) );
@@ -44,6 +53,9 @@ function tasks.ls {
 			# ignore any constructor function, which is
 			# not considered to be a task
 			if [[ "$m" =~ \.initialize$ ]]; then continue; fi
-			info "%s" "$m";
+			console print -- "%s" "$m";
+      if [ -n "${task_info[$m]:-}" ]; then
+        printf "\t${task_info[$m]}\n" | expand -t 2 | fmt;
+      fi
 	done
 }

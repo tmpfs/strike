@@ -30,12 +30,15 @@ tdd.suite.exclude! "profile.sh";
 tdd.suite.exclude! "global.sh";
 tdd.suite.exclude! "custom-install.sh";
 
+
+taskinfo auto "Run autoreconf";
 tasks.auto() {
 	autoreconf;
 	#./configure && make;
 	./configure # && make && make install;
 }
 
+taskinfo jsoncc "Compile json checker source";
 tasks.jsoncc() {
 	executable.validate gcc;
 	local exename="jsoncheck";
