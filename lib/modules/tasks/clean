@@ -1,107 +1,36 @@
-: <<'ronn:markdown'
-task-clean(7) -- clean task(s) for bake(1)
-=============================================
-
-## SYNOPSIS
-
-Clean task(s) for bake(1).
-
-## DESCRIPTION
-
-Removes the `target` directory.
-
-The `target` directory is the staging directory used by bake(1) tasks.
-
-## REQUIRE
-
-You do not need to require(3) this task as it is a builtin task.
-
-## USAGE
-
-	bake clean [options...]
-	
-## OPTIONS
-
-* `-v`:
-
-Be verbose when removing the `target` directory.
-
-## INTERACTIVE
-
-The clean task is interactive provided that both *stdin* and *stdout* are a *tty*. You can bypass interactivity by piping to *stdin* or redirecting *stdout*:
-
-	echo "" | bake clean
-	bake clean > clean.log
-
-## BUGS
-
-**task-clean** is written in bash and depends upon `bash` >= 4.2.
-
-## COPYRIGHT
-
-**task-clean** is copyright (c) 2012 muji <http://xpm.io>
-
-## SEE ALSO
-
-bake(1)
-ronn:markdown
-
-# removes the temporary target directory
-taskinfo clean "Remove the target directory";
+taskinfo clean "Remove the target directory, use the --verbose option to list files as they are deleted";
 tasks.clean() {
-	
 	# TODO: add support for finding nested `target`
 	# TODO: directories and removing those too
-	
-	local verbose=false;
-	local force=false;
 	local rmopts="-rf";	
-	
-	# the interactive prompt
-	local prompt="\033[1m[clean]\033[0m ${characters[lightning]}";
-	
-	# option validation
-	if [ $# -gt 1 ]; then
-		console quit 1 "too many options";
-	fi
-	
-	if [ "${1:-}" == "-v" ]; then
-		verbose=true;
+  if $verbose; then
 		rmopts="${rmopts}v";
-	fi
-	
+  fi
 	# this should never happen
 	# as bake(1) always creates `target`
 	# it's a just in case test
 	if [ ! -d "${target}" ]; then
-		console quit 1 "%s does not exist";
+		console quit 1 -- "%s does not exist" "${target}";
 	fi
-
-	console info "rm ${rmopts} %s" "${target}";
-	
+	console info -- "rm ${rmopts} %s" "${target}";
 	accepted() {		
 		rm "${rmopts}" "${target}";
 		if [ $? -gt 0 ]; then
-			console quit $? "could not rm %s" "$rmopts" "$target";
+			console quit $? -- "could not rm %s" "$rmopts" "$target";
 		else
 			console success;
 		fi
 	}
-
 	rejected() {
  		console quit 1 "aborted";
 	}
-	
 	# cannot interact, just try to clean
 	if [ ! -t 0 ] || [ ! -t 1 ]; then
 		accepted;
+    return 0;
 	fi
-
 	# confirmation prompt
+  process_name="clean";
 	console prompt --program "are you sure? (y/n)";
 	prompt confirm --accepted=accepted --rejected=rejected;
-}
-
-clean.options.parse() {
-	echo "get opts"
 }

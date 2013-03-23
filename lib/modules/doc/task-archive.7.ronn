@@ -1,0 +1,73 @@
+task-archive(7) -- archive task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+Archive task(s) for bake(1).
+
+## DESCRIPTION
+
+Creates and extracts archives using tar(1) for *tar* and *bz2* files and zip(1) and unzip(1) for *zip* files.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `archive` task(s) using:
+
+	require 'tasks/archive';
+
+## USAGE
+
+	bake archive -c [options...] [archive] [files...]
+	bake archive -x [options...] [archive]
+	bake archive -l [options...] [archive]
+	bake archive -t [options...] [archive]
+	
+## COMMANDS
+
+* `-c | create`:
+
+	Creates an archive.
+	
+* `-x | extract`:
+
+	Extracts an archive.
+	
+* `-l | ls`:
+
+	List files in an archive. This command is *not* verbose, it only prints the files in the archive, no other information is included in the output.
+	
+* `-t | test`:
+
+	Tests a specified task-archive(7) command to determine the archive type and resulting archive file name. The output of this command is the type followed by a space and the archive file name that will be used, a newline and then the working directory on the next line.
+	
+## OPTIONS
+
+* `-a | --archive [tar|bz2|zip]`:
+
+	The type of archive to operate on, if none is specified then task-archive(7) attempts to infer the type from the file extension. If the specified type is unknown the program will exit with a code >0.
+
+* `-d | --dir [directory]`:
+
+	A working directory to resolve paths from, if none is specified then the current working directory is used.
+	
+* `-o | --output [directory]`:
+
+	When creating archives this is a directory to place the created archives in, when extracting archives this option determines where extracted archive contents will be placed. Must be a valid directory.
+	
+## FLAG OPTIONS	
+	
+* `--debug`:
+
+	Print the commands being executed.
+
+## BUGS
+
+**task-archive** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-archive** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
