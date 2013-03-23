@@ -39,6 +39,7 @@ tasks.auto() {
 tasks.jsoncc() {
 	executable.validate gcc;
 	local exename="jsoncheck";
-	"${executables[gcc]}" lib/json-checker/*.c lib/json-checker/*.h -o "target/$exename" \
-		|| quit 1 "could not compile json-checker source";
+	"${executables[gcc]}" etc/json-checker/*.c etc/json-checker/*.h \
+    -o "target/$exename" \
+		|| console quit 1 -- "could not compile json-checker source";
 }
