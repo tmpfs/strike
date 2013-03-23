@@ -6,6 +6,7 @@ indexes
 *.log
 erl_crash.dump
 tmp
+ref
 *.bak
 *.cache
 missing
