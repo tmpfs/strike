@@ -1,0 +1,69 @@
+globals(3) -- API for global variables
+=============================================
+
+## VARIABLES
+
+* `framework`:
+
+Constant representing the framework name.
+
+### PROGRAM
+
+* `program_options`:
+
+A duplicate of the original program options.
+
+* `process_name`:
+
+Store the program name for better code legibilty.
+
+* `library_dirs`:
+
+Directories for the library code.
+
+* `process_dirs`:
+
+Directories for the current program.
+
+### OPTIONS
+
+See options(3) for related information.
+
+* `global_options`:
+
+A list of global options that modules may inspect
+to control functionality for all programs. Modules
+that do so *should* not modify the options passed to
+the program but program option parsing may want to shift
+or ignore these options (as they have already been handled)
+therefore they are listed here.
+
+### EXECUTABLE
+
+See executable(3) for related information.
+
+* `executables`:
+
+Associative array of executable paths created by executable(3).
+
+### CONSOLE
+
+See console(3) for related information.
+api:ronn:markdown
+
+: <<'api:ronn:markdown'
+* `console_prefixes`:
+
+Associative array of prefixes used by console(3) methods.
+
+### REQUIRE
+
+See require(3) for related information.
+
+* `module_paths`:
+
+Associative array of loaded modules. Each key is the absolute filesystem path to the module file and the value is the extracted module name.
+
+## SEE ALSO
+
+executable(3), console(3), require(3)

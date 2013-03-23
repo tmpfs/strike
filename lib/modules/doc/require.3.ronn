@@ -1,0 +1,29 @@
+require(3) -- module loader
+=============================================
+
+## SYNOPSIS
+
+Module loader for strike(7).
+
+## DESCRIPTION
+
+Loads modules by name or filesystem path and adds delegate(3) functionality to modules once loaded.
+
+## USAGE
+
+	require 'module';
+	require './module';
+	require '../path/to/module';
+	require '/path/to/module';
+
+## BUGS
+
+**require** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**require** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+delegate(3)

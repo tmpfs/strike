@@ -1,0 +1,18 @@
+array(3) -- array module
+=============================================
+
+## SYNOPSIS
+
+Module commands for modifiying and inspecting arrays.
+
+## BUGS
+
+**array** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**array** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+require(3)

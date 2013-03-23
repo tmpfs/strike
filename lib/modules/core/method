@@ -1,5 +1,5 @@
 # removes method definition(s)
-function method.remove {
+method.remove() {
 	while [ $# -gt 0 ];
 		do
 			unset -f "$1";
@@ -12,18 +12,17 @@ function method.remove {
 #
 #	$1	The name of the method.
 ######################################################################
-function method.exists? {
+method.exists?() {
 	local method="$1";
 	#echo "testing method $method"
 	declare -f -F "$method" > /dev/null;
 	return $?;
 }
 
-
 ######################################################################
 #	Lists all function names.
 ######################################################################
-function method.list {
+method.list() {
 	local methods=$( declare -f -F );
 	while read decl func name
 		do
@@ -34,7 +33,7 @@ function method.list {
 ######################################################################
 #	Lists all function names, line numbers and source file paths.
 ######################################################################
-function method.list.verbose {
+method.list.verbose() {
 	local m;
 	local methods=( $( method.list ) );
 	for m in ${methods[@]}
