@@ -1,8 +1,8 @@
-function crypto.initialize {
+crypto.initialize() {
 	executable.validate openssl;	
 }
 
-function crypto.rsa.generate {
+crypto.rsa.generate() {
 	local passphrase="${1:-true}";
 	local bits="${2:-2048}";
 	local out="${3:-}";
@@ -25,7 +25,7 @@ function crypto.rsa.generate {
 	return 1;
 }
 
-function crypto.rsa.public.generate {
+crypto.rsa.public.generate() {
 	local pem="${1:-}";
 	local pub="${2:-}";
 	local logfile="${3:-/dev/null}";
@@ -37,7 +37,7 @@ function crypto.rsa.public.generate {
 	return 1;
 }
 
-function crypto.enc.aes256cbc {
+crypto.enc.aes256cbc() {
 	local infile="${1:-}";
 	local outfile="${2:-}";
 	local password="${3:-}";
@@ -58,7 +58,7 @@ function crypto.enc.aes256cbc {
 	return 1;
 }
 
-function crypto.dec.aes256cbc {
+crypto.dec.aes256cbc() {
 	local infile="${1:-}";
 	local outfile="${2:-}";
 	local password="${3:-}";
