@@ -1,7 +1,3 @@
-tasks.doc.initialize() {
-	executable.validate git;
-}
-
 # entry point for doc tasks
 tasks.doc() {
   if [ $# -eq 0 ]; then
@@ -111,6 +107,7 @@ doc.man.commands.compile() {
 # and attempts to push the gh-pages branch
 # before switching back to develop
 tasks.doc.pages.push() {
+	executable.validate git;
 	local git="${executables[git]}";
 	local man="${target}/doc";
 	# check out the gh-pages branch
