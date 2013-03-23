@@ -1,0 +1,32 @@
+task-make(7) -- make task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+Integrates make(1) with bake(1).
+
+## DESCRIPTION
+
+A proxy for the make(1) executable, allows make rules to be intermingled with bake(1) tasks.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `make` task(s) using:
+
+	require 'tasks/ext/build/make';
+
+## USAGE
+
+	bake make [options] [target] ...
+
+## BUGS
+
+**task-make** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-make** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
