@@ -1,4 +1,4 @@
-globals(3) -- API for global variables
+globals(3) -- global variables
 =============================================
 
 ## VARIABLES
@@ -49,9 +49,7 @@ Associative array of executable paths created by executable(3).
 ### CONSOLE
 
 See console(3) for related information.
-api:ronn:markdown
 
-: <<'api:ronn:markdown'
 * `console_prefixes`:
 
 Associative array of prefixes used by console(3) methods.
