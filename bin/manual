@@ -49,6 +49,7 @@ command_help[build]="Build latest versions of the man pages ";
 command_help[build]+="from the markdown source, requires ronn(1)";
 command_help[generate]="Generate ronn documents from inline heredocs";
 command_help[compile]="Compile all ronn documents, requires ronn(1)";
+command_help[copy]="Copy source ronn documents into the documentation staging directory";
 command_help[import]="Import compiled manual pages into the man directory";
 command_help[clean]="Remove all compiled manual pages from the man directory";
 
