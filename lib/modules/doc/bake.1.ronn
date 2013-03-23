@@ -15,7 +15,10 @@ Delegates to task commands after setting a context.
 	
 ## BUILTIN TASKS
 
-All bake(1) projects have the following tasks built in task-test(7), task-clean(7), task-ls(7), task-doc(7) and task-semver(7).
+All bake(1) projects have the following tasks built in:
+
+* ls
+* clean
 
 ## REQUIRE TASKS
 
