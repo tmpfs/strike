@@ -111,7 +111,7 @@ ronn:markdown
 # TODO: implement --dir option for creating matching fs structure
 # TODO: allow file list to be read from stdin using - 
 
-require.once 'command/find';
+require.once 'util/find';
 
 # map help for this task
 require.once help;

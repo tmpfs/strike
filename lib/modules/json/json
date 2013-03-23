@@ -1,61 +1,3 @@
-: <<'ronn:markdown'
-json(3) -- JSON manipulation
-=============================================
-
-## SYNOPSIS
-
-An experimental module for parsing and stringifying JSON data.
-
-## DESCRIPTION
-
-The json(3) module adds methods for parsing and creating JSON documents.
-
-## USAGE
-
-Parsing JSON data can be from a file, string or variable. After parsing the JSON data the parsed data is available on the global `json_doc` associative array. Use the `json.print` method to quickly inspect the contents of the parsed data.
-
-	require 'json';
-	
-	# parse a json document
-	json.parse < "${process_dirs[root]}/package.json";
-	json.print;
-	
-	# parse a json string
-	json.parse <<< '{ "data": "value" }';
-	json.print;
-	
-	# clean up parsed json data
-	json.clean;
-	
-Converting to JSON is achieved using references to variable names and using command substitution to capture the result into a variable (or redirect output to a file).
-
-	require 'json';
-
-	toJSON() {
-		declare -A doc;
-		doc[key]="value";
-		doc[greeting]="hello world";
-		# doc is the *name* of the variable to stringify
-		local document=$( json.stringify <<< "doc" );
-		echo "$document";
-	}
-	toJSON;
-
-## BUGS
-
-**json** is written in bash and depends upon `bash` >= 4.2.
-
-The json(3) module is derived from json-sh(1).
-
-## COPYRIGHT
-
-**json** is copyright (c) 2012 muji <http://xpm.io>
-
-## SEE ALSO
-
-strike(7)
-ronn:markdown
-
 require.library json.parse;
 require.library json.stringify;
 
@@ -72,6 +14,6 @@ json.print() {
 	for key in "${!json_doc[@]}"
 		do
 			val="${json_doc["$key"]}";
-			console print "${key}=${val}";
+			console print -- "${key}=${val}";
 	done
 }
