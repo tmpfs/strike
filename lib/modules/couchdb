@@ -1,5 +1,5 @@
-require.once "http";
-require.once "json";
+require.once net/http;
+require.once json;
 
 declare -g couchdb_url;
 declare -g couchdb_dbname;
