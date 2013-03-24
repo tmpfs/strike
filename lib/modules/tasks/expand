@@ -69,11 +69,12 @@ tabstops() {
         if $verbose; then
           console info "%s %s >| %s" "${execute}" "${file}" "${temp}";
         fi
-
         $execute "${file}" >| "${temp}";
-        cat "${temp}";
+        if $verbose; then
+          console info "cp -f %s %s" "${temp}" "${file}";
+        fi
+        cp -f "${temp}" "${file}";
     done
-
     rm "${temp}";
   }
 
