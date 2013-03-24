@@ -19,7 +19,7 @@ man3_MANS = man/*.3
 man7_MANS = man/*.7
 
 bin_SCRIPTS = bin/*
-
+pkgdata_DATA = lib/*.sh
 # all:
 # 	@echo "my all called : foo is $(foo)";
 	
