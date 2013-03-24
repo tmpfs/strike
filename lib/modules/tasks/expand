@@ -1,16 +1,27 @@
 taskinfo expand "Replace tabs with spaces in files";
 tasks.expand() {
+  local files=();
+  local tabstops=2;
+  tabstops expand $@;
+}
+
+taskinfo unexpand "Replace spaces with tabs in files";
+tasks.unexpand() {
+  local files=();
+  local tabstops=2;
+  tabstops unexpand $@;
+}
+
+tabstops() {
+  local execute="$1"; shift;
   if [ $# -eq 0 ]; then
     console quit 1 -- "too few options";
   fi
-  local files=();
-  local tabstops=2;
   local opts=( $@ );
   local i opt val length=${#opts[@]};
   for((i = 0;i < $length;i++))
     do
       opt="${opts[$i]}";
-      #echo "expand got option $opt";
       case "${opt}" in
         -t )
           shift;
@@ -35,6 +46,7 @@ tasks.expand() {
   if [ ${#files[@]} -eq 0 ]; then
     console quit 1 -- "no files found";
   fi
+  execute+=" -t ${tabstops}";
   console info "tab stops %s" "${tabstops}";
   
   local IFS=$'\n';
@@ -46,9 +58,24 @@ tasks.expand() {
   }
 
   accepted() {
-    echo "do file list replcement...";
-  }
+    local temp=$( mktemp -t "${process_name}" );
+    $verbose && console info -- "temp file is %s" "${temp}";
+    local file contents;
+    local i length="${#files[@]}";
+    for((i = 0;i < $length;i++))
+      do
+        file="${files[$i]}";
+        console info -- "replace in %s" "${file}";
+        if $verbose; then
+          console info "%s %s >| %s" "${execute}" "${file}" "${temp}";
+        fi
 
+        $execute "${file}" >| "${temp}";
+        cat "${temp}";
+    done
+
+    rm "${temp}";
+  }
 
   process_name="expand";
 	console prompt --program \
