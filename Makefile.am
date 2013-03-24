@@ -1,25 +1,20 @@
 AUTOMAKE_OPTIONS = foreign
-# SUBDIRS = lib
-# SUBDIRS = bin man lib test
+EXTRA_DIST = bin lib doc test
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = strike.pc
-
-# dist_data_DATA = lib man test
-#
-
-#bin_PROGRAMS = bin/bake
-
-
-# bin_PROGRAMS = bin/bake
-# bake_SOURCES = 
 
 man1_MANS = man/*.1
 man3_MANS = man/*.3
 man7_MANS = man/*.7
 
 bin_SCRIPTS = bin/*
-pkgdata_DATA = lib/*.sh
+librarydir = $(pkgdatadir)
+nobase_library_DATA = \
+	lib/*.sh \
+	lib/modules/core/* \
+	lib/modules/json/*
+
 # all:
 # 	@echo "my all called : foo is $(foo)";
 	
