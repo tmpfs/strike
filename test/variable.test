@@ -1,38 +1,38 @@
 # test for set/get variables
 function test.variable.set.get {
-	local expects="1 2 3";
-	variable.set "var" "$expects";
-	variable.get "var";
-	assert.equal "$expects" "$_result";
-	
-	# test for forcing a failure
-	# assert.eq "1" "0";
+  local expects="1 2 3";
+  variable.set "var" "$expects";
+  variable.get "var";
+  assert.equal "$expects" "$_result";
+  
+  # test for forcing a failure
+  # assert.eq "1" "0";
 }
 
 # test for get local variable
 function test.variable.get.local {
-	local expects="1 2 3";
-	variable.get "expects";
-	assert.equal "$expects" "$_result";
+  local expects="1 2 3";
+  variable.get "expects";
+  assert.equal "$expects" "$_result";
 }
 
 # test for get global variable
 function test.variable.get.global {
-	declare -gx expects="3 2 1";
-	variable.get "expects";
-	assert.equal "$expects" "$_result";
+  declare -gx expects="3 2 1";
+  variable.get "expects";
+  assert.equal "$expects" "$_result";
 }
 
 # test for get global array variable value
 function test.variable.get.global.array {
-	declare -agx expects=( "3 2 1" );
-	variable.get "expects";
-	assert.equal "${expects[@]}" "$_result";
+  declare -agx expects=( "3 2 1" );
+  variable.get "expects";
+  assert.equal "${expects[@]}" "$_result";
 }
 
 # test for get local variable
 function test.variable.get.local.array {
-	local expects=( "1 2 3" );
-	variable.get "expects";
-	assert.equal "${expects[@]}" "$_result";
+  local expects=( "1 2 3" );
+  variable.get "expects";
+  assert.equal "${expects[@]}" "$_result";
 }

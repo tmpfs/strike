@@ -1,222 +1,222 @@
 # runs all local deployment tests
 test.deploy.local() {
-	local self;
-	require.resolve "self";
-	local dir="${self[1]}";
-	
-	# stash bake(1) variables
-	declare -A info;
-	info[root]="${root}";
-	info[project]="${project}";	
-	info[target]="${target}";
-	info[project_name]="${project_name}";
-	info[project_version]="${project_version}";
-	
-	# set up a mock directory structure
-	local deploy_test="${target}/deploy-test";
-	local staging="${deploy_test}/staging";
-	local directory="${deploy_test}/www";
-	local bundles="${deploy_test}/bundles";
-	local descriptors="${dir}/descriptors";
-	local descriptor="";
-	
-	# override name / semver
-	# for these tests to match the
-	# values for the mock project
-	# bake(1) will have set them
-	# to strike@0.0.1 etc.
-	project_name="project";
-	project_version="0.0.1";
-	local project_source="${dir}/${project_name}";
-	
-	# initialize the mock project as a git repository
-	# so that validation will pass with the default profile
-	if [ ! -d "${project_source}/.git" ]; then
-		(
-			cd "${project_source}" \
-				&& git init \
-				&& git add . \
-				&& git commit -m "Deploy test initial commit" \
-				&& git remote add origin "${project_source}";
-		)
-	fi
-	
-	declare -A expects;
-	expects[name]="$project_name";
-	expects[version]="$project_version";
-	expects[project]="$project_name-$project_version";
-	
-	# setup the mock target staging directory
-	declare -x target="${project_source}/target";
-	mkdir -p "${project}/target";
-	
-	# use a different algorithm for testing
-	local algorithm="256";
-	
-	# options common to all tests
-	local options=(
-		--ok
-		--local
-		--gz
-		--no-growl
-		--no-mail		
-		--sha "${algorithm}"
-		--staging "${staging}"
-		--directory "${directory}"
-		--output "${bundles}"
-	);
-	
-	#
-	local pass_tests=(
-		"tdd.deploy.env"
-		'tdd.deploy.options.list'
-		'tdd.deploy.options.script.file'
-		'tdd.deploy.minimal.bundle'
-		'tdd.deploy.minimal.deploy'
-		'tdd.deploy.minimal.dryrun'	
-		'tdd.deploy.project.bundle'
-		'tdd.deploy.project.deploy'
-		'tdd.deploy.project.bundle.nosha'
-		
-		'tdd.deploy.project.tar.bundle'
-		'tdd.deploy.project.tar.deploy'
-	
-		'tdd.deploy.project.git.bundle'
-		'tdd.deploy.project.git.deploy'
-	
-		'tdd.deploy.project.npm.bundle'
-		'tdd.deploy.project.npm.deploy'
-	
-		'tdd.deploy.bundle.scripts'
-	);
-	
-	# run tests that should pass
-	# NOTE: do not use a for(()) loop here!
-	local i;
-	for i in ${!pass_tests[@]}
-		do
-			tdd.deploy.run "${pass_tests[$i]}";
-	done
-	
-	# clean up the mock project .git directory
-	if [ -d "${project_source}/.git" ]; then
-		rm -rfv "${project_source}/.git" >> "${root}/target/deploy.test.clean.log";
-	fi	
+  local self;
+  require.resolve "self";
+  local dir="${self[1]}";
+  
+  # stash bake(1) variables
+  declare -A info;
+  info[root]="${root}";
+  info[project]="${project}"; 
+  info[target]="${target}";
+  info[project_name]="${project_name}";
+  info[project_version]="${project_version}";
+  
+  # set up a mock directory structure
+  local deploy_test="${target}/deploy-test";
+  local staging="${deploy_test}/staging";
+  local directory="${deploy_test}/www";
+  local bundles="${deploy_test}/bundles";
+  local descriptors="${dir}/descriptors";
+  local descriptor="";
+  
+  # override name / semver
+  # for these tests to match the
+  # values for the mock project
+  # bake(1) will have set them
+  # to strike@0.0.1 etc.
+  project_name="project";
+  project_version="0.0.1";
+  local project_source="${dir}/${project_name}";
+  
+  # initialize the mock project as a git repository
+  # so that validation will pass with the default profile
+  if [ ! -d "${project_source}/.git" ]; then
+    (
+      cd "${project_source}" \
+        && git init \
+        && git add . \
+        && git commit -m "Deploy test initial commit" \
+        && git remote add origin "${project_source}";
+    )
+  fi
+  
+  declare -A expects;
+  expects[name]="$project_name";
+  expects[version]="$project_version";
+  expects[project]="$project_name-$project_version";
+  
+  # setup the mock target staging directory
+  declare -x target="${project_source}/target";
+  mkdir -p "${project}/target";
+  
+  # use a different algorithm for testing
+  local algorithm="256";
+  
+  # options common to all tests
+  local options=(
+    --ok
+    --local
+    --gz
+    --no-growl
+    --no-mail   
+    --sha "${algorithm}"
+    --staging "${staging}"
+    --directory "${directory}"
+    --output "${bundles}"
+  );
+  
+  #
+  local pass_tests=(
+    "tdd.deploy.env"
+    'tdd.deploy.options.list'
+    'tdd.deploy.options.script.file'
+    'tdd.deploy.minimal.bundle'
+    'tdd.deploy.minimal.deploy'
+    'tdd.deploy.minimal.dryrun' 
+    'tdd.deploy.project.bundle'
+    'tdd.deploy.project.deploy'
+    'tdd.deploy.project.bundle.nosha'
+    
+    'tdd.deploy.project.tar.bundle'
+    'tdd.deploy.project.tar.deploy'
+  
+    'tdd.deploy.project.git.bundle'
+    'tdd.deploy.project.git.deploy'
+  
+    'tdd.deploy.project.npm.bundle'
+    'tdd.deploy.project.npm.deploy'
+  
+    'tdd.deploy.bundle.scripts'
+  );
+  
+  # run tests that should pass
+  # NOTE: do not use a for(()) loop here!
+  local i;
+  for i in ${!pass_tests[@]}
+    do
+      tdd.deploy.run "${pass_tests[$i]}";
+  done
+  
+  # clean up the mock project .git directory
+  if [ -d "${project_source}/.git" ]; then
+    rm -rfv "${project_source}/.git" >> "${root}/target/deploy.test.clean.log";
+  fi  
 }
 
 # run a test, we want to ensure
 # that we have a fresh mock structure
 # for each test
 tdd.deploy.run() {
-	local cmd="$1";
-	
-	#echo "got command : $cmd";
-	# return 0;
-	
-	# clean up before we start
-	tdd.deploy.clean;	
-	
-	# create fresh mock directories
-	tdd.deploy.init;
-	# run the test
-	"$cmd";
-	# clean up at the end
-	tdd.deploy.clean;
+  local cmd="$1";
+  
+  #echo "got command : $cmd";
+  # return 0;
+  
+  # clean up before we start
+  tdd.deploy.clean; 
+  
+  # create fresh mock directories
+  tdd.deploy.init;
+  # run the test
+  "$cmd";
+  # clean up at the end
+  tdd.deploy.clean;
 }
 
 # test environment is sane
 tdd.deploy.env() {
-	descriptor="${project_source}/env.json";
-	local opts=( ${options[@]} );
-	opts+=( --print-env --descriptor "${descriptor}" );
+  descriptor="${project_source}/env.json";
+  local opts=( ${options[@]} );
+  opts+=( --print-env --descriptor "${descriptor}" );
 
-	tasks.deploy "${opts[@]}";
-	
-	# env_ variables
-	assert.equal "" "${env_non_existent:-}";
-	assert.equal "" "${env_unset}";
-	assert.equal "${HOME:-}" "${env_home}";
-	assert.equal "${USER:-}" "${env_user}";
-	assert.equal "${PATH:-}" "${env_path}";
-	assert.equal "${SHELL:-}" "${env_shell}";
-	assert.equal "bar" "${env_foo}";
-	assert.equal "bar" "${env_bad_name_format}";
-	assert.equal '`bar`' "${env_backtick}";
-	assert.equal "rmdir target" "${env_rmdir}";
-	assert.equal '`rmdir target`' "${env_rmdir_backtick}";
-	assert.equal 'a && b' "${env_and}";
-	assert.equal 'c || d' "${env_or}";
-	assert.equal '2 + 2' "${env_4}";
-	assert.equal '[[ "abc" =~ a ]]' "${env_regex}";
-	assert.equal 'ls -la &' "${env_bgjob}";
-	assert.equal 'a\bc' "${env_backslash}";
-	assert.equal '$HOME' "${env_home_escaped}";
-	assert.equal '!history' "${env_history}";
-	assert.equal '#!/usr/bin/env bash -x' "${env_shebang}";
-	
-	# TODO: this should be a literal newline
-	assert.equal 'first\nsecond' "${env_newline}";
-	
-	assert.equal "${expects[name]}" "${env_project_name}";
-	assert.equal "${expects[version]}" "${env_project_version}";
-	assert.equal "${target}" "${env_archive_dir}";
-	assert.equal "${expects[name]}-${expects[version]}.tgz"	"${env_archive_name}";
-	assert.equal "${target}/${expects[name]}-${expects[version]}.tgz" "${env_archive_path}"
-	
-	# doc_ variables
-	assert.equal "${expects[name]}" "${doc_name}";
-	
-	assert.equal "a" "${doc_data_array_0}";
-	assert.equal "b" "${doc_data_array_1}";
-	assert.equal "c" "${doc_data_array_2}";
-	assert.equal "d e f" "${doc_data_array_3}";
-	assert.eq 4 "${doc_data_array_length}";
+  tasks.deploy "${opts[@]}";
+  
+  # env_ variables
+  assert.equal "" "${env_non_existent:-}";
+  assert.equal "" "${env_unset}";
+  assert.equal "${HOME:-}" "${env_home}";
+  assert.equal "${USER:-}" "${env_user}";
+  assert.equal "${PATH:-}" "${env_path}";
+  assert.equal "${SHELL:-}" "${env_shell}";
+  assert.equal "bar" "${env_foo}";
+  assert.equal "bar" "${env_bad_name_format}";
+  assert.equal '`bar`' "${env_backtick}";
+  assert.equal "rmdir target" "${env_rmdir}";
+  assert.equal '`rmdir target`' "${env_rmdir_backtick}";
+  assert.equal 'a && b' "${env_and}";
+  assert.equal 'c || d' "${env_or}";
+  assert.equal '2 + 2' "${env_4}";
+  assert.equal '[[ "abc" =~ a ]]' "${env_regex}";
+  assert.equal 'ls -la &' "${env_bgjob}";
+  assert.equal 'a\bc' "${env_backslash}";
+  assert.equal '$HOME' "${env_home_escaped}";
+  assert.equal '!history' "${env_history}";
+  assert.equal '#!/usr/bin/env bash -x' "${env_shebang}";
+  
+  # TODO: this should be a literal newline
+  assert.equal 'first\nsecond' "${env_newline}";
+  
+  assert.equal "${expects[name]}" "${env_project_name}";
+  assert.equal "${expects[version]}" "${env_project_version}";
+  assert.equal "${target}" "${env_archive_dir}";
+  assert.equal "${expects[name]}-${expects[version]}.tgz" "${env_archive_name}";
+  assert.equal "${target}/${expects[name]}-${expects[version]}.tgz" "${env_archive_path}"
+  
+  # doc_ variables
+  assert.equal "${expects[name]}" "${doc_name}";
+  
+  assert.equal "a" "${doc_data_array_0}";
+  assert.equal "b" "${doc_data_array_1}";
+  assert.equal "c" "${doc_data_array_2}";
+  assert.equal "d e f" "${doc_data_array_3}";
+  assert.eq 4 "${doc_data_array_length}";
 }
 
 # OPTIONS
 
 # test the --script-file option
 tdd.deploy.options.script.file() {
-	local script="${project_source}/custom-install.sh";	
-	local profile="default";
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --descriptor "${descriptor}" --script-file "${script}" );
-	( tasks.deploy "${opts[@]}" );
-	local expects="${target}/custom-install.txt";
-	assert.file.exists? "${expects}";
-	local contents=$( < "${expects}" );
-	assert.equal "./install.sh" "${contents}";
+  local script="${project_source}/custom-install.sh"; 
+  local profile="default";
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --descriptor "${descriptor}" --script-file "${script}" );
+  ( tasks.deploy "${opts[@]}" );
+  local expects="${target}/custom-install.txt";
+  assert.file.exists? "${expects}";
+  local contents=$( < "${expects}" );
+  assert.equal "./install.sh" "${contents}";
 }
 
 # test the --list option
 tdd.deploy.options.list() {
-	declare -A descriptors;
-	descriptors[default]="default.json";
-	descriptors[minimal]="minimal.json";
-	descriptors[deploy-git]="deploy-git.json";
-	descriptors[deploy-tar]="deploy-tar.json";
-	descriptors[deploy-npm]="deploy-npm.json";
-	descriptors[deploy-multiple]="deploy-multiple.json";
-	
-	declare -A expects;
-	expects[default]="default";
-	expects[minimal]="default";
-	expects[deploy-git]="deploy-git";
-	expects[deploy-tar]="deploy-tar";
-	expects[deploy-npm]="deploy-npm";
-	expects[deploy-multiple]="deploy-git deploy-npm deploy-tar";
-	
-	local k v descriptor opts received;
-	for k in "${!descriptors[@]}"
-		do
-			v="${descriptors[$k]}";
-			descriptor="${project_source}/${v}";
-			opts=( ${options[@]} );
-			opts+=( --list --descriptor "${descriptor}" );
-			received=( $( tasks.deploy "${opts[@]}" ) );
-			assert.equal "${expects[$k]}" "${received[*]}";
-	done
+  declare -A descriptors;
+  descriptors[default]="default.json";
+  descriptors[minimal]="minimal.json";
+  descriptors[deploy-git]="deploy-git.json";
+  descriptors[deploy-tar]="deploy-tar.json";
+  descriptors[deploy-npm]="deploy-npm.json";
+  descriptors[deploy-multiple]="deploy-multiple.json";
+  
+  declare -A expects;
+  expects[default]="default";
+  expects[minimal]="default";
+  expects[deploy-git]="deploy-git";
+  expects[deploy-tar]="deploy-tar";
+  expects[deploy-npm]="deploy-npm";
+  expects[deploy-multiple]="deploy-git deploy-npm deploy-tar";
+  
+  local k v descriptor opts received;
+  for k in "${!descriptors[@]}"
+    do
+      v="${descriptors[$k]}";
+      descriptor="${project_source}/${v}";
+      opts=( ${options[@]} );
+      opts+=( --list --descriptor "${descriptor}" );
+      received=( $( tasks.deploy "${opts[@]}" ) );
+      assert.equal "${expects[$k]}" "${received[*]}";
+  done
 }
 
 # MINIMAL
@@ -224,40 +224,40 @@ tdd.deploy.options.list() {
 # test bundling the minimal default profile
 # using the absolute minimal descriptor
 tdd.deploy.minimal.bundle() {
-	local profile="default";
-	descriptor="${project_source}/minimal.json";
-	local opts=( ${options[@]} );
-	opts+=( --bundle --descriptor "${descriptor}" );
-	( tasks.deploy "${opts[@]}" );
-	assert.bundle "${bundles}/${expects[project]}-${profile}";
+  local profile="default";
+  descriptor="${project_source}/minimal.json";
+  local opts=( ${options[@]} );
+  opts+=( --bundle --descriptor "${descriptor}" );
+  ( tasks.deploy "${opts[@]}" );
+  assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
 # test deploying the minimal default profile
 # using the absolute minimal descriptor
 tdd.deploy.minimal.deploy() {
-	local profile="default";
-	descriptor="${project_source}/minimal.json";
-	local opts=( ${options[@]} );
-	opts+=( --descriptor "${descriptor}" );
-	( tasks.deploy "${opts[@]}" );
-	
-	#assert.dir.exists? "${directory}/${expects[name]}/${profile}";
-	assert.deployment.files "${directory}/${expects[name]}/${profile}";
+  local profile="default";
+  descriptor="${project_source}/minimal.json";
+  local opts=( ${options[@]} );
+  opts+=( --descriptor "${descriptor}" );
+  ( tasks.deploy "${opts[@]}" );
+  
+  #assert.dir.exists? "${directory}/${expects[name]}/${profile}";
+  assert.deployment.files "${directory}/${expects[name]}/${profile}";
 }
 
 # test deploying the default profile
 # using the --dry-run option
 tdd.deploy.minimal.dryrun() {
-	local profile="default";
-	descriptor="${project_source}/minimal.json";
-	local opts=( ${options[@]} );
-	opts+=( --descriptor "${descriptor}" --dry-run );
-	( tasks.deploy "${opts[@]}" );
-	# the deployment directory should not exist with --dry-run
-	assert.dir.exists! "${directory}/${expects[name]}/${profile}";
-	# we shouldn't even have the top-level directory for the deployment
-	# as we clean up between test runs
-	assert.dir.exists! "${directory}";	
+  local profile="default";
+  descriptor="${project_source}/minimal.json";
+  local opts=( ${options[@]} );
+  opts+=( --descriptor "${descriptor}" --dry-run );
+  ( tasks.deploy "${opts[@]}" );
+  # the deployment directory should not exist with --dry-run
+  assert.dir.exists! "${directory}/${expects[name]}/${profile}";
+  # we shouldn't even have the top-level directory for the deployment
+  # as we clean up between test runs
+  assert.dir.exists! "${directory}";  
 }
 
 # PROJECT
@@ -265,153 +265,153 @@ tdd.deploy.minimal.dryrun() {
 ## DEFAULT PROFILE
 
 tdd.deploy.project.bundle() {
-	local profile="default";	
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --bundle --descriptor "${descriptor}" );
-	( tasks.deploy "${opts[@]}" );
-	assert.bundle "${bundles}/${expects[project]}-${profile}";
+  local profile="default";  
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --bundle --descriptor "${descriptor}" );
+  ( tasks.deploy "${opts[@]}" );
+  assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
 tdd.deploy.project.deploy() {
-	local profile="default";	
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --descriptor "${descriptor}" );
-	( tasks.deploy "${opts[@]}" );
-	
-	# check common files
-	assert.deployment.files "${directory}/${expects[name]}/${profile}";
+  local profile="default";  
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --descriptor "${descriptor}" );
+  ( tasks.deploy "${opts[@]}" );
+  
+  # check common files
+  assert.deployment.files "${directory}/${expects[name]}/${profile}";
 }
 
 ### NO SHA
 
 # should not have a checksum file in this instance
 tdd.deploy.project.bundle.nosha() {
-	local profile="default";
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --bundle --descriptor "${descriptor}" --no-sha );
-	( tasks.deploy "${opts[@]}" );
-	local final="${bundles}/${expects[project]}-${profile}";
-	assert.file.exists? "${final}.tgz";
-	assert.file.exists! "${final}.sha${algorithm}";
+  local profile="default";
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --bundle --descriptor "${descriptor}" --no-sha );
+  ( tasks.deploy "${opts[@]}" );
+  local final="${bundles}/${expects[project]}-${profile}";
+  assert.file.exists? "${final}.tgz";
+  assert.file.exists! "${final}.sha${algorithm}";
 }
 
 ## TAR TYPE
 
 tdd.deploy.project.tar.bundle() {
-	local profile="deploy-tar";
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
-	( tasks.deploy "${opts[@]}" );
-	assert.bundle "${bundles}/${expects[project]}-${profile}";
+  local profile="deploy-tar";
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --bundle --descriptor "${descriptor}" "$profile" );
+  ( tasks.deploy "${opts[@]}" );
+  assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
 tdd.deploy.project.tar.deploy() {
-	local profile="deploy-tar";
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --descriptor "${descriptor}" "$profile" );
-	( tasks.deploy "${opts[@]}" );
-	
-	# check common files
-	assert.deployment.files "${directory}/${expects[name]}/$profile";
+  local profile="deploy-tar";
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --descriptor "${descriptor}" "$profile" );
+  ( tasks.deploy "${opts[@]}" );
+  
+  # check common files
+  assert.deployment.files "${directory}/${expects[name]}/$profile";
 }
 
 ## GIT TYPE
 
 tdd.deploy.project.git.bundle() {
-	local profile="deploy-git";
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
-	( tasks.deploy "${opts[@]}" );
-	assert.bundle "${bundles}/${expects[project]}-${profile}";
+  local profile="deploy-git";
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --bundle --descriptor "${descriptor}" "$profile" );
+  ( tasks.deploy "${opts[@]}" );
+  assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
 tdd.deploy.project.git.deploy() {
-	local profile="deploy-git";	
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --descriptor "${descriptor}" "$profile" );
-	( tasks.deploy "${opts[@]}" );
-	
-	# check common files
-	assert.deployment.files "${directory}/${expects[name]}/$profile";
+  local profile="deploy-git"; 
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --descriptor "${descriptor}" "$profile" );
+  ( tasks.deploy "${opts[@]}" );
+  
+  # check common files
+  assert.deployment.files "${directory}/${expects[name]}/$profile";
 }
 
 ## NPM TYPE
 
 tdd.deploy.project.npm.bundle() {
-	local profile="deploy-npm";
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
-	( tasks.deploy "${opts[@]}" );
-	assert.bundle "${bundles}/${expects[project]}-${profile}";
+  local profile="deploy-npm";
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --bundle --descriptor "${descriptor}" "$profile" );
+  ( tasks.deploy "${opts[@]}" );
+  assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
 tdd.deploy.project.npm.deploy() {
-	local profile="deploy-npm";
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --descriptor "${descriptor}" "$profile" );
-	( tasks.deploy "${opts[@]}" );
-	
-	# check common files
-	assert.deployment.files "${directory}/${expects[name]}/$profile";
+  local profile="deploy-npm";
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --descriptor "${descriptor}" "$profile" );
+  ( tasks.deploy "${opts[@]}" );
+  
+  # check common files
+  assert.deployment.files "${directory}/${expects[name]}/$profile";
 }
 
 # BUNDLE SCRIPTS
 
 tdd.deploy.bundle.scripts() {
-	local profile="bundle-scripts";
-	descriptor="${project_source}/${profile}.json";
-	local opts=( ${options[@]} );
-	opts+=( --bundle --descriptor "${descriptor}" "$profile" );
-	
-	echo "bundling with opts : $opts";
-	
-	( tasks.deploy "${opts[@]}" );
-	assert.bundle "${bundles}/${expects[project]}-${profile}";
+  local profile="bundle-scripts";
+  descriptor="${project_source}/${profile}.json";
+  local opts=( ${options[@]} );
+  opts+=( --bundle --descriptor "${descriptor}" "$profile" );
+  
+  echo "bundling with opts : $opts";
+  
+  ( tasks.deploy "${opts[@]}" );
+  assert.bundle "${bundles}/${expects[project]}-${profile}";
 }
 
 # UTIL
 
 # assert on generated bundles/checksums
 assert.bundle() {
-	local final="$1";
-	assert.file.exists? "${final}.tgz";
-	assert.file.exists? "${final}.tgz.sha${algorithm}";
+  local final="$1";
+  assert.file.exists? "${final}.tgz";
+  assert.file.exists? "${final}.tgz.sha${algorithm}";
 }
 
 # assert on files that should be present
 # for all deployments
 assert.deployment.files() {
-	local final="$1";
-	
-	assert.dir.exists? "${final}";
-	assert.file.exists? "${final}/README.md";
-	assert.file.exists? "${final}/LICENSE";
-	assert.file.exists? "${final}/version";
-	assert.dir.exists? "${final}/doc";
-	assert.file.exists? "${final}/doc/README.md";
+  local final="$1";
+  
+  assert.dir.exists? "${final}";
+  assert.file.exists? "${final}/README.md";
+  assert.file.exists? "${final}/LICENSE";
+  assert.file.exists? "${final}/version";
+  assert.dir.exists? "${final}/doc";
+  assert.file.exists? "${final}/doc/README.md";
 }
 
 # create the test staging structure
 tdd.deploy.init() {
-	mkdir -p "$staging";
-	mkdir -p "$bundles";
+  mkdir -p "$staging";
+  mkdir -p "$bundles";
 }
 
 # clean the test staging directory
 tdd.deploy.clean() {
-	if [ -d "${deploy_test}" ]; then
-		console info "deploy.test clean %s" "$deploy_test";
-		# NOTE: we use ${root}/target rather than ${target}
-		# NOTE: as ${target} points to the mock project staging directory
-		rm -rfv "$deploy_test" >> "${root}/target/deploy.test.clean.log";
-	fi
+  if [ -d "${deploy_test}" ]; then
+    console info "deploy.test clean %s" "$deploy_test";
+    # NOTE: we use ${root}/target rather than ${target}
+    # NOTE: as ${target} points to the mock project staging directory
+    rm -rfv "$deploy_test" >> "${root}/target/deploy.test.clean.log";
+  fi
 }

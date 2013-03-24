@@ -2,58 +2,58 @@ require.once 'json';
 
 # test a simple array
 function test.json.parse.array {
-	json.parse <<< '[ "value", "another value", "some other value" ]';
-	# assert.equal "0 1 2" "${!json_doc[*]}";
-	assert.equal "3" "${json_doc[length]}";
-	assert.equal "value" "${json_doc[0]}";
-	assert.equal "another value" "${json_doc[1]}";
-	assert.equal "some other value" "${json_doc[2]}";
-	!test.json.parse.print;
+  json.parse <<< '[ "value", "another value", "some other value" ]';
+  # assert.equal "0 1 2" "${!json_doc[*]}";
+  assert.equal "3" "${json_doc[length]}";
+  assert.equal "value" "${json_doc[0]}";
+  assert.equal "another value" "${json_doc[1]}";
+  assert.equal "some other value" "${json_doc[2]}";
+  !test.json.parse.print;
 }
 
 # test a multi-dimensional array
 function test.json.parse.array.multi {
-	json.parse <<< '[ "a", [ "b", "c", "d" ], "e", [ "f", [ "g", "h", "i" ], "j" ] ]';
-	assert.equal "4" "${json_doc[length]}";
-	assert.equal "a" "${json_doc[0]}";
-	assert.equal "3" "${json_doc[1.length]}";
-	assert.equal "b" "${json_doc[1.0]}";
-	assert.equal "c" "${json_doc[1.1]}";
-	assert.equal "d" "${json_doc[1.2]}";
-	assert.equal "e" "${json_doc[2]}";
-	assert.equal "3" "${json_doc[3.length]}";
-	assert.equal "f" "${json_doc[3.0]}";
-	assert.equal "3" "${json_doc[3.1.length]}";
-	assert.equal "g" "${json_doc[3.1.0]}";
-	assert.equal "h" "${json_doc[3.1.1]}";
-	assert.equal "i" "${json_doc[3.1.2]}";
-	assert.equal "j" "${json_doc[3.2]}";
-	!test.json.parse.print;
+  json.parse <<< '[ "a", [ "b", "c", "d" ], "e", [ "f", [ "g", "h", "i" ], "j" ] ]';
+  assert.equal "4" "${json_doc[length]}";
+  assert.equal "a" "${json_doc[0]}";
+  assert.equal "3" "${json_doc[1.length]}";
+  assert.equal "b" "${json_doc[1.0]}";
+  assert.equal "c" "${json_doc[1.1]}";
+  assert.equal "d" "${json_doc[1.2]}";
+  assert.equal "e" "${json_doc[2]}";
+  assert.equal "3" "${json_doc[3.length]}";
+  assert.equal "f" "${json_doc[3.0]}";
+  assert.equal "3" "${json_doc[3.1.length]}";
+  assert.equal "g" "${json_doc[3.1.0]}";
+  assert.equal "h" "${json_doc[3.1.1]}";
+  assert.equal "i" "${json_doc[3.1.2]}";
+  assert.equal "j" "${json_doc[3.2]}";
+  !test.json.parse.print;
 }
 
 # test a simple object
 function test.json.parse.object {
-	json.parse <<< '{ "value1": "value", "value2" : "another value", "value3" :	"some other value" }';
-	assert.equal "value" "${json_doc[value1]}";
-	assert.equal "another value" "${json_doc[value2]}";	
-	assert.equal "some other value" "${json_doc[value3]}";
-	!test.json.parse.print;
+  json.parse <<< '{ "value1": "value", "value2" : "another value", "value3" : "some other value" }';
+  assert.equal "value" "${json_doc[value1]}";
+  assert.equal "another value" "${json_doc[value2]}"; 
+  assert.equal "some other value" "${json_doc[value3]}";
+  !test.json.parse.print;
 }
 
 # test a nested object structure
 function test.json.parse.object.deep {
-	json.parse <<< '{ "data": { "id": "myid", "path": "mypath" } }';
-	assert.equal "myid" "${json_doc[data.id]}";
-	assert.equal "mypath" "${json_doc[data.path]}";
-	!test.json.parse.print;
+  json.parse <<< '{ "data": { "id": "myid", "path": "mypath" } }';
+  assert.equal "myid" "${json_doc[data.id]}";
+  assert.equal "mypath" "${json_doc[data.path]}";
+  !test.json.parse.print;
 }
 
 function !test.json.parse.print {
-	local k v;
-	echo "test got keys: ${!json_doc[@]}";
-	for k in "${!json_doc[@]}"
-		do
-			v="${json_doc[$k]}";
-			console print "$k=$v";
-	done
+  local k v;
+  echo "test got keys: ${!json_doc[@]}";
+  for k in "${!json_doc[@]}"
+    do
+      v="${json_doc[$k]}";
+      console print "$k=$v";
+  done
 }

@@ -1,27 +1,27 @@
 function test.string.split {
-	local array;
-	
-	# split with an blank delimiter and empty string
-	string.split '' '';
-	array=( $_result );
-	assert.eq "0" "${#array[@]}";
-	
-	# split to character array with a blank delimiter
-	data="abc";
-	string.split '' "${data}";
-	array=( $_result );
-	assert.eq "3" "${#array[@]}";
-	assert.equal "0 1 2" "${!array[*]}";
-	assert.equal "a b c" "${array[*]}";
-	
-	# split on colon delimiter with space in values
-	data="a:b c:d";
-	local IFS=":";
-	array=( $data );
-	unset IFS;
-	assert.eq "3" "${#array[@]}";
-	assert.equal "0 1 2" "${!array[*]}";
-	assert.equal "a" "${array[0]}";
-	assert.equal "b c" "${array[1]}";
-	assert.equal "d" "${array[2]}";
+  local array;
+  
+  # split with an blank delimiter and empty string
+  string.split '' '';
+  array=( $_result );
+  assert.eq "0" "${#array[@]}";
+  
+  # split to character array with a blank delimiter
+  data="abc";
+  string.split '' "${data}";
+  array=( $_result );
+  assert.eq "3" "${#array[@]}";
+  assert.equal "0 1 2" "${!array[*]}";
+  assert.equal "a b c" "${array[*]}";
+  
+  # split on colon delimiter with space in values
+  data="a:b c:d";
+  local IFS=":";
+  array=( $data );
+  unset IFS;
+  assert.eq "3" "${#array[@]}";
+  assert.equal "0 1 2" "${!array[*]}";
+  assert.equal "a" "${array[0]}";
+  assert.equal "b c" "${array[1]}";
+  assert.equal "d" "${array[2]}";
 }

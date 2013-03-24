@@ -1,7 +1,7 @@
 function test.ok {
-	assert.eq "0" "0";
+  assert.eq "0" "0";
 }
 
 function test.notok {
-	assert.eq "1" "0";
+  assert.eq "1" "0";
 }

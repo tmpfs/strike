@@ -3,87 +3,87 @@ require.once 'tasks/archive';
 # test(s) for task-archive(7) compress/extract
 # functionality
 function test.archive.cx {
-	
-	local owd=$( pwd );
-	
-	# archive files relative to this test
-	# and place the archives in ${target}
-	local self ext f;
-	require.resolve "self";
-	local dir="${self[1]}";
-	
-	local program="tasks.archive";
-	local cmd="-c --debug --dir "${dir}" -o "${target}"";
-	local files=(
-		"lipsum.txt"
-		"etiam.txt"
-		"lipsum"
-	);
-	local filename="lipsum.archive.test";
-	local extensions=(
-		".tar.gz"
-		".tar"
-		".gz"
-		".bz2"
-		".zip"		
-	);
-	
-	local expected=(
-		"${target}/lipsum.txt"
-		"${target}/etiam.txt"
-		"${target}/lipsum/lipsum.dir.txt"
-		"${target}/lipsum/etiam.dir.txt"
-	);
-	for ext in ${extensions[@]}
-		do
-			$program $cmd "${filename}${ext}" "${files[@]}";
-			assert.eq "0" "$?";
-			# verify the working directory is switched back correctly
-			assert.equal "$owd" "`pwd`";			
-			assert.file.exists? "${target}/${filename}${ext}";
-	done
-	
-	# expected output when listing archive contents
-	local listing=(
-		"lipsum.txt"
-		"etiam.txt"
-		"lipsum/"
-		"lipsum/etiam.dir.txt"
-		"lipsum/lipsum.dir.txt"	
-	);
-	
-	# verify archive file listing
-	# don't use --debug on this as
-	# if will affect the output and the
-	# assertions will fail
-	cmd="-l";
-	local archive_files;
-	for ext in ${extensions[@]}
-		do
-			archive_files=( $( $program $cmd "${target}/${filename}${ext}" ) );
-			assert.equal "${listing[*]}" "${archive_files[*]}";
-	done
-	
-	# extract each created archive
-	cmd="-x --debug --dir "${target}" -o "${target}"";
-	for ext in ${extensions[@]}
-		do
-			$program $cmd "${filename}${ext}";
-			assert.eq "0" "$?";
-			# verify the working directory is switched back correctly
-			assert.equal "$owd" "`pwd`";
-			for f in "${expected[@]}"
-				do
-					assert.file.exists? "$f";
-					# clean extracted file data
-					rm "$f";
-			done
-			# clean archives
-			rm "${target}/${filename}${ext}";
-	done
-	
-	# finally clean the folder created during extraction
-	rmdir "${target}/lipsum";
+  
+  local owd=$( pwd );
+  
+  # archive files relative to this test
+  # and place the archives in ${target}
+  local self ext f;
+  require.resolve "self";
+  local dir="${self[1]}";
+  
+  local program="tasks.archive";
+  local cmd="-c --debug --dir "${dir}" -o "${target}"";
+  local files=(
+    "lipsum.txt"
+    "etiam.txt"
+    "lipsum"
+  );
+  local filename="lipsum.archive.test";
+  local extensions=(
+    ".tar.gz"
+    ".tar"
+    ".gz"
+    ".bz2"
+    ".zip"    
+  );
+  
+  local expected=(
+    "${target}/lipsum.txt"
+    "${target}/etiam.txt"
+    "${target}/lipsum/lipsum.dir.txt"
+    "${target}/lipsum/etiam.dir.txt"
+  );
+  for ext in ${extensions[@]}
+    do
+      $program $cmd "${filename}${ext}" "${files[@]}";
+      assert.eq "0" "$?";
+      # verify the working directory is switched back correctly
+      assert.equal "$owd" "`pwd`";      
+      assert.file.exists? "${target}/${filename}${ext}";
+  done
+  
+  # expected output when listing archive contents
+  local listing=(
+    "lipsum.txt"
+    "etiam.txt"
+    "lipsum/"
+    "lipsum/etiam.dir.txt"
+    "lipsum/lipsum.dir.txt" 
+  );
+  
+  # verify archive file listing
+  # don't use --debug on this as
+  # if will affect the output and the
+  # assertions will fail
+  cmd="-l";
+  local archive_files;
+  for ext in ${extensions[@]}
+    do
+      archive_files=( $( $program $cmd "${target}/${filename}${ext}" ) );
+      assert.equal "${listing[*]}" "${archive_files[*]}";
+  done
+  
+  # extract each created archive
+  cmd="-x --debug --dir "${target}" -o "${target}"";
+  for ext in ${extensions[@]}
+    do
+      $program $cmd "${filename}${ext}";
+      assert.eq "0" "$?";
+      # verify the working directory is switched back correctly
+      assert.equal "$owd" "`pwd`";
+      for f in "${expected[@]}"
+        do
+          assert.file.exists? "$f";
+          # clean extracted file data
+          rm "$f";
+      done
+      # clean archives
+      rm "${target}/${filename}${ext}";
+  done
+  
+  # finally clean the folder created during extraction
+  rmdir "${target}/lipsum";
 }
 
 # TODO: validate unknown extension generates exit code >0
@@ -91,144 +91,144 @@ function test.archive.cx {
 # test(s) for task-archive(7) type inference
 # relative to the current working directory
 function test.archive.path.name {
-	# these paths should resolve relative to ${root}
-	local program="tasks.archive";
-	local cmd="-t";
-	local files=(
-		"lipsum.gz"
-		"lipsum.tar.gz"
-		"lipsum.tar"
-		"lipsum.bz2"
-		"lipsum.zip"
-	);
-	local expects=(
-		"tar lipsum.gz ${root}"
-		"tar lipsum.tar.gz ${root}"
-		"tar lipsum.tar ${root}"
-		"bz2 lipsum.bz2 ${root}"
-		"zip lipsum.zip ${root}"
-	);
-	!test.archive.path.test;
+  # these paths should resolve relative to ${root}
+  local program="tasks.archive";
+  local cmd="-t";
+  local files=(
+    "lipsum.gz"
+    "lipsum.tar.gz"
+    "lipsum.tar"
+    "lipsum.bz2"
+    "lipsum.zip"
+  );
+  local expects=(
+    "tar lipsum.gz ${root}"
+    "tar lipsum.tar.gz ${root}"
+    "tar lipsum.tar ${root}"
+    "bz2 lipsum.bz2 ${root}"
+    "zip lipsum.zip ${root}"
+  );
+  !test.archive.path.test;
 }
 
 # test(s) for task-archive(7) type inference
 # relative to the current working directory
 # using a path portion in the filename specification
 function test.archive.path.relative {
-	# these paths should resolve relative to ${root}
-	local program="tasks.archive";
-	local cmd="-t";
-	local files=(
-		"target/lipsum.gz"
-		"target/lipsum.tar.gz"
-		"target/lipsum.tar"
-		"target/lipsum.bz2"
-		"target/lipsum.zip"
-		"./target/lipsum.gz"
-	);
-	local expects=(
-		"tar lipsum.gz ${target}"
-		"tar lipsum.tar.gz ${target}"
-		"tar lipsum.tar ${target}"
-		"bz2 lipsum.bz2 ${target}"
-		"zip lipsum.zip ${target}"
-		"tar lipsum.gz ${root}/./target"
-	);
-	!test.archive.path.test;
+  # these paths should resolve relative to ${root}
+  local program="tasks.archive";
+  local cmd="-t";
+  local files=(
+    "target/lipsum.gz"
+    "target/lipsum.tar.gz"
+    "target/lipsum.tar"
+    "target/lipsum.bz2"
+    "target/lipsum.zip"
+    "./target/lipsum.gz"
+  );
+  local expects=(
+    "tar lipsum.gz ${target}"
+    "tar lipsum.tar.gz ${target}"
+    "tar lipsum.tar ${target}"
+    "bz2 lipsum.bz2 ${target}"
+    "zip lipsum.zip ${target}"
+    "tar lipsum.gz ${root}/./target"
+  );
+  !test.archive.path.test;
 }
 
 # test(s) for task-archive(7) type inference
 # relative to the current working directory
 # using leading hyphen characters in the filename
 function test.archive.path.name.dash {
-	# these paths should resolve relative to ${root}
-	local program="tasks.archive";
-	local cmd="-t";
-	local files=(
-		"-lipsum.gz"
-		"--lipsum.tar.gz"
-		"-lipsum.tar"
-		"--lipsum.bz2"
-		"-lipsum.zip"
-	);
-	local expects=(
-		"tar -lipsum.gz ${root}"
-		"tar --lipsum.tar.gz ${root}"
-		"tar -lipsum.tar ${root}"
-		"bz2 --lipsum.bz2 ${root}"
-		"zip -lipsum.zip ${root}"
-	);
-	!test.archive.path.test;
+  # these paths should resolve relative to ${root}
+  local program="tasks.archive";
+  local cmd="-t";
+  local files=(
+    "-lipsum.gz"
+    "--lipsum.tar.gz"
+    "-lipsum.tar"
+    "--lipsum.bz2"
+    "-lipsum.zip"
+  );
+  local expects=(
+    "tar -lipsum.gz ${root}"
+    "tar --lipsum.tar.gz ${root}"
+    "tar -lipsum.tar ${root}"
+    "bz2 --lipsum.bz2 ${root}"
+    "zip -lipsum.zip ${root}"
+  );
+  !test.archive.path.test;
 }
 
 # test(s) to verify that an absolute path
 # starting with a leading / is treated correctly
 function test.archive.absolute {
-	local program="tasks.archive";
-	local cmd="-t";
-	local files=(
-		"${target}/lipsum.gz"
-		"${target}/lipsum.tar.gz"
-		"${target}/lipsum.tar"
-		"${target}/lipsum.bz2"
-		"${target}/lipsum.zip"
-	);
-	local expects=(
-		"tar lipsum.gz ${target}"
-		"tar lipsum.tar.gz ${target}"
-		"tar lipsum.tar ${target}"
-		"bz2 lipsum.bz2 ${target}"
-		"zip lipsum.zip ${target}"
-	);
-	!test.archive.path.test;
+  local program="tasks.archive";
+  local cmd="-t";
+  local files=(
+    "${target}/lipsum.gz"
+    "${target}/lipsum.tar.gz"
+    "${target}/lipsum.tar"
+    "${target}/lipsum.bz2"
+    "${target}/lipsum.zip"
+  );
+  local expects=(
+    "tar lipsum.gz ${target}"
+    "tar lipsum.tar.gz ${target}"
+    "tar lipsum.tar ${target}"
+    "bz2 lipsum.bz2 ${target}"
+    "zip lipsum.zip ${target}"
+  );
+  !test.archive.path.test;
 }
 
 # test(s) to verify that the --dir option
 # behaves as expected
 function test.archive.dir {
-	local program="tasks.archive";
-	local cmd="-t --dir";
-	local files=(
-		"${target} lipsum.gz"
-		"${target} lipsum.tar.gz"
-		"${target} lipsum.tar"
-		"${target} lipsum.bz2"
-		"${target} lipsum.zip"
-	);
-	local expects=(
-		"tar lipsum.gz ${target}"
-		"tar lipsum.tar.gz ${target}"
-		"tar lipsum.tar ${target}"
-		"bz2 lipsum.bz2 ${target}"
-		"zip lipsum.zip ${target}"		
-	);
-	!test.archive.path.test;
+  local program="tasks.archive";
+  local cmd="-t --dir";
+  local files=(
+    "${target} lipsum.gz"
+    "${target} lipsum.tar.gz"
+    "${target} lipsum.tar"
+    "${target} lipsum.bz2"
+    "${target} lipsum.zip"
+  );
+  local expects=(
+    "tar lipsum.gz ${target}"
+    "tar lipsum.tar.gz ${target}"
+    "tar lipsum.tar ${target}"
+    "bz2 lipsum.bz2 ${target}"
+    "zip lipsum.zip ${target}"    
+  );
+  !test.archive.path.test;
 }
 
 # test(s) to verify that a non-existent
 # directory causes a >0 exit code
 function test.archive.directory.fail {
-	tasks.archive -t ../non-existent-directory/lipsum.tar.gz & wait %%;
-	assert.gt "0" "$?";
+  tasks.archive -t ../non-existent-directory/lipsum.tar.gz & wait %%;
+  assert.gt "0" "$?";
 }
 
 # test(s) to verify that an unknown
 # type causes a >0 exit code
 function test.archive.unknown.type {
-	tasks.archive -t --archive rar lipsum.tar.gz & wait %%;
-	assert.gt "0" "$?";
+  tasks.archive -t --archive rar lipsum.tar.gz & wait %%;
+  assert.gt "0" "$?";
 }
 
 # prefix this internal method with an
 # exclamation mark to prevent it being picked
 # up by the test runner
 function !test.archive.path.test {
-	local k v exe result;
-	for k in ${!files[@]}
-		do
-			v=( "${files[$k]}" );
-			console info "$program %s %s" "$cmd" "${v[*]}";
-			result=( $( $program $cmd ${v[@]} ) );
-			assert.equal "${expects[$k]}" "${result[*]:-}";
-	done
+  local k v exe result;
+  for k in ${!files[@]}
+    do
+      v=( "${files[$k]}" );
+      console info "$program %s %s" "$cmd" "${v[*]}";
+      result=( $( $program $cmd ${v[@]} ) );
+      assert.equal "${expects[$k]}" "${result[*]:-}";
+  done
 }

@@ -4,37 +4,37 @@
 # install with: npm install jsonlint -g
 # see: https://github.com/zaach/jsonlint
 function test.json.jsonlint {
-	executable.validate --test node jsonlint;
-	# only run these tests if `jsonlint` is available
-	if [ -n "${executables[jsonlint]}" ]; then
-		local f;
-		# valid
-		for f in test/json/json-checker/pass*
-			do
-				# make path absolute
-				f="${root}/$f";
-				"${executables[jsonlint]}" "$f";
-				assert.eq "0" "$?";
-		done
-		# invalid
-		local nm;
-		for f in test/json/json-checker/fail*
-			do
-				nm=`basename "$f"`;
-				f="${root}/$f";
-				"${executables[jsonlint]}" --compact "$f";
-				# NOTE: jsonlint follows the spec, not the RFC or
-				# NOTE: ECMA-262 5th Edition, 15.12.1 The JSON Grammar.
-				# NOTE: (Modified to forbid top level primitives.)
-				# NOTE: so it passes on a top-level string (fail1.json)
-				# NOTE: and on a too deep nesting fail (fail18.json) as jsonlint
-				# NOTE: does not allow for a maximum nested level
-				# NOTE: hence the branch below
-				if [ "$nm" == "fail1.json" ] || [ "$nm" == "fail18.json" ]; then
-					assert.eq "0" "$?";
-				else
-					assert.ne "0" "$?";
-				fi
-		done
-	fi
+  executable.validate --test node jsonlint;
+  # only run these tests if `jsonlint` is available
+  if [ -n "${executables[jsonlint]}" ]; then
+    local f;
+    # valid
+    for f in test/json/json-checker/pass*
+      do
+        # make path absolute
+        f="${root}/$f";
+        "${executables[jsonlint]}" "$f";
+        assert.eq "0" "$?";
+    done
+    # invalid
+    local nm;
+    for f in test/json/json-checker/fail*
+      do
+        nm=`basename "$f"`;
+        f="${root}/$f";
+        "${executables[jsonlint]}" --compact "$f";
+        # NOTE: jsonlint follows the spec, not the RFC or
+        # NOTE: ECMA-262 5th Edition, 15.12.1 The JSON Grammar.
+        # NOTE: (Modified to forbid top level primitives.)
+        # NOTE: so it passes on a top-level string (fail1.json)
+        # NOTE: and on a too deep nesting fail (fail18.json) as jsonlint
+        # NOTE: does not allow for a maximum nested level
+        # NOTE: hence the branch below
+        if [ "$nm" == "fail1.json" ] || [ "$nm" == "fail18.json" ]; then
+          assert.eq "0" "$?";
+        else
+          assert.ne "0" "$?";
+        fi
+    done
+  fi
 }

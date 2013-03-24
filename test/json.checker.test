@@ -8,54 +8,54 @@
 
 # test(s) to verify the test suite from: http://json.org/JSON_checker/
 test.json.checker.testsuite() {
-	local jsoncheck="${target}/jsoncheck";
-	executable.validate --test gcc;
-	
-	# attempt to compile jsoncheck
-	if [ -n "${executables[gcc]}" ] && [ ! -x "${jsoncheck}" ]; then
-		tasks.jsoncc;
-	fi
-	
-	# only run these tests if `jsonlint` is available
-	if [ -x "${jsoncheck}" ]; then
-		local f;
-		
-		# JSON CHECKER TEST SUITE
-		
-		# valid
-		for f in test/json/json-checker/pass*
-			do
-				f="${root}/$f";
-				"${jsoncheck}" < "$f";
-				assert.eq "0" "$?";
-		done
-		# invalid
-		for f in test/json/json-checker/fail*
-			do
-				f="${root}/$f";
-				"${jsoncheck}" < "$f" 2> /dev/null;
-				assert.ne "0" "$?";
-		done
-		
-		# FIXME: remove valid/invalid directories and tests, based on JSON.sh tests
-		
-		# JSON.SH TEST SUITE
-		
-		# # valid
-		# for f in test/json/valid/*.json
-		# 	do
-		# 		# make path absolute
-		# 		f="${root}/$f";
-		# 		echo "testing $f" >&2;
-		# 		"${jsoncheck}" < "$f";
-		# 		assert.eq "0" "$?";
-		# done
-		# # invalid
-		# for f in test/json/invalid/*.json
-		# 	do
-		# 		f="${root}/$f";
-		# 		"${jsoncheck}" < "$f" 2> /dev/null;
-		# 		assert.ne "0" "$?";
-		# done		
-	fi
+  local jsoncheck="${target}/jsoncheck";
+  executable.validate --test gcc;
+  
+  # attempt to compile jsoncheck
+  if [ -n "${executables[gcc]}" ] && [ ! -x "${jsoncheck}" ]; then
+    tasks.jsoncc;
+  fi
+  
+  # only run these tests if `jsonlint` is available
+  if [ -x "${jsoncheck}" ]; then
+    local f;
+    
+    # JSON CHECKER TEST SUITE
+    
+    # valid
+    for f in test/json/json-checker/pass*
+      do
+        f="${root}/$f";
+        "${jsoncheck}" < "$f";
+        assert.eq "0" "$?";
+    done
+    # invalid
+    for f in test/json/json-checker/fail*
+      do
+        f="${root}/$f";
+        "${jsoncheck}" < "$f" 2> /dev/null;
+        assert.ne "0" "$?";
+    done
+    
+    # FIXME: remove valid/invalid directories and tests, based on JSON.sh tests
+    
+    # JSON.SH TEST SUITE
+    
+    # # valid
+    # for f in test/json/valid/*.json
+    #   do
+    #     # make path absolute
+    #     f="${root}/$f";
+    #     echo "testing $f" >&2;
+    #     "${jsoncheck}" < "$f";
+    #     assert.eq "0" "$?";
+    # done
+    # # invalid
+    # for f in test/json/invalid/*.json
+    #   do
+    #     f="${root}/$f";
+    #     "${jsoncheck}" < "$f" 2> /dev/null;
+    #     assert.ne "0" "$?";
+    # done    
+  fi
 }

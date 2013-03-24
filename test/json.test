@@ -4,145 +4,145 @@ require.once 'json';
 # TODO: ensure all valid parse tests are correct
 # TODO: add invalid parse tests
 function test.json.parse {
-	local valid="${testdir}/json/json-checker";
-	local file parsed name dir;
-	
-	# FIXME: reinstate these tests based on json-checker files
-	for file in ${valid}/pass*.json
-		do
-			dir=`dirname "$file"`;
-			name=`basename "$file"`;
-			name=${name%%.json};
-			parsed="${dir}/${name}.parsed";
-			json.parse < "$file";
-			
-			# look for a parsed file to assert on
-			if [ -f "$parsed" ]; then
-				#echo "got parsed `cat $parsed`";
-				assert.equal "`cat "$parsed"`" "`json.print`";
-			else
-				echo "json.parse, missing parsed : $parsed";
-			fi
-			
-			json.print;
-			break;
-	done
+  local valid="${testdir}/json/json-checker";
+  local file parsed name dir;
+  
+  # FIXME: reinstate these tests based on json-checker files
+  for file in ${valid}/pass*.json
+    do
+      dir=`dirname "$file"`;
+      name=`basename "$file"`;
+      name=${name%%.json};
+      parsed="${dir}/${name}.parsed";
+      json.parse < "$file";
+      
+      # look for a parsed file to assert on
+      if [ -f "$parsed" ]; then
+        #echo "got parsed `cat $parsed`";
+        assert.equal "`cat "$parsed"`" "`json.print`";
+      else
+        echo "json.parse, missing parsed : $parsed";
+      fi
+      
+      json.print;
+      break;
+  done
 }
 
 # test for serializing an array of objects
 
 # FIXME: implement handling of arrays of objects
 # function test.json.array.objects {
-# 	declare -A doc;
-# 	doc[0.id]="myid";
-# 	doc[0.path]="mypath";
-# 	doc[1.id]="myid2";
-# 	doc[1.path]="mypath2";
-# 	json.stringify <<< "doc";
-# 	json.string;
+#   declare -A doc;
+#   doc[0.id]="myid";
+#   doc[0.path]="mypath";
+#   doc[1.id]="myid2";
+#   doc[1.path]="mypath2";
+#   json.stringify <<< "doc";
+#   json.string;
 # }
 
 # test for serializing nested, complex objects
 # function test.json.stringify.multiple.objects {
-# 	declare -A doc;
-# 	doc[type]="info";
-# 	
-# 	doc[data.obj1.path]="./path1";
-# 	doc[data.obj2.path]="./path2";
+#   declare -A doc;
+#   doc[type]="info";
+#   
+#   doc[data.obj1.path]="./path1";
+#   doc[data.obj2.path]="./path2";
 # 
-# 	json.stringify <<< "doc";
-# 	json.string;
-# 	
-# 	# round trip test with assertions
-# 	# json.parse <<< `json.string`;
-# 	# local key expected;
-# 	# for key in "${!doc[@]}"
-# 	# 	do
-# 	# 		expected="${doc["$key"]}";
-# 	# 		# echo "expected: '$expected', received: '${json_doc["$key"]}'";
-# 	# 		assert.equal "$expected" "${json_doc["$key"]}";
-# 	# done
+#   json.stringify <<< "doc";
+#   json.string;
+#   
+#   # round trip test with assertions
+#   # json.parse <<< `json.string`;
+#   # local key expected;
+#   # for key in "${!doc[@]}"
+#   #   do
+#   #     expected="${doc["$key"]}";
+#   #     # echo "expected: '$expected', received: '${json_doc["$key"]}'";
+#   #     assert.equal "$expected" "${json_doc["$key"]}";
+#   # done
 # }
 
 # test for serializing nested, complex objects
 # function test.json.stringify.complex {
-# 	declare -A doc;
-# 	doc[type]="info";
-# 	
-# 	# TODO: ensure escape characters are correct
-# 	# doc[escaped]='\" \\ \/ \b \f \n \r \t \u four-hex-digits';
-# 	
-# 	# TODO: escape \u sequences so they are not interpreted by printf ?
-# 	# doc[escaped]="\u0040 ";
-# 	
-# 	doc[data.name]="muji";
-# 	doc[data.email]="<noop@xpm.io>";
-# 	doc[data.names.0]="muji";
-# 	doc[data.names.1]="null";
-# 	doc[data.names.2]="true";
-# 	doc[data.names.3]="false";
-# 	doc[data.names.4]="3.14e+10";
-# 	
-# 	# FIXME: implement handling of arrays of objects
-# 	# doc[data.projects.0.id]="myid";
-# 	# doc[data.projects.0.path]="mypath";
-# 	json.stringify <<< "doc";
-# 	
-# 	json.string;
-# 	
-# 	# round trip test with assertions
-# 	# json.parse <<< `json.string`;
-# 	# local key expected;
-# 	# for key in "${!doc[@]}"
-# 	# 	do
-# 	# 		expected="${doc["$key"]}";
-# 	# 		# echo "expected: '$expected', received: '${json_doc["$key"]}'";
-# 	# 		assert.equal "$expected" "${json_doc["$key"]}";
-# 	# done
+#   declare -A doc;
+#   doc[type]="info";
+#   
+#   # TODO: ensure escape characters are correct
+#   # doc[escaped]='\" \\ \/ \b \f \n \r \t \u four-hex-digits';
+#   
+#   # TODO: escape \u sequences so they are not interpreted by printf ?
+#   # doc[escaped]="\u0040 ";
+#   
+#   doc[data.name]="muji";
+#   doc[data.email]="<noop@xpm.io>";
+#   doc[data.names.0]="muji";
+#   doc[data.names.1]="null";
+#   doc[data.names.2]="true";
+#   doc[data.names.3]="false";
+#   doc[data.names.4]="3.14e+10";
+#   
+#   # FIXME: implement handling of arrays of objects
+#   # doc[data.projects.0.id]="myid";
+#   # doc[data.projects.0.path]="mypath";
+#   json.stringify <<< "doc";
+#   
+#   json.string;
+#   
+#   # round trip test with assertions
+#   # json.parse <<< `json.string`;
+#   # local key expected;
+#   # for key in "${!doc[@]}"
+#   #   do
+#   #     expected="${doc["$key"]}";
+#   #     # echo "expected: '$expected', received: '${json_doc["$key"]}'";
+#   #     assert.equal "$expected" "${json_doc["$key"]}";
+#   # done
 # }
 
 # test for the json number regexp matching
 # function test.json.number {
-# 	# ref to the regexp
-# 	local match="$json_number_regexp";
-# 	local num;
-# 	
-# 	local valid=( "-127" "127" "3.14" "-3.14" "2e10" "2e-10" "2e+10" "3.14e10" "3.14e-10" "3.14e+10" );
-# 	
-# 	# add uppercase versions for valid tests
-# 	for num in ${valid[@]}
-# 		do
-# 			if [[ "$num" =~ [a-z]+ ]]; then
-# 				string.upper "$num";
-# 				valid+=( "$_result" );
-# 			fi
-# 	done
-# 	
-# 	local invalid=( "3." "-3." "-3.e" "3a" "b3" ".14" ".14e+10" ".14-10" );
-# 	
-# 	# valid
-# 	console info "$FUNCNAME (valid) ${valid[*]}";	
-# 	for num in ${valid[@]}
-# 		do
-# 			console info "$FUNCNAME (valid) %s =~ %s" "$num" "$match";
-# 			assert.match "$match" "$num";
-# 	done
-# 	
-# 	# invalid
-# 	console info "$FUNCNAME (invalid) ${invalid[*]}";	
-# 	for num in ${invalid[@]}
-# 		do
-# 			console info "$FUNCNAME (invalid) %s =~ %s" "$num" "$match";
-# 			assert.match! "$match" "$num";
-# 	done
+#   # ref to the regexp
+#   local match="$json_number_regexp";
+#   local num;
+#   
+#   local valid=( "-127" "127" "3.14" "-3.14" "2e10" "2e-10" "2e+10" "3.14e10" "3.14e-10" "3.14e+10" );
+#   
+#   # add uppercase versions for valid tests
+#   for num in ${valid[@]}
+#     do
+#       if [[ "$num" =~ [a-z]+ ]]; then
+#         string.upper "$num";
+#         valid+=( "$_result" );
+#       fi
+#   done
+#   
+#   local invalid=( "3." "-3." "-3.e" "3a" "b3" ".14" ".14e+10" ".14-10" );
+#   
+#   # valid
+#   console info "$FUNCNAME (valid) ${valid[*]}"; 
+#   for num in ${valid[@]}
+#     do
+#       console info "$FUNCNAME (valid) %s =~ %s" "$num" "$match";
+#       assert.match "$match" "$num";
+#   done
+#   
+#   # invalid
+#   console info "$FUNCNAME (invalid) ${invalid[*]}"; 
+#   for num in ${invalid[@]}
+#     do
+#       console info "$FUNCNAME (invalid) %s =~ %s" "$num" "$match";
+#       assert.match! "$match" "$num";
+#   done
 # }
 
 # function test.json.stringify.newline.escape {
-# 	declare -A doc;
-# 	doc[message]="this is an informational message
+#   declare -A doc;
+#   doc[message]="this is an informational message
 # 
 # that may contain line breaks";
 # 
-# 	json.stringify <<< "doc";
-# 	json.string;
+#   json.stringify <<< "doc";
+#   json.string;
 # }

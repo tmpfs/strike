@@ -1,76 +1,76 @@
 # test existence of built in modules
 function test.require.exists? {
-	local modules=( variable string method sprintf console array require fs );
-	local module;
-	for module in ${modules[@]}
-		do
-			require.exists? "$module";
-			assert.eq "0" "$?";
-			require.name.exists? "$module";
-			assert.eq "0" "$?";
-			require.path.exists? "${library_dirs[modules]}/core/$module";
-			assert.eq "0" "$?";
-	done
+  local modules=( variable string method sprintf console array require fs );
+  local module;
+  for module in ${modules[@]}
+    do
+      require.exists? "$module";
+      assert.eq "0" "$?";
+      require.name.exists? "$module";
+      assert.eq "0" "$?";
+      require.path.exists? "${library_dirs[modules]}/core/$module";
+      assert.eq "0" "$?";
+  done
 }
 
 # test for absolute require
 function test.require.absolute {
-	dir="$_result";
-	require.load "${testdir}/modules/say";
-	assert.eq "0" "$?";
-	assert.on.loaded.module;
+  dir="$_result";
+  require.load "${testdir}/modules/say";
+  assert.eq "0" "$?";
+  assert.on.loaded.module;
 }
 
 # test for module search path lookup
 function test.require.lookup {
-	require "core/string";
-	assert.eq "0" "$?";
-	local methods=( $( method.list | egrep '^string' ) );
-	assert.gt "1" "${#methods[@]}";
+  require "core/string";
+  assert.eq "0" "$?";
+  local methods=( $( method.list | egrep '^string' ) );
+  assert.gt "1" "${#methods[@]}";
 }
 
 # test for relative require using: ./
 function test.require.relative {
-	require.load "./modules/say";
-	assert.eq "0" "$?";
-	assert.on.loaded.module;
+  require.load "./modules/say";
+  assert.eq "0" "$?";
+  assert.on.loaded.module;
 }
 
 # test for relative require using: ../
 function test.require.relative.parent {
-	require.load "../test/modules/say";
-	assert.eq "0" "$?";
-	assert.on.loaded.module;
+  require.load "../test/modules/say";
+  assert.eq "0" "$?";
+  assert.on.loaded.module;
 }
 
 # test for a non-existent module
 function test.require.nonexistent {
-	require "nonexistent" &
-	wait %%;
-	assert.eq "1" "$?";
+  require "nonexistent" &
+  wait %%;
+  assert.eq "1" "$?";
 }
 
 # function test.require.load {
-# 	#require "./modules/say";
+#   #require "./modules/say";
 # }
 
 function assert.on.loaded.module {
-	local methods=( $( method.list | grep "say" ) );
-	methods="${methods[@]}";
-	assert.equal "say say.goodbye say.hello" "${methods}";
-	
-	# unload the module
-	require.name.unload! "say";
-	
-	if require.exists? "say"; then
-		assert.fail;
-	fi
-	
-	# check all methods are cleaned up
-	
-	# can only run this test in debug mode !!!!
-	# TODO: re-implement when running tests with --debug flag
-	# if method.exists? say || method.exists? say.hello || method.exists? say.goodbye; then
-	# 	assert.fail;
-	# fi
+  local methods=( $( method.list | grep "say" ) );
+  methods="${methods[@]}";
+  assert.equal "say say.goodbye say.hello" "${methods}";
+  
+  # unload the module
+  require.name.unload! "say";
+  
+  if require.exists? "say"; then
+    assert.fail;
+  fi
+  
+  # check all methods are cleaned up
+  
+  # can only run this test in debug mode !!!!
+  # TODO: re-implement when running tests with --debug flag
+  # if method.exists? say || method.exists? say.hello || method.exists? say.goodbye; then
+  #   assert.fail;
+  # fi
 }

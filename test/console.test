@@ -1,54 +1,54 @@
 # test for info messages
 function test.console.info {
-	console info "this is an info message, %s" 'but nothing really to report';
-	assert.eq "0" "$?";
+  console info "this is an info message, %s" 'but nothing really to report';
+  assert.eq "0" "$?";
 }
 
 # test for error messages
 function test.console.error {
-	console error "this is an error message, %s" 'but nothing is wrong';
-	assert.eq "0" "$?";
+  console error "this is an error message, %s" 'but nothing is wrong';
+  assert.eq "0" "$?";
 }
 
 # test for warn messages
 function test.console.warn {
-	console warn "this is a warning, %s" 'but nothing really went wrong';
-	assert.eq "0" "$?";
+  console warn "this is a warning, %s" 'but nothing really went wrong';
+  assert.eq "0" "$?";
 }
 
 # test for stack trace
 function test.console.trace {
-	console trace;
+  console trace;
 }
 
 # test for throwing an unknown error
 function test.console.throw.unknown {
-	console throw;
+  console throw;
 }
 
 # test for calling success
 function test.console.success {
-	console success "success, everything is really fine with this test" &
-	wait %%;
-	assert.eq "0" "$?";
+  console success "success, everything is really fine with this test" &
+  wait %%;
+  assert.eq "0" "$?";
 }
 
 # test for calling quit with no options
 function test.console.quit {
-	console quit & wait %%;
-	assert.eq "1" "$?";
+  console quit & wait %%;
+  assert.eq "1" "$?";
 }
 
 # test for calling quit with a specific exit code
 function test.console.quit.code {
-	console quit 127 &
-	wait %%;
-	assert.eq "127" "$?";
+  console quit 127 &
+  wait %%;
+  assert.eq "127" "$?";
 }
 
 # test for calling quit with a specific exit code and error message
 function test.console.quit.code.message {
-	console quit 127 "we quit the program with %s, but everything is really fine" "127" &
-	wait %%;
-	assert.eq "127" "$?";
+  console quit 127 "we quit the program with %s, but everything is really fine" "127" &
+  wait %%;
+  assert.eq "127" "$?";
 }

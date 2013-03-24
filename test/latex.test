@@ -2,77 +2,77 @@ require.once 'tasks/latex';
 
 # test(s) for task-latex(7) .pdf compile success
 function test.latex.compile.pdf {
-	executable.validate --test pdflatex;
-	if [ -n "${executables[pdflatex]}" ]; then
-		local valid="${root}/test/files/latex/valid";
-		local program="tasks.latex";
-		# test compiling with a single valid file
-		# and the default output logic: ${target}/pdf
-		"$program" --debug --dir "${valid}";
-		assert.eq "0" "$?";	
-		assert.file.exists? "${target}/pdf/test.pdf";
-	
-		# clean up
-		rm -rf "${target}/pdf";
-	
-		# same test but explicitly declaring pdf
-		# as the output format
-		"$program" pdf --debug --dir "${valid}";
-		assert.eq "0" "$?";
-		assert.file.exists? "${target}/pdf/test.pdf";
-	
-		# clean up
-		rm -rf "${target}/pdf";
-	fi
+  executable.validate --test pdflatex;
+  if [ -n "${executables[pdflatex]}" ]; then
+    local valid="${root}/test/files/latex/valid";
+    local program="tasks.latex";
+    # test compiling with a single valid file
+    # and the default output logic: ${target}/pdf
+    "$program" --debug --dir "${valid}";
+    assert.eq "0" "$?"; 
+    assert.file.exists? "${target}/pdf/test.pdf";
+  
+    # clean up
+    rm -rf "${target}/pdf";
+  
+    # same test but explicitly declaring pdf
+    # as the output format
+    "$program" pdf --debug --dir "${valid}";
+    assert.eq "0" "$?";
+    assert.file.exists? "${target}/pdf/test.pdf";
+  
+    # clean up
+    rm -rf "${target}/pdf";
+  fi
 }
 
 # test(s) for task-latex(7) .dvi compile success
 function test.latex.compile.dvi {
-	executable.validate --test pdflatex;
-	if [ -n "${executables[pdflatex]}" ]; then	
-		local valid="${root}/test/files/latex/valid";
-		local program="tasks.latex";
-		# test compiling with a single valid file
-		# and the default output logic: ${target}/dvi
-		"$program" dvi --debug --dir "${valid}";
-		assert.eq "0" "$?";
-		assert.file.exists? "${target}/dvi/test.dvi";
-	
-		# clean up
-		rm -rf "${target}/dvi";
-	fi
+  executable.validate --test pdflatex;
+  if [ -n "${executables[pdflatex]}" ]; then  
+    local valid="${root}/test/files/latex/valid";
+    local program="tasks.latex";
+    # test compiling with a single valid file
+    # and the default output logic: ${target}/dvi
+    "$program" dvi --debug --dir "${valid}";
+    assert.eq "0" "$?";
+    assert.file.exists? "${target}/dvi/test.dvi";
+  
+    # clean up
+    rm -rf "${target}/dvi";
+  fi
 }
 
 # test(s) for task-latex(7) .pdf compile failure
 function test.latex.compile.pdf.fail {
-	executable.validate --test pdflatex;
-	if [ -n "${executables[pdflatex]}" ]; then	
-		local invalid="${root}/test/files/latex/invalid";
-		local program="tasks.latex";
-		# test compiling with a single invalid file
-		# and the default output logic: ${target}/pdf
-		"$program" --dir "${invalid}" & wait %%;
-		assert.gt "0" "$?";
-		assert.file.exists! "${target}/pdf/test.pdf";
-	
-		# clean up
-		rm -rf "${target}/pdf";
-	fi
+  executable.validate --test pdflatex;
+  if [ -n "${executables[pdflatex]}" ]; then  
+    local invalid="${root}/test/files/latex/invalid";
+    local program="tasks.latex";
+    # test compiling with a single invalid file
+    # and the default output logic: ${target}/pdf
+    "$program" --dir "${invalid}" & wait %%;
+    assert.gt "0" "$?";
+    assert.file.exists! "${target}/pdf/test.pdf";
+  
+    # clean up
+    rm -rf "${target}/pdf";
+  fi
 }
 
 # test(s) for task-latex(7) .pdf compile directory structure
 function test.latex.compile.pdf.structure {
-	executable.validate --test pdflatex;
-	if [ -n "${executables[pdflatex]}" ]; then	
-		local structure="${root}/test/files/latex/structure";
-		local program="tasks.latex";
-		"$program" --debug --dir "${structure}";
-		assert.eq "0" "$?";
-		# should have one compiled document in the output root
-		assert.file.exists? "${target}/pdf/document.pdf";
-		# should also have one compiled document in the `info` directory
-		assert.file.exists? "${target}/pdf/info/document.pdf";
-		# clean up
-		# rm -rf "${target}/pdf";
-	fi
+  executable.validate --test pdflatex;
+  if [ -n "${executables[pdflatex]}" ]; then  
+    local structure="${root}/test/files/latex/structure";
+    local program="tasks.latex";
+    "$program" --debug --dir "${structure}";
+    assert.eq "0" "$?";
+    # should have one compiled document in the output root
+    assert.file.exists? "${target}/pdf/document.pdf";
+    # should also have one compiled document in the `info` directory
+    assert.file.exists? "${target}/pdf/info/document.pdf";
+    # clean up
+    # rm -rf "${target}/pdf";
+  fi
 }

@@ -1,45 +1,45 @@
 require 'array/file';
 
 test.array.write() {
-	local file="${target}/${FUNCNAME}";
-	declare -ag arr;
-	arr=( 3 2 1 "this is a string value" );
-	declare -Ag assoc;
-	assoc[key]="value";
-	assoc[greeting]="hello world";
-	
-	# write both arrays to a single file
-	array.write "$file" <<< "arr assoc";
-	
-	# clean up
-	unset arr;
-	unset assoc;
-	
-	# read in the array data
-	array.read < "$file";
-	
-	# alternative syntax for array.read, 
-	# behaviour is equivalent
-	# array.read "$file";
+  local file="${target}/${FUNCNAME}";
+  declare -ag arr;
+  arr=( 3 2 1 "this is a string value" );
+  declare -Ag assoc;
+  assoc[key]="value";
+  assoc[greeting]="hello world";
+  
+  # write both arrays to a single file
+  array.write "$file" <<< "arr assoc";
+  
+  # clean up
+  unset arr;
+  unset assoc;
+  
+  # read in the array data
+  array.read < "$file";
+  
+  # alternative syntax for array.read, 
+  # behaviour is equivalent
+  # array.read "$file";
 
-	!test.deserialized.array;
+  !test.deserialized.array;
 }
 
 !test.deserialized.array() {
-	
-	# plain array
-	assert.eq "4" "${#arr[@]}";
-	assert.equal "0 1 2 3" "${!arr[*]}";
-	assert.equal "3 2 1 this is a string value" "${arr[*]}";
-	assert.equal "3" "${arr[0]}";
-	assert.equal "2" "${arr[1]}";
-	assert.equal "1" "${arr[2]}";
-	assert.equal "this is a string value" "${arr[3]}";
-	
-	# associative array
-	assert.eq "2" "${#assoc[@]}";
-	assert.equal "key greeting" "${!assoc[*]}";
-	assert.equal "value hello world" "${assoc[*]}";
-	assert.equal "value" "${assoc[key]}";
-	assert.equal "hello world" "${assoc[greeting]}";
+  
+  # plain array
+  assert.eq "4" "${#arr[@]}";
+  assert.equal "0 1 2 3" "${!arr[*]}";
+  assert.equal "3 2 1 this is a string value" "${arr[*]}";
+  assert.equal "3" "${arr[0]}";
+  assert.equal "2" "${arr[1]}";
+  assert.equal "1" "${arr[2]}";
+  assert.equal "this is a string value" "${arr[3]}";
+  
+  # associative array
+  assert.eq "2" "${#assoc[@]}";
+  assert.equal "key greeting" "${!assoc[*]}";
+  assert.equal "value hello world" "${assoc[*]}";
+  assert.equal "value" "${assoc[key]}";
+  assert.equal "hello world" "${assoc[greeting]}";
 }

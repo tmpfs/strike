@@ -1,23 +1,23 @@
 # test for process.lib? output
 function test.process.lib? {
-	process.lib?;
-	assert.eq "0" "0";
+  process.lib?;
+  assert.eq "0" "0";
 }
 
 # test for process.pid output
 function test.process.pid {
-	local pid=`process.pid`;
-	console print "$FUNCNAME $pid";
-	assert.match "^[0-9]+$" "$pid";
+  local pid=`process.pid`;
+  console print "$FUNCNAME $pid";
+  assert.match "^[0-9]+$" "$pid";
 }
 
 # test for process.uptime output
 function test.process.uptime {
-	# sleep for a but to ensure it's non-zero
-	sleep 1;
-	process.uptime;
-	local uptime="$_result";
-	assert.gt "0" "$uptime";
+  # sleep for a but to ensure it's non-zero
+  sleep 1;
+  process.uptime;
+  local uptime="$_result";
+  assert.gt "0" "$uptime";
 }
 
 # TODO: add test for specifying a custom tmp dir
