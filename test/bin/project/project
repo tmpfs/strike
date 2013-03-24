@@ -15,226 +15,228 @@ assert.parse "$@";
 
 # tests for task-project(7)
 test.project() {
-	# mimic running from bake(1)
-	# and switch the `root` to `target`
-	# so we don't conflict with any projects.json
-	# file for this project
-	local target="${library_dirs[root]}/target";
-	local root="${target}";
-	local tasks="tasks";
-	local projectfile="${target}/projects.json";
-	# ensure we have a tmp `target` directory when
-	# run standalone
-	if [ ! -d "${target}" ]; then
-		mkdir -p "${target}" || quit 1 "could not create target directory %s" "${target}";
-	fi
-	# potentially hanging around from a previous failure
-	# clean up to give us the best chance of success
-	if [ -f "${projectfile}" ]; then
-		rm "${projectfile}" || quit 1 "could not remove %s" "${projectfile}";
-	fi
-	declare -A json_expected;
-	json_expected[init]=$( < "${process_dirs[root]}/init.json" );
-	json_expected[added1]=$( < "${process_dirs[root]}/added.1.json" );
-	json_expected[added1meta]=$( < "${process_dirs[root]}/added.1.meta.json" );
-	json_expected[added2]=$( < "${process_dirs[root]}/added.2.json" );
-	json_expected[added2nometa]=$( < "${process_dirs[root]}/added.2.nometa.json" );
-	json_expected[added3]=$( < "${process_dirs[root]}/added.3.json" );
-	
-	# last exit code
-	local code=1;
-	
-	# dummy project in `target`
-	local test_project_id="test-project";
-	local test_project_dup="test-project-new";
-	local test_project_path="./target/test/${test_project_id}";
-	
-	# create the test project
-	mkdir -p "${test_project_path}";
-	
-	# initialize an empty projects.json file
-	tasks.project init & wait %%;
-	assert.eq "0" "$?";
-	assert.file.exists? "${projectfile}";
-	
-	# attempt to call init with an existing projects file, exit code >0	
-	tasks.project init > /dev/null 2>&1 & wait %%;
-	assert.gt "0" "$?";
-	
-	# test print command
-	local contents=$( tasks.project print );
-	assert.equal "${json_expected[init]}" "$contents";
-	
-	# add a project
-	tasks.project add "${test_project_id}" "${test_project_path}";
-	assert.eq "0" "$?";
-	
-	# test print command
-	contents=$( tasks.project print );
-	assert.equal "${json_expected[added1]}" "$contents";
-	
-	# try to add a project with an id that already exists, exit code >0
-	tasks.project add "${test_project_id}" "${test_project_path}" > /dev/null 2>&1 & wait %%;
-	assert.gt "0" "$?";
-	
-	# but using the --force flag we should overwrite it
-	tasks.project add --force "${test_project_id}" "${test_project_path}";
-	assert.eq "0" "$?";
-	
-	# json output should be identical after forcefully adding
-	contents=$( tasks.project print );
-	assert.equal "${json_expected[added1]}" "$contents";
-	
-	# test exists command
-	tasks.project exists "${test_project_id}" & wait %%;
-	assert.eq "0" "$?";
-	tasks.project exists "non-existent-project" 2> /dev/null & wait %%;
-	assert.eq "1" "$?";
-	
-	# test ls command
-	local projects=( $( tasks.project ls ) );
-	assert.equal "${test_project_id}" "${projects[0]}";
-	assert.equal "${test_project_path}" "${projects[1]}";
+  # mimic running from bake(1)
+  # and switch the `root` to `target`
+  # so we don't conflict with any projects.json
+  # file for this project
+  local target="${library_dirs[root]}/target";
+  local root="${target}";
+  local tasks="tasks";
+  local projectfile="${target}/projects.json";
+  # ensure we have a tmp `target` directory when
+  # run standalone
+  if [ ! -d "${target}" ]; then
+    mkdir -p "${target}" || quit 1 "could not create target directory %s" "${target}";
+  fi
+  # potentially hanging around from a previous failure
+  # clean up to give us the best chance of success
+  if [ -f "${projectfile}" ]; then
+    rm "${projectfile}" || quit 1 "could not remove %s" "${projectfile}";
+  fi
+  declare -A json_expected;
+  json_expected[init]=$( < "${process_dirs[root]}/init.json" );
+  json_expected[added1]=$( < "${process_dirs[root]}/added.1.json" );
+  json_expected[added1meta]=$( < "${process_dirs[root]}/added.1.meta.json" );
+  json_expected[added2]=$( < "${process_dirs[root]}/added.2.json" );
+  json_expected[added2nometa]=$( < "${process_dirs[root]}/added.2.nometa.json" );
+  json_expected[added3]=$( < "${process_dirs[root]}/added.3.json" );
+  
+  # last exit code
+  local code=1;
+  
+  # dummy project in `target`
+  local test_project_id="test-project";
+  local test_project_dup="test-project-new";
+  local test_project_path="./target/test/${test_project_id}";
+  
+  # create the test project
+  mkdir -p "${test_project_path}";
+  
+  # initialize an empty projects.json file
+  tasks.project init & wait %%;
+  assert.eq "0" "$?";
+  assert.file.exists? "${projectfile}";
+  
+  # attempt to call init with an existing projects file, exit code >0 
+  tasks.project init > /dev/null 2>&1 & wait %%;
+  assert.gt "0" "$?";
+  
+  # test print command
+  local contents=$( tasks.project print );
+  assert.equal "${json_expected[init]}" "$contents";
+  
+  # add a project
+  tasks.project add "${test_project_id}" "${test_project_path}";
+  assert.eq "0" "$?";
+  
+  # test print command
+  contents=$( tasks.project print );
+  assert.equal "${json_expected[added1]}" "$contents";
+  
+  # try to add a project with an id that already exists, exit code >0
+  tasks.project add "${test_project_id}" "${test_project_path}" > /dev/null 2>&1 & wait %%;
+  assert.gt "0" "$?";
+  
+  # but using the --force flag we should overwrite it
+  tasks.project add --force "${test_project_id}" "${test_project_path}";
+  assert.eq "0" "$?";
+  
+  # json output should be identical after forcefully adding
+  contents=$( tasks.project print );
+  assert.equal "${json_expected[added1]}" "$contents";
+  
+  # test exists command
+  tasks.project exists "${test_project_id}" & wait %%;
+  assert.eq "0" "$?";
+  tasks.project exists "non-existent-project" 2> /dev/null & wait %%;
+  assert.eq "1" "$?";
+  
+  # test ls command
+  local projects=( $( tasks.project ls ) );
+  assert.equal "${test_project_id}" "${projects[0]}";
+  assert.equal "${test_project_path}" "${projects[1]}";
 
-	local count=$( tasks.project count );
-	assert.eq "1" "${count}";	
-	
-	# add some meta information to the first project
-	tasks.project set "${test_project_id}" "license" "MIT" "License";
-	tasks.project set "${test_project_id}" "author" "muji";
-	tasks.project set "${test_project_id}" "email" "<noop@xpm.io>";
+  local count=$( tasks.project count );
+  assert.eq "1" "${count}"; 
+  
+  # add some meta information to the first project
+  tasks.project set "${test_project_id}" "license" "MIT" "License";
+  tasks.project set "${test_project_id}" "author" "muji";
+  tasks.project set "${test_project_id}" "email" "<noop@xpm.io>";
 
-	# check json output after adding the meta information
-	contents=$( tasks.project print );
-	assert.equal "${json_expected[added1meta]}" "$contents";
-	
-	# list all properties and assert on length
-	local properties=( $( tasks.project get ) );
-	assert.eq "10" "${#properties[@]}";
-	
-	# attempt to set property on non-existent project
-	tasks.project set "${test_project_dup}" "license" "MIT" "License" > /dev/null 2>&1 & wait %%;
-	assert.gt "0" "$?";
-	
-	# add another project
-	tasks.project add "${test_project_dup}" "${test_project_path}";
-	assert.eq "0" "$?";
-	
-	# verify json after adding the second project
-	contents=$( tasks.project print );
-	assert.equal "${json_expected[added2]}" "$contents";
-	
-	# should have two projects now
-	count=$( tasks.project count );
-	assert.eq "2" "${count}";	
-	
-	# add a property to the second project
-	tasks.project set "${test_project_dup}" "license" "MIT" "License";
-	
-	# 
-	# tasks.project print --pretty;
-	# exit 0;
-	
-	# list all properties after adding property to second project
-	# and assert on length
-	properties=( $( tasks.project get ) );
-	assert.eq "14" "${#properties[@]}";
+  # check json output after adding the meta information
+  contents=$( tasks.project print );
+  assert.equal "${json_expected[added1meta]}" "$contents";
+  
+  # list all properties and assert on length
+  local properties=( $( tasks.project get ) );
+  assert.eq "10" "${#properties[@]}";
+  
+  # attempt to set property on non-existent project
+  tasks.project set "${test_project_dup}" "license" "MIT" "License" > /dev/null 2>&1 & wait %%;
+  assert.gt "0" "$?";
+  
+  # add another project
+  tasks.project add "${test_project_dup}" "${test_project_path}";
+  assert.eq "0" "$?";
+  
+  # verify json after adding the second project
+  contents=$( tasks.project print );
+  assert.equal "${json_expected[added2]}" "$contents";
+  
+  # should have two projects now
+  count=$( tasks.project count );
+  assert.eq "2" "${count}"; 
+  
+  # add a property to the second project
+  tasks.project set "${test_project_dup}" "license" "MIT" "License";
+  
+  # 
+  # tasks.project print --pretty;
+  # exit 0;
+  
+  # list all properties after adding property to second project
+  # and assert on length
+  properties=( $( tasks.project get ) );
+  assert.eq "14" "${#properties[@]}";
 
-	# list all meta properties for the first project
-	properties=( $( tasks.project get "${test_project_id}" ) );
-	assert.eq "10" "${#properties[@]}";
-	
-	# # list a specific property for the second project
-	properties=( $( tasks.project get "${test_project_dup}" "license" ) );
-	assert.eq "4" "${#properties[@]}";
-	
-	# delete all the properties from the first project
-	tasks.project del "${test_project_id}" "license" "author" "email";
-	
-	# should only have 4 entries now
-	properties=( $( tasks.project get ) );
-	assert.eq "4" "${#properties[@]}";
-	
-	# delete the property added to the duplicate
-	tasks.project del "${test_project_dup}" "license";
-	
-	# json output should be correct
-	contents=$( tasks.project print );
-	assert.equal "${json_expected[added2nometa]}" "$contents";
-	
-	# remove the second project added
-	tasks.project rm "${test_project_dup}";
-	
-	# back to only a single project
-	# after the call to rm
-	count=$( tasks.project count );
-	assert.eq "1" "${count}";
-	
-	# assert the original project data is present and correct
-	projects=( $( tasks.project ls ) );
-	assert.equal "${test_project_id}" "${projects[0]}";
-	assert.equal "${test_project_path}" "${projects[1]}";
-	
-	# and re-test the print command
-	contents=$( tasks.project print );
-	assert.equal "${json_expected[added1]}" "$contents";
-	
-	# original project should still exist
-	tasks.project exists "${test_project_id}" > /dev/null 2>&1 & wait %%;
-	assert.eq "0" "$?";
-	
-	# but the removed project should not
-	tasks.project exists "${test_project_dup}" > /dev/null 2>&1 & wait %%;
-	assert.gt "0" "$?";
-	
-	# use the -f flag to overwrite with some related urls
-	# this time we specify the flag at the end to ensure it's not added
-	# to the list of urls
-	tasks.project add "${test_project_id}" "${test_project_path}" "http://github.com/freeformsystems/strike" "http://github.com/freeformsystems/hosts" -f;
-	assert.eq "0" "$?";
-	
-	contents=$( tasks.project print );
-	assert.equal "${json_expected[added3]}" "$contents";
-	
-	# add the second project again!
-	tasks.project add "${test_project_dup}" "${test_project_path}";
-	assert.eq "0" "$?";
-	
-	# should have two projects now
-	count=$( tasks.project count );
-	assert.eq "2" "${count}";
-	
-	#now remove them both
-	tasks.project rm "${test_project_id}" "${test_project_dup}";
-	
-	# no projects left
-	count=$( tasks.project count );
-	assert.eq "0" "${count}";
-	projects=( $( tasks.project ls ) );	
-	assert.eq "0" "${#projects[@]}";
-	
-	# json output should be equal to the original `init`
-	contents=$( tasks.project print );
-	assert.equal "${json_expected[init]}" "$contents";
-	
-	#attempt to remove non-existent project(s), exit code >0
-	tasks.project rm "${test_project_id}" "${test_project_dup}" > /dev/null 2>&1 & wait %%;
-	assert.gt "0" "$?";
-	
-	# clean up the test file
-	{ rm "${projectfile}" && console info "%s removed project file %s" "$FUNCNAME" "$projectfile"; };
-	
-	# exists fails on no project file
-	tasks.project exists "${test_project_id}" > /dev/null 2>&1 & wait %%;
-	assert.gt "0" "$?";
-	
-	# ls fails on no project file
-	tasks.project ls "${test_project_id}" > /dev/null 2>&1 & wait %%;
-	assert.gt "0" "$?";
-	
-	# print the summary
-	assert.summary;
+  # list all meta properties for the first project
+  properties=( $( tasks.project get "${test_project_id}" ) );
+  assert.eq "10" "${#properties[@]}";
+  
+  # # list a specific property for the second project
+  properties=( $( tasks.project get "${test_project_dup}" "license" ) );
+  assert.eq "4" "${#properties[@]}";
+  
+  # delete all the properties from the first project
+  tasks.project del "${test_project_id}" "license" "author" "email";
+  
+  # should only have 4 entries now
+  properties=( $( tasks.project get ) );
+  assert.eq "4" "${#properties[@]}";
+  
+  # delete the property added to the duplicate
+  tasks.project del "${test_project_dup}" "license";
+  
+  # json output should be correct
+  contents=$( tasks.project print );
+  assert.equal "${json_expected[added2nometa]}" "$contents";
+  
+  # remove the second project added
+  tasks.project rm "${test_project_dup}";
+  
+  # back to only a single project
+  # after the call to rm
+  count=$( tasks.project count );
+  assert.eq "1" "${count}";
+  
+  # assert the original project data is present and correct
+  projects=( $( tasks.project ls ) );
+  assert.equal "${test_project_id}" "${projects[0]}";
+  assert.equal "${test_project_path}" "${projects[1]}";
+  
+  # and re-test the print command
+  contents=$( tasks.project print );
+  assert.equal "${json_expected[added1]}" "$contents";
+  
+  # original project should still exist
+  tasks.project exists "${test_project_id}" > /dev/null 2>&1 & wait %%;
+  assert.eq "0" "$?";
+  
+  # but the removed project should not
+  tasks.project exists "${test_project_dup}" > /dev/null 2>&1 & wait %%;
+  assert.gt "0" "$?";
+  
+  # use the -f flag to overwrite with some related urls
+  # this time we specify the flag at the end to ensure it's not added
+  # to the list of urls
+  tasks.project add "${test_project_id}" "${test_project_path}" \
+    "http://github.com/freeformsystems/strike" \
+    "http://github.com/freeformsystems/hosts" -f;
+  assert.eq "0" "$?";
+  
+  contents=$( tasks.project print );
+  assert.equal "${json_expected[added3]}" "$contents";
+  
+  # add the second project again!
+  tasks.project add "${test_project_dup}" "${test_project_path}";
+  assert.eq "0" "$?";
+  
+  # should have two projects now
+  count=$( tasks.project count );
+  assert.eq "2" "${count}";
+  
+  #now remove them both
+  tasks.project rm "${test_project_id}" "${test_project_dup}";
+  
+  # no projects left
+  count=$( tasks.project count );
+  assert.eq "0" "${count}";
+  projects=( $( tasks.project ls ) ); 
+  assert.eq "0" "${#projects[@]}";
+  
+  # json output should be equal to the original `init`
+  contents=$( tasks.project print );
+  assert.equal "${json_expected[init]}" "$contents";
+  
+  #attempt to remove non-existent project(s), exit code >0
+  tasks.project rm "${test_project_id}" \
+    "${test_project_dup}" > /dev/null 2>&1 & wait %%;
+  assert.gt "0" "$?";
+  
+  # clean up the test file
+  { rm "${projectfile}" && console info "%s removed project file %s" "$FUNCNAME" "$projectfile"; };
+  
+  # exists fails on no project file
+  tasks.project exists "${test_project_id}" > /dev/null 2>&1 & wait %%;
+  assert.gt "0" "$?";
+  
+  # ls fails on no project file
+  tasks.project ls "${test_project_id}" > /dev/null 2>&1 & wait %%;
+  assert.gt "0" "$?";
+  
+  # print the summary
+  assert.summary;
 }
 
 test.project;
-exit 0;
