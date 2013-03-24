@@ -50,7 +50,7 @@ doc.man.commands.build() {
 }
 
 doc.man.commands.copy() {
-  cp "${process_dirs[doc]}/ronn/"*.ronn "${output}";
+  cp -v "${root}/doc/ronn/"*.ronn "${output}";
 }
 
 # generates ronn markdown documentation
@@ -151,6 +151,7 @@ __tasks.doc.walk() {
 				# parse any files found
 				if [ -f "$file" ]; then
 					if [[ "$file" =~ .ronn$ ]]; then
+            console info "copy %s" "${file}" "${output}";
 						cp "$file" "$output" \
               || console quit 1 "could not copy %s" "$file";
 					else
