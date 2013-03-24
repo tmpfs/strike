@@ -2,6 +2,9 @@ AUTOMAKE_OPTIONS = foreign
 # SUBDIRS = lib
 # SUBDIRS = bin man lib test
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = strike.pc
+
 # dist_data_DATA = lib man test
 #
 

@@ -1,19 +1,18 @@
 AC_INIT([strike], [0.1.39], [bugs@xpm.io])
 AM_INIT_AUTOMAKE([1.10 foreign])
+# silent-rules
 AC_PROG_AWK
 AC_PROG_EGREP
 AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
-
+PKG_PROG_PKG_CONFIG
 #bin_PROGRAMS = bin/bake
 #man1_MANS = man/bake.1
 
 #EXTRA_DIST = lib LICENSE README.md
 
-#pkgconfigdir = $(libdir)/pkgconfig
-#pkgconfig_DATA = strike.pc
 
 # check for curl
 AC_PATH_PROG(BASH_CHECK,bash,yes)
