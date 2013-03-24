@@ -1,14 +1,14 @@
 if [ -z "${!summary[@]:-}" ]; then
-	# the test summary must be global and exported for executables
-	# using inline assertions to be picked
-	declare -Ag summary;
-	summary[total]=0;	
-	summary[suites]=0;
-	summary[executables]=0;
-	summary[methods]=0;	
-	summary[assertions]=0;
-	summary[assertions.pass]=0;
-	summary[assertions.fail]=0;
+  # the test summary must be global and exported for executables
+  # using inline assertions to be picked
+  declare -Ag summary;
+  summary[total]=0; 
+  summary[suites]=0;
+  summary[executables]=0;
+  summary[methods]=0; 
+  summary[assertions]=0;
+  summary[assertions.pass]=0;
+  summary[assertions.fail]=0;
 fi
 
 # default to running as a standalone
@@ -19,75 +19,75 @@ declare -g assert_header;
 # CONSTRUCTOR
 
 function assert.initialize {
-	string.repeat "+" 80;
-	assert_header="$_result";
+  string.repeat "+" 80;
+  assert_header="$_result";
 }
 
 # MANUAL ASSERTIONS
 
 function assert.pass {
-	__assert_ok "$FUNCNAME" "$@";
+  __assert_ok "$FUNCNAME" "$@";
 }
 
 function assert.fail {
-	__assert_err "$FUNCNAME" "$@";
+  __assert_err "$FUNCNAME" "$@";
 }
 
 # STRING ASSERTIONS
 
 # asserts that two string values are equal
 function assert.equal {
-	local expected="${1:-}";
-	local received="${2:-}";
-	if [ "$expected" == "$received" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		__assert_err "$FUNCNAME";
-	fi
+  local expected="${1:-}";
+  local received="${2:-}";
+  if [ "$expected" == "$received" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # asserts that a string matches a regex
 function assert.match {
-	local expected="${1:-}";
-	local received="${2:-}";
-	if [[ "$received" =~ $expected ]]; then
-		__assert_ok "$FUNCNAME";
-	else
-		__assert_err "$FUNCNAME";
-	fi
+  local expected="${1:-}";
+  local received="${2:-}";
+  if [[ "$received" =~ $expected ]]; then
+    __assert_ok "$FUNCNAME";
+  else
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # asserts that a string does not matche a regex
 function assert.match! {
-	local expected="${1:-}";
-	local received="${2:-}";
-	if [[ "$received" =~ $expected ]]; then
-		__assert_err "$FUNCNAME";
-	else
-		__assert_ok "$FUNCNAME";
-	fi
+  local expected="${1:-}";
+  local received="${2:-}";
+  if [[ "$received" =~ $expected ]]; then
+    __assert_err "$FUNCNAME";
+  else
+    __assert_ok "$FUNCNAME";
+  fi
 }
 
 # asserts that a string is the empty string
 function assert.empty? {
-	local expected="-z";
-	local received="${1:-}";
-	if [ -z "$received" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		__assert_err "$FUNCNAME";
-	fi
+  local expected="-z";
+  local received="${1:-}";
+  if [ -z "$received" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # asserts that a string is not the empty string
 function assert.empty! {
-	local expected="-n";
-	local received="${1:-}";
-	if [ -n "$received" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		__assert_err "$FUNCNAME";
-	fi
+  local expected="-n";
+  local received="${1:-}";
+  if [ -n "$received" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # NUMERIC ASSERTIONS
@@ -95,313 +95,313 @@ function assert.empty! {
 # asserts that an integer is greater than
 # an expected value
 function assert.gt {
-	local expected="${1:-}";
-	local received="${2:-}";
-	if [ "$received" -gt "$expected" ]; then
-		__assert_ok "$FUNCNAME";
-	else		
-		expected=">$expected";
-		__assert_err "$FUNCNAME";
-	fi
+  local expected="${1:-}";
+  local received="${2:-}";
+  if [ "$received" -gt "$expected" ]; then
+    __assert_ok "$FUNCNAME";
+  else    
+    expected=">$expected";
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # asserts that an integer is less than
 # an expected value
 function assert.lt {
-	local expected="${1:-}";
-	local received="${2:-}";
-	if [ "$received" -lt "$expected" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		expected="<$expected";
-		__assert_err "$FUNCNAME";
-	fi
+  local expected="${1:-}";
+  local received="${2:-}";
+  if [ "$received" -lt "$expected" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    expected="<$expected";
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # asserts that an integer is equal to
 # an expected value
 function assert.eq {
-	local expected="${1:-}";
-	local received="${2:-}";
-	if [ "$received" -eq "$expected" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		expected="==$expected";
-		__assert_err "$FUNCNAME";
-	fi
+  local expected="${1:-}";
+  local received="${2:-}";
+  if [ "$received" -eq "$expected" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    expected="==$expected";
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # asserts that an integer is not equal to
 # an expected value
 function assert.ne {
-	local expected="${1:-}";
-	local received="${2:-}";
-	if [ "$received" -ne "$expected" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		expected="!=$expected";
-		__assert_err "$FUNCNAME";
-	fi
+  local expected="${1:-}";
+  local received="${2:-}";
+  if [ "$received" -ne "$expected" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    expected="!=$expected";
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # FILE ASSERTIONS
 
 # assert that a file is a regular file with -f
 function assert.file.exists? {
-	# TODO: add custom error message
-	local expected="0";
-	`test -f "$1"`;
-	local received="$?";
-	console info "$FUNCNAME %s" "$1";	
-	if [ "$expected" == "$received" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		__assert_err "$FUNCNAME";
-	fi
+  # TODO: add custom error message
+  local expected="0";
+  `test -f "$1"`;
+  local received="$?";
+  console info "$FUNCNAME %s" "$1"; 
+  if [ "$expected" == "$received" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # assert that a file does not exist
 function assert.file.exists! {
-	# TODO: add custom error message
-	local expected="1";
-	`test -f "$1"`;
-	local received="$?";
-	console info "$FUNCNAME %s" "$1";
-	if [ "$expected" == "$received" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		__assert_err "$FUNCNAME";
-	fi
+  # TODO: add custom error message
+  local expected="1";
+  `test -f "$1"`;
+  local received="$?";
+  console info "$FUNCNAME %s" "$1";
+  if [ "$expected" == "$received" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # assert that a file is a directory with -d
 function assert.dir.exists? {
-	# TODO: add custom error message
-	local expected="0";
-	`test -d "$1"`;
-	local received="$?";
-	console info "$FUNCNAME %s" "$1";	
-	if [ "$expected" == "$received" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		__assert_err "$FUNCNAME";
-	fi
+  # TODO: add custom error message
+  local expected="0";
+  `test -d "$1"`;
+  local received="$?";
+  console info "$FUNCNAME %s" "$1"; 
+  if [ "$expected" == "$received" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # assert that a file is not a directory
 function assert.dir.exists! {
-	# TODO: add custom error message
-	local expected="1";
-	`test -d "$1"`;
-	local received="$?";
-	console info "$FUNCNAME %s" "$1";	
-	if [ "$expected" == "$received" ]; then
-		__assert_ok "$FUNCNAME";
-	else
-		__assert_err "$FUNCNAME";
-	fi
+  # TODO: add custom error message
+  local expected="1";
+  `test -d "$1"`;
+  local received="$?";
+  console info "$FUNCNAME %s" "$1"; 
+  if [ "$expected" == "$received" ]; then
+    __assert_ok "$FUNCNAME";
+  else
+    __assert_err "$FUNCNAME";
+  fi
 }
 
 # parses command line options to see whether
 # this test is running standalone or from a test runner
 function assert.parse {
-	#echo "assert.parse: $@";
-	: $((summary[executables]++));
-	local i opt;
-	for((i=1;i < $#+1;i++))
-		do
-			eval "opt=\"\${$i}\"";
-			case $opt in
-				--suite )
-					__assert_standalone=false;
-					;;
-				--standalone )
-					__assert_standalone=true;
-					;;
-			esac
-	done
+  #echo "assert.parse: $@";
+  : $((summary[executables]++));
+  local i opt;
+  for((i=1;i < $#+1;i++))
+    do
+      eval "opt=\"\${$i}\"";
+      case $opt in
+        --suite )
+          __assert_standalone=false;
+          ;;
+        --standalone )
+          __assert_standalone=true;
+          ;;
+      esac
+  done
 }
 
 # output the assertion summary
 function assert.summary {
-	local write="${1:-true}";
-	summary[total]=$(( ${summary[suites]} + ${summary[executables]} ));
-	if $write; then
-		__assert.write.summary!;
-	fi
-	# if running standalone then
-	# we print the summary
-	if $__assert_standalone; then
-		__assert.print.summary;
-	fi
-	return 0;
+  local write="${1:-true}";
+  summary[total]=$(( ${summary[suites]} + ${summary[executables]} ));
+  if $write; then
+    __assert.write.summary!;
+  fi
+  # if running standalone then
+  # we print the summary
+  if $__assert_standalone; then
+    __assert.print.summary;
+  fi
+  return 0;
 }
 
 ######################################################################
 #
-#	PRIVATE METHODS
+# PRIVATE METHODS
 #
 ######################################################################
 
 function __assert.write.summary! {
-	require.once json;	
-	
-	fs.walk "tasks";
-	local base=$( dirname "$_result" );
-	local target="${target:-}";
-	if [ -z "${target}" ]; then
-		target="${base}/target";
-	fi
-	local test_result_dir="${target}/test/result/bin";
-	if [ ! -d "$test_result_dir" ]; then
-		mkdir -p "$test_result_dir";
-	fi
-	local name="${process_dirs[root]}";
-	name="${name#${base}/test}";
-	name="${name#/}";
-	name="${name#bin/}";
-	name="${name//\//.}";
-	if [ -z "$name" ]; then
-		name="${process_name}";
-	else
-		name="${name}.${process_name}";
-	fi
-	local resultfile="${test_result_dir}/${name}.json";
-	json.stringify <<< "summary" >| "${resultfile}" || quit 1 "could not create json result data";
+  require.once json;  
+  
+  fs.walk "tasks";
+  local base=$( dirname "$_result" );
+  local target="${target:-}";
+  if [ -z "${target}" ]; then
+    target="${base}/target";
+  fi
+  local test_result_dir="${target}/test/result/bin";
+  if [ ! -d "$test_result_dir" ]; then
+    mkdir -p "$test_result_dir";
+  fi
+  local name="${process_dirs[root]}";
+  name="${name#${base}/test}";
+  name="${name#/}";
+  name="${name#bin/}";
+  name="${name//\//.}";
+  if [ -z "$name" ]; then
+    name="${process_name}";
+  else
+    name="${name}.${process_name}";
+  fi
+  local resultfile="${test_result_dir}/${name}.json";
+  json.stringify <<< "summary" >| "${resultfile}" || quit 1 "could not create json result data";
 }
 
 function __assert_ok {
-	local ttyout="${ttyout:-}";
-	
-	if [ -n "${!summary[*]}" ]; then
-		: $((summary[assertions]++));
-		: $((summary[assertions.pass]++));
-	fi
-	
-	local assertion="$1";
-	local stack=( $( caller 1 ) );
-	local method="${stack[1]}";
-	
-	# SEE: https://groups.google.com/forum/?fromgroups=#!topic/gnu.bash.bug/E5Vdqv3tO1w
-	if [ ! -z "$ttyout" ]; then
-		# save stdout in file descriptor #5		
-		exec 5>&1;
-		exec 1> /dev/tty;
-	fi
+  local ttyout="${ttyout:-}";
+  
+  if [ -n "${!summary[*]}" ]; then
+    : $((summary[assertions]++));
+    : $((summary[assertions.pass]++));
+  fi
+  
+  local assertion="$1";
+  local stack=( $( caller 1 ) );
+  local method="${stack[1]}";
+  
+  # SEE: https://groups.google.com/forum/?fromgroups=#!topic/gnu.bash.bug/E5Vdqv3tO1w
+  if [ ! -z "$ttyout" ]; then
+    # save stdout in file descriptor #5   
+    exec 5>&1;
+    exec 1> /dev/tty;
+  fi
 
-	if [ $# -eq 1 ]; then
-		console info "$assertion %s" "$method";
-	elif [ $# -gt 1 ]; then
-		# custom message
-		console info "${@:2}";
-	fi
-	
-	if [ ! -z "$ttyout" ]; then	
-		# restore stdout and close file descriptor #5
-		exec 1>&5 5>&-;
-	fi
+  if [ $# -eq 1 ]; then
+    console info "$assertion %s" "$method";
+  elif [ $# -gt 1 ]; then
+    # custom message
+    console info "${@:2}";
+  fi
+  
+  if [ ! -z "$ttyout" ]; then 
+    # restore stdout and close file descriptor #5
+    exec 1>&5 5>&-;
+  fi
 }
 
 function __assert_err {
-	local ttyerr="${ttyerr:-}";	
-	
-	if [ -n "${!summary[*]}" ]; then
-		: $((summary[assertions]++));
-		: $((summary[assertions.fail]++));
-	fi
-	
-	local assertion="$1";
-	local stack=( $( caller 1) );
-	local lineno="${stack[0]}";
-	local method="${stack[1]}";
-	local file="${stack[2]}";
-	local frame="${file}:${lineno}";
-	if [ ! -z "$ttyerr" ]; then
-		# save stdout in file descriptor #6	
-		exec 6>&1;
-		exec 2> /dev/tty;
-	fi
-	
-	if [ $# -eq 1 ]; then
-		console error "$assertion %s" "$method";	
-		console error "$frame";
-		console error "expected %s, got %s" "$expected" "$received";
-	elif [ $# -gt 1 ]; then
-		# custom message
-		console error "${@:2}";
-	fi
-	
-	# TODO: allos stack traces to be switched off
-	console trace;
-	
-	# FIXME: correct this test for the presence of the failures list?
-	if [ "${!failures[@]}" ]; then
-		failures["${frame}:${method}"]="$assertion";
-	fi
-	
-	if [ ! -z "$ttyerr" ]; then
-		# restore stderr and close file descriptor #6
-		exec 1>&6 6>&-;
-	fi
+  local ttyerr="${ttyerr:-}"; 
+  
+  if [ -n "${!summary[*]}" ]; then
+    : $((summary[assertions]++));
+    : $((summary[assertions.fail]++));
+  fi
+  
+  local assertion="$1";
+  local stack=( $( caller 1) );
+  local lineno="${stack[0]}";
+  local method="${stack[1]}";
+  local file="${stack[2]}";
+  local frame="${file}:${lineno}";
+  if [ ! -z "$ttyerr" ]; then
+    # save stdout in file descriptor #6 
+    exec 6>&1;
+    exec 2> /dev/tty;
+  fi
+  
+  if [ $# -eq 1 ]; then
+    console error "$assertion %s" "$method";  
+    console error "$frame";
+    console error "expected %s, got %s" "$expected" "$received";
+  elif [ $# -gt 1 ]; then
+    # custom message
+    console error "${@:2}";
+  fi
+  
+  # TODO: allos stack traces to be switched off
+  console trace;
+  
+  # FIXME: correct this test for the presence of the failures list?
+  if [ "${!failures[@]}" ]; then
+    failures["${frame}:${method}"]="$assertion";
+  fi
+  
+  if [ ! -z "$ttyerr" ]; then
+    # restore stderr and close file descriptor #6
+    exec 1>&6 6>&-;
+  fi
 }
 
 function __assert.print.summary {
-	
-	# switch output method for summary
-	# based on any assertions failing
-	local output="console info";
-	
-	output_options="--no-prefix"
-	
-	# some assertions failed
-	
-	if [ ${summary[assertions.fail]} -gt 0 ]; then
-		# TODO: ensure [warn] prefix is not displayed, after console(3) refactoring
-		output="console warn";
-		output_options="${output_options} --text=magenta";
-	fi
-	
-	console header $output_options;
-	$output $output_options "RESULT";
-	console header $output_options;
-	
-	$output $output_options "suites (total): %s" "${summary[total]}";
-	$output $output_options "suites (binary): %s" "${summary[executables]}";
-	$output $output_options "suites (test): %s" "${summary[suites]}";
-	$output $output_options "methods: %s" "${summary[methods]}";
-	$output $output_options "assertions: %s" "${summary[assertions]}";
-	$output $output_options "assertions (pass): %s" "${summary[assertions.pass]}";
-	
-	$output $output_options \
-		"assertions (fail): %s" "${summary[assertions.fail]}";
-	
-	if [ ${summary[assertions.fail]} -eq 0 ]; then
-		console header $output_options;
-		console success "test(s) passed";
-	else
-		
-		console header $output_options;
-		$output $output_options "FAILURES";
-		console header $output_options;
-		
-		if [ -n "${stdout:-}" ]; then
-			$output $output_options "STDOUT: %s" "$stdout";
-		fi
-		if [ -n "${stderr:-}" ]; then
-			$output $output_options "STDERR: %s" "$stderr";
-		fi
-		console header $output_options;
-		
-		local debuginfo;
-		for debuginfo in ${!failures[@]}
-			do
-				local assertion="${failures[$debuginfo]}";
-				local frame=${debuginfo%:*};
-				local method=${debuginfo##*:};
-				console error "$assertion %s" "$method";
-				console error "$frame";
-		done
-		
-		console quit ${summary[assertions.fail]} "test(s) failed";
-	fi
+  
+  # switch output method for summary
+  # based on any assertions failing
+  local output="console info";
+  
+  output_options="--no-prefix"
+  
+  # some assertions failed
+  
+  if [ ${summary[assertions.fail]} -gt 0 ]; then
+    # TODO: ensure [warn] prefix is not displayed, after console(3) refactoring
+    output="console warn";
+    output_options="${output_options} --text=magenta";
+  fi
+  
+  console header $output_options;
+  $output $output_options "RESULT";
+  console header $output_options;
+  
+  $output $output_options "suites (total): %s" "${summary[total]}";
+  $output $output_options "suites (binary): %s" "${summary[executables]}";
+  $output $output_options "suites (test): %s" "${summary[suites]}";
+  $output $output_options "methods: %s" "${summary[methods]}";
+  $output $output_options "assertions: %s" "${summary[assertions]}";
+  $output $output_options "assertions (pass): %s" "${summary[assertions.pass]}";
+  
+  $output $output_options \
+    "assertions (fail): %s" "${summary[assertions.fail]}";
+  
+  if [ ${summary[assertions.fail]} -eq 0 ]; then
+    console header $output_options;
+    console success "test(s) passed";
+  else
+    
+    console header $output_options;
+    $output $output_options "FAILURES";
+    console header $output_options;
+    
+    if [ -n "${stdout:-}" ]; then
+      $output $output_options "STDOUT: %s" "$stdout";
+    fi
+    if [ -n "${stderr:-}" ]; then
+      $output $output_options "STDERR: %s" "$stderr";
+    fi
+    console header $output_options;
+    
+    local debuginfo;
+    for debuginfo in ${!failures[@]}
+      do
+        local assertion="${failures[$debuginfo]}";
+        local frame=${debuginfo%:*};
+        local method=${debuginfo##*:};
+        console error "$assertion %s" "$method";
+        console error "$frame";
+    done
+    
+    console quit ${summary[assertions.fail]} "test(s) failed";
+  fi
 }
