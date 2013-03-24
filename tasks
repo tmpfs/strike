@@ -39,9 +39,12 @@ tdd.suite.exclude! "custom-install.sh";
 
 taskinfo auto "Run autoreconf";
 tasks.auto() {
-	autoreconf;
+	autoreconf -fi;
 	#./configure && make;
-	./configure # && make && make install;
+  local prefix="${target}/install";
+  mkdir -p "${prefix}";
+	./configure --prefix="${prefix}";
+  make && make install;
 }
 
 taskinfo jsoncc "Compile json checker source";

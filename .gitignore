@@ -16,4 +16,5 @@ configure
 Makefile.in
 aclocal.m4
 Makefile
+strike.pc
 bug*
