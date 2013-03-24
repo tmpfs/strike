@@ -11,74 +11,74 @@ require 'assert';
 # part of a task-test(7) test suite
 assert.parse "$@";
 
-function signals {
-	
-	# trap handlers
-	signal.on()
-	{
-		return 0;
-	}
-	
-	signal.dup()
-	{
-		return 0;
-	}
-	
-	local __signals="${process_signals[@]}";
-	local signal;
-	for signal in ${__signals[@]}
-		do
-			# listen for everything, except err and debug as they are too noisy
-			if [ "$signal" != "err" ] && [ "$signal" != "debug" ]; then
-				
-				# switch on handling of the signal
-				process.on "$signal";
-				
-				# register first callback with
-				# a custom method
-				process.signal.on "signal.on" "$signal";
+signals() {
+  
+  # trap handlers
+  signal.on()
+  {
+    return 0;
+  }
+  
+  signal.dup()
+  {
+    return 0;
+  }
+  
+  local __signals="${process_signals[@]}";
+  local signal;
+  for signal in ${__signals[@]}
+    do
+      # listen for everything, except err and debug as they are too noisy
+      if [ "$signal" != "err" ] && [ "$signal" != "debug" ]; then
+        
+        # switch on handling of the signal
+        process.on "$signal";
+        
+        # register first callback with
+        # a custom method
+        process.signal.on "signal.on" "$signal";
 
-				# assert on callbacks
-				process.signal.list "$signal";
-				assert.equal "signal.on" "$_result";
-				
-				# register another callback
-				process.signal.on "signal.dup" "$signal";
-				
-				# assert on multiple callbacks
-				process.signal.list "$signal";
-				assert.equal "signal.on signal.dup" "$_result";
-				
-				# remove the `dup` callback
-				process.signal.off "signal.dup" "$signal";
+        # assert on callbacks
+        process.signal.list "$signal";
+        assert.equal "signal.on" "$_result";
+        
+        # register another callback
+        process.signal.on "signal.dup" "$signal";
+        
+        # assert on multiple callbacks
+        process.signal.list "$signal";
+        assert.equal "signal.on signal.dup" "$_result";
+        
+        # remove the `dup` callback
+        process.signal.off "signal.dup" "$signal";
 
-				# assert on the removed callback
-				process.signal.list "$signal";
-				assert.equal "signal.on" "$_result";
-				
-				# debug callbacks
-				#process.signal.print "$signal";
-				
-				# trigger the callbacks
-				# process.signal.trigger "$signal";
-			fi
-	done
-	
-	loop()
-	{
-		process.uptime;
-		console info "uptime %s" "$_result";
-		# wait a little while
-		sleep 2;
-		process.uptime;
-		console info "uptime %s" "$_result";
-		assert.summary;	
-		exit 0;
-	}
-	
-	# start the process as a daemon
-	# with a custom method name
-	process.daemon.start! "loop";
+        # assert on the removed callback
+        process.signal.list "$signal";
+        assert.equal "signal.on" "$_result";
+        
+        # debug callbacks
+        #process.signal.print "$signal";
+        
+        # trigger the callbacks
+        # process.signal.trigger "$signal";
+      fi
+  done
+  
+  loop()
+  {
+    process.uptime;
+    console info "uptime %s" "$_result";
+    # wait a little while
+    sleep 2;
+    process.uptime;
+    console info "uptime %s" "$_result";
+    assert.summary; 
+    exit 0;
+  }
+  
+  # start the process as a daemon
+  # with a custom method name
+  process.daemon.start! "loop";
 }
 
 signals "$@";

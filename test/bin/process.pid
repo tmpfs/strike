@@ -11,24 +11,23 @@ require.once 'assert';
 # part of a task-test(7) test suite
 assert.parse "$@";
 
-function pidfile {
-	# switch on pid file usage
-	# must be done after the signal assertions!
-	process.pid.use!;
-	# assert that we have a pid file
-	process.pid.file;
-	assert.file.exists? "$_result";
-	process.pid?;
-	assert.eq "0" "$?";
-	
-	# switch off pid file usage
-	process.pid.use! off;
-	# assert that the pid file does not exist
-	process.pid.file;
-	assert.file.exists! "$_result";
-	
-	assert.summary;	
+pidfile() {
+  # switch on pid file usage
+  # must be done after the signal assertions!
+  process.pid.use!;
+  # assert that we have a pid file
+  process.pid.file;
+  assert.file.exists? "$_result";
+  process.pid?;
+  assert.eq "0" "$?";
+  
+  # switch off pid file usage
+  process.pid.use! off;
+  # assert that the pid file does not exist
+  process.pid.file;
+  assert.file.exists! "$_result";
+  
+  assert.summary; 
 }
 
 pidfile "$@";
-exit 0;
