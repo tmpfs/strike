@@ -2,120 +2,120 @@
 
 # write out the script file
 script.write!() {
-	# delete any existing deploy script
-	if [ -f "${script}" ]; then
-		rm "${script}" \
-			|| dly.fail "could not delete %s" "${script}";
-	fi
+  # delete any existing deploy script
+  if [ -f "${script}" ]; then
+    rm "${script}" \
+      || dly.fail "could not delete %s" "${script}";
+  fi
 
-	touch "${script}" \
-		|| dly.fail "could not create %s" "${script}";
-		
-	# TODO: add list of compression executables and custom binary
-	# TODO: dependencies to validate
-	
-	local recipient="${json_doc[notifications.mail.to]:-}";
-	
-	# force recipient to be empty when not --no-mail
-	# has been specified which causes no email
-	# notification to be sent
-	if ! ${flags[notify.mail]}; then
-		recipient="";
-	fi
-		
-	# target parent directory and final name
-	local deploy_parent deploy_final_name;
-	fs.dirname "${deploy_target}" "deploy_parent";
-	fs.basename "${deploy_target}" "deploy_final_name";
-		
-	# escape spaces in paths
-	printf -v log_file "%q" "${log_file}";
-	printf -v log_dir "%q" "${log_dir}";
-	printf -v deploy_target "%q" "${deploy_target}";
-	
-	# custom script file specified
-	if [ -n "${sources[script]}" ]; then
-		cat "${sources[script]}" >| "${script}";
-	else
-		script.header.write!;
-		
-		# calculate if there are remote
-		# commands to execute
-		local script_commands_global_pre="${global_commands[commands.remote.pre.length]:-0}";
-		local script_commands_global_post="${global_commands[commands.remote.post.length]:-0}";
-		local script_commands_profile_pre="${profile_commands[commands.remote.pre.length]:-0}";
-		local script_commands_profile_post="${profile_commands[commands.remote.post.length]:-0}";
-		local script_commands_pre=$(($script_commands_global_pre+$script_commands_profile_pre));
-		local script_commands_post=$(($script_commands_global_post+$script_commands_profile_post));
-		
-		# echo "creating script with: $script_commands_global_pre";
-		# echo "creating script with: $script_commands_global_post";	
-		# echo "creating script with: $script_commands_profile_pre";
-		# echo "creating script with: $script_commands_profile_post";
-		
-		# write pre/post commands
-		script.commands.write "pre";
-		script.commands.write "post";
-		
-		script.common.write!;
-		
-		script.directories.write!;
-		
-		# we've already validated on deployment type
-		# this is an additional sanity check
-		local method="script.${type}.write!"		
-		if ! method.exists? "$method"; then
-			dly.fail "unsupported type %s" "${type}";
-		fi
-		
-		# call the deployment type specific
-		# script write command
-		$method;
-		
-		script.footer.write!;
-	fi
+  touch "${script}" \
+    || dly.fail "could not create %s" "${script}";
+    
+  # TODO: add list of compression executables and custom binary
+  # TODO: dependencies to validate
+  
+  local recipient="${json_doc[notifications.mail.to]:-}";
+  
+  # force recipient to be empty when not --no-mail
+  # has been specified which causes no email
+  # notification to be sent
+  if ! ${flags[notify.mail]}; then
+    recipient="";
+  fi
+    
+  # target parent directory and final name
+  local deploy_parent deploy_final_name;
+  fs.dirname "${deploy_target}" "deploy_parent";
+  fs.basename "${deploy_target}" "deploy_final_name";
+    
+  # escape spaces in paths
+  printf -v log_file "%q" "${log_file}";
+  printf -v log_dir "%q" "${log_dir}";
+  printf -v deploy_target "%q" "${deploy_target}";
+  
+  # custom script file specified
+  if [ -n "${sources[script]}" ]; then
+    cat "${sources[script]}" >| "${script}";
+  else
+    script.header.write!;
+    
+    # calculate if there are remote
+    # commands to execute
+    local script_commands_global_pre="${global_commands[commands.remote.pre.length]:-0}";
+    local script_commands_global_post="${global_commands[commands.remote.post.length]:-0}";
+    local script_commands_profile_pre="${profile_commands[commands.remote.pre.length]:-0}";
+    local script_commands_profile_post="${profile_commands[commands.remote.post.length]:-0}";
+    local script_commands_pre=$(($script_commands_global_pre+$script_commands_profile_pre));
+    local script_commands_post=$(($script_commands_global_post+$script_commands_profile_post));
+    
+    # echo "creating script with: $script_commands_global_pre";
+    # echo "creating script with: $script_commands_global_post";  
+    # echo "creating script with: $script_commands_profile_pre";
+    # echo "creating script with: $script_commands_profile_post";
+    
+    # write pre/post commands
+    script.commands.write "pre";
+    script.commands.write "post";
+    
+    script.common.write!;
+    
+    script.directories.write!;
+    
+    # we've already validated on deployment type
+    # this is an additional sanity check
+    local method="script.${type}.write!"    
+    if ! method.exists? "$method"; then
+      dly.fail "unsupported type %s" "${type}";
+    fi
+    
+    # call the deployment type specific
+    # script write command
+    $method;
+    
+    script.footer.write!;
+  fi
 
-	chmod +x "${script}" \
-		|| dly.fail "could not set permissions on %s" "${script}";	
-	if ${flags[print.script]}; then
-		cat "${script}";
-	fi
+  chmod +x "${script}" \
+    || dly.fail "could not set permissions on %s" "${script}";  
+  if ${flags[print.script]}; then
+    cat "${script}";
+  fi
 }
 
 # run script through *checkbashisms*
 script.lint() {
-	executable.validate checkbashisms;
-	
-	dly.out.info "lint %s" "${script}";
-	
-	local valid=1;
-	# utility to verify the script is not bash only
-	checkbashisms "${script}";
-	valid=$?;
-	if [ $valid -eq 0 ]; then
- 		dly.out.info "lint %s" "$script";
-		# run script (locally) from target
-		# staging directory, used for testing and debugging
-		if ${flags[script.lint.run]}; then
-			local exit_code=1;
-			dly.out.info "exec %s" "${script}";
-			# make the working directory
-			# the bundle source directory
-			cd "${bundle_source}";
-			"${script}";
-			exit_code=$?;
-			dly.out.info "%s exit code (%s)" "`basename "${script}"`" "${exit_code}";
-			if [ $exit_code -gt 0 ]; then
-				dly.fail "%s failed" "${script}";
-			fi
-			dly.complete;
-		fi
-	else
- 		dly.fail "lint %s" "$script";
-	fi
-	# don't call complete as we are just
-	# verifying the script, nothing was deployed
-	console success;
+  executable.validate checkbashisms;
+  
+  dly.out.info "lint %s" "${script}";
+  
+  local valid=1;
+  # utility to verify the script is not bash only
+  checkbashisms "${script}";
+  valid=$?;
+  if [ $valid -eq 0 ]; then
+    dly.out.info "lint %s" "$script";
+    # run script (locally) from target
+    # staging directory, used for testing and debugging
+    if ${flags[script.lint.run]}; then
+      local exit_code=1;
+      dly.out.info "exec %s" "${script}";
+      # make the working directory
+      # the bundle source directory
+      cd "${bundle_source}";
+      "${script}";
+      exit_code=$?;
+      dly.out.info "%s exit code (%s)" "`basename "${script}"`" "${exit_code}";
+      if [ $exit_code -gt 0 ]; then
+        dly.fail "%s failed" "${script}";
+      fi
+      dly.complete;
+    fi
+  else
+    dly.fail "lint %s" "$script";
+  fi
+  # don't call complete as we are just
+  # verifying the script, nothing was deployed
+  console success;
 }
 
 # write the script header
@@ -195,29 +195,29 @@ email_file="\${sandbox}/email.txt";
 
 # clean temporary files
 cleanup() {
-	# attempt to rollback on exit if the deployment failed
-	if ! \$success; then
-		rollback;
-	fi
-	
-	# debug
-	# cat \$log_file;
-	
-	# TODO: test this logic
-	if test -f \$sandbox/npm-debug.log; then
-		cat \$sandbox/npm-debug.log >> \$log_file;
-	fi
-	
-	notify;
-	
-	if test -d \$sandbox; then
-		delimiter;
-		info "clean %s\n" "\$sandbox";
-		delimiter;
-		info "rm -rfv %s\n" "\$sandbox";
-		rm -rfv \$sandbox >> \$log_file 2>&1;
-		delimiter;
-	fi
+  # attempt to rollback on exit if the deployment failed
+  if ! \$success; then
+    rollback;
+  fi
+  
+  # debug
+  # cat \$log_file;
+  
+  # TODO: test this logic
+  if test -f \$sandbox/npm-debug.log; then
+    cat \$sandbox/npm-debug.log >> \$log_file;
+  fi
+  
+  notify;
+  
+  if test -d \$sandbox; then
+    delimiter;
+    info "clean %s\n" "\$sandbox";
+    delimiter;
+    info "rm -rfv %s\n" "\$sandbox";
+    rm -rfv \$sandbox >> \$log_file 2>&1;
+    delimiter;
+  fi
 }
 
 trap 'cleanup' EXIT HUP INT QUIT TERM
@@ -233,28 +233,28 @@ cat <<EOF >> "${script}"
 directories() {
 EOF
 
-	local globals="${json_doc[bundle.dirs.length]:-0}";
-	local profiles="${json_doc[profiles.${profile}.bundle.dirs.length]:-0}";
-	local total=$(($globals+$profiles));
-	
-	# no directories to write out
-	if [ $total -eq 0 ]; then
+  local globals="${json_doc[bundle.dirs.length]:-0}";
+  local profiles="${json_doc[profiles.${profile}.bundle.dirs.length]:-0}";
+  local total=$(($globals+$profiles));
+  
+  # no directories to write out
+  if [ $total -eq 0 ]; then
 cat <<EOF >> "${script}"
-	info "no directories to create\n";
+  info "no directories to create\n";
 EOF
-	else
-		
+  else
+    
 cat <<EOF >> "${script}"
-	# ensure context is correct for creating dirs
-	if test -d \$deploy_target; then
-		cd "\$deploy_target";
+  # ensure context is correct for creating dirs
+  if test -d \$deploy_target; then
+    cd "\$deploy_target";
 EOF
-		script.directories.group.write! $globals "bundle.dirs";
-		script.directories.group.write! $profiles "profiles.${profile}.bundle.dirs";
+    script.directories.group.write! $globals "bundle.dirs";
+    script.directories.group.write! $profiles "profiles.${profile}.bundle.dirs";
 cat <<EOF >> "${script}"
-	fi
+  fi
 EOF
-	fi
+  fi
 
 # close command
 cat <<EOF >> "${script}"
@@ -264,177 +264,177 @@ EOF
 }
 
 script.directories.group.write!() {
-	local length="$1";
-	local prefix="$2";
-	local i k path perm;
-	for((i = 0;i < $length;i++))
-		do
-			k="${prefix}.$i";
-			path="${json_doc[${k}.path]:-}";
-			perm="${json_doc[${k}.perm]:-}";
-			if [ -z "${path:-}" ]; then
-				dly.fail "empty path for directory %s" "$k";
-			fi
-			
+  local length="$1";
+  local prefix="$2";
+  local i k path perm;
+  for((i = 0;i < $length;i++))
+    do
+      k="${prefix}.$i";
+      path="${json_doc[${k}.path]:-}";
+      perm="${json_doc[${k}.perm]:-}";
+      if [ -z "${path:-}" ]; then
+        dly.fail "empty path for directory %s" "$k";
+      fi
+      
 cat <<EOF >> "${script}"
-		if ! test -d $path; then
-			info "mkdir -p %s\n" "$path";
-			run mkdir -p $path \\
-				|| quit "could not create directory %s\n" "$path";
+    if ! test -d $path; then
+      info "mkdir -p %s\n" "$path";
+      run mkdir -p $path \\
+        || quit "could not create directory %s\n" "$path";
 EOF
 
-			if [ -n "$perm" ]; then
+      if [ -n "$perm" ]; then
 cat <<EOF >> "${script}"
-			info "chmod %s %s\n" "$perm" "$path";
-			run chmod $perm $path \\
-				|| quit "could not set permissions %s on %s\n" "$perm" "$path";
+      info "chmod %s %s\n" "$perm" "$path";
+      run chmod $perm $path \\
+        || quit "could not set permissions %s on %s\n" "$perm" "$path";
 EOF
-			fi
+      fi
 cat <<EOF >> "${script}"
-		fi
+    fi
 EOF
-	done
+  done
 }
 
 # write pre / post deployment commands
 script.commands.write() {
-	local phase="$1";
-	
-	# echo "writing remote commands for phase ... $phase";
-	
-	if ! ${flags[skip.remote.${phase}]} && [ "$phase" == pre ] \
-		&& [ $script_commands_pre -gt 0 ]; then
+  local phase="$1";
+  
+  # echo "writing remote commands for phase ... $phase";
+  
+  if ! ${flags[skip.remote.${phase}]} && [ "$phase" == pre ] \
+    && [ $script_commands_pre -gt 0 ]; then
 # open command
 cat <<EOF >> "${script}"
 pre() {
-	# if we have a final target this is always the
-	# working directory for remote pre-deployment commands
-	if test -d \$deploy_target; then
-		cd "\$deploy_target";
-	# otherwise it's the sandbox
-	else
-		cd "\$sandbox";
-	fi
+  # if we have a final target this is always the
+  # working directory for remote pre-deployment commands
+  if test -d \$deploy_target; then
+    cd "\$deploy_target";
+  # otherwise it's the sandbox
+  else
+    cd "\$sandbox";
+  fi
 
-	wd=\$( pwd );
-	delimiter;
-	info "exec pre-deployment commands ($script_commands_pre)\n";
-	info "working directory \$wd\n";
-	delimiter;
+  wd=\$( pwd );
+  delimiter;
+  info "exec pre-deployment commands ($script_commands_pre)\n";
+  info "working directory \$wd\n";
+  delimiter;
 EOF
-		script.commands.embed \
-			$script_commands_global_pre '';
+    script.commands.embed \
+      $script_commands_global_pre '';
 # close command
 cat <<EOF >> "${script}"
 
-	cd \$owd;
-	wd=\$( pwd );
-	delimiter;	
-	info "pre-deployment commands ($script_commands_pre) complete\n";
-	info "working directory \$wd\n";
-	delimiter;
+  cd \$owd;
+  wd=\$( pwd );
+  delimiter;  
+  info "pre-deployment commands ($script_commands_pre) complete\n";
+  info "working directory \$wd\n";
+  delimiter;
 }
 
 EOF
-	# no commands to execute
-	elif [ "$phase" == pre ]; then
+  # no commands to execute
+  elif [ "$phase" == pre ]; then
 cat <<EOF >> "${script}"
 pre() {
-	info "no pre-deployment commands for %s\n" "\$profile";
+  info "no pre-deployment commands for %s\n" "\$profile";
 }
 EOF
-	fi
-		
-	if ! ${flags[skip.remote.${phase}]} && [ "$phase" == post ] \
-		&& [ $script_commands_post -gt 0 ]; then
+  fi
+    
+  if ! ${flags[skip.remote.${phase}]} && [ "$phase" == post ] \
+    && [ $script_commands_post -gt 0 ]; then
 # open command
 cat <<EOF >> "${script}"
 post() {
-	
-	# if we have a final target this is always the
-	# working directory for remote post-deployment commands
-	if test -d \$deploy_target; then
-		cd \$deploy_target;
-	# we should always have the final target by this point
-	# when we are actually executing commands
-	elif ! \$noop; then
-		quit "cannot execute post-deployment commands, %s does not exist" "\$deploy_target";
-	fi
-	
-	wd=\$( pwd );
-	delimiter;		
-	info "exec post-deployment commands ($script_commands_post)\n";
-	info "working directory \$wd\n";
-	delimiter;	
+  
+  # if we have a final target this is always the
+  # working directory for remote post-deployment commands
+  if test -d \$deploy_target; then
+    cd \$deploy_target;
+  # we should always have the final target by this point
+  # when we are actually executing commands
+  elif ! \$noop; then
+    quit "cannot execute post-deployment commands, %s does not exist" "\$deploy_target";
+  fi
+  
+  wd=\$( pwd );
+  delimiter;    
+  info "exec post-deployment commands ($script_commands_post)\n";
+  info "working directory \$wd\n";
+  delimiter;  
 EOF
-		script.commands.embed;
+    script.commands.embed;
 # close command
 cat <<EOF >> "${script}"
 
-	cd \$owd;
-	wd=\$( pwd );
-	delimiter;	
-	info "post-deployment commands ($script_commands_pre) complete\n";
-	info "working directory \$wd\n";	
-	delimiter;
+  cd \$owd;
+  wd=\$( pwd );
+  delimiter;  
+  info "post-deployment commands ($script_commands_pre) complete\n";
+  info "working directory \$wd\n";  
+  delimiter;
 }
 
 EOF
-	elif [ "$phase" == post ]; then
+  elif [ "$phase" == post ]; then
 cat <<EOF >> "${script}"
 post() {
-	info "no post-deployment commands for %s\n" "\$profile";
+  info "no post-deployment commands for %s\n" "\$profile";
 }
 EOF
-	fi
+  fi
 }
 
 # flatten a list of commands and write to script
 script.commands.embed() {
-	
-	# print what is about to be executed
-	
-	
-	printf "\t" >> "${script}";
-	local written=false;	
-	local k v cmds re="^commands\.remote\.$phase\.[0-9]+";
-	for k in ${!global_commands[@]}
-		do
-			if [[ ! "$k" =~ $re ]]; then
-				continue;
-			fi
-			v="${global_commands[$k]}";
-			script.commands.embed.group;
-	done
-	for k in ${!profile_commands[@]}
-		do
-			#echo "testing profile command $k : $re"
-			if [[ ! "$k" =~ $re ]]; then
-				continue;
-			fi
-			v="${profile_commands[$k]}";
-			script.commands.embed.group;
-	done
-	# terminate command list
-	printf ";" >> "${script}";
+  
+  # print what is about to be executed
+  
+  
+  printf "\t" >> "${script}";
+  local written=false;  
+  local k v cmds re="^commands\.remote\.$phase\.[0-9]+";
+  for k in ${!global_commands[@]}
+    do
+      if [[ ! "$k" =~ $re ]]; then
+        continue;
+      fi
+      v="${global_commands[$k]}";
+      script.commands.embed.group;
+  done
+  for k in ${!profile_commands[@]}
+    do
+      #echo "testing profile command $k : $re"
+      if [[ ! "$k" =~ $re ]]; then
+        continue;
+      fi
+      v="${profile_commands[$k]}";
+      script.commands.embed.group;
+  done
+  # terminate command list
+  printf ";" >> "${script}";
 }
 
 script.commands.embed.group() {
-	local cmd;
-	local IFS=$newline;	
-	# print the commands
-	for cmd in "${v}"
-		do			
-			cmds=( $v );
-			# echo "appending command ${cmds[@]}";
-			if $written; then
-				printf " \\" >> "${script}";	
-				printf "\n\t\t&& " >> "${script}";
-			fi
-			local IFS=' ';
-			printf "run ${cmds[*]}" >> "${script}";
-			written=true;
-	done
+  local cmd;
+  local IFS=$newline; 
+  # print the commands
+  for cmd in "${v}"
+    do      
+      cmds=( $v );
+      # echo "appending command ${cmds[@]}";
+      if $written; then
+        printf " \\" >> "${script}";  
+        printf "\n\t\t&& " >> "${script}";
+      fi
+      local IFS=' ';
+      printf "run ${cmds[*]}" >> "${script}";
+      written=true;
+  done
 }
 
 # write the script commands shared by all
@@ -443,239 +443,239 @@ script.common.write!() {
 cat <<EOF >> "${script}"
 # completed successfully
 complete() {
-	# create directories
-	directories;
-	# run post-deployment commands
-	post;
-	success=true;
-	exit 0;
+  # create directories
+  directories;
+  # run post-deployment commands
+  post;
+  success=true;
+  exit 0;
 }
 
 # send email notification
 notify() {
-	sendmail=\$( command -v sendmail );
-	uuencode=\$( command -v uuencode );
-	if test -n "\$sendmail" && test -n "\$uuencode" && test -n "\$recipient"; then
-		mail_init;
-		# add attachments
-		mail_attachments;
-		sendmail "\$recipient" < \$email_file;
-	fi
+  sendmail=\$( command -v sendmail );
+  uuencode=\$( command -v uuencode );
+  if test -n "\$sendmail" && test -n "\$uuencode" && test -n "\$recipient"; then
+    mail_init;
+    # add attachments
+    mail_attachments;
+    sendmail "\$recipient" < \$email_file;
+  fi
 }
 
 # initialize the email contents
 mail_init() {
-	username=\$( id -nu );
-	localhost=\$( hostname );	
-	printf "" > \$email_file;
-	mail_headers;
-	mail_body;
+  username=\$( id -nu );
+  localhost=\$( hostname ); 
+  printf "" > \$email_file;
+  mail_headers;
+  mail_body;
 }
 
 # set up email headers
 mail_headers() {
-	mail_subject;
-	printf "\n" >> "\$email_file";
+  mail_subject;
+  printf "\n" >> "\$email_file";
 }
 
 # set up email body
 mail_body() {
-	printf "Date: \${start_time}\n" >> "\$email_file";
-	printf "User: \${username}\n" >> "\$email_file";
-	printf "Host: \${localhost}\n" >> "\$email_file";
-	printf "Success: \${success}\n" >> "\$email_file";
-	# ensure there is a newline after the body contents
-	printf "\n" >> "\$email_file";	
+  printf "Date: \${start_time}\n" >> "\$email_file";
+  printf "User: \${username}\n" >> "\$email_file";
+  printf "Host: \${localhost}\n" >> "\$email_file";
+  printf "Success: \${success}\n" >> "\$email_file";
+  # ensure there is a newline after the body contents
+  printf "\n" >> "\$email_file";  
 }
 
 mail_subject() {
-	subject="[deploy] (\${username}@\${localhost}) ${uid}";
-	printf "Subject: \$subject" >> "\$email_file";
-	if \$success; then
-		printf " ${characters[tick]}" >> "\$email_file";
-	else
-		printf " ${characters[cross]}" >> "\$email_file";
-	fi
-	printf "\n" >> "\$email_file";
+  subject="[deploy] (\${username}@\${localhost}) ${uid}";
+  printf "Subject: \$subject" >> "\$email_file";
+  if \$success; then
+    printf " ${characters[tick]}" >> "\$email_file";
+  else
+    printf " ${characters[cross]}" >> "\$email_file";
+  fi
+  printf "\n" >> "\$email_file";
 }
 
 # setup email attachments
 mail_attachments() {
-	log_file_name=\$( basename -- \$log_file );
-	descriptor_file="${names[descriptor.output]}";
-	exports_file="${names[exports]}";
-	npm_debug_log="${names[log.npm]}";
-	settings_file="${names[json.settings]}";
-	
-	# always attach the log file
-	uuencode \$log_file \$log_file_name >> "\$email_file";
-	
-	# always attach a settings.log file
-	settings | uuencode "${names[log.settings]}" >> \$email_file;
-	
-	# on failure attach additional useful files
-	if ! \$success; then
-		if [ -f "\$descriptor_file" ]; then
-			uuencode \$descriptor_file \$descriptor_file >> "\$email_file";
-		fi
-		if [ -f "\$exports_file" ]; then
-			uuencode \$exports_file \$exports_file >> "\$email_file";
-		fi
-		if [ -f "\$npm_debug_log" ]; then
-			uuencode \$npm_debug_log \$npm_debug_log >> "\$email_file";
-		fi
-		if [ -f "\$settings_file" ]; then
-			uuencode \$settings_file \$settings_file >> "\$email_file";
-		fi
-	fi
+  log_file_name=\$( basename -- \$log_file );
+  descriptor_file="${names[descriptor.output]}";
+  exports_file="${names[exports]}";
+  npm_debug_log="${names[log.npm]}";
+  settings_file="${names[json.settings]}";
+  
+  # always attach the log file
+  uuencode \$log_file \$log_file_name >> "\$email_file";
+  
+  # always attach a settings.log file
+  settings | uuencode "${names[log.settings]}" >> \$email_file;
+  
+  # on failure attach additional useful files
+  if ! \$success; then
+    if [ -f "\$descriptor_file" ]; then
+      uuencode \$descriptor_file \$descriptor_file >> "\$email_file";
+    fi
+    if [ -f "\$exports_file" ]; then
+      uuencode \$exports_file \$exports_file >> "\$email_file";
+    fi
+    if [ -f "\$npm_debug_log" ]; then
+      uuencode \$npm_debug_log \$npm_debug_log >> "\$email_file";
+    fi
+    if [ -f "\$settings_file" ]; then
+      uuencode \$settings_file \$settings_file >> "\$email_file";
+    fi
+  fi
 }
 
 # quit on failure
 quit() {
-	if [ $# -gt 0 ]; then
-		printf "\$@";
-	fi
-	exit 1;
+  if [ $# -gt 0 ]; then
+    printf "\$@";
+  fi
+  exit 1;
 }
 
 # run a command and respect noop
 run() {
-	if \$noop; then
-		# NOTE: use echo so backslash escape characters are preserved
-		echo "[dry run] \$*";
-		return 0;
-	fi
-	"\$@";
-	return \$?;
+  if \$noop; then
+    # NOTE: use echo so backslash escape characters are preserved
+    echo "[dry run] \$*";
+    return 0;
+  fi
+  "\$@";
+  return \$?;
 }
 
 # info message
 info() {
-	printf "\$@";
+  printf "\$@";
 }
 
 # print delimiter
 delimiter() {
-	printf "\${header}\n";
+  printf "\${header}\n";
 }
 
 # set up the log file
 log() {
-	# create the log directory
-	if ! test -d $log_dir; then
-		mkdir -p $log_dir \\
-			|| { quit "could not create %s\n" "\$log_dir"; }
-	fi
-	if test -f $log_file; then
-		rm $log_file \\
-			|| { quit "could not remove log file %s\n" "\$log_file"; }
-	fi
-	touch $log_file \\
-		|| { quit "could not create log file %s\n" "\$log_file"; }
+  # create the log directory
+  if ! test -d $log_dir; then
+    mkdir -p $log_dir \\
+      || { quit "could not create %s\n" "\$log_dir"; }
+  fi
+  if test -f $log_file; then
+    rm $log_file \\
+      || { quit "could not remove log file %s\n" "\$log_file"; }
+  fi
+  touch $log_file \\
+    || { quit "could not create log file %s\n" "\$log_file"; }
 }
 
 # create a backup that we roll back to on failure
 backup() {
-	info "backup %s\n" "\${deploy_target}";	
-	info "mv %s %s\n" "\${deploy_target}" "\${backup}";
-	run mv \${deploy_target} \${backup} \\
-		|| quit "could not create backup %s from %s\n" "\$backup" "\$deploy_target";
+  info "backup %s\n" "\${deploy_target}"; 
+  info "mv %s %s\n" "\${deploy_target}" "\${backup}";
+  run mv \${deploy_target} \${backup} \\
+    || quit "could not create backup %s from %s\n" "\$backup" "\$deploy_target";
 }
 
 # rollback from the backup on error whenever possible
 # if there is any presence of the target directory it is removed
 rollback() {
-	# we have a git revision to rollback to
-	if test -n \${git_revision_hash:-} && test -d \${deploy_target}/.git; then
-		info "rollback (git) %s\n" "\${deploy_target}";
-		run cd \${deploy_target} && run git reset \$git_revision_hash >> \$log_file 2>&1;
-	# plain filesytem rollback
-	elif test -d \${backup}; then
-		info "rollback (fs) %s\n" "\${deploy_target}";
-		# backup exists but target also exists
-		# possible partial deployment so remove the deploy target
-		# prior to restoring from a backup, this gives the rollback
-		# the best change of succeeding on a failed partial deployment
-		if test -d \${deploy_target}; then
-			info "rm -rfv %s\n" "\${deploy_target}";
-			run rm -rfv \${deploy_target} >> \$log_file 2>&1;
-		fi
-	
-		info "mv %s %s\n" "\${backup}" "\${deploy_target}";	
-		run mv \${backup} \${deploy_target} \\
-			|| quit "could not rollback %s from %s\n" "\$deploy_target" "\$backup";
-	fi
+  # we have a git revision to rollback to
+  if test -n \${git_revision_hash:-} && test -d \${deploy_target}/.git; then
+    info "rollback (git) %s\n" "\${deploy_target}";
+    run cd \${deploy_target} && run git reset \$git_revision_hash >> \$log_file 2>&1;
+  # plain filesytem rollback
+  elif test -d \${backup}; then
+    info "rollback (fs) %s\n" "\${deploy_target}";
+    # backup exists but target also exists
+    # possible partial deployment so remove the deploy target
+    # prior to restoring from a backup, this gives the rollback
+    # the best change of succeeding on a failed partial deployment
+    if test -d \${deploy_target}; then
+      info "rm -rfv %s\n" "\${deploy_target}";
+      run rm -rfv \${deploy_target} >> \$log_file 2>&1;
+    fi
+  
+    info "mv %s %s\n" "\${backup}" "\${deploy_target}"; 
+    run mv \${backup} \${deploy_target} \\
+      || quit "could not rollback %s from %s\n" "\$deploy_target" "\$backup";
+  fi
 }
 
 # setup the directory structure
 setup() {
-	# create the parent directory
-	if ! test -d \$deploy_parent; then
-		info "mkdir -p %s\n" "\${deploy_parent}";
-		run mkdir -p \$deploy_parent \\
-			|| { quit "could not create %s\n" "\$deploy_parent"; }
-	fi
-	
-	# create the sandbox
-	if ! test -d \$sandbox; then
-		info "mkdir -p %s\n" "\${sandbox}";
-		mkdir -p \$sandbox \\
-			|| { quit "could not create %s\n" "\$sandbox"; }
-	fi
+  # create the parent directory
+  if ! test -d \$deploy_parent; then
+    info "mkdir -p %s\n" "\${deploy_parent}";
+    run mkdir -p \$deploy_parent \\
+      || { quit "could not create %s\n" "\$deploy_parent"; }
+  fi
+  
+  # create the sandbox
+  if ! test -d \$sandbox; then
+    info "mkdir -p %s\n" "\${sandbox}";
+    mkdir -p \$sandbox \\
+      || { quit "could not create %s\n" "\$sandbox"; }
+  fi
 }
 
 # create a filesystem backup using *mv*
 fsbackup() {
-	# if the target exist, move to a backup
-	if test -d \$deploy_target && [ "\$type" != "git" ]; then
-		backup;
-	fi
+  # if the target exist, move to a backup
+  if test -d \$deploy_target && [ "\$type" != "git" ]; then
+    backup;
+  fi
 }
 
 # print the settings
 settings() {
-	delimiter;
-	info "%s (%s) on %s\n" "\${deploy_name}" "${setup[creator]}"  "\${platform}";
-	delimiter;
-	info "%s\n" "\${start_time}";
-	delimiter;	
-	if test -n "\${description:-}"; then
-		info "%s\n" "\${description}";
-	fi
-	delimiter;	
-	info "%s\n" "\${hostinfo}";
-	delimiter;	
-	info "bundle\n";	
-	delimiter;
-	info "name: %s\n" "\${bundle_name}";
-	info "archive: %s\n" "\${bundle_archive}";
-	info "source: %s\n" "\${bundle_source}";
-	info "path: %s\n" "\${bundle_path}";
-	delimiter;	
-	info "settings\n";
-	delimiter;
-	info "host: %s\n" "\${host}";
-	info "profile: %s\n" "\${profile}";	
-	info "type: %s\n" "\${deploy_type}";
-	info "noop: %s\n" "\${noop}";
-	info "shell: %s\n" "\${shell}";	
-	info "timestamp: %s\n" "\${timestamp}";
-	info "pid: %s\n" "\$\$";
-	delimiter;
-	info "paths\n";
-	delimiter;	
-	info "directory: %s\n" "\${directory}";
-	info "staging: %s\n" "\${staging}";
-	info "sandbox: %s\n" "\${sandbox}";
-	info "script: %s\n" "\${script}";
-	info "log file: %s\n" "\${log_file}";
-	delimiter;
-	info "start ($type) %s\n" "`date`";
-	delimiter;
-	info "\n";
-	info "\t%s\n" "\${deploy_target}";
-	info "\n";
-	delimiter;
+  delimiter;
+  info "%s (%s) on %s\n" "\${deploy_name}" "${setup[creator]}"  "\${platform}";
+  delimiter;
+  info "%s\n" "\${start_time}";
+  delimiter;  
+  if test -n "\${description:-}"; then
+    info "%s\n" "\${description}";
+  fi
+  delimiter;  
+  info "%s\n" "\${hostinfo}";
+  delimiter;  
+  info "bundle\n";  
+  delimiter;
+  info "name: %s\n" "\${bundle_name}";
+  info "archive: %s\n" "\${bundle_archive}";
+  info "source: %s\n" "\${bundle_source}";
+  info "path: %s\n" "\${bundle_path}";
+  delimiter;  
+  info "settings\n";
+  delimiter;
+  info "host: %s\n" "\${host}";
+  info "profile: %s\n" "\${profile}"; 
+  info "type: %s\n" "\${deploy_type}";
+  info "noop: %s\n" "\${noop}";
+  info "shell: %s\n" "\${shell}"; 
+  info "timestamp: %s\n" "\${timestamp}";
+  info "pid: %s\n" "\$\$";
+  delimiter;
+  info "paths\n";
+  delimiter;  
+  info "directory: %s\n" "\${directory}";
+  info "staging: %s\n" "\${staging}";
+  info "sandbox: %s\n" "\${sandbox}";
+  info "script: %s\n" "\${script}";
+  info "log file: %s\n" "\${log_file}";
+  delimiter;
+  info "start ($type) %s\n" "`date`";
+  delimiter;
+  info "\n";
+  info "\t%s\n" "\${deploy_target}";
+  info "\n";
+  delimiter;
 }
 
 EOF
@@ -685,29 +685,29 @@ EOF
 script.cp.write!() {
 cat <<EOF >> "${script}"
 deploy() {
-	cd \$owd;
-	
-	#echo "start cp deployment `pwd`";
-	
-	if test -z \$url; then
-		quit "empty filesystem path";
-	fi	
-	if ! test -d \$url || ! test -r \$url; then
-		quit "filesystem path %s is not a directory or not readable\n" "\$url";
-	fi
-	
-	info "url %s\n" "\$url";
-	if ! test -d \$deploy_target; then
-		run mkdir -p \$deploy_target \\
-			|| quit "could not create %s\n" "\$deploy_target";
-	fi
-	
-	# now try to copy everything over
-	info "cp -pR %s/* %s\n" "\$url" "\$deploy_target";
-	
-	run cp -pR \${url}/* \$deploy_target;
-	
-	cd \$owd && complete;
+  cd \$owd;
+  
+  #echo "start cp deployment `pwd`";
+  
+  if test -z \$url; then
+    quit "empty filesystem path";
+  fi  
+  if ! test -d \$url || ! test -r \$url; then
+    quit "filesystem path %s is not a directory or not readable\n" "\$url";
+  fi
+  
+  info "url %s\n" "\$url";
+  if ! test -d \$deploy_target; then
+    run mkdir -p \$deploy_target \\
+      || quit "could not create %s\n" "\$deploy_target";
+  fi
+  
+  # now try to copy everything over
+  info "cp -pR %s/* %s\n" "\$url" "\$deploy_target";
+  
+  run cp -pR \${url}/* \$deploy_target;
+  
+  cd \$owd && complete;
 }
 
 EOF
@@ -720,46 +720,46 @@ git_ref="${git_ref}";
 git_remote="${git_remote}";
 git_revision_hash="";
 deploy() {
-	info "url %s\n" "\$url";
-	info "git remote %s\n" "\$git_remote";
-	info "git ref %s\n" "\$git_ref";
-	
-	#echo "deploy git ! \$url : \$git_ref : \$git_remote";
-	
-	# no target directory so try a clone
-	if ! test -d \${deploy_target}; then
-		# TODO: pull refspec after clone
-		info "git clone --origin %s %s %s\n" "\${git_remote}" "\${url}" "\${deploy_final_name}";
-		run cd \${deploy_parent} \\
-			&& run git clone --origin \${git_remote} \${url} \${deploy_final_name} >> \$log_file 2>&1;
-	# target directory exists, do an update
-	# using pull
-	else
-		# target has a .git directory
-		# treat as a git repo
-		if test -d \${deploy_target}/.git; then
-			git_revision_hash=\$( cd \${deploy_target} && git rev-parse --verify HEAD );
-			
-			# echo "target repository exists: \$git_revision_hash";
-			
-			# something went wrong getting the revision?
-			# if test -z "${git_revision_hash:-}"; then
-			# 	backup;
-			# fi
-			
-			# try to pull to update
-			info "git pull %s %s\n" "\${git_remote}" "\${git_ref}";
-			run cd \${deploy_target} \\
-				&& run git pull \${git_remote} \${git_ref} >> \$log_file 2>&1;
-		# otherwise try a normal backup operation
-		else
-			backup;
-		fi
-	fi
-	
-	# TODO: checkout refspec !!!
-	
-	cd \$owd && complete;
+  info "url %s\n" "\$url";
+  info "git remote %s\n" "\$git_remote";
+  info "git ref %s\n" "\$git_ref";
+  
+  #echo "deploy git ! \$url : \$git_ref : \$git_remote";
+  
+  # no target directory so try a clone
+  if ! test -d \${deploy_target}; then
+    # TODO: pull refspec after clone
+    info "git clone --origin %s %s %s\n" "\${git_remote}" "\${url}" "\${deploy_final_name}";
+    run cd \${deploy_parent} \\
+      && run git clone --origin \${git_remote} \${url} \${deploy_final_name} >> \$log_file 2>&1;
+  # target directory exists, do an update
+  # using pull
+  else
+    # target has a .git directory
+    # treat as a git repo
+    if test -d \${deploy_target}/.git; then
+      git_revision_hash=\$( cd \${deploy_target} && git rev-parse --verify HEAD );
+      
+      # echo "target repository exists: \$git_revision_hash";
+      
+      # something went wrong getting the revision?
+      # if test -z "${git_revision_hash:-}"; then
+      #   backup;
+      # fi
+      
+      # try to pull to update
+      info "git pull %s %s\n" "\${git_remote}" "\${git_ref}";
+      run cd \${deploy_target} \\
+        && run git pull \${git_remote} \${git_ref} >> \$log_file 2>&1;
+    # otherwise try a normal backup operation
+    else
+      backup;
+    fi
+  fi
+  
+  # TODO: checkout refspec !!!
+  
+  cd \$owd && complete;
 }
 
 EOF
@@ -769,64 +769,64 @@ EOF
 script.tar.write!() {
 cat <<EOF >> "${script}"
 deploy() {
-	info "url %s\n" "\$url";
-		
-	# are we completely replacing the target
-	# with the archive contents, this is the case
-	# if the archive contains only one file and 
-	# that file is a directory, otherwise all contents
-	# are copied into the target
-	replace_target=false;
-	file="";
-	
-	curl=$( command -v curl );
-	if test -z \$curl; then
-		quit "%s is not installed\n" "curl";
-	fi
-	
-	info "mkdir download && cd download\n";
-	run mkdir download >> \$log_file 2>&1 \\
-		&& run cd download >> \$log_file 2>&1;
-	info "curl -# -OL %s\n" "\$url";
-	run curl -# -OL "\$url" >> \$log_file 2>&1;
-	
-	file=\$( ls . );
-	info "downloaded %s\n" "\$file";
-	
-	info "mkdir archive\n";
-	run mkdir archive >> \$log_file 2>&1;
-	info "tar -xf %s -C ./archive\n" "\$file";
-	run tar -xf "\$file" -C ./archive;
-	count=\$( run ls ./archive | run wc -l | run tr -s " " );
-	
-	if [ "\${count}" -eq 1 ]; then
-		file=\$( ls ./archive );
-		if test -d ./archive/\$file; then
-			replace_target=true;
-			file="./archive/\$file";
-		fi
-	fi
-	
-	if \$replace_target && test -n "\$file"; then
-		info "copy archive directory %s\n" "\$file";
-		info "mv %s %s\n" "\$file" "\$deploy_target";
-		run mv "\$file" "\$deploy_target" >> \$log_file 2>&1;
-	else
-		info "copy archive contents %s\n" "./archive";
-		info "mkdir -p %s\n" "\$deploy_target";
-		run mkdir -p "\$deploy_target" >> \$log_file 2>&1;
-		info "cp ./archive/* %s\n" "\$deploy_target";
-		run cp -rfv ./archive/* "\$deploy_target" >> \$log_file 2>&1;
-	fi
-	
-	cd \$owd && complete;
+  info "url %s\n" "\$url";
+    
+  # are we completely replacing the target
+  # with the archive contents, this is the case
+  # if the archive contains only one file and 
+  # that file is a directory, otherwise all contents
+  # are copied into the target
+  replace_target=false;
+  file="";
+  
+  curl=$( command -v curl );
+  if test -z \$curl; then
+    quit "%s is not installed\n" "curl";
+  fi
+  
+  info "mkdir download && cd download\n";
+  run mkdir download >> \$log_file 2>&1 \\
+    && run cd download >> \$log_file 2>&1;
+  info "curl -# -OL %s\n" "\$url";
+  run curl -# -OL "\$url" >> \$log_file 2>&1;
+  
+  file=\$( ls . );
+  info "downloaded %s\n" "\$file";
+  
+  info "mkdir archive\n";
+  run mkdir archive >> \$log_file 2>&1;
+  info "tar -xf %s -C ./archive\n" "\$file";
+  run tar -xf "\$file" -C ./archive;
+  count=\$( run ls ./archive | run wc -l | run tr -s " " );
+  
+  if [ "\${count}" -eq 1 ]; then
+    file=\$( ls ./archive );
+    if test -d ./archive/\$file; then
+      replace_target=true;
+      file="./archive/\$file";
+    fi
+  fi
+  
+  if \$replace_target && test -n "\$file"; then
+    info "copy archive directory %s\n" "\$file";
+    info "mv %s %s\n" "\$file" "\$deploy_target";
+    run mv "\$file" "\$deploy_target" >> \$log_file 2>&1;
+  else
+    info "copy archive contents %s\n" "./archive";
+    info "mkdir -p %s\n" "\$deploy_target";
+    run mkdir -p "\$deploy_target" >> \$log_file 2>&1;
+    info "cp ./archive/* %s\n" "\$deploy_target";
+    run cp -rfv ./archive/* "\$deploy_target" >> \$log_file 2>&1;
+  fi
+  
+  cd \$owd && complete;
 }
 
 EOF
 }
 
 # npm(1) specific commands
-script.npm.write!() {	
+script.npm.write!() { 
 cat <<EOF >> "${script}"
 npm_use_package="${npm_use_package}";
 npm_package_name="${npm_package_name}";
@@ -834,29 +834,29 @@ npm_package_version="${npm_package_version}";
 npm_install_target="./node_modules/\$npm_package_name";
 npm_install_final="./node_modules/\$deploy_final_name";
 deploy() {
-	info "url %s\n" "\$url";	
-	info "npm package %s\n" "\$bundle_destination/package.json";
-	info "npm use package %s\n" "\$npm_use_package";
-	info "npm name %s\n" "\$npm_package_name";
-	info "npm version %s\n" "\$npm_package_version";
-	if \$npm_use_package; then
-		info "npm install\n" "\${url}";
-	else
-		info "npm install %s\n" "\${url}";
-	fi
-	# now perform the npm installation
-	cd \$bundle_destination;
-	if \$npm_use_package; then
-		run npm install >> \$log_file 2>&1;	
-	else
-		run npm install \${url} >> \$log_file 2>&1;
-	fi
-	# TODO: info message here!
-	run rm -rfv ./node_modules/.bin >> \$log_file 2>&1;
-	npm_install_target=\$( ls ./node_modules );
-	npm_install_target="./node_modules/\$npm_install_target";
-	run mv \$npm_install_target \$deploy_parent/\$deploy_final_name;
-	cd \$owd && complete;
+  info "url %s\n" "\$url";  
+  info "npm package %s\n" "\$bundle_destination/package.json";
+  info "npm use package %s\n" "\$npm_use_package";
+  info "npm name %s\n" "\$npm_package_name";
+  info "npm version %s\n" "\$npm_package_version";
+  if \$npm_use_package; then
+    info "npm install\n" "\${url}";
+  else
+    info "npm install %s\n" "\${url}";
+  fi
+  # now perform the npm installation
+  cd \$bundle_destination;
+  if \$npm_use_package; then
+    run npm install >> \$log_file 2>&1; 
+  else
+    run npm install \${url} >> \$log_file 2>&1;
+  fi
+  # TODO: info message here!
+  run rm -rfv ./node_modules/.bin >> \$log_file 2>&1;
+  npm_install_target=\$( ls ./node_modules );
+  npm_install_target="./node_modules/\$npm_install_target";
+  run mv \$npm_install_target \$deploy_parent/\$deploy_final_name;
+  cd \$owd && complete;
 }
 
 EOF
@@ -869,39 +869,39 @@ cat <<EOF >> "${script}"
 # matches the deployment type
 binary=\$( command -v "$type" );
 if [ -z "\$binary" ]; then
-	quit "%s is not installed\n" "\$binary";
+  quit "%s is not installed\n" "\$binary";
 fi
 
 init() {
-	log;
-	# info command is available
-	# after calling *log*
-	setup;
+  log;
+  # info command is available
+  # after calling *log*
+  setup;
 }
 
 start() {
-	owd=\$( pwd );
-	init;
-	settings;
-	# run pre-deployment commands
-	pre;
-	
-	# filesystem backup must be done after invoking
-	# any pre-deployment commands as pre-deployment
-	# commands need to execute in the context of the final
-	# directory for re-deployments
-	fsbackup;
-	
-	# always start execution in the context of the sandbox
-	info "cd %s\n" "\$sandbox";
-	cd \$sandbox;
-	
-	# perform the deployment
-	deploy;
-	
-	# assume failure, the deploy command
-	# must explicitly invoke *complete*
-	quit;
+  owd=\$( pwd );
+  init;
+  settings;
+  # run pre-deployment commands
+  pre;
+  
+  # filesystem backup must be done after invoking
+  # any pre-deployment commands as pre-deployment
+  # commands need to execute in the context of the final
+  # directory for re-deployments
+  fsbackup;
+  
+  # always start execution in the context of the sandbox
+  info "cd %s\n" "\$sandbox";
+  cd \$sandbox;
+  
+  # perform the deployment
+  deploy;
+  
+  # assume failure, the deploy command
+  # must explicitly invoke *complete*
+  quit;
 }
 start "\$@";
 EOF

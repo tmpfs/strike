@@ -14,230 +14,230 @@
 # determines whether the program exits
 # on the first error
 declare -g json_exit=true;
-declare -g json_exit_code=0;	
+declare -g json_exit_code=0;  
 declare -g json_error=false;
 
 json.parse() {
-	executable.validate egrep;
-	
-	# clean up any previously parsed data
-	json.parse.clean;
-	
-	# the default delimiter for key values
-	local delimiter=".";
-	
-	# current nesting depth
-	local depth=-1;
-	
-	# keep track of array element counts,
-	# so that we can add a `length` property for
-	# parsed arrays
-	unset array_count;
-	declare -A array_count;
-	
-	# keep track of the current array
-	local current_array=();
-	
-	local array_length_property_name="length";
-	
-	# use process substitution so that parsed
-	# data is available globally
-	__json.start < <(__json.tokenize <&0);
-	#echo "got json exit code: $?"
-	json_exit_code=$?;
+  executable.validate egrep;
+  
+  # clean up any previously parsed data
+  json.parse.clean;
+  
+  # the default delimiter for key values
+  local delimiter=".";
+  
+  # current nesting depth
+  local depth=-1;
+  
+  # keep track of array element counts,
+  # so that we can add a `length` property for
+  # parsed arrays
+  unset array_count;
+  declare -A array_count;
+  
+  # keep track of the current array
+  local current_array=();
+  
+  local array_length_property_name="length";
+  
+  # use process substitution so that parsed
+  # data is available globally
+  __json.start < <(__json.tokenize <&0);
+  #echo "got json exit code: $?"
+  json_exit_code=$?;
 }
 
 json.parse.clean() {
-	unset json_doc;
-	declare -Ag json_doc;
+  unset json_doc;
+  declare -Ag json_doc;
 }
 
 ######################################################################
 #
-#	PRIVATE METHODS
+# PRIVATE METHODS
 #
 ######################################################################
 
 __json.tokenize() {
-	local ESCAPE='(\\[^u[:cntrl:]]|\\u[0-9a-fA-F]{4})'
-	local CHAR='[^[:cntrl:]"\\]'
-	local STRING="\"$CHAR*($ESCAPE$CHAR*)*\""
-	local NUMBER='-?(0|[1-9][0-9]*)([.][0-9]*)?([eE][+-]?[0-9]*)?'
-	local KEYWORD='null|false|true'
-	local SPACE='[[:space:]]+'
-	egrep -ao "$STRING|$NUMBER|$KEYWORD|$SPACE|." --color=never | egrep -v "^$SPACE$"  # eat whitespace
+  local ESCAPE='(\\[^u[:cntrl:]]|\\u[0-9a-fA-F]{4})'
+  local CHAR='[^[:cntrl:]"\\]'
+  local STRING="\"$CHAR*($ESCAPE$CHAR*)*\""
+  local NUMBER='-?(0|[1-9][0-9]*)([.][0-9]*)?([eE][+-]?[0-9]*)?'
+  local KEYWORD='null|false|true'
+  local SPACE='[[:space:]]+'
+  egrep -ao "$STRING|$NUMBER|$KEYWORD|$SPACE|." --color=never | egrep -v "^$SPACE$"  # eat whitespace
 }
 
 __json.start() {
-	local exit_code=0;
-	local token;
-	: $((depth++));
-	read -r token;
-	__json.parse.value;
-	exit_code=$?;
-	
-	# TODO: remove this logic completely as __json.parse.value is recursive ???
-	# we can have valid json and no next token
-	# so don't exit on the next read
-	read -r token || true;
-	case "$token" in
-		'' ) ;;
-		* ) __json.throw "EXPECTED EOF GOT $token"; return 1 ;;
-	esac
-	return $exit_code;
+  local exit_code=0;
+  local token;
+  : $((depth++));
+  read -r token;
+  __json.parse.value;
+  exit_code=$?;
+  
+  # TODO: remove this logic completely as __json.parse.value is recursive ???
+  # we can have valid json and no next token
+  # so don't exit on the next read
+  read -r token || true;
+  case "$token" in
+    '' ) ;;
+    * ) __json.throw "EXPECTED EOF GOT $token"; return 1 ;;
+  esac
+  return $exit_code;
 }
 
 __json.parse.value() {
 
-	# configure the key with a period '.' delimiter
-	local value key="${1:+${1}${delimiter}}${2:-}";
-	
-	# strip quotes from token values
-	token="${token#\"}";
-	token="${token%\"}";
-	
-	case "$token" in
-		'{' )
-				: $((depth++));
-				__json.parse.object "$key";				
-				return $?;
-			;;
-		'[' )
-				: $((depth++));
-				__json.parse.array  "$key";
-				return $?;
-			;;
-		* ) value=${token} ;;
-	esac
-	
-	# echo "parsing key : ${key:-}" >&2;
-	
-	# enountered an empty key: ""
-	if [ -z "$key" ]; then
-		__json.throw "EXPECTED string GOT \"\" (empty key)"; return 1;
-	else
-		json_doc["$key"]="${value}";
-		# __json.parse.debug;
-	fi
-	return 0;
+  # configure the key with a period '.' delimiter
+  local value key="${1:+${1}${delimiter}}${2:-}";
+  
+  # strip quotes from token values
+  token="${token#\"}";
+  token="${token%\"}";
+  
+  case "$token" in
+    '{' )
+        : $((depth++));
+        __json.parse.object "$key";       
+        return $?;
+      ;;
+    '[' )
+        : $((depth++));
+        __json.parse.array  "$key";
+        return $?;
+      ;;
+    * ) value=${token} ;;
+  esac
+  
+  # echo "parsing key : ${key:-}" >&2;
+  
+  # enountered an empty key: ""
+  if [ -z "$key" ]; then
+    __json.throw "EXPECTED string GOT \"\" (empty key)"; return 1;
+  else
+    json_doc["$key"]="${value}";
+    # __json.parse.debug;
+  fi
+  return 0;
 }
 
 __json.parse.object() {
-	local index=0;
-	local previous="$token";
-	read -r token;
-	case "$token" in
-		'}' )
-			# handle empty objects, have
-			# to test for a key otherwise
-			# a top-level empty object will fail
-			if [ "$previous" == '{' ] && [ "$token" == '}' ] && [ -n "${key:-}" ]; then
-				json_doc["$key"]="null";
-			fi
-			: $((depth--));
-		;;
-		* )
-			while :
-				do
-					case "$token" in
-						'"'*'"')
-							key="$token";
-							# strip quotes
-							key="${key#\"}";
-							key="${key%\"}";
-							;;
-						*) __json.throw "EXPECTED string GOT ${token:-EOF}"; return 1; ;;
-					esac
-					read -r token;
-					case "$token" in
-						':') ;;
-						*) __json.throw "EXPECTED : GOT ${token:-EOF}"; return 1; ;;
-					esac
-					read -r token;
-					__json.parse.value "$1" "${key:-}";
-					read -r token;
-					case "$token" in
-						'}') : $((depth--)); break ;;
-						',') : $((index++)); ;;
-						* ) __json.throw "EXPECTED , or } GOT ${token:-EOF}"; return 1; ;;
-					esac
-					read -r token;
-			done
-		;;
-	esac
-	return 0;
+  local index=0;
+  local previous="$token";
+  read -r token;
+  case "$token" in
+    '}' )
+      # handle empty objects, have
+      # to test for a key otherwise
+      # a top-level empty object will fail
+      if [ "$previous" == '{' ] && [ "$token" == '}' ] && [ -n "${key:-}" ]; then
+        json_doc["$key"]="null";
+      fi
+      : $((depth--));
+    ;;
+    * )
+      while :
+        do
+          case "$token" in
+            '"'*'"')
+              key="$token";
+              # strip quotes
+              key="${key#\"}";
+              key="${key%\"}";
+              ;;
+            *) __json.throw "EXPECTED string GOT ${token:-EOF}"; return 1; ;;
+          esac
+          read -r token;
+          case "$token" in
+            ':') ;;
+            *) __json.throw "EXPECTED : GOT ${token:-EOF}"; return 1; ;;
+          esac
+          read -r token;
+          __json.parse.value "$1" "${key:-}";
+          read -r token;
+          case "$token" in
+            '}') : $((depth--)); break ;;
+            ',') : $((index++)); ;;
+            * ) __json.throw "EXPECTED , or } GOT ${token:-EOF}"; return 1; ;;
+          esac
+          read -r token;
+      done
+    ;;
+  esac
+  return 0;
 }
 
 __json.parse.array() {
-	local index=0;
-	local previous="$token";
-	#echo "parsing array with key: $key : $depth";
-	current_array+=( "$key" );
-	read -r token;
-	case "$token" in
-		']' )
-			# handle empty arrays
-			if [ "$previous" == '[' ] && [ "$token" == ']' ] && [ -n "${key:-}" ]; then
-				json_doc["$key"]="null";
-			fi
-			: $((depth--));
-			;;
-		* )
-			while :
-				do
-					__json.parse.value "$1" "$index";
-					read -r token;
-					case "$token" in
-						']' )
-							#echo "finishing array first check $current_array";
-							__json.parse.array.finish;
-							break;
-							;;
-						',' ) : $((index++)); ;;
-						* ) __json.throw "EXPECTED , or ] GOT ${token:-EOF}"; return 1; ;;
-					esac
-					read -r token;
-					case "$token" in
-						']' )
-							#echo "finishing array second check ${!current_array[@]}";	
-							#__json.parse.array.finish;
-							break;
-							;;
-					esac
-			done
-		;;
-	esac
-	return 0;
+  local index=0;
+  local previous="$token";
+  #echo "parsing array with key: $key : $depth";
+  current_array+=( "$key" );
+  read -r token;
+  case "$token" in
+    ']' )
+      # handle empty arrays
+      if [ "$previous" == '[' ] && [ "$token" == ']' ] && [ -n "${key:-}" ]; then
+        json_doc["$key"]="null";
+      fi
+      : $((depth--));
+      ;;
+    * )
+      while :
+        do
+          __json.parse.value "$1" "$index";
+          read -r token;
+          case "$token" in
+            ']' )
+              #echo "finishing array first check $current_array";
+              __json.parse.array.finish;
+              break;
+              ;;
+            ',' ) : $((index++)); ;;
+            * ) __json.throw "EXPECTED , or ] GOT ${token:-EOF}"; return 1; ;;
+          esac
+          read -r token;
+          case "$token" in
+            ']' )
+              #echo "finishing array second check ${!current_array[@]}";  
+              #__json.parse.array.finish;
+              break;
+              ;;
+          esac
+      done
+    ;;
+  esac
+  return 0;
 }
 
 __json.parse.array.finish() {
-	: $((depth--));
-	local length=$((index+1));
-	local lenkey="";
-	# top-level array
-	if [ "${#current_array[@]}" -eq 0 ]; then
-		lenkey="$array_length_property_name";
-	else
-		lenkey="${current_array[-1]}${delimiter}${array_length_property_name}";
-		unset current_array[${#current_array[@]}-1];
-	fi
-	lenkey="${lenkey#.}";
-	json_doc["$lenkey"]="$length";
-	#echo "got end of array with length: $length and current array: ${!current_array[@]} and length key: $lenkey";
+  : $((depth--));
+  local length=$((index+1));
+  local lenkey="";
+  # top-level array
+  if [ "${#current_array[@]}" -eq 0 ]; then
+    lenkey="$array_length_property_name";
+  else
+    lenkey="${current_array[-1]}${delimiter}${array_length_property_name}";
+    unset current_array[${#current_array[@]}-1];
+  fi
+  lenkey="${lenkey#.}";
+  json_doc["$lenkey"]="$length";
+  #echo "got end of array with length: $length and current array: ${!current_array[@]} and length key: $lenkey";
 }
 
 __json.parse.debug() {
-	echo "json_doc key: $key" >&2;
-	echo "json_doc value: $value" >&2;	
-	echo "json_doc (${#json_doc[@]}): '${!json_doc[@]}'" >&2;	
+  echo "json_doc key: $key" >&2;
+  echo "json_doc value: $value" >&2;  
+  echo "json_doc (${#json_doc[@]}): '${!json_doc[@]}'" >&2; 
 }
 
 __json.throw() {
-	if ! $json_error; then
-		console.throw "$*";
-		json_error=true;
-		if $json_exit; then
-			console quit 1;
-		fi		
-	fi
+  if ! $json_error; then
+    console.throw "$*";
+    json_error=true;
+    if $json_exit; then
+      console quit 1;
+    fi    
+  fi
 }

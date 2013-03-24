@@ -8,104 +8,104 @@ require.once help;
 help.man.page "compress" "task-compress.7";
 
 tasks.compress.initialize() {
-	executable.validate gzip gunzip;
+  executable.validate gzip gunzip;
 }
 
 
 taskinfo compress "Utility for compressing multiple files, useful for creating compressed assets for web applications prior to deployment";
 tasks.compress() {
-	
-	# the extension for compressed files
-	local compress_extension="gz";
-	
-	# whether we recurse into sub-directories
-	local compress_recursive=false;	
+  
+  # the extension for compressed files
+  local compress_extension="gz";
+  
+  # whether we recurse into sub-directories
+  local compress_recursive=false; 
 
-	# whether we delete files,
-	# the default is to keep files
-	local compress_delete=false;
-	
-	# debug commands as they are executed
-	local compress_debug=false;
-	
-	# verbose output
-	local compress_verbose=false;
-	
-	# noop
-	local compress_noop=false;
-	
-	# include patterns
-	local compress_include_patterns=();
-	
-	# exclude patterns
-	local compress_exclude_patterns=();
-	
-	# internal variable for recursion
-	local compress_depth=-1;
-	
-	# an output directory when deflating/extracting
-	local compress_output="";
-	
-	# a base directory to use in conjunction
-	# with the --output and --recursive options
-	# so that output hierarchies can match
-	# input hierarchies
-	local compress_dir="";
-	
-	# map of options to command names
-	declare -A commands;
-	commands=(
-		[-c]="deflate"
-		[-x]="inflate"
-		[create]="deflate"
-		[extract]="inflate"
-	);
-	
-	# do command procesing via delegation
-	if [ $# -gt 0 ]; then
-		local cmd="${1:-}";
-		local cmdmethod="${commands[$cmd]:-}";
-		if [ -z "$cmdmethod" ]; then
-			console quit 1 "invalid compress command %s" "$1";
-		fi
+  # whether we delete files,
+  # the default is to keep files
+  local compress_delete=false;
+  
+  # debug commands as they are executed
+  local compress_debug=false;
+  
+  # verbose output
+  local compress_verbose=false;
+  
+  # noop
+  local compress_noop=false;
+  
+  # include patterns
+  local compress_include_patterns=();
+  
+  # exclude patterns
+  local compress_exclude_patterns=();
+  
+  # internal variable for recursion
+  local compress_depth=-1;
+  
+  # an output directory when deflating/extracting
+  local compress_output="";
+  
+  # a base directory to use in conjunction
+  # with the --output and --recursive options
+  # so that output hierarchies can match
+  # input hierarchies
+  local compress_dir="";
+  
+  # map of options to command names
+  declare -A commands;
+  commands=(
+    [-c]="deflate"
+    [-x]="inflate"
+    [create]="deflate"
+    [extract]="inflate"
+  );
+  
+  # do command procesing via delegation
+  if [ $# -gt 0 ]; then
+    local cmd="${1:-}";
+    local cmdmethod="${commands[$cmd]:-}";
+    if [ -z "$cmdmethod" ]; then
+      console quit 1 "invalid compress command %s" "$1";
+    fi
 
-		# remove the command option
-		shift;
-		
-		# parse remaining options
-		__compress.parse "$@";
-		local opts=( $_result );
-		delegate "cmp.${FUNCNAME}" "$cmdmethod" "${opts[@]:-}";
-	else
-		console quit 1 "no compress command specified";
-	fi
+    # remove the command option
+    shift;
+    
+    # parse remaining options
+    __compress.parse "$@";
+    local opts=( $_result );
+    delegate "cmp.${FUNCNAME}" "$cmdmethod" "${opts[@]:-}";
+  else
+    console quit 1 "no compress command specified";
+  fi
 }
 
 function cmp.tasks.compress.inflate {
-	if [ $# -eq 0 ]; then
-		__compress.missing.files;
-	fi
-	if ! $compress_noop; then
-		__compress.files.get "__compress.inflate" false "$@";
-	else
-		__compress.files.get "__compress.print" false "$@";
-	fi
+  if [ $# -eq 0 ]; then
+    __compress.missing.files;
+  fi
+  if ! $compress_noop; then
+    __compress.files.get "__compress.inflate" false "$@";
+  else
+    __compress.files.get "__compress.print" false "$@";
+  fi
 }
 
 function cmp.tasks.compress.deflate {
-	if [ $# -eq 0 ]; then
-		__compress.missing.files;
-	fi
-	if ! $compress_noop; then
-		__compress.files.get "__compress.deflate" true "$@";
-	else
-		__compress.files.get "__compress.print" true "$@";
-	fi
+  if [ $# -eq 0 ]; then
+    __compress.missing.files;
+  fi
+  if ! $compress_noop; then
+    __compress.files.get "__compress.deflate" true "$@";
+  else
+    __compress.files.get "__compress.print" true "$@";
+  fi
 }
 
 ######################################################################
 #
-#	PRIVATE METHODS
+# PRIVATE METHODS
 #
 ######################################################################
 
@@ -113,284 +113,284 @@ function cmp.tasks.compress.deflate {
 # and invokes a callback function for each
 # file being processed
 function __compress.files.get {
-	local callback="${1:-}";
-	shift;
-	local skip="${1:-true}";
-	shift;
-	local files=( "$@" );
-	if [ -n "$callback" ]; then
-		: $((compress_depth++));
-		if [ "${1:-}" == "-" ]; then
-			shift;
-			unset files[0];
-			if [ ! -t 0 ]; then
-				while IFS= read -r line
-					do
-						files+=( "$line" );
-				done
-			fi
-		fi
-		
-		if [ ${#files[@]} -eq 0 ]; then
-			console quit 1 "no files specified";
-		fi
-		
-		local file;
-		for file in "${files[@]}"
-			do
-				local target_files=();
-				if [ -d "$file" ]; then
-					if ! $compress_recursive && [ $compress_depth -eq 0 ]; then
-						#__compress.files.get "$callback" "$skip" $( find "$file" -depth 1 -type f );
-						
-						# local findopts=( "-O1" "$file" "-type" "f" );
-						# if [[ "$OSTYPE" =~ ^darwin ]]; then
-						# 	findopts=( "$file" "-depth" "1" "-type" "f" );
-						# fi
-						# target_files=( $( find "${fileopts[@]}" ) );
-						
-						local nf;
-						for nf in "${file}"/*
-							do
-								target_files+=( "$nf" );
-						done
-						
-					elif $compress_recursive; then
-						#__compress.files.get "$callback" "$skip" $( find "$file" -type f );
-						target_files=( $( find "$file" -type f ) );
-					fi
-					__compress.files.get "$callback" "$skip" "${target_files[@]:-}";
-					continue;
-				fi
-				
-				# ignore .gz files when compressing
-				if $skip && [[ "$file" =~ \.gz$ ]]; then
-					continue;
-				# ignore anything but .gz files when extracting
-				elif ! $skip && [[ ! "$file" =~ \.gz$ ]]; then
-					continue;
-				fi
-				
-				if [ ! -e "$file" ]; then
-					console warn "skipping non-existent file %s" "$file";
-					continue;
-				fi
-				
-				# check patterns
-				if ! __compress.files.include? "$file"; then
-					continue;
-				fi
-				
-				if [ ! -f "$file" ]; then
-					console quit 1 "invalid file %s" "$f";
-				fi
-				
-				"$callback";
-		done
-	fi
+  local callback="${1:-}";
+  shift;
+  local skip="${1:-true}";
+  shift;
+  local files=( "$@" );
+  if [ -n "$callback" ]; then
+    : $((compress_depth++));
+    if [ "${1:-}" == "-" ]; then
+      shift;
+      unset files[0];
+      if [ ! -t 0 ]; then
+        while IFS= read -r line
+          do
+            files+=( "$line" );
+        done
+      fi
+    fi
+    
+    if [ ${#files[@]} -eq 0 ]; then
+      console quit 1 "no files specified";
+    fi
+    
+    local file;
+    for file in "${files[@]}"
+      do
+        local target_files=();
+        if [ -d "$file" ]; then
+          if ! $compress_recursive && [ $compress_depth -eq 0 ]; then
+            #__compress.files.get "$callback" "$skip" $( find "$file" -depth 1 -type f );
+            
+            # local findopts=( "-O1" "$file" "-type" "f" );
+            # if [[ "$OSTYPE" =~ ^darwin ]]; then
+            #   findopts=( "$file" "-depth" "1" "-type" "f" );
+            # fi
+            # target_files=( $( find "${fileopts[@]}" ) );
+            
+            local nf;
+            for nf in "${file}"/*
+              do
+                target_files+=( "$nf" );
+            done
+            
+          elif $compress_recursive; then
+            #__compress.files.get "$callback" "$skip" $( find "$file" -type f );
+            target_files=( $( find "$file" -type f ) );
+          fi
+          __compress.files.get "$callback" "$skip" "${target_files[@]:-}";
+          continue;
+        fi
+        
+        # ignore .gz files when compressing
+        if $skip && [[ "$file" =~ \.gz$ ]]; then
+          continue;
+        # ignore anything but .gz files when extracting
+        elif ! $skip && [[ ! "$file" =~ \.gz$ ]]; then
+          continue;
+        fi
+        
+        if [ ! -e "$file" ]; then
+          console warn "skipping non-existent file %s" "$file";
+          continue;
+        fi
+        
+        # check patterns
+        if ! __compress.files.include? "$file"; then
+          continue;
+        fi
+        
+        if [ ! -f "$file" ]; then
+          console quit 1 "invalid file %s" "$f";
+        fi
+        
+        "$callback";
+    done
+  fi
 }
 
 function __compress.files.include? {
-	local file="${1:-}";
-	local ptn name;
-	fs.basename "$file" "name";
-	if [ ${#compress_exclude_patterns[@]} -gt 0 ]; then
-		for ptn in ${compress_exclude_patterns[@]}
-			do
-				# matches an exclude pattern
-				[[ "$name" =~ $ptn ]] && { return 1; }
-				if [ $? -eq 2 ]; then __compress.invalid.pattern; fi
-		done
-	fi
-	
-	if [ ${#compress_include_patterns[@]} -gt 0 ]; then
-		for ptn in ${compress_include_patterns[@]}
-			do
-				# matches an include pattern
-				[[ "$name" =~ $ptn ]] && { return 0; }
-				if [ $? -eq 2 ]; then __compress.invalid.pattern; fi
-		done
-	fi
-	
-	# got some include patterns and matching failed
-	# we don't include it
-	if [ ${#compress_include_patterns[@]} -gt 0 ]; then
-		return 1;
-	fi
-	
-	# include by default
-	return 0;
+  local file="${1:-}";
+  local ptn name;
+  fs.basename "$file" "name";
+  if [ ${#compress_exclude_patterns[@]} -gt 0 ]; then
+    for ptn in ${compress_exclude_patterns[@]}
+      do
+        # matches an exclude pattern
+        [[ "$name" =~ $ptn ]] && { return 1; }
+        if [ $? -eq 2 ]; then __compress.invalid.pattern; fi
+    done
+  fi
+  
+  if [ ${#compress_include_patterns[@]} -gt 0 ]; then
+    for ptn in ${compress_include_patterns[@]}
+      do
+        # matches an include pattern
+        [[ "$name" =~ $ptn ]] && { return 0; }
+        if [ $? -eq 2 ]; then __compress.invalid.pattern; fi
+    done
+  fi
+  
+  # got some include patterns and matching failed
+  # we don't include it
+  if [ ${#compress_include_patterns[@]} -gt 0 ]; then
+    return 1;
+  fi
+  
+  # include by default
+  return 0;
 }
 
 function __compress.deflate {
-	local out="${file}.${compress_extension}";
-	local nm name compress_options results status;
-	fs.basename "$file" "nm";	
-	fs.basename "$out" "name";
-	__compress.output;	
-	compress_options=( -c --best --force -v "$file" );
-	if $compress_debug; then
-		console info "${executables[gzip]} %s 1>| %s" "${compress_options[*]}" "$out";
-	fi
-	results=( $( { "${executables[gzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
-	status=$?;	
-	if $compress_delete && [ $status -eq 0 ]; then
-		rm "$file" || quit 1 "could not delete %s" "$file";
-	fi
-	if [ $status -gt 0 ]; then
-		console quit 1 "failed to compress %s" "$file";
-	fi
-	if $compress_verbose; then
-		console info "%s > %s (%s)" "$nm" "$name" "${results[${#results[@]}-1]}";
-	fi
-	# also touch the file to set modification time
-	# in case it already exists
-	if [ -f "$out" ]; then
-		touch "$out";
-	fi
+  local out="${file}.${compress_extension}";
+  local nm name compress_options results status;
+  fs.basename "$file" "nm"; 
+  fs.basename "$out" "name";
+  __compress.output;  
+  compress_options=( -c --best --force -v "$file" );
+  if $compress_debug; then
+    console info "${executables[gzip]} %s 1>| %s" "${compress_options[*]}" "$out";
+  fi
+  results=( $( { "${executables[gzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
+  status=$?;  
+  if $compress_delete && [ $status -eq 0 ]; then
+    rm "$file" || quit 1 "could not delete %s" "$file";
+  fi
+  if [ $status -gt 0 ]; then
+    console quit 1 "failed to compress %s" "$file";
+  fi
+  if $compress_verbose; then
+    console info "%s > %s (%s)" "$nm" "$name" "${results[${#results[@]}-1]}";
+  fi
+  # also touch the file to set modification time
+  # in case it already exists
+  if [ -f "$out" ]; then
+    touch "$out";
+  fi
 }
 
-function __compress.inflate {	
-	local out="${file%.gz}";
-	local nm name compress_options results;
-	fs.basename "$file" "nm";
-	fs.basename "$out" "name";
-	__compress.output;
-	compress_options=( -c -v "$file" );
-	
-	if $compress_debug; then
-		console info "${executables[gunzip]} %s 1>| %s" "${compress_options[*]}" "$out";
-	fi
-	
-	results=( $( { "${executables[gunzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
-	status=$?;
-	if $compress_delete && [ $status -eq 0 ]; then
-		rm "$file" || quit 1 "could not delete %s" "$file";
-	fi
-	if [ $status -gt 0 ]; then
-		console quit 1 "failed to extract %s" "$file";
-	fi
-	if $compress_verbose; then
-		console info "%s < %s (%s)" "$name" "$nm" "${results[${#results[@]}-1]}";
-	fi
-	# also touch the file to set modification time
-	# in case it already exists
-	if [ -f "$out" ]; then	
-		touch "$out";
-	fi
+function __compress.inflate { 
+  local out="${file%.gz}";
+  local nm name compress_options results;
+  fs.basename "$file" "nm";
+  fs.basename "$out" "name";
+  __compress.output;
+  compress_options=( -c -v "$file" );
+  
+  if $compress_debug; then
+    console info "${executables[gunzip]} %s 1>| %s" "${compress_options[*]}" "$out";
+  fi
+  
+  results=( $( { "${executables[gunzip]}" "${compress_options[@]}" 1>| "$out"; } 2>&1 ) );
+  status=$?;
+  if $compress_delete && [ $status -eq 0 ]; then
+    rm "$file" || quit 1 "could not delete %s" "$file";
+  fi
+  if [ $status -gt 0 ]; then
+    console quit 1 "failed to extract %s" "$file";
+  fi
+  if $compress_verbose; then
+    console info "%s < %s (%s)" "$name" "$nm" "${results[${#results[@]}-1]}";
+  fi
+  # also touch the file to set modification time
+  # in case it already exists
+  if [ -f "$out" ]; then  
+    touch "$out";
+  fi
 }
 
 # print file information
 function __compress.print {
-	local size="";
-	if $compress_verbose && [ -f "$file" ]; then
-		size=( $( du -h "$file" ) );
-		size=" ${size[0]}";
-	fi
-	console print "${file}%s" "$size";
+  local size="";
+  if $compress_verbose && [ -f "$file" ]; then
+    size=( $( du -h "$file" ) );
+    size=" ${size[0]}";
+  fi
+  console print "${file}%s" "$size";
 }
 
 # massage $out depending upon the --output and --dir options
 function __compress.output {
-	if [ -n "$compress_output" ]; then
-		if [ -n "$compress_dir" ]; then
-			local parent;
-			fs.dirname "$out" "parent";
-			local relative="${parent#$compress_dir}";
-			if [ "$relative" == "$out" ]; then
-				console warn "output file %s is not relative to %s" "$out" "$compress_dir";
-			fi
-			relative="${relative#/}";
-			relative="${compress_output}/${relative}";
-			relative="${relative%/}";			
-			if [ ! -d "$relative" ]; then
-				mkdir -p "$relative";
-			fi
-			out="${relative}/${name}";
-		else
-			out="${compress_output}/$name";
-		fi
-	fi
+  if [ -n "$compress_output" ]; then
+    if [ -n "$compress_dir" ]; then
+      local parent;
+      fs.dirname "$out" "parent";
+      local relative="${parent#$compress_dir}";
+      if [ "$relative" == "$out" ]; then
+        console warn "output file %s is not relative to %s" "$out" "$compress_dir";
+      fi
+      relative="${relative#/}";
+      relative="${compress_output}/${relative}";
+      relative="${relative%/}";     
+      if [ ! -d "$relative" ]; then
+        mkdir -p "$relative";
+      fi
+      out="${relative}/${name}";
+    else
+      out="${compress_output}/$name";
+    fi
+  fi
 }
 
 # parse command line options
 function __compress.parse {
-	# unprocessed options
-	local options=();
-	
-	local value;
-	# handle other options
-	while [ "${1:-}" != "" ]; do
-		case $1 in
-			--delete )
-				compress_delete=true;
-				;;
-			-r | --recursive )
-				compress_recursive=true;
-				;;
-			--debug )
-				compress_debug=true;
-				;;				
-			-v | --verbose )
-				compress_verbose=true;
-				;;
-			-i | --include )
-				shift;
-				compress_include_patterns+=( "${1:-}" );
-				;;
-			-e | --exclude )
-				shift;
-				compress_exclude_patterns+=( "${1:-}" );
-				;;
-			-d | --dir )
-				shift;
-				value="${1:-}";
-				if [ -z "$value" ]; then
-					console quit 1 "no directory specified for the %s option" "-d | --dir";
-				fi
-				if [ ! -d "$value" ]; then
-					console quit 1 "%s not a directory" "$value";
-				fi
-				if [ ! -w "$value" ]; then
-					console quit 1 "%s not writable" "$value";
-				fi
-				compress_dir="$value";
-				;;
-			-o | --output )
-				shift;
-				value="${1:-}";
-				if [ -z "$value" ]; then
-					console quit 1 "no directory specified for the %s option" "-o | --output";
-				fi
-				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
-					console quit 1 "invalid output directory %s" "$value";
-				fi
-				# remove any trailing slash
-				value="${value%/}";
-				compress_output="$value";
-				;;
-			--noop )
-				compress_noop=true;
-				;;							
-			* )
-				options+=( "$1" );
-				;;
-		esac
-		if [ $# -ne 0 ]; then
-			shift;
-		else
-			break;
-		fi
-	done
+  # unprocessed options
+  local options=();
+  
+  local value;
+  # handle other options
+  while [ "${1:-}" != "" ]; do
+    case $1 in
+      --delete )
+        compress_delete=true;
+        ;;
+      -r | --recursive )
+        compress_recursive=true;
+        ;;
+      --debug )
+        compress_debug=true;
+        ;;        
+      -v | --verbose )
+        compress_verbose=true;
+        ;;
+      -i | --include )
+        shift;
+        compress_include_patterns+=( "${1:-}" );
+        ;;
+      -e | --exclude )
+        shift;
+        compress_exclude_patterns+=( "${1:-}" );
+        ;;
+      -d | --dir )
+        shift;
+        value="${1:-}";
+        if [ -z "$value" ]; then
+          console quit 1 "no directory specified for the %s option" "-d | --dir";
+        fi
+        if [ ! -d "$value" ]; then
+          console quit 1 "%s not a directory" "$value";
+        fi
+        if [ ! -w "$value" ]; then
+          console quit 1 "%s not writable" "$value";
+        fi
+        compress_dir="$value";
+        ;;
+      -o | --output )
+        shift;
+        value="${1:-}";
+        if [ -z "$value" ]; then
+          console quit 1 "no directory specified for the %s option" "-o | --output";
+        fi
+        if [ ! -d "$value" ] || [ ! -w "$value" ]; then
+          console quit 1 "invalid output directory %s" "$value";
+        fi
+        # remove any trailing slash
+        value="${value%/}";
+        compress_output="$value";
+        ;;
+      --noop )
+        compress_noop=true;
+        ;;              
+      * )
+        options+=( "$1" );
+        ;;
+    esac
+    if [ $# -ne 0 ]; then
+      shift;
+    else
+      break;
+    fi
+  done
 
-	# return remaining options back
-	_result="${options[@]:-}";
+  # return remaining options back
+  _result="${options[@]:-}";
 }
 
 function __compress.invalid.pattern {
-	console quit 2 "invalid pattern %s" "$ptn";
+  console quit 2 "invalid pattern %s" "$ptn";
 }
 
 function __compress.missing.files {
-	console quit 1 "no files specified";
+  console quit 1 "no files specified";
 }

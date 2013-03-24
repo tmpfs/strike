@@ -1,47 +1,47 @@
 # removes method definition(s)
 method.remove() {
-	while [ $# -gt 0 ];
-		do
-			unset -f "$1";
-			shift;
-	done
+  while [ $# -gt 0 ];
+    do
+      unset -f "$1";
+      shift;
+  done
 }
 
 ######################################################################
-#	Determines whether a method exists.
+# Determines whether a method exists.
 #
-#	$1	The name of the method.
+# $1  The name of the method.
 ######################################################################
 method.exists?() {
-	local method="$1";
-	#echo "testing method $method"
-	declare -f -F "$method" > /dev/null;
-	return $?;
+  local method="$1";
+  #echo "testing method $method"
+  declare -f -F "$method" > /dev/null;
+  return $?;
 }
 
 ######################################################################
-#	Lists all function names.
+# Lists all function names.
 ######################################################################
 method.list() {
-	local methods=$( declare -f -F );
-	while read decl func name
-		do
-			echo "$name";
-	done <<< "$methods";
+  local methods=$( declare -f -F );
+  while read decl func name
+    do
+      echo "$name";
+  done <<< "$methods";
 }
 
 ######################################################################
-#	Lists all function names, line numbers and source file paths.
+# Lists all function names, line numbers and source file paths.
 ######################################################################
 method.list.verbose() {
-	local m;
-	local methods=( $( method.list ) );
-	for m in ${methods[@]}
-		do
-			# turn on extended shell debugging			
-			shopt -s extdebug;
-			declare -F "$m";
-			# turn off extended shell debugging
-			shopt -u extdebug;
-	done
+  local m;
+  local methods=( $( method.list ) );
+  for m in ${methods[@]}
+    do
+      # turn on extended shell debugging      
+      shopt -s extdebug;
+      declare -F "$m";
+      # turn off extended shell debugging
+      shopt -u extdebug;
+  done
 }

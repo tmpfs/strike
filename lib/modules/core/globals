@@ -43,10 +43,10 @@ declare -g header_character="${strike_header_character:-+}";
 declare -g header_repeat="${strike_header_repeat:-auto}";
 
 if [ -n "${header_repeat:-}" ] \
-	|| [ "${header_repeat}" == "auto" ]; then
-	COLUMNS=$( tput cols || printf 80 );
-	LINES=$( tput lines || printf 24 );
-	header_repeat="${COLUMNS:-80}";
+  || [ "${header_repeat}" == "auto" ]; then
+  COLUMNS=$( tput cols || printf 80 );
+  LINES=$( tput lines || printf 24 );
+  header_repeat="${COLUMNS:-80}";
 fi
 
 # generic suffic for prompts

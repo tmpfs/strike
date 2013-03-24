@@ -1,119 +1,119 @@
 # generate the makefile
 makefile() {
-	local makefile="${bundle_source}/${names[makefile]}";
-	
-	# using a custom make file
-	if [ -n "${sources[make]}" ]; then
-		cp "${sources[make]}" "${makefile}" \
-			|| :tasks.deploy.fail "could not copy make file %s" \
-				"${sources[make]}";
-		return 0;
-	fi
-	
-	declare -A make_targets;
-	declare -A make_rules;
-	
-	local bundle_makefile="";
-	local bundle_makefile_name="";
-	local bundle_makefile_relative="";
-	makefile.exists?;
-	local has_makefile=$?;
-	local has_makefile_install_target=1;
-	
-	# write make file header
-	makefile.header;	
-	
-	# not a standalone bundle or no makefile bundled
-	# so always proxy to the installation script
-	if ! ${flags[bundle.standalone]} || [ $has_makefile -gt 0 ]; then
-		makefile.script.proxy;
-		makefile.targets;
-	# standalone and a makefile is bundled
-	# so let's see whether we proxy
-	elif [ $has_makefile -eq 0 ]; then
-			# make -qp | grep -v '^# ' | grep -v '^[[:space:]]' | grep --only-matching '^.*:' | grep 'install:';
-		
-			# echo "got custom makefile: $bundle_makefile"
-			
-			# determine if the makefile has a install target
-			# executed in a subshell so the working directory
-			# is not affected
-			# (
-			# 	cd "${bundle_contents_path}" \
-			# 		&& make -qp \
-			# 		| grep -v '^# ' \
-			# 		| grep -v '^[[:space:]]' \
-			# 		| grep --only-matching '^.*:' \
-			# 		| grep 'install:' > /dev/null 2>&1
-			# )
-			# has_makefile_install_target=$?;
-			# # no install target in bundled makefile
-			# # so we can proxy the install target to
-			# # the script and all other targets to the
-			# # bundled makefile using an include
-			# if [ $has_makefile_install_target -gt 0 ]; then
-			# 	# NOTE: the script proxy is done first so
-			# 	# NOTE: it becomes the default target and can
-			# 	# NOTE: be executed with just `make`
-			# 	makefile.script.proxy;
-			# 	makefile.targets;
-			# 	makefile.proxy "${names[bundle.contents]}" "$bundle_makefile_name";
-			# # the bundled makefile has an install target
-			# # so we just proxy everything
-			# else
-			# 	makefile.proxy "${names[bundle.contents]}" "$bundle_makefile_name";				
-			# fi
-			
-	
-			# if the has make file was set by detecting a
-			# configure.ac file then bundle make file will
-			# be empty to assume the default name
-			if [ -z "${bundle_makefile_name:-}" ]; then
-				bundle_makefile_name="${names[makefile]}";
-			fi
-			
-			makefile.proxy "${names[bundle.contents]}" "${bundle_makefile_name}";
-	fi
-	
-	makefile.phony;
-	
-	# cat "$makefile";
+  local makefile="${bundle_source}/${names[makefile]}";
+  
+  # using a custom make file
+  if [ -n "${sources[make]}" ]; then
+    cp "${sources[make]}" "${makefile}" \
+      || :tasks.deploy.fail "could not copy make file %s" \
+        "${sources[make]}";
+    return 0;
+  fi
+  
+  declare -A make_targets;
+  declare -A make_rules;
+  
+  local bundle_makefile="";
+  local bundle_makefile_name="";
+  local bundle_makefile_relative="";
+  makefile.exists?;
+  local has_makefile=$?;
+  local has_makefile_install_target=1;
+  
+  # write make file header
+  makefile.header;  
+  
+  # not a standalone bundle or no makefile bundled
+  # so always proxy to the installation script
+  if ! ${flags[bundle.standalone]} || [ $has_makefile -gt 0 ]; then
+    makefile.script.proxy;
+    makefile.targets;
+  # standalone and a makefile is bundled
+  # so let's see whether we proxy
+  elif [ $has_makefile -eq 0 ]; then
+      # make -qp | grep -v '^# ' | grep -v '^[[:space:]]' | grep --only-matching '^.*:' | grep 'install:';
+    
+      # echo "got custom makefile: $bundle_makefile"
+      
+      # determine if the makefile has a install target
+      # executed in a subshell so the working directory
+      # is not affected
+      # (
+      #   cd "${bundle_contents_path}" \
+      #     && make -qp \
+      #     | grep -v '^# ' \
+      #     | grep -v '^[[:space:]]' \
+      #     | grep --only-matching '^.*:' \
+      #     | grep 'install:' > /dev/null 2>&1
+      # )
+      # has_makefile_install_target=$?;
+      # # no install target in bundled makefile
+      # # so we can proxy the install target to
+      # # the script and all other targets to the
+      # # bundled makefile using an include
+      # if [ $has_makefile_install_target -gt 0 ]; then
+      #   # NOTE: the script proxy is done first so
+      #   # NOTE: it becomes the default target and can
+      #   # NOTE: be executed with just `make`
+      #   makefile.script.proxy;
+      #   makefile.targets;
+      #   makefile.proxy "${names[bundle.contents]}" "$bundle_makefile_name";
+      # # the bundled makefile has an install target
+      # # so we just proxy everything
+      # else
+      #   makefile.proxy "${names[bundle.contents]}" "$bundle_makefile_name";       
+      # fi
+      
+  
+      # if the has make file was set by detecting a
+      # configure.ac file then bundle make file will
+      # be empty to assume the default name
+      if [ -z "${bundle_makefile_name:-}" ]; then
+        bundle_makefile_name="${names[makefile]}";
+      fi
+      
+      makefile.proxy "${names[bundle.contents]}" "${bundle_makefile_name}";
+  fi
+  
+  makefile.phony;
+  
+  # cat "$makefile";
 }
 
 # determine if a makefile name is recognised
 makefile.name.valid?() {
-	local name="${1:-}";
-	local word;
-	for word in ${names[makefiles]}
-		do
-			if [ "$name" == "$word" ]; then
-				return 0;
-			fi
-	done
-	return 1;
+  local name="${1:-}";
+  local word;
+  for word in ${names[makefiles]}
+    do
+      if [ "$name" == "$word" ]; then
+        return 0;
+      fi
+  done
+  return 1;
 }
 
 # sets the makefile targets and rules to
 # proxy to the installation script
 makefile.script.proxy() {
-	# add an empty all target and
-	# create an install target that executes
-	# the bundled install script
-	make_targets[targets]="all install";
-	make_rules[install]="./${names[script]} \$@";
+  # add an empty all target and
+  # create an install target that executes
+  # the bundled install script
+  make_targets[targets]="all install";
+  make_rules[install]="./${names[script]} \$@";
 }
 
 # write an include directive to the makefile
 makefile.proxy() {
 cat <<EOF >> "${makefile}"
 all:
-	@\$(MAKE) --directory $1 --file $2 \$@
+  @\$(MAKE) --directory $1 --file $2 \$@
 
 %: force
-	@\$(MAKE) --directory $1 --file $2 \$@
+  @\$(MAKE) --directory $1 --file $2 \$@
 
 force:
-	@echo > /dev/null
+  @echo > /dev/null
 
 .PHONY: all force
 .SILENT: all force
@@ -123,27 +123,27 @@ EOF
 
 # determine if the package contents has a makefile
 makefile.exists?() {
-	# FIXME: if the bundle is created on a case-insensitive
-	# FIXME: platform but deployed to a case-sensitive platform
-	# FIXME: the make file name will be incorrect in deployment
-	
-	# if a bundle contents contains a configure.ac
-	# file then we should always proxy
-	if [ -f "${bundle_contents_path}/${names[autoconf.ac]}" ]; then
-		return 0;
-	fi
-	
-	local name;
-	for name in ${names[makefiles]}
-		do
-			if [ -f "${bundle_contents_path}/${name}" ]; then
-				bundle_makefile="${bundle_contents_path}/${name}";
-				bundle_makefile_name="${name}";
-				bundle_makefile_relative="${bundle_makefile#$bundle_source/}";
-				return 0;
-			fi
-	done
-	return 1;
+  # FIXME: if the bundle is created on a case-insensitive
+  # FIXME: platform but deployed to a case-sensitive platform
+  # FIXME: the make file name will be incorrect in deployment
+  
+  # if a bundle contents contains a configure.ac
+  # file then we should always proxy
+  if [ -f "${bundle_contents_path}/${names[autoconf.ac]}" ]; then
+    return 0;
+  fi
+  
+  local name;
+  for name in ${names[makefiles]}
+    do
+      if [ -f "${bundle_contents_path}/${name}" ]; then
+        bundle_makefile="${bundle_contents_path}/${name}";
+        bundle_makefile_name="${name}";
+        bundle_makefile_relative="${bundle_makefile#$bundle_source/}";
+        return 0;
+      fi
+  done
+  return 1;
 }
 
 makefile.header() {
@@ -156,26 +156,26 @@ EOF
 }
 
 makefile.targets() {
-	local word rule rules;
-	for word in ${make_targets[targets]}
-		do
-			printf "${word}:\n" >> "${makefile}";
-			rules="${make_rules[$word]:-}";
-			if [ -n "$rules" ]; then
-				# echo "got rules : $rules";
-				local IFS=$'\n';
-				rules=( ${rules} );
-				unset IFS;
-				for rule in "${rules[@]}"
-					do
- 						printf "\t${rule}" >> "${makefile}";
-				done
-			fi
-	done
+  local word rule rules;
+  for word in ${make_targets[targets]}
+    do
+      printf "${word}:\n" >> "${makefile}";
+      rules="${make_rules[$word]:-}";
+      if [ -n "$rules" ]; then
+        # echo "got rules : $rules";
+        local IFS=$'\n';
+        rules=( ${rules} );
+        unset IFS;
+        for rule in "${rules[@]}"
+          do
+            printf "\t${rule}" >> "${makefile}";
+        done
+      fi
+  done
 }
 
 makefile.phony() {
-	if [ -n "${make_targets[targets]:-}" ]; then
-		printf "\n.PHONY: ${make_targets[targets]}" >> "${makefile}";
-	fi
+  if [ -n "${make_targets[targets]:-}" ]; then
+    printf "\n.PHONY: ${make_targets[targets]}" >> "${makefile}";
+  fi
 }

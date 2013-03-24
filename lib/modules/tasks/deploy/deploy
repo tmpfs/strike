@@ -13,1631 +13,1631 @@ require.library 'deploy.bundle';
 # these properties are shared by all deployment types
 declare -ag deploy_property_names;
 deploy_property_names=(
-	"host"
-	"directory"
-	"type"
-	"url"
-	"description"
-	"directory"
-	"staging"
+  "host"
+  "directory"
+  "type"
+  "url"
+  "description"
+  "directory"
+  "staging"
 );
 
 taskinfo deploy "Deploy a project to a local or remote machine"
 tasks.deploy() {
-	executable.validate --test growlnotify;
-	
-	# GENERAL
-	local newline=$'\n';
-	
-	# regex for matching a url scheme
-	# eg: file: http: https: ftp:
-	# this is only necessary for the *tar*
-	# type which uses curl to fetch the package.
-	# the *git* deployment can cope with local
-	# repositories that do not specify a scheme
-	declare -A regex;
-	regex[scheme]="^[a-zA-Z]+:";
-	# name validation regex
-	regex[name]="^[-a-zA-Z0-9]+$";
-	
-	# SOURCES - BUNDLE FILE OVERRIDES
-	declare -A sources;
-	sources[script]="";
-	sources[make]="";
-	
-	# INTERACTIVE
-	local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
-	local deploy_prompt="${deploy_prompt_prefix} \033[4m%s\033[0m";
-	local deploy_prompt_suffix=" ${characters[lightning]}";
-	
-	# FILE NAMES
-	declare -A names;
-	names[makefile]="Makefile";
-	names[makefiles]="makefile Makefile GNUmakefile";
-	names[script]="install.sh";
-	names[descriptor]="deploy.json";
-	names[descriptor.output]="descriptor.json";
-	names[bundle.contents]="contents";
-	names[bundle.scripts]="scripts";
-	names[bundle.ignore.file]=".xpmignore";
-	names[bundle.ignore.git]="gitignore.txt";
-	names[autoconf.ac]="configure.ac";
-	names[autoconf.configure]="configure";
-	names[automake.am]="Makefile.am";
-	names[autoconf.cache]="autom4te.cache";
-	names[exports]="exports.sh";
-	
-	names[env.log]="env.log";
-	names[log.npm]="npm-debug.log";
-	names[log.settings]="settings.log";
-	
-	names[json.settings]="settings.json";
-	
-	# list of supported shells
-	local shells=( sh bash zsh dash );
-	
-	# valid deployment types
-	local types=( git tar npm cp );	
-	
-	# DEFAULTS
-	declare -A defaults;
-	defaults[sha.algorithms]="224 256 384 512";
-	defaults[sha.default.algorithm]="512";
-	defaults[profile.name]="default";
-	defaults[type]="cp";
-	defaults[url]="${project}";
-	defaults[bundle.size]="0KB";
-	
-	local descriptor="${root}/${names[descriptor]}";
-	
-	# COMPRESSION
-	declare -A compression_types;
-	compression_types[gz]="tgz gzip gunzip";
-	compression_types[bz]="bz2 bzip2 bunzip2";
-	compression_types[xz]="xz xz xzdec";
-	compression_types[lzma]="lzma lzma lzmadec";
-	
-	# default compression
-	local compression="gz";
-	local compression_extension="tgz";
-	# prefer xz if we have the executables
-	executable.validate --test xz xzdec;
-	if [ -n "${executables[xz]}" ] && [ -n "${executables[xzdec]}" ]; then
-		compression="xz";
-		compression_extension="xz";
-	fi
-	
-	# SETUP
-	declare -A setup;
-	setup[owd]="$PWD";
-	setup[sha.algorithm]="${defaults[sha.default.algorithm]}";
-	setup[timestamp]=$( date +%s );
-	setup[user]=$( id -nu );
-	setup[hostname]=$( hostname );
-	setup[uname]=$( uname -a );
-	setup[date]=$( date );
-	setup[creator]="${setup[user]}@${setup[hostname]}";
-	setup[platform]=$( uname | tr '[:upper:]' '[:lower:]' );
-	setup[args]="$*";
-	setup[uid]="${setup[user]}@${setup[hostname]}";
-	
-	# FLAGS
-	declare -A flags;
-	flags[noop]=false;
-	flags[verbose]=false;
-	flags[quiet]=false;
-	flags[timestamp]=false;
-	flags[author]=false;
-	flags[sha]=true;
-	flags[interactive]=true;
-	flags[logging]=false;
-	flags[deploy.local]=false;
-	flags[deploy.all]=false;
-	flags[bundle.only]=false;
-	flags[bundle.inspect]=false;
-	flags[bundle.standalone]=false;
-	flags[bundle.package.contents]=false;
-	flags[bundle.package.follow]=false;
-	flags[bundle.package.hidden]=false;
-	flags[target.version]=false;
-	flags[target.flat]=false;
-	flags[print.profiles]=false;
-	flags[print.json]=false;
-	flags[print.json.pretty]=false;
-	flags[print.script]=false;
-	flags[print.env]=false;
-	flags[notify.growl]=true;
-	flags[notify.mail]=true;
-	
-	flags[script.lint]=false;
-	flags[script.lint.run]=false;
-	flags[expand]=false;
-	
-	flags[skip.local.pre]=false;
-	flags[skip.local.post]=false;
-	flags[skip.remote.pre]=false;
-	flags[skip.remote.post]=false;
-	
-	## DEFAULTS	
+  executable.validate --test growlnotify;
+  
+  # GENERAL
+  local newline=$'\n';
+  
+  # regex for matching a url scheme
+  # eg: file: http: https: ftp:
+  # this is only necessary for the *tar*
+  # type which uses curl to fetch the package.
+  # the *git* deployment can cope with local
+  # repositories that do not specify a scheme
+  declare -A regex;
+  regex[scheme]="^[a-zA-Z]+:";
+  # name validation regex
+  regex[name]="^[-a-zA-Z0-9]+$";
+  
+  # SOURCES - BUNDLE FILE OVERRIDES
+  declare -A sources;
+  sources[script]="";
+  sources[make]="";
+  
+  # INTERACTIVE
+  local deploy_prompt_prefix="\033[1m[deploy]\033[0m";
+  local deploy_prompt="${deploy_prompt_prefix} \033[4m%s\033[0m";
+  local deploy_prompt_suffix=" ${characters[lightning]}";
+  
+  # FILE NAMES
+  declare -A names;
+  names[makefile]="Makefile";
+  names[makefiles]="makefile Makefile GNUmakefile";
+  names[script]="install.sh";
+  names[descriptor]="deploy.json";
+  names[descriptor.output]="descriptor.json";
+  names[bundle.contents]="contents";
+  names[bundle.scripts]="scripts";
+  names[bundle.ignore.file]=".xpmignore";
+  names[bundle.ignore.git]="gitignore.txt";
+  names[autoconf.ac]="configure.ac";
+  names[autoconf.configure]="configure";
+  names[automake.am]="Makefile.am";
+  names[autoconf.cache]="autom4te.cache";
+  names[exports]="exports.sh";
+  
+  names[env.log]="env.log";
+  names[log.npm]="npm-debug.log";
+  names[log.settings]="settings.log";
+  
+  names[json.settings]="settings.json";
+  
+  # list of supported shells
+  local shells=( sh bash zsh dash );
+  
+  # valid deployment types
+  local types=( git tar npm cp ); 
+  
+  # DEFAULTS
+  declare -A defaults;
+  defaults[sha.algorithms]="224 256 384 512";
+  defaults[sha.default.algorithm]="512";
+  defaults[profile.name]="default";
+  defaults[type]="cp";
+  defaults[url]="${project}";
+  defaults[bundle.size]="0KB";
+  
+  local descriptor="${root}/${names[descriptor]}";
+  
+  # COMPRESSION
+  declare -A compression_types;
+  compression_types[gz]="tgz gzip gunzip";
+  compression_types[bz]="bz2 bzip2 bunzip2";
+  compression_types[xz]="xz xz xzdec";
+  compression_types[lzma]="lzma lzma lzmadec";
+  
+  # default compression
+  local compression="gz";
+  local compression_extension="tgz";
+  # prefer xz if we have the executables
+  executable.validate --test xz xzdec;
+  if [ -n "${executables[xz]}" ] && [ -n "${executables[xzdec]}" ]; then
+    compression="xz";
+    compression_extension="xz";
+  fi
+  
+  # SETUP
+  declare -A setup;
+  setup[owd]="$PWD";
+  setup[sha.algorithm]="${defaults[sha.default.algorithm]}";
+  setup[timestamp]=$( date +%s );
+  setup[user]=$( id -nu );
+  setup[hostname]=$( hostname );
+  setup[uname]=$( uname -a );
+  setup[date]=$( date );
+  setup[creator]="${setup[user]}@${setup[hostname]}";
+  setup[platform]=$( uname | tr '[:upper:]' '[:lower:]' );
+  setup[args]="$*";
+  setup[uid]="${setup[user]}@${setup[hostname]}";
+  
+  # FLAGS
+  declare -A flags;
+  flags[noop]=false;
+  flags[verbose]=false;
+  flags[quiet]=false;
+  flags[timestamp]=false;
+  flags[author]=false;
+  flags[sha]=true;
+  flags[interactive]=true;
+  flags[logging]=false;
+  flags[deploy.local]=false;
+  flags[deploy.all]=false;
+  flags[bundle.only]=false;
+  flags[bundle.inspect]=false;
+  flags[bundle.standalone]=false;
+  flags[bundle.package.contents]=false;
+  flags[bundle.package.follow]=false;
+  flags[bundle.package.hidden]=false;
+  flags[target.version]=false;
+  flags[target.flat]=false;
+  flags[print.profiles]=false;
+  flags[print.json]=false;
+  flags[print.json.pretty]=false;
+  flags[print.script]=false;
+  flags[print.env]=false;
+  flags[notify.growl]=true;
+  flags[notify.mail]=true;
+  
+  flags[script.lint]=false;
+  flags[script.lint.run]=false;
+  flags[expand]=false;
+  
+  flags[skip.local.pre]=false;
+  flags[skip.local.post]=false;
+  flags[skip.remote.pre]=false;
+  flags[skip.remote.post]=false;
+  
+  ## DEFAULTS 
 
-	local all_profiles=();
-	
-	local type="${defaults[type]}";
-	local profile="${defaults[profile.name]}";
-	local directory="";
-	local shell="${bake_deploy_shell:-sh}";
-	local host="${bake_deploy_remote:-}";
-	
-	# staging must be unquoted to allow ~ expansion
-	local staging=${bake_deploy_staging:-~/.deploy};
-	
-	# human readable name using @ delimiter
-	# must be set after option parsing in case a --name
-	# option has been specified
-	local deploy_name="${project_name}@${project_version}";
-	# file name using a - delimiter	
-	local deploy_file_name="${project_name}-${project_version}";
-	
-	# messages
-	declare -A messages;
-	# messages sent via `growlnotify`
-	messages[success]="deploy ${deploy_name} complete";
-	messages[fail]="deploy ${deploy_name} failed";	
-	
-	# profile specific variables
-	local script_name="${deploy_file_name}.sh";
-	local script="${target}/${script_name}";
-	local log_name="${deploy_file_name}.log";
-	local log_dir="${staging}/log";
-	local log_file="${log_dir}/${log_name}";
-	
-	local deploy_staging_directory="${target}/deploy";
-	local bundle_output="${deploy_staging_directory}";
-	
-	local uid="${deploy_file_name}-${profile}";
-	
-	if [ ! -d "${deploy_staging_directory}" ]; then
-		mkdir -p "${deploy_staging_directory}" \
-			|| dly.fail "could not create %s" "${deploy_staging_directory}";
-	fi
-	
-	local log="${deploy_staging_directory}/deploy.log";
-	# clear the log file
-	printf "" >| "${log}";
-	
-	local profiles=();
-	
-	# command line options that override
-	# properties set in deploy.json
-	declare -A overrides;
-	
-	# parse options
-	dly.options.parse "$@";
-	
-	# validate compression executables exist
-	dly.compression.validate;
-	
-	# validate the descriptor after option parsing
-	dly.descriptor.validate;
-	
-	# setting git defaults should be done
-	# after validating the descriptor so that
-	# this is done in the context of
-	# the descriptor directory
-	local default_git_remote="origin";
-	local git_url git_ref git_remote="${default_git_remote}";
-	git.remote.url "git_url";
-	git.branch.current "git_ref";
-	
-	dly.parse;
-	
-	# if we are deploying everything
-	if ${flags[deploy.all]}; then
-		profiles=( ${all_profiles[@]} );
-	fi
-	
-	# attempt to deploy the default profile
-	# if profiles are empty this will occur
-	# if none are specified on the command line
-	# or none exist in the descriptor
-	if [ ${#profiles[*]} -eq 0 ]; then
-		profiles+=( "${defaults[profile.name]}" );
-	fi
-	
-	# prevent duplicate executions if a command line
-	# declaration declares the same profile name
-	dly.profiles.uniq!;
-	
-	# validate whitespace on the project name
-	dly.whitespace.validate "${project_name}" "project name";
-	# validate whitespace on the staging property
-	dly.whitespace.validate "${staging}" "staging";
-	
-	# validate the shell in use
-	if ! array.contains? "$shell" "${shells[@]}"; then
-		dly.fail "shell %s is not supported" "$shell";
-	fi
-	
-	# configure the shebang
-	local shebang="#!/bin/sh";
-	if [ "${shell}" != "sh" ]; then
-		shebang="#!/usr/bin/env ${shell}";
-	fi
-	
-	# NOTE: reading commands should be done
-	# NOTE: after setting all relevant variables
-	# NOTE: so that all variables are available to commands being
-	# NOTE: declared in the deploy.json descriptor
-	
-	local dly_doc_key dly_doc_value dly_env_re="^env_." dly_env_doc_re="\\\$doc_";
-	# 1) expand properties in an `env`
-	# 1) object exposed by direct variable name
-	# 2) expand JSON document properties
-	# 2) to doc_ local variables
-	# 2) so that descriptor documents may
-	# 2) cross-reference properties
-	for dly_doc_key in "${!json_doc[@]}"
-		do
-			dly_doc_value="${json_doc["$dly_doc_key"]}";
-			# sanitized to _ delimiter for variable names
-			dly_doc_key="${dly_doc_key//\./_}";
-			if [[ ! "$dly_doc_key" =~ $dly_env_re ]]; then
-				# escape dollar symbols as `eval`
-				# is invoked later on
-				dly_doc_value="${dly_doc_value//\$/\\\$}";
-								
-				# prefix with doc_ for non-env properties
-				dly_doc_key="doc_${dly_doc_key}";
-			else
-				if [[ "$dly_doc_value" =~ $dly_env_doc_re ]]; then
-					dly.fail \
-						"invalid %s cross-reference in %s" \
-						"doc" "env";
-				fi
-			fi
-			
-			dly_doc_value="${dly_doc_value//\`/\\\`}";
-			
-			#sanitize variable name
-			dly_doc_key="${dly_doc_key//$variable_name_sanitize_regexp/_}";
-			
-			# declare variable
-			eval "export $dly_doc_key=\"$dly_doc_value\"";
-	done
-	
-	# deploy all target profiles
-	dly.profiles;
+  local all_profiles=();
+  
+  local type="${defaults[type]}";
+  local profile="${defaults[profile.name]}";
+  local directory="";
+  local shell="${bake_deploy_shell:-sh}";
+  local host="${bake_deploy_remote:-}";
+  
+  # staging must be unquoted to allow ~ expansion
+  local staging=${bake_deploy_staging:-~/.deploy};
+  
+  # human readable name using @ delimiter
+  # must be set after option parsing in case a --name
+  # option has been specified
+  local deploy_name="${project_name}@${project_version}";
+  # file name using a - delimiter 
+  local deploy_file_name="${project_name}-${project_version}";
+  
+  # messages
+  declare -A messages;
+  # messages sent via `growlnotify`
+  messages[success]="deploy ${deploy_name} complete";
+  messages[fail]="deploy ${deploy_name} failed";  
+  
+  # profile specific variables
+  local script_name="${deploy_file_name}.sh";
+  local script="${target}/${script_name}";
+  local log_name="${deploy_file_name}.log";
+  local log_dir="${staging}/log";
+  local log_file="${log_dir}/${log_name}";
+  
+  local deploy_staging_directory="${target}/deploy";
+  local bundle_output="${deploy_staging_directory}";
+  
+  local uid="${deploy_file_name}-${profile}";
+  
+  if [ ! -d "${deploy_staging_directory}" ]; then
+    mkdir -p "${deploy_staging_directory}" \
+      || dly.fail "could not create %s" "${deploy_staging_directory}";
+  fi
+  
+  local log="${deploy_staging_directory}/deploy.log";
+  # clear the log file
+  printf "" >| "${log}";
+  
+  local profiles=();
+  
+  # command line options that override
+  # properties set in deploy.json
+  declare -A overrides;
+  
+  # parse options
+  dly.options.parse "$@";
+  
+  # validate compression executables exist
+  dly.compression.validate;
+  
+  # validate the descriptor after option parsing
+  dly.descriptor.validate;
+  
+  # setting git defaults should be done
+  # after validating the descriptor so that
+  # this is done in the context of
+  # the descriptor directory
+  local default_git_remote="origin";
+  local git_url git_ref git_remote="${default_git_remote}";
+  git.remote.url "git_url";
+  git.branch.current "git_ref";
+  
+  dly.parse;
+  
+  # if we are deploying everything
+  if ${flags[deploy.all]}; then
+    profiles=( ${all_profiles[@]} );
+  fi
+  
+  # attempt to deploy the default profile
+  # if profiles are empty this will occur
+  # if none are specified on the command line
+  # or none exist in the descriptor
+  if [ ${#profiles[*]} -eq 0 ]; then
+    profiles+=( "${defaults[profile.name]}" );
+  fi
+  
+  # prevent duplicate executions if a command line
+  # declaration declares the same profile name
+  dly.profiles.uniq!;
+  
+  # validate whitespace on the project name
+  dly.whitespace.validate "${project_name}" "project name";
+  # validate whitespace on the staging property
+  dly.whitespace.validate "${staging}" "staging";
+  
+  # validate the shell in use
+  if ! array.contains? "$shell" "${shells[@]}"; then
+    dly.fail "shell %s is not supported" "$shell";
+  fi
+  
+  # configure the shebang
+  local shebang="#!/bin/sh";
+  if [ "${shell}" != "sh" ]; then
+    shebang="#!/usr/bin/env ${shell}";
+  fi
+  
+  # NOTE: reading commands should be done
+  # NOTE: after setting all relevant variables
+  # NOTE: so that all variables are available to commands being
+  # NOTE: declared in the deploy.json descriptor
+  
+  local dly_doc_key dly_doc_value dly_env_re="^env_." dly_env_doc_re="\\\$doc_";
+  # 1) expand properties in an `env`
+  # 1) object exposed by direct variable name
+  # 2) expand JSON document properties
+  # 2) to doc_ local variables
+  # 2) so that descriptor documents may
+  # 2) cross-reference properties
+  for dly_doc_key in "${!json_doc[@]}"
+    do
+      dly_doc_value="${json_doc["$dly_doc_key"]}";
+      # sanitized to _ delimiter for variable names
+      dly_doc_key="${dly_doc_key//\./_}";
+      if [[ ! "$dly_doc_key" =~ $dly_env_re ]]; then
+        # escape dollar symbols as `eval`
+        # is invoked later on
+        dly_doc_value="${dly_doc_value//\$/\\\$}";
+                
+        # prefix with doc_ for non-env properties
+        dly_doc_key="doc_${dly_doc_key}";
+      else
+        if [[ "$dly_doc_value" =~ $dly_env_doc_re ]]; then
+          dly.fail \
+            "invalid %s cross-reference in %s" \
+            "doc" "env";
+        fi
+      fi
+      
+      dly_doc_value="${dly_doc_value//\`/\\\`}";
+      
+      #sanitize variable name
+      dly_doc_key="${dly_doc_key//$variable_name_sanitize_regexp/_}";
+      
+      # declare variable
+      eval "export $dly_doc_key=\"$dly_doc_value\"";
+  done
+  
+  # deploy all target profiles
+  dly.profiles;
 
-	# show the complete message
-	dly.complete;
+  # show the complete message
+  dly.complete;
 }
 
 # DEPLOY PRIVATE COMMANDS
 
 # validate a descriptor file
 dly.descriptor.validate() {
-	if [[ ! "${descriptor}" =~ \.json$ ]]; then
-		dly.fail "descriptor %s does not have a .json file extension" \
-			"${descriptor}";
-	fi
-	if [ ! -f "${descriptor}" ]; then
-		dly.fail "no deploy descriptor %s" "${descriptor}";
-	fi
-	
-	fs.path.expand "${descriptor}";
-	descriptor="${_result}";
-	
-	# make working directory the descriptor parent
-	fs.dirname "${descriptor}";
-	setup[wd]="${_result}";
-	
-	local nm;
-	fs.basename "${descriptor}" "nm";
-	setup[descriptor.path]="${descriptor}";
-	setup[descriptor.name]="${nm}";
-	
-	dly.out.info "cd %s" "${setup[wd]}";
-	cd "${setup[wd]}" \
-		|| dly.fail "could not enter %s" "${setup[wd]}";
-	dly.out.info "working directory %s" "$PWD";
-	
-	# update default url to the parent
-	# of the descriptor
-	defaults[url]="${setup[wd]}";
-	
-	# a standalone package changes the default
-	# url to the contents folder
-	if ${flags[bundle.standalone]}; then
-		defaults[url]="${names[bundle.contents]}";
-	fi
-	
-	# fetch git information into set up for bundling
-	if git.valid? "${setup[wd]}" && git.exists?; then
-		setup[git.global.user.name]=$( git config --get --global user.name );
-		setup[git.global.user.email]=$( git config --get --global user.email );	
-		
-		setup[git.user.name]=$( git config --get user.name );
-		setup[git.user.email]=$( git config --get user.email );
-		
-		local git_branch_current git_branch_hash git_branch_message;
-		git.branch.current;
-		git.branch.hash;
-		git.branch.message;
-		
-		# duplication but better for clarity
-		setup[git.repo.path]="${setup[wd]}";		
-		setup[git.repo.branch]="${git_branch_current}";
-		
-		setup[git.commit.hash]="${git_branch_hash}";
-		setup[git.commit.message]="${git_branch_message}";
-		setup[git.commit.author]=$( git.show.author "$git_branch_hash" );
-	fi
+  if [[ ! "${descriptor}" =~ \.json$ ]]; then
+    dly.fail "descriptor %s does not have a .json file extension" \
+      "${descriptor}";
+  fi
+  if [ ! -f "${descriptor}" ]; then
+    dly.fail "no deploy descriptor %s" "${descriptor}";
+  fi
+  
+  fs.path.expand "${descriptor}";
+  descriptor="${_result}";
+  
+  # make working directory the descriptor parent
+  fs.dirname "${descriptor}";
+  setup[wd]="${_result}";
+  
+  local nm;
+  fs.basename "${descriptor}" "nm";
+  setup[descriptor.path]="${descriptor}";
+  setup[descriptor.name]="${nm}";
+  
+  dly.out.info "cd %s" "${setup[wd]}";
+  cd "${setup[wd]}" \
+    || dly.fail "could not enter %s" "${setup[wd]}";
+  dly.out.info "working directory %s" "$PWD";
+  
+  # update default url to the parent
+  # of the descriptor
+  defaults[url]="${setup[wd]}";
+  
+  # a standalone package changes the default
+  # url to the contents folder
+  if ${flags[bundle.standalone]}; then
+    defaults[url]="${names[bundle.contents]}";
+  fi
+  
+  # fetch git information into set up for bundling
+  if git.valid? "${setup[wd]}" && git.exists?; then
+    setup[git.global.user.name]=$( git config --get --global user.name );
+    setup[git.global.user.email]=$( git config --get --global user.email ); 
+    
+    setup[git.user.name]=$( git config --get user.name );
+    setup[git.user.email]=$( git config --get user.email );
+    
+    local git_branch_current git_branch_hash git_branch_message;
+    git.branch.current;
+    git.branch.hash;
+    git.branch.message;
+    
+    # duplication but better for clarity
+    setup[git.repo.path]="${setup[wd]}";    
+    setup[git.repo.branch]="${git_branch_current}";
+    
+    setup[git.commit.hash]="${git_branch_hash}";
+    setup[git.commit.message]="${git_branch_message}";
+    setup[git.commit.author]=$( git.show.author "$git_branch_hash" );
+  fi
 }
 
 # validate the directory
 dly.directory.validate() {
-	if [ -z "${directory}" ]; then
-		dly.fail "directory may not be empty";
-	fi
+  if [ -z "${directory}" ]; then
+    dly.fail "directory may not be empty";
+  fi
 }
 
 # make profile list unique
 dly.profiles.uniq!() {
-	local IFS=$'\n';
-	local lines=( ${profiles[*]} );
-	unset IFS;
-	profiles=( $( printf "${lines[*]}" | sort | uniq ) );
+  local IFS=$'\n';
+  local lines=( ${profiles[*]} );
+  unset IFS;
+  profiles=( $( printf "${lines[*]}" | sort | uniq ) );
 }
 
 # deploy a series of profiles
 dly.profiles() {
-	local profile;
+  local profile;
 
-	# print profiles being processed
-	dly.print.profiles;
-	
-	for profile in "${profiles[@]}"
-		do
-			if [ "${profile}" != "${defaults[profile.name]}" ]; then
-				if ! array.contains? "${profile}" "${all_profiles[@]:-}"; then
-					console warn "profile %s does not exist in %s" "${profile}" "${descriptor}";
-					continue;
-				fi
-			fi
-			# now attempt to deploy the profile
-			dly.profile;
-	done
-	# dump/write json information
-	if ${flags[print.json]}; then
-		if ! ${flags[print.json.pretty]}; then
-			json.stringify <<< "json_dump";
-		else
-			json.stringify --pretty 2 <<< "json_dump";
-		fi
-		printf "\n";
-	fi
+  # print profiles being processed
+  dly.print.profiles;
+  
+  for profile in "${profiles[@]}"
+    do
+      if [ "${profile}" != "${defaults[profile.name]}" ]; then
+        if ! array.contains? "${profile}" "${all_profiles[@]:-}"; then
+          console warn "profile %s does not exist in %s" "${profile}" "${descriptor}";
+          continue;
+        fi
+      fi
+      # now attempt to deploy the profile
+      dly.profile;
+  done
+  # dump/write json information
+  if ${flags[print.json]}; then
+    if ! ${flags[print.json.pretty]}; then
+      json.stringify <<< "json_dump";
+    else
+      json.stringify --pretty 2 <<< "json_dump";
+    fi
+    printf "\n";
+  fi
 }
 
 # deploy a single profile
 dly.profile() {
-	
-	# printf "PID\tCPU\tMEM\n";
-	# ps -mx -o "pid %cpu %mem" | grep "$$";
-	
-	unset json_dump;	
-	declare -A json_dump;
-	
-	# stores command to execute
-	# for all profiles
-	declare -A global_commands;
-	
-	# stores command to execute
-	# for a profile
-	declare -A profile_commands;
+  
+  # printf "PID\tCPU\tMEM\n";
+  # ps -mx -o "pid %cpu %mem" | grep "$$";
+  
+  unset json_dump;  
+  declare -A json_dump;
+  
+  # stores command to execute
+  # for all profiles
+  declare -A global_commands;
+  
+  # stores command to execute
+  # for a profile
+  declare -A profile_commands;
 
-	# update profile specific variables
-	
-	local bundle_source bundle_name bundle_archive bundle_path;
-	local settings;
-	
-	# bundle directory and move script to bundle
-	bundle_name="${deploy_file_name}-${profile}";
-	if ${flags[timestamp]}; then
-		bundle_name="${bundle_name}-${setup[timestamp]}";
-	fi
-	
-	if ${flags[author]}; then
-		declare -l bundle_author="${setup[user]}";
-		bundle_author="${bundle_author/^[^a-zA-Z0-9]/}";
-		bundle_author="${bundle_author//[^a-zA-Z0-9]/-}";
-		bundle_name="${bundle_author}-${bundle_name}";
-	fi
-	
-	bundle_source="${bundle_output}/${bundle_name}";
-	bundle_archive="${bundle_name}.${compression_extension}";
-	bundle_path="${bundle_output}/${bundle_archive}";
-	bundle_destination="${staging}/${bundle_name}";
-	settings="${bundle_source}/${names[json.settings]}";
-	
-	# clean an existing bundle directory
-	if [ -d "${bundle_source}" ]; then
-		rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
-			|| dly.fail "could not clean %s" "${bundle_source}";
-	fi
-	
-	# create a fresh bundle directory
-	mkdir -p "${bundle_source}" \
-		|| dly.fail "could not create %s" "${bundle_source}";
-	
-	# scipt / log variables
-	script_name="${names[script]}";
-	script_dir="${bundle_source}";
-	uid="${deploy_file_name}-${profile}";	
-	script="${script_dir}/${script_name}";
-	log_name="${uid}.log";
-	log_dir="${staging}/log";
-	log_file="${log_dir}/${log_name}";
-	
-	# TODO: allow for the version to be included in the target directory
-	local target_name="${project_name}";
-	if ${flags[target.version]}; then
-		target_name="${deploy_file_name}";
-	fi
-	# the full deployment target directory
-	local deploy_target;
-	
-	# cascade properties
-	dly.cascade;
+  # update profile specific variables
+  
+  local bundle_source bundle_name bundle_archive bundle_path;
+  local settings;
+  
+  # bundle directory and move script to bundle
+  bundle_name="${deploy_file_name}-${profile}";
+  if ${flags[timestamp]}; then
+    bundle_name="${bundle_name}-${setup[timestamp]}";
+  fi
+  
+  if ${flags[author]}; then
+    declare -l bundle_author="${setup[user]}";
+    bundle_author="${bundle_author/^[^a-zA-Z0-9]/}";
+    bundle_author="${bundle_author//[^a-zA-Z0-9]/-}";
+    bundle_name="${bundle_author}-${bundle_name}";
+  fi
+  
+  bundle_source="${bundle_output}/${bundle_name}";
+  bundle_archive="${bundle_name}.${compression_extension}";
+  bundle_path="${bundle_output}/${bundle_archive}";
+  bundle_destination="${staging}/${bundle_name}";
+  settings="${bundle_source}/${names[json.settings]}";
+  
+  # clean an existing bundle directory
+  if [ -d "${bundle_source}" ]; then
+    rm -rfv "${bundle_source}" >> "${log}" 2>&1 \
+      || dly.fail "could not clean %s" "${bundle_source}";
+  fi
+  
+  # create a fresh bundle directory
+  mkdir -p "${bundle_source}" \
+    || dly.fail "could not create %s" "${bundle_source}";
+  
+  # scipt / log variables
+  script_name="${names[script]}";
+  script_dir="${bundle_source}";
+  uid="${deploy_file_name}-${profile}"; 
+  script="${script_dir}/${script_name}";
+  log_name="${uid}.log";
+  log_dir="${staging}/log";
+  log_file="${log_dir}/${log_name}";
+  
+  # TODO: allow for the version to be included in the target directory
+  local target_name="${project_name}";
+  if ${flags[target.version]}; then
+    target_name="${deploy_file_name}";
+  fi
+  # the full deployment target directory
+  local deploy_target;
+  
+  # cascade properties
+  dly.cascade;
 }
 
 # start execution of a profile
 dly.profile.start() {
-	# run local pre-deployment command execution
-	dly.run.pre;
-	
-	bundle.install!;
-	
-	# run local post-deployment command execution
-	dly.run.post;
+  # run local pre-deployment command execution
+  dly.run.pre;
+  
+  bundle.install!;
+  
+  # run local post-deployment command execution
+  dly.run.post;
 }
 
 # cascade properties from the root of the document
 # overwriting with profile specific properties if
 # they have been set and finally with cli overrides
 dly.cascade() {
-	local prop var val;
-	for prop in "${deploy_property_names[@]}"
-		do
-			val="";
-			var="$prop";
-			var="${var//[^a-zA-Z0-9_]/_}";
-			
-			# set top-level property
-			if [ -n "${json_doc[$prop]:-}" ]; then
-				val="${json_doc[$prop]:-}";
-				# echo "setting top-level property: $var=$val";
-			fi
-			
-			# set profile-specific property
-			if [ -n "${json_doc[profiles.${profile}.${prop}]:-}" ];then
-				val="${json_doc[profiles.${profile}.${prop}]}";
-				# echo "setting profile property ($profile): $var=$val";
-			fi
-			
-			# override with command line option
-			if [ -n "${overrides[${prop}]:-}" ];then
-				val="${overrides[${prop}]}";
-				# echo "setting cli override: $var=$val";
-			fi
-			
-			# set the variable
-			if [ -n "$val" ]; then
-				eval "local $var=\"\${val}\"";
-			fi
-	done
-	
-	# verify deployment type is valid
-	local type="${type:-git}";
-	if ! array.contains? "${type:-}" "${types[@]}"; then
-		dly.fail "invalid deployment type %s" "${type:-}";
-	fi
-	
-	# types should specify a url
-	if [ -z "${url:-}" ]; then
-		# use the default url extracted for a git repository
-		# for the default profile if possible
-		if [ "$profile" == "${defaults[profile.name]}" ] \
-			&& [ "$type" == "cp" ] \
-			&& [ -n "${defaults[url]:-}" ]; then
-			# default to the project path
-			# for the default cp(1) type
-			url="${defaults[url]}";
-		else
-			dly.fail "%s (type: %s) no url" \
-				"${profile}" "${type}";
-		fi
-	fi
-	
-	# allow variable references in the *url* property		
-	if [ -n "${url:-}" ]; then
-		eval "url=\"$url\"";
-	fi
-	
-	# npm specific properties
-	if [ "$type" == "npm" ] && [ -n "${url:-}" ]; then
-		local npm_package_name="${project_name}";
-		local npm_package_version="null";
-		local npm_use_package=false;		
-		local npm_package_re="([^@ ]+)(@| )(.*)?$";
-		if [[ "${url:-}" =~ $npm_package_re ]]; then
-			npm_package_name="${BASH_REMATCH[1]}";
-			url="${BASH_REMATCH[3]}";
-			npm_package_version="${url}";
-			npm_use_package=true;
-		fi
-	fi
-	
-	# deploying default profile with a git type
-	# and the parent of the descriptor is not 
-	# a git repository
-	if [ "$type" == "git" ] \
-		&& [ "$profile" == "${defaults[profile.name]}" ] \
-		&& ! git.valid? "${setup[wd]}"; then
-		dly.fail "%s is not a git repsitory" "${setup[wd]}";
-	fi
-	
-	if [ "$type" == "tar" ] \
-		&& [[ ! "$url" =~ ${regex[scheme]} ]]; then
-			dly.fail \
-				"%s (type: %s) invalid url %s, must specify a scheme" \
-				"${profile}" "${type}" "${url}";
-	fi	
-	
-	if [ "$type" == "cp" ]; then
-		# strip any file:// scheme which is allowed
-		url="${url#file://}";
-		
-		# cp types may not specifiy a scheme other than file://
-		if [[ "$url" =~ ${regex[scheme]} ]]; then
-			dly.fail \
-				"%s (type: %s) invalid url %s, no scheme allowed" \
-				"${profile}" "${type}" "${url}";
-		fi
-	fi
-	
-	# validate required data
-	if ! ${flags[deploy.local]} && [ -z "${host}" ]; then
-		dly.fail "no remote host information available for deploy";
-	elif ${flags[deploy.local]}; then
-		host="${setup[hostname]}";
-	fi
-	
-	# set up the full deployment target directory
-	deploy_target="${directory}/${target_name}";
-	if ! ${flags[target.flat]}; then
-		deploy_target="${deploy_target}/${profile}";
-	fi
-	
-	# wrap descriptions
-	if [ -n "${description:-}" ]; then
-		description=$( printf "${description}" | fmt );
-	fi
-	
-	if [ -z "${staging}" ]; then
-		dly.fail "staging directory may not be empty";
-	elif [[ "${staging}" =~ ^/+$ ]]; then
-		dly.fail "staging directory may not be at the filesystem root";
-	fi
-	
-	#echo "validating directory ... ${directory} ... ";
-	
-	# revalidate directory for profile specific overrides
-	if ! ${flags[bundle.only]}; then
-		dly.directory.validate;
-	fi
-	
-	# read in global commands
-	dly.commands.read;
-	
-	# read in profile specific commands
-	dly.commands.read "profiles.${profile}";
+  local prop var val;
+  for prop in "${deploy_property_names[@]}"
+    do
+      val="";
+      var="$prop";
+      var="${var//[^a-zA-Z0-9_]/_}";
+      
+      # set top-level property
+      if [ -n "${json_doc[$prop]:-}" ]; then
+        val="${json_doc[$prop]:-}";
+        # echo "setting top-level property: $var=$val";
+      fi
+      
+      # set profile-specific property
+      if [ -n "${json_doc[profiles.${profile}.${prop}]:-}" ];then
+        val="${json_doc[profiles.${profile}.${prop}]}";
+        # echo "setting profile property ($profile): $var=$val";
+      fi
+      
+      # override with command line option
+      if [ -n "${overrides[${prop}]:-}" ];then
+        val="${overrides[${prop}]}";
+        # echo "setting cli override: $var=$val";
+      fi
+      
+      # set the variable
+      if [ -n "$val" ]; then
+        eval "local $var=\"\${val}\"";
+      fi
+  done
+  
+  # verify deployment type is valid
+  local type="${type:-git}";
+  if ! array.contains? "${type:-}" "${types[@]}"; then
+    dly.fail "invalid deployment type %s" "${type:-}";
+  fi
+  
+  # types should specify a url
+  if [ -z "${url:-}" ]; then
+    # use the default url extracted for a git repository
+    # for the default profile if possible
+    if [ "$profile" == "${defaults[profile.name]}" ] \
+      && [ "$type" == "cp" ] \
+      && [ -n "${defaults[url]:-}" ]; then
+      # default to the project path
+      # for the default cp(1) type
+      url="${defaults[url]}";
+    else
+      dly.fail "%s (type: %s) no url" \
+        "${profile}" "${type}";
+    fi
+  fi
+  
+  # allow variable references in the *url* property   
+  if [ -n "${url:-}" ]; then
+    eval "url=\"$url\"";
+  fi
+  
+  # npm specific properties
+  if [ "$type" == "npm" ] && [ -n "${url:-}" ]; then
+    local npm_package_name="${project_name}";
+    local npm_package_version="null";
+    local npm_use_package=false;    
+    local npm_package_re="([^@ ]+)(@| )(.*)?$";
+    if [[ "${url:-}" =~ $npm_package_re ]]; then
+      npm_package_name="${BASH_REMATCH[1]}";
+      url="${BASH_REMATCH[3]}";
+      npm_package_version="${url}";
+      npm_use_package=true;
+    fi
+  fi
+  
+  # deploying default profile with a git type
+  # and the parent of the descriptor is not 
+  # a git repository
+  if [ "$type" == "git" ] \
+    && [ "$profile" == "${defaults[profile.name]}" ] \
+    && ! git.valid? "${setup[wd]}"; then
+    dly.fail "%s is not a git repsitory" "${setup[wd]}";
+  fi
+  
+  if [ "$type" == "tar" ] \
+    && [[ ! "$url" =~ ${regex[scheme]} ]]; then
+      dly.fail \
+        "%s (type: %s) invalid url %s, must specify a scheme" \
+        "${profile}" "${type}" "${url}";
+  fi  
+  
+  if [ "$type" == "cp" ]; then
+    # strip any file:// scheme which is allowed
+    url="${url#file://}";
+    
+    # cp types may not specifiy a scheme other than file://
+    if [[ "$url" =~ ${regex[scheme]} ]]; then
+      dly.fail \
+        "%s (type: %s) invalid url %s, no scheme allowed" \
+        "${profile}" "${type}" "${url}";
+    fi
+  fi
+  
+  # validate required data
+  if ! ${flags[deploy.local]} && [ -z "${host}" ]; then
+    dly.fail "no remote host information available for deploy";
+  elif ${flags[deploy.local]}; then
+    host="${setup[hostname]}";
+  fi
+  
+  # set up the full deployment target directory
+  deploy_target="${directory}/${target_name}";
+  if ! ${flags[target.flat]}; then
+    deploy_target="${deploy_target}/${profile}";
+  fi
+  
+  # wrap descriptions
+  if [ -n "${description:-}" ]; then
+    description=$( printf "${description}" | fmt );
+  fi
+  
+  if [ -z "${staging}" ]; then
+    dly.fail "staging directory may not be empty";
+  elif [[ "${staging}" =~ ^/+$ ]]; then
+    dly.fail "staging directory may not be at the filesystem root";
+  fi
+  
+  #echo "validating directory ... ${directory} ... ";
+  
+  # revalidate directory for profile specific overrides
+  if ! ${flags[bundle.only]}; then
+    dly.directory.validate;
+  fi
+  
+  # read in global commands
+  dly.commands.read;
+  
+  # read in profile specific commands
+  dly.commands.read "profiles.${profile}";
 
-	if ${flags[print.env]}; then
-		dly.env.print;
-		return 0;
-	fi	
-	
-	# ready to start, output useful settings information
-	dly.info;
-	
-	if ! ${flags[print.json]}; then
-		
-		# create a package.json for the *npm* deployment type
-		# must be done prior to creating the script so that
-		# --lint-run works as expected
-		if [ "$type" == "npm" ]; then
-			bundle.npm.package.write!;
-		fi
-		
-		# write the deploy script file
-		script.write!;
-	fi
-	
-	# run script through `checkbashisms`
-	if ${flags[script.lint]}; then
-		script.lint;
-	fi
+  if ${flags[print.env]}; then
+    dly.env.print;
+    return 0;
+  fi  
+  
+  # ready to start, output useful settings information
+  dly.info;
+  
+  if ! ${flags[print.json]}; then
+    
+    # create a package.json for the *npm* deployment type
+    # must be done prior to creating the script so that
+    # --lint-run works as expected
+    if [ "$type" == "npm" ]; then
+      bundle.npm.package.write!;
+    fi
+    
+    # write the deploy script file
+    script.write!;
+  fi
+  
+  # run script through `checkbashisms`
+  if ${flags[script.lint]}; then
+    script.lint;
+  fi
 
-	if ! ${flags[print.script]} && ! ${flags[print.json]}; then
-		bundle.create;
-		
-		# only show the prompt and start
-		# a deployment process if we are not
-		# just creating bundles
-		if ! ${flags[bundle.only]}; then
-			# prompt for confirmation when possible
-			# if --ok has been set the confirm command
-			# will fall through to execution
-			dly.confirm "dly.profile.start" "$profile";
-		else
-			dly.complete;
-		fi
-	fi
-	
-	# clean up
-	unset type;
-	unset host;
-	unset url;
-	unset directory;
-	unset profile_commands;
-	
-	# cleanup npm specific variable
-	unset package;
-	unset npm_package_name;
-	unset npm_package_version;
+  if ! ${flags[print.script]} && ! ${flags[print.json]}; then
+    bundle.create;
+    
+    # only show the prompt and start
+    # a deployment process if we are not
+    # just creating bundles
+    if ! ${flags[bundle.only]}; then
+      # prompt for confirmation when possible
+      # if --ok has been set the confirm command
+      # will fall through to execution
+      dly.confirm "dly.profile.start" "$profile";
+    else
+      dly.complete;
+    fi
+  fi
+  
+  # clean up
+  unset type;
+  unset host;
+  unset url;
+  unset directory;
+  unset profile_commands;
+  
+  # cleanup npm specific variable
+  unset package;
+  unset npm_package_name;
+  unset npm_package_version;
 }
 
 dly.env.print() {
-	local k v;
-	for k in ${!doc_*}
-		do
-			variable.get "$k";
-			v="$_result";
-			printf "%s=%s\n" "$k" "$v";
-	done
-	for k in ${!env_*}
-		do
-			variable.get "$k";
-			v="$_result";
-			printf "%s=%s\n" "$k" "$v";
-	done
+  local k v;
+  for k in ${!doc_*}
+    do
+      variable.get "$k";
+      v="$_result";
+      printf "%s=%s\n" "$k" "$v";
+  done
+  for k in ${!env_*}
+    do
+      variable.get "$k";
+      v="$_result";
+      printf "%s=%s\n" "$k" "$v";
+  done
 }
 
 # run pre-deployment local commands
 dly.run.pre() {
-	if ${flags[skip.local.pre]}; then
-		return 0;
-	fi
-	if [ "${#global_commands[@]:-0}" ]; then
-		dly.run "pre" "commands.local.pre" true;
-	fi
-	dly.run "pre" "commands.local.pre";
+  if ${flags[skip.local.pre]}; then
+    return 0;
+  fi
+  if [ "${#global_commands[@]:-0}" ]; then
+    dly.run "pre" "commands.local.pre" true;
+  fi
+  dly.run "pre" "commands.local.pre";
 }
 
 # run post-deployment local commands
 dly.run.post() {
-	if ${flags[skip.local.post]}; then
-		return 0;
-	fi
-	if [ "${#global_commands[@]:-0}" ]; then
-		dly.run "post" "commands.local.post" true;
-	fi	
-	dly.run "post" "commands.local.post";
+  if ${flags[skip.local.post]}; then
+    return 0;
+  fi
+  if [ "${#global_commands[@]:-0}" ]; then
+    dly.run "post" "commands.local.post" true;
+  fi  
+  dly.run "post" "commands.local.post";
 }
 
 # run a set of local commands
 dly.run() {
-	local phase="$1"
-	local varname="$2";
-	local use_global_commands="${3:-false}";
-	local cmd list arr exe opt exit_code;
-	
-	# shortcut out for empty command maps	
-	local length=0;
-	if $use_global_commands; then
-		length="${global_commands["${varname}.length"]:-0}";
-	else
-		length="${profile_commands["${varname}.length"]:-0}";
-	fi
-	if [ $length -eq 0 ]; then
-		return 0;
-	fi
-	
-	# ensure working directory is correct for local
-	# command execution
-	cd "${setup[wd]}" \
-		|| dly.fail "could not enter %s" "${setup[wd]}";
-	
-	dly.out.info "exec local ${phase}-deployment commands (%s)" "$length";
-	dly.out.info "working directory %s" "$PWD";
-	
-	# build list of commands to execute
-	list=();
-	dly.run.list;
-	for cmd in "${list[@]:-}"
-		do
-			# echo "cmd is : ${cmd}";
-			local IFS=$'\n';
-			arr=( ${cmd} );
-			unset IFS;
-			if [ ${#arr[@]} -gt 0 ]; then
-				#echo "arr length is :: ${#arr[@]}";
-				exe="${arr[0]}";
-				local IFS=$'\n';
-				opt=( "${arr[@]:1}" );
-				unset IFS;
-				dly.out.info "exec %s %s" "${exe}" "${opt[*]:-}";
-				
-				# echo "run command : ${exe} : ${opt[@]:-}";
-				
-				# validate the executable being executed
-				executable.validate --test "${exe}";
-				if [ -z "${executables[$exe]}" ]; then
-					dly.fail "executable %s is not available" "$exe";
-				fi
-				
-				#echo "run command (after validation) : ${exe} : ${opt[@]:-} : length:  ${#opt[@]}";
-				
-				# execute the command
-				if ! ${flags[noop]}; then
-					if ! ${flags[logging]}; then
-						if ! ${flags[expand]}; then
-							( ${exe} "${opt[@]:-}" ); exit_code=$?;
-						else
-							( ${exe} ${opt[@]:-} ); exit_code=$?;
-						fi
-					else
-						if ! ${flags[expand]}; then
-							( ${exe} "${opt[@]:-}" >> "${log}" 2>&1 );
-							exit_code=$?;
-						else
-							( ${exe} ${opt[@]:-} >> "${log}" 2>&1 );
-							exit_code=$?;
-						fi
-					fi
-					if [ $exit_code -gt 0 ]; then
-						dly.fail "execution error %s %s" "$exe" "${opt[*]:-}";
-					fi
-				fi
-			fi
-	done
+  local phase="$1"
+  local varname="$2";
+  local use_global_commands="${3:-false}";
+  local cmd list arr exe opt exit_code;
+  
+  # shortcut out for empty command maps 
+  local length=0;
+  if $use_global_commands; then
+    length="${global_commands["${varname}.length"]:-0}";
+  else
+    length="${profile_commands["${varname}.length"]:-0}";
+  fi
+  if [ $length -eq 0 ]; then
+    return 0;
+  fi
+  
+  # ensure working directory is correct for local
+  # command execution
+  cd "${setup[wd]}" \
+    || dly.fail "could not enter %s" "${setup[wd]}";
+  
+  dly.out.info "exec local ${phase}-deployment commands (%s)" "$length";
+  dly.out.info "working directory %s" "$PWD";
+  
+  # build list of commands to execute
+  list=();
+  dly.run.list;
+  for cmd in "${list[@]:-}"
+    do
+      # echo "cmd is : ${cmd}";
+      local IFS=$'\n';
+      arr=( ${cmd} );
+      unset IFS;
+      if [ ${#arr[@]} -gt 0 ]; then
+        #echo "arr length is :: ${#arr[@]}";
+        exe="${arr[0]}";
+        local IFS=$'\n';
+        opt=( "${arr[@]:1}" );
+        unset IFS;
+        dly.out.info "exec %s %s" "${exe}" "${opt[*]:-}";
+        
+        # echo "run command : ${exe} : ${opt[@]:-}";
+        
+        # validate the executable being executed
+        executable.validate --test "${exe}";
+        if [ -z "${executables[$exe]}" ]; then
+          dly.fail "executable %s is not available" "$exe";
+        fi
+        
+        #echo "run command (after validation) : ${exe} : ${opt[@]:-} : length:  ${#opt[@]}";
+        
+        # execute the command
+        if ! ${flags[noop]}; then
+          if ! ${flags[logging]}; then
+            if ! ${flags[expand]}; then
+              ( ${exe} "${opt[@]:-}" ); exit_code=$?;
+            else
+              ( ${exe} ${opt[@]:-} ); exit_code=$?;
+            fi
+          else
+            if ! ${flags[expand]}; then
+              ( ${exe} "${opt[@]:-}" >> "${log}" 2>&1 );
+              exit_code=$?;
+            else
+              ( ${exe} ${opt[@]:-} >> "${log}" 2>&1 );
+              exit_code=$?;
+            fi
+          fi
+          if [ $exit_code -gt 0 ]; then
+            dly.fail "execution error %s %s" "$exe" "${opt[*]:-}";
+          fi
+        fi
+      fi
+  done
 }
 
 # fetch the command type subset 
 # as an ordered array of commands
 dly.run.list() {
-	local k v keys i;
-	local re="${varname//\./\\.}";
-	re="^$re\.([0-9]+)";
-	if $use_global_commands; then
-		for k in "${!global_commands[@]}"
-			do
-				v="${global_commands[$k]}";
-				dly.run.list.add;
-		done
-	else
-		for k in "${!profile_commands[@]}"
-			do
-				v="${profile_commands[$k]}";
-				dly.run.list.add;
-		done		
-	fi
+  local k v keys i;
+  local re="${varname//\./\\.}";
+  re="^$re\.([0-9]+)";
+  if $use_global_commands; then
+    for k in "${!global_commands[@]}"
+      do
+        v="${global_commands[$k]}";
+        dly.run.list.add;
+    done
+  else
+    for k in "${!profile_commands[@]}"
+      do
+        v="${profile_commands[$k]}";
+        dly.run.list.add;
+    done    
+  fi
 }
 
 # add a command to the list of
 # commands to be processed
 dly.run.list.add() {
-	if [[ "$k" =~ $re ]]; then
-		i="${BASH_REMATCH[1]}";
-		list[$i]="$v";
-	fi
+  if [[ "$k" =~ $re ]]; then
+    i="${BASH_REMATCH[1]}";
+    list[$i]="$v";
+  fi
 }
 
 # read in commands
 dly.commands.read() {
-	local prefix="${1:-}";
-	local use_global_commands=false;
-	if [ -z "$prefix" ]; then
-		prefix="commands";
-		use_global_commands=true;
-	else
-		prefix="${prefix}.commands";
-	fi
-	
-	local local_pre_length="${json_doc[${prefix}.local.pre.length]:-0}";
-	local local_post_length="${json_doc[${prefix}.local.post.length]:-0}";
-	local remote_pre_length="${json_doc[${prefix}.remote.pre.length]:-0}";
-	local remote_post_length="${json_doc[${prefix}.remote.post.length]:-0}";
-	
-	# echo "testing $prefix for remote pre: ${remote_pre_length}";
-	# echo "testing $prefix for remote post: ${remote_post_length}";
-	
-	if [ $local_pre_length -gt 0 ]; then
-		dly.commands.read.group \
-			"$prefix" \
-			"${prefix}.local.pre" \
-			$local_pre_length \
-			"commands.local.pre"
-	fi
-	if [ $local_post_length -gt 0 ]; then
-		dly.commands.read.group \
-			"$prefix" \
-			"${prefix}.local.post" \
-			$local_post_length \
-			"commands.local.post"
-	fi
-	if [ $remote_pre_length -gt 0 ]; then
-		dly.commands.read.group \
-			"$prefix" \
-			"${prefix}.remote.pre" \
-			$remote_pre_length \
-			"commands.remote.pre"
-	fi
-	if [ $remote_post_length -gt 0 ]; then
-		dly.commands.read.group \
-			"$prefix" \
-			"${prefix}.remote.post" \
-			$remote_post_length \
-			"commands.remote.post"
-	fi
+  local prefix="${1:-}";
+  local use_global_commands=false;
+  if [ -z "$prefix" ]; then
+    prefix="commands";
+    use_global_commands=true;
+  else
+    prefix="${prefix}.commands";
+  fi
+  
+  local local_pre_length="${json_doc[${prefix}.local.pre.length]:-0}";
+  local local_post_length="${json_doc[${prefix}.local.post.length]:-0}";
+  local remote_pre_length="${json_doc[${prefix}.remote.pre.length]:-0}";
+  local remote_post_length="${json_doc[${prefix}.remote.post.length]:-0}";
+  
+  # echo "testing $prefix for remote pre: ${remote_pre_length}";
+  # echo "testing $prefix for remote post: ${remote_post_length}";
+  
+  if [ $local_pre_length -gt 0 ]; then
+    dly.commands.read.group \
+      "$prefix" \
+      "${prefix}.local.pre" \
+      $local_pre_length \
+      "commands.local.pre"
+  fi
+  if [ $local_post_length -gt 0 ]; then
+    dly.commands.read.group \
+      "$prefix" \
+      "${prefix}.local.post" \
+      $local_post_length \
+      "commands.local.post"
+  fi
+  if [ $remote_pre_length -gt 0 ]; then
+    dly.commands.read.group \
+      "$prefix" \
+      "${prefix}.remote.pre" \
+      $remote_pre_length \
+      "commands.remote.pre"
+  fi
+  if [ $remote_post_length -gt 0 ]; then
+    dly.commands.read.group \
+      "$prefix" \
+      "${prefix}.remote.post" \
+      $remote_post_length \
+      "commands.remote.post"
+  fi
 }
 
 # read in a group of commands
 dly.commands.read.group() {
-	local prefix="$1";
-	local group="$2";
-	local length="$3";
-	local varname="$4";
-	local i j jl exe opt cmd;
-	
-	local whitespace="[ 	]";
-	
-	# echo "GROUP READ !!! : $group";
-	# echo "GROUP READ !!! : ${!json_doc[*]}";
-	
-	for((i = 0;i < $length;i++))
-		do
-			cmd="";
-			exe="${json_doc[${group}.$i.command]:-}";
-			if [ -z "$exe" ]; then
-				console error "invalid command %s in %s" "$exe" "$descriptor";
-				dly.fail "%s may not be a blank string" "command";
-			fi
-			
-			# echo "got exe: $exe";
-			
-			if [[ "$exe" =~ $whitespace ]]; then
-				console error "invalid command %s in %s" "$exe" "$descriptor";
-				dly.fail "%s may not contain whitespace" "command";
-			fi
-			
-			jl="${json_doc[${group}.$i.options.length]:-0}";
-			
-			# echo "read command at index $i : $group : $exe"
-			
-			if [ -n "$exe" ]; then
-				cmd="${exe}";
-			fi
-			
-			for((j = 0;j < $jl;j++))
-				do
-					opt="${json_doc[${group}.$i.options.$j]}";
-					
-					# evaluate each option so that variable
-					# references can be used
-					trap dly.unbound.variable EXIT
-					eval "opt=\"${opt}\"";
-					trap - EXIT
-					
-					cmd="${cmd}
+  local prefix="$1";
+  local group="$2";
+  local length="$3";
+  local varname="$4";
+  local i j jl exe opt cmd;
+  
+  local whitespace="[   ]";
+  
+  # echo "GROUP READ !!! : $group";
+  # echo "GROUP READ !!! : ${!json_doc[*]}";
+  
+  for((i = 0;i < $length;i++))
+    do
+      cmd="";
+      exe="${json_doc[${group}.$i.command]:-}";
+      if [ -z "$exe" ]; then
+        console error "invalid command %s in %s" "$exe" "$descriptor";
+        dly.fail "%s may not be a blank string" "command";
+      fi
+      
+      # echo "got exe: $exe";
+      
+      if [[ "$exe" =~ $whitespace ]]; then
+        console error "invalid command %s in %s" "$exe" "$descriptor";
+        dly.fail "%s may not contain whitespace" "command";
+      fi
+      
+      jl="${json_doc[${group}.$i.options.length]:-0}";
+      
+      # echo "read command at index $i : $group : $exe"
+      
+      if [ -n "$exe" ]; then
+        cmd="${exe}";
+      fi
+      
+      for((j = 0;j < $jl;j++))
+        do
+          opt="${json_doc[${group}.$i.options.$j]}";
+          
+          # evaluate each option so that variable
+          # references can be used
+          trap dly.unbound.variable EXIT
+          eval "opt=\"${opt}\"";
+          trap - EXIT
+          
+          cmd="${cmd}
 ${opt}";
-			done
-			
-			if $use_global_commands; then
-				global_commands["${varname}.$i"]="${cmd}";
-			else
-				profile_commands["${varname}.$i"]="${cmd}";
-			fi
-	done
-	
-	# add length properties
-	if $use_global_commands; then
-		global_commands["${varname}.length"]="${i}";
-	else
-		profile_commands["${varname}.length"]="${i}";
-	fi
+      done
+      
+      if $use_global_commands; then
+        global_commands["${varname}.$i"]="${cmd}";
+      else
+        profile_commands["${varname}.$i"]="${cmd}";
+      fi
+  done
+  
+  # add length properties
+  if $use_global_commands; then
+    global_commands["${varname}.length"]="${i}";
+  else
+    profile_commands["${varname}.length"]="${i}";
+  fi
 }
 
 # handles the situation when a command *probably*
 # references an unbound variable
 dly.unbound.variable()
 {
-	# console.throw "probable reference to unbound variable";
-	console error "probable reference to unbound variable";
-	dly.fail "invalid command %s" "${cmd//$newline/ }";
+  # console.throw "probable reference to unbound variable";
+  console error "probable reference to unbound variable";
+  dly.fail "invalid command %s" "${cmd//$newline/ }";
 }
 
 dly.settings.init() {
-	# JSON PROPERTIES
-		
-	# array used to store properties to be
-	# dumped as json
-	json_dump["project-version"]="${project_version}";
-		
-	# update some json dump properties after option parsing
-	json_dump["project-name"]="${project_name}";
-	json_dump["descriptor"]="${descriptor}";
-	json_dump["noop"]="${flags[noop]}";
-	json_dump["local"]="${flags[deploy.local]}";
-	local i;
-	for i in ${!profiles[@]}
-		do
-			json_dump["targets.$i"]="${profiles[$i]}";
-	done	
+  # JSON PROPERTIES
+    
+  # array used to store properties to be
+  # dumped as json
+  json_dump["project-version"]="${project_version}";
+    
+  # update some json dump properties after option parsing
+  json_dump["project-name"]="${project_name}";
+  json_dump["descriptor"]="${descriptor}";
+  json_dump["noop"]="${flags[noop]}";
+  json_dump["local"]="${flags[deploy.local]}";
+  local i;
+  for i in ${!profiles[@]}
+    do
+      json_dump["targets.$i"]="${profiles[$i]}";
+  done  
 }
 
 # either outputs configuration information
 # for the profile being processed or prints
 # a json document 
 dly.info() {
-	dly.settings.init;
+  dly.settings.init;
 
-	# always build up the json settings so that
-	# this data can be written to a file when
-	# performing a deployment
-	local script_file="${script}";
-	local script_shell="${shell}";
-	local script_shebang="${shebang}";
-	
-	# variable names to inspect for
-	# each profile being processed
-	local var key
-	
-	# use all json property names
-	local vars=( "${deploy_property_names[@]}" );
-	# add property names set internally
-	vars+=(
-		deploy_name
-		deploy_file_name
-		deploy_target
-		script_shell
-		script_shebang
-		script_file
-		script_dir
-		bundle_archive
-		bundle_source
-		bundle_path
-		log_file
-		log_dir
-		sources
-	);
-	
-	if [ "$type" == "git" ]; then
-		vars+=( git_ref git_remote url );
-	elif [ "$type" == "tar" ]; then
-		vars+=( url );
-	fi
-	
-	local value k len;
-	for var in "${vars[@]}"
-		do
-			# replace first underscore with a dot to group
-			# as object on variable names with the same prefix
-			key="${var/_/.}";
-			if ! array.is.array? "${var}" && ! array.is.assoc? "${var}"; then
-				key="${key//_/-}";
-				variable.get "${var}";
-				value="${_result:-}";
-				if [ -n "${value}" ]; then
-					#echo "adding to json_dump $key : $value";
-					json_dump["profiles.${profile}.$key"]="$value";
-				fi
-			else
-				key="${var//_/.}";
-				#echo "ADD ARRAY CONTENTS:::!!! $key : $var"
-				eval "keys=( \${!$var[@]} )";
-				eval len="\${#$var[@]}";
-				if [ $len -gt 0 ]; then
-					# echo "add with array length : ${len}";
-					for k in "${keys[@]:-}"
-						do
-							eval value="\${$var[$k]}";
-							# echo "adding array element : $k : $value"
-							if [ -n "${value}" ]; then
-								json_dump["profiles.${profile}.${key}.${k}"]="$value";
-							fi
-					done
-				fi
-			fi
-	done
-	
-	# otherwise print out information to stdout
-	if ! ${flags[print.json]} && ! ${flags[print.script]}; then
-		local start_time=$( date )
-		
-		# HEADER
-		dly.out.info "%s (%s) on %s" "${deploy_name}" "${setup[creator]}" "${setup[platform]}";
-		
-		# INFO		
-		dly.header;
-		dly.out.info "%s" "${start_time}";
-		dly.header;		
-		if [ -n "${description:-}" ]; then
-			dly.out.info "${description}";
-		fi
-		
-		# BUNDLE
-		dly.header;
-		dly.out.info "bundle";
-		dly.header;		
-		dly.out.info "name %s" "${bundle_name}";
-		dly.out.info "archive %s" "${bundle_archive}";
-		dly.out.info "source %s" "${bundle_source}";
-		dly.out.info "path %s" "${bundle_path}";
-		dly.header;		
-		
-		# SETTINGS
-		dly.header;
-		dly.out.info "settings";
-		dly.header;
-		dly.out.info "host %s" "${host}";		
-		dly.out.info "profile %s" "${profile}";
-		dly.out.info "type %s" "${type}";
-		dly.out.info "noop %s" "${flags[noop]}";
-		dly.out.info "shell %s" "${shell}";
-		dly.out.info "url %s" "${url}";
-		
-		# type specific / optional settings		
-		if [ "$type" == "git" ]; then
-			dly.out.info "git ref %s" "${git_ref}";
-			dly.out.info "git remote %s" "${git_remote}";
-		fi
-		# using custom script
-		if [ -n "${sources[script]}" ]; then
-			dly.out.info "source script %s" "${sources[script]}";
-		fi
-		
-		# PATHS
-		dly.header;
-		dly.out.info "paths";
-		dly.header;
-		dly.out.info "working directory: %s\n" "${PWD}";
-		dly.out.info "descriptor %s" "${descriptor}";
-		dly.out.info "directory %s" "${directory}";
-		dly.out.info "staging %s" "${staging}";
-		dly.out.info "script %s" "${script}";		
-		dly.out.info "log file %s" "${log_file}";
-		dly.header;		
-		
-		# FINAL TARGET
-		dly.out.info "";		
-		dly.out.info "\t %s" "${deploy_target}";
-		dly.out.info "";		
-		dly.header;		
-	fi	
+  # always build up the json settings so that
+  # this data can be written to a file when
+  # performing a deployment
+  local script_file="${script}";
+  local script_shell="${shell}";
+  local script_shebang="${shebang}";
+  
+  # variable names to inspect for
+  # each profile being processed
+  local var key
+  
+  # use all json property names
+  local vars=( "${deploy_property_names[@]}" );
+  # add property names set internally
+  vars+=(
+    deploy_name
+    deploy_file_name
+    deploy_target
+    script_shell
+    script_shebang
+    script_file
+    script_dir
+    bundle_archive
+    bundle_source
+    bundle_path
+    log_file
+    log_dir
+    sources
+  );
+  
+  if [ "$type" == "git" ]; then
+    vars+=( git_ref git_remote url );
+  elif [ "$type" == "tar" ]; then
+    vars+=( url );
+  fi
+  
+  local value k len;
+  for var in "${vars[@]}"
+    do
+      # replace first underscore with a dot to group
+      # as object on variable names with the same prefix
+      key="${var/_/.}";
+      if ! array.is.array? "${var}" && ! array.is.assoc? "${var}"; then
+        key="${key//_/-}";
+        variable.get "${var}";
+        value="${_result:-}";
+        if [ -n "${value}" ]; then
+          #echo "adding to json_dump $key : $value";
+          json_dump["profiles.${profile}.$key"]="$value";
+        fi
+      else
+        key="${var//_/.}";
+        #echo "ADD ARRAY CONTENTS:::!!! $key : $var"
+        eval "keys=( \${!$var[@]} )";
+        eval len="\${#$var[@]}";
+        if [ $len -gt 0 ]; then
+          # echo "add with array length : ${len}";
+          for k in "${keys[@]:-}"
+            do
+              eval value="\${$var[$k]}";
+              # echo "adding array element : $k : $value"
+              if [ -n "${value}" ]; then
+                json_dump["profiles.${profile}.${key}.${k}"]="$value";
+              fi
+          done
+        fi
+      fi
+  done
+  
+  # otherwise print out information to stdout
+  if ! ${flags[print.json]} && ! ${flags[print.script]}; then
+    local start_time=$( date )
+    
+    # HEADER
+    dly.out.info "%s (%s) on %s" "${deploy_name}" "${setup[creator]}" "${setup[platform]}";
+    
+    # INFO    
+    dly.header;
+    dly.out.info "%s" "${start_time}";
+    dly.header;   
+    if [ -n "${description:-}" ]; then
+      dly.out.info "${description}";
+    fi
+    
+    # BUNDLE
+    dly.header;
+    dly.out.info "bundle";
+    dly.header;   
+    dly.out.info "name %s" "${bundle_name}";
+    dly.out.info "archive %s" "${bundle_archive}";
+    dly.out.info "source %s" "${bundle_source}";
+    dly.out.info "path %s" "${bundle_path}";
+    dly.header;   
+    
+    # SETTINGS
+    dly.header;
+    dly.out.info "settings";
+    dly.header;
+    dly.out.info "host %s" "${host}";   
+    dly.out.info "profile %s" "${profile}";
+    dly.out.info "type %s" "${type}";
+    dly.out.info "noop %s" "${flags[noop]}";
+    dly.out.info "shell %s" "${shell}";
+    dly.out.info "url %s" "${url}";
+    
+    # type specific / optional settings   
+    if [ "$type" == "git" ]; then
+      dly.out.info "git ref %s" "${git_ref}";
+      dly.out.info "git remote %s" "${git_remote}";
+    fi
+    # using custom script
+    if [ -n "${sources[script]}" ]; then
+      dly.out.info "source script %s" "${sources[script]}";
+    fi
+    
+    # PATHS
+    dly.header;
+    dly.out.info "paths";
+    dly.header;
+    dly.out.info "working directory: %s\n" "${PWD}";
+    dly.out.info "descriptor %s" "${descriptor}";
+    dly.out.info "directory %s" "${directory}";
+    dly.out.info "staging %s" "${staging}";
+    dly.out.info "script %s" "${script}";   
+    dly.out.info "log file %s" "${log_file}";
+    dly.header;   
+    
+    # FINAL TARGET
+    dly.out.info "";    
+    dly.out.info "\t %s" "${deploy_target}";
+    dly.out.info "";    
+    dly.header;   
+  fi  
 }
 
 # print profiles
 dly.print.profiles() {
-	dly.header;
-	dly.out.info "deploy %s" "${setup[date]}";
-	dly.out.info "started by %s" "${setup[uid]}";
-	dly.out.info "";
-	local p;
-	for p in "${profiles[@]}"
-		do
-			dly.out.info "\t%s" "$p";
-	done
-	dly.out.info "";
-	dly.header;	
+  dly.header;
+  dly.out.info "deploy %s" "${setup[date]}";
+  dly.out.info "started by %s" "${setup[uid]}";
+  dly.out.info "";
+  local p;
+  for p in "${profiles[@]}"
+    do
+      dly.out.info "\t%s" "$p";
+  done
+  dly.out.info "";
+  dly.header; 
 }
 
 # output the header delimiter
 dly.header() {
-	if ${flags[quiet]} || ${flags[print.json]} || ${flags[print.script]} || ${flags[print.env]}; then
-		return 0;
-	fi	
-	
-	if ! ${flags[logging]}; then
-		console.header;
-	else
-		console.header "$@" >> "${log}" 2>&1;
-	fi	
+  if ${flags[quiet]} || ${flags[print.json]} || ${flags[print.script]} || ${flags[print.env]}; then
+    return 0;
+  fi  
+  
+  if ! ${flags[logging]}; then
+    console.header;
+  else
+    console.header "$@" >> "${log}" 2>&1;
+  fi  
 }
 
 # output an info message to stdout or
 # the log file if logging
 dly.out.info() {
-	if ${flags[quiet]} || ${flags[print.json]} || ${flags[print.script]} || ${flags[print.env]}; then
-		return 0;
-	fi
-	
-	if ! ${flags[logging]}; then
-		console info "$@";
-	else
-		console info "$@" >> "${log}" 2>&1;
-	fi
+  if ${flags[quiet]} || ${flags[print.json]} || ${flags[print.script]} || ${flags[print.env]}; then
+    return 0;
+  fi
+  
+  if ! ${flags[logging]}; then
+    console info "$@";
+  else
+    console info "$@" >> "${log}" 2>&1;
+  fi
 }
 
 # build up the prompt string
 dly.prompt() {
-	local replace="${1:-}";
-	local ps1=$( printf "$deploy_prompt" "$replace" );
-	#echo -n "${ps1}${rlx_prompt_suffix}";
-	prompt="${ps1}${deploy_prompt_suffix}";
+  local replace="${1:-}";
+  local ps1=$( printf "$deploy_prompt" "$replace" );
+  #echo -n "${ps1}${rlx_prompt_suffix}";
+  prompt="${ps1}${deploy_prompt_suffix}";
 }
 
 # interactive confirmation for
 # a profile deployment
 dly.confirm() {
-	local callback="${1:-}";
-	# stdin or stdout is not a tty
-	# cannot interact
-	if ! ${flags[interactive]} || [ ! -t 0 ] || [ ! -t 1 ]; then
-		# invoke callback to start deployment
-		$callback;
-		return 0;
-	fi
-	
-	local replace="${2:-}";
-	dly.prompt "${replace}";
+  local callback="${1:-}";
+  # stdin or stdout is not a tty
+  # cannot interact
+  if ! ${flags[interactive]} || [ ! -t 0 ] || [ ! -t 1 ]; then
+    # invoke callback to start deployment
+    $callback;
+    return 0;
+  fi
+  
+  local replace="${2:-}";
+  dly.prompt "${replace}";
 
-	accepted() {
-		$callback;
-	}
+  accepted() {
+    $callback;
+  }
 
-	rejected() {
-		dly.fail "aborted %s" "${replace}";
-	}
+  rejected() {
+    dly.fail "aborted %s" "${replace}";
+  }
 
-	# define a boolean prompt
-	prompt.boolean confirm y n "${prompt} are you sure? (y/n)";
-	# set accept/reject callback(s)
-	prompt.accepts accepted;
-	prompt.rejects rejected;
-	prompt.show confirm;
-	prompt.clean;
-	
-	# clean up confirmation callbacks
-	method.remove accepted rejected;
+  # define a boolean prompt
+  prompt.boolean confirm y n "${prompt} are you sure? (y/n)";
+  # set accept/reject callback(s)
+  prompt.accepts accepted;
+  prompt.rejects rejected;
+  prompt.show confirm;
+  prompt.clean;
+  
+  # clean up confirmation callbacks
+  method.remove accepted rejected;
 }
 
 # validate variable value does not contain
 # whitespace: space or tab character
 dly.whitespace.validate() {
-	local value="${1:-}";
-	local name="${2:-}";
-	# staging directory cannot contain whitespace
-	# so that we can perform tilde expansion
-	local re="[ 	]+";
-	if [[ "${value}" =~ $re ]]; then
-		dly.fail "invalid %s value %s, cannot contain whitespace" \
-			"${name}" "${value}";
-	fi
+  local value="${1:-}";
+  local name="${2:-}";
+  # staging directory cannot contain whitespace
+  # so that we can perform tilde expansion
+  local re="[   ]+";
+  if [[ "${value}" =~ $re ]]; then
+    dly.fail "invalid %s value %s, cannot contain whitespace" \
+      "${name}" "${value}";
+  fi
 }
 
 # parse the deploy descriptor as JSON
 dly.parse() {
-	json_exit=false;
-	json.parse < "${descriptor}" >> "$log" 2>&1;
-	if [ $json_exit_code -gt 0 ]; then
-		console error "invalid json in %s" "$descriptor";
-		dly.fail "stack trace in %s" "$log";
-	fi	
-	# fetch all profile names in to
-	# the all_profiles list
-	declare -A names;
-	local k tk profile_re="^(profiles\.([^.]+))\.?";
-	for k in "${!json_doc[@]}"
-		do
-			if [[ "$k" =~ $profile_re ]]; then
-				names["${BASH_REMATCH[2]}"]=true;
-				
-				# assign the default deployment type when none
-				# has been specified
-				tk="${BASH_REMATCH[1]}.type";
-				if [ -z "${json_doc[$tk]:-}" ]; then
-					json_doc[$tk]="${defaults[type]}";
-				fi
-			fi
-	done
-	# validate profile names in descriptor
-	# match the rules for project/profile names
-	for k in "${!names[@]}"
-		do
-			# quit on invalid profile name in the deploy descriptor
-			if ! dly.name.valid? "${k}"; then
-				dly.name.quit "profile" "$k";
-			fi
-	done
-	all_profiles=( ${!names[@]} );
-	
-	if [ "${#all_profiles[@]:-0}" -gt 0 ]; then
-		# sort profiles
-		local IFS="$newline";
-		local all="${all_profiles[@]}";
-		local sorted_profiles=( $( echo "${all}" | sort ) );
-		unset IFS;
-		all_profiles=( ${sorted_profiles[@]} );
-	
-		if ${flags[print.profiles]}; then
-			if [ "${#all_profiles[@]}" -eq 0 ]; then
-				dly.fail "no profiles in %s" "$descriptor";
-			else
-				local IFS="$newline";
-				local all="${all_profiles[@]}";
-				echo "$all";
-				console success;
-			fi
-		fi
-	elif ${flags[print.profiles]}; then
-		console print "${defaults[profile.name]}";
-		console success;
-	fi
+  json_exit=false;
+  json.parse < "${descriptor}" >> "$log" 2>&1;
+  if [ $json_exit_code -gt 0 ]; then
+    console error "invalid json in %s" "$descriptor";
+    dly.fail "stack trace in %s" "$log";
+  fi  
+  # fetch all profile names in to
+  # the all_profiles list
+  declare -A names;
+  local k tk profile_re="^(profiles\.([^.]+))\.?";
+  for k in "${!json_doc[@]}"
+    do
+      if [[ "$k" =~ $profile_re ]]; then
+        names["${BASH_REMATCH[2]}"]=true;
+        
+        # assign the default deployment type when none
+        # has been specified
+        tk="${BASH_REMATCH[1]}.type";
+        if [ -z "${json_doc[$tk]:-}" ]; then
+          json_doc[$tk]="${defaults[type]}";
+        fi
+      fi
+  done
+  # validate profile names in descriptor
+  # match the rules for project/profile names
+  for k in "${!names[@]}"
+    do
+      # quit on invalid profile name in the deploy descriptor
+      if ! dly.name.valid? "${k}"; then
+        dly.name.quit "profile" "$k";
+      fi
+  done
+  all_profiles=( ${!names[@]} );
+  
+  if [ "${#all_profiles[@]:-0}" -gt 0 ]; then
+    # sort profiles
+    local IFS="$newline";
+    local all="${all_profiles[@]}";
+    local sorted_profiles=( $( echo "${all}" | sort ) );
+    unset IFS;
+    all_profiles=( ${sorted_profiles[@]} );
+  
+    if ${flags[print.profiles]}; then
+      if [ "${#all_profiles[@]}" -eq 0 ]; then
+        dly.fail "no profiles in %s" "$descriptor";
+      else
+        local IFS="$newline";
+        local all="${all_profiles[@]}";
+        echo "$all";
+        console success;
+      fi
+    fi
+  elif ${flags[print.profiles]}; then
+    console print "${defaults[profile.name]}";
+    console success;
+  fi
 }
 
 # failure
 dly.fail() {
-	dly.complete.notify false;
-	if [ $# -gt 0 ]; then
-		console error "$@";
-	fi
-	console quit 1 "deploy %s failed" \
-			"${deploy_name}";
+  dly.complete.notify false;
+  if [ $# -gt 0 ]; then
+    console error "$@";
+  fi
+  console quit 1 "deploy %s failed" \
+      "${deploy_name}";
 }
 
 # attempts to notify via `growlnotify` when available
 dly.complete.notify() {
-	local success="${1:-false}";
-	# don't send growl notifications for
-	# json dumps or noop
-	if ${flags[noop]} || ! ${flags[notify.growl]}; then
-		return 0;
-	fi
-	if [ -n "${executables[growlnotify]}" ]; then
-		local message;
-		local priority="${2:-Normal}";
-		if $success; then
-			message="${messages[success]}";
-		else
-			priority="Emergency";
-			message="${messages[fail]}";
-		fi
-		"${executables[growlnotify]}" -m "$message" --priority "$priority";
-	fi
+  local success="${1:-false}";
+  # don't send growl notifications for
+  # json dumps or noop
+  if ${flags[noop]} || ! ${flags[notify.growl]}; then
+    return 0;
+  fi
+  if [ -n "${executables[growlnotify]}" ]; then
+    local message;
+    local priority="${2:-Normal}";
+    if $success; then
+      message="${messages[success]}";
+    else
+      priority="Emergency";
+      message="${messages[fail]}";
+    fi
+    "${executables[growlnotify]}" -m "$message" --priority "$priority";
+  fi
 }
 
 # output the complete message
 dly.complete() {
-	if ${flags[quiet]} || ${flags[print.env]}; then
-		return 0;
-	fi
-	
-	# output success information
-	dly.complete.notify true;
-	if ${flags[print.json]} || ${flags[print.script]}; then
-		console success;
-	else
-		console success "deploy %s complete %s" \
-			"${deploy_name}";
-	fi
+  if ${flags[quiet]} || ${flags[print.env]}; then
+    return 0;
+  fi
+  
+  # output success information
+  dly.complete.notify true;
+  if ${flags[print.json]} || ${flags[print.script]}; then
+    console success;
+  else
+    console success "deploy %s complete %s" \
+      "${deploy_name}";
+  fi
 }
 
 # validate a name follows the convention
 dly.name.valid?() {
-	local name="${1:-}";
-	# may not start with a hyphen
-	# and must match the name regex
-	if [[ "$name" =~ ^-+ ]] || [[ ! "$name" =~ ${regex[name]} ]]; then
-		return 1;
-	fi
-	return 0;
+  local name="${1:-}";
+  # may not start with a hyphen
+  # and must match the name regex
+  if [[ "$name" =~ ^-+ ]] || [[ ! "$name" =~ ${regex[name]} ]]; then
+    return 1;
+  fi
+  return 0;
 }
 
 # quit if an invalid name is encountered
 dly.name.quit() {
-	local var="$1";
-	local value="$2";
-	console error "names may not start with a hyphen and must match %s" "${regex[name]}";	
-	console error "invalid $var name %s" "$value";
-	dly.fail;
+  local var="$1";
+  local value="$2";
+  console error "names may not start with a hyphen and must match %s" "${regex[name]}"; 
+  console error "invalid $var name %s" "$value";
+  dly.fail;
 }
 
 # OPTIONS
 
 dly.compression.validate() {
-	local copts=( ${compression_types[$compression]} );
-	compression_extension="${copts[0]}";
-	unset copts[0];
-	# check all binaries are available on the local machine
-	executable.validate tar ${copts[@]};
-	
-	# require GNU tar
-	tar --version | grep "GNU" > /dev/null 2>&1 \
-		|| dly.fail "GNU tar is required";
-	
-	if [ "$compression" != "gz" ]; then
-		# check tar version
-		local tarv=$( tar --version | awk '{print $4}' || \
-			dly.fail "could not fetch version information for %s" \
-			"tar" );
-		local min="22" got="" ver="";
-		if [[ "${tarv}" =~ ^([0-9]+\.([0-9]+)) ]]; then
-			ver="${BASH_REMATCH[1]}";
-			got="${BASH_REMATCH[2]}";
-			if [ -n "$got" ]; then
-				if [ $got -lt $min ]; then
-					dly.fail \
-						"tar minor version >= %s is required, version is %s" \
-						"$min" "$ver";
-				fi
-			fi
-		fi
-	fi
+  local copts=( ${compression_types[$compression]} );
+  compression_extension="${copts[0]}";
+  unset copts[0];
+  # check all binaries are available on the local machine
+  executable.validate tar ${copts[@]};
+  
+  # require GNU tar
+  tar --version | grep "GNU" > /dev/null 2>&1 \
+    || dly.fail "GNU tar is required";
+  
+  if [ "$compression" != "gz" ]; then
+    # check tar version
+    local tarv=$( tar --version | awk '{print $4}' || \
+      dly.fail "could not fetch version information for %s" \
+      "tar" );
+    local min="22" got="" ver="";
+    if [[ "${tarv}" =~ ^([0-9]+\.([0-9]+)) ]]; then
+      ver="${BASH_REMATCH[1]}";
+      got="${BASH_REMATCH[2]}";
+      if [ -n "$got" ]; then
+        if [ $got -lt $min ]; then
+          dly.fail \
+            "tar minor version >= %s is required, version is %s" \
+            "$min" "$ver";
+        fi
+      fi
+    fi
+  fi
 }
 
 # parse options
 dly.options.parse() {
-	local value available;
-	while test -n "${1:-}"; do
-		case $1 in	
-			--ok )
-				flags[interactive]=false;
-				;;
-			--dry-run )
-				flags[noop]=true;
-				flags[interactive]=false;
-				;;
-			--list )
-				flags[print.profiles]=true;
-				flags[quiet]=true;		
-				;;
-			--staging )
-				shift;
-				# TODO: validate this?
-				staging="${1:-}";
-				;;
-			--local )
-				flags[deploy.local]=true;
-				;;
-			--json )
-				flags[print.json]=true;
-				flags[noop]=true;
-				flags[print.script]=false;				
-				;;
-			--script )
-				flags[print.script]=true;
-				flags[noop]=true;
-				flags[print.json]=false;
-				;;
-			--lint )
-				flags[script.lint]=true;
-				flags[noop]=true;				
-				;;
- 			--lint-run )
-				flags[script.lint]=true;
-				flags[script.lint.run]=true;
-				flags[deploy.local]=true;
-				flags[noop]=true;
-				;;
-			--pretty )
-				flags[print.json.pretty]=true;
-				;;
-			--expand )
-				flags[expand]=true;
-				;;
-			--flat )
-				flags[target.flat]=true;
-				;;	
-			--include-version )
-				flags[target.version]=true;
-				;;
-			--all )
-				flags[deploy.all]=true;
-				;;				
-			--no-local )
-				flags[skip.local.pre]=true;
-				flags[skip.local.post]=true;
-				;;
-			--no-local-pre )
-				flags[skip.local.pre]=true;
-				;;
-			--no-local-post )
-				flags[skip.local.post]=true;
-				;;
-			--no-remote )
-				flags[skip.remote.pre]=true;
-				flags[skip.remote.post]=true;
-				;;
-			--no-remote-pre )
-				flags[skip.remote.pre]=true;
-				;;
-			--no-remote-post )
-				flags[skip.remote.post]=true;
-				;;
-			--no-growl )
-				flags[notify.growl]=false;
-				;;
-			--no-mail )
-				flags[notify.mail]=false;
-				;;
-			--log )
-				flags[logging]=true;
-				;;
-			--print-env )
-				flags[print.env]=true;
-				flags[noop]=true;
-				;;
-			--bundle )
-				flags[bundle.only]=true;
-				flags[noop]=true;
-				flags[skip.local.pre]=true;
-				flags[skip.local.post]=true;
-				flags[skip.remote.pre]=true;
-				flags[skip.remote.post]=true;
-				;;
-			--gz )
-				compression="gz";
-				;;
-			--bz )
-				compression="bz";
-				;;
-			--xz )
-				compression="xz";
-				;;
-			--lzma )
-				compression="lzma";
-				;;
-			--timestamp )
-				flags[timestamp]=true;
-				;;
-			--author )
-				flags[author]=true;
-				;;
-			--no-sha )
-				flags[sha]=false;
-				;;
-			--inspect )
-				flags[bundle.inspect]=true;
-				;;
-			--standalone )
-				# flags[bundle.only]=true;
-				flags[bundle.standalone]=true;
-				flags[bundle.package.contents]=true;
-				;;
-			--pkg )
-				flags[bundle.package.contents]=true;
-				;;
-			--follow-symlinks )
-				flags[bundle.package.follow]=true;
-				;;
-			--include-hidden )
-				flags[bundle.package.hidden]=true;
-				;;
-			--quiet )
-				flags[quiet]=true;
-				;;
-			--verbose )
-				flags[verbose]=true;
-				;;
-			--sha )
-				shift;
-				value="${1:-}";
-				if ! array.contains? "${value}" ${defaults[sha.algorithms]}; then
-					dly.fail "unknown sha algorithm %s" "$value";
-				fi
-				setup[sha.algorithm]="${value}";
-				flags[sha]=true;
-				;;
-			--output )
-				shift;
-				value="${1:-}";
-				if [ ! -d "${value}" ]; then
-					dly.fail "bundle output %s is not a directory" "$value";
-				fi
-				if [ ! -w "${value}" ]; then
-					dly.fail "bundle output %s is not writable" "$value";
-				fi
-				bundle_output="${value}";
-				;;
-			--script-file )
-				shift;
-				value="${1:-}";
-				if [ -z "${value}" ]; then
-					dly.fail "no script file specified";
-				fi
-				if [ ! -f "${value}" ]; then
-					dly.fail "script file %s does not exist" "$value";
-				fi
-				if [ ! -x "${value}" ]; then
-					dly.fail "script file %s is not executable" "$value";
-				fi
-				sources[script]="${value}";
-				;;
-			--make-file )
-				shift;
-				value="${1:-}";
-				if [ -z "${value}" ]; then
-					dly.fail "no make file specified";
-				fi
-				if [ ! -f "${value}" ]; then
-					dly.fail "make file %s does not exist" "$value";
-				fi
-				
-				local filename;
-				fs.basename "${value}" "filename";
-				if ! makefile.name.valid? "$filename"; then
-					dly.fail \
-						"invalid make file name %s, must be one of %s" \
-						"$filename" "${names[makefiles]}";
-				fi
-				sources[make]="${value}";
-				;;
-			--shell )
-				shift;
-				value="${1:-}";
-				if [ -z "${value}" ]; then
-					dly.fail "no shell specified";
-				fi
-				shell="${value}";
-				;;
-			--name )
-				shift;
-				value="${1:-}";
-				if [ -z "${value}" ]; then
-					dly.fail "no name specified";
-				fi
-				if ! dly.name.valid? "${value}"; then
-					dly.name.quit "project" "$value";
-				fi
-				project_name="${value}";
-				;;
-			--directory )
-				shift;
-				value="${1:-}";
-				if [ -z "${value}" ]; then
-					dly.fail "no directory specified";
-				fi
-				directory="${value}";
-				dly.directory.validate;
-				overrides[directory]="${value}";
-				;;
-			--host )
-				shift;
-				value="${1:-}";
-				if [ -z "${value}" ]; then
-					dly.fail "no host specified";
-				fi
-				overrides[host]="${value}";
-				;;
-			--descriptor )
-				shift;
-				value="${1:-}";
-				if [ -z "${value}" ]; then
-					dly.fail "no descriptor specified";
-				fi
-				descriptor="${value}";
-				;;
-			-* | --* )
-				dly.fail "unknown option %s" "$1";
-				;;
-			* )
-				if ! dly.name.valid? "$1"; then
-					dly.name.quit "profile" "$1";
-				fi
-				profiles+=( "$1" );
-				;;
-		esac
-		shift;
-	done
+  local value available;
+  while test -n "${1:-}"; do
+    case $1 in  
+      --ok )
+        flags[interactive]=false;
+        ;;
+      --dry-run )
+        flags[noop]=true;
+        flags[interactive]=false;
+        ;;
+      --list )
+        flags[print.profiles]=true;
+        flags[quiet]=true;    
+        ;;
+      --staging )
+        shift;
+        # TODO: validate this?
+        staging="${1:-}";
+        ;;
+      --local )
+        flags[deploy.local]=true;
+        ;;
+      --json )
+        flags[print.json]=true;
+        flags[noop]=true;
+        flags[print.script]=false;        
+        ;;
+      --script )
+        flags[print.script]=true;
+        flags[noop]=true;
+        flags[print.json]=false;
+        ;;
+      --lint )
+        flags[script.lint]=true;
+        flags[noop]=true;       
+        ;;
+      --lint-run )
+        flags[script.lint]=true;
+        flags[script.lint.run]=true;
+        flags[deploy.local]=true;
+        flags[noop]=true;
+        ;;
+      --pretty )
+        flags[print.json.pretty]=true;
+        ;;
+      --expand )
+        flags[expand]=true;
+        ;;
+      --flat )
+        flags[target.flat]=true;
+        ;;  
+      --include-version )
+        flags[target.version]=true;
+        ;;
+      --all )
+        flags[deploy.all]=true;
+        ;;        
+      --no-local )
+        flags[skip.local.pre]=true;
+        flags[skip.local.post]=true;
+        ;;
+      --no-local-pre )
+        flags[skip.local.pre]=true;
+        ;;
+      --no-local-post )
+        flags[skip.local.post]=true;
+        ;;
+      --no-remote )
+        flags[skip.remote.pre]=true;
+        flags[skip.remote.post]=true;
+        ;;
+      --no-remote-pre )
+        flags[skip.remote.pre]=true;
+        ;;
+      --no-remote-post )
+        flags[skip.remote.post]=true;
+        ;;
+      --no-growl )
+        flags[notify.growl]=false;
+        ;;
+      --no-mail )
+        flags[notify.mail]=false;
+        ;;
+      --log )
+        flags[logging]=true;
+        ;;
+      --print-env )
+        flags[print.env]=true;
+        flags[noop]=true;
+        ;;
+      --bundle )
+        flags[bundle.only]=true;
+        flags[noop]=true;
+        flags[skip.local.pre]=true;
+        flags[skip.local.post]=true;
+        flags[skip.remote.pre]=true;
+        flags[skip.remote.post]=true;
+        ;;
+      --gz )
+        compression="gz";
+        ;;
+      --bz )
+        compression="bz";
+        ;;
+      --xz )
+        compression="xz";
+        ;;
+      --lzma )
+        compression="lzma";
+        ;;
+      --timestamp )
+        flags[timestamp]=true;
+        ;;
+      --author )
+        flags[author]=true;
+        ;;
+      --no-sha )
+        flags[sha]=false;
+        ;;
+      --inspect )
+        flags[bundle.inspect]=true;
+        ;;
+      --standalone )
+        # flags[bundle.only]=true;
+        flags[bundle.standalone]=true;
+        flags[bundle.package.contents]=true;
+        ;;
+      --pkg )
+        flags[bundle.package.contents]=true;
+        ;;
+      --follow-symlinks )
+        flags[bundle.package.follow]=true;
+        ;;
+      --include-hidden )
+        flags[bundle.package.hidden]=true;
+        ;;
+      --quiet )
+        flags[quiet]=true;
+        ;;
+      --verbose )
+        flags[verbose]=true;
+        ;;
+      --sha )
+        shift;
+        value="${1:-}";
+        if ! array.contains? "${value}" ${defaults[sha.algorithms]}; then
+          dly.fail "unknown sha algorithm %s" "$value";
+        fi
+        setup[sha.algorithm]="${value}";
+        flags[sha]=true;
+        ;;
+      --output )
+        shift;
+        value="${1:-}";
+        if [ ! -d "${value}" ]; then
+          dly.fail "bundle output %s is not a directory" "$value";
+        fi
+        if [ ! -w "${value}" ]; then
+          dly.fail "bundle output %s is not writable" "$value";
+        fi
+        bundle_output="${value}";
+        ;;
+      --script-file )
+        shift;
+        value="${1:-}";
+        if [ -z "${value}" ]; then
+          dly.fail "no script file specified";
+        fi
+        if [ ! -f "${value}" ]; then
+          dly.fail "script file %s does not exist" "$value";
+        fi
+        if [ ! -x "${value}" ]; then
+          dly.fail "script file %s is not executable" "$value";
+        fi
+        sources[script]="${value}";
+        ;;
+      --make-file )
+        shift;
+        value="${1:-}";
+        if [ -z "${value}" ]; then
+          dly.fail "no make file specified";
+        fi
+        if [ ! -f "${value}" ]; then
+          dly.fail "make file %s does not exist" "$value";
+        fi
+        
+        local filename;
+        fs.basename "${value}" "filename";
+        if ! makefile.name.valid? "$filename"; then
+          dly.fail \
+            "invalid make file name %s, must be one of %s" \
+            "$filename" "${names[makefiles]}";
+        fi
+        sources[make]="${value}";
+        ;;
+      --shell )
+        shift;
+        value="${1:-}";
+        if [ -z "${value}" ]; then
+          dly.fail "no shell specified";
+        fi
+        shell="${value}";
+        ;;
+      --name )
+        shift;
+        value="${1:-}";
+        if [ -z "${value}" ]; then
+          dly.fail "no name specified";
+        fi
+        if ! dly.name.valid? "${value}"; then
+          dly.name.quit "project" "$value";
+        fi
+        project_name="${value}";
+        ;;
+      --directory )
+        shift;
+        value="${1:-}";
+        if [ -z "${value}" ]; then
+          dly.fail "no directory specified";
+        fi
+        directory="${value}";
+        dly.directory.validate;
+        overrides[directory]="${value}";
+        ;;
+      --host )
+        shift;
+        value="${1:-}";
+        if [ -z "${value}" ]; then
+          dly.fail "no host specified";
+        fi
+        overrides[host]="${value}";
+        ;;
+      --descriptor )
+        shift;
+        value="${1:-}";
+        if [ -z "${value}" ]; then
+          dly.fail "no descriptor specified";
+        fi
+        descriptor="${value}";
+        ;;
+      -* | --* )
+        dly.fail "unknown option %s" "$1";
+        ;;
+      * )
+        if ! dly.name.valid? "$1"; then
+          dly.name.quit "profile" "$1";
+        fi
+        profiles+=( "$1" );
+        ;;
+    esac
+    shift;
+  done
 }

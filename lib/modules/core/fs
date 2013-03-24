@@ -1,110 +1,110 @@
 ######################################################################
-#	Expands a path to an absolute representation of an existing
-#	directory.
+# Expands a path to an absolute representation of an existing
+# directory.
 #
-#	$1 		The path to the directory.
+# $1    The path to the directory.
 ######################################################################
 fs.path.expand() {
-	local dir="${1:-}";
-	if [  -d "$dir" ]; then
-		local owd=`pwd`;
-		cd "$dir" > /dev/null;
-		_result=`pwd`;
-		cd "$owd" > /dev/null;
-	elif [ ! -d "$dir" ]; then
-		local nm=`basename $dir`
-		dir=`dirname $dir`;
-		fs.path.expand "$dir";
-		_result="$_result/$nm";
-	fi
-	if [ ! -e "$dir" -o ! -e "$_result" ]; then
-		console error "unable to expand path %s" "$dir";
-		_result="$1";
-	fi
+  local dir="${1:-}";
+  if [  -d "$dir" ]; then
+    local owd=`pwd`;
+    cd "$dir" > /dev/null;
+    _result=`pwd`;
+    cd "$owd" > /dev/null;
+  elif [ ! -d "$dir" ]; then
+    local nm=`basename $dir`
+    dir=`dirname $dir`;
+    fs.path.expand "$dir";
+    _result="$_result/$nm";
+  fi
+  if [ ! -e "$dir" -o ! -e "$_result" ]; then
+    console error "unable to expand path %s" "$dir";
+    _result="$1";
+  fi
 }
 
 # escapes leading dash characters
 # fs.path.dash.escape() {
-# 	_result="${1:-}";
-# 	if [[ "${1:-}" =~ ^-+ ]]; then
-# 		local re="^-(.*)";
-# 		while [[ "$_result" =~ $re ]];
-# 			do
-# 				_result="\-${BASH_REMATCH[1]}";
-# 		done
-# 	fi
+#   _result="${1:-}";
+#   if [[ "${1:-}" =~ ^-+ ]]; then
+#     local re="^-(.*)";
+#     while [[ "$_result" =~ $re ]];
+#       do
+#         _result="\-${BASH_REMATCH[1]}";
+#     done
+#   fi
 # }
 
 # retrieve a dirname and assign the result to a variable ($2)
 fs.dirname() {
-	local path="${1:-}";
-	local varname="${2:-_result}";
-	local stripdot="${3:-false}";
-	local result=$( dirname -- "${path}" );
-	if $stripdot && [ "${result}" == "." ]; then
-		result="";
-	fi
-	eval "$varname=\"$result\"";
+  local path="${1:-}";
+  local varname="${2:-_result}";
+  local stripdot="${3:-false}";
+  local result=$( dirname -- "${path}" );
+  if $stripdot && [ "${result}" == "." ]; then
+    result="";
+  fi
+  eval "$varname=\"$result\"";
 }
 
 # retrieve a basename, and assign the result to a variable ($2)
 fs.basename() {
-	local path="${1:-}";
-	local varname="${2:-_result}";
-	local stripdot="${3:-false}";
-	local result=$( basename -- "${path}" );
-	if $stripdot && [ "${result}" == "." ]; then
-		result="";
-	fi
-	eval "$varname=\"$result\"";
+  local path="${1:-}";
+  local varname="${2:-_result}";
+  local stripdot="${3:-false}";
+  local result=$( basename -- "${path}" );
+  if $stripdot && [ "${result}" == "." ]; then
+    result="";
+  fi
+  eval "$varname=\"$result\"";
 }
 
 # walks the parent hierarchy looking for a file
 fs.walk() {
-	local name="${1:-}";
-	local flag="${2:-"-f"}";
-	local dir="$PWD";
-	local file="${dir}/${name}";
-	while ! test "$flag" "$file" && [ "$dir" != "/" ];
-		do
-			dir=$( dirname "$dir" );
-			file="${dir}/${name}";
-	done
-	if test "$flag" "$file"; then
-		_result="$file";
-	else
-		_result="";
-	fi
+  local name="${1:-}";
+  local flag="${2:-"-f"}";
+  local dir="$PWD";
+  local file="${dir}/${name}";
+  while ! test "$flag" "$file" && [ "$dir" != "/" ];
+    do
+      dir=$( dirname "$dir" );
+      file="${dir}/${name}";
+  done
+  if test "$flag" "$file"; then
+    _result="$file";
+  else
+    _result="";
+  fi
 }
 
 ######################################################################
-#	Finds symbolic links that point to themselves and will cause cp
-#	to fail.
+# Finds symbolic links that point to themselves and will cause cp
+# to fail.
 #
-#	$1 		The path to the directory to search.
+# $1    The path to the directory to search.
 ######################################################################
 # function find_recursive_symlinks {
-# 	local src="$1";
-# 	local links=( $(find "$src" -type l) );
-# 	local l;
-# 	local n;
-# 	local t;
-# 	local output=();
-# 	if [ ${#links[@]} -gt 0 ]; then
-# 		for l in ${links[@]}
-# 			do
-# 				t=`readlink "$l"`;
-# 				n=`basename $l`;
-# 				#ensure we always compare case-insensitive
-# 				n=`echo "$n" | tr '[:upper:]' '[:lower:]'`;
-# 				t=`echo "$t" | tr '[:upper:]' '[:lower:]'`;
-# 				if [ "$n" == "$t" ]; then
-# 					#echo "recursive $l : $n : $t";
-# 					output+=( "$l" );
-# 				fi
-# 		done
-# 	fi
-# 	_result="${output[@]:+${output[@]}}";
+#   local src="$1";
+#   local links=( $(find "$src" -type l) );
+#   local l;
+#   local n;
+#   local t;
+#   local output=();
+#   if [ ${#links[@]} -gt 0 ]; then
+#     for l in ${links[@]}
+#       do
+#         t=`readlink "$l"`;
+#         n=`basename $l`;
+#         #ensure we always compare case-insensitive
+#         n=`echo "$n" | tr '[:upper:]' '[:lower:]'`;
+#         t=`echo "$t" | tr '[:upper:]' '[:lower:]'`;
+#         if [ "$n" == "$t" ]; then
+#           #echo "recursive $l : $n : $t";
+#           output+=( "$l" );
+#         fi
+#     done
+#   fi
+#   _result="${output[@]:+${output[@]}}";
 # }
 
 # WARNING: these aliases will be removed in a future version

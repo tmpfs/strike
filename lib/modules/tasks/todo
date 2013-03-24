@@ -11,468 +11,468 @@ help.man.page "todo" "task-todo.7";
 # TODO: reintegrate the ignore patterns with the file listing logic
 declare -ag todo_ignore_patterns;
 todo_ignore_patterns=(
-	"\.log$"
-	"\.tmp$"
-	"\.bak$"
-	"/\.git/?.*$"
-	"\.gitignore$"
-	"/target/?.*$"
-	"/test/?.*$"
-	"/man/?.*$"
-	"/doc/?.*$"
-	"/tmp/?.*$"
-	"\.DS_Store$"
-	"/package.json$"
-	"/semver.json$"
-	"/version$"
-	"/tasks$"
-	"/AUTHORS$"
-	"/CHANGES$"
-	"/LICENSE$"
-	"/INSTALL$"
-	"/README\.?.*$"
-	"/Rakefile$"
+  "\.log$"
+  "\.tmp$"
+  "\.bak$"
+  "/\.git/?.*$"
+  "\.gitignore$"
+  "/target/?.*$"
+  "/test/?.*$"
+  "/man/?.*$"
+  "/doc/?.*$"
+  "/tmp/?.*$"
+  "\.DS_Store$"
+  "/package.json$"
+  "/semver.json$"
+  "/version$"
+  "/tasks$"
+  "/AUTHORS$"
+  "/CHANGES$"
+  "/LICENSE$"
+  "/INSTALL$"
+  "/README\.?.*$"
+  "/Rakefile$"
 );
 
 declare -ag todo_dirs;
 todo_dirs=(
-	"bin"
-	"lib"
-	"src"
+  "bin"
+  "lib"
+  "src"
 );
 
 declare -Ag todo_tags;
-todo_tags[fixme]="FIX ?ME[ 	,:]+[ 	]*(.*)";
-todo_tags[bug]="BUG[ 	,:]+[ 	]*(.*)";
-todo_tags[todo]="TODO[ 	,:]+[ 	]*(.*)";
-todo_tags[note]="NOTE[ 	,:]+[ 	]*(.*)";
-todo_tags[xxx]="XXX[ 	,:]+[ 	]*(.*)";
-todo_tags[deprecated]="DEPRECATED[ 	,:]+[ 	]*(.*)";
-todo_tags[changed]="CHANGED[ 	,:]+[ 	]*(.*)";
+todo_tags[fixme]="FIX ?ME[  ,:]+[   ]*(.*)";
+todo_tags[bug]="BUG[  ,:]+[   ]*(.*)";
+todo_tags[todo]="TODO[  ,:]+[   ]*(.*)";
+todo_tags[note]="NOTE[  ,:]+[   ]*(.*)";
+todo_tags[xxx]="XXX[  ,:]+[   ]*(.*)";
+todo_tags[deprecated]="DEPRECATED[  ,:]+[   ]*(.*)";
+todo_tags[changed]="CHANGED[  ,:]+[   ]*(.*)";
 
 taskinfo todo "Scan for todo comments";
 tasks.todo() {
-	executable.validate find;
-	
-	echo "$FUNCNAME";
-	
-	# list of files to scan
-	declare -a files;
-	files=();
-	
-	# custom list of dirs to scan
-	# specified with --dir
-	declare -a scandirs;
-	scandirs=();	
-	
-	# custom list of files to scan
-	# specified with --file
-	declare -a scanfiles;
-	scanfiles=();
-	
-	# custom tags to search for
-	declare -a tags;
-	tags=();
-	
-	# list of all tag keys
-	# used internally
-	declare -a all_tags=( ${!todo_tags[@]} );
-	
-	local include_symlinks=false;
-	local silent=false;
-	
-	__todo.options.parse "$@";
-	
-	# custom tag filters
-	if [ ${#tags[@]} -gt 0 ]; then
-		local k;
-		for k in ${!todo_tags[@]}
-			do
-				if ! array.contains? "$k" "${tags[@]}"; then
-					unset todo_tags[$k];
-				fi
-		done
-	fi
-	
-	# set up counters
-	declare -A count;
-	for k in ${all_tags[@]}
-		do
-			count[$k]=0;
-	done
-	
-	# do command procesing via delegation
-	if [ $# -gt 0 ]; then
-		local method="td.${FUNCNAME}.${1}";
-		if ! method.exists? "$method"; then
-			console quit 1 "invalid todo command %s" "$1";
-		else
-			delegate "td.${FUNCNAME}" "$1" ${@:2};
-		fi
-	else
-		# no options specified scan files
-		td.tasks.todo.scan;
-	fi
+  executable.validate find;
+  
+  echo "$FUNCNAME";
+  
+  # list of files to scan
+  declare -a files;
+  files=();
+  
+  # custom list of dirs to scan
+  # specified with --dir
+  declare -a scandirs;
+  scandirs=();  
+  
+  # custom list of files to scan
+  # specified with --file
+  declare -a scanfiles;
+  scanfiles=();
+  
+  # custom tags to search for
+  declare -a tags;
+  tags=();
+  
+  # list of all tag keys
+  # used internally
+  declare -a all_tags=( ${!todo_tags[@]} );
+  
+  local include_symlinks=false;
+  local silent=false;
+  
+  __todo.options.parse "$@";
+  
+  # custom tag filters
+  if [ ${#tags[@]} -gt 0 ]; then
+    local k;
+    for k in ${!todo_tags[@]}
+      do
+        if ! array.contains? "$k" "${tags[@]}"; then
+          unset todo_tags[$k];
+        fi
+    done
+  fi
+  
+  # set up counters
+  declare -A count;
+  for k in ${all_tags[@]}
+    do
+      count[$k]=0;
+  done
+  
+  # do command procesing via delegation
+  if [ $# -gt 0 ]; then
+    local method="td.${FUNCNAME}.${1}";
+    if ! method.exists? "$method"; then
+      console quit 1 "invalid todo command %s" "$1";
+    else
+      delegate "td.${FUNCNAME}" "$1" ${@:2};
+    fi
+  else
+    # no options specified scan files
+    td.tasks.todo.scan;
+  fi
 }
 
 # print tags
 function td.tasks.todo.tags {
-	local k p;
-	for k in ${!todo_tags[@]}
-		do
-			p="${todo_tags[$k]}";
-			k="${k^^}";
-			__todo.log "$k=$p";
-	done
-	__todo.exit;
+  local k p;
+  for k in ${!todo_tags[@]}
+    do
+      p="${todo_tags[$k]}";
+      k="${k^^}";
+      __todo.log "$k=$p";
+  done
+  __todo.exit;
 }
 
 # print ignore patterns
 function td.tasks.todo.excludes {
-	local p
-	for p in ${todo_ignore_patterns[@]}
-		do
-			__todo.log "$p";
-	done
-	__todo.exit;
+  local p
+  for p in ${todo_ignore_patterns[@]}
+    do
+      __todo.log "$p";
+  done
+  __todo.exit;
 }
 
 # list matched files
 function td.tasks.todo.list {
-	__todo.log "# todo list ${root}";
-	__todo.list;
-	for f in ${files[@]}	
-		do
-			__todo.log "$f";
-	done
-	__todo.log "# ${#files[@]} files";
-	__todo.exit;
+  __todo.log "# todo list ${root}";
+  __todo.list;
+  for f in ${files[@]}  
+    do
+      __todo.log "$f";
+  done
+  __todo.log "# ${#files[@]} files";
+  __todo.exit;
 }
 
 # scan and gather tag information
 function td.tasks.todo.scan {
-	__todo.log "# todo scan %s" "${root}";
-	__todo.list;
-	for f in ${files[@]}
-		do
-			# echo "scanning file $f";
-			__todo.scan.file "$f";
-	done
-	__todo.summary;
-	__todo.exit;
+  __todo.log "# todo scan %s" "${root}";
+  __todo.list;
+  for f in ${files[@]}
+    do
+      # echo "scanning file $f";
+      __todo.scan.file "$f";
+  done
+  __todo.summary;
+  __todo.exit;
 }
 
 # count tags
 function td.tasks.todo.count {
-	silent=true;
-	__todo.list;
-	for f in ${files[@]}
-		do
-			__todo.scan.file "$f";
-	done
-	__todo.count;
-	__todo.exit;
+  silent=true;
+  __todo.list;
+  for f in ${files[@]}
+    do
+      __todo.scan.file "$f";
+  done
+  __todo.count;
+  __todo.exit;
 }
 
 ######################################################################
 #
-#	PRIVATE METHODS
+# PRIVATE METHODS
 #
 ######################################################################
 
 # parse options
 function __todo.options.parse {
-	
-	# remove command option
-	shift;
-	
-	# build up tag option comparison
-	local tag_opts=();
-	for k in ${all_tags[@]}
-		do
-			tags_opts+=( "--${k}" );
-	done
-	
-	# handle custom tag filter flags
-	local k;
-	for k in ${!todo_tags[@]}
-		do
-			if array.contains? "--${k}" "$@"; then
-				tags+=( "$k" );
-			fi
-	done
-	
-	# handle other options
-	while [ "${1:-}" != "" ]; do
-		if array.contains? "$1" "${tags_opts[@]}"; then
-			shift;
-			continue;
-		fi
-		case $1 in
-			--silent )
-				silent=true;
-				;;				
-			--file )
-				shift;
-				local file="${1:-}";
-				if [ -z "$file" ]; then
-					console quit 1 "no file specified to %s" "--file";
-				fi
-				if [[ ! "$file" =~ ^(\.+)?/ ]]; then
-					file="${root}/${file}";
-				fi
-				if [ ! -f "$file" ]; then
-					console warn "file %s is invalid" "$file";
-				else
-					fs.path.expand "$file";
-					file="$_result";
-					# add to custom list of files to scan
-					scanfiles+=( "$file" );
-				fi
-				;;
-			# TOOD: make this option resolve absolute file paths like the --file option
-			--dir )
-				shift;
-				local dir="${1:-}";
-				if [ -z "$dir" ]; then
-					console quit 1 "no directory specified to %s" "--dir";
-				fi
-				dir="${dir#/}";
-				dir="${root}/${dir}";
-				if [ -d "${dir}" ]; then
-					scandirs+=( "$1" );
-				else
- 					console warn "invalid scan directory %s" "$dir";
-				fi
-				;;
-			* )
-				console warn "usage: todo [command] [options...]";
-				console quit 1 "unkown option %s" "$1";
-				;;
-		esac
-		if [ $# -ne 0 ]; then
-			shift;
-		else
-			break;
-		fi
-	done
+  
+  # remove command option
+  shift;
+  
+  # build up tag option comparison
+  local tag_opts=();
+  for k in ${all_tags[@]}
+    do
+      tags_opts+=( "--${k}" );
+  done
+  
+  # handle custom tag filter flags
+  local k;
+  for k in ${!todo_tags[@]}
+    do
+      if array.contains? "--${k}" "$@"; then
+        tags+=( "$k" );
+      fi
+  done
+  
+  # handle other options
+  while [ "${1:-}" != "" ]; do
+    if array.contains? "$1" "${tags_opts[@]}"; then
+      shift;
+      continue;
+    fi
+    case $1 in
+      --silent )
+        silent=true;
+        ;;        
+      --file )
+        shift;
+        local file="${1:-}";
+        if [ -z "$file" ]; then
+          console quit 1 "no file specified to %s" "--file";
+        fi
+        if [[ ! "$file" =~ ^(\.+)?/ ]]; then
+          file="${root}/${file}";
+        fi
+        if [ ! -f "$file" ]; then
+          console warn "file %s is invalid" "$file";
+        else
+          fs.path.expand "$file";
+          file="$_result";
+          # add to custom list of files to scan
+          scanfiles+=( "$file" );
+        fi
+        ;;
+      # TOOD: make this option resolve absolute file paths like the --file option
+      --dir )
+        shift;
+        local dir="${1:-}";
+        if [ -z "$dir" ]; then
+          console quit 1 "no directory specified to %s" "--dir";
+        fi
+        dir="${dir#/}";
+        dir="${root}/${dir}";
+        if [ -d "${dir}" ]; then
+          scandirs+=( "$1" );
+        else
+          console warn "invalid scan directory %s" "$dir";
+        fi
+        ;;
+      * )
+        console warn "usage: todo [command] [options...]";
+        console quit 1 "unkown option %s" "$1";
+        ;;
+    esac
+    if [ $# -ne 0 ]; then
+      shift;
+    else
+      break;
+    fi
+  done
 }
 
 function __todo.excludes? {
-	local replace="${2:-}";
-	local file="$1";
-	if [ -n "$replace" ]; then
-		# remove any trailing slash from the replacement
-		replace="${replace/\$/}";
-		file="${file#$replace}";
-	fi
-	
-	# echo "testing exclude on $1 with ${#todo_ignore_patterns[@]}";
-	local p;
-	for p in ${todo_ignore_patterns[@]}
-		do	
-			# skip symbolic links
-			if ! $include_symlinks && [ -L "$1" ]; then
-				# echo "omitting symlink $1";
-				return 0;				
-			fi
-			# skip on pattern match
-			if [[ "$file" =~ $p ]]; then
-				# echo "excluded : $file on $p";
-				return 0;
-			fi
-	done
-	return 1;
+  local replace="${2:-}";
+  local file="$1";
+  if [ -n "$replace" ]; then
+    # remove any trailing slash from the replacement
+    replace="${replace/\$/}";
+    file="${file#$replace}";
+  fi
+  
+  # echo "testing exclude on $1 with ${#todo_ignore_patterns[@]}";
+  local p;
+  for p in ${todo_ignore_patterns[@]}
+    do  
+      # skip symbolic links
+      if ! $include_symlinks && [ -L "$1" ]; then
+        # echo "omitting symlink $1";
+        return 0;       
+      fi
+      # skip on pattern match
+      if [[ "$file" =~ $p ]]; then
+        # echo "excluded : $file on $p";
+        return 0;
+      fi
+  done
+  return 1;
 }
 
 # use `find` to locate files to scan
 function __todo.find {
-	files+=( $( "${executables[find]}" "$1" -type f ) );
+  files+=( $( "${executables[find]}" "$1" -type f ) );
 }
 
 # build scan directories relative to ${root}
 function __todo.find.dirs {
-	local dir;
-	for dir in $@
-		do
-			dir="${dir#/}";
-			dir="${root}/${dir}";
-			if [ -d "$dir" ]; then
-				__todo.find "$dir";
-			fi
-	done
+  local dir;
+  for dir in $@
+    do
+      dir="${dir#/}";
+      dir="${root}/${dir}";
+      if [ -d "$dir" ]; then
+        __todo.find "$dir";
+      fi
+  done
 }
 
 # get all files
 function __todo.list {
-	# default scan
-	if [ ${#scanfiles} -eq 0 ] && [ ${#scandirs[@]} -eq 0 ]; then
-		__todo.find.dirs "${todo_dirs[@]}";
-	else
-		if [ ${#scanfiles[@]} -gt 0 ]; then
-			files+=( ${scanfiles[@]} );
-		fi
-		if [ ${#scandirs[@]} -gt 0 ]; then
-			__todo.find.dirs ${scandirs[@]};
-		fi
-	fi
+  # default scan
+  if [ ${#scanfiles} -eq 0 ] && [ ${#scandirs[@]} -eq 0 ]; then
+    __todo.find.dirs "${todo_dirs[@]}";
+  else
+    if [ ${#scanfiles[@]} -gt 0 ]; then
+      files+=( ${scanfiles[@]} );
+    fi
+    if [ ${#scandirs[@]} -gt 0 ]; then
+      __todo.find.dirs ${scandirs[@]};
+    fi
+  fi
 }
 
 # test if a line matches a tag pattern
 function __todo.line.matches? {
-	local p;
-	for tag in ${!todo_tags[@]}
-		do	
-			p="${todo_tags[$tag]}";
-			if [ -n "$p" ]; then
-				# echo "matching line with  $p : $line";
-				if [[ "$line" =~ $p ]]; then
-					todo="${BASH_REMATCH[1]:-}";
-					frame="${file}:${lineno}";
-					tag="${tag^^}";
-					string.ltrim "$todo";
-					todo="${_result}";			
-					#__todo.output;
-					return 0;
-				fi
-			fi
-	done
-	tag="";
-	return 1;
+  local p;
+  for tag in ${!todo_tags[@]}
+    do  
+      p="${todo_tags[$tag]}";
+      if [ -n "$p" ]; then
+        # echo "matching line with  $p : $line";
+        if [[ "$line" =~ $p ]]; then
+          todo="${BASH_REMATCH[1]:-}";
+          frame="${file}:${lineno}";
+          tag="${tag^^}";
+          string.ltrim "$todo";
+          todo="${_result}";      
+          #__todo.output;
+          return 0;
+        fi
+      fi
+  done
+  tag="";
+  return 1;
 }
 
 # scan a file
 function __todo.scan.file {
-	# console info "scanning %s" "$1";
-	local file="$1";	
-	local lineno=0;
-	local tag frame todo;
-	
-	# linked list style to maintain order
-	declare -a matchindex;
-	declare -A filematches;
-	__todo.scan.file.add()
-	{
-		local key="${tag}:${frame}";
-		filematches["$key"]="${todo}";
-		matchindex+=( "$key" );
-	}
-	
-	while IFS= read -r line
-		do	
-			__todo.line;
-	done < "$file";
-	# process last line
-	if [ -n "$line" ]; then __todo.line; fi
-		
-	# got some matches print them
-	if [ ${#filematches[@]} -gt 0 ]; then
-		__todo.print;
-	fi
-	
-	# clean inner method definitions
-	method.remove __todo.scan.file.add;
+  # console info "scanning %s" "$1";
+  local file="$1";  
+  local lineno=0;
+  local tag frame todo;
+  
+  # linked list style to maintain order
+  declare -a matchindex;
+  declare -A filematches;
+  __todo.scan.file.add()
+  {
+    local key="${tag}:${frame}";
+    filematches["$key"]="${todo}";
+    matchindex+=( "$key" );
+  }
+  
+  while IFS= read -r line
+    do  
+      __todo.line;
+  done < "$file";
+  # process last line
+  if [ -n "$line" ]; then __todo.line; fi
+    
+  # got some matches print them
+  if [ ${#filematches[@]} -gt 0 ]; then
+    __todo.print;
+  fi
+  
+  # clean inner method definitions
+  method.remove __todo.scan.file.add;
 }
 
 #print matches
 function __todo.print {
-	local k matches last_lineno=0;
-	local len=$(( ${#filematches[@]} - 1 ));
-	for k in ${matchindex[@]}
-		do
-			#echo "got key : $k";
-			local IFS=":";
-			matches=( $k );
-			unset IFS;
-			tag="${matches[0]}";	
-			lineno="${matches[1]}";
-			frame="${matches[2]}";
-			# 
-			todo="${filematches[$k]}";
-			
-			#echo "got todo: $todo"
-		
-			# if [ $i -lt $len ]; then
-			# 	#echo "check for next match ... ";
-			# fi
-			echo "got match: $i : $tag : $lineno : $frame";
-			
-			last_lineno=$lineno;
-	done
+  local k matches last_lineno=0;
+  local len=$(( ${#filematches[@]} - 1 ));
+  for k in ${matchindex[@]}
+    do
+      #echo "got key : $k";
+      local IFS=":";
+      matches=( $k );
+      unset IFS;
+      tag="${matches[0]}";  
+      lineno="${matches[1]}";
+      frame="${matches[2]}";
+      # 
+      todo="${filematches[$k]}";
+      
+      #echo "got todo: $todo"
+    
+      # if [ $i -lt $len ]; then
+      #   #echo "check for next match ... ";
+      # fi
+      echo "got match: $i : $tag : $lineno : $frame";
+      
+      last_lineno=$lineno;
+  done
 }
 
 # process a line in the file
 function __todo.line {
-	: $((lineno++));	
-	# test for tag matches
-	if __todo.line.matches? "$line"; then
-		# add the match
-		#__todo.scan.file.add;
-		
-		__todo.output;
-		
-		# increment counters
-		__todo.increment;
-	fi
+  : $((lineno++));  
+  # test for tag matches
+  if __todo.line.matches? "$line"; then
+    # add the match
+    #__todo.scan.file.add;
+    
+    __todo.output;
+    
+    # increment counters
+    __todo.increment;
+  fi
 }
 
 # log output
 function __todo.log {
-	if ! $silent; then
-		console print "$@";
-	fi
+  if ! $silent; then
+    console print "$@";
+  fi
 }
 
 function __todo.increment {
-	local countkey="${tag,,}";
-	: $(( count["$countkey"]++ ));	
+  local countkey="${tag,,}";
+  : $(( count["$countkey"]++ ));  
 }
 
 # output todo tag information
 function __todo.output {
-	#echo "incrementing count on tag: $tag";
-	if ! $silent; then
-		if [ "$tag" == "BUG" ] || [ "$tag" == "FIXME" ]; then		
-			echo "# $tag $frame" >&2;
-			echo "$todo" >&2;
-		else		
-			console print "# %s %s" "$tag" "$frame";
-			console print "$todo";
-		fi
-	fi
+  #echo "incrementing count on tag: $tag";
+  if ! $silent; then
+    if [ "$tag" == "BUG" ] || [ "$tag" == "FIXME" ]; then   
+      echo "# $tag $frame" >&2;
+      echo "$todo" >&2;
+    else    
+      console print "# %s %s" "$tag" "$frame";
+      console print "$todo";
+    fi
+  fi
 }
 
 # print the count summary
 function __todo.summary {
-	if ! $silent; then
-		string.repeat "+" 80;
-		local header="$_result";	
-		echo "$header";
-		__todo.count;
-		echo "$header";
-	fi
+  if ! $silent; then
+    string.repeat "+" 80;
+    local header="$_result";  
+    echo "$header";
+    __todo.count;
+    echo "$header";
+  fi
 }
 
 function __todo.count {
-	local k v;
-	for k in ${!count[@]}
-		do
-			# tag filtering
-			if [ ${#tags[@]} -gt 0 ] && ! array.contains? "$k" "${tags[@]}"; then
-				continue;
-			fi
-			v="${count[$k]}";
-			k="${k^^}";
-			echo "$k=$v";
-	done
+  local k v;
+  for k in ${!count[@]}
+    do
+      # tag filtering
+      if [ ${#tags[@]} -gt 0 ] && ! array.contains? "$k" "${tags[@]}"; then
+        continue;
+      fi
+      v="${count[$k]}";
+      k="${k^^}";
+      echo "$k=$v";
+  done
 }
 
 #exit program
 function __todo.exit {
-	if [ ${#count[bug]} -gt 0 ] || [ ${#count[fixme]} -gt 0 ]; then
-		local total=$(( ${count[bug]} + ${count[fixme]} ));
-		console quit $total;
-	else
-		console quit 0;
-	fi
+  if [ ${#count[bug]} -gt 0 ] || [ ${#count[fixme]} -gt 0 ]; then
+    local total=$(( ${count[bug]} + ${count[fixme]} ));
+    console quit $total;
+  else
+    console quit 0;
+  fi
 }

@@ -13,7 +13,8 @@ tasks.unexpand() {
 }
 
 tabstops() {
-  local execute="$1"; shift;
+  local name="$1"; shift;
+  local execute="${1}";
   if [ $# -eq 0 ]; then
     console quit 1 -- "too few options";
   fi
@@ -78,7 +79,7 @@ tabstops() {
     rm "${temp}";
   }
 
-  process_name="expand";
+  process_name="${name}";
 	console prompt --program \
     "replace in %s file(s), are you sure? (y/n)" \
     "${#files[@]}";

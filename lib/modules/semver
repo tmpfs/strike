@@ -6,175 +6,175 @@ declare -g semver_regexp="^([0-9]+)\.([0-9]+)\.([0-9]+)$semver_release_regexp?$s
 
 # determine if a semver string is valid
 function semver.valid? {
-	if [[ "${1:-}" =~ $semver_regexp ]]; then
-		return 0;
-	fi
-	return 1;
+  if [[ "${1:-}" =~ $semver_regexp ]]; then
+    return 0;
+  fi
+  return 1;
 }
 
 # determine if a release string is valid
 function semver.release? {
-	local regexp="^${semver_release_regexp}$";
-	if [[ "${1:-}" =~ $regexp ]]; then
-		return 0;
-	fi
-	return 1;
+  local regexp="^${semver_release_regexp}$";
+  if [[ "${1:-}" =~ $regexp ]]; then
+    return 0;
+  fi
+  return 1;
 }
 
 # determine if a build string is valid
 function semver.build? {
-	local regexp="^${semver_build_regexp}$";
-	if [[ "${1:-}" =~ $regexp ]]; then
-		return 0;
-	fi
-	return 1;	
+  local regexp="^${semver_build_regexp}$";
+  if [[ "${1:-}" =~ $regexp ]]; then
+    return 0;
+  fi
+  return 1; 
 }
 
 # convert parameters back from a semver array
 # to a string representation
 function semver.stringify {
-	_result="";
-	if [ $# -eq 0 ] && array.is.assoc? "semver"; then
-		_result="${semver[major]}.${semver[minor]}.${semver[patch]}${semver[release]:-}${semver[build]:-}";
-	else
-		_result="${1}.${2}.${3}${4:-}${5:-}";
-	fi
+  _result="";
+  if [ $# -eq 0 ] && array.is.assoc? "semver"; then
+    _result="${semver[major]}.${semver[minor]}.${semver[patch]}${semver[release]:-}${semver[build]:-}";
+  else
+    _result="${1}.${2}.${3}${4:-}${5:-}";
+  fi
 }
 
 # parse a semver string to an array
 # and invoke a callback
 function semver.parse {
-	local callback="${2:-}";
-	unset semver;
-	declare -A semver;
-	if semver.valid? "${1:-}"; then
-		semver[major]="${BASH_REMATCH[1]}";
-		semver[minor]="${BASH_REMATCH[2]}";
-		semver[patch]="${BASH_REMATCH[3]}";
-		semver[release]="${BASH_REMATCH[4]:-}";
-		semver[build]="${BASH_REMATCH[5]:-}";	
-		if method.exists? "$callback"; then
-			"$callback";
-		fi
-	fi
+  local callback="${2:-}";
+  unset semver;
+  declare -A semver;
+  if semver.valid? "${1:-}"; then
+    semver[major]="${BASH_REMATCH[1]}";
+    semver[minor]="${BASH_REMATCH[2]}";
+    semver[patch]="${BASH_REMATCH[3]}";
+    semver[release]="${BASH_REMATCH[4]:-}";
+    semver[build]="${BASH_REMATCH[5]:-}"; 
+    if method.exists? "$callback"; then
+      "$callback";
+    fi
+  fi
 }
 
 # increment or decrement a major version
 function semver.major! {
-	local increment=true;
-	if [ "${1:-}" == "-" ]; then
-		increment=false;
-		shift;
-	fi
-	local semver="${1:-}";
-	local version="";
-	if semver.valid? "$semver"; then
-		version="${BASH_REMATCH[1]}";
+  local increment=true;
+  if [ "${1:-}" == "-" ]; then
+    increment=false;
+    shift;
+  fi
+  local semver="${1:-}";
+  local version="";
+  if semver.valid? "$semver"; then
+    version="${BASH_REMATCH[1]}";
 
-		# cannot decrement past 0.0.0
-		if ! $increment && [ "${BASH_REMATCH[1]}" -eq 0 ] && [ "${BASH_REMATCH[2]}" -eq 0 ] && [ "${BASH_REMATCH[3]}" -eq 0 ]; then
-			_result="$semver";			
-			return 1;
-		fi
-			
-		if [ -z "$version" ]; then
-			return 1;
-		else
-			if $increment; then
-				: $((version++));
-			else
-				if [ $version -gt 0 ]; then
-					: $((version--));
-				fi
-			fi
-			semver.stringify \
-				"$version" \
-				"${BASH_REMATCH[2]}" \
-				"${BASH_REMATCH[3]}" \
-				"${BASH_REMATCH[4]:-}" \
-				"${BASH_REMATCH[5]:-}";
-			return 0;
-		fi
-	fi
-	return 1;
+    # cannot decrement past 0.0.0
+    if ! $increment && [ "${BASH_REMATCH[1]}" -eq 0 ] && [ "${BASH_REMATCH[2]}" -eq 0 ] && [ "${BASH_REMATCH[3]}" -eq 0 ]; then
+      _result="$semver";      
+      return 1;
+    fi
+      
+    if [ -z "$version" ]; then
+      return 1;
+    else
+      if $increment; then
+        : $((version++));
+      else
+        if [ $version -gt 0 ]; then
+          : $((version--));
+        fi
+      fi
+      semver.stringify \
+        "$version" \
+        "${BASH_REMATCH[2]}" \
+        "${BASH_REMATCH[3]}" \
+        "${BASH_REMATCH[4]:-}" \
+        "${BASH_REMATCH[5]:-}";
+      return 0;
+    fi
+  fi
+  return 1;
 }
 
 # increment or decrement a minor version
 function semver.minor! {
-	local increment=true;
-	if [ "${1:-}" == "-" ]; then
-		increment=false;
-		shift;
-	fi
-	local semver="${1:-}";
-	local version="";
-	if semver.valid? "$semver"; then
-		version="${BASH_REMATCH[2]}";
-		
-		# cannot decrement past 0.0.0
-		if ! $increment && [ "${BASH_REMATCH[1]}" -eq 0 ] && [ "${BASH_REMATCH[2]}" -eq 0 ] && [ "${BASH_REMATCH[3]}" -eq 0 ]; then
-			_result="$semver";			
-			return 1;
-		fi		
-		
-		if [ -z "$version" ]; then
-			return 1;
-		else
-			if $increment; then
-				: $((version++));
-			else
-				if [ $version -gt 0 ]; then
-					: $((version--));
-				fi
-			fi
-			semver.stringify \
-				"${BASH_REMATCH[1]}" \
-				"$version" \
-				"${BASH_REMATCH[3]}" \
-				"${BASH_REMATCH[4]:-}" \
-				"${BASH_REMATCH[5]:-}";
-			return 0;
-		fi
-	fi
-	return 1;
+  local increment=true;
+  if [ "${1:-}" == "-" ]; then
+    increment=false;
+    shift;
+  fi
+  local semver="${1:-}";
+  local version="";
+  if semver.valid? "$semver"; then
+    version="${BASH_REMATCH[2]}";
+    
+    # cannot decrement past 0.0.0
+    if ! $increment && [ "${BASH_REMATCH[1]}" -eq 0 ] && [ "${BASH_REMATCH[2]}" -eq 0 ] && [ "${BASH_REMATCH[3]}" -eq 0 ]; then
+      _result="$semver";      
+      return 1;
+    fi    
+    
+    if [ -z "$version" ]; then
+      return 1;
+    else
+      if $increment; then
+        : $((version++));
+      else
+        if [ $version -gt 0 ]; then
+          : $((version--));
+        fi
+      fi
+      semver.stringify \
+        "${BASH_REMATCH[1]}" \
+        "$version" \
+        "${BASH_REMATCH[3]}" \
+        "${BASH_REMATCH[4]:-}" \
+        "${BASH_REMATCH[5]:-}";
+      return 0;
+    fi
+  fi
+  return 1;
 }
 
 # increment or decrement a patch version
 function semver.patch! {
-	local increment=true;
-	if [ "${1:-}" == "-" ]; then
-		increment=false;
-		shift;
-	fi
-	local semver="${1:-}";
-	local version="";
-	if semver.valid? "$semver"; then
-		version="${BASH_REMATCH[3]}";
-		
-		# cannot decrement past 0.0.0
-		if ! $increment && [ "${BASH_REMATCH[1]}" -eq 0 ] && [ "${BASH_REMATCH[2]}" -eq 0 ] && [ "${BASH_REMATCH[3]}" -eq 0 ]; then
-			_result="$semver";
-			return 1;
-		fi		
-		
-		if [ -z "$version" ]; then
-			return 1;
-		else
-			if $increment; then
-				: $((version++));
-			else
-				if [ $version -gt 0 ]; then
-					: $((version--));
-				fi
-			fi
-			semver.stringify \
-				"${BASH_REMATCH[1]}" \
-				"${BASH_REMATCH[2]}" \
-				"$version" \
-				"${BASH_REMATCH[4]:-}" \
-				"${BASH_REMATCH[5]:-}";
-			return 0;
-		fi
-	fi
-	return 1;
+  local increment=true;
+  if [ "${1:-}" == "-" ]; then
+    increment=false;
+    shift;
+  fi
+  local semver="${1:-}";
+  local version="";
+  if semver.valid? "$semver"; then
+    version="${BASH_REMATCH[3]}";
+    
+    # cannot decrement past 0.0.0
+    if ! $increment && [ "${BASH_REMATCH[1]}" -eq 0 ] && [ "${BASH_REMATCH[2]}" -eq 0 ] && [ "${BASH_REMATCH[3]}" -eq 0 ]; then
+      _result="$semver";
+      return 1;
+    fi    
+    
+    if [ -z "$version" ]; then
+      return 1;
+    else
+      if $increment; then
+        : $((version++));
+      else
+        if [ $version -gt 0 ]; then
+          : $((version--));
+        fi
+      fi
+      semver.stringify \
+        "${BASH_REMATCH[1]}" \
+        "${BASH_REMATCH[2]}" \
+        "$version" \
+        "${BASH_REMATCH[4]:-}" \
+        "${BASH_REMATCH[5]:-}";
+      return 0;
+    fi
+  fi
+  return 1;
 }

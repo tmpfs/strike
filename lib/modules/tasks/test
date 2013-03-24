@@ -11,88 +11,88 @@ declare -Ag __test_excluded;
 
 taskinfo test "Language agnostic test runner";
 tasks.test() {
-	
-	# original working directory for
-	# test runner
-	local testowd="$PWD";
-	
-	# TODO: put all related directories in this array	
-	declare -A files;
-	files[root]="${root}";
-	files[test]="${root}/test";
-	files[testbin]="${files[test]}/bin";
-	files[testlib]="${files[test]}/lib";
-	files[target]="${target}";
-	files[testout]="${target}/test";
-	
-	if [ ! -d "${files[testout]}" ]; then
-		mkdir -p "${files[testout]}";
-	fi
-	
-	local ttyout=true;
-	local ttyerr=true;
-	
-	local stdout="${files[testout]}/test.stdout.log";
-	local stderr="${files[testout]}/test.stderr.log";
-	
-	files[stdout]="${stdout}";
-	files[stderr]="${stderr}";
-	
-	# are we running all available tests
-	local all=false;
-	
-	declare -A failures;
-	
-	# expose a `testdir` variable to the test methods
-	local testdir="${process_dirs[test]}";
-	fs.path.expand "$testdir";
-	testdir="$_result";
-	
-	# list of test suites
-	local suites=();
-	# list of test suite paths
-	# key is test suite name
-	# value is test suite path/file
-	declare -A paths;
-	
-	# specific methods to test, specified using a : delimiter
-	declare -A testmethods;
-	local unit;
-	
-	rm "$stdout" "$stderr" 2> /dev/null;
-	
-	echo -n "" > "$stdout" \
+  
+  # original working directory for
+  # test runner
+  local testowd="$PWD";
+  
+  # TODO: put all related directories in this array 
+  declare -A files;
+  files[root]="${root}";
+  files[test]="${root}/test";
+  files[testbin]="${files[test]}/bin";
+  files[testlib]="${files[test]}/lib";
+  files[target]="${target}";
+  files[testout]="${target}/test";
+  
+  if [ ! -d "${files[testout]}" ]; then
+    mkdir -p "${files[testout]}";
+  fi
+  
+  local ttyout=true;
+  local ttyerr=true;
+  
+  local stdout="${files[testout]}/test.stdout.log";
+  local stderr="${files[testout]}/test.stderr.log";
+  
+  files[stdout]="${stdout}";
+  files[stderr]="${stderr}";
+  
+  # are we running all available tests
+  local all=false;
+  
+  declare -A failures;
+  
+  # expose a `testdir` variable to the test methods
+  local testdir="${process_dirs[test]}";
+  fs.path.expand "$testdir";
+  testdir="$_result";
+  
+  # list of test suites
+  local suites=();
+  # list of test suite paths
+  # key is test suite name
+  # value is test suite path/file
+  declare -A paths;
+  
+  # specific methods to test, specified using a : delimiter
+  declare -A testmethods;
+  local unit;
+  
+  rm "$stdout" "$stderr" 2> /dev/null;
+  
+  echo -n "" > "$stdout" \
     || console quit 1 -- "could not create %s" "$stdout";
-	echo -n "" > "$stderr" \
+  echo -n "" > "$stderr" \
     || console quit 1 -- "could not create %s" "$stderr";
-	
-	local testbin="${testdir}/bin";
-	
-	# do command procesing via delegation
-	if [ $# -gt 0 ]; then
-		local cmd="$1";		
-		local method="tdd.${FUNCNAME}.${1}";
-		# remove command option
-		local commands=( run ls );
-		if array.contains? "${cmd}" "${commands[@]}"; then
-			shift;
-		fi
-		#echo "got cmd: $cmd : $#";
-		if [ "$cmd" == "run" ] && [ $# -eq 0 ]; then
-			# no suites specified to run
-			tdd.tasks.test.run "$@";
-		else
-			# look for a command method
-			if ! method.exists? "$method"; then
-				console quit 1 "invalid test command %s" "$1";
-			else
-				delegate "tdd.${FUNCNAME}" "$cmd" $@;
-			fi
-		fi	
-	else
-		# no options specified run all tests
-		tdd.tasks.test.run "$@";
-	fi
+  
+  local testbin="${testdir}/bin";
+  
+  # do command procesing via delegation
+  if [ $# -gt 0 ]; then
+    local cmd="$1";   
+    local method="tdd.${FUNCNAME}.${1}";
+    # remove command option
+    local commands=( run ls );
+    if array.contains? "${cmd}" "${commands[@]}"; then
+      shift;
+    fi
+    #echo "got cmd: $cmd : $#";
+    if [ "$cmd" == "run" ] && [ $# -eq 0 ]; then
+      # no suites specified to run
+      tdd.tasks.test.run "$@";
+    else
+      # look for a command method
+      if ! method.exists? "$method"; then
+        console quit 1 "invalid test command %s" "$1";
+      else
+        delegate "tdd.${FUNCNAME}" "$cmd" $@;
+      fi
+    fi  
+  else
+    # no options specified run all tests
+    tdd.tasks.test.run "$@";
+  fi
 }
 
 # adds a test as being excluded from the tests
@@ -100,526 +100,526 @@ tasks.test() {
 # only available from internal bash code in
 # a tasks file
 function tdd.suite.exclude! {
-	if [ -n "${1:-}" ]; then
-		__test_excludes+=( "$1" );
-	fi
+  if [ -n "${1:-}" ]; then
+    __test_excludes+=( "$1" );
+  fi
 }
 
 # invoke an ant(1) *test* target
 function tdd.tasks.test.ant {
-	require.once 'tasks/ext/build/ant';
-	tasks.ant test;
+  require.once 'tasks/ext/build/ant';
+  tasks.ant test;
 }
 
 # invoke a rake(1) *test* task
 function tdd.tasks.test.rake {
-	require.once 'tasks/ext/build/rake';
-	tasks.rake test;
+  require.once 'tasks/ext/build/rake';
+  tasks.rake test;
 }
 
 # invoke a mvn(1) *test* goal
 function tdd.tasks.test.mvn {
-	require.once 'tasks/ext/build/mvn';
-	tasks.mvn test;
+  require.once 'tasks/ext/build/mvn';
+  tasks.mvn test;
 }
 
 # invoke a make(1) *test* target
 function tdd.tasks.test.make {
-	require.once 'tasks/ext/build/make';
-	tasks.make test;
+  require.once 'tasks/ext/build/make';
+  tasks.make test;
 }
 
 function tdd.tasks.test.ls {
-	
-	#echo "got list command $# : $@";
-	
-	# gather test suites
-	if [ $# -eq 0 ]; then
-		all=true;		
-		# __assert_get_all;
-		
-		__assert_get_suites;
-	else
-		__assert_get_suites "$@";
-	fi
-	
-	#echo "got list command ${#suites[@]}";
-	
-	if [ ${#suites[@]} -eq 0 ]; then
-		console quit 1 "no test suites found";
-	fi
-	
-	for unit in ${suites[@]}
-		do
-			path="${paths["$unit"]}";
-			console print "$unit ${paths["$unit"]}";
-			if array.isset? "$unit" "testmethods"; then
-				local m methods=( ${testmethods["$unit"]} );
-				for m in ${methods[@]}
-					do
-						console print "$unit $m";
-				done
-			fi
-	done
-	
-	for unit in ${!__test_excluded[@]}
-		do
-			path="${__test_excluded["$unit"]}";
-			console print "!${unit} $path";
-	done
+  
+  #echo "got list command $# : $@";
+  
+  # gather test suites
+  if [ $# -eq 0 ]; then
+    all=true;   
+    # __assert_get_all;
+    
+    __assert_get_suites;
+  else
+    __assert_get_suites "$@";
+  fi
+  
+  #echo "got list command ${#suites[@]}";
+  
+  if [ ${#suites[@]} -eq 0 ]; then
+    console quit 1 "no test suites found";
+  fi
+  
+  for unit in ${suites[@]}
+    do
+      path="${paths["$unit"]}";
+      console print "$unit ${paths["$unit"]}";
+      if array.isset? "$unit" "testmethods"; then
+        local m methods=( ${testmethods["$unit"]} );
+        for m in ${methods[@]}
+          do
+            console print "$unit $m";
+        done
+      fi
+  done
+  
+  for unit in ${!__test_excluded[@]}
+    do
+      path="${__test_excluded["$unit"]}";
+      console print "!${unit} $path";
+  done
 }
 
 function tdd.tasks.test.run {
-	
-	# gather test suites
-	if [ $# -eq 0 ]; then
-		all=true;
-		# __assert_get_all;
-		__assert_get_suites;
-	else
-		__assert_get_suites "$@";
-	fi
-	
-	# global setup invocation
-	tdd.runner.global.setup;
-	
-	# run tests
-	__assert.run;
-	
-	# global teardown invocation
-	tdd.runner.global.teardown;
-	
-	# print the summary
-	assert.summary;
+  
+  # gather test suites
+  if [ $# -eq 0 ]; then
+    all=true;
+    # __assert_get_all;
+    __assert_get_suites;
+  else
+    __assert_get_suites "$@";
+  fi
+  
+  # global setup invocation
+  tdd.runner.global.setup;
+  
+  # run tests
+  __assert.run;
+  
+  # global teardown invocation
+  tdd.runner.global.teardown;
+  
+  # print the summary
+  assert.summary;
 }
 
 # invoke a global setup method `tdd.setup`
 # when the test runner starts if possible
 tdd.runner.global.setup() {
-	# source in global common variables from `lib/globals`
-	local globals="${root}/test/lib/globals";
-	if [ -f "${globals}" ]; then
-		. "$globals" || console quit 1 "failed to source globals %s" "${globals}";
-	fi
-	
-	# TODO: allow for this to be done
-	# TODO: specific to each test search path
-	# TODO: when multiple search paths are allowed
-	local global_setup="${root}/test/lib/setup";
-	if [ -f "${global_setup}" ]; then
-		. "$global_setup" || console quit 1 "failed to source global setup %s" "${global_setup}";
-		if method.exists? "tdd.setup"; then
-			tdd.setup 1>> "$stdout" 2>> "$stderr";
-			method.remove tdd.setup;
-		fi
-	fi
+  # source in global common variables from `lib/globals`
+  local globals="${root}/test/lib/globals";
+  if [ -f "${globals}" ]; then
+    . "$globals" || console quit 1 "failed to source globals %s" "${globals}";
+  fi
+  
+  # TODO: allow for this to be done
+  # TODO: specific to each test search path
+  # TODO: when multiple search paths are allowed
+  local global_setup="${root}/test/lib/setup";
+  if [ -f "${global_setup}" ]; then
+    . "$global_setup" || console quit 1 "failed to source global setup %s" "${global_setup}";
+    if method.exists? "tdd.setup"; then
+      tdd.setup 1>> "$stdout" 2>> "$stderr";
+      method.remove tdd.setup;
+    fi
+  fi
 }
 
 # invoke a global teardown method `tdd.teardown`
 # when the test runner completes if possible
 tdd.runner.global.teardown() {
-	# TODO: allow for this to be done
-	# TODO: specific to each test search path
-	# TODO: when multiple search paths are allowed
-	local global_teardown="${root}/test/lib/teardown";
-	if [ -f "${global_teardown}" ]; then
-		. "$global_teardown" || console quit 1 "failed to source global teardown %s" "${global_teardown}";
-		if method.exists? "tdd.teardown"; then
-			tdd.teardown 1>> "$stdout" 2>> "$stderr";
-			method.remove tdd.teardown;
-		fi
-	fi
+  # TODO: allow for this to be done
+  # TODO: specific to each test search path
+  # TODO: when multiple search paths are allowed
+  local global_teardown="${root}/test/lib/teardown";
+  if [ -f "${global_teardown}" ]; then
+    . "$global_teardown" || console quit 1 "failed to source global teardown %s" "${global_teardown}";
+    if method.exists? "tdd.teardown"; then
+      tdd.teardown 1>> "$stdout" 2>> "$stderr";
+      method.remove tdd.teardown;
+    fi
+  fi
 }
 
 # run all test suites
 function __assert.run {
-	local unit path;
-	
-	if [ ${#suites[@]} -eq 0 ]; then
-		console quit 1 "no test suites found";
-	fi
-	
-	local tests=0;
-	local binaries=0;
-	
-	console header;
-	console info "RUN";
-	console header;
+  local unit path;
+  
+  if [ ${#suites[@]} -eq 0 ]; then
+    console quit 1 "no test suites found";
+  fi
+  
+  local tests=0;
+  local binaries=0;
+  
+  console header;
+  console info "RUN";
+  console header;
 
-	# print summary of what will be run
-	for unit in ${suites[@]}
-		do
-			path="${paths["$unit"]}";
-			if [ -x "$path" ]; then
-				: $((binaries++));
-			elif [[ "$path" =~ \.test$ ]]; then
-				: $((tests++));
-			fi
-			console info "suite %s < %s" "$unit" "$path";
-	done
+  # print summary of what will be run
+  for unit in ${suites[@]}
+    do
+      path="${paths["$unit"]}";
+      if [ -x "$path" ]; then
+        : $((binaries++));
+      elif [[ "$path" =~ \.test$ ]]; then
+        : $((tests++));
+      fi
+      console info "suite %s < %s" "$unit" "$path";
+  done
 
-	console info "suite (total): %s" "${#suites[@]}";
-	console info "suite (binary): %s" "$binaries";
-	console info "suite (test): %s" "$tests";
-	console info "suite (excludes): %s" "${#__test_excluded[@]}";
-	console header;
-		
-	# run tests
-	for unit in ${suites[@]}
-		do
-			path="${paths["$unit"]}";
-			__assert_run_suite;
-	done
+  console info "suite (total): %s" "${#suites[@]}";
+  console info "suite (binary): %s" "$binaries";
+  console info "suite (test): %s" "$tests";
+  console info "suite (excludes): %s" "${#__test_excluded[@]}";
+  console header;
+    
+  # run tests
+  for unit in ${suites[@]}
+    do
+      path="${paths["$unit"]}";
+      __assert_run_suite;
+  done
 }
 
 function __assert.suite.add {
-	# echo "testing $unit" "${__test_excludes[@]:-}";
-	local nm;
-	fs.basename "$1" "nm";
-	if $all; then
-		# test by path
-		if array.contains? "$1" "${__test_excludes[@]:-}"; then
-			__test_excluded["$1"]="$2";
-			builtin return 0;
-		# test by basename
-		elif array.contains? "$nm" "${__test_excludes[@]:-}"; then
-			__test_excluded["$1"]="$2";
-			builtin return 0;
-		fi
-	fi
-	
-	if [ -f "$2" ]; then
-		suites+=( "$1" );
-		paths["$1"]="$2";
-	fi
+  # echo "testing $unit" "${__test_excludes[@]:-}";
+  local nm;
+  fs.basename "$1" "nm";
+  if $all; then
+    # test by path
+    if array.contains? "$1" "${__test_excludes[@]:-}"; then
+      __test_excluded["$1"]="$2";
+      builtin return 0;
+    # test by basename
+    elif array.contains? "$nm" "${__test_excludes[@]:-}"; then
+      __test_excluded["$1"]="$2";
+      builtin return 0;
+    fi
+  fi
+  
+  if [ -f "$2" ]; then
+    suites+=( "$1" );
+    paths["$1"]="$2";
+  fi
 }
 
 # filter by suites specified on the command line
 function __assert_get_suites {
-	__assert_search_paths;
-	local searchpaths=( "$_result" );
-	local opts=( "$@" );
-	local path file methods unit;
-	local suite targets=();
-	
-	# targets to exlude prefixed with a -
-	local excludes=();
-	
-	# handle test suites with a ':' method specification
-	if [ ${#opts[@]} -gt 0 ]; then
-		for suite in ${opts[@]}
-			do
-				if [[ "$suite" =~ : ]]; then
-					if [[ "$suite" =~ ^: ]] || [[ "$suite" =~ :$ ]]; then
-						console quit 1 "invalid test suite %s, leading or trailing colon" "$suite";
-					fi
-					# remove method specifications
-					# suite="${suite%%:*}";
-				
-					# echo "checking for specific method(s) to test ... ";
-					local methods;
-					local IFS=":";
-					methods=( $suite );
-					# echo "got methods length: ${#methods[@]}";
-					# echo "got methods: ${methods[@]}";
-					unset IFS;
-				
-					suite="${methods[0]}";
-					unset methods[0];
-					if [ ${#methods[@]} -gt 0 ]; then
-						testmethods["${suite}"]="${methods[*]}";
-					fi
-				
-					#echo "got test methods: ${testmethods[@]} for suite: ${suite}";
-				fi
-				# echo "adding target suite: $suite";
-				
-				if [[ "$suite" =~ ^- ]]; then
-					# remove the hyphen exclude marker for comparison
-					suite="${suite#-}";
-					excludes+=( "$suite" );
-				else
-					targets+=( "$suite" );
-				fi
-		done
-	fi
-	
-	# echo "targets are :${targets[@]:-}";
-	# echo "excludes are :${excludes[@]:-}";
-	# return 0;
-	
-	exclude!() {
-		# echo "testing for exclude with $1 : $2";
-		if array.contains? "${1:-}" "${excludes[@]}"; then
-			__test_excluded["${1:-}"]="${2:-}";
-			return 0;
-		fi
-		return 1;
-	}
-	
-	include?() {
-		local target="${1:-}";
-		local path="${2:-}";
-		# no specifc targets, always add it
-		if [ ${#targets[@]} -eq 0 ]; then
-			return 0;
-		fi
-		# also pick up suite.* executable
-		if [ -x "$path" ] && [ ${#targets[@]} -gt 0 ]; then
-			local name="";
-			fs.basename "$path" "name";
-			local target;
-			for target in ${targets[@]}
-				do
-					if [[ "$name" =~ ^$target\.? ]]; then
-						#echo "got include on target name: $name : $target";
-						return 0;
-					fi
-			done
-			return 1;
-		fi
-		#echo "testing include on $target : ${targets[@]}";
-		#array.contains? "$target" "${targets[@]}";
-		
-		local k v;
-		for k in ${!targets[@]} 
-			do
-				v="${targets[$k]}";
-				# strip any file extension from suite target
-				# this allows test suites to be specified with the
-				# .test extension
-				# this allows for the situation where an executable
-				# and a .test file in the same directory have the same name
-				# you can run both by using the base name and just the test by
-				# specifying the .test extension
-				v=${v%.test};
-				if [ "$v" == "$target" ]; then
-					return 0;
-				fi
-		done
-		return 1;
-	}
-	
-	shopt -s globstar;
-	for path in ${searchpaths[@]}/**
-		do
-			# get the file name
-			fs.basename "$path" "unit";
-			
-			# test for excludes
-			if [ ${#excludes[@]} -gt 0 ]; then
-				if exclude! "$unit" "$path"; then
-					continue;
-				fi
-			fi
-			
-			if [ -d "$path" ]; then
-				continue;
-			elif [ -f "$path" ] && [ -x "$path" ] && [[ ! "$path" =~ \.test$ ]]; then
-								
-				#echo "add executable file $path";
-				
-				if include? "$unit" "$path"; then
-					#echo "adding executable $unit : $path";
-					
-					unit="${path#${testdir}/}";
-					__assert.suite.add "$unit" "$path";
-				fi
-			elif [ -f "$path" ] && [[ ! "$path" =~ \.test$ ]]; then
-				continue;
-			# got a test suite
-			else
-				# strip file extension
-				unit="${unit%.test}";
-				if include? "$unit" "$path"; then
-					__assert.suite.add "$unit" "${path}";
-				fi
-			fi
-	done
-	shopt -u globstar;
+  __assert_search_paths;
+  local searchpaths=( "$_result" );
+  local opts=( "$@" );
+  local path file methods unit;
+  local suite targets=();
+  
+  # targets to exlude prefixed with a -
+  local excludes=();
+  
+  # handle test suites with a ':' method specification
+  if [ ${#opts[@]} -gt 0 ]; then
+    for suite in ${opts[@]}
+      do
+        if [[ "$suite" =~ : ]]; then
+          if [[ "$suite" =~ ^: ]] || [[ "$suite" =~ :$ ]]; then
+            console quit 1 "invalid test suite %s, leading or trailing colon" "$suite";
+          fi
+          # remove method specifications
+          # suite="${suite%%:*}";
+        
+          # echo "checking for specific method(s) to test ... ";
+          local methods;
+          local IFS=":";
+          methods=( $suite );
+          # echo "got methods length: ${#methods[@]}";
+          # echo "got methods: ${methods[@]}";
+          unset IFS;
+        
+          suite="${methods[0]}";
+          unset methods[0];
+          if [ ${#methods[@]} -gt 0 ]; then
+            testmethods["${suite}"]="${methods[*]}";
+          fi
+        
+          #echo "got test methods: ${testmethods[@]} for suite: ${suite}";
+        fi
+        # echo "adding target suite: $suite";
+        
+        if [[ "$suite" =~ ^- ]]; then
+          # remove the hyphen exclude marker for comparison
+          suite="${suite#-}";
+          excludes+=( "$suite" );
+        else
+          targets+=( "$suite" );
+        fi
+    done
+  fi
+  
+  # echo "targets are :${targets[@]:-}";
+  # echo "excludes are :${excludes[@]:-}";
+  # return 0;
+  
+  exclude!() {
+    # echo "testing for exclude with $1 : $2";
+    if array.contains? "${1:-}" "${excludes[@]}"; then
+      __test_excluded["${1:-}"]="${2:-}";
+      return 0;
+    fi
+    return 1;
+  }
+  
+  include?() {
+    local target="${1:-}";
+    local path="${2:-}";
+    # no specifc targets, always add it
+    if [ ${#targets[@]} -eq 0 ]; then
+      return 0;
+    fi
+    # also pick up suite.* executable
+    if [ -x "$path" ] && [ ${#targets[@]} -gt 0 ]; then
+      local name="";
+      fs.basename "$path" "name";
+      local target;
+      for target in ${targets[@]}
+        do
+          if [[ "$name" =~ ^$target\.? ]]; then
+            #echo "got include on target name: $name : $target";
+            return 0;
+          fi
+      done
+      return 1;
+    fi
+    #echo "testing include on $target : ${targets[@]}";
+    #array.contains? "$target" "${targets[@]}";
+    
+    local k v;
+    for k in ${!targets[@]} 
+      do
+        v="${targets[$k]}";
+        # strip any file extension from suite target
+        # this allows test suites to be specified with the
+        # .test extension
+        # this allows for the situation where an executable
+        # and a .test file in the same directory have the same name
+        # you can run both by using the base name and just the test by
+        # specifying the .test extension
+        v=${v%.test};
+        if [ "$v" == "$target" ]; then
+          return 0;
+        fi
+    done
+    return 1;
+  }
+  
+  shopt -s globstar;
+  for path in ${searchpaths[@]}/**
+    do
+      # get the file name
+      fs.basename "$path" "unit";
+      
+      # test for excludes
+      if [ ${#excludes[@]} -gt 0 ]; then
+        if exclude! "$unit" "$path"; then
+          continue;
+        fi
+      fi
+      
+      if [ -d "$path" ]; then
+        continue;
+      elif [ -f "$path" ] && [ -x "$path" ] && [[ ! "$path" =~ \.test$ ]]; then
+                
+        #echo "add executable file $path";
+        
+        if include? "$unit" "$path"; then
+          #echo "adding executable $unit : $path";
+          
+          unit="${path#${testdir}/}";
+          __assert.suite.add "$unit" "$path";
+        fi
+      elif [ -f "$path" ] && [[ ! "$path" =~ \.test$ ]]; then
+        continue;
+      # got a test suite
+      else
+        # strip file extension
+        unit="${unit%.test}";
+        if include? "$unit" "$path"; then
+          __assert.suite.add "$unit" "${path}";
+        fi
+      fi
+  done
+  shopt -u globstar;
 }
 
-function __assert_run_suite {	
-	file="$path";
-	
-	# run test suite(s) (including executables)
-	if [ -f "$file" ]; then
-		__assert_run_test "$file";
-	# no test suite found
-	else
-		console warn "test file %s does not exist" "$file";
-	fi
+function __assert_run_suite { 
+  file="$path";
+  
+  # run test suite(s) (including executables)
+  if [ -f "$file" ]; then
+    __assert_run_test "$file";
+  # no test suite found
+  else
+    console warn "test file %s does not exist" "$file";
+  fi
 }
 
 function __assert_search_paths {
-	local searchpaths=(
-		"${root}/test"
-	);
-	_result="${searchpaths[@]}";
+  local searchpaths=(
+    "${root}/test"
+  );
+  _result="${searchpaths[@]}";
 }
 
 function __assert_run_test {
-	local file="$1";
-	
-	# only runing binary tests
-	local only_binaries="${2:-false}";
-	
-	# ensure working directory context
-	# is correct for each test in case
-	# they change working directory during a test
-	cd "${testowd}";
-	
-	fs.path.expand "$file";
-	file="$_result";
-	local name="`basename $file`";
-	local suite=${name%%.*};
-	
-	# run test as an executable
-	if [ -x "$file" ]; then
-		__assert_run_test_executable "${file}";
-	# run test as a .test source file
-	else
-		# TODO: add json summaries for test suites invoked
-		: $((summary[suites]++));
-		
-		# TODO: unload the module after the test suite has completed
-		
-		# clean up any existing setup/teardown methods
-		method.remove "tdd.setup" "tdd.teardown";
+  local file="$1";
+  
+  # only runing binary tests
+  local only_binaries="${2:-false}";
+  
+  # ensure working directory context
+  # is correct for each test in case
+  # they change working directory during a test
+  cd "${testowd}";
+  
+  fs.path.expand "$file";
+  file="$_result";
+  local name="`basename $file`";
+  local suite=${name%%.*};
+  
+  # run test as an executable
+  if [ -x "$file" ]; then
+    __assert_run_test_executable "${file}";
+  # run test as a .test source file
+  else
+    # TODO: add json summaries for test suites invoked
+    : $((summary[suites]++));
+    
+    # TODO: unload the module after the test suite has completed
+    
+    # clean up any existing setup/teardown methods
+    method.remove "tdd.setup" "tdd.teardown";
 
-		# require and generate a list of method definitions
-		require.methods "$file" "^test\.";
-		local methods=( $_result );
-		console header;
-		console info "test %s < %s" "$suite" "$file";
-		console header;		
-		if [ "${#methods[@]}" -eq 0 ]; then
-			console warn "test %s does not declare any test methods" "$name";
-		else
-			local m nm;
+    # require and generate a list of method definitions
+    require.methods "$file" "^test\.";
+    local methods=( $_result );
+    console header;
+    console info "test %s < %s" "$suite" "$file";
+    console header;   
+    if [ "${#methods[@]}" -eq 0 ]; then
+      console warn "test %s does not declare any test methods" "$name";
+    else
+      local m nm;
 
-			# filter method flag
-			local filter=false;
-			local filtermethods=();
+      # filter method flag
+      local filter=false;
+      local filtermethods=();
 
-			# running specific test(s)
-			if [ ${#testmethods[@]} -gt 0 ] && array.isset? "$unit" "testmethods"; then
-				# echo "switching on method filtering... for $unit"
-				filter=true;
-				filtermethods=( ${testmethods["$unit"]} );
-			fi
-			
-			if ! $filter; then
-				console info "methods (%s)" "${#methods[@]}";
-			else
-				console info "methods (%s)" "${#filtermethods[@]}";
-			fi
+      # running specific test(s)
+      if [ ${#testmethods[@]} -gt 0 ] && array.isset? "$unit" "testmethods"; then
+        # echo "switching on method filtering... for $unit"
+        filter=true;
+        filtermethods=( ${testmethods["$unit"]} );
+      fi
+      
+      if ! $filter; then
+        console info "methods (%s)" "${#methods[@]}";
+      else
+        console info "methods (%s)" "${#filtermethods[@]}";
+      fi
 
-			# print method summary	
-			for m in "${methods[@]}"
-				do
-					nm=${m#test.${unit}.};
-					if ! $filter; then
-						console info "test.%s" "$nm";
-					else
-						if array.contains? "$nm" "${filtermethods[@]}"; then
-							console info "assert %s" "$nm";
-						fi
-					fi
-			done
-			console header;
-			
-			# invoke a setup method if it exists
-			if method.exists? "tdd.setup"; then
-				tdd.setup 1>> "$stdout" 2>> "$stderr";
-			fi
+      # print method summary  
+      for m in "${methods[@]}"
+        do
+          nm=${m#test.${unit}.};
+          if ! $filter; then
+            console info "test.%s" "$nm";
+          else
+            if array.contains? "$nm" "${filtermethods[@]}"; then
+              console info "assert %s" "$nm";
+            fi
+          fi
+      done
+      console header;
+      
+      # invoke a setup method if it exists
+      if method.exists? "tdd.setup"; then
+        tdd.setup 1>> "$stdout" 2>> "$stderr";
+      fi
 
-			# run method assertions
-			for m in "${methods[@]}"
-				do
-					# check that the method starts with a test prefix				
-					if [[ "$m" =~ ^test. ]]; then
-						nm=${m#test.${unit}.};
-						if ! $filter; then
-							__assert_run_test_method;
-						else
-							if array.contains? "$nm" "${filtermethods[@]}"; then
-								__assert_run_test_method;
-							fi
-						fi
-					fi
-			done
-			
-			# invoke a teardown method if it exists
-			if method.exists? "tdd.teardown"; then
-				tdd.teardown 1>> "$stdout" 2>> "$stderr";
-			fi
-		fi
-	fi
+      # run method assertions
+      for m in "${methods[@]}"
+        do
+          # check that the method starts with a test prefix       
+          if [[ "$m" =~ ^test. ]]; then
+            nm=${m#test.${unit}.};
+            if ! $filter; then
+              __assert_run_test_method;
+            else
+              if array.contains? "$nm" "${filtermethods[@]}"; then
+                __assert_run_test_method;
+              fi
+            fi
+          fi
+      done
+      
+      # invoke a teardown method if it exists
+      if method.exists? "tdd.teardown"; then
+        tdd.teardown 1>> "$stdout" 2>> "$stderr";
+      fi
+    fi
+  fi
 }
 
 function __assert_run_test_method {
-	: $((summary[methods]++));
-	console info "run %s" "$m";
-	# execute the test method
-	"$m" 1>> "$stdout" 2>> "$stderr";
+  : $((summary[methods]++));
+  console info "run %s" "$m";
+  # execute the test method
+  "$m" 1>> "$stdout" 2>> "$stderr";
 
-	# remove the method so that it is not
-	# executed again on subsequent passes
-	method.remove "$m";
+  # remove the method so that it is not
+  # executed again on subsequent passes
+  method.remove "$m";
 }
 
 function __assert_run_test_executable {
-	local binary="${1:-}";
-	if [ -n "$binary" ] && [ -x "$binary" ] ;then
-		
-		# the test runner uses json to inter-process
-		# communication with standalone executable tests
-		require.once json;		
-		
-		local binary_name="`basename $binary`";
-		console info "binary test %s < %s" "$binary_name" "$binary";
-		# execute the binary test file
-		# 1>> "$stdout" 2>> "$stderr" 
-		"$binary" --suite 1>> "$stdout" 2>> "$stderr" &
-		wait %%;
-		local binary_exit_code="$?";
-		if [ $binary_exit_code -gt 0 ]; then
-			console warn "binary test %s exited with non-zero code %s" "$binary_name" "$binary_exit_code";
-		fi
-		assert.eq "0" "$binary_exit_code";
-		
-		# try to read in the result file
-		local nm="${binary}";
-		nm="${binary#${process_dirs[test]}/bin}";
-		nm="${nm#/}";
-		nm="${nm#bin/}";
-		nm="${nm//\//.}";
-		nm="${nm}.json";		
-		local resultfile="${process_dirs[target]}/test/result/bin/${nm}";
-		if [ ! -f "$resultfile" ]; then
-			console warn "could not find result file %s" "$resultfile";
-		else
-			# TODO: reinstate this when we have -v | --verbose flags etc.
-			console info "summary %s" "$resultfile";
-			
-			#cat $resultfile;
-			
-			json.parse < "$resultfile";
-			if [ -n "${!summary[*]}" ]; then
-				
-				#echo "${!json_doc[@]}";
-				#echo "${json_doc[@]}";
-				
-				: $((summary[assertions]+=${json_doc[assertions]}));
-				: $((summary[assertions.pass]+=${json_doc[assertions.pass]}));
-				: $((summary[assertions.fail]+=${json_doc[assertions.fail]}));
-				: $((summary[executables]+=${json_doc[executables]}));
-			fi
-			# clean up json data
-			json.clean;
-		fi
-	else
-		console warn "test binary %s is not executable" "$binary";
-	fi
+  local binary="${1:-}";
+  if [ -n "$binary" ] && [ -x "$binary" ] ;then
+    
+    # the test runner uses json to inter-process
+    # communication with standalone executable tests
+    require.once json;    
+    
+    local binary_name="`basename $binary`";
+    console info "binary test %s < %s" "$binary_name" "$binary";
+    # execute the binary test file
+    # 1>> "$stdout" 2>> "$stderr" 
+    "$binary" --suite 1>> "$stdout" 2>> "$stderr" &
+    wait %%;
+    local binary_exit_code="$?";
+    if [ $binary_exit_code -gt 0 ]; then
+      console warn "binary test %s exited with non-zero code %s" "$binary_name" "$binary_exit_code";
+    fi
+    assert.eq "0" "$binary_exit_code";
+    
+    # try to read in the result file
+    local nm="${binary}";
+    nm="${binary#${process_dirs[test]}/bin}";
+    nm="${nm#/}";
+    nm="${nm#bin/}";
+    nm="${nm//\//.}";
+    nm="${nm}.json";    
+    local resultfile="${process_dirs[target]}/test/result/bin/${nm}";
+    if [ ! -f "$resultfile" ]; then
+      console warn "could not find result file %s" "$resultfile";
+    else
+      # TODO: reinstate this when we have -v | --verbose flags etc.
+      console info "summary %s" "$resultfile";
+      
+      #cat $resultfile;
+      
+      json.parse < "$resultfile";
+      if [ -n "${!summary[*]}" ]; then
+        
+        #echo "${!json_doc[@]}";
+        #echo "${json_doc[@]}";
+        
+        : $((summary[assertions]+=${json_doc[assertions]}));
+        : $((summary[assertions.pass]+=${json_doc[assertions.pass]}));
+        : $((summary[assertions.fail]+=${json_doc[assertions.fail]}));
+        : $((summary[executables]+=${json_doc[executables]}));
+      fi
+      # clean up json data
+      json.clean;
+    fi
+  else
+    console warn "test binary %s is not executable" "$binary";
+  fi
 }

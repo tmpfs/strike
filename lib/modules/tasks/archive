@@ -14,500 +14,500 @@ help.man.page "archive" "task-archive.7";
 
 taskinfo archive "Archive helper task"
 tasks.archive() {
-	# a base working directory to resolve paths from
-	local archive_dir="";
-	
-	# the type of archive we are processing
-	local archive_type="";
-	
-	# the name of an archive
-	local archive_name;
-	
-	# valid archive type identifiers
-	local types=( tar bz2 zip );
-	
-	# an output directory for archives (creation)
-	# or archive contents (extraction)
-	local archive_output="";
-	
-	# the default archive type to use
-	# when no --type is specified and no
-	# type can be inferred from a file extension
-	local default_archive_type="tar";
-	
-	# whether an archive type was inferred from
-	# a file extension
-	local inferred=false;
-	
-	# the executable being used for the current operation
-	local archive_executable;
-	
-	# the options being passed to the executable
-	# being used for the current operation
-	local archive_executable_options;
-	
-	# whether we are debugging the executed commands
-	local archive_debug=false;
-	
-	# mapping between archive types and file extensions
-	declare -A extensions;
-	extensions=(
-		[tar]="tar.gz tar gz tgz"
-		[bz2]="bz2"
-		[zip]="zip"
-	);
-	
-	# map of options to command names
-	declare -A commands;
-	commands=(
-		[-c]="create"
-		[-x]="extract"
-		[-t]="test"	
-		[-l]="list"
-		[create]="create"
-		[extract]="extract"
-		[test]="test"
-		[ls]="list"
-	);
-	
-	# mapping between archive types
-	# and the required executables
-	# for simplicity we validate both
-	# zip and unzip even though it's
-	# *possible* an installation would
-	# have one and not the other
-	declare -A binaries;
-	binaries=(
-		[tar]="tar"
-		[bz2]="tar"
-		[zip]="zip unzip"
-	);
-	
-	# do command procesing via delegation
-	if [ $# -gt 0 ]; then
-		local cmd="${1:-}";
-		local cmdmethod="${commands[$cmd]:-}";
-		if [ -z "$cmdmethod" ]; then
-			console quit 1 "invalid archive command %s" "$1";
-		fi
+  # a base working directory to resolve paths from
+  local archive_dir="";
+  
+  # the type of archive we are processing
+  local archive_type="";
+  
+  # the name of an archive
+  local archive_name;
+  
+  # valid archive type identifiers
+  local types=( tar bz2 zip );
+  
+  # an output directory for archives (creation)
+  # or archive contents (extraction)
+  local archive_output="";
+  
+  # the default archive type to use
+  # when no --type is specified and no
+  # type can be inferred from a file extension
+  local default_archive_type="tar";
+  
+  # whether an archive type was inferred from
+  # a file extension
+  local inferred=false;
+  
+  # the executable being used for the current operation
+  local archive_executable;
+  
+  # the options being passed to the executable
+  # being used for the current operation
+  local archive_executable_options;
+  
+  # whether we are debugging the executed commands
+  local archive_debug=false;
+  
+  # mapping between archive types and file extensions
+  declare -A extensions;
+  extensions=(
+    [tar]="tar.gz tar gz tgz"
+    [bz2]="bz2"
+    [zip]="zip"
+  );
+  
+  # map of options to command names
+  declare -A commands;
+  commands=(
+    [-c]="create"
+    [-x]="extract"
+    [-t]="test" 
+    [-l]="list"
+    [create]="create"
+    [extract]="extract"
+    [test]="test"
+    [ls]="list"
+  );
+  
+  # mapping between archive types
+  # and the required executables
+  # for simplicity we validate both
+  # zip and unzip even though it's
+  # *possible* an installation would
+  # have one and not the other
+  declare -A binaries;
+  binaries=(
+    [tar]="tar"
+    [bz2]="tar"
+    [zip]="zip unzip"
+  );
+  
+  # do command procesing via delegation
+  if [ $# -gt 0 ]; then
+    local cmd="${1:-}";
+    local cmdmethod="${commands[$cmd]:-}";
+    if [ -z "$cmdmethod" ]; then
+      console quit 1 "invalid archive command %s" "$1";
+    fi
 
-		# remove the command option
-		shift;
-		
-		# parse remaining options
-		__archive.parse "$@";
-		local opts=( $_result );
-		delegate "arc.${FUNCNAME}" "$cmdmethod" "${opts[@]:-}";
-	else
-		console quit 1 "no archive command specified";
-	fi
+    # remove the command option
+    shift;
+    
+    # parse remaining options
+    __archive.parse "$@";
+    local opts=( $_result );
+    delegate "arc.${FUNCNAME}" "$cmdmethod" "${opts[@]:-}";
+  else
+    console quit 1 "no archive command specified";
+  fi
 }
 
 function arc.tasks.archive.test {
-	# process the archive name
-	archive_name="${1:-}";
-	shift;
-	__archive.dir.process;
-	__archive.name.process;
-	console print "${archive_type} ${archive_name}";
-	console print "${archive_dir}";
+  # process the archive name
+  archive_name="${1:-}";
+  shift;
+  __archive.dir.process;
+  __archive.name.process;
+  console print "${archive_type} ${archive_name}";
+  console print "${archive_dir}";
 }
 
 function arc.tasks.archive.create {
-	
-	# should always have at least 3 arguments
-	if [ $# -lt 2 ]; then
-		console quit 1 "too few options, usage: %s" "-c [options...] [archive] [files...]";
-	fi
-	
-	# process the archive name
-	archive_name="${1:-}";
-	shift;
-	
-	__archive.dir.process;
-	__archive.name.process;
-	
-	local files=( $@ );
-	if [ ${#files[@]} -eq 0 ]; then
-		console quit 1 "no files specified";
-	fi
-	
-	__archive.executable.get true;
-	__archive.executable.get.options true;
-	
-	local wd=$( pwd );
-	if [ "$wd" != "$archive_dir" ]; then
-		cd "$archive_dir" || quit 1 "could not cd to %s" "$archive_dir";
-	fi
-	
-	# make the archive name absolute so it is placed
-	# in the output directory
-	local archive="${archive_name}";
-	if [ -n "${archive_output}" ]; then
-		archive="${archive_output}/${archive_name}";
-	fi
-	if $archive_debug; then
-		console info "$archive_executable %s %s %s" "$archive_executable_options" "$archive" "${files[*]}";
-	fi	
-	local result=$( "$archive_executable" "${archive_executable_options}" "$archive" "${files[@]}" 1> /dev/null );
-	if [ $? -gt 0 ]; then
-		console error "$result";
-	fi
-	
-	# always switch back to the original working directory
-	cd "$wd" || quit 1 "could not cd to %s" "$wd";
+  
+  # should always have at least 3 arguments
+  if [ $# -lt 2 ]; then
+    console quit 1 "too few options, usage: %s" "-c [options...] [archive] [files...]";
+  fi
+  
+  # process the archive name
+  archive_name="${1:-}";
+  shift;
+  
+  __archive.dir.process;
+  __archive.name.process;
+  
+  local files=( $@ );
+  if [ ${#files[@]} -eq 0 ]; then
+    console quit 1 "no files specified";
+  fi
+  
+  __archive.executable.get true;
+  __archive.executable.get.options true;
+  
+  local wd=$( pwd );
+  if [ "$wd" != "$archive_dir" ]; then
+    cd "$archive_dir" || quit 1 "could not cd to %s" "$archive_dir";
+  fi
+  
+  # make the archive name absolute so it is placed
+  # in the output directory
+  local archive="${archive_name}";
+  if [ -n "${archive_output}" ]; then
+    archive="${archive_output}/${archive_name}";
+  fi
+  if $archive_debug; then
+    console info "$archive_executable %s %s %s" "$archive_executable_options" "$archive" "${files[*]}";
+  fi  
+  local result=$( "$archive_executable" "${archive_executable_options}" "$archive" "${files[@]}" 1> /dev/null );
+  if [ $? -gt 0 ]; then
+    console error "$result";
+  fi
+  
+  # always switch back to the original working directory
+  cd "$wd" || quit 1 "could not cd to %s" "$wd";
 }
 
 function arc.tasks.archive.list {
-	
-	# should always have at least 3 arguments
-	if [ $# -lt 1 ]; then
-		console quit 1 "too few options, usage: %s" "-l [options...] [archive] [files...]";
-	fi
-	
-	# process the archive name
-	archive_name="${1:-}";
-	shift;
-	
-	__archive.dir.process;
-	__archive.name.process;
-	
-	__archive.executable.get false true;
-	__archive.executable.get.options true true;
-	
-	# make the archive name absolute so it is placed
-	# in the output directory
-	local archive="${archive_name}";
-	if [ -n "${archive_output}" ]; then
-		archive="${archive_output}/${archive_name}";
-	elif [ -n ]; then
-		archive="${archive_dir}/${archive_name}";
-	fi
-	archive_executable_options=( ${archive_executable_options} );
-	if $archive_debug; then
-		console info "$archive_executable %s %s" "${archive_executable_options[*]}" "$archive";
-	fi
-	
-	if [ ! -f "$archive" ]; then
-		quit 1 "%s does not exist" "$archive";
-	fi
-	
-	if [ ! -r "$archive" ]; then
-		quit 1 "%s no readable" "$archive";
-	fi
-	
-	"$archive_executable" ${archive_executable_options[@]} "$archive";
-	if [ $? -gt 0 ]; then
-		console quit 1 "failed to list archive contents of %s" "$archive_name";
-	fi
+  
+  # should always have at least 3 arguments
+  if [ $# -lt 1 ]; then
+    console quit 1 "too few options, usage: %s" "-l [options...] [archive] [files...]";
+  fi
+  
+  # process the archive name
+  archive_name="${1:-}";
+  shift;
+  
+  __archive.dir.process;
+  __archive.name.process;
+  
+  __archive.executable.get false true;
+  __archive.executable.get.options true true;
+  
+  # make the archive name absolute so it is placed
+  # in the output directory
+  local archive="${archive_name}";
+  if [ -n "${archive_output}" ]; then
+    archive="${archive_output}/${archive_name}";
+  elif [ -n ]; then
+    archive="${archive_dir}/${archive_name}";
+  fi
+  archive_executable_options=( ${archive_executable_options} );
+  if $archive_debug; then
+    console info "$archive_executable %s %s" "${archive_executable_options[*]}" "$archive";
+  fi
+  
+  if [ ! -f "$archive" ]; then
+    quit 1 "%s does not exist" "$archive";
+  fi
+  
+  if [ ! -r "$archive" ]; then
+    quit 1 "%s no readable" "$archive";
+  fi
+  
+  "$archive_executable" ${archive_executable_options[@]} "$archive";
+  if [ $? -gt 0 ]; then
+    console quit 1 "failed to list archive contents of %s" "$archive_name";
+  fi
 }
 
 function arc.tasks.archive.extract {
-	if [ $# -lt 1 ]; then
-		console quit 1 "too few options, usage: %s" "-x [options...] [archive] [files...]";
-	fi
-	
-	# process the archive name
-	archive_name="${1:-}";
-	shift;
-	
-	__archive.dir.process;
-	__archive.name.process;
-	
-	__archive.executable.get false;
-	__archive.executable.get.options false;
-	
-	local archive="${archive_name}";
-	
-	local wd=$( pwd );
-	if [ "$wd" != "$archive_output" ]; then
-		cd "$archive_output" || quit 1 "could not cd to %s" "$archive_output";
-	fi
-	
-	# TODO: quote archive_output so that spaces may be used
-	
-	archive_executable_options="${archive_executable_options} ${archive}";	
-	
-	if [ "$archive_type" == tar -o "$archive_type" == bz2 ]; then
-		if [ -n "${archive_output}" ]; then		
-			archive_executable_options="${archive_executable_options} --directory="$archive_output"";
-		fi	
-	fi
-	
-	#echo "got executable: $archive_executable $archive_executable_options"
-	
-	if $archive_debug; then
-		console info "$archive_executable %s" "$archive_executable_options";
-	fi
-	local result=$( "$archive_executable" ${archive_executable_options} 1> /dev/null );
-	if [ $? -gt 0 ]; then
-		console error "$result";
-	fi	
-	
-	# always switch back to the original working directory
-	cd "$wd" || quit 1 "could not cd to %s" "$wd";	
+  if [ $# -lt 1 ]; then
+    console quit 1 "too few options, usage: %s" "-x [options...] [archive] [files...]";
+  fi
+  
+  # process the archive name
+  archive_name="${1:-}";
+  shift;
+  
+  __archive.dir.process;
+  __archive.name.process;
+  
+  __archive.executable.get false;
+  __archive.executable.get.options false;
+  
+  local archive="${archive_name}";
+  
+  local wd=$( pwd );
+  if [ "$wd" != "$archive_output" ]; then
+    cd "$archive_output" || quit 1 "could not cd to %s" "$archive_output";
+  fi
+  
+  # TODO: quote archive_output so that spaces may be used
+  
+  archive_executable_options="${archive_executable_options} ${archive}";  
+  
+  if [ "$archive_type" == tar -o "$archive_type" == bz2 ]; then
+    if [ -n "${archive_output}" ]; then   
+      archive_executable_options="${archive_executable_options} --directory="$archive_output"";
+    fi  
+  fi
+  
+  #echo "got executable: $archive_executable $archive_executable_options"
+  
+  if $archive_debug; then
+    console info "$archive_executable %s" "$archive_executable_options";
+  fi
+  local result=$( "$archive_executable" ${archive_executable_options} 1> /dev/null );
+  if [ $? -gt 0 ]; then
+    console error "$result";
+  fi  
+  
+  # always switch back to the original working directory
+  cd "$wd" || quit 1 "could not cd to %s" "$wd";  
 }
 
 ######################################################################
 #
-#	PRIVATE METHODS
+# PRIVATE METHODS
 #
 ######################################################################
 
 # determine the executable to run
 function __archive.executable.get {
-	local create="${1:-true}";
-	local list="${2:-false}";	
-	local key="$archive_type";
-	if ! $create || $list && [ "$archive_type" == "zip" ]; then
-		key="unzip";
-	fi
-	if [ $archive_type == bz2 ]; then
-		key="tar";
-	fi
-	# echo "using executable key: $key"
-	archive_executable="${executables[$key]}";	
+  local create="${1:-true}";
+  local list="${2:-false}"; 
+  local key="$archive_type";
+  if ! $create || $list && [ "$archive_type" == "zip" ]; then
+    key="unzip";
+  fi
+  if [ $archive_type == bz2 ]; then
+    key="tar";
+  fi
+  # echo "using executable key: $key"
+  archive_executable="${executables[$key]}";  
 }
 
 # determine the executable options
 function __archive.executable.get.options {
-	local create="${1:-true}";
-	local list="${2:-false}";
-	if ! $list; then
-		if $create; then
-			case "$archive_type" in
-				tar ) archive_executable_options="czf" ;;
-				bz2 ) archive_executable_options="cjf" ;;
-				zip ) archive_executable_options="-r" ;;
-			esac
-		else
-			case "$archive_type" in
-				tar ) archive_executable_options="xzf" ;;
-				bz2 ) archive_executable_options="xjf" ;;
-				zip ) archive_executable_options="" ;;
-			esac
-		fi
-	else
-		case "$archive_type" in
-			tar | bz2 ) archive_executable_options="--list -f" ;;
-			zip ) archive_executable_options="-Z -1" ;;
-		esac
-	fi
+  local create="${1:-true}";
+  local list="${2:-false}";
+  if ! $list; then
+    if $create; then
+      case "$archive_type" in
+        tar ) archive_executable_options="czf" ;;
+        bz2 ) archive_executable_options="cjf" ;;
+        zip ) archive_executable_options="-r" ;;
+      esac
+    else
+      case "$archive_type" in
+        tar ) archive_executable_options="xzf" ;;
+        bz2 ) archive_executable_options="xjf" ;;
+        zip ) archive_executable_options="" ;;
+      esac
+    fi
+  else
+    case "$archive_type" in
+      tar | bz2 ) archive_executable_options="--list -f" ;;
+      zip ) archive_executable_options="-Z -1" ;;
+    esac
+  fi
 }
 
 # parse command line options
 function __archive.parse {
-	# unprocessed options
-	local options=();
-	
-	local value;
-	# handle other options
-	while [ "${1:-}" != "" ]; do
-		case $1 in
-			 -d | --dir )
-				shift;
-				value="${1:-}";
-				if [ -z "$value" ]; then
-					console quit 1 "no directory specified for the %s option" "-d | --dir";
-				fi
-				if [ ! -d "$value" ]; then
-					console quit 1 "%s not a directory" "$value";
-				fi
-				if [ ! -w "$value" ]; then
-					console quit 1 "%s not writable" "$value";
-				fi
-				archive_dir="$value";
-				;;
-			 -a | --archive )
-				shift;
-				value="${1:-}";
-				if [ -z "$value" ]; then
-					console quit 1 "no archive type specified for the %s option" "-t | --type";
-				fi
-				if [ -z "${extensions[$value]:-}" ]; then
-					console quit 1 "invalid archive type %s, use %s" "$value" "${!extensions[*]}";
-				fi
-				archive_type="$value";
-				;;
-			 -o | --output )
-				shift;
-				value="${1:-}";
-				if [ -z "$value" ]; then
-					console quit 1 "no directory specified for the %s option" "-o | --output";
-				fi
-				if [ ! -d "$value" ] || [ ! -w "$value" ]; then
-					console quit 1 "invalid output directory %s" "$value";
-				fi
-				# remove any trailing slash
-				value="${value%/}";
-				archive_output="$value";
-				;;
-			--debug )
-				archive_debug=true;
-				;;
-			* )
-				options+=( "$1" );
-				;;
-		esac
-		if [ $# -ne 0 ]; then
-			shift;
-		else
-			break;
-		fi
-	done
+  # unprocessed options
+  local options=();
+  
+  local value;
+  # handle other options
+  while [ "${1:-}" != "" ]; do
+    case $1 in
+       -d | --dir )
+        shift;
+        value="${1:-}";
+        if [ -z "$value" ]; then
+          console quit 1 "no directory specified for the %s option" "-d | --dir";
+        fi
+        if [ ! -d "$value" ]; then
+          console quit 1 "%s not a directory" "$value";
+        fi
+        if [ ! -w "$value" ]; then
+          console quit 1 "%s not writable" "$value";
+        fi
+        archive_dir="$value";
+        ;;
+       -a | --archive )
+        shift;
+        value="${1:-}";
+        if [ -z "$value" ]; then
+          console quit 1 "no archive type specified for the %s option" "-t | --type";
+        fi
+        if [ -z "${extensions[$value]:-}" ]; then
+          console quit 1 "invalid archive type %s, use %s" "$value" "${!extensions[*]}";
+        fi
+        archive_type="$value";
+        ;;
+       -o | --output )
+        shift;
+        value="${1:-}";
+        if [ -z "$value" ]; then
+          console quit 1 "no directory specified for the %s option" "-o | --output";
+        fi
+        if [ ! -d "$value" ] || [ ! -w "$value" ]; then
+          console quit 1 "invalid output directory %s" "$value";
+        fi
+        # remove any trailing slash
+        value="${value%/}";
+        archive_output="$value";
+        ;;
+      --debug )
+        archive_debug=true;
+        ;;
+      * )
+        options+=( "$1" );
+        ;;
+    esac
+    if [ $# -ne 0 ]; then
+      shift;
+    else
+      break;
+    fi
+  done
 
-	# return remaining options back
-	_result="${options[@]:-}";
+  # return remaining options back
+  _result="${options[@]:-}";
 }
 
 # process which directory will be used to for
 # archive creation/extraction
 function __archive.dir.process {
-	local namedir;
-	fs.dirname "${archive_name}" "namedir" true;
-	
-	# starts with a forward slash	
-	# treat as absolute specification
-	# overrides any dir specified with the -d | --dir option
-	if [[ "$namedir" =~ ^/ ]]; then
-		if [ -n "${archive_dir}" ]; then
-			console warn "redundant %s value %s with absolute archive path %s" "-d | --dir" "${archive_dir}" "${namedir}";
-			console warn "using %s" "${namedir}";
-		fi
-		archive_dir="${namedir}";
-		return 0;
-	fi
-	
-	# no custom directory specified so
-	# infer target directory
-	if [ -z "${archive_dir}" ]; then
-		local dir="$PWD";
-		# echo "got base directory... $dir";
-		# concatenate relative part of archive
-		# specification with the base working directory
-		if [ -n "${namedir}" ]; then
-			# echo "got relative part of archive name: $namedir";
-			dir="${dir}/${namedir}";
-		fi
-	
-		if [ -z "${dir}" ]; then
-			dir="$PWD";
-		fi
-	
-		archive_dir="${dir}";
-	# got a directory specification and a relative
-	# directory path on archive name, concatenate together
-	elif [ -n "${namedir}" ]; then
-		archive_dir="${archive_dir}/${namedir}";
-	fi
-	
-	if [ ! -d "${archive_dir}" ]; then
-		console quit 1 "%s not a directory" "${archive_dir}";
-	fi
-	
-	if [ ! -d "${archive_dir}" ]; then
-		console quit 1 "%s not readable" "${archive_dir}";
-	fi	
-	
-	if [ ! -w "${archive_dir}" ]; then
-		console quit 1 "%s not writable" "${archive_dir}";
-	fi
+  local namedir;
+  fs.dirname "${archive_name}" "namedir" true;
+  
+  # starts with a forward slash 
+  # treat as absolute specification
+  # overrides any dir specified with the -d | --dir option
+  if [[ "$namedir" =~ ^/ ]]; then
+    if [ -n "${archive_dir}" ]; then
+      console warn "redundant %s value %s with absolute archive path %s" "-d | --dir" "${archive_dir}" "${namedir}";
+      console warn "using %s" "${namedir}";
+    fi
+    archive_dir="${namedir}";
+    return 0;
+  fi
+  
+  # no custom directory specified so
+  # infer target directory
+  if [ -z "${archive_dir}" ]; then
+    local dir="$PWD";
+    # echo "got base directory... $dir";
+    # concatenate relative part of archive
+    # specification with the base working directory
+    if [ -n "${namedir}" ]; then
+      # echo "got relative part of archive name: $namedir";
+      dir="${dir}/${namedir}";
+    fi
+  
+    if [ -z "${dir}" ]; then
+      dir="$PWD";
+    fi
+  
+    archive_dir="${dir}";
+  # got a directory specification and a relative
+  # directory path on archive name, concatenate together
+  elif [ -n "${namedir}" ]; then
+    archive_dir="${archive_dir}/${namedir}";
+  fi
+  
+  if [ ! -d "${archive_dir}" ]; then
+    console quit 1 "%s not a directory" "${archive_dir}";
+  fi
+  
+  if [ ! -d "${archive_dir}" ]; then
+    console quit 1 "%s not readable" "${archive_dir}";
+  fi  
+  
+  if [ ! -w "${archive_dir}" ]; then
+    console quit 1 "%s not writable" "${archive_dir}";
+  fi
 }
 
 # processes and archive name and/or archive type
 # and determines the file name and type that will
 # be used
 function __archive.name.process {
-	# validate that we have an archive name
-	__archive.name.validate;
-	
-	# always use `basename`
-	fs.basename "${archive_name}" "archive_name";
-	
-	# no archive type specified
-	# try to infer from the archive name
-	if [ -z "${archive_type}" ]; then
-		# echo "infer archive type from name $archive_name";
-		__archive.type.infer;
-		if ! $inferred; then
-			console warn "could not infer archive type from %s, using %s" \
-				"${archive_name}" "${default_archive_type}";
-		fi
-	fi
-	
-	# use the default archive type for creation
-	if [ -z "${archive_type}" ]; then
-		archive_type="${default_archive_type}";
-	fi
-	
-	#echo "using binaries : ${binaries[@]}"
-	
-	# validate the archive type before proceeding
-	__arvhive.type.validate;
-			
-	# validate the required executables are present
-	__archive.binary.validate;
-	
-	# if we did not infer an archive type from
-	# the name then manipulate the file name to ensure
-	# it always uses an appropriate file extension
-	if ! $inferred; then
-		# all available extensions
-		local exts=( ${extensions[$archive_type]} );
-	
-		# always prefer the first extension in the list
-		local extension="${exts[0]}";
-		
-		# echo "got extension : $extension";
-	
-		# strip any matching extension from the name
-		archive_name="${archive_name%.$extension}";
-	
-		# append the built in extension for the archive
-		archive_name="${archive_name}.${extension}";
-	
-		# echo "got name: $archive_name";
-		# echo "got working directory $wd"
-	fi	
+  # validate that we have an archive name
+  __archive.name.validate;
+  
+  # always use `basename`
+  fs.basename "${archive_name}" "archive_name";
+  
+  # no archive type specified
+  # try to infer from the archive name
+  if [ -z "${archive_type}" ]; then
+    # echo "infer archive type from name $archive_name";
+    __archive.type.infer;
+    if ! $inferred; then
+      console warn "could not infer archive type from %s, using %s" \
+        "${archive_name}" "${default_archive_type}";
+    fi
+  fi
+  
+  # use the default archive type for creation
+  if [ -z "${archive_type}" ]; then
+    archive_type="${default_archive_type}";
+  fi
+  
+  #echo "using binaries : ${binaries[@]}"
+  
+  # validate the archive type before proceeding
+  __arvhive.type.validate;
+      
+  # validate the required executables are present
+  __archive.binary.validate;
+  
+  # if we did not infer an archive type from
+  # the name then manipulate the file name to ensure
+  # it always uses an appropriate file extension
+  if ! $inferred; then
+    # all available extensions
+    local exts=( ${extensions[$archive_type]} );
+  
+    # always prefer the first extension in the list
+    local extension="${exts[0]}";
+    
+    # echo "got extension : $extension";
+  
+    # strip any matching extension from the name
+    archive_name="${archive_name%.$extension}";
+  
+    # append the built in extension for the archive
+    archive_name="${archive_name}.${extension}";
+  
+    # echo "got name: $archive_name";
+    # echo "got working directory $wd"
+  fi  
 }
 
 # attempt to infer an archive type from 
 # a file extension
 function __archive.type.infer {
-	local re="\.([a-z0-9]+)$";
-	local match;
-	# echo "inferring archive type using name: $archive_name : $re";	
-	if [[ "${archive_name}" =~ $re ]]; then
-		match="${BASH_REMATCH[1]}";
-		# echo "got infer match: $match";
-		local t exts;
-		# reverse lookup type from type => extension mapping
-		for t in ${!extensions[@]}
-			do
-				exts=( ${extensions[$t]} );
-				# echo "infer with exts: ${exts[@]} : $match";
-				if array.contains? "$match" "${exts[@]}"; then
-					archive_type="$t";
-					inferred=true;
-					break;
-				fi
-		done
-	fi
+  local re="\.([a-z0-9]+)$";
+  local match;
+  # echo "inferring archive type using name: $archive_name : $re";  
+  if [[ "${archive_name}" =~ $re ]]; then
+    match="${BASH_REMATCH[1]}";
+    # echo "got infer match: $match";
+    local t exts;
+    # reverse lookup type from type => extension mapping
+    for t in ${!extensions[@]}
+      do
+        exts=( ${extensions[$t]} );
+        # echo "infer with exts: ${exts[@]} : $match";
+        if array.contains? "$match" "${exts[@]}"; then
+          archive_type="$t";
+          inferred=true;
+          break;
+        fi
+    done
+  fi
 }
 
 function __archive.binary.validate {
-	local exes=( ${binaries[$archive_type]} );
-	executable.validate ${exes[@]};
+  local exes=( ${binaries[$archive_type]} );
+  executable.validate ${exes[@]};
 }
 
 function __archive.name.validate {
-	if [ -z "${archive_name}" ];then
-		console quit 1 "invalid archive name";
-	fi
+  if [ -z "${archive_name}" ];then
+    console quit 1 "invalid archive name";
+  fi
 }
 
 function __arvhive.type.validate {
-	if ! array.contains? "${archive_type:-}" "${types[@]}"; then
-		console quit 1 "invalid archive type %s" "${archive_type}";
-	fi
+  if ! array.contains? "${archive_type:-}" "${types[@]}"; then
+    console quit 1 "invalid archive type %s" "${archive_type}";
+  fi
 }

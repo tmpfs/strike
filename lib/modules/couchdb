@@ -20,8 +20,8 @@ declare -g couchdb_module_name="couchdb";
 declare -g couchdb_session_login_auth_token="";
 
 #function rest_result_parse {
-#	local opts=( "${@}" );
-#	echo "got rest_result_parse opts ${opts[@]}";
+# local opts=( "${@}" );
+# echo "got rest_result_parse opts ${opts[@]}";
 #}
 
 # > HOST="https://ffsys.cloudant.com"
@@ -36,50 +36,50 @@ declare -g couchdb_session_login_auth_token="";
 # http(3) requests so that it's easier to
 # add before/after debugging statements
 couchdb.run() {
-	local opts=( "$@" );
-	
-	# add session cookie authentication information
-	if [ -n "${couchdb_session_login_auth_token:-}" ]; then
-		opts+=( "-H" "X-CouchDB-WWW-Authenticate: Cookie" );
-		opts+=( "-H" "Content-Type: application/x-www-form-urlencoded" );
-		opts+=( "--cookie" "$couchdb_session_login_auth_token" );
-	fi
-	
-	#echo "$FUNCNAME : using opts : ${#opts[@]} : ${opts[@]}";
-	
-	http.curl "${opts[@]}";
+  local opts=( "$@" );
+  
+  # add session cookie authentication information
+  if [ -n "${couchdb_session_login_auth_token:-}" ]; then
+    opts+=( "-H" "X-CouchDB-WWW-Authenticate: Cookie" );
+    opts+=( "-H" "Content-Type: application/x-www-form-urlencoded" );
+    opts+=( "--cookie" "$couchdb_session_login_auth_token" );
+  fi
+  
+  #echo "$FUNCNAME : using opts : ${#opts[@]} : ${opts[@]}";
+  
+  http.curl "${opts[@]}";
 }
 
 couchdb.session.login() {
-	local host="${1:-}";
-	local user="${2:-}";
-	local pass="${3:-}";
-	if [ -n "$host" ] && [ -n "$user" ] && [ -n "$pass" ]; then
-		couchdb.run "POST" "${host}/_session" \
-			"-H" "Content-Type: application/x-www-form-urlencoded" \
-			"-d" "name=${user}&password=${pass}";
-			
-		local cookie="${http_header_0_set_cookie:-}";
-		if [ -z "$cookie" ]; then
-			console warn "could not retrieve cookie header information for couchdb session login";
-		else
-			#AuthSession=ZmZzeXM6NTBGNjgwOEM6ROf3Gcfux_kfV_x3VDmRPCGaQ84; Version=1; Path=/; HttpOnly
-			couchdb_session_login_auth_token="${cookie%%;*}";
-			#couchdb_session_login_auth_token="${couchdb_session_login_auth_token#AuthSession=}";
-			echo "got auth session token: $couchdb_session_login_auth_token";
-		fi
-		
-		#echo "got set cookie header: $http_header_0_set_cookie";
-	fi
+  local host="${1:-}";
+  local user="${2:-}";
+  local pass="${3:-}";
+  if [ -n "$host" ] && [ -n "$user" ] && [ -n "$pass" ]; then
+    couchdb.run "POST" "${host}/_session" \
+      "-H" "Content-Type: application/x-www-form-urlencoded" \
+      "-d" "name=${user}&password=${pass}";
+      
+    local cookie="${http_header_0_set_cookie:-}";
+    if [ -z "$cookie" ]; then
+      console warn "could not retrieve cookie header information for couchdb session login";
+    else
+      #AuthSession=ZmZzeXM6NTBGNjgwOEM6ROf3Gcfux_kfV_x3VDmRPCGaQ84; Version=1; Path=/; HttpOnly
+      couchdb_session_login_auth_token="${cookie%%;*}";
+      #couchdb_session_login_auth_token="${couchdb_session_login_auth_token#AuthSession=}";
+      echo "got auth session token: $couchdb_session_login_auth_token";
+    fi
+    
+    #echo "got set cookie header: $http_header_0_set_cookie";
+  fi
 }
 
 # updates the http(3) authentication information
 # based on the current couchdb(3) authentication
 couchdb.auth.update() {
-	if [ -n "$couchdb_user" ] && [ -n "$couchdb_pass" ]; then
-		http_auth_user="${couchdb_user}";
-		http_auth_pass="${couchdb_pass}";
-	fi
+  if [ -n "$couchdb_user" ] && [ -n "$couchdb_pass" ]; then
+    http_auth_user="${couchdb_user}";
+    http_auth_pass="${couchdb_pass}";
+  fi
 }
 
 # sets the host and database name in use
@@ -93,102 +93,102 @@ couchdb.db() {
 }
 
 couchdb.db.list() {
-	local host="${1:-}";
-	#couchdb.auth.update;
-	couchdb.run "GET" "${host}/_all_dbs";
+  local host="${1:-}";
+  #couchdb.auth.update;
+  couchdb.run "GET" "${host}/_all_dbs";
 }
 
 couchdb.db.name.valid?() {
-	local name="${1:-}";
-	if [[ "$name" =~ ^[-a-zA-Z0-9]+$ ]]; then
-		return 0;
-	fi
-	return 1;
+  local name="${1:-}";
+  if [[ "$name" =~ ^[-a-zA-Z0-9]+$ ]]; then
+    return 0;
+  fi
+  return 1;
 }
 
 # query a view document
 couchdb.view() {
-	local viewdoc="${1:-views}";
-	local view="${2:-}";
-	local querystring="${3:-}";
-	local path="_design/${viewdoc}/_view/${view}";
-	
-	if [ ! -z "$querystring" ]; then
-		path="${path}${querystring}";
-	fi
-	
-	#if [ ! -z "$couchdb_view_options" ]; then
-	#	echo "got view options...";
-	#fi
-	http_curl "GET" "${path}";
-	
-	#reset the view options
-	#couchdb_view_options="";
+  local viewdoc="${1:-views}";
+  local view="${2:-}";
+  local querystring="${3:-}";
+  local path="_design/${viewdoc}/_view/${view}";
+  
+  if [ ! -z "$querystring" ]; then
+    path="${path}${querystring}";
+  fi
+  
+  #if [ ! -z "$couchdb_view_options" ]; then
+  # echo "got view options...";
+  #fi
+  http_curl "GET" "${path}";
+  
+  #reset the view options
+  #couchdb_view_options="";
 }
 
 # DEPRECATED
 function couchdb_print {
-	console info "[%s] %s %s" "$couchdb_result_status" "$couchdb_result_method" "$couchdb_result_url";
+  console info "[%s] %s %s" "$couchdb_result_status" "$couchdb_result_method" "$couchdb_result_url";
 }
 
 function couchdb_head {
-	local path="${1:-/}";
-	http_curl "HEAD" "$path" "-I";
+  local path="${1:-/}";
+  http_curl "HEAD" "$path" "-I";
 }
 
 function couchdb_get {
-	local path="${1:-/}";
-	http_curl "GET" "$path";
+  local path="${1:-/}";
+  http_curl "GET" "$path";
 }
 
 function couchdb_put {
-	local path="${1:-/}";
-	http_curl "PUT" "$path";
+  local path="${1:-/}";
+  http_curl "PUT" "$path";
 }
 
 function couchdb_put_file {
-	local path="${1:-/}";
-	local file="${2:-}";
-	http_curl "PUT" "$path" "--data-binary" "@${file}";
+  local path="${1:-/}";
+  local file="${2:-}";
+  http_curl "PUT" "$path" "--data-binary" "@${file}";
 }
 
 function couchdb_put_data {
-	local path="${1:-/}";
-	local data="${2:-}";
-	http_curl "PUT" "$path" "-H" "'Content-Type: application/json'" "-d" "'$data'";
+  local path="${1:-/}";
+  local data="${2:-}";
+  http_curl "PUT" "$path" "-H" "'Content-Type: application/json'" "-d" "'$data'";
 }
 
 function couchdb_info {
-	http_curl "GET" "/";
+  http_curl "GET" "/";
 }
 
 function couchdb_get_url {
-	local path=${1:-};
-	local db=${2:-"$couchdb_dbname"};
-	local out="${couchdb_url}/$db";
-	http_base_url="$out";
-	
-	#strip any leading slash
-	#path=${path#/};
-	#out="${out}/${path}";
-	#_result="$out";
+  local path=${1:-};
+  local db=${2:-"$couchdb_dbname"};
+  local out="${couchdb_url}/$db";
+  http_base_url="$out";
+  
+  #strip any leading slash
+  #path=${path#/};
+  #out="${out}/${path}";
+  #_result="$out";
 }
 
 function couchdb_auth {
-	local url="$1";	
-	local dbname="$2";
-	local user="${3:-}";
-	local pass="${4:-}";
-	
-	local module="$couchdb_module_name";
-	
-	eval "${module}_url"="$url";
-	eval "${module}_dbname"="$dbname";
-	eval "${module}_user"="$user";
-	eval "${module}_pass"="$pass";
-	
-	couchdb_get_url;
-	
-	#echo "$couchdb_url";
-	#echo "$couchdb_dbname";	
+  local url="$1"; 
+  local dbname="$2";
+  local user="${3:-}";
+  local pass="${4:-}";
+  
+  local module="$couchdb_module_name";
+  
+  eval "${module}_url"="$url";
+  eval "${module}_dbname"="$dbname";
+  eval "${module}_user"="$user";
+  eval "${module}_pass"="$pass";
+  
+  couchdb_get_url;
+  
+  #echo "$couchdb_url";
+  #echo "$couchdb_dbname";  
 }

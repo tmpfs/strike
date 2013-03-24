@@ -34,17 +34,17 @@ doc.commands.man() {
   if ! method.exists? "${namespace}.${cmd}"; then
     console quit 1 "invalid man sub-command %s" "${cmd}";
   fi
-	__tasks.doc.output;
-	local output="$_result";
-	if [ ! -d "$output" ]; then
-		mkdir -p "$output";
-	fi
+  __tasks.doc.output;
+  local output="$_result";
+  if [ ! -d "$output" ]; then
+    mkdir -p "$output";
+  fi
   delegate "${namespace}" "${cmd}" "$@";
 }
 
 # generates, compiles and imports man pages
 doc.man.commands.build() {
-	doc.man.commands.copy \
+  doc.man.commands.copy \
     && doc.man.commands.compile \
     && doc.man.commands.import;
 }
@@ -56,48 +56,48 @@ doc.man.commands.copy() {
 # generates ronn markdown documentation
 # from inline ronn:markdown heredoc
 doc.man.commands.generate() {
-	__tasks.doc.path;
-	local paths=( "$_result" );
-	local path;
-	for path in ${paths[@]}
-		do
-			__tasks.doc.walk "$path";
-	done
+  __tasks.doc.path;
+  local paths=( "$_result" );
+  local path;
+  for path in ${paths[@]}
+    do
+      __tasks.doc.walk "$path";
+  done
 }
 
 # removes man pages exported to ${root}/man
 doc.man.commands.clean() {
-	local man="${root}/man";
+  local man="${root}/man";
   rm -fv "${man}"/*;
 }
 
 # imports the compiled man page(s) into ${root}/man
 doc.man.commands.import() {
-	local man="${root}/man";
-	local mantmp="${target}/doc";
-	if [ ! -d "$man" ]; then
-		mkdirp "$man";
-	fi
-	doc.man.commands.clean;
-	# copy over man pages
-	local i cmd;
-	for i in {1..8}
-		do
-			cmd="cp -v "${mantmp}/*.${i}" "${man}"";
-			eval $cmd > /dev/null 2>&1;
-	done
-	return 0;
+  local man="${root}/man";
+  local mantmp="${target}/doc";
+  if [ ! -d "$man" ]; then
+    mkdirp "$man";
+  fi
+  doc.man.commands.clean;
+  # copy over man pages
+  local i cmd;
+  for i in {1..8}
+    do
+      cmd="cp -v "${mantmp}/*.${i}" "${man}"";
+      eval $cmd > /dev/null 2>&1;
+  done
+  return 0;
 }
 
 # compiles generated .ronn files to markdown and html
 doc.man.commands.compile() {
-	executable.validate ronn;
-	# copy over assets
-	__tasks.doc.assets.copy;
-	__tasks.doc.output;
-	local output="$_result";
-	local ronn="${executables[ronn]}";
-	$ronn -w -s toc -r5 --markdown ${output}/*.ronn;
+  executable.validate ronn;
+  # copy over assets
+  __tasks.doc.assets.copy;
+  __tasks.doc.output;
+  local output="$_result";
+  local ronn="${executables[ronn]}";
+  $ronn -w -s toc -r5 --markdown ${output}/*.ronn;
 }
 
 # PAGES
@@ -108,138 +108,138 @@ doc.man.commands.compile() {
 #
 # TODO: reinstate this task
 doc.pages.push() {
-	executable.validate git;
-	local git="${executables[git]}";
-	local man="${target}/doc";
-	# check out the gh-pages branch
-	$git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
-	# copy over the temporary man pages
-	cmd="cp -rfv "${man}/*" "${root}"";
-	cd "${root}" \
-		&& rm -fv ./*.html \
-		&& eval "$cmd" \
-		&& $git add . \
-		&& $git commit -a -m "doc rebuild" \
-		&& $git ls-files \
-		&& $git push origin gh-pages \
-		|| { $git checkout develop && quit 1 "could not rebuild docs"; };
-	# switch back to the develop branch
-	$git checkout develop;
+  executable.validate git;
+  local git="${executables[git]}";
+  local man="${target}/doc";
+  # check out the gh-pages branch
+  $git checkout gh-pages > /dev/null 2>&1 || quit 1 "could not checkout gh-pages branch, may be dirty";
+  # copy over the temporary man pages
+  cmd="cp -rfv "${man}/*" "${root}"";
+  cd "${root}" \
+    && rm -fv ./*.html \
+    && eval "$cmd" \
+    && $git add . \
+    && $git commit -a -m "doc rebuild" \
+    && $git ls-files \
+    && $git push origin gh-pages \
+    || { $git checkout develop && quit 1 "could not rebuild docs"; };
+  # switch back to the develop branch
+  $git checkout develop;
 }
 
 # INTERNAL
 
 __tasks.doc.assets.copy() {
-	__tasks.doc.assets;
-	local assets=( "$_result" );
-	__tasks.doc.output;
-	local output="$_result";
-	local a;
-	for a in ${assets[@]}
-		do
-			cp -rfv "$a" "$output" 2> /dev/null;
-	done
+  __tasks.doc.assets;
+  local assets=( "$_result" );
+  __tasks.doc.output;
+  local output="$_result";
+  local a;
+  for a in ${assets[@]}
+    do
+      cp -rfv "$a" "$output" 2> /dev/null;
+  done
 }
 
 # walk a directory containing heredoc candidates
 __tasks.doc.walk() {
-	local path="$1";
-	if [ -d "$path" ]; then
-		local file;
-		for file in ${path}/*
-			do
-				# parse any files found
-				if [ -f "$file" ]; then
-					if [[ "$file" =~ .ronn$ ]]; then
+  local path="$1";
+  if [ -d "$path" ]; then
+    local file;
+    for file in ${path}/*
+      do
+        # parse any files found
+        if [ -f "$file" ]; then
+          if [[ "$file" =~ .ronn$ ]]; then
             console info "copy %s" "${file}" "${output}";
-						cp "$file" "$output" \
+            cp "$file" "$output" \
               || console quit 1 "could not copy %s" "$file";
-					else
-						__tasks.doc.parse "$output" "$file";
-					fi
-				# recurse into nested sub-directories
-				elif [ -d "$file" ]; then
-					__tasks.doc.walk "$file";
-				fi
-		done
-	fi
+          else
+            __tasks.doc.parse "$output" "$file";
+          fi
+        # recurse into nested sub-directories
+        elif [ -d "$file" ]; then
+          __tasks.doc.walk "$file";
+        fi
+    done
+  fi
 }
 
 # parse heredoc in a file
 __tasks.doc.parse() {
-	local output="$1";
-	local file="$2";
-	local name="`basename $file`";
-	local ext="ronn";
-	local outputfile="${output}/${name}.${ext}";
-	local docstart="${3:-": <<'ronn:markdown'"}";
-	local docend="${4:-"ronn:markdown"}";
-	local apidoc=": <<'api:ronn:markdown'";	
-	local api=0;
-	local inside=0;
-	local heredoc="";
-	local filename="";
-	local IFS=$'\n';
-	while read line
-		do
-			#echo "got line $line";
-			if [ "$line" == "$docstart" ]; then
-				# echo "got docstart on file : $file";
-				inside=1;
-				continue;
-			fi
-			if [ "$line" == "$docend" ]; then
-				# echo "got docend on file : $file : $heredoc";
-				inside=0;
-				continue;
-			fi
-			if [ "$line" == "$apidoc" ] && [ "$docstart" != "$apidoc" ]; then
-				api=1;
-			fi
-			if [ $inside -eq 1 ]; then
-				# parse .ronn file name
-				if [ -z "$heredoc" ] && [ -z "$filename" ] && [ ! -z "$line" ]; then
-					filename=${line%% *};
-					filename=${filename%)};
-					filename=${filename//(/.};
-					outputfile="${output}/${filename}.${ext}";
-				fi
-				# ensure the newline is present after each line
-				heredoc="${heredoc}${line}
+  local output="$1";
+  local file="$2";
+  local name="`basename $file`";
+  local ext="ronn";
+  local outputfile="${output}/${name}.${ext}";
+  local docstart="${3:-": <<'ronn:markdown'"}";
+  local docend="${4:-"ronn:markdown"}";
+  local apidoc=": <<'api:ronn:markdown'"; 
+  local api=0;
+  local inside=0;
+  local heredoc="";
+  local filename="";
+  local IFS=$'\n';
+  while read line
+    do
+      #echo "got line $line";
+      if [ "$line" == "$docstart" ]; then
+        # echo "got docstart on file : $file";
+        inside=1;
+        continue;
+      fi
+      if [ "$line" == "$docend" ]; then
+        # echo "got docend on file : $file : $heredoc";
+        inside=0;
+        continue;
+      fi
+      if [ "$line" == "$apidoc" ] && [ "$docstart" != "$apidoc" ]; then
+        api=1;
+      fi
+      if [ $inside -eq 1 ]; then
+        # parse .ronn file name
+        if [ -z "$heredoc" ] && [ -z "$filename" ] && [ ! -z "$line" ]; then
+          filename=${line%% *};
+          filename=${filename%)};
+          filename=${filename//(/.};
+          outputfile="${output}/${filename}.${ext}";
+        fi
+        # ensure the newline is present after each line
+        heredoc="${heredoc}${line}
 ";
-			fi
-	done < "$file";
-	unset IFS;
-	if [ -n "$heredoc" ]; then
-		echo -n "$heredoc" >| "$outputfile" \
+      fi
+  done < "$file";
+  unset IFS;
+  if [ -n "$heredoc" ]; then
+    echo -n "$heredoc" >| "$outputfile" \
       && console info "generated %s" "$outputfile";
-	fi
-	# also got some api documentation to parse
-	if [ "$api" -eq 1 ]; then
-		__tasks.doc.parse "$output" "$file" "$apidoc" "api:ronn:markdown";
-	fi
+  fi
+  # also got some api documentation to parse
+  if [ "$api" -eq 1 ]; then
+    __tasks.doc.parse "$output" "$file" "$apidoc" "api:ronn:markdown";
+  fi
 }
 
 # retrieves the doc search paths
 __tasks.doc.path() {
-	local paths=(
-		"${root}/bin"
-		"${root}/lib/modules"
-	);
-	_result="${paths[@]}";
+  local paths=(
+    "${root}/bin"
+    "${root}/lib/modules"
+  );
+  _result="${paths[@]}";
 }
 
 # retrieves the doc generate output directory
 __tasks.doc.output() {
-	_result="${target}/doc";
+  _result="${target}/doc";
 }
 
 # retrieves a list of assets to be copied prior to compilation
 __tasks.doc.assets() {
-	local assets=(
-		"${root}/doc/index.txt"
-		"${root}/doc/index.html"
-		"${root}/doc/assets"
-	);
-	_result="${assets[@]}";
+  local assets=(
+    "${root}/doc/index.txt"
+    "${root}/doc/index.html"
+    "${root}/doc/assets"
+  );
+  _result="${assets[@]}";
 }

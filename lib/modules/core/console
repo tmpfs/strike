@@ -1,183 +1,183 @@
 # main console entry point
 console() {
-	# list of available commands
-	local namespace="console";
-	local cmd="";
-	if [ $# -eq 0 ]; then
-		console quit 2 \
-			"no command specified";
-	fi
-	
-	if ! method.exists? "${namespace}${delegate_delimiter}${1}"; then
-		console quit 2 \
-			"invalid command %s" "${1}";
-	fi
-	
-	# exit code
-	local code=1;
-	cmd="$1";
-	shift;
-	
-	if [ "$cmd" == quit ] && [ $# -gt 0 ]; then
-		code="$1";
-		shift;
-	fi
-	
-	if [ -n "${cmd}" ]; then
-		if ! method.exists? "${namespace}.${cmd}"; then
-			console quit 2 "invalid command %s" "${cmd}";
-		fi
-		delegate "$namespace" "$cmd" "$@";
-	fi
+  # list of available commands
+  local namespace="console";
+  local cmd="";
+  if [ $# -eq 0 ]; then
+    console quit 2 \
+      "no command specified";
+  fi
+  
+  if ! method.exists? "${namespace}${delegate_delimiter}${1}"; then
+    console quit 2 \
+      "invalid command %s" "${1}";
+  fi
+  
+  # exit code
+  local code=1;
+  cmd="$1";
+  shift;
+  
+  if [ "$cmd" == quit ] && [ $# -gt 0 ]; then
+    code="$1";
+    shift;
+  fi
+  
+  if [ -n "${cmd}" ]; then
+    if ! method.exists? "${namespace}.${cmd}"; then
+      console quit 2 "invalid command %s" "${cmd}";
+    fi
+    delegate "$namespace" "$cmd" "$@";
+  fi
 }
 
 ## COMMANDS
 
 console.bell() {
-	printf "\a";
+  printf "\a";
 }
 
 # print the generic message header
 console.header() {
-	sprintf "$@" "${header}";
+  sprintf "$@" "${header}";
 }
 
 # print a header title
 console.title() {
-	sprintf --no-bright-prefix \
-		--prefix="${header_character:-}" "$@";
+  sprintf --no-bright-prefix \
+    --prefix="${header_character:-}" "$@";
 }
 
 # print a message with no prefix
 console.print() {
-	sprintf --no-prefix "$@";
+  sprintf --no-prefix "$@";
 }
 
 # print a prompt with no newline
 # and a space as the suffix
 console.prompt() {
-	sprintf --no-newline --readline \
-		--export=PS9 \
-		--suffix="${PS9_SUFFIX:-}" "$@";
+  sprintf --no-newline --readline \
+    --export=PS9 \
+    --suffix="${PS9_SUFFIX:-}" "$@";
 }
 
 # print a log message with a prefix
 console.log() {
-	local prefix=$( sprintf.block "${console_prefixes[log]}" );
-	sprintf --prefix="${prefix}" "$@";
+  local prefix=$( sprintf.block "${console_prefixes[log]}" );
+  sprintf --prefix="${prefix}" "$@";
 }
 
 # print an ok message with a prefix
 console.ok() {
-	local prefix=$( sprintf.block "${console_prefixes[ok]}" );
-	sprintf --suffix="${characters[tick]}" \
-		--prefix="${prefix}" "$@";
+  local prefix=$( sprintf.block "${console_prefixes[ok]}" );
+  sprintf --suffix="${characters[tick]}" \
+    --prefix="${prefix}" "$@";
 }
 
 # print an info message with a prefix
 console.info() {
-	local prefix=$( sprintf.block "${console_prefixes[info]}" );
-	sprintf --prefix="${prefix}" "$@";
+  local prefix=$( sprintf.block "${console_prefixes[info]}" );
+  sprintf --prefix="${prefix}" "$@";
 }
 
 ## ERROR COMMANDS
 
 # print a debug message to stderr
 console.debug() {
-	local prefix=$( sprintf.block "${console_prefixes[debug]}" );	
-	sprintf -2 --text=cyan --prefix="${prefix}" "$@";
+  local prefix=$( sprintf.block "${console_prefixes[debug]}" ); 
+  sprintf -2 --text=cyan --prefix="${prefix}" "$@";
 }
 
 # print a not ok message to stderr
 console.notok() {
-	local prefix=$( sprintf.block "${console_prefixes[notok]}" );
-	sprintf -2 --text=red --suffix="${characters[cross]}" \
-		--prefix="${prefix}" "$@";
+  local prefix=$( sprintf.block "${console_prefixes[notok]}" );
+  sprintf -2 --text=red --suffix="${characters[cross]}" \
+    --prefix="${prefix}" "$@";
 }
 
 # print an error message to stderr
 console.error() {
-	local prefix=$( sprintf.block "${console_prefixes[error]}" );
-	sprintf -2 --text=red --prefix="${prefix}" "$@";
+  local prefix=$( sprintf.block "${console_prefixes[error]}" );
+  sprintf -2 --text=red --prefix="${prefix}" "$@";
 }
 
 # print a warning message to stderr
 console.warn() {
-	local prefix=$( sprintf.block "${console_prefixes[warn]}" );
-	sprintf -2 --text=magenta --prefix="${prefix}" "$@";
+  local prefix=$( sprintf.block "${console_prefixes[warn]}" );
+  sprintf -2 --text=magenta --prefix="${prefix}" "$@";
 }
 
 # throw a stack trace with
 # preceeding error message
 console.throw() {
-	local message="${1:-Unknown error}";
-	console error "$message";
-	console trace 1;
+  local message="${1:-Unknown error}";
+  console error "$message";
+  console trace 1;
 }
 
 # print a stack trace as a series of error messages
 console.trace() {
-	local prefix=$( sprintf.block "${console_prefixes[trace]}" );
-	local offset="${1:-0}";
-	local frame="$offset";
-	local line;
-	local data=( $( caller $frame ) );
-	while [ "${#data[@]}" -gt 0 ]; do
-		
-		# occassionally the line number is reported with a leading hyphen???
-		line="${data[0]#-}";
-		#echo "got data: ${data[@]}";
-		
-		sprintf -2 --text=red --prefix="${prefix}" \
-			"%s:%s %s" "${data[2]}" "$line" "${data[1]}";
-		: $((frame++));
-		data=( $( caller $frame ) );
-	done
+  local prefix=$( sprintf.block "${console_prefixes[trace]}" );
+  local offset="${1:-0}";
+  local frame="$offset";
+  local line;
+  local data=( $( caller $frame ) );
+  while [ "${#data[@]}" -gt 0 ]; do
+    
+    # occassionally the line number is reported with a leading hyphen???
+    line="${data[0]#-}";
+    #echo "got data: ${data[@]}";
+    
+    sprintf -2 --text=red --prefix="${prefix}" \
+      "%s:%s %s" "${data[2]}" "$line" "${data[1]}";
+    : $((frame++));
+    data=( $( caller $frame ) );
+  done
 }
 
 # exit with a failure
 console.quit() {
-	if [ $# -gt 0 ]; then
-		console notok "$@";
-	fi
-	exit ${code:-1};
+  if [ $# -gt 0 ]; then
+    console notok "$@";
+  fi
+  exit ${code:-1};
 }
 
 # exit successfully
 console.success() {
-	if [ $# -gt 0 ]; then
-		console ok "$@";
-	fi
-	exit 0;
+  if [ $# -gt 0 ]; then
+    console ok "$@";
+  fi
+  exit 0;
 }
 
 # mark functions as read only
 readonly -f console \
-	console.header \
-	console.title \
-	console.print \
-	console.log \
-	console.ok \
-	console.info \
-	console.debug \
-	console.warn \
-	console.notok \
-	console.error \
-	console.throw \
-	console.trace \
-	console.quit \
-	console.success;
+  console.header \
+  console.title \
+  console.print \
+  console.log \
+  console.ok \
+  console.info \
+  console.debug \
+  console.warn \
+  console.notok \
+  console.error \
+  console.throw \
+  console.trace \
+  console.quit \
+  console.success;
 
 # redirect stderr to console error
 # so that all error messages are highlighted
 # wherever possible
 # NOTE: this must be done before setting noclobber
 # console.shell.error() {
-# 	if [ -t 2 ]; then
-# 		echo -e "\033[1;31m$line\033[0m";
-# 	else
-# 		echo "$line";
-# 	fi
+#   if [ -t 2 ]; then
+#     echo -e "\033[1;31m$line\033[0m";
+#   else
+#     echo "$line";
+#   fi
 # }
 
 # exec 2> >( while read line; do console.shell.error >&2; done);
@@ -193,7 +193,7 @@ readonly -f console \
 # mask the info system executable
 # legacy due to the old info command declaration
 info() {
-	console info "$@";
+  console info "$@";
 }
 
 # alias "info=console info";

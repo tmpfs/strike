@@ -69,35 +69,35 @@ declare -g process_tmp_dir="";
 # NOTE: signal `info` is not available on centos 6.3
 declare -ag process_signals;
 process_signals=(
-	hup
-	int
-	quit
-	ill
-	trap
-	abrt
-	fpe
-	kill
-	bus
-	segv
-	sys
-	pipe
-	alrm
-	term
-	urg
-	stop
-	tstp
-	cont
-	chld
-	ttin
-	ttou
-	io
-	xcpu
-	xfsz
-	vtalrm
-	prof
-	winch
-	usr1
-	usr2
+  hup
+  int
+  quit
+  ill
+  trap
+  abrt
+  fpe
+  kill
+  bus
+  segv
+  sys
+  pipe
+  alrm
+  term
+  urg
+  stop
+  tstp
+  cont
+  chld
+  ttin
+  ttou
+  io
+  xcpu
+  xfsz
+  vtalrm
+  prof
+  winch
+  usr1
+  usr2
 );
 
 # bash specific signals
@@ -116,66 +116,66 @@ declare -g process_loop=false;
 #shopt -s checkwinsize;
 
 function process.initialize {
-	
-	process.lock.test;
-	
-	# initialize registry of signal
-	# callback methods
-	local signal;
-	for signal in ${process_signals[@]}
-		do
-			process_signal_callbacks["$signal"]="";
-	done
-	
-	# echo "PID IS: $$";
-	# # send SIGWINCH
-	# # so that COLUMNS is set correctly
-	# kill -28 $$;
-	# echo "after sigwinch: ${COLUMNS:-}";
-	
-	# ( printf '' | select word in a b c;
-	# 	do
-	# 		break;
-	# done )
-	
-	#echo "after sigwinch: ${COLUMNS:-}";
+  
+  process.lock.test;
+  
+  # initialize registry of signal
+  # callback methods
+  local signal;
+  for signal in ${process_signals[@]}
+    do
+      process_signal_callbacks["$signal"]="";
+  done
+  
+  # echo "PID IS: $$";
+  # # send SIGWINCH
+  # # so that COLUMNS is set correctly
+  # kill -28 $$;
+  # echo "after sigwinch: ${COLUMNS:-}";
+  
+  # ( printf '' | select word in a b c;
+  #   do
+  #     break;
+  # done )
+  
+  #echo "after sigwinch: ${COLUMNS:-}";
 }
 
 # is this process running in the context
 # of the main library code
 process.lib?() {
-	if [ "${process_dirs[root]}" == "${library_dirs[root]}" ]; then
-		return 0;
-	fi
-	return 1;
+  if [ "${process_dirs[root]}" == "${library_dirs[root]}" ]; then
+    return 0;
+  fi
+  return 1;
 }
 
 process.use() {
-	while [ $# -gt 0 ];
-		do
-			local val="${1:-}";
-			if [ "$val" == "strict" ]; then
-				process_strict="on";
-				# TODO: make these options an array
-				set -o errtrace;
-				set -o nounset;
-				set -o noclobber;
-			elif [ "$val" == "debug" ]; then
-				process_debug="on";
-			elif [ "$val" == "test" ]; then
-				process_test="on";
-			fi
-			shift;
-	done
+  while [ $# -gt 0 ];
+    do
+      local val="${1:-}";
+      if [ "$val" == "strict" ]; then
+        process_strict="on";
+        # TODO: make these options an array
+        set -o errtrace;
+        set -o nounset;
+        set -o noclobber;
+      elif [ "$val" == "debug" ]; then
+        process_debug="on";
+      elif [ "$val" == "test" ]; then
+        process_test="on";
+      fi
+      shift;
+  done
 }
 
 # create process data directory
 # if it does not exist
 process.directory() {
   local name="${1:-}";
-	local dir="${process_dirs[data]}";
+  local dir="${process_dirs[data]}";
   if [ -n "${name}" ]; then
-	  dir=~/.${framework}/"${name}";
+    dir=~/.${framework}/"${name}";
   fi
   if [ ! -d "${dir}" ]; then
     mkdir -p "${dir}" \
@@ -186,454 +186,454 @@ process.directory() {
 
 # retrieves the process uptime in seconds
 process.uptime() {
-	local start=${process_time[start]};
-	local now=`date +%s`;
-	local uptime=$(( $now - $start ));
-	_result="$uptime";
+  local start=${process_time[start]};
+  local now=`date +%s`;
+  local uptime=$(( $now - $start ));
+  _result="$uptime";
 }
 
 # determine if we are running in debug mode
 function process.debug? {
-	test -n "$process_debug";
+  test -n "$process_debug";
 }
 
 # determine if we are running in strict mode
 function process.strict? {
-	test -n "$process_strict";
+  test -n "$process_strict";
 }
 
 # determine if we are running in test mode
 function process.test? {
-	test -n "$process_test";
+  test -n "$process_test";
 }
 
 # switch off debug mode
 function process.debug! {
-	process_debug="";
+  process_debug="";
 }
 
 # switch off strict mode
 function process.strict! {
-	process_strict="";
-	set +o errtrace;
-	set +o nounset;
-	set +o noclobber;
+  process_strict="";
+  set +o errtrace;
+  set +o nounset;
+  set +o noclobber;
 }
 
 # switch off test mode
 function process.test! {
-	process_test="";
+  process_test="";
 }
 
 # TODO: allow this directory to be specified !
 
 # set or gets the directory for process temporary files
 function process.tmp.dir {
-	if [ $# -eq 0 ]; then
-		if [ -z "$process_tmp_dir" ]; then
-			# put the tmp directory in the library directory
-			# so as not to pollute project directories
-			local dir="${library_dirs[root]}/tmp";
-			if [ ! -d "$dir" ] ;then
-				mkdir -p "$dir" || console quit 1 "could not create temporary directory %s" "$dir";
-			fi
-			_result="$dir";
-		else
-			_result="$process_tmp_dir";
-		fi
-	else
-		process_tmp_dir="$1";
-	fi
+  if [ $# -eq 0 ]; then
+    if [ -z "$process_tmp_dir" ]; then
+      # put the tmp directory in the library directory
+      # so as not to pollute project directories
+      local dir="${library_dirs[root]}/tmp";
+      if [ ! -d "$dir" ] ;then
+        mkdir -p "$dir" || console quit 1 "could not create temporary directory %s" "$dir";
+      fi
+      _result="$dir";
+    else
+      _result="$process_tmp_dir";
+    fi
+  else
+    process_tmp_dir="$1";
+  fi
 }
 
 # does nothing, use during development to prevent
 # errors from empty conditionals, functions etc
 function process.noop {
-	return 0;
+  return 0;
 }
 
 ######################################################################
 #
-#	SIGNAL PUBLIC METHODS
+# SIGNAL PUBLIC METHODS
 #
 ######################################################################
 
 # add a callback method for signal(s)
 function process.signal.on {
-	local method="${1:-process.trap}";
-	local signal;
-	if ! method.exists? "$method"; then
-		console warn "%s cannot add non-existent callback method %s" "$FUNCNAME" "$method";
-	else
-		# got some signals specified
-		if [ $# -gt 1 ]; then
-			# remove the method reference $1
-			shift;
-			# process the signal definitions
-			while [ $# -gt 0 ];
-				do
-					signal="$1";
-					# validate the signal is recognized					
-					if process.signal.valid? "$signal"; then
-						# add the callback method
-						# echo "using signal: $signal : ${!process_signal_callbacks[@]}";
-						# console throw;
-						process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]} ${method}";
-						# remove a leading space delimiter
-						process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]# }";
-					else
-						console warn "%s invalid signal %s" "$FUNCNAME" "$signal";
-					fi
-					# process next signal name
-					shift;
-			done
-		else
-			console warn "%s no signals specified" "$FUNCNAME";
-		fi
-	fi
+  local method="${1:-process.trap}";
+  local signal;
+  if ! method.exists? "$method"; then
+    console warn "%s cannot add non-existent callback method %s" "$FUNCNAME" "$method";
+  else
+    # got some signals specified
+    if [ $# -gt 1 ]; then
+      # remove the method reference $1
+      shift;
+      # process the signal definitions
+      while [ $# -gt 0 ];
+        do
+          signal="$1";
+          # validate the signal is recognized         
+          if process.signal.valid? "$signal"; then
+            # add the callback method
+            # echo "using signal: $signal : ${!process_signal_callbacks[@]}";
+            # console throw;
+            process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]} ${method}";
+            # remove a leading space delimiter
+            process_signal_callbacks["$signal"]="${process_signal_callbacks["$signal"]# }";
+          else
+            console warn "%s invalid signal %s" "$FUNCNAME" "$signal";
+          fi
+          # process next signal name
+          shift;
+      done
+    else
+      console warn "%s no signals specified" "$FUNCNAME";
+    fi
+  fi
 }
 
 # determine if a signal name is valid
 function process.signal.valid? {
-	array.contains? "$1" ${process_signals[@]};
-	return $?;
+  array.contains? "$1" ${process_signals[@]};
+  return $?;
 }
 
 # remove a callback method(s) for a signal
 function process.signal.off {
-	local method="${1:-process.trap}";
-	local signal callback i;
-	
-	declare -a callbacks;
-	
-	# TODO: work out why the iterator is failing?
-	# iterator() {
-	# 	local key="$1" value="$2" index="$3";
-	# 	echo "iterator: $key : $value : $index";
-	# }
-	
-	# got some signals specified
-	if [ $# -gt 0 ]; then
-		# remove the method reference $1
-		shift;
-		# process the signal definitions
-		while [ $# -gt 0 ];
-			do
-				signal="$1";
-				callbacks=( ${process_signal_callbacks["$signal"]} );
-				
-				for((i = 0;i < ${#callbacks[@]};i++))
-					do
-						callback="${callbacks[$i]}";
-						if [ "$method" == "$callback" ]; then
-							unset callbacks[$i];
-							process_signal_callbacks["$signal"]="${callbacks[*]}";
-							break;
-						fi
-				done
-				
-				# if callbacks are empty switch off signal ???
-				
-				# process next signal name
-				shift;
-		done
-	else
-		console warn "%s no signals specified" "$FUNCNAME";
-	fi
-	
-	# clean up the iterator
-	#method.remove "iterator";
+  local method="${1:-process.trap}";
+  local signal callback i;
+  
+  declare -a callbacks;
+  
+  # TODO: work out why the iterator is failing?
+  # iterator() {
+  #   local key="$1" value="$2" index="$3";
+  #   echo "iterator: $key : $value : $index";
+  # }
+  
+  # got some signals specified
+  if [ $# -gt 0 ]; then
+    # remove the method reference $1
+    shift;
+    # process the signal definitions
+    while [ $# -gt 0 ];
+      do
+        signal="$1";
+        callbacks=( ${process_signal_callbacks["$signal"]} );
+        
+        for((i = 0;i < ${#callbacks[@]};i++))
+          do
+            callback="${callbacks[$i]}";
+            if [ "$method" == "$callback" ]; then
+              unset callbacks[$i];
+              process_signal_callbacks["$signal"]="${callbacks[*]}";
+              break;
+            fi
+        done
+        
+        # if callbacks are empty switch off signal ???
+        
+        # process next signal name
+        shift;
+    done
+  else
+    console warn "%s no signals specified" "$FUNCNAME";
+  fi
+  
+  # clean up the iterator
+  #method.remove "iterator";
 }
 
 # trigger callback(s) for signal(s) 
 function process.signal.trigger {
-	local signal callbacks method;
-	while [ $# -gt 0 ];
-		do
-			signal="$1";
-			callbacks=( ${process_signal_callbacks["$signal"]} );
-			for method in ${callbacks[@]}
-				do
-					if method.exists? "$method"; then
-						"$method";
-					fi
-			done
-			shift;
-	done
+  local signal callbacks method;
+  while [ $# -gt 0 ];
+    do
+      signal="$1";
+      callbacks=( ${process_signal_callbacks["$signal"]} );
+      for method in ${callbacks[@]}
+        do
+          if method.exists? "$method"; then
+            "$method";
+          fi
+      done
+      shift;
+  done
 }
 
 # print callbacks for signal(s)
 function process.signal.print {
-	local signal callbacks;
-	while [ $# -gt 0 ];
-		do
-			signal="$1";
-			callbacks=( "${process_signal_callbacks["$signal"]}" );
-			console info "%s > %s" "$signal" "${callbacks[*]}";
-			shift;
-	done
+  local signal callbacks;
+  while [ $# -gt 0 ];
+    do
+      signal="$1";
+      callbacks=( "${process_signal_callbacks["$signal"]}" );
+      console info "%s > %s" "$signal" "${callbacks[*]}";
+      shift;
+  done
 }
 
 # list callbacks for signal(s)
 function process.signal.list {
-	local signal callbacks=();
-	while [ $# -gt 0 ];
-		do
-			signal="$1";
-			callbacks+=( "${process_signal_callbacks["$signal"]}" );
-			shift;
-	done
-	_result="${callbacks[*]}";
+  local signal callbacks=();
+  while [ $# -gt 0 ];
+    do
+      signal="$1";
+      callbacks+=( "${process_signal_callbacks["$signal"]}" );
+      shift;
+  done
+  _result="${callbacks[*]}";
 }
 
 # switch on a trap
 function process.on {
-	local signal;
-	while [ $# -gt 0 ];
-		do
-			signal="$1";
-			string.lower "$signal";
-			signal="$_result";
-			trap "__process.trap $? $signal" $signal;
-			shift;
-	done
+  local signal;
+  while [ $# -gt 0 ];
+    do
+      signal="$1";
+      string.lower "$signal";
+      signal="$_result";
+      trap "__process.trap $? $signal" $signal;
+      shift;
+  done
 }
 
 # switch off a trap
 function process.off {
-	local signal;
-	while [ $# -gt 0 ];
-		do
-			signal="$1";
-			string.lower "$signal";
-			signal="$_result";		
-			trap - $signal;
-			shift;
-	done
+  local signal;
+  while [ $# -gt 0 ];
+    do
+      signal="$1";
+      string.lower "$signal";
+      signal="$_result";    
+      trap - $signal;
+      shift;
+  done
 }
 
 ######################################################################
 #
-#	DAEMON PUBLIC METHODS
+# DAEMON PUBLIC METHODS
 #
 ######################################################################
 
 # determine if the process is running as a daemon
 function process.daemon? {
-	if [ "$process_loop" == true ]; then
-		return 0;
-	fi
-	return 1;
+  if [ "$process_loop" == true ]; then
+    return 0;
+  fi
+  return 1;
 }
 
 # start this process running as a daemon
 function process.daemon.start! {
-	local method="${1:-process.loop}";
-	if method.exists? "$method"; then
-		process_loop=true;
-		__process.daemonize "$method";
-	else
-		console warn "attempt to daemonize with no callback method %s" "$method";
-	fi
+  local method="${1:-process.loop}";
+  if method.exists? "$method"; then
+    process_loop=true;
+    __process.daemonize "$method";
+  else
+    console warn "attempt to daemonize with no callback method %s" "$method";
+  fi
 }
 
 # stop this process running as a daemon
 function process.daemon.stop! {
-	# switch the loop off
-	process_loop=false;
+  # switch the loop off
+  process_loop=false;
 }
 
 ######################################################################
 #
-#	LOCK FILE PUBLIC METHODS
+# LOCK FILE PUBLIC METHODS
 #
 ######################################################################
 
 # determine if we are running as a singleton with a lock file
 function process.lock? {
-	test -n "$process_lock";
+  test -n "$process_lock";
 }
 
 # retrieve the name of the lock file for this process
 function process.lock.name {
-	_result="${process_name}.lock";
+  _result="${process_name}.lock";
 }
 
 # retrieve the path to the lock file for this process
 function process.lock.file {
-	process.tmp.dir;
-	local process="$_result";
-	process.lock.name;
-	_result="${process}/${_result}";
+  process.tmp.dir;
+  local process="$_result";
+  process.lock.name;
+  _result="${process}/${_result}";
 }
 
 # check for an existing lock file
 # and quit if it exists
 function process.lock.test {
-	process.lock.file;
-	local file="$_result";
-	if [ -f "$file" ]; then
-		console quit 1 "lock file %s exists" "$file";
-	fi	
+  process.lock.file;
+  local file="$_result";
+  if [ -f "$file" ]; then
+    console quit 1 "lock file %s exists" "$file";
+  fi  
 }
 
 # flag this program as using a lock file
 function process.lock.use! {
-	if [ $# -eq 0 ]; then
-		# switch on trapping exit so we can clean up
-		# the lock file using the private handler
-		process.signal.on __process.lock.clean exit;
-		process.on exit;
-	
-		process_lock="on";
-		__process.lock.write;
-	else
-		process_lock="";
-		# clean the lock file immediately
-		__process.lock.clean;
-	fi
+  if [ $# -eq 0 ]; then
+    # switch on trapping exit so we can clean up
+    # the lock file using the private handler
+    process.signal.on __process.lock.clean exit;
+    process.on exit;
+  
+    process_lock="on";
+    __process.lock.write;
+  else
+    process_lock="";
+    # clean the lock file immediately
+    __process.lock.clean;
+  fi
 }
 
 ######################################################################
 #
-#	PID PUBLIC METHODS
+# PID PUBLIC METHODS
 #
 ######################################################################
 
 # determine if we are using a pid file
 function process.pid? {
-	test -n "$process_pid";
+  test -n "$process_pid";
 }
 
 # print the process id
 function process.pid {
-	echo -ne "$$";
+  echo -ne "$$";
 }
 
 # retrieve the path to the pid file for this process
 function process.pid.name {
-	local ext="pid";
-	local pid=$$;
-	# locks needn't include the pid in the name
-	if process.lock?; then
-		_result="${process_name}.${ext}";
-	else
-		_result="${process_name}.${pid}.${ext}";
-	fi
+  local ext="pid";
+  local pid=$$;
+  # locks needn't include the pid in the name
+  if process.lock?; then
+    _result="${process_name}.${ext}";
+  else
+    _result="${process_name}.${pid}.${ext}";
+  fi
 }
 
 # retrieve the path to the pid file for this process
 function process.pid.file {
-	process.tmp.dir;
-	local process="$_result";
-	process.pid.name;
-	_result="${process}/${_result}";
+  process.tmp.dir;
+  local process="$_result";
+  process.pid.name;
+  _result="${process}/${_result}";
 }
 
 # flag this program as using a PID file
-function process.pid.use! {	
-	if [ $# -eq 0 ]; then
-		# switch on trapping exit so we can clean up
-		# the pid file using the private handler
-		process.signal.on __process.pid.clean exit;
-		process.on exit;
-	
-		process_pid="on";
-		__process.pid.write;
-	else
-		process_pid="";
-		# clean the pid file immediately
-		__process.pid.clean;
-	fi
+function process.pid.use! { 
+  if [ $# -eq 0 ]; then
+    # switch on trapping exit so we can clean up
+    # the pid file using the private handler
+    process.signal.on __process.pid.clean exit;
+    process.on exit;
+  
+    process_pid="on";
+    __process.pid.write;
+  else
+    process_pid="";
+    # clean the pid file immediately
+    __process.pid.clean;
+  fi
 }
 
 # TODO: add lock file support for lock processes
 
 ######################################################################
 #
-#	PRIVATE METHODS
+# PRIVATE METHODS
 #
 ######################################################################
 
 # responds to trap signals
 function __process.trap {
-	# exit code of last command
-	local code="$1";
-	
-	# signal being processed
-	local signal="$2";
-	
-	# echo "trap called with signal: $signal";
-	
-	# TODO: move to a callback method in process.daemon.start! ?
-	if process.daemon?; then
-		# switch off any daemon for these signals
-		case "$signal" in
-			exit ) process.daemon.stop! ;;
-		esac
-	fi
-	
-	# in test mode just output the signal name
-	# if process.test?; then
-	# 	echo -ne "$signal";
-	# else
-	# 	# TODO: tidy this output in non-debug mode
-	# 	echo "$FUNCNAME got signal : $signal";
-	# 	local data=( $( caller 1 ) );
-	# 	if [ ${#data[@]} -gt 0 ]; then
-	# 		echo "${data[@]}";
-	# 	fi
-	# 	echo "$FUNCNAME : $code : $1";
-	# fi
-	
-	# trigger callbacks for the signal
-	process.signal.trigger "$signal";
+  # exit code of last command
+  local code="$1";
+  
+  # signal being processed
+  local signal="$2";
+  
+  # echo "trap called with signal: $signal";
+  
+  # TODO: move to a callback method in process.daemon.start! ?
+  if process.daemon?; then
+    # switch off any daemon for these signals
+    case "$signal" in
+      exit ) process.daemon.stop! ;;
+    esac
+  fi
+  
+  # in test mode just output the signal name
+  # if process.test?; then
+  #   echo -ne "$signal";
+  # else
+  #   # TODO: tidy this output in non-debug mode
+  #   echo "$FUNCNAME got signal : $signal";
+  #   local data=( $( caller 1 ) );
+  #   if [ ${#data[@]} -gt 0 ]; then
+  #     echo "${data[@]}";
+  #   fi
+  #   echo "$FUNCNAME : $code : $1";
+  # fi
+  
+  # trigger callbacks for the signal
+  process.signal.trigger "$signal";
 }
 
 function __process.daemonize {
-	local method="${1:-}";
-	while $process_loop;
-		do
-			# invoke the daemon callback method
-			if method.exists? "$method"; then
-				"$method";
-			# method may have been removed, stop!
-			else
-				process.daemon.stop!
-			fi
-	done
+  local method="${1:-}";
+  while $process_loop;
+    do
+      # invoke the daemon callback method
+      if method.exists? "$method"; then
+        "$method";
+      # method may have been removed, stop!
+      else
+        process.daemon.stop!
+      fi
+  done
 }
 
 # write the pid to a file
 function __process.pid.write {
-	process.pid.file;
-	local file="$_result";
-	process.pid >| "$file" || quit 1 "could not write pid ($$) to file %s" "$file";
+  process.pid.file;
+  local file="$_result";
+  process.pid >| "$file" || quit 1 "could not write pid ($$) to file %s" "$file";
 }
 
 # remove the pid file
 function __process.pid.clean {
-	process.pid.file;
-	local file="$_result";
-	if test -f "$file"; then
-		rm "$file" >| /dev/null 2>&1 || console warn "could not remove pid file %s" "$file";
-	fi
+  process.pid.file;
+  local file="$_result";
+  if test -f "$file"; then
+    rm "$file" >| /dev/null 2>&1 || console warn "could not remove pid file %s" "$file";
+  fi
 }
 
 # write the lock to a file
 function __process.lock.write {
-	process.lock.file;
-	local file="$_result";
-	process.pid >| "$file" || quit 1 "could not write lock file %s" "$file";
+  process.lock.file;
+  local file="$_result";
+  process.pid >| "$file" || quit 1 "could not write lock file %s" "$file";
 }
 
 # remove the lock file
 function __process.lock.clean {
-	process.lock.file;
-	local file="$_result";
-	if test -f "$file"; then
-		rm "$file" >| /dev/null 2>&1 || console warn "could not remove lock file %s" "$file";
-	fi
+  process.lock.file;
+  local file="$_result";
+  if test -f "$file"; then
+    rm "$file" >| /dev/null 2>&1 || console warn "could not remove lock file %s" "$file";
+  fi
 }
 
 # invoke initialize

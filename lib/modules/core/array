@@ -1,37 +1,37 @@
 # adapted from: http://stackoverflow.com/questions/13219634/easiest-way-to-check-for-an-index-or-a-key-in-an-array
 array.isset?() {
-	if [ $# -lt 2 ]; then
-		return 1;
-	fi 
-	eval '[ ${'$2'[$1]+a} ]';
+  if [ $# -lt 2 ]; then
+    return 1;
+  fi 
+  eval '[ ${'$2'[$1]+a} ]';
 }
 
 # "a string" "${array[@]}"
 array.contains?() {
-	local e;
-	for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
-	return 1;
+  local e;
+  for e in "${@:2}"; do [[ "$e" == "$1" ]] && return 0; done
+  return 1;
 }
 
 array.join() {
-	#TODO: strip leading delimiter
-	local delimiter="${1:-,}";
-	local elements=( "${@:2}" );
-	_result=$(printf "${delimiter}%s" "${elements[@]}");
+  #TODO: strip leading delimiter
+  local delimiter="${1:-,}";
+  local elements=( "${@:2}" );
+  _result=$(printf "${delimiter}%s" "${elements[@]}");
 }
 
 
 array.is.array?() {
-	declare -p "${1:-}" 2> /dev/null | grep -q 'declare \-a';
+  declare -p "${1:-}" 2> /dev/null | grep -q 'declare \-a';
 }
 
 array.is.assoc?() {
-	declare -p "${1:-}" 2> /dev/null | grep -q 'declare \-A';
+  declare -p "${1:-}" 2> /dev/null | grep -q 'declare \-A';
 }
 
 # TODO: rename to array.last as it cannot pop
 array.pop() {
-	local opts=( "$@" );	
-	_result=${opts[${#opts[@]}-1]};
-	unset opts[${#opts[@]}-1];
+  local opts=( "$@" );  
+  _result=${opts[${#opts[@]}-1]};
+  unset opts[${#opts[@]}-1];
 }

@@ -5,541 +5,541 @@
 declare -g json_number_regexp="^-?[0-9]+((\.[0-9]+)?([eE][-+]?[0-9]+)?)?$";
 
 json.stringify() {
-	local json="";
-	local objstart="{";
-	local objend="}";
-	local arrstart="[";
-	local arrend="]";
-	local pretty=false;
-	local depth=-1;
-	local newline=$'\n';
-	local space=' ';
-	local indent="";
-	
-	if [ $# -gt 0 ] && [ "$1" == "--pretty" ]; then
-		pretty=true;
-		local indent_repeat="${2:-2}";
-		space=${3:-$space};
-		
-		# debug whitespace pretty printing using a dot!
-		# string.repeat "." "${indent_repeat}";
-		
-		string.repeat "${space}" "${indent_repeat}";
-		
-		indent="$_result";
-	fi
-	
-	# this allows us to accept options and read from stdin
-	# with positional parameter expansion
-	if [ ! -t 0 ]; then
-		# read in stdin
-		read -a stdin;
-		# expand stdin data to positional parameters
-		set -- $( echo "${stdin[@]}" );
-	fi
-	
-	local json_data="${1:-}";
-	
-	#echo "json_data: $json_data";
-	
-	if [ -z "$json_data" ]; then
-		console warn "invalid json.stringify call, usage: json.stringify <<< \"varname\"";
-		return 1;
-	fi
-	
-	# echo "testing existence of ${1:-} : ${!doc[@]}";
-	#array.is.array? "$json_data" || echo "not array ... $?";
-	
-	$( array.is.array? "$json_data" );
-	local isarr=$?;
-	$( array.is.assoc? "$json_data" );
-	local isassoc=$?;
-	
-	#echo "after array tests ... ";
-	
-	# validate that plain variables are set
-	if [ $isarr -gt 0 ] && [ $isassoc -gt 0 ]; then
-		#echo "before eval ... "
-		eval "[ \${${json_data}+a} ]";
-		local exists=$?;		
-		if [ $exists -gt 0 ]; then
-			# echo "variable has not been set!!!";
-			return 1;
-		fi
-	fi
-	
-	local keys value;
-	
-	# variable is a plain array
-	if [ $isarr -eq 0 ] && [ $isassoc -eq 1 ]; then
-		__json.stringify.array "$json_data";
-	# variable is an associative array, treat as a complex object
-	elif [ $isarr -eq 1 ] && [ $isassoc -eq 0 ]; then 
-		eval keys="\${!$json_data[@]}";	
-		__json.stringify.object "$json_data";
-	# plain variable value
-	else
-		# variable has some sort of value
-		eval value="\${$json_data}";
-		if [ -n "$value" ]; then
-			__json.stringify.value "$value";
-			printf -- "$_result";
-			#json="$_result";
-			#echo "got result after evaluation : '''$json'''";
-		# the empty string should be ""
-		else
-			#json="\"\"";
-			printf -- "\"\"";
-		fi
-	fi
-	
-	unset json;
-	return 0;
+  local json="";
+  local objstart="{";
+  local objend="}";
+  local arrstart="[";
+  local arrend="]";
+  local pretty=false;
+  local depth=-1;
+  local newline=$'\n';
+  local space=' ';
+  local indent="";
+  
+  if [ $# -gt 0 ] && [ "$1" == "--pretty" ]; then
+    pretty=true;
+    local indent_repeat="${2:-2}";
+    space=${3:-$space};
+    
+    # debug whitespace pretty printing using a dot!
+    # string.repeat "." "${indent_repeat}";
+    
+    string.repeat "${space}" "${indent_repeat}";
+    
+    indent="$_result";
+  fi
+  
+  # this allows us to accept options and read from stdin
+  # with positional parameter expansion
+  if [ ! -t 0 ]; then
+    # read in stdin
+    read -a stdin;
+    # expand stdin data to positional parameters
+    set -- $( echo "${stdin[@]}" );
+  fi
+  
+  local json_data="${1:-}";
+  
+  #echo "json_data: $json_data";
+  
+  if [ -z "$json_data" ]; then
+    console warn "invalid json.stringify call, usage: json.stringify <<< \"varname\"";
+    return 1;
+  fi
+  
+  # echo "testing existence of ${1:-} : ${!doc[@]}";
+  #array.is.array? "$json_data" || echo "not array ... $?";
+  
+  $( array.is.array? "$json_data" );
+  local isarr=$?;
+  $( array.is.assoc? "$json_data" );
+  local isassoc=$?;
+  
+  #echo "after array tests ... ";
+  
+  # validate that plain variables are set
+  if [ $isarr -gt 0 ] && [ $isassoc -gt 0 ]; then
+    #echo "before eval ... "
+    eval "[ \${${json_data}+a} ]";
+    local exists=$?;    
+    if [ $exists -gt 0 ]; then
+      # echo "variable has not been set!!!";
+      return 1;
+    fi
+  fi
+  
+  local keys value;
+  
+  # variable is a plain array
+  if [ $isarr -eq 0 ] && [ $isassoc -eq 1 ]; then
+    __json.stringify.array "$json_data";
+  # variable is an associative array, treat as a complex object
+  elif [ $isarr -eq 1 ] && [ $isassoc -eq 0 ]; then 
+    eval keys="\${!$json_data[@]}"; 
+    __json.stringify.object "$json_data";
+  # plain variable value
+  else
+    # variable has some sort of value
+    eval value="\${$json_data}";
+    if [ -n "$value" ]; then
+      __json.stringify.value "$value";
+      printf -- "$_result";
+      #json="$_result";
+      #echo "got result after evaluation : '''$json'''";
+    # the empty string should be ""
+    else
+      #json="\"\"";
+      printf -- "\"\"";
+    fi
+  fi
+  
+  unset json;
+  return 0;
 }
 
 ######################################################################
 #
-#	PRIVATE METHODS
+# PRIVATE METHODS
 #
 ######################################################################
 
 __json.stringify.array() {
-	local arrkeys=();
-	eval arrkeys="(\${!$json_data[@]})";
-	
-	if [ "${#arrkeys[@]}" -eq 0 ]; then
-		__json.stringify.array.start;
-		__json.stringify.array.end;
-		return 0;
-	fi
-	
-	: $((depth++));	
-	__json.stringify.array.start "${2:-}";
-	local json_data="$1";
-	local key value;
-	
-	# always sort keys numerically, this involves
-	# splitting the keys onto lines and sending to
-	# sort for processing
-	local IFS="$newline";
-	local lines="${arrkeys[@]}"
-	unset IFS;
-	arrkeys=( $( sort -k1,1n <<< "$lines" ) );
-	
-	# echo "ARRAY KEYS: ${!arrkeys[@]}";
-	# echo "ARRAY VALUES: ${arrkeys[@]}";
-	
-	# variables for nested matches
-	local k nk nv ak;
-	
-	local i=0;
-	local len=${#arrkeys[@]};
-	local end=$((len - 1));
-	
-	# 
-	# echo "got array len: $len";
-	# echo "got array end: $end";
-	
-	for((i=0;i < $len;i++))
-		do
-			key="${arrkeys[$i]}";
-			#echo "processing array key: $key";
-			
-			# direct array property
-			if [[ ! "$key" =~ \. ]]; then
-				eval value="\${$json_data[$key]}";
-				__json.add.value;
-				if [ $i -lt $end ]; then
-					printf -- ",";
-				fi
-				unset arrkeys[$i];
-			# nested dot-style property
-			else
-				# key should just be numeric at this point
-				k=${key%%.*};
-				
-				# an extra sanity check
-				if [[ ! "$k" =~ ^[0-9]+$ ]]; then
-					console.throw "invalid array key $k";
-					return 1;
-				fi
-				
-				# key would be a number and
-				# therefore would create an error so prefix 
-				# with an underscore
-				declare -A _$k;
-				# gobble matching array keys
-				while [ ${#arrkeys[@]} -gt 0 ] && [[ "$key" =~ ^$k\.? ]];
-					do
-						eval nv="\${$json_data[$key]}";
-						ak=${key#*.};
-						eval "_$k[\"$ak\"]=\"$nv\"";
-						if [ ${#arrkeys[@]} -gt 0 ]; then
-							key="${arrkeys[$i+1]:-}";
-						fi
-						unset arrkeys[$i];
-						: $((i++));
-				done
-				
-				# add comma between array entries
-				# json="${json},";	
-				
-				# # treat as an object
-				__json.stringify.object "_$k";	
-				
-				if [ $i -lt $len ]; then
-					printf -- ",";
-					if $pretty; then
-						printf -- "\n";
-					fi
-				fi							
-				
-				: $((i--));
-			fi
-	done
-	
-	#json="${json%$newline}";
-	
-	# remove any trailing comma
-	
-	# TODO: fix this logic for printf
-	#json="${json%,}";
-	
-	__json.stringify.array.end;
-	: $((depth--));
+  local arrkeys=();
+  eval arrkeys="(\${!$json_data[@]})";
+  
+  if [ "${#arrkeys[@]}" -eq 0 ]; then
+    __json.stringify.array.start;
+    __json.stringify.array.end;
+    return 0;
+  fi
+  
+  : $((depth++)); 
+  __json.stringify.array.start "${2:-}";
+  local json_data="$1";
+  local key value;
+  
+  # always sort keys numerically, this involves
+  # splitting the keys onto lines and sending to
+  # sort for processing
+  local IFS="$newline";
+  local lines="${arrkeys[@]}"
+  unset IFS;
+  arrkeys=( $( sort -k1,1n <<< "$lines" ) );
+  
+  # echo "ARRAY KEYS: ${!arrkeys[@]}";
+  # echo "ARRAY VALUES: ${arrkeys[@]}";
+  
+  # variables for nested matches
+  local k nk nv ak;
+  
+  local i=0;
+  local len=${#arrkeys[@]};
+  local end=$((len - 1));
+  
+  # 
+  # echo "got array len: $len";
+  # echo "got array end: $end";
+  
+  for((i=0;i < $len;i++))
+    do
+      key="${arrkeys[$i]}";
+      #echo "processing array key: $key";
+      
+      # direct array property
+      if [[ ! "$key" =~ \. ]]; then
+        eval value="\${$json_data[$key]}";
+        __json.add.value;
+        if [ $i -lt $end ]; then
+          printf -- ",";
+        fi
+        unset arrkeys[$i];
+      # nested dot-style property
+      else
+        # key should just be numeric at this point
+        k=${key%%.*};
+        
+        # an extra sanity check
+        if [[ ! "$k" =~ ^[0-9]+$ ]]; then
+          console.throw "invalid array key $k";
+          return 1;
+        fi
+        
+        # key would be a number and
+        # therefore would create an error so prefix 
+        # with an underscore
+        declare -A _$k;
+        # gobble matching array keys
+        while [ ${#arrkeys[@]} -gt 0 ] && [[ "$key" =~ ^$k\.? ]];
+          do
+            eval nv="\${$json_data[$key]}";
+            ak=${key#*.};
+            eval "_$k[\"$ak\"]=\"$nv\"";
+            if [ ${#arrkeys[@]} -gt 0 ]; then
+              key="${arrkeys[$i+1]:-}";
+            fi
+            unset arrkeys[$i];
+            : $((i++));
+        done
+        
+        # add comma between array entries
+        # json="${json},";  
+        
+        # # treat as an object
+        __json.stringify.object "_$k";  
+        
+        if [ $i -lt $len ]; then
+          printf -- ",";
+          if $pretty; then
+            printf -- "\n";
+          fi
+        fi              
+        
+        : $((i--));
+      fi
+  done
+  
+  #json="${json%$newline}";
+  
+  # remove any trailing comma
+  
+  # TODO: fix this logic for printf
+  #json="${json%,}";
+  
+  __json.stringify.array.end;
+  : $((depth--));
 }
 
 __json.stringify.indent() {
-	local add="${1:-0}";
-	local amount=$((depth+add));
-	string.repeat "${indent}" "${amount}";
+  local add="${1:-0}";
+  local amount=$((depth+add));
+  string.repeat "${indent}" "${amount}";
 }
 
 # this method is passed the nested object key
 # if it exists to handle --pretty output
 __json.stringify.array.start() {
-	local whitespace="";
-	#echo "starting array with nested key: ${1:-}";
-	if $pretty; then
-		__json.stringify.indent;
-		whitespace="$_result";
-		if [ -n "${1:-}" ]; then
-			whitespace="${space}";
-		fi
-		if [ $depth -gt 0 ] && [ -z "${1:-}" ]; then
-			whitespace="${newline}${whitespace}";
-		fi
-	fi
-	#json="${json}${whitespace}${arrstart}";
-	printf -- "${whitespace}${arrstart}";
+  local whitespace="";
+  #echo "starting array with nested key: ${1:-}";
+  if $pretty; then
+    __json.stringify.indent;
+    whitespace="$_result";
+    if [ -n "${1:-}" ]; then
+      whitespace="${space}";
+    fi
+    if [ $depth -gt 0 ] && [ -z "${1:-}" ]; then
+      whitespace="${newline}${whitespace}";
+    fi
+  fi
+  #json="${json}${whitespace}${arrstart}";
+  printf -- "${whitespace}${arrstart}";
 }
 
 
 __json.stringify.array.end() {
-	local whitespace="";
-	if $pretty; then
-		__json.stringify.indent;
-		whitespace="$_result";
-		if [ $depth -gt 0 ]; then
-			whitespace="${whitespace}";
-		elif [ $depth -eq 0 ]; then
-			whitespace="${newline}";
-		fi
-	fi
-	#json="${json}${whitespace}${arrend}";
-	printf -- "${whitespace}${arrend}";
+  local whitespace="";
+  if $pretty; then
+    __json.stringify.indent;
+    whitespace="$_result";
+    if [ $depth -gt 0 ]; then
+      whitespace="${whitespace}";
+    elif [ $depth -eq 0 ]; then
+      whitespace="${newline}";
+    fi
+  fi
+  #json="${json}${whitespace}${arrend}";
+  printf -- "${whitespace}${arrend}";
 }
 
 __json.stringify.object() {
-	local keys;
-	local key value;
-	local json_data="$1";
-	eval keys="(\${!$json_data[@]})";
-	
-	# no keys to process, nothing to be done
-	# set to: {}
-	if [ "${#keys[@]}" -eq 0 ]; then
-		__json.stringify.object.start;
-		__json.stringify.object.end;
-		return 0;
-	fi
-	
-	#echo "__json.stringify.object: objid: $1, keys: ${!keys[@]}, values: ${keys[@]}";
-	
-	# test if any key at this level does not start
-	# with an integer value, in which case it is
-	# treated as an object
-	local arr=true;
-	for key in "${keys[@]}"
-		do
-			if [[ ! "$key" =~ ^[0-9]+(\.[a-zA-Z0-9])? ]]; then
-				arr=false;
-				break;
-			fi
-	done
-	
-	if $arr; then
-		__json.stringify.array "$json_data" "${2:-}";
-		return 0;
-	fi
-	
-	: $((depth++));	
-	__json.stringify.object.start;
-	
-	declare -A nested;
-	
-	# deal with nested properties
-	local k match nk nv ak nestedkey;	
-	local len="${#keys[@]}";
-	local end=$((len - 1));
-	local i=0;
-	for key in "${keys[@]}"
-		do
-			# echo "(object) processing key: $key";
-			
-			# not a nested property
-			if [[ ! "$key" =~ \. ]]; then
-				eval value="\${$json_data[$key]}";
-				__json.add.key.value "$key" "$value";
-				#echo "adding key pair $i : $end";
-				if [ $i -lt $end ]; then
-					printf -- ",";
-				fi
-				: $((i++));
-			# got a nested dot-style reference
-			# group objects together
-			else
-				k=${key%%.*};
-				for nk in "${keys[@]}"
-					do
-						if [[ "$nk" =~ ^$k ]]; then
-							nk="${nk#*.}";
-							
-							# FIXME: this test drops some keys, reinstate with better logic?
-							# FIXME: if was originally intended to reduce iterations and does
-							# FIXME: not appear to affect the output by not performing the test
-							
-							# XXX: this test is probably unnecessary as it doesn't reduce the iterations
-							if ! array.contains? "$nk" "${!nested[@]}"; then
-								nested["$k"]="${nested[$k]:-} $nk";
-							fi
-						fi
-				done
-			fi
-	done
-	
-	local len="${#nested[@]}";
-	local end=$((len - 1));
-	local i=0;
-	# post-process nested data
-	if [ ${#nested[@]} -gt 0 ]; then
-		for nk in ${!nested[@]}
-			do
-				keys=( ${nested[$nk]} );
-				nestedkey="$nk";
-				
-				# sane bash compatible variable name
-				nestedkey="${nestedkey//[^_a-zA-Z0-9]/}";
-				
-				# we should we not get here as integer values
-				# should be passed to array handling, nonetheless
-				# an extra check to prevent an error on trying to
-				# set a numeric variable name
-				if [[ "$nestedkey" =~ ^[0-9]+$ ]]; then
-					nestedkey="_$nestedkey";
-				fi
-				
-				# pseudo-namespace the variable name
-				# to prevent conflicts with internal names
-				nestedkey="__json__${nestedkey}";
-				
-				# echo "using nested key: $nestedkey";
-				
-				declare -A $nestedkey;
-				for ak in ${keys[@]}
-					do
-						# FIXME: work out why some data is lingering and causing unbound variable errors
-						# FIXME: create a document stringify it then delete some elements and re-stringify
-						# FIXME: to recreate the problem
-						
-						# echo "json.stringify using : $nk : $ak";
-						
-						eval nv="\${$json_data[\"${nk}.${ak}\"]:-__json__null__}";
-						if [ "$nv" == "__json__null__" ]; then
-							continue;
-						fi
-						
-						# echo "adding key: $ak";
-						
-						eval "${nestedkey}[\"$ak\"]=\"$nv\"";
-						# unset keys["$ak"];
-				done
-				
-				# echo "got keys: ${keys[*]}";
-				# eval keys="(\${!$nestedkey[@]})";
-				# echo "keys are: ${keys[@]}";
-				
-				__json.stringify.object.start.nested "$nk";
-				
-				#echo "PROCESSING NESTED KEY ON: $nk";
-				
-				__json.stringify.object "$nestedkey" "$nk";
-				if [ $i -lt $end ]; then
-					printf -- ",";
-				fi
-				: $((i++));
-								
-				#json="${json},";
-				#printf ",";
-				
-				#echo "cleaning $nestedkey";
-				
-				# clean up the dynamic variable after recursion
-				unset $nestedkey;
-		done
-			
-		# clean up the list of nested objects
-		unset nested;		
-	fi
-	
-	# clean up the key information
-	unset keys;
-	
-	# TODO: only do this for nested properties
-	if [ $depth -gt 0 ]; then
-		unset $json_data;
-	fi
-	
-	# TODO: fix this
-	# json="${json%$newline}";
-	# json="${json%,}";
-	
-	__json.stringify.object.end;
-	: $((depth--));
+  local keys;
+  local key value;
+  local json_data="$1";
+  eval keys="(\${!$json_data[@]})";
+  
+  # no keys to process, nothing to be done
+  # set to: {}
+  if [ "${#keys[@]}" -eq 0 ]; then
+    __json.stringify.object.start;
+    __json.stringify.object.end;
+    return 0;
+  fi
+  
+  #echo "__json.stringify.object: objid: $1, keys: ${!keys[@]}, values: ${keys[@]}";
+  
+  # test if any key at this level does not start
+  # with an integer value, in which case it is
+  # treated as an object
+  local arr=true;
+  for key in "${keys[@]}"
+    do
+      if [[ ! "$key" =~ ^[0-9]+(\.[a-zA-Z0-9])? ]]; then
+        arr=false;
+        break;
+      fi
+  done
+  
+  if $arr; then
+    __json.stringify.array "$json_data" "${2:-}";
+    return 0;
+  fi
+  
+  : $((depth++)); 
+  __json.stringify.object.start;
+  
+  declare -A nested;
+  
+  # deal with nested properties
+  local k match nk nv ak nestedkey; 
+  local len="${#keys[@]}";
+  local end=$((len - 1));
+  local i=0;
+  for key in "${keys[@]}"
+    do
+      # echo "(object) processing key: $key";
+      
+      # not a nested property
+      if [[ ! "$key" =~ \. ]]; then
+        eval value="\${$json_data[$key]}";
+        __json.add.key.value "$key" "$value";
+        #echo "adding key pair $i : $end";
+        if [ $i -lt $end ]; then
+          printf -- ",";
+        fi
+        : $((i++));
+      # got a nested dot-style reference
+      # group objects together
+      else
+        k=${key%%.*};
+        for nk in "${keys[@]}"
+          do
+            if [[ "$nk" =~ ^$k ]]; then
+              nk="${nk#*.}";
+              
+              # FIXME: this test drops some keys, reinstate with better logic?
+              # FIXME: if was originally intended to reduce iterations and does
+              # FIXME: not appear to affect the output by not performing the test
+              
+              # XXX: this test is probably unnecessary as it doesn't reduce the iterations
+              if ! array.contains? "$nk" "${!nested[@]}"; then
+                nested["$k"]="${nested[$k]:-} $nk";
+              fi
+            fi
+        done
+      fi
+  done
+  
+  local len="${#nested[@]}";
+  local end=$((len - 1));
+  local i=0;
+  # post-process nested data
+  if [ ${#nested[@]} -gt 0 ]; then
+    for nk in ${!nested[@]}
+      do
+        keys=( ${nested[$nk]} );
+        nestedkey="$nk";
+        
+        # sane bash compatible variable name
+        nestedkey="${nestedkey//[^_a-zA-Z0-9]/}";
+        
+        # we should we not get here as integer values
+        # should be passed to array handling, nonetheless
+        # an extra check to prevent an error on trying to
+        # set a numeric variable name
+        if [[ "$nestedkey" =~ ^[0-9]+$ ]]; then
+          nestedkey="_$nestedkey";
+        fi
+        
+        # pseudo-namespace the variable name
+        # to prevent conflicts with internal names
+        nestedkey="__json__${nestedkey}";
+        
+        # echo "using nested key: $nestedkey";
+        
+        declare -A $nestedkey;
+        for ak in ${keys[@]}
+          do
+            # FIXME: work out why some data is lingering and causing unbound variable errors
+            # FIXME: create a document stringify it then delete some elements and re-stringify
+            # FIXME: to recreate the problem
+            
+            # echo "json.stringify using : $nk : $ak";
+            
+            eval nv="\${$json_data[\"${nk}.${ak}\"]:-__json__null__}";
+            if [ "$nv" == "__json__null__" ]; then
+              continue;
+            fi
+            
+            # echo "adding key: $ak";
+            
+            eval "${nestedkey}[\"$ak\"]=\"$nv\"";
+            # unset keys["$ak"];
+        done
+        
+        # echo "got keys: ${keys[*]}";
+        # eval keys="(\${!$nestedkey[@]})";
+        # echo "keys are: ${keys[@]}";
+        
+        __json.stringify.object.start.nested "$nk";
+        
+        #echo "PROCESSING NESTED KEY ON: $nk";
+        
+        __json.stringify.object "$nestedkey" "$nk";
+        if [ $i -lt $end ]; then
+          printf -- ",";
+        fi
+        : $((i++));
+                
+        #json="${json},";
+        #printf ",";
+        
+        #echo "cleaning $nestedkey";
+        
+        # clean up the dynamic variable after recursion
+        unset $nestedkey;
+    done
+      
+    # clean up the list of nested objects
+    unset nested;   
+  fi
+  
+  # clean up the key information
+  unset keys;
+  
+  # TODO: only do this for nested properties
+  if [ $depth -gt 0 ]; then
+    unset $json_data;
+  fi
+  
+  # TODO: fix this
+  # json="${json%$newline}";
+  # json="${json%,}";
+  
+  __json.stringify.object.end;
+  : $((depth--));
 }
 
 __json.stringify.object.start.nested() {
-	local whitespace="";
-	if $pretty; then
-		__json.stringify.indent 1;
-		# echo "got nested whitespace ($nk): $_result";
-		whitespace="$_result";		
-		#if [ $depth -gt 0 ]; then
-			whitespace="${newline}${whitespace}";
-		#fi
-	fi
-	__json.stringify.quote "$nk";
-	#json="${json}${whitespace}${_result}:";
-	printf -- "${whitespace}${_result}:";
+  local whitespace="";
+  if $pretty; then
+    __json.stringify.indent 1;
+    # echo "got nested whitespace ($nk): $_result";
+    whitespace="$_result";    
+    #if [ $depth -gt 0 ]; then
+      whitespace="${newline}${whitespace}";
+    #fi
+  fi
+  __json.stringify.quote "$nk";
+  #json="${json}${whitespace}${_result}:";
+  printf -- "${whitespace}${_result}:";
 }
 
 __json.stringify.object.start() {
-	local whitespace="";
-	if $pretty; then
-		if [ $depth -gt 0 ]; then
-			whitespace="${space}";
-		fi
-	fi
-	#json="${json}${whitespace}${objstart}";	
-	printf -- "${whitespace}${objstart}";
+  local whitespace="";
+  if $pretty; then
+    if [ $depth -gt 0 ]; then
+      whitespace="${space}";
+    fi
+  fi
+  #json="${json}${whitespace}${objstart}";  
+  printf -- "${whitespace}${objstart}";
 }
 
 __json.stringify.object.end() {
-	local whitespace="";
-	if $pretty; then
-		__json.stringify.indent;
-		whitespace="$_result";
-		if [ $depth -gt 0 ]; then
-			whitespace="${newline}${whitespace}";
-		elif [ $depth -eq 0 ]; then
-			whitespace="${newline}";
-		fi
-	fi	
-	#json="${json}${whitespace}${objend}";
-	printf -- "${whitespace}${objend}";
+  local whitespace="";
+  if $pretty; then
+    __json.stringify.indent;
+    whitespace="$_result";
+    if [ $depth -gt 0 ]; then
+      whitespace="${newline}${whitespace}";
+    elif [ $depth -eq 0 ]; then
+      whitespace="${newline}";
+    fi
+  fi  
+  #json="${json}${whitespace}${objend}";
+  printf -- "${whitespace}${objend}";
 }
 
 # add an array value
 __json.add.value() {
-	local whitespace="";
-	if $pretty; then
-		# get indent at this level
-		__json.stringify.indent 1;
-		# newline preceeding any value
-		whitespace="${newline}${_result}";
-	fi
-	# encode the value
-	__json.stringify.value "$value";	
-	# json="${json}${whitespace}${_result},";
-	printf -- "${whitespace}${_result}";
+  local whitespace="";
+  if $pretty; then
+    # get indent at this level
+    __json.stringify.indent 1;
+    # newline preceeding any value
+    whitespace="${newline}${_result}";
+  fi
+  # encode the value
+  __json.stringify.value "$value";  
+  # json="${json}${whitespace}${_result},";
+  printf -- "${whitespace}${_result}";
 }
 
 # add an object key/value pair
 __json.add.key.value() {
-	local whitespace="";
-	if $pretty; then
-		whitespace="${newline}";
-		# get indent at this level
-		__json.stringify.indent 1;
-		# newline preceeding any value
-		whitespace="${newline}${_result}";		
-	fi	
-	
-	# quote the key
-	__json.stringify.quote "$1";
-	# json="${json}${whitespace}${_result}:";
-	printf -- "${whitespace}${_result}:";
-	
-	# space between colon and value
-	if $pretty; then
-		#json="${json}${space}";
-		printf -- "${space}";
-	fi
-	
-	# encode the value
-	__json.stringify.value "$2";
-	#json="${json}${_result},";
-	#printf -- "${_result}";
-	
-	echo -ne "${_result}";
+  local whitespace="";
+  if $pretty; then
+    whitespace="${newline}";
+    # get indent at this level
+    __json.stringify.indent 1;
+    # newline preceeding any value
+    whitespace="${newline}${_result}";    
+  fi  
+  
+  # quote the key
+  __json.stringify.quote "$1";
+  # json="${json}${whitespace}${_result}:";
+  printf -- "${whitespace}${_result}:";
+  
+  # space between colon and value
+  if $pretty; then
+    #json="${json}${space}";
+    printf -- "${space}";
+  fi
+  
+  # encode the value
+  __json.stringify.value "$2";
+  #json="${json}${_result},";
+  #printf -- "${_result}";
+  
+  echo -ne "${_result}";
 }
 
 __json.stringify.quote() {
-	local val="${1:-}";
-	# escape quotes in the value being quoted
-	val="${val//\"/\\\"}";
-	# quoted string
-	_result="\"$val\"";
+  local val="${1:-}";
+  # escape quotes in the value being quoted
+  val="${val//\"/\\\"}";
+  # quoted string
+  _result="\"$val\"";
 }
 
 __json.stringify.value() {
-	_result="";
-	# unquoted value for null, true, false and numbers
-	if [ "$1" == "null" ] || [ "$1" == true ] || [ "$1" == false ] || [[ "$1" =~ $json_number_regexp ]]; then
-		_result="$1";
-	else
-		
-		# escape special regex characters using grep !?
-		# grep -v -F "$data_line" "$data_dir"
-		
-		local jsonval="$1";
-		
-		# echo "jsonval: '''$jsonval'''";
-		# 
-		# if [[ "$jsonval" =~ \\n ]]; then
-		# 	echo "value has escaped newline!!: $jsonval";
-		# else
-		# 	jsonval=${jsonval//$newline/'\''\n'};			
-		# fi
-		
-		#if [[ "$jsonval" =~ $newline ]] ; then
-			#jsonval=${jsonval//'\n'/'$newline};	
+  _result="";
+  # unquoted value for null, true, false and numbers
+  if [ "$1" == "null" ] || [ "$1" == true ] || [ "$1" == false ] || [[ "$1" =~ $json_number_regexp ]]; then
+    _result="$1";
+  else
+    
+    # escape special regex characters using grep !?
+    # grep -v -F "$data_line" "$data_dir"
+    
+    local jsonval="$1";
+    
+    # echo "jsonval: '''$jsonval'''";
+    # 
+    # if [[ "$jsonval" =~ \\n ]]; then
+    #   echo "value has escaped newline!!: $jsonval";
+    # else
+    #   jsonval=${jsonval//$newline/'\''\n'};     
+    # fi
+    
+    #if [[ "$jsonval" =~ $newline ]] ; then
+      #jsonval=${jsonval//'\n'/'$newline};  
 
-			#echo "value contains newline: $jsonval";
-		#fi
-		
-		jsonval=${jsonval//$newline/'\n'};
-		
-		__json.stringify.quote "$jsonval";
-	fi
+      #echo "value contains newline: $jsonval";
+    #fi
+    
+    jsonval=${jsonval//$newline/'\n'};
+    
+    __json.stringify.quote "$jsonval";
+  fi
 }
