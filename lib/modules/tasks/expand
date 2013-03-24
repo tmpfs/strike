@@ -58,6 +58,7 @@ tabstops() {
     console quit 1 -- "aborted";
   }
 
+  # TODO: add exit trap to ensure temp file is removed
   accepted() {
     local temp=$( mktemp -t "${process_name}" );
     $verbose && console info -- "temp file is %s" "${temp}";
