@@ -14,52 +14,51 @@ require.once 'assert';
 # part of a task-test(7) test suite
 assert.parse "$@";
 
-function paths {
-	
-	local parent="`dirname ${BASH_SOURCE[0]}`";
-	parent="`dirname "$parent"`";
-	declare -A messages;
-	messages["./bake"]="relative binary path ok";
-	messages["${PWD}/bake"]="absolute symlink path ok";
-	messages["${PWD}/bin/bake"]="absolute binary path ok";
-	messages["../bin/bake"]="parent binary path ok";
-	messages["../bake"]="parent symlink path ok";
-	declare -a paths;
-	paths+=( "./bake" );
-	paths+=( "${PWD}/bake" );
-	paths+=( "${PWD}/bin/bake" );
+paths() {
+  
+  local parent="`dirname ${BASH_SOURCE[0]}`";
+  parent="`dirname "$parent"`";
+  declare -A messages;
+  messages["./bake"]="relative binary path ok";
+  messages["${PWD}/bake"]="absolute symlink path ok";
+  messages["${PWD}/bin/bake"]="absolute binary path ok";
+  messages["../bin/bake"]="parent binary path ok";
+  messages["../bake"]="parent symlink path ok";
+  declare -a paths;
+  paths+=( "./bake" );
+  paths+=( "${PWD}/bake" );
+  paths+=( "${PWD}/bin/bake" );
 
-	local changed=false;
-	
-	#  && console info "$msg (%s)" "$path"
-	
-	# relative should come last
-	paths+=( "../bin/bake" );
-	paths+=( "../bake" );
-	
-	for path in ${paths[@]}
-		do
-			msg="${messages["$path"]}";
-			# run the relative reference correctly
-			if ! $changed && [[ "$path" =~ ^\.\./ ]]; then
-				cd "${library_dirs[root]}/test";
-				changed=true;
-			fi
-			if [ ! -x "$path" ]; then
-				console warn "%s is not executable" "$path";
-				exit 1;
-			fi
-			"$path" ls && console info "$msg (%s)" "$path";
-			if [ $? -ne 0 ]; then
-				console quit 1 "path test failed for %s" "$path";
-			fi
-	done
-	
-	# revert working directory
-	cd "${process_dirs[owd]}";
-	
-	assert.summary;
+  local changed=false;
+  
+  #  && console info "$msg (%s)" "$path"
+  
+  # relative should come last
+  paths+=( "../bin/bake" );
+  paths+=( "../bake" );
+  
+  for path in ${paths[@]}
+    do
+      msg="${messages["$path"]}";
+      # run the relative reference correctly
+      if ! $changed && [[ "$path" =~ ^\.\./ ]]; then
+        cd "${library_dirs[root]}/test";
+        changed=true;
+      fi
+      if [ ! -x "$path" ]; then
+        console warn "%s is not executable" "$path";
+        exit 1;
+      fi
+      "$path" ls && console info "$msg (%s)" "$path";
+      if [ $? -ne 0 ]; then
+        console quit 1 "path test failed for %s" "$path";
+      fi
+  done
+  
+  # revert working directory
+  cd "${process_dirs[owd]}";
+  
+  assert.summary;
 }
 
 paths;
-exit 0;
