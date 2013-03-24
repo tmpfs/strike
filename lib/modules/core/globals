@@ -10,6 +10,21 @@ declare -Agx process_dirs;
 
 declare -Agx executables;
 
+declare -lg platform=$( uname );
+
+declare -gx linux_platform="linux";
+declare -gx darwin_platform="darwin";
+
+declare -Agx platforms;
+platforms[linux]=false;
+platforms[darwin]=false;
+
+[[ "$platform" == "$linux_platform" ]] \
+  && platforms[linux]=true;
+
+[[ "$platform" == "$darwin_platform" ]] \
+  && platforms[darwin]=true;
+
 declare -Agx console_prefixes;
 console_prefixes['info']="info";
 console_prefixes['error']="error";
@@ -43,10 +58,10 @@ declare -g header_character="${strike_header_character:-+}";
 declare -g header_repeat="${strike_header_repeat:-auto}";
 
 if [ -n "${header_repeat:-}" ] \
-  || [ "${header_repeat}" == "auto" ]; then
-  COLUMNS=$( tput cols || printf 80 );
-  LINES=$( tput lines || printf 24 );
-  header_repeat="${COLUMNS:-80}";
+	|| [ "${header_repeat}" == "auto" ]; then
+	COLUMNS=$( tput cols || printf 80 );
+	LINES=$( tput lines || printf 24 );
+	header_repeat="${COLUMNS:-80}";
 fi
 
 # generic suffic for prompts

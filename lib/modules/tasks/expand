@@ -48,6 +48,9 @@ tabstops() {
     console quit 1 -- "no files found";
   fi
   execute+=" -t ${tabstops}";
+  if $platforms[linux]; then
+    execute+=" -i";
+  fi
   console info "tab stops %s" "${tabstops}";
   
   local IFS=$'\n';
