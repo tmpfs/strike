@@ -52,3 +52,13 @@ tasks.jsoncc() {
     -o "target/$exename" \
 		|| console quit 1 -- "could not compile json-checker source";
 }
+
+taskinfo boilerplate "Install the boilerplate.sh file";
+tasks.boilerplate() {
+  local name="boilerplate.sh";
+  local source="lib/${name}";
+  local destination=~/.strike;
+  mkdir -p "${destination}" \
+    && cp -f "${source}" "${destination}" \
+    && console success "%s" "${destination}/${name}";
+}
