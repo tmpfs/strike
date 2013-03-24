@@ -5,6 +5,8 @@ require 'tasks/module';
 
 require 'tasks/deploy';
 
+require tasks/expand;
+
 # tasks we want to use/test
 require 'tasks/archive';
 require 'tasks/todo';
