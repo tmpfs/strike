@@ -1,12 +1,14 @@
 AC_INIT([strike], [0.1.39], [bugs@xpm.io])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
-AC_CONFIG_FILES([Makefile])
+AM_INIT_AUTOMAKE([1.10 foreign])
 AC_PROG_AWK
 AC_PROG_EGREP
-#AC_PROG_CXX
+AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
+
+#bin_PROGRAMS = bin/bake
+#man1_MANS = man/bake.1
 
 #EXTRA_DIST = lib LICENSE README.md
 
@@ -34,6 +36,7 @@ fi
 
 AC_CONFIG_FILES([
   strike.pc
+  Makefile
 ])
 
 AC_OUTPUT

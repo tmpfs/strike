@@ -1,10 +1,14 @@
 AUTOMAKE_OPTIONS = foreign
 # SUBDIRS = lib
-# bin_PROGRAMS = bake
 # SUBDIRS = bin man lib test
 
 # dist_data_DATA = lib man test
+#
 
+#bin_PROGRAMS = bin/bake
+man1_MANS = man/*.1
+man3_MANS = man/*.3
+man7_MANS = man/*.7
 # all:
 # 	@echo "my all called : foo is $(foo)";
 	
