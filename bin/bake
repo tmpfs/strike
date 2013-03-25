@@ -49,12 +49,6 @@ version.parse "$@";
 require 'tasks/ls';
 require 'tasks/clean';
 
-# TODO: remove these from being built in commands
-#require 'tasks/test';
-#require 'tasks/doc';
-#require 'tasks/semver';
-#require 'tasks/module';
-
 bake() {
   local verbose=false;
 	local namespace="tasks";
