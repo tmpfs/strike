@@ -64,9 +64,14 @@ tasks.jsoncc() {
 taskinfo boilerplate "Install the boilerplate.sh file";
 tasks.boilerplate() {
   local name="boilerplate.sh";
-  local source="lib/${name}";
-  local destination=~/.strike;
-  mkdir -p "${destination}" \
-    && cp -f "${source}" "${destination}" \
-    && console success "%s" "${destination}/${name}";
+  local source="bin/${name}";
+  local boilerplate=$( command -v "${name}" );
+  if [ -n "${boilerplate}" ]; then
+    console info -- "location is %s" "${boilerplate}";
+    local cpopts="-f";
+    $verbose && cpopts+="v";
+    cp $cpopts "${source}" "${boilerplate}" \
+      || console quit 1 -- "could not install %s" "${source}";
+    console success "installed %s" "${boilerplate}";
+  fi
 }
