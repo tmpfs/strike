@@ -34,16 +34,9 @@ all:
 install-exec-local:
 	@:
 
-#
-	
-# install-data-local:
-# install bin/bake $(bindir);
-# install -d lib/** $(libdir);
-#	@echo "install-data-local ... $(prefix) : foo is $(foo)";
-	
-# clean-local:
-#	@echo "clean-local ... ";
-	
+check-local:
+	./bin/bake test
+
 test:
 	./bake test
 	

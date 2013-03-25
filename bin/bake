@@ -1,9 +1,22 @@
 #!/usr/bin/env bash
 
-boilerplate=$( command -v boilerplate.sh ) \
-  && . "$boilerplate" && unset boilerplate \
-  || { echo "fatal: could not locate boilerplate.sh" && exit 1; }
-boilerplate "$@";
+# NOTE: this boilerplate logic is slightly
+# NOTE: different to the standard as bake(1)
+# NOTE: need to be run during the make check
+# NOTE: installation rule. the logic below
+# NOTE: allows bake(1) to run without boilerplate.sh
+# NOTE: having previously been installed
+boilerplate() {
+  local dir=$( readlink "${BASH_SOURCE[0]}" );
+  dir=$( dirname -- "${dir}" );
+  dir=$( cd "${dir}" && pwd );
+  export PATH="${dir}:${PATH}";
+  boilerplate=$( command -v boilerplate.sh ) \
+    && . "$boilerplate" && unset boilerplate \
+    || { echo "fatal: could not locate boilerplate.sh" && exit 1; }
+  boilerplate "$@";
+}
+boilerplate $@;
 
 # switch on strict mode
 process.use strict;
