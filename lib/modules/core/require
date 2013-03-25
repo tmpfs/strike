@@ -223,24 +223,29 @@ function __require_source {
 	# this allows grouping or complex modules
 	# into a directory
 	if [ -d "$abs" ]; then
-		if [ -f "${abs}/${name}" ]; then			
+		if [ -f "${abs}/${name}" ] || [ -f "${abs}/${names}.sh" ]; then			
 			abs="${abs}/${name}";
 		else
 			console quit 1 "module %s is a directory" "$abs";
 		fi
 	fi
+
 	
 	# only require if path does not match an already loaded module
 	# or if the module is being loaded forcefully
 	if ! require.path.exists? "$abs" || $force; then
+    [[ -f "${abs}.sh" ]] && abs="${abs}.sh";
+    #echo "load abs: $abs";
 		if [ -f "$abs" ] && [ -r "$abs" ]; then
-			. "$abs";
-		else
-			console quit 1 "module %s is not a file or unreadable" "$abs";
+        #echo "loading abs: $abs";
+			. "$abs" || return 1;
+    else
+      console quit 1 -- "module %s is not a file or unreadable" "$abs";
 		fi
 	else
-		console warn "skipping require on loaded module %s" "$abs";
+		console warn -- "skipping require on loaded module %s" "$abs";
 	fi
+  return 0;
 }
 
 # find the caller source directory
@@ -270,7 +275,7 @@ function __require_load {
 	#echo "got load abs path: $abspath";
 	
 	local abs;
-	local loaded=0;
+	local loaded=1;
 	local declared;	
 	if [ ! -z "$name" ]; then
 		
@@ -284,15 +289,17 @@ function __require_load {
 			fs.path.expand "$sourcefile";
 			abs="$_result";
 			name=`basename $abs`;
+      [[ -f "${abs}.sh" ]] && abs="${abs}.sh";
 			__require_source "$abs";
-			loaded=1;
+			loaded=$?;
 			#echo "load relative require $name : $abs";
 		# got an absolute path try to load from absolute path			
 		elif [[ "$name" =~ ^/ ]]; then
 			abs="$name";
 			name=`basename $abs`;
+      [[ -f "${abs}.sh" ]] && abs="${abs}.sh";
 			__require_source "$abs";
-			loaded=1;
+			loaded=$?;
 		# searching by name
 		else
 			__require_dirs;
@@ -301,16 +308,17 @@ function __require_load {
 				do
 					#fs.path.expand "$f" > /dev/null;
 					#f="$_result";
-					abs="${f}/${name}";					
+					abs="${f}/${name}";
+          [[ -f "${f}/${name}.sh" ]] && abs="${f}/${name}.sh";
 					if [ -r "$abs" ]; then
 						__require_source "$abs";
-						loaded=1;
+						loaded=$?;
 						break;
 					fi
 			done
 		fi
 		
-		if [ $loaded -eq 0 ]; then
+		if [ $loaded -eq 1 ]; then
 			console quit 1 "failed to load module %s" "$name";
 		fi
 		

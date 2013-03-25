@@ -7,7 +7,7 @@
 . ~/.strike/boilerplate.sh;
 boilerplate "$@";
 
-require.once 'assert';
+require.once assert;
 
 # let assert(3) know if this test
 # is being run standalone or as
@@ -46,12 +46,12 @@ paths() {
         changed=true;
       fi
       if [ ! -x "$path" ]; then
-        console warn "%s is not executable" "$path";
+        console warn -- "%s is not executable" "$path";
         exit 1;
       fi
       "$path" ls && console info "$msg (%s)" "$path";
       if [ $? -ne 0 ]; then
-        console quit 1 "path test failed for %s" "$path";
+        console quit 1 -- "path test failed for %s" "$path";
       fi
   done
   
