@@ -4,10 +4,9 @@ EXTRA_DIST = bin lib doc test
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = strike.pc
 
-man1_MANS = man/*.1
-man3_MANS = man/*.3
-man7_MANS = man/*.7
-
+man1_MANS = doc/man/*.1
+man3_MANS = doc/man/*.3
+man7_MANS = doc/man/*.7
 
 maindir = $(prefix)/strike
 nobase_main_DATA = \
@@ -16,6 +15,7 @@ mainbindir = $(maindir)/bin
 mainbin_SCRIPTS = bin/*
 librarydir = $(maindir)
 nobase_library_DATA = \
+	doc/man/* \
 	lib/*.sh \
 	lib/modules/core/*.sh \
 	lib/modules/json/*.sh \
