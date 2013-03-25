@@ -1,4 +1,4 @@
-require.once help;
+require.once opts/help;
 help.man.page "rake" "task-rake.7";
 
 # wrapper for the rake executable

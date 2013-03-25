@@ -95,11 +95,6 @@ string.contains?() {
   return 1;
 }
 
-string.upper() {
-  local str="${1:-}";
-  _result="${str^^}";
-}
-
 string.repeat() {
   local repeated="";
   local str="${1:-}";

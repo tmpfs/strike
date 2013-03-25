@@ -1,4 +1,4 @@
-require.once help;
+require.once opts/help;
 help.man.page "project" "task-project.7";
 
 require.once 'json';

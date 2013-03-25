@@ -156,8 +156,8 @@ function test.json.stringify.number.match {
   for num in ${valid[@]}
     do
       if [[ "$num" =~ [a-z]+ ]]; then
-        string.upper "$num";
-        valid+=( "$_result" );
+        num="${num^^}";
+        valid+=( "$num" );
       fi
   done
   

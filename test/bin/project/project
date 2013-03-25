@@ -28,12 +28,14 @@ test.project() {
   # ensure we have a tmp `target` directory when
   # run standalone
   if [ ! -d "${target}" ]; then
-    mkdir -p "${target}" || quit 1 "could not create target directory %s" "${target}";
+    mkdir -p "${target}" \
+      || console quit 1 -- "could not create target directory %s" "${target}";
   fi
   # potentially hanging around from a previous failure
   # clean up to give us the best chance of success
   if [ -f "${projectfile}" ]; then
-    rm "${projectfile}" || quit 1 "could not remove %s" "${projectfile}";
+    rm "${projectfile}" \
+      || console quit 1 -- "could not remove %s" "${projectfile}";
   fi
   declare -A json_expected;
   json_expected[init]=$( < "${process_dirs[root]}/init.json" );

@@ -1,11 +1,11 @@
-require.once 'json';
-require.once 'git';
-require.once 'util/checksum';
+require.once json;
+require.once git;
+require.once util/checksum;
 
 # module libraries
-require.library 'deploy.script';
-require.library 'deploy.makefile';
-require.library 'deploy.bundle';
+require.library deploy.script;
+require.library deploy.makefile;
+require.library deploy.bundle;
 
 # list of property names that are first set
 # from the top-level of a document and then

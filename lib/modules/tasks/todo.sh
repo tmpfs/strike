@@ -1,5 +1,5 @@
 # map help for this task
-require.once help;
+require.once opts/help;
 help.man.page "todo" "task-todo.7";
 
 # BUG : this is a test bug, no problem really

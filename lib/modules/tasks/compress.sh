@@ -4,7 +4,7 @@
 require.once 'util/find';
 
 # map help for this task
-require.once help;
+require.once opts/help;
 help.man.page "compress" "task-compress.7";
 
 tasks.compress.initialize() {

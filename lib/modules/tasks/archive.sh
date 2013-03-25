@@ -9,7 +9,7 @@
 # NOTE: tar --list -f ./lipsum.archive.test.tar
 
 # map help for this task
-require.once help;
+require.once opts/help;
 help.man.page "archive" "task-archive.7";
 
 taskinfo archive "Archive helper task"
