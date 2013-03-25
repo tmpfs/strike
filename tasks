@@ -37,6 +37,13 @@ tdd.suite.exclude! "profile.sh";
 tdd.suite.exclude! "global.sh";
 tdd.suite.exclude! "custom-install.sh";
 
+taskinfo "Create a distribution tarball";
+tasks.dist() {
+  executable.validate autoreconf;
+	autoreconf -fi;
+  make dist;
+}
+
 taskinfo auto "Run autoreconf, configure, make, make check and make install in the context of the target directory";
 tasks.auto() {
   executable.validate autoreconf;

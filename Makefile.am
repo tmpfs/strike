@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = bin lib doc test
+EXTRA_DIST = bin doc lib LICENSE README.md test version
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = strike.pc

@@ -1,5 +1,5 @@
-require.once 'semver';
-require.once 'json';
+require.once semver;
+require.once json;
 
 taskinfo semver "Semantic versioning support";
 tasks.semver() {
@@ -11,6 +11,8 @@ tasks.semver() {
   files[version]="$_result";  
   __semver.file;
   files[semver]="$_result";
+  __semver.configureac.file;
+  files[configureac]="$_result";
   
   # store of semver strings
   declare -A versions;
@@ -479,7 +481,46 @@ function __semver.write! {
   __semver.file.write! "$semver";
   versions[semver]="$semver";
   
+  if [ -f "${files[configureac]}" ]; then
+    __semver.configure.write! "$semver";
+  fi
+
   __semver.print;
+}
+
+# write a semver to *configure.ad*
+function __semver.configure.write! {
+  local version="${1:-}";
+  local regexp="(\"version\"[   ]*:[  ]*\")[^\"]+(\")";
+  local replace="\1$version\2";
+
+  # AC_INIT([strike], [0.1.39], [bugs@xpm.io])
+
+  echo "$regexp";
+  return 0;
+  
+  # 0.1.1
+  
+  executable.validate --test sed;
+  
+  # TODO: validate sed executable has -E flag
+  # TODO: fallback to json parsing if sed -E is unavailable 
+  
+  if [ -n "${executables[sed]}" ]; then
+    # do this with `sed` for the moment
+    # as parsing the json and re-writing will
+    # change formatting (key order, whitespace etc.)
+    # which we want to avoid
+    # it's quite possible that the -E flag will break on
+    # other platforms
+    { ${executables[sed]} -E -i.bak "s/$regexp/$replace/" "${files[configureac]}" \
+      && mv "configure.ac.bak" "${target}"; } \
+      || __semver.file.write.quit "${files[configureac]}";
+    return $?;
+  fi
+  
+  # assume failure
+  return 1;
 }
 
 # write a semver to `package.json`
@@ -550,6 +591,10 @@ function __semver.file.write! {
 }
 
 # FILE PATH METHODS
+
+function __semver.configureac.file {
+  _result="${root}/configure.ac";
+}
 
 # path to the package descriptor
 function __semver.package.file {
