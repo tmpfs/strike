@@ -8,11 +8,6 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 PKG_PROG_PKG_CONFIG
-#bin_PROGRAMS = bin/bake
-#man1_MANS = man/bake.1
-
-#EXTRA_DIST = lib LICENSE README.md
-
 
 # check for curl
 AC_PATH_PROG(BASH_CHECK,bash,yes)

@@ -8,15 +8,28 @@ man1_MANS = man/*.1
 man3_MANS = man/*.3
 man7_MANS = man/*.7
 
-bin_SCRIPTS = bin/*
-librarydir = $(pkgdatadir)
+
+maindir = $(prefix)/strike
+nobase_main_DATA = \
+	version
+mainbindir = $(maindir)/bin
+mainbin_SCRIPTS = bin/*
+librarydir = $(maindir)
 nobase_library_DATA = \
 	lib/*.sh \
-	lib/modules/core/* \
-	lib/modules/json/*
+	lib/modules/core/*.sh \
+	lib/modules/json/*.sh \
+	lib/modules/net/*.sh \
+	lib/modules/opts/*.sh \
+	lib/modules/tasks/*.sh \
+	lib/modules/tasks/deploy/*.sh \
+	lib/modules/tasks/ext/*.sh \
+	lib/modules/tasks/ext/build/*.sh \
+	lib/modules/util/*.sh \
+	lib/modules/*.sh
 
 # all:
-# 	@echo "my all called : foo is $(foo)";
+# 	@echo "install $(PACKAGE_NAME) $(PACKAGE_VERSION) to $(prefix)";
 	
 # install-exec-local:
 #	@echo "install-exec-local ... $(prefix) : $(PACKAGE_NAME) $(PACKAGE_VERSION)";
