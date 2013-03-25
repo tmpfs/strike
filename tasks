@@ -37,7 +37,7 @@ tdd.suite.exclude! "profile.sh";
 tdd.suite.exclude! "global.sh";
 tdd.suite.exclude! "custom-install.sh";
 
-taskinfo auto "Run autoreconf";
+taskinfo auto "Run autoreconf, configure, make and make install in the context of the target directory";
 tasks.auto() {
 	autoreconf -fi;
 	#./configure && make;
