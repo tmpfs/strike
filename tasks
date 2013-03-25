@@ -1,30 +1,30 @@
-require 'tasks/test';
-require 'tasks/doc';
-require 'tasks/semver';
-require 'tasks/module';
+require tasks/test;
+require tasks/doc;
+require tasks/semver;
+require tasks/module;
 
-require 'tasks/deploy';
+require tasks/deploy;
 
 require tasks/expand;
 
 # tasks we want to use/test
-require 'tasks/archive';
-require 'tasks/todo';
-require 'tasks/compress';
-require 'tasks/latex';
+require tasks/archive;
+require tasks/todo;
+require tasks/compress;
+require tasks/latex;
 # task-devel(7) depends upon
 # task-project(7) so it is
 # automatically available
-require 'tasks/devel';
+require tasks/devel;
 
 # external build tool wrappers
 # used for testing purposes
-require 'tasks/ext/build/make';
-require 'tasks/ext/build/rake';
-require 'tasks/ext/build/ant';
-require 'tasks/ext/build/mvn';
+require tasks/ext/build/make;
+require tasks/ext/build/rake;
+require tasks/ext/build/ant;
+require tasks/ext/build/mvn;
 
-require 'tasks/ext/npm';
+require tasks/ext/npm;
 
 # exclude these tasks from the default test runner
 # this test is used to force failure
@@ -64,6 +64,8 @@ tasks.jsoncc() {
 
 taskinfo boilerplate "Install the boilerplate.sh file";
 tasks.boilerplate() {
+  # remove the path added be bake(1)
+  export PATH=${PATH#*:};
   local name="boilerplate.sh";
   local source="bin/${name}";
   local boilerplate=$( command -v "${name}" );
@@ -74,5 +76,8 @@ tasks.boilerplate() {
     cp $cpopts "${source}" "${boilerplate}" \
       || console quit 1 -- "could not install %s" "${source}";
     console success "installed %s" "${boilerplate}";
+  else
+    console info "%s is not installed" "${name}";
+    # TODO: show a select to choose the path to copy to
   fi
 }
