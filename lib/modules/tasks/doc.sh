@@ -67,16 +67,16 @@ doc.man.commands.generate() {
 
 # removes man pages exported to ${root}/man
 doc.man.commands.clean() {
-  local man="${root}/man";
+  local man="${root}/doc/man";
   rm -fv "${man}"/*;
 }
 
 # imports the compiled man page(s) into ${root}/man
 doc.man.commands.import() {
-  local man="${root}/man";
+  local man="${root}/doc/man";
   local mantmp="${target}/doc";
   if [ ! -d "$man" ]; then
-    mkdirp "$man";
+    mkdir -p "$man";
   fi
   doc.man.commands.clean;
   # copy over man pages

@@ -53,7 +53,7 @@ initialize() {
 	process_dirs[root]="${dir_root}";
 	process_dirs[lib]="${dir_root}/lib";
 	process_dirs[doc]="${dir_root}/doc";
-	process_dirs[man]="${dir_root}/man";
+	process_dirs[man]="${process_dirs[doc]}/man";
 	process_dirs[modules]="${dir_root}/lib/modules";
 	process_dirs[test]="${dir_root}/test";
 	process_dirs[target]="${dir_root}/target";
@@ -72,7 +72,7 @@ initialize() {
 	library_dirs[bin]="${dir_root}/bin";
 	library_dirs[lib]="$dir";
 	library_dirs[doc]="${dir_root}/doc";
-	library_dirs[man]="${dir_root}/man";
+	library_dirs[man]="${library_dirs[doc]}/man";
 	library_dirs[modules]="${dir}/modules";
 	library_dirs[test]="${dir_root}/test";
 	library_dirs[target]="${dir_root}/target";
