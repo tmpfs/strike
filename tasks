@@ -37,18 +37,38 @@ tdd.suite.exclude! "profile.sh";
 tdd.suite.exclude! "global.sh";
 tdd.suite.exclude! "custom-install.sh";
 
-taskinfo "Create a distribution tarball";
+taskinfo "Run autoreconf and create a distribution tarball. Use the install sub-command to test installation in the target directory.";
 tasks.dist() {
+  local name="${framework}";
+  local fullname="${name}-${project_version}";
+  local tarball="${fullname}.tar.gz";
+  local archive="${target}/${tarball}";
   executable.validate autoreconf;
 	autoreconf -fi;
-  make dist;
+  if [ -f "${archive}" ]; then
+    rm "${archive}";
+  fi
+  make dist \
+    && mv "${tarball}" "${target}" \
+    || console quit 1 -- "failed to create %s" "${tarball}";
+  if [ $# -gt 0 ]; then
+    local cmd="${1:-}"; shift;
+    local commands_namespace="dist.commands";
+    if ! method.exists? "${commands_namespace}.${cmd}"; then
+      console quit 1 -- "unknown dist sub-command %s" "${cmd}";
+    fi
+    delegate "${commands_namespace}" "${cmd}" $@;
+  fi
 }
 
-taskinfo auto "Run autoreconf, configure, make, make check and make install in the context of the target directory";
-tasks.auto() {
-  executable.validate autoreconf;
-	autoreconf -fi;
-	#./configure && make;
+dist.commands.install() {
+  cd "${target}" \
+    && tar -xvf "${tarball}" \
+    && cd "${fullname}" \
+    || console quit 1 -- "failed to extract %s and change to %s" \
+    "${archive}" "${target}/${fullname}";
+  console info -- "pwd %s" "$( pwd )";
+  pwd && exit 0;
   local prefix="${target}/install";
   if [ -d "${prefix}" ]; then
     local opts="-rf";
@@ -56,8 +76,9 @@ tasks.auto() {
     rm $opts "${prefix}";
   fi
   mkdir -p "${prefix}";
+  console info -- "./configure %s" "--prefix=${prefix}";
 	./configure --prefix="${prefix}";
-  make && make check && make install;
+  make && make install;
 }
 
 taskinfo jsoncc "Compile json checker source";
