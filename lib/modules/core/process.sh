@@ -391,9 +391,7 @@ function process.on {
   local signal;
   while [ $# -gt 0 ];
     do
-      signal="$1";
-      string.lower "$signal";
-      signal="$_result";
+      signal="${1,,}";
       trap "__process.trap $? $signal" $signal;
       shift;
   done
@@ -404,9 +402,7 @@ function process.off {
   local signal;
   while [ $# -gt 0 ];
     do
-      signal="$1";
-      string.lower "$signal";
-      signal="$_result";    
+      signal="${1,,}";
       trap - $signal;
       shift;
   done

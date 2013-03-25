@@ -100,11 +100,6 @@ string.upper() {
   _result="${str^^}";
 }
 
-string.lower() {
-  local str="${1:-}";
-  _result="${str,,}";
-}
-
 string.repeat() {
   local repeated="";
   local str="${1:-}";
