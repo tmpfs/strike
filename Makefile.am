@@ -28,11 +28,12 @@ nobase_library_DATA = \
 	lib/modules/util/*.sh \
 	lib/modules/*.sh
 
-# all:
-# 	@echo "install $(PACKAGE_NAME) $(PACKAGE_VERSION) to $(prefix)";
+all:
+	@echo "install $(PACKAGE_NAME)@$(PACKAGE_VERSION) to $(prefix)";
 	
-# install-exec-local:
-#	@echo "install-exec-local ... $(prefix) : $(PACKAGE_NAME) $(PACKAGE_VERSION)";
+install-exec-local:
+	@:
+
 #
 	
 # install-data-local:
