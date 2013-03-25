@@ -9,7 +9,7 @@ boilerplate "$@";
 process.use strict;
 
 # configure help
-require 'help';
+require opts/help;
 help.man.page "default" "console.1";
 help.man.page "console" "console.3";
 help.man.page "sprintf" "sprintf.3";

@@ -5,14 +5,6 @@ declare -Agx __help_manpages;
 declare -agx __help_manpath;
 __help_manpath=();
 
-# validates required executables and
-# sets up the default man search paths
-help.initialize() {
-  executable.validate man;
-  # set up default man paths
-  help.man.path "${process_dirs[man]}";
-}
-
 # add a help man path search directory
 help.man.path() {
   __help_manpath+=( "$1" );
@@ -27,6 +19,7 @@ help.man.page() {
 
 # show a man page
 help.man.show() {
+  executable.validate man;
   local man="${executables[man]}";  
   local page="${1:-}";
   local default="${2:-false}";
@@ -116,3 +109,5 @@ help.parse() {
     ;;
   esac
 }
+
+help.man.path "${process_dirs[man]}";

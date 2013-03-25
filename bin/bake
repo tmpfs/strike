@@ -8,7 +8,7 @@ boilerplate "$@";
 # switch on strict mode
 process.use strict;
 
-require help;
+require opts/help;
 
 declare -Ag task_info;
 taskinfo(){
@@ -42,12 +42,12 @@ if [ $# -eq 0 ]; then
 	exit 0;
 fi
 
-require 'opts/version';
+require opts/version;
 version.parse "$@";
 
 # default builtin tasks
-require 'tasks/ls';
-require 'tasks/clean';
+require tasks/ls;
+require tasks/clean;
 
 bake() {
   local verbose=false;
