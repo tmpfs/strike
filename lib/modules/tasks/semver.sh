@@ -491,13 +491,13 @@ function __semver.write! {
 # write a semver to *configure.ad*
 function __semver.configure.write! {
   local version="${1:-}";
-  local regexp="(\"version\"[   ]*:[  ]*\")[^\"]+(\")";
+  local regexp="(AC_INIT\(\[[a-zA-Z0-9]+\],[   ]*\[)[^\]]+(\].*)";
   local replace="\1$version\2";
 
   # AC_INIT([strike], [0.1.39], [bugs@xpm.io])
 
   echo "$regexp";
-  return 0;
+  #return 0;
   
   # 0.1.1
   
