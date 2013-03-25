@@ -22,16 +22,16 @@ initialize() {
 	dir=$( cd "$dir" && echo "$PWD" );
 	local core="${dir}/modules/core";
 	# global variable declarations
-	. "${core}/globals";
+	. "${core}/globals.sh";
 	# we need these modules before we include require(3)
-	. "${core}/variable";
-	. "${core}/string";
-	. "${core}/method";
-	. "${core}/sprintf";
-	. "${core}/console";
-	. "${core}/array";
-	. "${core}/fs";
-	. "${core}/prompt";
+	. "${core}/variable.sh";
+	. "${core}/string.sh";
+	. "${core}/method.sh";
+	. "${core}/sprintf.sh";
+	. "${core}/console.sh";
+	. "${core}/array.sh";
+	. "${core}/fs.sh";
+	. "${core}/prompt.sh";
 	# set up program header
 	string.repeat "${header_character}" \
 		"${header_repeat}" "header";
@@ -81,12 +81,12 @@ initialize() {
 	library_dirs[semver]="${dir_root}/semver.json";
 
 	# main module loader and require(3) definition
-	. "${core}/require";
+	. "${core}/require.sh";
 
   # TODO: register these modules 
-	. "${core}/delegate";
-	. "${core}/executable";
-	. "${core}/process";
+	. "${core}/delegate.sh";
+	. "${core}/executable.sh";
+	. "${core}/process.sh";
 
 	# manually register these modules
 	__require_register "variable" "${core}/variable";
