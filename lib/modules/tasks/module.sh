@@ -14,19 +14,19 @@ tasks.module() {
   fi
   local cmd="${1:-}";
   shift;
-  if ! method.exists? ":tasks.module.${cmd}"; then
+  if ! method.exists? "module.${cmd}"; then
     console quit 1 "invalid %s command %s" "module" "${cmd}";
   fi
   # always attempt to find submodules
-  :module.find;
-  delegate ":tasks.module" "${cmd}" "$@";
+  module.find;
+  delegate "module" "${cmd}" "$@";
 }
 
 # PRIVATE MODULE COMMAND METHODS
 
 # list submodules
-:tasks.module.ls() {
-  :module.none.quit;
+module.ls() {
+  module.none.quit;
   local m;
   for m in "${modules[@]}"
     do
@@ -36,8 +36,8 @@ tasks.module() {
 
 # marks a task as a delegate to sub-modules 
 # USAGE: tasks.module delegate "$@";
-:tasks.module.delegate() {
-  :module.none.quit;  
+module.delegate() {
+  module.none.quit;  
   local info f;
   require.resolve "info" "3";
   local task_command="${info[3]}";
@@ -70,14 +70,14 @@ tasks.module() {
 # PRIVATE METHODS
 
 # quit if there are no sub modules
-:module.none.quit() {
+module.none.quit() {
   if [ ${#modules[@]} -eq 0 ]; then
-    console quit 1 "no modules found in %s" "${root}";
+    console quit 1 -- "no modules found in %s" "${root}";
   fi
 }
 
 # determines if an ignore pattern matches
-:module.ignores?() {
+module.ignores?() {
   local ptn;
   for ptn in "${ignores[@]}"
     do
@@ -89,7 +89,7 @@ tasks.module() {
 }
 
 # find submodules
-:module.find() {
+module.find() {
   local d scan;
   for d in "${root}"/*
     do
@@ -97,7 +97,7 @@ tasks.module() {
       if [ "${d}" == "${target}" ]; then
         continue;
       fi
-      if :module.ignores?; then
+      if module.ignores?; then
         continue;
       fi
       if [ -d "$d" ]; then
