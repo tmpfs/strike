@@ -223,7 +223,7 @@ function __require_source {
 	# this allows grouping or complex modules
 	# into a directory
 	if [ -d "$abs" ]; then
-		if [ -f "${abs}/${name}" ] || [ -f "${abs}/${names}.sh" ]; then			
+		if [ -f "${abs}/${name}" ] || [ -f "${abs}/${name}.sh" ]; then
 			abs="${abs}/${name}";
 		else
 			console quit 1 "module %s is a directory" "$abs";
