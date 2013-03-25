@@ -68,7 +68,6 @@ dist.commands.install() {
     || console quit 1 -- "failed to extract %s and change to %s" \
     "${archive}" "${target}/${fullname}";
   console info -- "pwd %s" "$( pwd )";
-  pwd && exit 0;
   local prefix="${target}/install";
   if [ -d "${prefix}" ]; then
     local opts="-rf";
@@ -78,7 +77,7 @@ dist.commands.install() {
   mkdir -p "${prefix}";
   console info -- "./configure %s" "--prefix=${prefix}";
 	./configure --prefix="${prefix}";
-  make && make install;
+  make && make install && make installcheck;
 }
 
 taskinfo jsoncc "Compile json checker source";

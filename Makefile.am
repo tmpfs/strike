@@ -37,6 +37,9 @@ install-exec-local:
 check-local:
 	./bin/bake test
 
+installcheck-local:
+	$(mainbindir)/bake --version
+
 test:
 	./bake test
 	
