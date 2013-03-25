@@ -1,10 +1,12 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 
 # test file for running executables
 # from various filesystems paths
 # relative, absolute, relative parent
 
-. ~/.strike/boilerplate.sh;
+boilerplate=$( command -v boilerplate.sh ) \
+  && . "$boilerplate" && unset boilerplate \
+  || { echo "fatal: could not locate boilerplate.sh" && exit 1; }
 boilerplate "$@";
 
 require.once assert;

@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-. ~/.strike/boilerplate.sh;
+boilerplate=$( command -v boilerplate.sh ) \
+  && . "$boilerplate" && unset boilerplate \
+  || { echo "fatal: could not locate boilerplate.sh" && exit 1; }
 boilerplate "$@";
 
-process.use 'strict';
-require 'assert';
+process.use strict;
+require assert;
 
 # let assert(3) know if this test
 # is being run standalone or as
