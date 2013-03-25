@@ -1,4 +1,4 @@
-AC_INIT([strike], [0.1.39], [bugs@xpm.io])
+AC_INIT([strike], m4_esyscmd([tr -d '\n' <version]), [bugs@xpm.io])
 AM_INIT_AUTOMAKE([1.10 foreign])
 # silent-rules
 AC_PROG_AWK
