@@ -7,21 +7,21 @@ version() {
   local expect_major="${1:-4}";
   local expect_minor="${2:-2}";
   local expect_patch="${3:-}";
-	local major="${BASH_VERSINFO[0]}";
-	local minor="${BASH_VERSINFO[1]}";
-	local patch="${BASH_VERSINFO[2]}";
+  local major="${BASH_VERSINFO[0]}";
+  local minor="${BASH_VERSINFO[1]}";
+  local patch="${BASH_VERSINFO[2]}";
   local expected="${expect_major}.${expect_minor}";
   [[ -n "${expect_patch}" ]] && expected+=".${expect_patch}";
-	local version="${major}.${minor}.${patch}";
-	if { test "$major" -lt "${expect_major}"; } \
-		|| { test "$major" -eq "${expect_major}" \
+  local version="${major}.${minor}.${patch}";
+  if { test "$major" -lt "${expect_major}"; } \
+    || { test "$major" -eq "${expect_major}" \
       && test "$minor" -lt "${expect_minor}"; } \
     || { test -n "${expect_patch}" \
       && test "$major" -eq "${expect_major}" \
       && test "$minor" -eq "${expect_minor}" \
       && test "$patch" -lt "${expect_patch}"; }; then
-		printf "bash >= ${expected} is required, got %s\n" "$version";
-		exit 1;
-	fi
+    printf "bash >= ${expected} is required, got %s\n" "$version";
+    exit 1;
+  fi
 }
 version ${1:-4} ${2:-2} ${3:-0};
