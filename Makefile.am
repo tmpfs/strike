@@ -39,6 +39,7 @@ install-data-hook:
 	ln -sf $(mainbindir)/bake $(bindir)/bake
 	$(INSTALL) $(mainbindir)/boilerplate.sh $(bindir)/boilerplate.sh
 	$(mainbindir)/bake boilerplate
+	$(mainbindir)/console --prefix="[ok]" "installation complete"
 
 check-local:
 	./bin/bake test
@@ -46,19 +47,13 @@ check-local:
 installcheck-local:
 	command -v boilerplate.sh || exit 1;
 	$(mainbindir)/bake --version || exit 1;
+	$(mainbindir)/console --prefix="[ok]" "installation check ok";
 
 uninstall-local:
 	@echo "uninstall $(PACKAGE_NAME)@$(PACKAGE_VERSION) from $(prefix)"
 	rm -rfv "$(maindir)"
 	rm "$(bindir)/bake"
 	rm "$(bindir)/boilerplate.sh"
-
-dist-hook:
-	rm $(distdir)/configure.ac \
-		$(distdir)/Makefile.am \
-		$(distdir)/config.guess \
-		$(distdir)/aclocal.m4 \
-		$(distdir)/depcomp
 
 test:
 	./bake test
