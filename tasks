@@ -79,7 +79,7 @@ tasks.dist() {
       || false
   ) \
   || console quit 1 "could not generate checksums";
-  if [ $# -gt 0 ]; then
+  if [ -n "${cmd:-}" ]; then
     local commands_namespace="dist.commands";
     if ! method.exists? "${commands_namespace}.${cmd}"; then
       console quit 1 -- "unknown dist sub-command %s" "${cmd}";
