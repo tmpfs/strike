@@ -14,6 +14,8 @@ depcomp
 missing
 install-sh
 configure
+config.guess
+config.sub
 *.status
 Makefile.in
 aclocal.m4
