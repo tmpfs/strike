@@ -77,7 +77,8 @@ bake() {
       "$tasks_file_name" "${PWD}";
   else
     # variables to expose to the task(s)
-    local root=$( dirname $f );
+    local root=$( dirname -- $f );
+    [[ -n "${bake_root:-}" ]] && root="${bake_root}";
     local target="${root}/target";
     local tasks="$f";
     # expose project variable pointing to the 

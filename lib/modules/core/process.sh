@@ -231,6 +231,15 @@ function process.test! {
 function process.tmp.dir {
   if [ $# -eq 0 ]; then
     if [ -z "$process_tmp_dir" ]; then
+
+      if [ -n "${TMPDIR:-}" ] \
+        && [ -d "${TMPDIR}" ] \
+        && [ -w "${TMPDIR}" ]; then
+        _result="$TMPDIR";
+        return 0;
+      fi
+
+      # TODO: change this to use *mktemp*
       # put the tmp directory in the library directory
       # so as not to pollute project directories
       local dir="${library_dirs[root]}/tmp";

@@ -13,6 +13,7 @@ depcomp
 *.cache
 configure
 build-aux
+strike-*.tar.*
 *.status
 Makefile.in
 aclocal.m4

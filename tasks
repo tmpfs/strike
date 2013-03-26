@@ -37,11 +37,18 @@ tdd.suite.exclude! "profile.sh";
 tdd.suite.exclude! "global.sh";
 tdd.suite.exclude! "custom-install.sh";
 
-taskinfo dist "Run autoreconf and create a distribution tarball. Use the install sub-command to test installation in the target directory";
+taskinfo dist "Run autoreconf and create distribution tarball(s). Use the install sub-command to test installation in the target directory";
 tasks.dist() {
   local cmd="${1:-}"; shift;
   local rule="dist";
-  [[ -z "$cmd" ]] && rule="distcheck";
+  if [ -z "$cmd" ]; then
+    rule="distcheck";
+    # this allows writing to target
+    # during the distcheck execution
+    # as VPATH builds create a read-only
+    # directory structure
+    export bake_root="$root";
+  fi
   local name="${framework}";
   local fullname="${name}-${project_version}";
   local tarball="${fullname}.tar.gz";
@@ -57,7 +64,7 @@ tasks.dist() {
     && mv "${tarball}" "${target}" \
     && mv "${bzip2}" "${target}" \
     && mv "${xz}" "${target}" \
-    || console quit 1 -- "failed to create %s" "${tarball}";
+    || console quit 1 -- "failed to create distribution(s)";
   require.once util/checksum;
   local algorithm="512";
   local sha_name="sha${algorithm}";

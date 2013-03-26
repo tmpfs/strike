@@ -1,18 +1,18 @@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = bin doc INSTALL.md lib LICENSE README.md tasks test version
+TESTS_ENVIRONMENT = cd $(srcdir) &&
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = strike.pc
+pkgconfig_DATA = $(PACKAGE_NAME).pc
 
 man1_MANS = $(srcdir)/doc/man/*.1
 man3_MANS = $(srcdir)/doc/man/*.3
 man7_MANS = $(srcdir)/doc/man/*.7
 
-rcdir)/
-maindir = $(prefix)/strike
+maindir = $(prefix)/$(PACKAGE_NAME)
 nobase_main_DATA = \
-	tasks \
-	version
+	$(srcdir)/tasks \
+	$(srcdir)/version
 mainbindir = $(maindir)/bin
 mainbin_SCRIPTS = $(srcdir)/bin/*
 librarydir = $(maindir)
@@ -44,7 +44,7 @@ install-data-hook:
 	@$(mainbindir)/console --prefix="[ok]" "installation complete"
 
 check-local:
-	@./bin/bake test
+	@$(srcdir)/bin/bake test
 
 installcheck-local:
 	@command -v boilerplate.sh > /dev/null || exit 1;
@@ -58,6 +58,6 @@ uninstall-local:
 	@rm "$(bindir)/boilerplate.sh"
 
 test:
-	@./bake test
+	@$(srcdir)/bin/bake test
 	
 .PHONY: test

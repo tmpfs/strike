@@ -596,7 +596,7 @@ function __assert_run_test_executable {
     nm="${nm#bin/}";
     nm="${nm//\//.}";
     nm="${nm}.json";    
-    local resultfile="${process_dirs[target]}/test/result/bin/${nm}";
+    local resultfile="${target}/test/result/bin/${nm}";
     if [ ! -f "$resultfile" ]; then
       console warn "could not find result file %s" "$resultfile";
     else

@@ -90,7 +90,11 @@ Set to true if the `-v | --verbose` option was specified otherwise false.
 
 * `bake_file_name`:
 
-Determines the name of the file that bake(1) looks for to load task command methods from, default is *tasks*. 
+Determines the name of the file that bake(1) looks for to load task command methods from, default is *tasks*.
+
+* `bake_root`:
+
+Allows setting of the root directory for an execution. This should be used with caution and is only made available for allowing file write during an execution of `make distcheck`.
 
 ## EXIT CODES
 
