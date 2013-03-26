@@ -39,6 +39,9 @@ tdd.suite.exclude! "custom-install.sh";
 
 taskinfo dist "Run autoreconf and create a distribution tarball. Use the install sub-command to test installation in the target directory";
 tasks.dist() {
+  local cmd="${1:-}"; shift;
+  local rule="dist";
+  [[ -z "$cmd" ]] && rule="distcheck";
   local name="${framework}";
   local fullname="${name}-${project_version}";
   local tarball="${fullname}.tar.gz";
@@ -50,7 +53,7 @@ tasks.dist() {
   [[ -f "${target}/${tarball}" ]] && rm "${target}/${tarball}";
   [[ -f "${target}/${bzip2}" ]] && rm "${target}/${bzip2}";
   [[ -f "${target}/${xz}" ]] && rm "${target}/${xz}";
-  ./configure && make dist \
+  ./configure && make ${rule} \
     && mv "${tarball}" "${target}" \
     && mv "${bzip2}" "${target}" \
     && mv "${xz}" "${target}" \
@@ -70,7 +73,6 @@ tasks.dist() {
   ) \
   || console quit 1 "could not generate checksums";
   if [ $# -gt 0 ]; then
-    local cmd="${1:-}"; shift;
     local commands_namespace="dist.commands";
     if ! method.exists? "${commands_namespace}.${cmd}"; then
       console quit 1 -- "unknown dist sub-command %s" "${cmd}";

@@ -2,6 +2,7 @@ AC_INIT([strike], m4_esyscmd([tr -d '\n' <version]), [bugs@xpm.io])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([1.13 foreign silent-rules dist-bzip2 dist-xz no-dependencies])
+AM_MAINTAINER_MODE
 AM_SILENT_RULES([yes])
 AC_CANONICAL_HOST
 AC_PROG_AWK
@@ -21,7 +22,7 @@ if test -z "$BASH_CHECK"; then
 fi
 
 # check bash version
-AM_CONDITIONAL([BASH_42], [./bin/bash-version 4 2 > /dev/null])
+AM_CONDITIONAL([BASH_42], [$srcdir/bin/bash-version 4 2 > /dev/null])
 AM_COND_IF([BASH_42],
   [AC_MSG_RESULT(checking for bash >= 4.2... yes)],
   [AC_MSG_ERROR([bash >= 4.2 is required])])

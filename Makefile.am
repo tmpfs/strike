@@ -1,32 +1,34 @@
 AUTOMAKE_OPTIONS = foreign
+ACLOCAL_AMFLAGS = -I m4
 EXTRA_DIST = bin doc INSTALL.md lib LICENSE README.md tasks test version
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = strike.pc
 
-man1_MANS = doc/man/*.1
-man3_MANS = doc/man/*.3
-man7_MANS = doc/man/*.7
+man1_MANS = $(srcdir)/doc/man/*.1
+man3_MANS = $(srcdir)/doc/man/*.3
+man7_MANS = $(srcdir)/doc/man/*.7
 
+rcdir)/
 maindir = $(prefix)/strike
 nobase_main_DATA = \
 	tasks \
 	version
 mainbindir = $(maindir)/bin
-mainbin_SCRIPTS = bin/*
+mainbin_SCRIPTS = $(srcdir)/bin/*
 librarydir = $(maindir)
 nobase_library_DATA = \
-	doc/man/* \
-	lib/*.sh \
-	lib/modules/core/*.sh \
-	lib/modules/json/*.sh \
-	lib/modules/net/*.sh \
-	lib/modules/opts/*.sh \
-	lib/modules/tasks/*.sh \
-	lib/modules/tasks/deploy/*.sh \
-	lib/modules/tasks/ext/*.sh \
-	lib/modules/tasks/ext/build/*.sh \
-	lib/modules/util/*.sh \
-	lib/modules/*.sh
+	$(srcdir)/doc/man/* \
+	$(srcdir)/lib/*.sh \
+	$(srcdir)/lib/modules/core/*.sh \
+	$(srcdir)/lib/modules/json/*.sh \
+	$(srcdir)/lib/modules/net/*.sh \
+	$(srcdir)/lib/modules/opts/*.sh \
+	$(srcdir)/lib/modules/tasks/*.sh \
+	$(srcdir)/lib/modules/tasks/deploy/*.sh \
+	$(srcdir)/lib/modules/tasks/ext/*.sh \
+	$(srcdir)/lib/modules/tasks/ext/build/*.sh \
+	$(srcdir)/lib/modules/util/*.sh \
+	$(srcdir)/lib/modules/*.sh
 
 all:
 	@echo "install $(PACKAGE_NAME)@$(PACKAGE_VERSION) to $(prefix)"
