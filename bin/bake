@@ -112,7 +112,7 @@ bake() {
     # invoke the task function
     delegate "${namespace}" "$cmd" $@ \
       || console quit $? -- "task %s failed" "$func";
-	fi
+  fi
 }
 
 bake.options.parse() {
