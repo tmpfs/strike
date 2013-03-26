@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = bin doc lib LICENSE README.md tasks test version
+EXTRA_DIST = bin doc INSTALL.md lib LICENSE README.md tasks test version
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = strike.pc
@@ -39,13 +39,14 @@ install-data-hook:
 	mkdir -p $(bindir)
 	ln -sf $(mainbindir)/bake $(bindir)/bake
 	$(INSTALL) $(mainbindir)/boilerplate.sh $(bindir)/boilerplate.sh
+	$(mainbindir)/bake boilerplate
 
 check-local:
 	./bin/bake test
 
 installcheck-local:
-	$(mainbindir)/bake --version || exit 1;
 	command -v boilerplate.sh || exit 1;
+	$(mainbindir)/bake --version || exit 1;
 
 uninstall-local:
 	@echo "uninstall $(PACKAGE_NAME)@$(PACKAGE_VERSION) from $(prefix)"

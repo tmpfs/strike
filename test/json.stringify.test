@@ -392,13 +392,6 @@ function test.json.stringify.object.pretty.tab {
   local file="${testdir}/json/pretty/object.tab.json";
   local expected=$( < "$file" );
   assert.equal "$expected" "$received";
-
-echo "$expected" >| target/expected.txt;
-echo "$received" >| target/received.txt;
-if [ "$expected" != "$received" ]; then
-	echo "DOES NOT MATCH!!" >&2;
-	diff target/expected.txt target/received.txt >&2;
-fi
 }
 
 # test for encoding task-project(7) data using pretty printing

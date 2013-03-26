@@ -1,8 +1,8 @@
 # Installation
 
-Installation is performed using ./configure, make and make install.
+Installation is performed using `./configure`, `make` and `make install`.
 
-Extract the archive and configure with no options to install into `/usr/local`:
+Configure with no options to install into `/usr/local`:
 
 ```
 ./configure \

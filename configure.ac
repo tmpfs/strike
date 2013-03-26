@@ -29,6 +29,12 @@ if test -z "$TPUT_CHECK"; then
   AC_MSG_ERROR([tput not found])
 fi
 
+# check for readlink
+AC_PATH_PROG(READLINK_CHECK,readlink)
+if test -z "$READLINK_CHECK"; then
+  AC_MSG_ERROR([readlink not found])
+fi
+
 # check for tar
 AC_PATH_PROG(TAR_CHECK,tar)
 if test -z "$TAR_CHECK"; then

@@ -18,12 +18,12 @@ You do not need to require(3) this task as it is a builtin task.
 ## USAGE
 
 	bake clean [options...]
-	
+
 ## OPTIONS
 
-* `-v`:
+* `-v | --verbose`:
 
-Be verbose when removing the `target` directory.
+Print files as they are deleted.
 
 ## INTERACTIVE
 
