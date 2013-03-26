@@ -51,6 +51,16 @@ tasks.dist() {
   make dist \
     && mv "${tarball}" "${target}" \
     || console quit 1 -- "failed to create %s" "${tarball}";
+  require.once util/checksum;
+  local algorithm="512";
+  local sha_name="${tarball}.sha${algorithm}";
+  (
+    cd "${target}" \
+    && checksum.sha "${algorithm}" \
+      "${tarball}" >| "${sha_name}" \
+      || false
+  ) \
+  || console quit 1 "could not generate %s" "${sha_name}";
   if [ $# -gt 0 ]; then
     local cmd="${1:-}"; shift;
     local commands_namespace="dist.commands";

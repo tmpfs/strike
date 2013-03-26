@@ -12,6 +12,8 @@ Configure with no options to install into `/usr/local`:
   && make installcheck
 ```
 
+At the end of the install target, `boilerplate.sh` is installed into PATH, if it already exists it is overwritten otherwise you will be presented with an interactive prompt to select where to install the file.
+
 The `make check` target is optional but recommended - it will run the test suite.
 
 Running the `installcheck` target is required to verify that the installation works as expected.
