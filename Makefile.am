@@ -29,16 +29,28 @@ nobase_library_DATA = \
 	lib/modules/*.sh
 
 all:
-	@echo "install $(PACKAGE_NAME)@$(PACKAGE_VERSION) to $(prefix)";
+	@echo "install $(PACKAGE_NAME)@$(PACKAGE_VERSION) to $(prefix)"
 	
 install-exec-local:
 	@:
+
+install-data-hook:
+	mkdir -p $(bindir)
+	ln -sf $(mainbindir)/bake $(bindir)/bake
+	$(INSTALL) $(mainbindir)/boilerplate.sh $(bindir)/boilerplate.sh
 
 check-local:
 	./bin/bake test
 
 installcheck-local:
-	$(mainbindir)/bake --version
+	$(mainbindir)/bake --version || exit 1;
+	command -v boilerplate.sh || exit 1;
+
+uninstall-local:
+	@echo "uninstall $(PACKAGE_NAME)@$(PACKAGE_VERSION) from $(prefix)"
+	rm -rfv "$(maindir)"
+	rm "$(bindir)/bake"
+	rm "$(bindir)/boilerplate.sh"
 
 test:
 	./bake test
