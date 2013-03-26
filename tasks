@@ -48,7 +48,7 @@ tasks.dist() {
 	autoreconf -fi;
   [[ -f "${target}/${tarball}" ]] && rm "${target}/${tarball}";
   [[ -f "${target}/${bzip2}" ]] && rm "${target}/${bzip2}";
-  make dist \
+  ./configure && make dist \
     && mv "${tarball}" "${target}" \
     && mv "${bzip2}" "${target}" \
     || console quit 1 -- "failed to create %s" "${tarball}";
@@ -72,6 +72,7 @@ tasks.dist() {
     fi
     delegate "${commands_namespace}" "${cmd}" $@;
   fi
+  make distclean 2> /dev/null;
 }
 
 dist.commands.install() {
