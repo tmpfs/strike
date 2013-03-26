@@ -1,5 +1,5 @@
 AC_INIT([strike], m4_esyscmd([tr -d '\n' <version]), [bugs@xpm.io])
-AM_INIT_AUTOMAKE([1.13 foreign silent-rules])
+AM_INIT_AUTOMAKE([1.13 foreign silent-rules dist-bzip2 no-dependencies])
 AC_CANONICAL_HOST
 AC_PROG_AWK
 AC_PROG_EGREP

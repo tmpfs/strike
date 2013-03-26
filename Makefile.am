@@ -1,6 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
 EXTRA_DIST = bin doc INSTALL.md lib LICENSE README.md tasks test version
-
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = strike.pc
 
@@ -53,6 +52,13 @@ uninstall-local:
 	rm -rfv "$(maindir)"
 	rm "$(bindir)/bake"
 	rm "$(bindir)/boilerplate.sh"
+
+dist-hook:
+	rm $(distdir)/configure.ac \
+		$(distdir)/Makefile.am \
+		$(distdir)/config.guess \
+		$(distdir)/aclocal.m4 \
+		$(distdir)/depcomp
 
 test:
 	./bake test

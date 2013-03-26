@@ -42,25 +42,28 @@ tasks.dist() {
   local name="${framework}";
   local fullname="${name}-${project_version}";
   local tarball="${fullname}.tar.gz";
+  local bzip2="${fullname}.tar.bz2";
   local archive="${target}/${tarball}";
   executable.validate autoreconf;
 	autoreconf -fi;
-  if [ -f "${archive}" ]; then
-    rm "${archive}";
-  fi
+  [[ -f "${target}/${tarball}" ]] && rm "${target}/${tarball}";
+  [[ -f "${target}/${bzip2}" ]] && rm "${target}/${bzip2}";
   make dist \
     && mv "${tarball}" "${target}" \
+    && mv "${bzip2}" "${target}" \
     || console quit 1 -- "failed to create %s" "${tarball}";
   require.once util/checksum;
   local algorithm="512";
-  local sha_name="${tarball}.sha${algorithm}";
+  local sha_name="sha${algorithm}";
   (
     cd "${target}" \
     && checksum.sha "${algorithm}" \
-      "${tarball}" >| "${sha_name}" \
+      "${tarball}" >| "${tarball}.${sha_name}" \
+    && checksum.sha "${algorithm}" \
+      "${bzip2}" >| "${bzip2}.${sha_name}" \
       || false
   ) \
-  || console quit 1 "could not generate %s" "${sha_name}";
+  || console quit 1 "could not generate checksums";
   if [ $# -gt 0 ]; then
     local cmd="${1:-}"; shift;
     local commands_namespace="dist.commands";
