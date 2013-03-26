@@ -11,12 +11,8 @@ ref
 depcomp
 *.bak
 *.cache
-missing
-install-sh
 configure
-config.aux
-config.guess
-config.sub
+build-aux
 *.status
 Makefile.in
 aclocal.m4
