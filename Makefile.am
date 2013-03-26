@@ -35,27 +35,27 @@ install-exec-local:
 	@:
 
 install-data-hook:
-	mkdir -p $(bindir)
-	ln -sf $(mainbindir)/bake $(bindir)/bake
-	$(INSTALL) $(mainbindir)/boilerplate.sh $(bindir)/boilerplate.sh
-	$(mainbindir)/bake boilerplate
-	$(mainbindir)/console --prefix="[ok]" "installation complete"
+	@mkdir -p $(bindir)
+	@ln -sf $(mainbindir)/bake $(bindir)/bake
+	@$(INSTALL) $(mainbindir)/boilerplate.sh $(bindir)/boilerplate.sh
+	@$(mainbindir)/bake boilerplate
+	@$(mainbindir)/console --prefix="[ok]" "installation complete"
 
 check-local:
-	./bin/bake test
+	@./bin/bake test
 
 installcheck-local:
-	command -v boilerplate.sh || exit 1;
-	$(mainbindir)/bake --version || exit 1;
-	$(mainbindir)/console --prefix="[ok]" "installation check ok";
+	@command -v boilerplate.sh > /dev/null || exit 1;
+	@$(mainbindir)/bake --version || exit 1;
+	@$(mainbindir)/console --prefix="[ok]" "installation check ok";
 
 uninstall-local:
 	@echo "uninstall $(PACKAGE_NAME)@$(PACKAGE_VERSION) from $(prefix)"
-	rm -rfv "$(maindir)"
-	rm "$(bindir)/bake"
-	rm "$(bindir)/boilerplate.sh"
+	@rm -rfv "$(maindir)"
+	@rm "$(bindir)/bake"
+	@rm "$(bindir)/boilerplate.sh"
 
 test:
-	./bake test
+	@./bake test
 	
 .PHONY: test

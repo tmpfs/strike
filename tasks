@@ -90,7 +90,7 @@ dist.commands.install() {
   mkdir -p "${prefix}";
   console info -- "./configure %s" "--prefix=${prefix}";
 	./configure --prefix="${prefix}";
-  make && make install && make installcheck;
+  make && make -s install && make installcheck;
 }
 
 taskinfo jsoncc "Compile json checker source";
