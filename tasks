@@ -37,7 +37,7 @@ tdd.suite.exclude! "profile.sh";
 tdd.suite.exclude! "global.sh";
 tdd.suite.exclude! "custom-install.sh";
 
-taskinfo "Run autoreconf and create a distribution tarball. Use the install sub-command to test installation in the target directory.";
+taskinfo dist "Run autoreconf and create a distribution tarball. Use the install sub-command to test installation in the target directory";
 tasks.dist() {
   local name="${framework}";
   local fullname="${name}-${project_version}";
@@ -89,22 +89,51 @@ tasks.jsoncc() {
 		|| console quit 1 -- "could not compile json-checker source";
 }
 
-taskinfo boilerplate "Install the boilerplate.sh file";
+taskinfo boilerplate "Install the boilerplate.sh file, if it exists in PATH it is overwritten with the current version, otherwise you may select a directory from PATH";
 tasks.boilerplate() {
-  # remove the path added be bake(1)
-  export PATH=${PATH#*:};
   local name="boilerplate.sh";
-  local source="bin/${name}";
+  local source="${root}/bin/${name}";
+  install() {
+    local source="$1";
+    local destination="$2";
+    local cpopts="-f";
+    $verbose && cpopts+="v";
+    cp $cpopts "${source}" "${destination}" \
+      || console quit 1 -- "could not install %s to %s" \
+      "${source}" "${destination}";
+    console success "installed %s" "${destination}";
+  }
   local boilerplate=$( command -v "${name}" );
   if [ -n "${boilerplate}" ]; then
     console info -- "location is %s" "${boilerplate}";
-    local cpopts="-f";
-    $verbose && cpopts+="v";
-    cp $cpopts "${source}" "${boilerplate}" \
-      || console quit 1 -- "could not install %s" "${source}";
-    console success "installed %s" "${boilerplate}";
+    install "${source}" "${boilerplate}";
   else
-    console info "%s is not installed" "${name}";
-    # TODO: show a select to choose the path to copy to
+    console info --prefix="[${name}]" \
+      "choose an installation directory:";
+    selection.valid() {
+      local directory="${1:-}";
+      [[ ! -d "${directory}" ]] && console quit 1 -- \
+        "%s is not a directory" "${directory}";
+      install "${source}" "${directory}/${name}";
+    }
+    selection.error() {
+      local value="${1:-}";
+      console error -- "invalid selection %s" "${value:-}";
+    }
+    selection.range() {
+      local value="${1:-}";
+      console error -- "invalid selection %s, must be in the range %s-%s" \
+        "${value}" "1" "${#PROMPT_SELECTION[@]}";
+    }
+    local IFS=":";
+    local paths=( $PATH );
+    unset IFS;
+    declare -ag PROMPT_SELECTION=( "${paths[@]}" );
+    process_name="${name}";
+    console prompt --program '';
+    prompt select --id=selection \
+      --select=selection.valid \
+      --select-error=selection.error \
+      --select-range-error=selection.range;
   fi
 }

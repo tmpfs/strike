@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = foreign
-EXTRA_DIST = bin doc lib LICENSE README.md test version
+EXTRA_DIST = bin doc lib LICENSE README.md tasks test version
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = strike.pc
@@ -10,6 +10,7 @@ man7_MANS = doc/man/*.7
 
 maindir = $(prefix)/strike
 nobase_main_DATA = \
+	tasks \
 	version
 mainbindir = $(maindir)/bin
 mainbin_SCRIPTS = bin/*
