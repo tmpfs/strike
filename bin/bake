@@ -24,22 +24,8 @@ boilerplate $@;
 # switch on strict mode
 process.use strict;
 
-require opts/help;
+require tasks/util;
 
-declare -Ag task_info;
-taskinfo(){
-  local key="${1:-}";
-  if [ -n "${key}" ]; then
-    shift;
-    task_info[$key]="$*";
-  fi
-}
-
-taskman() {
-  local key="${1:-}";
-  local page="${2:-}";
-  help.man.page "${key}" "${page}";
-}
 # configure help
 taskman default "bake.1";
 taskman ls "task-ls.7";

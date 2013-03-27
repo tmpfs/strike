@@ -7,7 +7,7 @@ boilerplate "$@";
 
 process.use strict;
 
-require opts/help;
+require tasks/util;
 help.man.page "default" "manual.1";
 help.parse "$@";
 

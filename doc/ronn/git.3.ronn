@@ -18,7 +18,7 @@ Utility commands for working with git(1) repositories.
 	}
 	git.info;
 
-# COMMANDS
+	# COMMANDS
 
 * `git.valid?`:
 

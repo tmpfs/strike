@@ -3,7 +3,7 @@ manual(1) -- interactive man page browser
 
 ## SYNOPSIS
 
-  manual [command] [options...]
+	manual [command] [options...]
 
 ## DESCRIPTION
 
@@ -21,18 +21,18 @@ You may use the following sequences to exit the program:
 
 * `help`:
 
-  Show the manual(1) man page.
+	Show the manual(1) man page.
 
 ## OPTIONS
 
 * `--version`:
 
-  Print the program version and exit.
+	Print the program version and exit.
 
 * `--color=auto|never|always`:
 
-  Change the configuration for printing ANSI color escape sequences.
-  The default value is *auto*. See sprintf(3).
+	Change the configuration for printing ANSI color escape sequences.
+	The default value is *auto*. See sprintf(3).
 
 ## INTERACTIVE COMMANDS
 
@@ -41,20 +41,20 @@ The following commands are available from the interactive prompt.
 
 * `name.[1-8]`:
 
-  Open *name* manual page using man(1).
+	Open *name* manual page using man(1).
 
 
 * `ls`:
 
-  List available manual pages.
+	List available manual pages.
 
 * `?`:
 
-  Print command usage.
+	Print command usage.
 
 * `help`:
 
-  Display this manual page.
+	Display this manual page.
 
 ## DEVELOPER COMMANDS
 
@@ -62,51 +62,51 @@ These commands are designed to be used by developers.
 
 * `build`:
 
-  Command to build the man pages from the markdown source, 
-  requires ronn(1). This is an alias for the task-doc(7) command that
-  corresponds to `bake doc man build`.
+	Command to build the man pages from the markdown source, 
+	requires ronn(1). This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man build`.
 
 * `generate`:
 
-  Command to build the ronn documents from inline heredoc comments.
-  This is an alias for the task-doc(7) command that
-  corresponds to `bake doc man generate`.
+	Command to build the ronn documents from inline heredoc comments.
+	This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man generate`.
 
 * `compile`:
 
-  Command to compile all ronn documents to manual pages, 
-  requires ronn(1). This is an alias for the task-doc(7) command that
-  corresponds to `bake doc man compile`.
+	Command to compile all ronn documents to manual pages, 
+	requires ronn(1). This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man compile`.
 
 * `import`:
 
-  Import compiled manual pages into the man directory.
-  This is an alias for the task-doc(7) command that
-  corresponds to `bake doc man import`.
+	Import compiled manual pages into the man directory.
+	This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man import`.
 
 * `clean`:
 
-  Remove compiled manual pages from the man directory.
-  This is an alias for the task-doc(7) command that
-  corresponds to `bake doc man clean`.
+	Remove compiled manual pages from the man directory.
+	This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man clean`.
 
 ## EXAMPLES
 
 Launch the interactive browser:
 
-  manual
+	manual
 
 Display this manual page:
 
-  manual help
+	manual help
 
 Switch off the color capability:
 
-  manual --color=never
+	manual --color=never
 
 Print program version and exit:
 
-  manual --version
+	manual --version
 
 ## BUGS
 

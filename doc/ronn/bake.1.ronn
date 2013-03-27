@@ -11,7 +11,7 @@ Delegates to task commands after setting a context.
 
 ## USAGE
 
-  bake [task] [options...]
+	bake [task] [options...]
 
 ## OPTIONS
 
@@ -28,7 +28,7 @@ Define how ANSI escape sequences are generated, default is *auto*, see sprintf(3
 * `--version`:
 
 Print the program version and exit.
-  
+	
 ## BUILTIN TASKS
 
 All bake(1) projects have the following tasks built in:
@@ -42,7 +42,7 @@ These commands will print more information if the `-v | --verbose` option is spe
 
 The convention is that task commands are not declared in tasks(7) but are placed in modules and then included using require(3). So to include the semantic versioning functionality into your project all you need to do is require(3) it:
 
-  require tasks/semver;
+	require tasks/semver;
 
 ## FILES
 

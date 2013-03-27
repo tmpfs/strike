@@ -18,31 +18,31 @@ In your tasks(7) file `require` the `devel` task(s) using:
 ## USAGE
 
 	bake devel push [options...] [id]
-    bake devel pull [options...] [id]
+		bake devel pull [options...] [id]
 
 ## COMMANDS
 
 * `push`:
 
-    Push this project to other project dependencies.
+		Push this project to other project dependencies.
 
 * `pull`:
 
-    Pull project dependencies into this project.
+		Pull project dependencies into this project.
 
 ## OPTIONS
 
 * `--force`:
 
-    Force overwriting of an existing dependency.
+		Force overwriting of an existing dependency.
 
 * `--test`:
 
-    Run tests after a push or pull command.
+		Run tests after a push or pull command.
 
 * `--revert`:
 
-    Revert to the version in use prior to a push or pull if tests fails.
+		Revert to the version in use prior to a push or pull if tests fails.
 
 ## BUGS
 

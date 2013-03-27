@@ -17,7 +17,7 @@ If you have installed the `strike` library as a node module and your executable 
 			do 
 				src="$(readlink "$src")";
 				[[ $src != /* ]] && src="$exedir/$src";
-				exedir="$( cd -P "$( dirname "$src"  )" && pwd )";
+				exedir="$( cd -P "$( dirname "$src"	 )" && pwd )";
 		done
 		exedir="$( cd -P "$( dirname "$src" )" && pwd )";
 		unset src;

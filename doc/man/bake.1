@@ -133,6 +133,13 @@ Set to true if the \fB\-v | \-\-verbose\fR option was specified otherwise false\
 .P
 Determines the name of the file that bake(1) looks for to load task command methods from, default is \fItasks\fR\.
 .
+.TP
+\fBbake_root\fR:
+
+.
+.P
+Allows setting of the root directory for an execution\. This should be used with caution and is only made available for allowing file write during an execution of \fBmake distcheck\fR\.
+.
 .SH "EXIT CODES"
 A >0 exit code is used when no task(7) file could be located or no command is available, otherwise the exit code is deferred to the task being executed\.
 .

@@ -382,12 +382,12 @@ If the source directory contains a file named `.xpmignore` the patterns defined 
 It is common that a program relies on some directories for use cases such as logging, temporary files or pid files. Normally, these directories are not stored in a repository or included in a package therefore you may define directories to be created (globally or specific to a profile) after a successful deployment. The syntax for defining directories to be created is:
 
 	"bundle": {
-	  "dirs": [			
-	    {
-	      "path": "server/pids",
-	      "perm": "0700"
-	    }
-	  ]
+		"dirs": [			
+			{
+				"path": "server/pids",
+				"perm": "0700"
+			}
+		]
 	}
 	
 The working directory for this operation is the final deployment target. Directory creation and setting of permissions is only attempted if the directory does not exist. Directories are created using `mkdir -p` so parent directories will be created as needed.
@@ -403,12 +403,12 @@ You may specify absolute paths if required but you should be sure that the effec
 You may include custom scripts in a bundle by declaring a `scripts` array in the `bundles` object either globally or specific to a profile, the syntax is:
 
 	"bundle": {
-	  "scripts": [
-	    {
-	      "dir": "opt/bin",		
-	      "file": "script.sh"
-	    }
-	  ]
+		"scripts": [
+			{
+				"dir": "opt/bin",		
+				"file": "script.sh"
+			}
+		]
 	}
 
 A referenced script must exist on the filesystem and must be executable. Bundled scripts are placed in a `scripts` directory automatically generated within the archive.
@@ -522,20 +522,20 @@ If any command exits with an exit code *>0* then the deployment is aborted. This
 The general syntax for declaring commands is:
 
 	"commands": {
-	  "local": {
-	    "pre": [
-	      {
-	        "command": "ls",
-	        "options": [ "-la", "lib", "man" ]
-	      }
-	    ],
-	    "post": [
-	      {
-	        "command": "echo",
-	        "options": [ "deployment complete" ]
-	      }
-	    ]
-	  }
+		"local": {
+			"pre": [
+				{
+					"command": "ls",
+					"options": [ "-la", "lib", "man" ]
+				}
+			],
+			"post": [
+				{
+					"command": "echo",
+					"options": [ "deployment complete" ]
+				}
+			]
+		}
 	}
 	
 All commands are encapsulated by the *commands* object which can contain *local* and *remote* properties indicating whether the commands should be executed on the local or remote host. The *pre* and *post* properties are arrays of commands to execute for the deployment phase(s).
@@ -559,15 +559,15 @@ Remote post-deployment commands are always executed in the context of the final 
 By default parameters are not expanded - whitespace in a parameter is preserved and passed as a single argument to the command being executed. For example, imagine you wanted to list the contents of the *lib* and *man* directories, this would fail (with the default settings) if you specified both directories in a single option (`ls` would be looking for a directory named "lib man" rather than attempting to list two separate directories):
 
 	{
-	  "command": "ls",
-	  "options": [ "-la", "lib man" ]
+		"command": "ls",
+		"options": [ "-la", "lib man" ]
 	}
 	
 You have two options to remedy this scenario. You may either decide to separate the parameters:
 
 	{
-	  "command": "ls",
-	  "options": [ "-la", "lib", "man" ]
+		"command": "ls",
+		"options": [ "-la", "lib", "man" ]
 	}
 	
 So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may use the `--expand` option to allow parameter expansion on command options. You should only use the `--expand` option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed.
@@ -665,18 +665,18 @@ This is useful to prevent duplication of information between profiles that share
 Consider the following example document:
 
 	{
-	  "host": "user@example.com",
-	  "directory": "~/www",
-	  "commands": {
-	    "local": {
-	      "pre": [
-	        {
-	          "command": "echo",
-	          "options": [ "$doc_directory", "$doc_host" ]
-	        }
-	      ]
-	    }
-	  }
+		"host": "user@example.com",
+		"directory": "~/www",
+		"commands": {
+			"local": {
+				"pre": [
+					{
+						"command": "echo",
+						"options": [ "$doc_directory", "$doc_host" ]
+					}
+				]
+			}
+		}
 	}
 	
 In this instance the `\$doc_` variables reference the *directory* and *host* properties declared at the top-level of the document.
@@ -694,23 +694,23 @@ You may reference any property in the document by full path delimited by an unde
 To illustrate, a convoluted example which generates the same output as the above example but also prepends the command being executed and appends the number of options being passed to the command:
 
 	{
-	  "host": "user@example.com",
-	  "directory": "~/www",
-	  "commands": {
-	    "local": {
-	      "pre": [
-	        {
-	          "command": "echo",
-	          "options": [
-	            "$doc_commands_local_pre_0_command",
-	            "$doc_directory",
-	            "$doc_host",
-	            "$doc_commands_local_pre_0_options_length"
-	          ]
-	        }
-	      ]
-	    }
-	  }
+		"host": "user@example.com",
+		"directory": "~/www",
+		"commands": {
+			"local": {
+				"pre": [
+					{
+						"command": "echo",
+						"options": [
+							"$doc_commands_local_pre_0_command",
+							"$doc_directory",
+							"$doc_host",
+							"$doc_commands_local_pre_0_options_length"
+						]
+					}
+				]
+			}
+		}
 	}
 	
 The command becomes:
@@ -734,39 +734,39 @@ If you reference a variable that is unbound in a command the program will exit i
 A complete example that uses npm(1) to create a tarball, moves it to the local `target` staging directory and copies the tarball to a remote host prior to the main deployment process which will take the created archive (on the remote host) and deploy it to the *target* directory:
 
 	{
-	  "env": {
-	    "archive": {
-	      "name": "${project_name}-${project_version}.tgz",
-	      "dir": "$target",
-	      "path": "${target}/${project_name}-${project_version}.tgz"
-	    }
-	  },
-	  "host": "user@example.com",
-	  "directory": "~/www",
-	  "profiles": {
-	    "npm": {
-	      "type": "tar",
-	      "url": "~/$env_archive_name",
-	      "commands": {
-	        "local": {
-	          "pre": [
-	            {
-	              "command": "npm",
-	              "options": [ "pack" ]
-	            },
-	            {
-	              "command": "mv",
-	              "options": [ "$env_archive_name", "$env_archive_dir" ]
-	            },
-	            {
-	              "command": "scp",
-	              "options": [ "$env_archive_path", "${host}:~/" ]
-	            }
-	          ]
-	        }
-	      }
-	    }
-	  }
+		"env": {
+			"archive": {
+				"name": "${project_name}-${project_version}.tgz",
+				"dir": "$target",
+				"path": "${target}/${project_name}-${project_version}.tgz"
+			}
+		},
+		"host": "user@example.com",
+		"directory": "~/www",
+		"profiles": {
+			"npm": {
+				"type": "tar",
+				"url": "~/$env_archive_name",
+				"commands": {
+					"local": {
+						"pre": [
+							{
+								"command": "npm",
+								"options": [ "pack" ]
+							},
+							{
+								"command": "mv",
+								"options": [ "$env_archive_name", "$env_archive_dir" ]
+							},
+							{
+								"command": "scp",
+								"options": [ "$env_archive_path", "${host}:~/" ]
+							}
+						]
+					}
+				}
+			}
+		}
 	}
 	
 ## DEPLOYMENT PROCESS

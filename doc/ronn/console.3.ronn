@@ -37,21 +37,21 @@ To print to standard output use the following commands:
 
 * `ok`:
 
-	Print an ok message. This message type appends a suffix of  ✓ (\\u2713).
+	Print an ok message. This message type appends a suffix of	✓ (\\u2713).
 
 * `prompt`:
 
-  Create a message suitable for passing to `read -ep` and assign the 
-  result to the `PS9` variable. See prompt(3).
+	Create a message suitable for passing to `read -ep` and assign the 
+	result to the `PS9` variable. See prompt(3).
 
 * `header`:
 
-  Print a header used to delimit sections of output.
+	Print a header used to delimit sections of output.
 
 * `title`:
 
-  Print a message prefixed with the header character, suitable for placing
-  between calls to `header`.
+	Print a message prefixed with the header character, suitable for placing
+	between calls to `header`.
 
 ### Standard Error
 

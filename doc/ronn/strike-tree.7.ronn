@@ -8,7 +8,7 @@ Although it is *not mandatory* it is recommended (for maximum portability and co
 	|-- bin
 	|-- doc
 	|-- lib
-	|	|-- modules
+	| |-- modules
 	|		|-- doc
 	|		|-- tasks
 	|-- man

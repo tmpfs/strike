@@ -13,7 +13,7 @@ Deflate and inflate file(s) using gzip(1) and gunzip(1). This task is used to co
 
 In your tasks(7) file `require` the `compress` task(s) using:
 
-	require 'tasks/compress';
+	require tasks/compress;
 
 ## USAGE
 

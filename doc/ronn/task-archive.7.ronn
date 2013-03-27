@@ -54,7 +54,7 @@ In your tasks(7) file `require` the `archive` task(s) using:
 
 	When creating archives this is a directory to place the created archives in, when extracting archives this option determines where extracted archive contents will be placed. Must be a valid directory.
 	
-## FLAG OPTIONS	
+## FLAG OPTIONS 
 	
 * `--debug`:
 

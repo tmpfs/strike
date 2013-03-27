@@ -13,7 +13,7 @@ A proxy for the ant(1) executable, allows ant tasks to be intermingled with bake
 
 In your tasks(7) file `require` the `ant` task(s) using:
 
-	require 'tasks/ext/build/ant';
+	require tasks/ext/build/ant;
 
 ## USAGE
 
