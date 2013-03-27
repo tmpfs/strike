@@ -1,6 +1,6 @@
 # determine if a git repository has changes
 # see: http://stackoverflow.com/questions/2657935/checking-for-a-dirty-index-or-untracked-files-with-git
-function git.clean? {
+git.clean?() {
   local output=$( git status --porcelain );
   if [ -z "$output" ]; then
     return 0;
@@ -9,7 +9,7 @@ function git.clean? {
 }
 
 # determine if a directory is a valid git repository
-function git.valid? {
+git.valid?() {
   local dir="${1:-}";
   # test current working directory
   # when no directory is specified
@@ -23,7 +23,7 @@ function git.valid? {
 }
 
 # determines if the git program is available
-function git.exists? {
+git.exists?() {
   local git="${executables[git]:-}";
   if [ -z "$git" ]; then
     executable.validate --test git;
@@ -36,7 +36,7 @@ function git.exists? {
 }
 
 # retrieve an author/email string for a revision
-function git.show.author() {
+git.show.author() {
   local revision="${1:-HEAD}";
   git --no-pager show -s --format='%an <%ae>' "$revision";
 }
@@ -47,7 +47,7 @@ function git.show.author() {
 # git ls-files --others
 # git ls-files --others --directory
 # list files ignored by a repository
-function git.others {
+git.others() {
   local dir="${1:-}";
   # git ls-files --others -i --exclude-standard
   if git.exists? && git.valid? "${dir:-}"; then
@@ -56,7 +56,7 @@ function git.others {
 }
 
 # get the current branch name
-function git.branch.current {
+git.branch.current() {
   local varname="${1:-git_branch_current}";
   if git.exists?; then
     local branch=$( "${executables[git]}" rev-parse --abbrev-ref HEAD );
@@ -65,7 +65,7 @@ function git.branch.current {
 }
 
 # get the hash of the last commit in a branch
-function git.branch.hash {
+git.branch.hash() {
   local varname="${1:-git_branch_hash}";
   if git.exists?; then
     local git_branch="${1:-}";
@@ -78,7 +78,7 @@ function git.branch.hash {
 }
 
 # get the message of the last commit in a branch
-function git.branch.message {
+git.branch.message() {
   local varname="${1:-git_branch_message}";
   if git.exists?; then
     local git_branch="${1:-}";    
@@ -92,7 +92,7 @@ function git.branch.message {
 
 # retrieve the remote url for <name> a git repository
 # and assign to variable name defined by $2
-function git.remote.url {
+git.remote.url() {
   local varname="${1:-git_remote_url}";
   local name="${2:-origin}";
   if git.exists?; then

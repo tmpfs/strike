@@ -1,3 +1,5 @@
+# TODO: refactor this to use delegate
+
 executable.validate() {
   local opt cmd="";
   local strict=true;
