@@ -608,12 +608,12 @@ It is common that a program relies on some directories for use cases such as log
 .nf
 
 "bundle": {
-  "dirs": [
-    {
-      "path": "server/pids",
-      "perm": "0700"
-    }
-  ]
+    "dirs": [
+        {
+            "path": "server/pids",
+            "perm": "0700"
+        }
+    ]
 }
 .
 .fi
@@ -640,12 +640,12 @@ You may include custom scripts in a bundle by declaring a \fBscripts\fR array in
 .nf
 
 "bundle": {
-  "scripts": [
-    {
-      "dir": "opt/bin",
-      "file": "script\.sh"
-    }
-  ]
+    "scripts": [
+        {
+            "dir": "opt/bin",
+            "file": "script\.sh"
+        }
+    ]
 }
 .
 .fi
@@ -860,20 +860,20 @@ The general syntax for declaring commands is:
 .nf
 
 "commands": {
-  "local": {
-    "pre": [
-      {
-        "command": "ls",
-        "options": [ "\-la", "lib", "man" ]
-      }
-    ],
-    "post": [
-      {
-        "command": "echo",
-        "options": [ "deployment complete" ]
-      }
-    ]
-  }
+    "local": {
+        "pre": [
+            {
+                "command": "ls",
+                "options": [ "\-la", "lib", "man" ]
+            }
+        ],
+        "post": [
+            {
+                "command": "echo",
+                "options": [ "deployment complete" ]
+            }
+        ]
+    }
 }
 .
 .fi
@@ -909,8 +909,8 @@ By default parameters are not expanded \- whitespace in a parameter is preserved
 .nf
 
 {
-  "command": "ls",
-  "options": [ "\-la", "lib man" ]
+    "command": "ls",
+    "options": [ "\-la", "lib man" ]
 }
 .
 .fi
@@ -925,8 +925,8 @@ You have two options to remedy this scenario\. You may either decide to separate
 .nf
 
 {
-  "command": "ls",
-  "options": [ "\-la", "lib", "man" ]
+    "command": "ls",
+    "options": [ "\-la", "lib", "man" ]
 }
 .
 .fi
@@ -1087,18 +1087,18 @@ Consider the following example document:
 .nf
 
 {
-  "host": "user@example\.com",
-  "directory": "~/www",
-  "commands": {
-    "local": {
-      "pre": [
-        {
-          "command": "echo",
-          "options": [ "$doc_directory", "$doc_host" ]
+    "host": "user@example\.com",
+    "directory": "~/www",
+    "commands": {
+        "local": {
+            "pre": [
+                {
+                    "command": "echo",
+                    "options": [ "$doc_directory", "$doc_host" ]
+                }
+            ]
         }
-      ]
     }
-  }
 }
 .
 .fi
@@ -1145,23 +1145,23 @@ To illustrate, a convoluted example which generates the same output as the above
 .nf
 
 {
-  "host": "user@example\.com",
-  "directory": "~/www",
-  "commands": {
-    "local": {
-      "pre": [
-        {
-          "command": "echo",
-          "options": [
-            "$doc_commands_local_pre_0_command",
-            "$doc_directory",
-            "$doc_host",
-            "$doc_commands_local_pre_0_options_length"
-          ]
+    "host": "user@example\.com",
+    "directory": "~/www",
+    "commands": {
+        "local": {
+            "pre": [
+                {
+                    "command": "echo",
+                    "options": [
+                        "$doc_commands_local_pre_0_command",
+                        "$doc_directory",
+                        "$doc_host",
+                        "$doc_commands_local_pre_0_options_length"
+                    ]
+                }
+            ]
         }
-      ]
     }
-  }
 }
 .
 .fi
@@ -1211,39 +1211,39 @@ A complete example that uses npm(1) to create a tarball, moves it to the local \
 .nf
 
 {
-  "env": {
-    "archive": {
-      "name": "${project_name}\-${project_version}\.tgz",
-      "dir": "$target",
-      "path": "${target}/${project_name}\-${project_version}\.tgz"
-    }
-  },
-  "host": "user@example\.com",
-  "directory": "~/www",
-  "profiles": {
-    "npm": {
-      "type": "tar",
-      "url": "~/$env_archive_name",
-      "commands": {
-        "local": {
-          "pre": [
-            {
-              "command": "npm",
-              "options": [ "pack" ]
-            },
-            {
-              "command": "mv",
-              "options": [ "$env_archive_name", "$env_archive_dir" ]
-            },
-            {
-              "command": "scp",
-              "options": [ "$env_archive_path", "${host}:~/" ]
-            }
-          ]
+    "env": {
+        "archive": {
+            "name": "${project_name}\-${project_version}\.tgz",
+            "dir": "$target",
+            "path": "${target}/${project_name}\-${project_version}\.tgz"
         }
-      }
+    },
+    "host": "user@example\.com",
+    "directory": "~/www",
+    "profiles": {
+        "npm": {
+            "type": "tar",
+            "url": "~/$env_archive_name",
+            "commands": {
+                "local": {
+                    "pre": [
+                        {
+                            "command": "npm",
+                            "options": [ "pack" ]
+                        },
+                        {
+                            "command": "mv",
+                            "options": [ "$env_archive_name", "$env_archive_dir" ]
+                        },
+                        {
+                            "command": "scp",
+                            "options": [ "$env_archive_path", "${host}:~/" ]
+                        }
+                    ]
+                }
+            }
+        }
     }
-  }
 }
 .
 .fi

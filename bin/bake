@@ -9,7 +9,7 @@
 boilerplate() {
   local dir="${BASH_SOURCE[0]}";
   [[ -L "${dir}" ]] && dir=$( readlink "${BASH_SOURCE[0]}" );
-  [[ ! "${dir}" =~ /bin/?$ ]] && dir=$( dirname -- "${dir}" );
+  [[ -f "${dir}" ]] && dir=$( dirname -- "${dir}" );
   dir=$( cd "${dir}" && pwd );
   export PATH="${dir}:${PATH}";
   boilerplate=$( command -v boilerplate.sh ) \

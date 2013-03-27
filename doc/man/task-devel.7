@@ -30,7 +30,7 @@ require \'tasks/devel\';
 .nf
 
 bake devel push [options\.\.\.] [id]
-bake devel pull [options\.\.\.] [id]
+    bake devel pull [options\.\.\.] [id]
 .
 .fi
 .
@@ -39,34 +39,74 @@ bake devel pull [options\.\.\.] [id]
 .TP
 \fBpush\fR:
 .
-.IP
-Push this project to other project dependencies\.
+.IP "" 4
+.
+.nf
+
+  Push this project to other project dependencies\.
+.
+.fi
+.
+.IP "" 0
+
 .
 .TP
 \fBpull\fR:
 .
-.IP
-Pull project dependencies into this project\.
+.IP "" 4
+.
+.nf
+
+  Pull project dependencies into this project\.
+.
+.fi
+.
+.IP "" 0
+
 .
 .SH "OPTIONS"
 .
 .TP
 \fB\-\-force\fR:
 .
-.IP
-Force overwriting of an existing dependency\.
+.IP "" 4
+.
+.nf
+
+  Force overwriting of an existing dependency\.
+.
+.fi
+.
+.IP "" 0
+
 .
 .TP
 \fB\-\-test\fR:
 .
-.IP
-Run tests after a push or pull command\.
+.IP "" 4
+.
+.nf
+
+  Run tests after a push or pull command\.
+.
+.fi
+.
+.IP "" 0
+
 .
 .TP
 \fB\-\-revert\fR:
 .
-.IP
-Revert to the version in use prior to a push or pull if tests fails\.
+.IP "" 4
+.
+.nf
+
+  Revert to the version in use prior to a push or pull if tests fails\.
+.
+.fi
+.
+.IP "" 0
+
 .
 .SH "BUGS"
 \fBtask\-devel\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
