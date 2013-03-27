@@ -1,33 +1,27 @@
-boilerplate(3) -- boilerplate for strike(1)
+boilerplate(3) -- boilerplate script
 =============================================
 
 ## SYNOPSIS
 
-Before using the strike(1) modules and functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links).
+In order to resolve the executable path and library files the boilerplate script must be installed. It performs the following functions:
+
+* Resolve the full path to the executable resolving symbolic links
+* Load the library functions
 
 ## CODE
 
-If you have installed the `strike` library as a node module and your executable is in a `bin` directory (sibling of the `node_modules` directory) the boilerplate would look like:
+The code to load the boilerplate script should be placed at the beginning of the executable:
 
-	export exedir;
-	boilerplate() {
-		local src="${BASH_SOURCE[0]}"
-		exedir="$( dirname "$src" )"
-		while [ -h "$src" ]
-			do 
-				src="$(readlink "$src")";
-				[[ $src != /* ]] && src="$exedir/$src";
-				exedir="$( cd -P "$( dirname "$src"	 )" && pwd )";
-		done
-		exedir="$( cd -P "$( dirname "$src" )" && pwd )";
-		unset src;
-		source "$exedir/../node_modules/strike/lib/shared" "$@";
-	}
+	boilerplate=$( command -v boilerplate.sh ) \
+		&& . "$boilerplate" && unset boilerplate \
+		|| { echo "fatal: could not locate boilerplate.sh" && exit 1; }
 	boilerplate "$@";
-	
-If your executable is in the `${root}` of the project you can change the `source` line to:
 
-	source "$exedir/node_modules/strike/lib/shared" "$@";
+## FILES
+
+The *boilerplate.sh* file must be installed in PATH in order for executables to function correctly.
+
+If you want the executables only available to a single user you can place the boilerplate.sh file in a PATH directory for that user. Whereas, if you wish that all users should be able to run the executables place the file in a common PATH directory such as /bin, /usr/bin or /usr/local/bin.
 
 ## COPYRIGHT
 

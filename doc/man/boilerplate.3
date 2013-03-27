@@ -4,50 +4,40 @@
 .TH "BOILERPLATE" "3" "March 2013" "" ""
 .
 .SH "NAME"
-\fBboilerplate\fR \- boilerplate for strike(1)
+\fBboilerplate\fR \- boilerplate script
 .
 .SH "SYNOPSIS"
-Before using the strike(1) modules and functions you need to include some boilerplate code which is responsible for determining the filesystem path to the executable (including resolving symbolic links)\.
+In order to resolve the executable path and library files the boilerplate script must be installed\. It performs the following functions:
+.
+.IP "\[ci]" 4
+Resolve the full path to the executable resolving symbolic links
+.
+.IP "\[ci]" 4
+Load the library functions
+.
+.IP "" 0
 .
 .SH "CODE"
-If you have installed the \fBstrike\fR library as a node module and your executable is in a \fBbin\fR directory (sibling of the \fBnode_modules\fR directory) the boilerplate would look like:
+The code to load the boilerplate script should be placed at the beginning of the executable:
 .
 .IP "" 4
 .
 .nf
 
-export exedir;
-boilerplate() {
-    local src="${BASH_SOURCE[0]}"
-    exedir="$( dirname "$src" )"
-    while [ \-h "$src" ]
-        do
-            src="$(readlink "$src")";
-            [[ $src != /* ]] && src="$exedir/$src";
-            exedir="$( cd \-P "$( dirname "$src"  )" && pwd )";
-    done
-    exedir="$( cd \-P "$( dirname "$src" )" && pwd )";
-    unset src;
-    source "$exedir/\.\./node_modules/strike/lib/shared" "$@";
-}
+boilerplate=$( command \-v boilerplate\.sh ) \e
+    && \. "$boilerplate" && unset boilerplate \e
+    || { echo "fatal: could not locate boilerplate\.sh" && exit 1; }
 boilerplate "$@";
 .
 .fi
 .
 .IP "" 0
 .
+.SH "FILES"
+The \fIboilerplate\.sh\fR file must be installed in PATH in order for executables to function correctly\.
+.
 .P
-If your executable is in the \fB${root}\fR of the project you can change the \fBsource\fR line to:
-.
-.IP "" 4
-.
-.nf
-
-source "$exedir/node_modules/strike/lib/shared" "$@";
-.
-.fi
-.
-.IP "" 0
+If you want the executables only available to a single user you can place the boilerplate\.sh file in a PATH directory for that user\. Whereas, if you wish that all users should be able to run the executables place the file in a common PATH directory such as /bin, /usr/bin or /usr/local/bin\.
 .
 .SH "COPYRIGHT"
 \fBboilerplate\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
