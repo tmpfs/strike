@@ -1,26 +1,37 @@
 # test for a nonexistent program and validates that
 # a non-zero exit code is returned
-function test.executable.validate.fail {
-  executable.validate nonexistent &
-  wait %%;
+test.validate.fail() {
+  executable.validate --test nonexistent;
   assert.eq "1" "$?";
 }
 
 # validate a built in program ls(1)
-function test.executable.validate.ls {
+test.validate.ls() {
   executable.validate ls;
-  assert.equal "ls" "`basename "${executables[ls]}"`";
+  assert.eq "0" "$?";
+  assert.equal "ls" "$( basename "${executables[ls]}" )";
 }
 
 # test for a non-existent program and don't quit on failure
-function test.executable.validate.test.fail {
+test.validate.test.fail() {
   executable.validate --test nonexistent;
-  #echo "got executable: ${!executables[@]}";
-  assert.empty? "${executables[nonexistent]}";
+  assert.eq "1" "$?";
+  assert.empty? "${executables[nonexistent]:-}";
 }
 
 # test for a built in program pwd(1) and don't quit on failure
-function test.executable.validate.test.pass {
+test.validate.test.pass() {
   executable.validate --test pwd;
-  assert.equal "pwd" "`basename "${executables[pwd]}"`";
+  assert.eq "0" "$?";
+  assert.equal "pwd" "$( basename "${executables[pwd]}" )";
+}
+
+# test multiple programs
+test.validate.multiple() {
+  executable.validate pwd ls rm mv;
+  assert.eq "0" "$?";
+  assert.empty! "${executables[pwd]}";
+  assert.empty! "${executables[ls]}";
+  assert.empty! "${executables[rm]}";
+  assert.empty! "${executables[mv]}";
 }
