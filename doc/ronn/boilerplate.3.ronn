@@ -21,7 +21,11 @@ The code to load the boilerplate script should be placed at the beginning of the
 
 The *boilerplate.sh* file must be installed in PATH in order for executables to function correctly.
 
-If you want the executables only available to a single user you can place the boilerplate.sh file in a PATH directory for that user. Whereas, if you wish that all users should be able to run the executables place the file in a common PATH directory such as /bin, /usr/bin or /usr/local/bin.
+If you want the executables only available to a single user you can place the boilerplate.sh file in a PATH directory for that user. Whereas, if all users should be able to run the executables place the file in a common PATH directory such as /bin, /usr/bin or /usr/local/bin.
+
+## NOTES
+
+The bake(1) executable needs to run under a few different situations including when *boilerplate.sh* is not installed therefore it uses different logic for resolving the path to the script.
 
 ## COPYRIGHT
 
@@ -29,4 +33,4 @@ If you want the executables only available to a single user you can place the bo
 
 ## SEE ALSO
 
-strike(1)
+bake(1)

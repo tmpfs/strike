@@ -37,10 +37,13 @@ boilerplate "$@";
 The \fIboilerplate\.sh\fR file must be installed in PATH in order for executables to function correctly\.
 .
 .P
-If you want the executables only available to a single user you can place the boilerplate\.sh file in a PATH directory for that user\. Whereas, if you wish that all users should be able to run the executables place the file in a common PATH directory such as /bin, /usr/bin or /usr/local/bin\.
+If you want the executables only available to a single user you can place the boilerplate\.sh file in a PATH directory for that user\. Whereas, if all users should be able to run the executables place the file in a common PATH directory such as /bin, /usr/bin or /usr/local/bin\.
+.
+.SH "NOTES"
+The bake(1) executable needs to run under a few different situations including when \fIboilerplate\.sh\fR is not installed therefore it uses different logic for resolving the path to the script\.
 .
 .SH "COPYRIGHT"
 \fBboilerplate\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
 .
 .SH "SEE ALSO"
-strike(1)
+bake(1)
