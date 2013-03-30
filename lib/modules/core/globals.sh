@@ -10,6 +10,7 @@ declare -Agx process_dirs;
 
 declare -Agx executables;
 
+declare -gx username=$( id -nu );
 declare -lgx platform=$( uname -s );
 
 declare -gx linux_platform="linux";
