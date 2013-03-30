@@ -10,7 +10,7 @@ declare -Agx process_dirs;
 
 declare -Agx executables;
 
-declare -lg platform=$( uname );
+declare -lgx platform=$( uname -s );
 
 declare -gx linux_platform="linux";
 declare -gx darwin_platform="darwin";

@@ -1,5 +1,4 @@
-require 'net/url';
-
+require net/url;
 
 declare -g http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
 process.directory 'http';

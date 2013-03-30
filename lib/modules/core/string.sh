@@ -82,9 +82,9 @@ string.split() {
   unset IFS;
 }
 
-string.quote() {
-  _result=$( printf %q "$1" );
-}
+# string.quote() {
+#   _result=$( printf %q "$1" );
+# }
 
 string.contains?() {
   local haystack="${1:-}";
