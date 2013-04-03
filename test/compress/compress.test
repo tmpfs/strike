@@ -244,19 +244,13 @@ function test.compress.cx.recursive {
   # move files into nested
   mv "${files[@]}" "$nested";
   # copy files into deep and deeper
-  
-  # echo "using find command: find "$nested" -depth 1 -type f" >&2;
-  
-  # TODO: move this to a wrapper for switching find commands
-  # TODO: based on operating system
-  local findopts=( "-O1" "$nested" "-type" "f" );
-  # if [[ "$OSTYPE" =~ ^darwin ]]; then
-  #   findopts=( "$nested" "-depth" "1" "-type" "f" );
-  # fi
-  
-  #echo "using find command: find ${findopts[@]}" >&2;
-  
-  local nested_files=( $( find "${findopts[@]}" ) );
+  local nested_files=();
+  local nf;
+  for nf in "${nested}"/*
+    do
+      test -f "${nf}" && nested_files+=( "$nf" );
+  done
+
   cp "${nested_files[@]}" "${deep}";
   cp "${nested_files[@]}" "${deeper}";
   
@@ -403,16 +397,7 @@ function test.compress.cx.stdin {
   # after the hyphen option
   #$program $cmd - lipsum.txt;
   
-  # TODO: move this to a wrapper for switching find commands
-  # TODO: based on operating system
-  local findopts=( "-O1" "$dir" "-name" "*.txt" );
-  # if [[ "$OSTYPE" =~ ^darwin ]]; then
-  #   findopts=( "$dir" "-depth" "1" "-name" "*.txt" );
-  # fi  
-  
-  # echo "find: ${findopts[@]}";
-  # find "${findopts[@]}";
-  
+  local findopts=( "$dir" "-name" "*.txt" );
   # valid - pipe output of command as file list
   find "${findopts[@]}" | $program $cmd -;
   assert.file.exists? "${compressed[0]}";
@@ -421,13 +406,7 @@ function test.compress.cx.stdin {
   #clean up after test run
   rm "${compressed[@]}";
   
-  # TODO: move this to a wrapper for switching find commands
-  # TODO: based on operating system
-  findopts=( "-O1" "$dir" "-name" "lipsum.txt" );
-  # if [[ "$OSTYPE" =~ ^darwin ]]; then
-  #   findopts=( "$dir" "-depth" "1" "-name" "lipsum.txt" );
-  # fi
-  
+  findopts=( "$dir" "-name" "lipsum.txt" );
   # valid - pipe output and specify files after stdin option
   find "${findopts[@]}" | $program $cmd - "${dir}/etiam.txt";
   assert.file.exists? "${compressed[0]}";
