@@ -147,11 +147,21 @@ couchdb.db.cleanup() {
   couchdb.run "POST" "${host}/${db}/_view_cleanup";
 }
 
-
 couchdb.db.info() {
   local host="${1:-}";
   local db="${2:-}";
   couchdb.run "GET" "${host}/${db}";
+}
+
+couchdb.db.alldocs() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local querystring="${3:-}";
+  local url="${host}/${db}/_all_docs"
+  if [ -n "$querystring" ]; then
+    url+="${querystring}";
+  fi
+  couchdb.run "GET" "${url}";
 }
 
 couchdb.db.name.valid?() {
@@ -186,7 +196,7 @@ couchdb.view() {
   local querystring="${3:-}";
   local path="_design/${viewdoc}/_view/${view}";
   
-  if [ ! -z "$querystring" ]; then
+  if [ -n "$querystring" ]; then
     path="${path}${querystring}";
   fi
   
