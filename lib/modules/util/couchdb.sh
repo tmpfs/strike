@@ -100,6 +100,24 @@ couchdb.db.list() {
   couchdb.run "GET" "${host}/_all_dbs";
 }
 
+couchdb.db.changes() {
+  local host="${1:-}";
+  local db="${2:-}";
+  couchdb.run "GET" "${host}/${db}/_changes";
+}
+
+couchdb.db.revslimit() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local amount="${3:-}";
+  local url="${host}/${db}/_revs_limit";
+  if [[ "${amount}" =~ ^[0-9]+$ ]]; then
+    couchdb.run "PUT" "${url}" "-d" "${amount}";
+  else
+    couchdb.run "GET" "${url}";
+  fi
+}
+
 couchdb.db.add() {
   local host="${1:-}";
   local db="${2:-}";
@@ -142,6 +160,23 @@ couchdb.db.name.valid?() {
     return 0;
   fi
   return 1;
+}
+
+couchdb.doc.save() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local doc="${3:-}";
+  local id="${4:-}";
+  if [ -f "${doc}" ]; then
+    local url="${host}/${db}";
+    local method="POST";
+    if [ -n "${id}" ]; then
+      url+="/${id}";
+      method="PUT";
+    fi
+    couchdb.run "${method}" "${url}" \
+      -# --data-binary "@${doc}";
+  fi
 }
 
 # query a view document

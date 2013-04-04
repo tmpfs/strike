@@ -36,7 +36,7 @@ json.stringify() {
     # read in stdin
     read -a stdin;
     # expand stdin data to positional parameters
-    set -- $( echo "${stdin[@]}" );
+    set -- $( echo "${stdin[@]:-}" );
   fi
   
   local json_data="${1:-}";
@@ -44,7 +44,8 @@ json.stringify() {
   #echo "json_data: $json_data";
   
   if [ -z "$json_data" ]; then
-    console warn "invalid json.stringify call, usage: json.stringify <<< \"varname\"";
+    console warn -- \
+      "invalid json.stringify call, usage: json.stringify <<< \"varname\"";
     return 1;
   fi
   
