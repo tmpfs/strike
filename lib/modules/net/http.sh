@@ -189,9 +189,9 @@ http.curl.execute() {
         "curl exited with non-zero status code (%s)" "$http_exit_code";
     else
       if [ -f "$http_stderr_file" ]; then
-        console warn -- "`cat $http_stderr_file`";
+        console error -- "$( cat $http_stderr_file )";
       else
-        console warn \
+        console error -- \
           "curl exited with non-zero status code (%s)" "$http_exit_code";
       fi
     fi
