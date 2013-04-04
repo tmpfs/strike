@@ -115,7 +115,12 @@ couchdb.db.rm() {
 couchdb.db.compact() {
   local host="${1:-}";
   local db="${2:-}";
-  couchdb.run "POST" "${host}/${db}/_compact";
+  local design="${3:-}";
+  local url="${host}/${db}/_compact";
+  if [ -n "${design}" ]; then
+    url+="/${design}";
+  fi
+  couchdb.run "POST" "${url}";
 }
 
 couchdb.db.cleanup() {
