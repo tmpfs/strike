@@ -4,13 +4,14 @@ declare -g variable_name_sanitize_regexp="[^a-zA-Z0-9_]";
 
 variable.get() {
   local name="$1";
+  local assign="${2:-value}";
   set +o nounset;
   #array.is.array? "$name";
   #local isarray="$_result";
   if array.is.array?; then
     eval value=\${"$name"[@]};
   else
-    eval value="$"$name;
+    eval "${assign}=\${$name}";
   fi
   _result="$value";
   set -o nounset;

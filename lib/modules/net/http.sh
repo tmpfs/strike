@@ -1,7 +1,7 @@
 require net/url;
 
 declare -g http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
-process.directory 'http';
+process.directory http;
 declare -g http_home=~/.${framework}/http;
 declare -g http_output_file="$http_home/http.out";
 declare -g http_head_file="$http_home/http.head";
@@ -16,6 +16,7 @@ declare -g http_stderr_file="$http_home/http.stderr";
 declare -g http_stdout_file="$http_home/http.stdout";
 declare -g http_config_name="";
 declare -g http_base_url="";
+declare -Ag http_headers;
 
 # determines whether curl(1) stderr output is also
 # printed to the screen
@@ -99,7 +100,7 @@ http.config.save() {
     fi
     local configfile="${http_config_dir}/${id}"
     copy "$http_config_file" "$configfile" \
-      || quit 1 "could not copy config file to %s" "$configfile";
+      || console quit 1 -- "could not copy config file to %s" "$configfile";
   fi
 }
 
@@ -431,6 +432,12 @@ __http_parse_header() {
   local index="$1";
   local name="${2%: ?*}";
   local value="${2#*:}";
+
+  # raw header information for final
+  # set of headers
+  if [ "$index" -eq "$http_response_num_redirects" ]; then
+    http_headers["${name}"]="${value}";
+  fi
   
   #convert hyphens to underscores
   name="${name//-/_}";
@@ -451,6 +458,9 @@ __http_parse_header() {
 
 __http_response_parse() {
   #echo "parsing http response..$@";
+
+  unset http_headers;
+  declare -Ag http_headers;
   
   # number of redirects corresponds to the number of headers to parse
   local redirects=${http_response_num_redirects:-0};

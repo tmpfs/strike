@@ -164,12 +164,29 @@ couchdb.db.alldocs() {
   couchdb.run "GET" "${url}";
 }
 
-couchdb.db.name.valid?() {
-  local name="${1:-}";
-  if [[ "$name" =~ ^[-a-zA-Z0-9]+$ ]]; then
-    return 0;
-  fi
-  return 1;
+couchdb.doc.get() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local id="${3:-}";
+  local url="${host}/${db}/${id}";
+  couchdb.run "GET" "${url}";
+}
+
+couchdb.doc.rm() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local id="${3:-}";
+  local rev="${4:-}";
+  local url="${host}/${db}/${id}";
+  couchdb.run "DELETE" "${url}";
+}
+
+couchdb.doc.head() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local id="${3:-}";
+  local url="${host}/${db}/${id}";
+  couchdb.run "GET" "${url}" --head;
 }
 
 couchdb.doc.save() {
