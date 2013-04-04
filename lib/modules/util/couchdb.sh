@@ -98,6 +98,24 @@ couchdb.db.list() {
   couchdb.run "GET" "${host}/_all_dbs";
 }
 
+couchdb.db.add() {
+  local host="${1:-}";
+  local db="${2:-}";
+  couchdb.run "PUT" "${host}/${db}";
+}
+
+couchdb.db.rm() {
+  local host="${1:-}";
+  local db="${2:-}";
+  couchdb.run "DELETE" "${host}/${db}";
+}
+
+couchdb.db.info() {
+  local host="${1:-}";
+  local db="${2:-}";
+  couchdb.run "GET" "${host}/${db}";
+}
+
 couchdb.db.name.valid?() {
   local name="${1:-}";
   if [[ "$name" =~ ^[-a-zA-Z0-9]+$ ]]; then
