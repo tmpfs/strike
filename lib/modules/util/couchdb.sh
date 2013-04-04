@@ -84,6 +84,7 @@ couchdb.auth.update() {
   fi
 }
 
+# TODO: deprecate
 # sets the host and database name in use
 couchdb.db() {
     local host="${1:-}";
@@ -92,6 +93,26 @@ couchdb.db() {
     couchdb_host="${host}";
     couchdb_dbname="${dbname}";
     couchdb_path="${host}/${dbname}";
+}
+
+couchdb.tasks() {
+  local host="${1:-}";
+  couchdb.run "GET" "${host}/_active_tasks";
+}
+
+couchdb.stats() {
+  local host="${1:-}";
+  couchdb.run "GET" "${host}/_stats";
+}
+
+couchdb.uuids() {
+  local host="${1:-}";
+  local count="${2:-}";
+  local url="${host}/_uuids";
+  if [[ "${count}" =~ ^[0-9]+$ ]]; then
+    url+="?count=${count}";
+  fi
+  couchdb.run "GET" "${url}";
 }
 
 couchdb.db.list() {
