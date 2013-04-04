@@ -177,7 +177,7 @@ couchdb.doc.rm() {
   local db="${2:-}";
   local id="${3:-}";
   local rev="${4:-}";
-  local url="${host}/${db}/${id}";
+  local url="${host}/${db}/${id}?rev=${rev}";
   couchdb.run "DELETE" "${url}";
 }
 
