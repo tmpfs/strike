@@ -37,7 +37,9 @@ declare -g couchdb_session_login_auth_token="";
 # add before/after debugging statements
 couchdb.run() {
   local opts=( "$@" );
-  
+
+  opts+=( "-H" "Content-Type: application/json" );
+
   # add session cookie authentication information
   if [ -n "${couchdb_session_login_auth_token:-}" ]; then
     opts+=( "-H" "X-CouchDB-WWW-Authenticate: Cookie" );
@@ -109,6 +111,19 @@ couchdb.db.rm() {
   local db="${2:-}";
   couchdb.run "DELETE" "${host}/${db}";
 }
+
+couchdb.db.compact() {
+  local host="${1:-}";
+  local db="${2:-}";
+  couchdb.run "POST" "${host}/${db}/_compact";
+}
+
+couchdb.db.cleanup() {
+  local host="${1:-}";
+  local db="${2:-}";
+  couchdb.run "POST" "${host}/${db}/_view_cleanup";
+}
+
 
 couchdb.db.info() {
   local host="${1:-}";

@@ -192,7 +192,7 @@ http.curl.execute() {
         console warn -- "`cat $http_stderr_file`";
       else
         console warn \
-          "curl exited with non-zero status code (%s" "$http_exit_code";
+          "curl exited with non-zero status code (%s)" "$http_exit_code";
       fi
     fi
   fi
@@ -211,10 +211,6 @@ http.curl.execute() {
     
     # parse response headers into variable data
     __http_response_parse "${http_head_dump_file}";
-  else
-    # TODO: remove this warning or prevent for the `rest dl` command?
-    # TODO: don't show this if the request is HEAD
-    console warn "no http output file %s after request" "$http_body_file";
   fi
 }
 
@@ -293,7 +289,7 @@ http.curl() {
 
   #pass in custom opts
   if [ ${#opts[@]} -gt 0 ]; then
-    echo "adding custom options... ${opts[@]}";
+    #echo "adding custom options... ${opts[@]}";
     runopts+=( "${opts[@]}" );
   fi
   
