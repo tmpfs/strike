@@ -2,7 +2,7 @@
   "name": "strike",
   "description": "Modular bash using require(3) for *NIX systems",
   "homepage": "https://github.com/freeformsystems/strike",
-  "version": "0.1.50",
+  "version": "0.1.51",
   "author": "muji <muji@xpm.io>",
   "licenses": [ {
     "type": "MIT",
