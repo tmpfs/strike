@@ -110,7 +110,7 @@ couchdb.log() {
   couchdb.run "GET" "${host}/_log";
 }
 
-couchdb.config() {
+couchdb.config.get() {
   local host="${1:-}";
   local section="${2:-}";
   local key="${3:-}";
@@ -122,6 +122,35 @@ couchdb.config() {
     url+="/${key}";
   fi
   couchdb.run "GET" "${url}";
+}
+
+couchdb.config.rm() {
+  local host="${1:-}";
+  local section="${2:-}";
+  local key="${3:-}";
+  local url="${host}/_config";
+  if [ -n "${section}" ]; then
+    url+="/${section}";
+  fi
+  if [ -n "${key}" ]; then
+    url+="/${key}";
+  fi
+  couchdb.run "DELETE" "${url}";
+}
+
+couchdb.config.set() {
+  local host="${1:-}";
+  local section="${2:-}";
+  local key="${3:-}";
+  local json="${4:-}";
+  local url="${host}/_config";
+  if [ -n "${section}" ]; then
+    url+="/${section}";
+  fi
+  if [ -n "${key}" ]; then
+    url+="/${key}";
+  fi
+  couchdb.run "PUT" "${url}" --data-binary "${json}";
 }
 
 couchdb.restart() {
@@ -141,8 +170,19 @@ couchdb.uuids() {
 
 couchdb.db.list() {
   local host="${1:-}";
-  #couchdb.auth.update;
   couchdb.run "GET" "${host}/_all_dbs";
+}
+
+couchdb.db.purge() {
+  local host="${1:-}";
+  local db="${2:-}";
+  couchdb.run "POST" "${host}/${db}/_purge";
+}
+
+couchdb.db.commit() {
+  local host="${1:-}";
+  local db="${2:-}";
+  couchdb.run "POST" "${host}/${db}/_ensure_full_commit";
 }
 
 couchdb.db.changes() {
