@@ -17,6 +17,7 @@ prompt() {
   # list of competion functions
   declare -a completions;
   # configuration settings
+  # TODO: refactor to prompt_settings
   declare -A settings;
   settings[silent]=false;
   settings[multiline]=false;
