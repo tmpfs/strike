@@ -112,7 +112,16 @@ couchdb.log() {
 
 couchdb.config() {
   local host="${1:-}";
-  couchdb.run "GET" "${host}/_config";
+  local section="${2:-}";
+  local key="${3:-}";
+  local url="${host}/_config";
+  if [ -n "${section}" ]; then
+    url+="/${section}";
+  fi
+  if [ -n "${key}" ]; then
+    url+="/${key}";
+  fi
+  couchdb.run "GET" "${url}";
 }
 
 couchdb.restart() {
