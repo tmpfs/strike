@@ -66,7 +66,12 @@ couchdb.stats() {
 
 couchdb.log() {
   local host="${1:-}";
-  couchdb.run "GET" "${host}/_log";
+  local bytes="${2:-}";
+  local url="${host}/_log";
+  if [[ "${bytes}" =~ ^[0-9]+$ ]]; then
+    url+="?bytes=${bytes}";
+  fi
+  couchdb.run "GET" "${url}";
 }
 
 couchdb.config.get() {
