@@ -110,6 +110,11 @@ couchdb.log() {
   couchdb.run "GET" "${host}/_log";
 }
 
+couchdb.config() {
+  local host="${1:-}";
+  couchdb.run "GET" "${host}/_config";
+}
+
 couchdb.restart() {
   local host="${1:-}";
   couchdb.run "POST" "${host}/_restart";
