@@ -105,6 +105,16 @@ couchdb.stats() {
   couchdb.run "GET" "${host}/_stats";
 }
 
+couchdb.log() {
+  local host="${1:-}";
+  couchdb.run "GET" "${host}/_log";
+}
+
+couchdb.restart() {
+  local host="${1:-}";
+  couchdb.run "POST" "${host}/_restart";
+}
+
 couchdb.uuids() {
   local host="${1:-}";
   local count="${2:-}";
