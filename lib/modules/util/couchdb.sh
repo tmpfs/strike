@@ -1,5 +1,5 @@
-require.once json;
 require.once net/http;
+require.once net/url;
 
 declare -g couchdb_verbose=false;
 declare -g couchdb_session_login_auth_token="";
@@ -16,7 +16,10 @@ declare -g couchdb_session_login_auth_token="";
 # add before/after debugging statements
 couchdb.run() {
   if $couchdb_verbose; then
-    console info --prefix="[${1:-GET}]" -- "${2:-}";
+    local verb="${1:-}";
+    local url="${2:-}";
+    url="${url//%/%%/}";
+    console info --prefix="[${verb}]" -- "${url}";
   fi
   local opts=( "$@" );
   opts+=( "-H" "Content-Type: application/json" );
@@ -174,6 +177,7 @@ couchdb.db.revslimit() {
 couchdb.db.add() {
   local host="${1:-}";
   local db="${2:-}";
+  url.encode "${db}" "db";
   couchdb.run "PUT" "${host}/${db}";
 }
 

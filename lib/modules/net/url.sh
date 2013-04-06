@@ -1,15 +1,19 @@
 declare -Agx url_params;
 
-function url.encode {
-    local data=$(curl -s -o /dev/null -w %{url_effective} --get --data-urlencode "$1" "")
-    _result="${data##/?}";
+url.encode() {
+  local param="${1:-}";
+  local name="${2:-}";
+  local opts="-s -o /dev/null -w %{url_effective} --get --data-urlencode";
+  local data=$(curl $opts "${param}" "")
+  data="${data##/?}";
+  variable.set "${name}" "${data}";
 }
 
-function url.params.clear {
+url.params.clear() {
   url_params=();
 }
 
-function url.params.add {
+url.params.add() {
   local name="${1:-}";
   local value="${2:-}";
   if [ ! -z "$name" ]; then
@@ -17,7 +21,7 @@ function url.params.add {
   fi
 }
 
-function url.params.stringify {
+url.params.stringify() {
   local opts=();
   local p;
   for p in ${!url_params[@]}
@@ -28,7 +32,7 @@ function url.params.stringify {
   url.query.string "${opts[@]:-}";
 }
 
-function url.query.string {
+url.query.string() {
   local output="";
   local oifs;
   for opt in "${@}"
@@ -39,10 +43,10 @@ function url.query.string {
           if [ -z "$name" ] || [ -z "$value" ]; then
             continue;
           fi
-          url.encode "$value";
+          url.encode "$value" "value";
           # echo "encoding name: ${name}";
           # echo "encoding value: ${_result}";
-          output="${output}${name}=${_result}&";
+          output="${output}${name}=${value}&";
       done <<< "$opt";
   done
   if [ ! -z "$output" ]; then
