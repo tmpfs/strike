@@ -39,6 +39,8 @@ couchdb.session.login() {
       "-H" "Content-Type: application/x-www-form-urlencoded" \
       "-d" "name=${user}&password=${pass}";
       
+    # TODO: refactor to use http_headers array which will work when redirects
+    # are in use
     local cookie="${http_header_0_set_cookie:-}";
     if [ -z "$cookie" ]; then
       console warn -- \
@@ -53,6 +55,8 @@ couchdb.session.login() {
     #echo "got set cookie header: $http_header_0_set_cookie";
   fi
 }
+
+# TODO: url encode database names so that slashes may be used
 
 couchdb.tasks() {
   local host="${1:-}";
@@ -261,16 +265,8 @@ couchdb.view() {
   local view="${2:-}";
   local querystring="${3:-}";
   local path="_design/${viewdoc}/_view/${view}";
-  
   if [ -n "$querystring" ]; then
     path="${path}${querystring}";
   fi
-  
-  #if [ ! -z "$couchdb_view_options" ]; then
-  # echo "got view options...";
-  #fi
-  http_curl "GET" "${path}";
-  
-  #reset the view options
-  #couchdb_view_options="";
+  couchdb.run "GET" "${path}";
 }
