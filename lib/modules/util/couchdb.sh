@@ -2,6 +2,7 @@ require.once net/http;
 require.once net/url;
 
 declare -g couchdb_verbose=false;
+declare -g couchdb_verbose_background="black";
 declare -g couchdb_session_login_auth_token="";
 
 # > curl -vX POST $HOST/_session -H 'Content-Type: application/x-www-form-urlencoded' -d 'name=anna&password=secret'
@@ -21,7 +22,9 @@ couchdb.run() {
     # NOTE: must escape URL encoded values to prevent
     # NOTE: printf from interpreting them
     url="${url//%/%%/}";
-    console info --prefix="[${verb}]" -- "${url}";
+    console info --prefix="[${verb}]" \
+      --background0="${couchdb_verbose_background}" \
+      -- "%s" "${url}";
   fi
   local opts=( "$@" );
   opts+=( "-H" "Content-Type: application/json" );
