@@ -64,8 +64,6 @@ couchdb.session.login() {
   fi
 }
 
-# TODO: url encode database names so that slashes may be used
-
 couchdb.tasks() {
   local host="${1:-}";
   couchdb.run "GET" "${host}/_active_tasks";
@@ -81,6 +79,7 @@ couchdb.log() {
   local bytes="${2:-}";
   local url="${host}/_log";
   if [[ "${bytes}" =~ ^[0-9]+$ ]]; then
+    url.encode "${bytes}" "bytes";
     url+="?bytes=${bytes}";
   fi
   couchdb.run "GET" "${url}";
@@ -139,6 +138,7 @@ couchdb.uuids() {
   local count="${2:-}";
   local url="${host}/_uuids";
   if [[ "${count}" =~ ^[0-9]+$ ]]; then
+    url.encode "${count}" "count";
     url+="?count=${count}";
   fi
   couchdb.run "GET" "${url}";
@@ -239,8 +239,14 @@ couchdb.doc.get() {
   local host="${1:-}";
   local db="${2:-}";
   local id="${3:-}";
+  local rev="${4:-}";
   url.encode "${db}" "db";
+  url.encode "${id}" "id";
   local url="${host}/${db}/${id}";
+  if [ -n "${rev}" ]; then
+    url.encode "${rev}" "rev";
+    url+="?rev=${rev}";
+  fi
   couchdb.run "GET" "${url}";
 }
 
@@ -250,6 +256,8 @@ couchdb.doc.rm() {
   local id="${3:-}";
   local rev="${4:-}";
   url.encode "${db}" "db";
+  url.encode "${id}" "id";
+  url.encode "${rev}" "rev";
   local url="${host}/${db}/${id}?rev=${rev}";
   couchdb.run "DELETE" "${url}";
 }
@@ -259,6 +267,7 @@ couchdb.doc.head() {
   local db="${2:-}";
   local id="${3:-}";
   url.encode "${db}" "db";
+  url.encode "${id}" "id";
   local url="${host}/${db}/${id}";
   couchdb.run "GET" "${url}" --head;
 }
@@ -269,6 +278,7 @@ couchdb.doc.save() {
   local doc="${3:-}";
   local id="${4:-}";
   url.encode "${db}" "db";
+  url.encode "${id}" "id";
   if [ -f "${doc}" ]; then
     local url="${host}/${db}";
     local method="POST";
