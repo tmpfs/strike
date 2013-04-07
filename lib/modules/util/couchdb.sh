@@ -286,10 +286,9 @@ couchdb.doc.save() {
   url.encode "${id}" "id";
   if [ -f "${doc}" ]; then
     local url="${host}/${db}";
-    local method="POST";
+    local method="PUT";
     if [ -n "${id}" ]; then
       url+="/${id}";
-      method="PUT";
     fi
     couchdb.run "${method}" "${url}" \
       -# --data-binary "@${doc}";
