@@ -291,6 +291,24 @@ couchdb.doc.save() {
   fi
 }
 
+couchdb.doc.copy() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local sourceid="${3:-}";
+  local targetid="${4:-}";
+  local rev="${5:-}";
+  url.encode "${db}" "db";
+  url.encode "${sourceid}" "sourceid";
+  url.encode "${targetid}" "targetid";
+  local url="${host}/${db}/${sourceid}";
+  local destination="${targetid}";
+  if [ -n "${rev}" ]; then
+    url.encode "${rev}" "rev";
+    destination+="?rev=${rev}";
+  fi
+  couchdb.run "COPY" "${url}" -H "Destination: ${destination}";
+}
+
 # query a view document
 couchdb.view() {
   local viewdoc="${1:-views}";
