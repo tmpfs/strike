@@ -19,6 +19,11 @@ couchdb.run() {
   if $couchdb_verbose; then
     local verb="${1:-}";
     local url="${2:-}";
+    # head requests are actually GET with --head
+    # change verb to reflect that only the headers are fetched
+    if array.contains? "--head" "$@"; then
+      verb="HEAD";
+    fi
     # NOTE: must escape URL encoded values to prevent
     # NOTE: printf from interpreting them
     url="${url//%/%%/}";
@@ -299,11 +304,12 @@ couchdb.doc.copy() {
   local rev="${5:-}";
   url.encode "${db}" "db";
   url.encode "${sourceid}" "sourceid";
-  url.encode "${targetid}" "targetid";
   local url="${host}/${db}/${sourceid}";
+  # NOTE: we do not need to url encode the
+  # NOTE: target id or revision as they are sent
+  # NOTE: as a header value
   local destination="${targetid}";
   if [ -n "${rev}" ]; then
-    url.encode "${rev}" "rev";
     destination+="?rev=${rev}";
   fi
   couchdb.run "COPY" "${url}" -H "Destination: ${destination}";
