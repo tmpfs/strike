@@ -131,7 +131,7 @@ http.curl.execute() {
   http.clean > /dev/null; 
 
   # create an empty body file
-  echo -ne "" >| "$http_body_file";
+  #echo -ne "" >| "$http_body_file";
   
   #ensure we unset all variables before the next request
   #TODO: move to a method for unsetting by group
