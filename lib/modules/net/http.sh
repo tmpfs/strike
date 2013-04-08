@@ -272,11 +272,12 @@ http.curl() {
     );
   fi
 
+  local body="${http_body_file}";
   if ! array.contains? "--output" "${runopts[@]}"; then
-    runopts+=(
-      "--output"
-      "$http_body_file"
-    );
+    if array.contains? "--head" "${runopts[@]}"; then
+      http_body_file="${http_head_file}";
+    fi
+    runopts+=( --output "$http_body_file" );
   fi
   runopts=( "${runopts[@]}" "$url" );
   
@@ -286,8 +287,8 @@ http.curl() {
   
   #write out the options used as a config file
   __http_write_config "${runopts[@]}";
-  
   http.curl.execute "${runopts[@]}";
+  http_body_file="${body}";
 }
 
 ######################################################################

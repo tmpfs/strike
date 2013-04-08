@@ -377,13 +377,11 @@ couchdb.attach.get() {
   url.encode "${id}" "id";
   url.encode "${rev}" "rev";
   url.encode "${name}" "name";
-  local body="${http_body_file}";
   local stderr="${http_print_stderr}";
-  http_body_file="${file}";
   http_print_stderr=true;
   local url="${host}/${db}/${id}/${name}?rev=${rev}";
-  couchdb.run "GET" "${url}" -#;
-  http_body_file="${body}";
+  couchdb.run "GET" "${url}" -# \
+    --output "${file}";
   http_print_stderr="${stderr}";
 }
 
