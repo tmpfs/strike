@@ -314,6 +314,28 @@ couchdb.doc.copy() {
   couchdb.run "COPY" "${url}" -H "Destination: ${destination}";
 }
 
+# send an attachment
+couchdb.attach() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local id="${3:-}";
+  local rev="${4:-}";
+  local file="${5:-}";
+  local name="${6:-}";
+  if [ -f "${file}" ]; then
+    if [ -z "${name}" ]; then
+      fs.basename "${file}" "name";
+    fi
+    url.encode "${db}" "db";
+    url.encode "${id}" "id";
+    url.encode "${name}" "name";
+    url.encode "${rev}" "rev";
+    local url="${host}/${db}/${id}/${name}?rev=${rev}";
+    couchdb.run "PUT" "${url}" \
+      -# --data-binary "@${file}";
+  fi
+}
+
 # query a view document
 couchdb.view() {
   local viewdoc="${1:-views}";
