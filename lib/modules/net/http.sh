@@ -141,7 +141,7 @@ http.curl.execute() {
       unset "$opt";
   done
   
-  echo "$FUNCNAME: ${#runopts[@]} : ${runopts[@]}";
+  #echo "$FUNCNAME: ${#runopts[@]} : ${runopts[@]}";
     
   # redirect stderr with tee, useful for also
   # displaying file download progress
