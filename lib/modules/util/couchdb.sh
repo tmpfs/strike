@@ -343,10 +343,13 @@ couchdb.attach() {
     if [ -z "${mime}" ]; then
       mime="${defaultmime}";
     fi
+    local stderr="${http_print_stderr}";
+    http_print_stderr=true;
     local url="${host}/${db}/${id}/${name}?rev=${rev}";
     couchdb.run "PUT" "${url}" \
       -# --data-binary "@${file}" \
       -H "Content-Type: ${mime}";
+    http_print_stderr="${stderr}";
   fi
 }
 
