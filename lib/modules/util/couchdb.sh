@@ -32,14 +32,14 @@ couchdb.run() {
       -- "%s" "${url}";
   fi
   local opts=( "$@" );
-  opts+=( "-H" "Content-Type: application/json" );
+  #opts+=( "-H" "Content-Type: application/json" );
 
   # add session cookie authentication information
-  if [ -n "${couchdb_session_login_auth_token:-}" ]; then
-    opts+=( "-H" "X-CouchDB-WWW-Authenticate: Cookie" );
-    opts+=( "-H" "Content-Type: application/x-www-form-urlencoded" );
-    opts+=( "--cookie" "$couchdb_session_login_auth_token" );
-  fi
+  #if [ -n "${couchdb_session_login_auth_token:-}" ]; then
+    #opts+=( "-H" "X-CouchDB-WWW-Authenticate: Cookie" );
+    #opts+=( "-H" "Content-Type: application/x-www-form-urlencoded" );
+    #opts+=( "--cookie" "$couchdb_session_login_auth_token" );
+  #fi
   http.curl "${opts[@]}";
 }
 
@@ -322,6 +322,8 @@ couchdb.attach() {
   local rev="${4:-}";
   local file="${5:-}";
   local name="${6:-}";
+  local mime="${7:-}";
+  local defaultmime="${8:-application/octet-stream}";
   if [ -f "${file}" ]; then
     if [ -z "${name}" ]; then
       fs.basename "${file}" "name";
@@ -330,9 +332,16 @@ couchdb.attach() {
     url.encode "${id}" "id";
     url.encode "${name}" "name";
     url.encode "${rev}" "rev";
+    if [ -z "${mime}" ]; then
+      mime=$( file -b --mime "${file}" || echo "" );
+    fi
+    if [ -z "${mime}" ]; then
+      mime="${defaultmime}";
+    fi
     local url="${host}/${db}/${id}/${name}?rev=${rev}";
     couchdb.run "PUT" "${url}" \
-      -# --data-binary "@${file}";
+      -# --data-binary "@${file}" \
+      -H "Content-Type: ${mime}";
   fi
 }
 
