@@ -1,9 +1,8 @@
 require net/url;
 
-declare -g http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n";
+declare -g http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n%{filename_effective}\n";
 process.directory http;
 declare -g http_home=~/.${framework}/http;
-declare -g http_output_file="$http_home/http.out";
 declare -g http_head_file="$http_home/http.head";
 declare -g http_body_file="$http_home/http.body";
 declare -g http_trace_file="$http_home/http.trace";
@@ -37,7 +36,6 @@ http_command_options=();
 # to be available inside function definitions
 declare -ag http_files;
 http_files=(
-  "$http_output_file"
   "$http_head_file"
   "$http_body_file"
   "$http_trace_file"
@@ -143,7 +141,7 @@ http.curl.execute() {
       unset "$opt";
   done
   
-  #echo "$FUNCNAME: ${#runopts[@]} : ${runopts[@]}";
+  echo "$FUNCNAME: ${#runopts[@]} : ${runopts[@]}";
     
   # redirect stderr with tee, useful for also
   # displaying file download progress
@@ -199,17 +197,6 @@ http.curl.execute() {
   fi
   
   if [ -f "$http_body_file" ] && [ "$http_exit_code" == "0" ]; then
-    
-    # cat "${http_head_dump_file}";
-    # echo "BODY"
-    # cat "${http_output_file}";
-    
-    # ensure that there is always a trailing newline
-    # otherwise the body will not be parsed correctly
-    # for servers that do not terminate the body with a newline
-    # eg, json REST services
-    # echo "" >> "$http_output_file";
-    
     # parse response headers into variable data
     __http_response_parse "${http_head_dump_file}";
   fi
@@ -246,7 +233,6 @@ http.curl() {
   local runopts=(
     "--request"
     "${method}"
-    "--silent"
     "--show-error"
     "--location"
   );
@@ -275,8 +261,6 @@ http.curl() {
     "$http_trace_ascii_file"
     "--write-out"
     "${curl_writeout:-"$http_curl_writeout"}"
-    "--output"
-    "$http_body_file"
   );
   
   # add additional command options
@@ -294,6 +278,18 @@ http.curl() {
     runopts+=( "${opts[@]}" );
   fi
   
+  if ! array.contains? "-#" "${runopts[@]}"; then
+    runopts+=(
+      "--silent"
+    );
+  fi
+
+  if ! array.contains? "--output" "${runopts[@]}"; then
+    runopts+=(
+      "--output"
+      "$http_body_file"
+    );
+  fi
   runopts=( "${runopts[@]}" "$url" );
   
   # echo "runopts: ${runopts[@]}";

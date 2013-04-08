@@ -365,6 +365,28 @@ couchdb.attach.rm() {
   couchdb.run "DELETE" "${url}";
 }
 
+# download an attachment
+couchdb.attach.get() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local id="${3:-}";
+  local rev="${4:-}";
+  local name="${5:-}";
+  local file="${6:-}";
+  url.encode "${db}" "db";
+  url.encode "${id}" "id";
+  url.encode "${rev}" "rev";
+  url.encode "${name}" "name";
+  local body="${http_body_file}";
+  local stderr="${http_print_stderr}";
+  http_body_file="${file}";
+  http_print_stderr=true;
+  local url="${host}/${db}/${id}/${name}?rev=${rev}";
+  couchdb.run "GET" "${url}" -#;
+  http_body_file="${body}";
+  http_print_stderr="${stderr}";
+}
+
 # query a view document
 couchdb.view() {
   local viewdoc="${1:-views}";
