@@ -1,5 +1,9 @@
 declare -Agx url_params;
 
+declare -Ag mime_types;
+mime_types[json]="application/json";
+mime_types[octet]="application/octet-stream";
+
 url.encode() {
   local param="${1:-}";
   local name="${2:-}";

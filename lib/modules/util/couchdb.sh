@@ -130,7 +130,8 @@ couchdb.config.set() {
   if [ -n "${key}" ]; then
     url+="/${key}";
   fi
-  couchdb.run "PUT" "${url}" --data-binary "${json}";
+  couchdb.run "PUT" "${url}" --data-binary "${json}" \
+    "-H" "Content-Type: ${mime_types[json]}";
 }
 
 couchdb.restart() {
@@ -291,7 +292,8 @@ couchdb.doc.save() {
       url+="/${id}";
     fi
     couchdb.run "${method}" "${url}" \
-      -# --data-binary "@${doc}";
+      -# --data-binary "@${doc}" \
+      -H "Content-Type: ${mime_types[json]}";
   fi
 }
 
