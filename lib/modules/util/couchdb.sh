@@ -296,12 +296,12 @@ couchdb.doc.save() {
     if [ -n "${id}" ]; then
       url+="/${id}";
     fi
-    local stderr="${http_print_stderr}";
-    http_print_stderr=${couchdb[progress]:-true};
+    #local stderr="${http_print_stderr}";
+    #http_print_stderr=${couchdb[progress]:-true};
     couchdb.run "${method}" "${url}" \
       -# --data-binary "@${doc}" \
       -H "Content-Type: ${mime_types[json]}";
-    http_print_stderr="${stderr}";
+    #http_print_stderr="${stderr}";
   fi
 }
 
@@ -348,13 +348,13 @@ couchdb.attach() {
     if [ -z "${mime}" ]; then
       mime="${defaultmime}";
     fi
-    local stderr="${http_print_stderr}";
-    http_print_stderr=${couchdb[progress]:-true};
+    #local stderr="${http_print_stderr}";
+    #http_print_stderr=${couchdb[progress]:-true};
     local url="${host}/${db}/${id}/${name}?rev=${rev}";
     couchdb.run "PUT" "${url}" \
       -# --data-binary "@${file}" \
       -H "Content-Type: ${mime}";
-    http_print_stderr="${stderr}";
+    #http_print_stderr="${stderr}";
   fi
 }
 
@@ -385,12 +385,12 @@ couchdb.attach.get() {
   url.encode "${id}" "id";
   url.encode "${rev}" "rev";
   url.encode "${name}" "name";
-  local stderr="${http_print_stderr}";
-  http_print_stderr=${couchdb[progress]:-true};
+  #local stderr="${http_print_stderr}";
+  #http_print_stderr=${couchdb[progress]:-true};
   local url="${host}/${db}/${id}/${name}?rev=${rev}";
   couchdb.run "GET" "${url}" -# \
     --output "${file}";
-  http_print_stderr="${stderr}";
+  #http_print_stderr="${stderr}";
 }
 
 # query a view document

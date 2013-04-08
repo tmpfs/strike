@@ -266,7 +266,8 @@ http.curl() {
     runopts+=( "${opts[@]}" );
   fi
   
-  if ! array.contains? "-#" "${runopts[@]}"; then
+  if ! array.contains? "-#" "${runopts[@]}" \
+    || ! $http_print_stderr; then
     runopts+=(
       "--silent"
     );
