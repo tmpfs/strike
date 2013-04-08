@@ -166,7 +166,8 @@ couchdb.db.commit() {
   local host="${1:-}";
   local db="${2:-}";
   url.encode "${db}" "db";
-  couchdb.run "POST" "${host}/${db}/_ensure_full_commit";
+  couchdb.run "POST" "${host}/${db}/_ensure_full_commit" \
+    -H "Content-Type: ${mime_types[json]}";
 }
 
 couchdb.db.changes() {
@@ -212,14 +213,16 @@ couchdb.db.compact() {
   if [ -n "${design}" ]; then
     url+="/${design}";
   fi
-  couchdb.run "POST" "${url}";
+  couchdb.run "POST" "${url}" \
+    -H "Content-Type: ${mime_types[json]}";
 }
 
 couchdb.db.cleanup() {
   local host="${1:-}";
   local db="${2:-}";
   url.encode "${db}" "db";
-  couchdb.run "POST" "${host}/${db}/_view_cleanup";
+  couchdb.run "POST" "${host}/${db}/_view_cleanup" \
+    -H "Content-Type: ${mime_types[json]}";
 }
 
 couchdb.db.info() {
