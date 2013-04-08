@@ -1,9 +1,13 @@
 require.once net/http;
 require.once net/url;
 
+# TODO: migrate to the associative array
 declare -g couchdb_verbose=false;
 declare -g couchdb_verbose_background="black";
 declare -g couchdb_session_login_auth_token="";
+
+declare -Ag couchdb;
+couchdb[progress]=true;
 
 # > curl -vX POST $HOST/_session -H 'Content-Type: application/x-www-form-urlencoded' -d 'name=anna&password=secret'
 
@@ -32,8 +36,6 @@ couchdb.run() {
       -- "%s" "${url}";
   fi
   local opts=( "$@" );
-  #opts+=( "-H" "Content-Type: application/json" );
-
   # add session cookie authentication information
   #if [ -n "${couchdb_session_login_auth_token:-}" ]; then
     #opts+=( "-H" "X-CouchDB-WWW-Authenticate: Cookie" );
@@ -294,9 +296,12 @@ couchdb.doc.save() {
     if [ -n "${id}" ]; then
       url+="/${id}";
     fi
+    local stderr="${http_print_stderr}";
+    http_print_stderr=${couchdb[progress]:-true};
     couchdb.run "${method}" "${url}" \
       -# --data-binary "@${doc}" \
       -H "Content-Type: ${mime_types[json]}";
+    http_print_stderr="${stderr}";
   fi
 }
 
@@ -344,7 +349,7 @@ couchdb.attach() {
       mime="${defaultmime}";
     fi
     local stderr="${http_print_stderr}";
-    http_print_stderr=true;
+    http_print_stderr=${couchdb[progress]:-true};
     local url="${host}/${db}/${id}/${name}?rev=${rev}";
     couchdb.run "PUT" "${url}" \
       -# --data-binary "@${file}" \
@@ -381,7 +386,7 @@ couchdb.attach.get() {
   url.encode "${rev}" "rev";
   url.encode "${name}" "name";
   local stderr="${http_print_stderr}";
-  http_print_stderr=true;
+  http_print_stderr=${couchdb[progress]:-true};
   local url="${host}/${db}/${id}/${name}?rev=${rev}";
   couchdb.run "GET" "${url}" -# \
     --output "${file}";
