@@ -336,6 +336,21 @@ couchdb.attach() {
   fi
 }
 
+# delete an attachment
+couchdb.attach.rm() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local id="${3:-}";
+  local rev="${4:-}";
+  local name="${5:-}";
+  url.encode "${db}" "db";
+  url.encode "${id}" "id";
+  url.encode "${rev}" "rev";
+  url.encode "${name}" "name";
+  local url="${host}/${db}/${id}/${name}?rev=${rev}";
+  couchdb.run "DELETE" "${url}";
+}
+
 # query a view document
 couchdb.view() {
   local viewdoc="${1:-views}";
