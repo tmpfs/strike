@@ -37,7 +37,6 @@ http_command_options=();
 declare -ag http_files;
 http_files=(
   "$http_head_file"
-  "$http_body_file"
   "$http_trace_file"
   "$http_exit_file"
   "$http_trace_ascii_file"
@@ -123,7 +122,7 @@ http.curl.execute() {
   local runopts=( "$@" );
   
   if [ ! -x "$cmd" ]; then
-    console quit 1 "could not locate curl executable %s" "$cmd";
+    console quit 1 -- "could not locate curl executable %s" "$cmd";
   fi  
   
   #ensure all files are removed before we start
@@ -152,8 +151,6 @@ http.curl.execute() {
   else
     $cmd "${runopts[@]}" 2>| "$http_stderr_file" 1>| "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";
   fi
-  
-  # >(tee stderr.log >&2)
   
   # get the write out results
   results=( $( < "$http_stdout_file" ) );
@@ -203,10 +200,8 @@ http.curl.execute() {
 }
 
 http.curl() {
-  local method="${1:-GET}";
-  shift;
-  local path="${1:-}";
-  shift;
+  local method="${1:-GET}"; shift;
+  local path="${1:-}"; shift;
   
   #remaining custom options
   local opts=( "$@" );
@@ -220,15 +215,10 @@ http.curl() {
   
   if [[ "$url" =~ ^[a-zA-Z]+: ]]; then
     if [[ ! "$url" =~ ^https?: ]]; then
-      warn "invalid url protocol must be %s or %s" "http" "https";
+      console warn -- "invalid url protocol must be %s or %s" "http" "https";
       return 1;
     fi
   fi
-  
-  # "-v"
-  
-  # "--header"
-  # "User-Agent: firefox"
   
   local runopts=(
     "--request"
@@ -236,8 +226,6 @@ http.curl() {
     "--show-error"
     "--location"
   );
-  
-  # "--include" 
   
   if [ -n "$http_auth_user" ] && [ -n "$http_auth_pass" ]; then
     runopts+=( "--user" "${http_auth_user}:${http_auth_pass}" );
@@ -299,11 +287,6 @@ http.curl() {
   #write out the options used as a config file
   __http_write_config "${runopts[@]}";
   
-  # method.list | grep http;
-  
-  # alias;
-  # echo "has http alias : `command -v http`";
-  
   http.curl.execute "${runopts[@]}";
 }
 
@@ -322,8 +305,6 @@ http.option.add() {
     http_command_options+=( "$name" );
     http_command_options+=( "$value" );
   fi
-  
-  # echo "added command options: ${http_command_options[@]}";
 }
 
 http.request.add.header() {
@@ -335,16 +316,9 @@ http.request.add.header() {
     hname="${name%: ?*}";
     hvalue="${name#*:}";
   fi
-  
-  #echo "adding request header: $hname::$hvalue"; 
   string.ltrim "$hvalue";
   hvalue="$_result";
-  
-  #echo "adding request header (after trim): $hname::$hvalue";
-  
   http_request_headers[$hname]="$hvalue";
-  
-  #declare -p "http_request_headers";
 }
 
 ######################################################################
@@ -384,8 +358,6 @@ __http_write_config() {
         fi
       # nothing left so at end of options
       else
-        #echo "got last parameter: $val : $i";
-        
         # last option should be the URL pattern
         echo "--url=\"$val\"" >> "$f";
       fi
@@ -453,19 +425,12 @@ __http_parse_header() {
 }
 
 __http_response_parse() {
-  #echo "parsing http response..$@";
-
   unset http_headers;
   declare -Ag http_headers;
-  
   # number of redirects corresponds to the number of headers to parse
   local redirects=${http_response_num_redirects:-0};
   local index=0;
-  
-  #echo "parsing response with number of redirects: $redirects";
-  
   local output="$1";
-  #cat "$output";
   local head=0;
   while IFS= read -r line
     do
@@ -473,24 +438,11 @@ __http_response_parse() {
   done < "$output";
   # process last line
   if [ -n "$line" ]; then __http.line; fi
-  
-  # for opt in ${!http_header_*}
-  #   do
-  #     variable.get "$opt";
-  #     echo "got header opt: $opt : $_result";
-  # done
-  
-  # for opt in ${!http_response_header_*}
-  #   do
-  #     echo "got response header opt: $opt";
-  # done
 }
 
 __http.line() {
-  #echo "parsing http line $line";
   #parse the HTTP declaration
   if [[ "$line" =~ ^HTTP/1.[01] ]]; then
-    #echo "parsing http response line...";
     __http_response_parse_status "$index" "${line}";
   #parsing header lines
   elif [ $head -eq 0 ]; then
@@ -498,24 +450,17 @@ __http.line() {
     line=`echo "$line" | tr -d "\r"`;
     line=`echo "$line" | tr -d "\n"`;
     if [[ -z "$line" ]] && [[ $redirects -eq 0 ]]; then
-      #echo "got end of head...";
       head=1;
       echo "" >> "$http_head_file";         
     elif [[ -z "$line" ]] && [[ $redirects -gt 0 ]]; then
       #echo "parsing next header...";
       index=$[index + 1];
       redirects=$[redirects - 1];
-      #echo "parsing next header after let... $redirects";
       echo "" >> "$http_head_file";
     else
       #append to the header file
       echo "$line" >> "$http_head_file";
       __http_parse_header "$index" "$line";
     fi
-  # #parsing the body content
-  # elif [ $head -eq 1 ]; then
-  #   echo "parsing body line $line";
-  #   #append to the body file
-  #   printf "${line}\n" >> "$http_body_file";
   fi
 }
