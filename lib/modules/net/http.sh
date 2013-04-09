@@ -15,7 +15,7 @@ declare -g http_stderr_file="$http_home/http.stderr";
 declare -g http_stdout_file="$http_home/http.stdout";
 declare -g http_config_name="";
 declare -g http_base_url="";
-declare -Ag http_headers;
+declare -Ag http_res_headers;
 declare -Ag http_req_headers;
 
 # determines whether curl(1) stderr output is also
@@ -372,6 +372,10 @@ __http_response_parse_status() {
   
   local index="$1";
   shift;
+
+  if [ "$index" -eq "$http_response_num_redirects" ]; then
+    http_res_status="${raw}";
+  fi
   
   # echo "got response raw : $raw";
   # echo "got response index : $index";
@@ -407,7 +411,7 @@ __http_parse_header() {
   # raw header information for final
   # set of headers
   if [ "$index" -eq "$http_response_num_redirects" ]; then
-    http_headers["${name}"]="${value}";
+    http_res_headers["${name}"]="${value}";
   fi
   
   #convert hyphens to underscores
@@ -428,12 +432,14 @@ __http_parse_header() {
 }
 
 __http_response_parse() {
-  unset http_headers;
-  declare -Ag http_headers;
+  declare -g http_res_status="";
+  declare -g http_req_status="";
+
+  unset http_res_headers;
+  declare -Ag http_res_headers;
 
   unset http_req_headers;
   declare -Ag http_req_headers;
-  declare -g http_req_status="";
   http.req.headers;
 
   # number of redirects corresponds to the number of headers to parse
