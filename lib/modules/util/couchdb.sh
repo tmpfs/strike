@@ -157,6 +157,13 @@ couchdb.db.list() {
   couchdb.run "GET" "${host}/_all_dbs";
 }
 
+couchdb.db.head() {
+  local host="${1:-}";
+  local db="${2:-}";
+  url.encode "${db}" "db";
+  couchdb.run "GET" "${host}/${db}" --head;
+}
+
 couchdb.db.purge() {
   local host="${1:-}";
   local db="${2:-}";
