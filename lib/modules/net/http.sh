@@ -16,6 +16,7 @@ declare -g http_stdout_file="$http_home/http.stdout";
 declare -g http_config_name="";
 declare -g http_base_url="";
 declare -Ag http_headers;
+declare -Ag http_req_headers;
 
 # determines whether curl(1) stderr output is also
 # printed to the screen
@@ -429,6 +430,12 @@ __http_parse_header() {
 __http_response_parse() {
   unset http_headers;
   declare -Ag http_headers;
+
+  unset http_req_headers;
+  declare -Ag http_req_headers;
+  declare -g http_req_status="";
+  http.req.headers;
+
   # number of redirects corresponds to the number of headers to parse
   local redirects=${http_response_num_redirects:-0};
   local index=0;
@@ -440,6 +447,40 @@ __http_response_parse() {
   done < "$output";
   # process last line
   if [ -n "$line" ]; then __http.line; fi
+}
+
+# parse request header
+http.req.headers() {
+  local start="^=> Send header";
+  local prefix="^([0-9a-f]+:[ ])";
+  local end="${prefix}\$";
+  local match="${prefix}(.*)";
+  local inside=false;
+  local name value;
+  while IFS= read -r line
+    do
+      if [[ "${line}" =~ $start ]]; then
+        inside=true; continue;
+      fi
+      if [[ "${line}" =~ $end ]]; then
+        #echo "finished in $line"
+        return 0;
+      fi
+      if $inside; then
+        #echo "inside $line"
+        if [[ "${line}" =~ $match ]]; then
+          if [ -z "${http_req_status:-}" ]; then
+            http_req_status="${BASH_REMATCH[2]}";
+          else
+            line="${BASH_REMATCH[2]:-}";
+            name="${line%: ?*}";
+            value="${line#*:}";
+            #echo "var $name || $value"
+            http_req_headers[$name]="${value}";
+          fi
+        fi
+      fi
+  done < "${http_trace_ascii_file}";
 }
 
 __http.line() {
