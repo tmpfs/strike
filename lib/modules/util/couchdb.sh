@@ -8,6 +8,7 @@ declare -g couchdb_session_login_auth_token="";
 
 declare -Ag couchdb;
 couchdb[progress]=true;
+couchdb[ua]="";
 
 # > curl -vX POST $HOST/_session -H 'Content-Type: application/x-www-form-urlencoded' -d 'name=anna&password=secret'
 
@@ -42,6 +43,11 @@ couchdb.run() {
     #opts+=( "-H" "Content-Type: application/x-www-form-urlencoded" );
     #opts+=( "--cookie" "$couchdb_session_login_auth_token" );
   #fi
+
+  if [ -n "${couchdb[ua]}" ]; then
+    opts+=( --user-agent "${couchdb[ua]}" );
+  fi
+
   http.curl "${opts[@]}";
 }
 
