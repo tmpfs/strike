@@ -1,0 +1,40 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "VERSION" "3" "April 2013" "" ""
+.
+.SH "NAME"
+\fBversion\fR \- print version information
+.
+.SH "SYNOPSIS"
+Prints version information from a \fIversion\fR file\.
+.
+.SH "DESCRIPTION"
+The version(3) module inspects the program options and if it encounters a \fB\-\-version\fR option it attempts to print version information from the \fIversion\fR file\. If no \fB\-\-version\fR option is found then nothing is done\.
+.
+.P
+If the \fB\-\-version\fR option is specified but no \fIversion\fR file exists the program exits with a non\-zero exit code\.
+.
+.SH "USAGE"
+.
+.nf
+
+require \'opts/version\';
+version\.parse "$@";
+.
+.fi
+.
+.SH "FILES"
+The version(3) module uses version information in a file named \fBversion\fR in the root of the project\.
+.
+.SH "EXIT CODES"
+If a \fI\-\-version\fR option is encountered but no version information is available then the exit code is \fI>0\fR\. Alternatively, if a \fI\-\-version\fR option exists and version information is found then the version information is printed and version(3) exits with a \fI0\fR code\.
+.
+.SH "BUGS"
+\fBversion\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBversion\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+semver(3), task\-semver(7)

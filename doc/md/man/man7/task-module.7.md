@@ -1,7 +1,60 @@
-help(3) -- help module for strike(1)
+task-module(7) -- list task(s) for bake(1)
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+Task(s) for modular projects.
+
+## DESCRIPTION
+
+Provides commands for projects that require a multi module structure.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `module` task(s) using:
+
+	require 'tasks/module';
+
+## USAGE
+
+	bake module ls
+	
+## COMMANDS
+
+* `ls`:
+
+List submodules.
+
+## DELEGATION
+
+To mark a task command method as delegating to sub-modules, use:
+
+	tasks.module delegate "$@";
+	
+Within the task command method in the root *tasks* file.
+
+## BUGS
+
+**task-module** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-module** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[REQUIRE]: #REQUIRE "REQUIRE"
+[USAGE]: #USAGE "USAGE"
+[COMMANDS]: #COMMANDS "COMMANDS"
+[DELEGATION]: #DELEGATION "DELEGATION"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

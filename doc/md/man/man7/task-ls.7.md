@@ -1,7 +1,49 @@
-help(3) -- help module for strike(1)
+task-ls(7) -- list task(s) for bake(1)
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+List task(s) for bake(1).
+
+## DESCRIPTION
+
+Lists available tasks.
+
+## REQUIRE
+
+You do not need to require(3) this task as it is a builtin task.
+
+## USAGE
+
+	bake ls [options...]
+
+## OPTIONS
+
+* `-v | --verbose`:
+
+Print task descriptions.
+
+## BUGS
+
+**task-ls** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-ls** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[REQUIRE]: #REQUIRE "REQUIRE"
+[USAGE]: #USAGE "USAGE"
+[OPTIONS]: #OPTIONS "OPTIONS"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

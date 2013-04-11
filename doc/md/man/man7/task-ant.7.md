@@ -1,7 +1,44 @@
-help(3) -- help module for strike(1)
+task-ant(7) -- ant task(s) for bake(1)
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+Integrates ant(1) with bake(1).
+
+## DESCRIPTION
+
+A proxy for the ant(1) executable, allows ant tasks to be intermingled with bake(1) tasks.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `ant` task(s) using:
+
+	require tasks/ext/build/ant;
+
+## USAGE
+
+	bake ant [options] [targets...]
+
+## BUGS
+
+**task-ant** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-ant** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[REQUIRE]: #REQUIRE "REQUIRE"
+[USAGE]: #USAGE "USAGE"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

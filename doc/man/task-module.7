@@ -1,0 +1,68 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "TASK\-MODULE" "7" "April 2013" "" ""
+.
+.SH "NAME"
+\fBtask\-module\fR \- list task(s) for bake(1)
+.
+.SH "SYNOPSIS"
+Task(s) for modular projects\.
+.
+.SH "DESCRIPTION"
+Provides commands for projects that require a multi module structure\.
+.
+.SH "REQUIRE"
+In your tasks(7) file \fBrequire\fR the \fBmodule\fR task(s) using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/module\';
+.
+.fi
+.
+.IP "" 0
+.
+.SH "USAGE"
+.
+.nf
+
+bake module ls
+.
+.fi
+.
+.SH "COMMANDS"
+.
+.TP
+\fBls\fR:
+
+.
+.P
+List submodules\.
+.
+.SH "DELEGATION"
+To mark a task command method as delegating to sub\-modules, use:
+.
+.IP "" 4
+.
+.nf
+
+tasks\.module delegate "$@";
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Within the task command method in the root \fItasks\fR file\.
+.
+.SH "BUGS"
+\fBtask\-module\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBtask\-module\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+bake(1)

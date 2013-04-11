@@ -1,7 +1,43 @@
-help(3) -- help module for strike(1)
+strike-credits(7) -- credits for strike(7)
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+It is my belief that no work is truly original as every creation stands on the shoulders of giants whether the influence is conscious or not.
+
+This work could not have been possible without the excellent work of many other people here I list some of the obvious influences and direct contributions.
+
+## BASH
+
+None of this would be possible without Brian Fox's bash(1). Thanks to Chet Ramey for patiently answering my questions on the bash(1) mailing list.
+
+## HTTP
+
+The http(3) module is a wrapper for the excellent curl(1), thanks to Daniel Stenberg and all the other contributors.
+
+## RONN
+
+Man page documentation thanks to Ryan Tomayko, see ronn(1).
+
+## JSON
+
+The json module was based on code by Dominic Tarr, see json-sh(1).
+
+## RUBY
+
+Inspiration from ruby(3) for method naming conventions.
+
+## SEE ALSO
+
+strike(7)
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[BASH]: #BASH "BASH"
+[HTTP]: #HTTP "HTTP"
+[RONN]: #RONN "RONN"
+[JSON]: #JSON "JSON"
+[RUBY]: #RUBY "RUBY"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

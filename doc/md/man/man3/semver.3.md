@@ -1,7 +1,48 @@
-help(3) -- help module for strike(1)
+semver(3) -- semantic version parser
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+Commands for working with semantic versioning as defined by semver(7).
+
+## DESCRIPTION
+
+Enables parsing of semantic version strings to complex objects.
+
+## USAGE
+
+To parse a semver(7) string into an associative array use `semver.parse` with the string and a callback method:
+
+	require 'semver';
+	callback() {
+		console info "semver keys %s" "${!semver[*]}";
+		console info "semver values %s" "${semver[*]}";
+		semver.stringify;
+		console info "semver string %s" "$_result";
+	}
+	semver.parse "2.0.0-rc" "callback";
+	
+Note that the `semver.parse` method will not perform any operations on invalid semver(7) string values, you may invoke `semver.valid?` to test the validity of a string.
+
+## BUGS
+
+**semver** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**semver** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+require(3)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[USAGE]: #USAGE "USAGE"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

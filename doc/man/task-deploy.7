@@ -1,0 +1,1609 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "TASK\-DEPLOY" "7" "April 2013" "" ""
+.
+.SH "NAME"
+\fBtask\-deploy\fR \- deploy task(s) for bake(1)
+.
+.SH "SYNOPSIS"
+.
+.nf
+
+bake deploy [options\|\.\|\.\|\.] [profiles\|\.\|\.\|\.]
+.
+.fi
+.
+.SH "DESCRIPTION"
+Performs a deployment for a project\.
+.
+.SH "REQUIRE"
+In your tasks(7) file \fBrequire\fR the \fBdeploy\fR task(s) using:
+.
+.IP "" 4
+.
+.nf
+
+require \'tasks/deploy\';
+.
+.fi
+.
+.IP "" 0
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-\-ok\fR:
+
+.
+.P
+Disable interactivity and assume \fIyes\fR for every prompt\.
+.
+.TP
+\fB\-\-dry\-run\fR:
+
+.
+.P
+Print commands but do not execute them, implies \fB\-\-ok\fR to disable interactivity\.
+.
+.TP
+\fB\-\-quiet\fR:
+
+.
+.P
+Suppress messages sent to standard output\.
+.
+.TP
+\fB\-\-verbose\fR:
+
+.
+.P
+Print more information\.
+.
+.TP
+\fB\-\-all\fR:
+
+.
+.P
+Operate on all profiles in the descriptor\.
+.
+.TP
+\fB\-\-name [name]\fR:
+
+.
+.P
+Override the default project name (determined by the name of the parent directory), see \fBNAMES\fR for project and profile name rules\.
+.
+.TP
+\fB\-\-directory [directory]\fR:
+
+.
+.P
+Use \fIdirectory\fR for deployment\. When this option is specified it overrides any directory specified in \fIdeploy\.json\fR for all profiles\.
+.
+.TP
+\fB\-\-host [user@host]\fR:
+
+.
+.P
+The scp(1) and ssh(1) \fIuser@host\fR specification\. When this option is specified it overrides any host properties in \fIdeploy\.json\fR\. This is useful if you wish to deploy everything using the profile(s) in \fIdeploy\.json\fR to a different host\.
+.
+.TP
+\fB\-\-descriptor [file]\fR:
+
+.
+.P
+Use \fIfile\fR as the deployment descriptor\.
+.
+.TP
+\fB\-\-shell [shell]\fR:
+
+.
+.P
+Use \fIshell\fR for the script shebang\. Must be one of \fIsh\fR, \fIbash\fR, \fIzsh\fR or \fIdash\fR\.
+.
+.TP
+\fB\-\-staging [directory]\fR:
+
+.
+.P
+Use \fIdirectory\fR as the staging directory\.
+.
+.TP
+\fB\-\-list\fR:
+
+.
+.P
+List profile names in a deployment descriptor\. By default the default profile is not listed but if you have declared a custom configuration for the default profile then it will be included in the list\.
+.
+.TP
+\fB\-\-log\fR:
+
+.
+.P
+Redirect \fIstdout\fR messages to \fBtarget/deploy/deploy\.log\fR\. Note that when using the \fB\-\-json\fR option that the JSON document is always sent to \fIstdout\fR\.
+.
+.TP
+\fB\-\-flat\fR:
+
+.
+.P
+Do not include the profile name in the target directory, see \fBTARGET\fR for more information\.
+.
+.TP
+\fB\-\-include\-version\fR:
+
+.
+.P
+Include version information in the target directory, see \fBTARGET\fR for more information\.
+.
+.TP
+\fB\-\-local\fR:
+
+.
+.P
+Perform a deployment on the local host\.
+.
+.TP
+\fB\-\-no\-local\fR:
+
+.
+.P
+Shortcut for combining \fB\-\-no\-local\-pre\fR and \fB\-\-no\-local\-post\fR\.
+.
+.TP
+\fB\-\-no\-local\-pre\fR:
+
+.
+.P
+Do not execute the pre\-deployment commands on the local host\.
+.
+.TP
+\fB\-\-no\-local\-post\fR:
+
+.
+.P
+Do not execute the post\-deployment commands on the local host\.
+.
+.TP
+\fB\-\-no\-remote\fR:
+
+.
+.P
+Shortcut for combining \fB\-\-no\-remote\-pre\fR and \fB\-\-no\-remote\-post\fR\.
+.
+.TP
+\fB\-\-no\-remote\-pre\fR:
+
+.
+.P
+Do not execute the pre\-deployment commands on the remote host\.
+.
+.TP
+\fB\-\-no\-remote\-post\fR:
+
+.
+.P
+Do not execute the post\-deployment commands on the remote host\.
+.
+.TP
+\fB\-\-no\-growl\fR:
+
+.
+.P
+Do not send growl notifications\.
+.
+.TP
+\fB\-\-expand\fR:
+
+.
+.P
+Do not quote command options\. When this options is set parameter expansion is performed on command options declared in a deployment descriptor\.
+.
+.SH "BUNDLE OPTIONS"
+This section describes bundle options\.
+.
+.TP
+\fB\-\-bundle\fR:
+
+.
+.P
+Just create bundles do not deploy anything and do not execute any commands\. Implies \fB\-\-no\-remote\fR\. See the \fBBUNDLES\fR section\.
+.
+.TP
+\fB\-\-output [directory]\fR:
+
+.
+.P
+Use \fIdirectory\fR as the target for generated bundles, the \fIdirectory\fR must exist and be writable\.
+.
+.TP
+\fB\-\-inspect\fR:
+
+.
+.P
+Print the contents of a bundle after creation\. This option may be combined with \fB\-\-quiet\fR to only print the bundle contents and/or combined with the \fB\-\-verbose\fR option to print an extended listing (similar to \fBls \-la\fR)\.
+.
+.TP
+\fB\-\-timestamp\fR:
+
+.
+.P
+Append a timestamp to the bundle name\.
+.
+.TP
+\fB\-\-author\fR:
+
+.
+.P
+Prepend an author to the name of the bundle\. This sanitizes the user name (determined by \fBid \-nu\fR) to remove any non\-alphanumeric characters\.
+.
+.TP
+\fB\-\-pkg\fR:
+
+.
+.P
+Package a directory into the \fIcontents\fR directory of the bundle\.
+.
+.TP
+\fB\-\-standalone\fR:
+
+.
+.P
+Make the bundle a standalone installation\. Implies the \fB\-\-pkg\fR option\.
+.
+.TP
+\fB\-\-include\-hidden\fR:
+
+.
+.P
+Also include hidden files when packaging bundle contents\.
+.
+.TP
+\fB\-\-follow\-symlinks\fR:
+
+.
+.P
+Do not preserve symbolic links\. Used in conjunction with the \fB\-\-pkg\fR option this copies the symbolic link target into the bundle \fIcontents\fR directory\.
+.
+.TP
+\fB\-\-script\-file [file]\fR:
+
+.
+.P
+Use \fIfile\fR as the script instead of the generated script\. The \fIfile\fR must exist and be executable\. When this option is specified then the automatically generated script is ignored and \fIfile\fR is used instead\. It is written to disc in the same location, deployed to the remote host (or localhost with the \fB\-\-local\fR option) and executed\.
+.
+.P
+When this option is specified the \fB\-\-shell\fR option has no effect as it is only used to determine the \fIshebang\fR for generated deployment scripts\.
+.
+.P
+If multiple profiles are being deployed then \fIfile\fR is used for all target profiles\.
+.
+.P
+It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are \fInever\fR executed\.
+.
+.TP
+\fB\-\-make\-file [file]\fR:
+
+.
+.P
+Use \fIfile\fR as the makefile instead of the generated makefile\. The \fIfile\fR must exist and be named one of \fImakefile\fR, \fIMakefile\fR or \fIGNUmakefile\fR\.
+.
+.SS "Checksums"
+By default a \fBSecure Hash Algorithm\fR is generated for created bundles using the \fI512\fR algorithm and written to a file as a sibling of the generated bundle\. You may influence the behaviour of checksum generation with the following options (last option takes precedence)\.
+.
+.TP
+\fB\-\-sha [algorithm]\fR:
+
+.
+.P
+Use \fIalgorithm\fR when generating checksums\. Available values are \fI224\fR, \fI256\fR, \fI384\fR and \fI512\fR, specifying any other value for this option will result in an error\.
+.
+.TP
+\fB\-\-no\-sha\fR:
+
+.
+.P
+Do not generate a checksum file\.
+.
+.SS "Compression"
+The default compression used is \fBgzip\fR, you may override this behaviour by specifying a compression type option (last option takes precedence)\.
+.
+.P
+To reduce file size and network throughput, if the \fBxz\fR and \fBxzdec\fR binaries are available then the \fBxz\fR compression type is preferred\. This could be problematic if the local host has the binaries but a remote host does not, in which case you should force compression to be of a type that is available on all machines\.
+.
+.P
+Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing a remote deployment\.
+.
+.TP
+\fB\-\-gz\fR:
+
+.
+.P
+Force bundle creation to use \fBgzip\fR, bundle(s) are created with the \fBtgz\fR file extension\.
+.
+.TP
+\fB\-\-bz\fR:
+
+.
+.P
+Force bundle creation to use \fBbzip2\fR, bundle(s) are created with the \fBbz2\fR file extension\.
+.
+.TP
+\fB\-\-xz\fR:
+
+.
+.P
+Force bundle creation to use \fBxz\fR, bundle(s) are created with the \fBxz\fR file extension\.
+.
+.TP
+\fB\-\-lzma\fR:
+
+.
+.P
+Force bundle creation to use \fBlzma\fR, bundle(s) are created with the \fBlzma\fR file extension\.
+.
+.SH "DEBUG OPTIONS"
+This section describes options for debugging and unit testing\.
+.
+.TP
+\fB\-\-json\fR:
+
+.
+.P
+Dump all profile configuration settings that would be used by a deployment as a JSON document to \fIstdout\fR, implies \fB\-\-dry\-run\fR\. This is useful to determine the settings that would be used when running a deployment\.
+.
+.P
+If this option is used in conjunction with \fB\-\-script\fR the last option will take preference\.
+.
+.TP
+\fB\-\-lint\fR:
+
+.
+.P
+Perform a sanity check on the generated script and exit, implies \fB\-\-dry\-run\fR\. You must have the checkbashisms(1) script installed in \e$PATH in order to use this option\. Useful for debugging the generated script\. This can be used in conjunction with the \fB\-\-script\fR option to inspect the script output as well as run the script through checkbashisms(1)\.
+.
+.P
+Note that when using the \fB\-\-script\-file\fR option the source script becomes the target for this operation\. If the \fB\-\-shell\fR option has been specified then the \fIshebang\fR will not be \fB#!/bin/sh\fR which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors\.
+.
+.P
+This option ignores multiple profiles, it only executes for the first target profile\.
+.
+.TP
+\fB\-\-lint\-run\fR:
+
+.
+.P
+Executes the script in the local target directory in the context of the \fIlocalhost\fR, implies the \fB\-\-lint\fR, \fB\-\-local\fR and \fB\-\-dry\-run\fR options\. The script is only executed if the \fB\-\-lint\fR operation succeeds\. Useful for testing and debugging purposes\.
+.
+.P
+Note that although this option implies \fB\-\-dry\-run\fR (so no commands are executed) it does actually perform a deployment locally\.
+.
+.P
+This option ignores multiple profiles, it only executes for the first target profile\.
+.
+.TP
+\fB\-\-pretty\fR:
+
+.
+.P
+Use in conjunction with the \fB\-\-json\fR option to pretty print the JSON document\. Uses two spaces as the indentation\.
+.
+.TP
+\fB\-\-print\-env\fR:
+
+.
+.P
+Print variables exposed to deployment descriptors and exit\.
+.
+.TP
+\fB\-\-script\fR:
+
+.
+.P
+Dump script(s) to \fIstdout\fR, implies \fB\-\-dry\-run\fR\. If this option is used in conjunction with \fB\-\-json\fR the last option will take preference\. Note that when this option is used the script(s) are still written to \fBtarget/deploy\fR\.
+.
+.SH "TYPES"
+The deploy tasks support the \fIcp\fR, \fIgit\fR, \fItar\fR and \fInpm\fR deployment types\.
+.
+.SS "CP"
+This deployment type uses cp(1) to copy files from a local filesystem directory, this is the type used for the default profile (see \fBDEFAULT PROFILE\fR)\. When deploying to remote hosts the filesystem path \fImust\fR exist on the remote host for the deployment to succeed\. Hidden files are not copied by default\.
+.
+.SS "GIT"
+This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository\.
+.
+.SS "NPM"
+This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the target directory\.
+.
+.SS "TAR"
+This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory\.
+.
+.P
+Unlike the \fInpm\fR and \fIgit\fR deployment types we cannot be certain that we are only deploying a single directory\. So this type uses the rule that when an archive contains a single directory then that directory is used as the final deployment directory\.
+.
+.P
+If the archive contains more than one file or a single non\-directory file then the entire contents of the archive are copied into the final deployment directory\.
+.
+.P
+It is a subtle but important difference that caters to the common use case for working with archives\. Generally, when packaging a project for distribution all files are placed in a single directory and that directory is converted to an archive\. If we did not follow the above rule the resulting deployment would have an additional nested directory which is probably undesirable\.
+.
+.P
+To illustrate, if we are deploying to \fI~/www\fR with a deployment profile named \fIstage\fR and working with an archive named \fIproject\.tgz\fR that contains a single directory \fIproject\fR then if we did not follow the above rule we would end up with a final directory of:
+.
+.IP "" 4
+.
+.nf
+
+~/www/stage/project
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Instead, by following the above rule we end up with the contents of the extracted \fIproject\fR directory at the expected final directory:
+.
+.IP "" 4
+.
+.nf
+
+~/www/stage
+.
+.fi
+.
+.IP "" 0
+.
+.SH "URL"
+This section describes the rules for the \fIurl\fR property for the different deployment types\. In the case of the \fInpm\fR type (or filesystem paths) this property does not have to be a valid URL as specified by \fBRFC 1738\fR\.
+.
+.P
+For the \fIcp\fR deployment type, the \fIurl\fR should be a filesystem path (tilde expansion is allowed) that points to a directory and may optionally begin with the \fIfile:\fR scheme which will be removed for the deployment\. If is an error to use any scheme other than \fIfile:\fR\.
+.
+.P
+The \fIurl\fR used for the \fIgit\fR deployment type is passed directly to git(1) so you may use any of the supported protocols: ssh, git, http, https, ftp, ftps, and rsync\.
+.
+.P
+The \fItar\fR deployment type uses curl(1) to fetch the archive to deploy so you may use any protocol supported by curl(1), for example: file, ftp, ftps, scp, http or https\.
+.
+.P
+The \fInpm\fR deployment type may specify the \fIurl\fR in any form supported by npm(1) including the \fBproject@0\.0\.1\fR declaration\.
+.
+.SH "BUNDLES"
+The task\-deploy(7) execution creates a tarball bundle of the deployment files using the project \fIname\fR and \fIversion\fR concatenated with the current \fIprofile\fR for the bundle file name\. Assuming a project name of \fIproject\fR, with version \fI0\.0\.1\fR and a deployment profile of \fIstage\fR the resulting bundle is \fBproject\-0\.0\.1\-stage\.tgz\fR\.
+.
+.P
+Bundles are created in the \fBtarget/deploy\fR directory\.
+.
+.P
+A generated bundle will include:
+.
+.TP
+\fBconfigure\fR:
+
+.
+.P
+A top\-level configure script used to proxy to a bundled configure script\.
+.
+.TP
+\fBMakefile\fR:
+
+.
+.P
+A GNU compatible make file, see \fBMakefiles\fR\.
+.
+.TP
+\fBdescriptor\.json\fR:
+
+.
+.P
+The descriptor used to create the bundle\.
+.
+.TP
+\fBsettings\.json\fR:
+
+.
+.P
+A JSON document containing the computed settings for the deployment\.
+.
+.TP
+\fBinfo\.json\fR:
+
+.
+.P
+A JSON document containing useful information about the host machine, user and options that generated the bundle\.
+.
+.TP
+\fBinstall\.sh\fR:
+
+.
+.P
+The generated deployment script or the contents of \fIscript\fR if \fB\-\-script\-file\fR was specified\.
+.
+.TP
+\fBcontents\fR:
+
+.
+.P
+A directory containing packaged contents, see \fBPackage\fR\.
+.
+.TP
+\fBscripts\fR:
+
+.
+.P
+A directory containing bundled scripts, see \fBScripts\fR\.
+.
+.TP
+\fBgitignore\.txt\fR:
+
+.
+.P
+A text file containing a list of all the files ignored by git(1)\. This file will only be present if git(1) is available and the directory being packaged is a git repository\.
+.
+.TP
+\fB\.xpmignore\fR:
+
+.
+.P
+If the source directory being packaged contains a file named \fB\.xpmignore\fR it is copied to the root of the bundle\.
+.
+.TP
+\fBpackage\.json\fR:
+
+.
+.P
+An npm(1) conformant package descriptor used to perform the deployment, this file is only included when the deployment type is \fBnpm\fR\.
+.
+.TP
+\fBenv\.log\fR:
+
+.
+.P
+A log file containing the result of executing env(1) just before creating the bundle archive\.
+.
+.SS "Makefiles"
+A \fBmakefile\fR is generated in the archive to create a consistent and familiar experience when make(1) is available\. If make(1) is not available the deployment may still be performed using \fB\./install\.sh\fR\.
+.
+.P
+The rules for the behaviour of generated makefiles are as follows\. If the bundle is not standalone or no makefile is included in the bundle contents then a single \fIinstall\fR target is created which runs the \fBinstall\.sh\fR script\.
+.
+.P
+If a bundled makefile exists (in the contents directory) then the makefile generated in the root of the bundle proxies all targets to the makefile included in the contents directory\. You may override this behaviour by specifying a different makefile for the root of the bundle using the \fB\-\-make\-file\fR option\.
+.
+.SS "Autoreconf"
+It\'s often desirable to ignore files generated by autoreconf(1) from a repository\. In this instance when running with the \fB\-\-standalone\fR (or \fB\-\-bundle\fR) option and ignoring files that git(1) ignores (the default behaviouur) a \fIconfigure\fR file will not be available in the bundle contents directory\.
+.
+.P
+To ensure that a \fIconfigure\fR file is available in the bundle contents directory the following rules are followed\. If the bundle contents directory contains a \fIconfigure\.ac\fR file and autoreconf(1) is available and no \fIconfigure\fR file exists in the bundle contents directory then the command \fBautoreconf \-i\fR is executed in the bundle contents directory prior to creating the bundle archive\. It is an error if this command fails\.
+.
+.P
+If the \fBautoreconf \-i\fR command succeeds the bundle contents directory will also contain the \fIconfigure\fR, \fImissing\fR and \fIinstall\-sh\fR files\.
+.
+.SS "Package"
+A bundle may include packaged files to create a \fIstandalone\fR bundle or to append/overwrite files in a deployment\. Packaged files are stored in the \fIcontents\fR directory within the bundle archive\.
+.
+.P
+Use the \fB\-\-pkg\fR option to indicate that packaging of files should also be performed\. By default when the \fB\-\-pkg\fR option is specified task\-deploy(7) will attempt to package \fIall\fR files in the directory containing the descriptor and following the rules described in \fBPackage Ignores\fR\.
+.
+.P
+Symbolic links are preserved by default, although you may override this behaviour by specifying the \fB\-\-follow\-symlinks\fR option\.
+.
+.SS "Package Ignores"
+Hidden files or directories are ignored by default, you can specify the \fB\-\-include\-hidden\fR option to also include hidden files\.
+.
+.P
+Any relative paths starting with \fI\.git\fR or \fI\.svn\fR are automatically ignored, this behaviour is \fInot\fR affected by the \fB\-\-include\-hidden\fR option\.
+.
+.P
+If the source directory is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to \fBgitignore\.txt\fR\.
+.
+.P
+If the source directory contains a file named \fB\.xpmignore\fR the patterns defined in the file are processed against the \fIrelative\fR path for each file, if the pattern matches the file is ignored\. Patterns are \fBExtended Regular Expressions\fR, it is an error to specify an invalid pattern\.
+.
+.SS "Directories"
+It is common that a program relies on some directories for use cases such as logging, temporary files or pid files\. Normally, these directories are not stored in a repository or included in a package therefore you may define directories to be created (globally or specific to a profile) after a successful deployment\. The syntax for defining directories to be created is:
+.
+.IP "" 4
+.
+.nf
+
+"bundle": {
+    "dirs": [
+        {
+            "path": "server/pids",
+            "perm": "0700"
+        }
+    ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The working directory for this operation is the final deployment target\. Directory creation and setting of permissions is only attempted if the directory does not exist\. Directories are created using \fBmkdir \-p\fR so parent directories will be created as needed\.
+.
+.P
+Directories are created prior to running post\-deployment commands so you can rely on them existing by the time post\-deployment commands are executed\.
+.
+.P
+Permissions declared in the \fIperm\fR property may be an octal value of any other value accepted by chmod(1), ie, g+w\.
+.
+.P
+You may specify absolute paths if required but you should be sure that the effective user has the correct permissions to create the directory structure\. Tilde expansion is performed on \fIpath\fR so you may create directories in the home directory for the effective user\.
+.
+.SS "Scripts"
+You may include custom scripts in a bundle by declaring a \fBscripts\fR array in the \fBbundles\fR object either globally or specific to a profile, the syntax is:
+.
+.IP "" 4
+.
+.nf
+
+"bundle": {
+    "scripts": [
+        {
+            "dir": "opt/bin",
+            "file": "script\.sh"
+        }
+    ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+A referenced script must exist on the filesystem and must be executable\. Bundled scripts are placed in a \fBscripts\fR directory automatically generated within the archive\.
+.
+.P
+Filesystem references may be absolute or relative, relative paths are resolved relative to the directory containing the descriptor\.
+.
+.P
+Global scripts are \fIalways\fR added to bundles for all profiles whereas profile specific script(s) will only be bundled for that profile\.
+.
+.P
+By default no hierarchy is maintained for bundled scripts so names should be unique for all bundled scripts, attempting to add a duplicate script will fail\.
+.
+.P
+To create a hierarchy for bundled scripts you may create a directory within the bundled \fBscripts\fR by specifying a \fBdir\fR property\. Leading periods or slashes are not allowed when specifying directories to create using the \fBdir\fR property\.
+.
+.SH "ROLLBACK"
+The generated \fIinstall\.sh\fR script attempts to rollback to a previous deployment if a deployment fails\.
+.
+.P
+This operation will only be performed if the final target directory for the deployment existed prior to starting a deployment, ie, the operation is a re\-deployment\.
+.
+.P
+For the \fBnpm\fR and \fBtar\fR deployment types a backup is created by moving the existing directory prior to starting deployment and moving back to the target destination if deployment fails\.
+.
+.P
+For the \fBgit\fR deployment type a current revision is extracted from the existing repository using \fBrev\-parse\fR and if the deployment fails it is reverted to the previous revision using \fBreset\fR\.
+.
+.SH "JSON FORMAT"
+The format of the \fIdeploy\.json\fR descriptor is described in the task\-deploy\-json(7) man page, to view this man page run:
+.
+.IP "" 4
+.
+.nf
+
+bake help deploy\-json
+.
+.fi
+.
+.IP "" 0
+.
+.SH "TARGET"
+The final deploy target is a combination of the \fIdirectory\fR, \fIname\fR and \fIprofile\fR by default\. Assuming a \fIdirectory\fR of \fB~/www\fR and the project name \fBproject\fR with a deployment profile of \fBstage\fR the target used for deployment is:
+.
+.IP "" 4
+.
+.nf
+
+~/www/project/stage
+.
+.fi
+.
+.IP "" 0
+.
+.P
+If you do not wish to include the profile name in the target directory specify the \fB\-\-flat\fR option which results in:
+.
+.IP "" 4
+.
+.nf
+
+~/www/project
+.
+.fi
+.
+.IP "" 0
+.
+.P
+It depends upon your deployment requirements as to which strategy you wish to use\. Generally, if you are deploying to the same host then it makes sense to separate the deployment profiles, whereas if each deployment profile is using a different host then it is more consistent to have the same directory structure across the different hosts\.
+.
+.P
+You may also create separate deployment targets based on the project version using the \fB\-\-include\-version\fR option\. Continuing the above example with a version of \fB0\.0\.1\fR and the default behaviour (no \fB\-\-flat\fR option specified) then the target becomes:
+.
+.IP "" 4
+.
+.nf
+
+~/www/project\-0\.0\.1/stage
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Or alternatively in conjunction with the \fB\-\-flat\fR option the target directory becomes:
+.
+.IP "" 4
+.
+.nf
+
+~/www/project\-0\.0\.1
+.
+.fi
+.
+.IP "" 0
+.
+.SH "PROFILES"
+You may specify one or more profiles to deploy after any options\. If no profiles are specified then a deploy is attempted using the \fIdefault\fR profile\.
+.
+.SH "DEFAULT PROFILE"
+This profile is used when no profiles are specified on the command line\. The default profile uses a \fIcp\fR deployment type\.
+.
+.P
+For example, to execute the default profile run:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy
+.
+.fi
+.
+.IP "" 0
+.
+.P
+But if a profile is specified:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy stage
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Then the default profile is not a target profile, only the \fIstage\fR profile is deployed\. To also execute the default profile, declare it on the command line:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy stage default
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Note that when the \fB\-\-all\fR option is specified the \fIdefault\fR profile is not included, if you wish to also execute the default profile in addition to execute the default profile as well:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-all default
+.
+.fi
+.
+.IP "" 0
+.
+.P
+You may override settings for the default profile by declaring a profile named \fIdefault\fR in the descriptor\.
+.
+.P
+When no \fIurl\fR is available for the default profile the following rules apply\. The \fIurl\fR is first set to the project directory, once a descriptor has been validated then the default url is set to the parent directory for the descriptor allowing consistent behaviour when the \fB\-\-descriptor\fR option is set\. If a profile named \fIdefault\fR is defined in the descriptor and a \fIurl\fR property for the profile is set then the value of \fIurl\fR is used\.
+.
+.SH "NAMES"
+Profile and project names may not start with a hyphen and should match the pattern ^[\-a\-zA\-Z0\-9]+\.
+.
+.SH "STRICT"
+The deployment process is fail fast\. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed\.
+.
+.SH "FILES"
+A \fIdeploy\.json\fR file must be present in the root of the project and must be valid JSON\. This file may just contain \'{}\' if you wish to use the \fIdefault\fR profile and configure deployment parameters via environment variables or command line options\.
+.
+.SH "ENVIRONMENT"
+.
+.TP
+\fBbake_deploy_remote\fR:
+
+.
+.P
+The remote host used for deployment when none is specified in \fIdeploy\.json\fR\.
+.
+.TP
+\fBbake_deploy_shell\fR:
+
+.
+.P
+The shell used on the remote server, defaults to \fBsh\fR if none is specified\.
+.
+.TP
+\fBbake_deploy_staging\fR:
+
+.
+.P
+The directory used on the remote server for staging deployment scripts, default is \fB~/\.deploy\fR\.
+.
+.SH "COMMAND EXECUTION"
+The deployment process can optionally execute arbitrary simple commands on the local and remote host\. For each host, command execution is split into the pre\-deployment and post\-deployment execution phases\.
+.
+.P
+Note that when running a local deployment (using \fB\-\-local\fR) then remote commands are executed on the local host\.
+.
+.P
+If any command exits with an exit code \fI>0\fR then the deployment is aborted\. This is useful for running tests prior to performing a deployment or other tasks such as creating a tarball package\.
+.
+.P
+The general syntax for declaring commands is:
+.
+.IP "" 4
+.
+.nf
+
+"commands": {
+    "local": {
+        "pre": [
+            {
+                "command": "ls",
+                "options": [ "\-la", "lib", "man" ]
+            }
+        ],
+        "post": [
+            {
+                "command": "echo",
+                "options": [ "deployment complete" ]
+            }
+        ]
+    }
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+All commands are encapsulated by the \fIcommands\fR object which can contain \fIlocal\fR and \fIremote\fR properties indicating whether the commands should be executed on the local or remote host\. The \fIpre\fR and \fIpost\fR properties are arrays of commands to execute for the deployment phase(s)\.
+.
+.P
+A \fIcommands\fR object may be declared at the top\-level of the JSON descriptor document, in which case the commands will be executed for \fIall\fR profiles\. A \fIcommands\fR object may also be declared in a profile to execute commands specific to that profile\. When \fIcommands\fR are declared at the top\-level of the document and in a profile then they are concatenated together and all commands are executed (global commands are executed first)\.
+.
+.SS "Working Directory"
+In order to be able to resolve relative path references correctly it is important to know the working directory used for command execution\.
+.
+.P
+For \fIlocal\fR commands (pre and post execution phases) the working directory is always set to the directory that contains the deployment descriptor\. This ensures consistency when executing in the context of a project as well as when the \fB\-\-descriptor\fR option is set\.
+.
+.P
+For \fIremote\fR command execution the rule(s) are a little more complex\.
+.
+.P
+Remote pre\-deployment commands follow the rule that if the final target directory does not exist (first deployment) then commands are executed in the context of the sandbox directory used to perform the deployment\. If the final target directory already exists then the remote pre\-deployment commands are executed in the context of the \fIexisting\fR deployment\. This is useful if you wish to perform an action (such as stopping a server) on the existing deployment prior to performing a re\-deployment\.
+.
+.P
+Remote post\-deployment commands are always executed in the context of the final target directory\. You could use this command execution phase to restart a server after deployment\.
+.
+.SS "Parameter Expansion"
+By default parameters are not expanded \- whitespace in a parameter is preserved and passed as a single argument to the command being executed\. For example, imagine you wanted to list the contents of the \fIlib\fR and \fIman\fR directories, this would fail (with the default settings) if you specified both directories in a single option (\fBls\fR would be looking for a directory named "lib man" rather than attempting to list two separate directories):
+.
+.IP "" 4
+.
+.nf
+
+{
+    "command": "ls",
+    "options": [ "\-la", "lib man" ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+You have two options to remedy this scenario\. You may either decide to separate the parameters:
+.
+.IP "" 4
+.
+.nf
+
+{
+    "command": "ls",
+    "options": [ "\-la", "lib", "man" ]
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+So that the \fIlib\fR and \fIman\fR are passed as separate arguments to \fIls\fR\. Or you may use the \fB\-\-expand\fR option to allow parameter expansion on command options\. You should only use the \fB\-\-expand\fR option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed\.
+.
+.SS "Command Environment"
+Commands executing in a \fIlocal\fR context have access to the entire bake(1) variable scope chain which means that there are some useful variables exposed to your commands\.
+.
+.TP
+\fBproject_name\fR:
+
+.
+.P
+The name of the project\.
+.
+.TP
+\fBproject_version\fR:
+
+.
+.P
+The project version\.
+.
+.TP
+\fBroot\fR:
+
+.
+.P
+The project root directory\.
+.
+.TP
+\fBproject\fR:
+
+.
+.P
+The root directory for multi\-module projects, when bake(1) is executing at the root of a multi\-module project then \fBroot\fR and \fBproject\fR point to the same directory\.
+.
+.TP
+\fBtarget\fR:
+
+.
+.P
+The \fBtarget\fR directory relative to \fB${root}\fR used by bake(1) for staging files\.
+.
+.TP
+\fBprofile\fR:
+
+.
+.P
+The name of the profile currently being deployed\.
+.
+.TP
+\fBdeploy_target\fR:
+
+.
+.P
+The final target directory used for the deployment, see the \fBTARGET\fR section\.
+.
+.TP
+\fBdeploy_name\fR:
+
+.
+.P
+The human readable name used by task\-deploy(7)\. This is the project name and version delimited by @, for example: project@0\.0\.1\.
+.
+.TP
+\fBdeploy_file_name\fR:
+
+.
+.P
+The prefix used when defining file names\. Uses \- as the delimiter, for example: project\-0\.0\.1\.
+.
+.TP
+\fBscript_name\fR:
+
+.
+.P
+The name of the script that will be used by task\-deploy(7) for deployment\.
+.
+.TP
+\fBscript\fR:
+
+.
+.P
+The path to the script that will be used to perform deployment\.
+.
+.TP
+\fBlog\fR:
+
+.
+.P
+The path to the log file used by task\-deploy(7)\.
+.
+.TP
+\fBlogging\fR:
+
+.
+.P
+A boolean indicating whether output is being redirected to the file defined by the \fIlog\fR variable\.
+.
+.TP
+\fBtype\fR:
+
+.
+.P
+The type of deployment being performed, see the \fBTYPES\fR section\.
+.
+.TP
+\fBnoop\fR:
+
+.
+.P
+A boolean indicating if this deployment is a non\-operation, will be \fItrue\fR if the \fB\-\-dry\-run\fR option has been specified\.
+.
+.TP
+\fBflat\fR:
+
+.
+.P
+A boolean indicating if a flat directory structure is being used, see the \fBTARGET\fR section\.
+.
+.TP
+\fBinclude_version\fR:
+
+.
+.P
+A boolean indicating if version information is being included in the directory structure, see the \fBTARGET\fR section\.
+.
+.SS "Custom Environment"
+You may declare properties specific to your deployment process in a top\-level \fIenv\fR object\. You may then access these variables in your deployment profiles using the \fBenv_\fR variable prefix\.
+.
+.P
+Properties declared in the \fIenv\fR object may reference any variable documented in the \fBCommand Environment\fR section but they may not use \fBCross References\fR using a \fBdoc_\fR variable prefix\.
+.
+.P
+If you attempt to create a document cross\-reference in an \fIenv\fR property task\-deploy(7) will exit immediately with a \fI>0\fR exit code\.
+.
+.P
+See the section \fBCommand Examples\fR for example(s)\.
+.
+.SS "Cross References"
+It is recommended that you use the functionality provided by \fBCustom Environment\fR whenever possible but if you absolutely must reference other data in a deployment profile this section provides some information on using deployment descriptor cross\-references\.
+.
+.P
+The JSON document properties are expanded to variables that you may reference in the deployment descriptor\. These variables are exposed using a \fBdoc_\fR prefix\.
+.
+.P
+This is useful to prevent duplication of information between profiles that share some (but not all) commands or properties\.
+.
+.P
+Consider the following example document:
+.
+.IP "" 4
+.
+.nf
+
+{
+    "host": "user@example\.com",
+    "directory": "~/www",
+    "commands": {
+        "local": {
+            "pre": [
+                {
+                    "command": "echo",
+                    "options": [ "$doc_directory", "$doc_host" ]
+                }
+            ]
+        }
+    }
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+In this instance the \fB\e$doc_\fR variables reference the \fIdirectory\fR and \fIhost\fR properties declared at the top\-level of the document\.
+.
+.P
+This results in the command (for the local host pre\-deployment phase):
+.
+.IP "" 4
+.
+.nf
+
+echo ~/www user@example\.com
+.
+.fi
+.
+.IP "" 0
+.
+.P
+When the command is executed it generates the output:
+.
+.IP "" 4
+.
+.nf
+
+~/www user@example\.com
+.
+.fi
+.
+.IP "" 0
+.
+.P
+You may reference any property in the document by full path delimited by an underscore (_) for the variable name\.
+.
+.P
+To illustrate, a convoluted example which generates the same output as the above example but also prepends the command being executed and appends the number of options being passed to the command:
+.
+.IP "" 4
+.
+.nf
+
+{
+    "host": "user@example\.com",
+    "directory": "~/www",
+    "commands": {
+        "local": {
+            "pre": [
+                {
+                    "command": "echo",
+                    "options": [
+                        "$doc_commands_local_pre_0_command",
+                        "$doc_directory",
+                        "$doc_host",
+                        "$doc_commands_local_pre_0_options_length"
+                    ]
+                }
+            ]
+        }
+    }
+}
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The command becomes:
+.
+.IP "" 4
+.
+.nf
+
+echo echo ~/www user@example\.com 4
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Which generates the \fIoutput\fR:
+.
+.IP "" 4
+.
+.nf
+
+echo ~/www user@example\.com 4
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Notice how you can access array elements by index and also the the \fIlength\fR properties of array types\.
+.
+.SS "Command Errors"
+Commands (declared by the \fIcommand\fR property) may not contain any whitespace (space, tab or newline)\. It is a JSON error to declare literal whitespace characters such as \en or \et, if these are specified using the escaped values (allowed by JSON) the program will exit with a whitespace error\.
+.
+.P
+If you reference a variable that is unbound in a command the program will exit immediately with a >0 exit code and an error message\.
+.
+.SS "Command Examples"
+A complete example that uses npm(1) to create a tarball, moves it to the local \fBtarget\fR staging directory and copies the tarball to a remote host prior to the main deployment process which will take the created archive (on the remote host) and deploy it to the \fItarget\fR directory:
+.
+.IP "" 4
+.
+.nf
+
+{
+    "env": {
+        "archive": {
+            "name": "${project_name}\-${project_version}\.tgz",
+            "dir": "$target",
+            "path": "${target}/${project_name}\-${project_version}\.tgz"
+        }
+    },
+    "host": "user@example\.com",
+    "directory": "~/www",
+    "profiles": {
+        "npm": {
+            "type": "tar",
+            "url": "~/$env_archive_name",
+            "commands": {
+                "local": {
+                    "pre": [
+                        {
+                            "command": "npm",
+                            "options": [ "pack" ]
+                        },
+                        {
+                            "command": "mv",
+                            "options": [ "$env_archive_name", "$env_archive_dir" ]
+                        },
+                        {
+                            "command": "scp",
+                            "options": [ "$env_archive_path", "${host}:~/" ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
+.
+.fi
+.
+.IP "" 0
+.
+.SH "DEPLOYMENT PROCESS"
+This section describes the process that task\-deploy(7) uses to perform a deployment assuming that no command line options (other than profile(s)) have been specified on the command line, see \fBOPTIONS\fR for how command line options influence behaviour\.
+.
+.P
+Load and parse the deployment descriptor JSON document and exit with a \fI>0\fR exit code if invalid JSON is encountered\.
+.
+.P
+Start processing of the target profiles specified on the command line, profile execution order is the order that profiles are specified on the command line or non\-determinate when executing all profiles\.
+.
+.P
+If no profiles are specified on the command line then a \fIdefault\fR profile is assumed, see \fBDEFAULT PROFILE\fR\.
+.
+.P
+Before profile execution starts command line options are processed that may override any settings in the deployment descriptor and the deployment descriptor is evaluated using \fBeval\fR so that variable references declared in a deployment descriptor are resolved correctly in the context of the current profile being executed\. If any errors are encountered task\-deploy(7) exits with a \fI>0\fR exit code\.
+.
+.P
+An interactive prompt is displayed asking for confirmation that you wish to deploy the profile\.
+.
+.P
+If global and/or profile\-specific \fIlocal\fR pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+.
+.P
+At this point the deployment process starts\. When running as a \fIlocal\fR deployment (using \fB\-\-local\fR) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on the remote host using scp(1)\.
+.
+.P
+If global and/or profile\-specific \fIremote\fR pre\-deployment commands have been specified they are executed, if any command exits with a \fI>0\fR exit code the deployment is aborted\.
+.
+.P
+The deployment script is executed to perform the deployment based on the deployment type for the profile, see \fBTYPES\fR\.
+.
+.P
+If the deployment script detects any error the deployment process is aborted\.
+.
+.P
+If global and/or profile\-specific \fIremote\fR post\-deployment commands have been specified they are executed on the remote host by the deployment script\.
+.
+.P
+If global and/or profile\-specific \fIlocal\fR post\-deployment commands have been specified they are executed on the local host\.
+.
+.P
+Success or failure notifications are delivered\.
+.
+.SH "INTERACTIVE"
+Deploying code is an important process and task\-deploy(7) by design presents confirmation prompt(s) to ensure you wish to proceed\.
+.
+.P
+This interactivity can be disabled in a variety of ways which is often necessary when executing a deployment from another program or if you are re\-deploying in quick succession\. The recommended way is to specify the \fB\-\-ok\fR option\.
+.
+.P
+If the \fB\-\-dry\-run\fR option is specified interactive prompt(s) are not displayed as no commands are executed\.
+.
+.P
+Interactive prompts write to \fIstdout\fR and read from \fIstdin\fR you may also disable interactivity by piping to \fIstdin\fR or redirecting \fIstdout\fR\. For example:
+.
+.IP "" 4
+.
+.nf
+
+echo "" | bake deploy
+bake deploy > target/deploy\.log
+.
+.fi
+.
+.IP "" 0
+.
+.SH "NOTIFICATIONS"
+.
+.SS "Email"
+Email notifications are enabled by default but email will not be sent under the following situations\.
+.
+.IP "\[ci]" 4
+If either sendmail(1) or uuencode(1) are not available\.
+.
+.IP "\[ci]" 4
+If the \fBto\fR field for email notifications has not been specified or is the empty string\.
+.
+.IP "\[ci]" 4
+If the \fB\-\-no\-mail\fR option has been specified\.
+.
+.IP "\[ci]" 4
+If the \fB\-\-script\-file\fR option has been specified\. In this instance a custom script is being used to perform the deployment and it becomes the responsibility of the script to send notifications\.
+.
+.IP "\[ci]" 4
+If the \fB\-\-pkg\fR or \fB\-\-standalone\fR option has been specified and the bundled contents contains a \fIconfigure\fR executable (or \fIMakefile\fR)\. In this scenario it is the responsibility of the bundled contents to perform the installation therefore the generated script is not used\.
+.
+.IP "" 0
+.
+.P
+Email subjects lines are in the format:
+.
+.IP "" 4
+.
+.nf
+
+[deploy] (user@host\.local) project\-0\.0\.1\-profile ✓
+[deploy] (user@host\.local) project\-0\.0\.1\-profile ✘
+.
+.fi
+.
+.IP "" 0
+.
+.P
+The subject line for a successful deployment is appended with ✓ (\eu2713) whilst a ✘ (\eu2718) is appended for a failed deployment\.
+.
+.SS "Growl"
+If the \fIgrowlnotify\fR executable is available then a success or failure notification will be sent using \fIgrowlnotify\fR\. Note that \fIgrowlnotify\fR notifications are \fInot\fR sent for a \fBnoop\fR which is the case if the \fB\-\-dry\-run\fR, \fB\-\-json\fR or \fB\-\-script\fR options are specified\.
+.
+.P
+You may disable the use of growl notifications by specifying the \fB\-\-no\-growl\fR option\.
+.
+.SH "FILES"
+All generated files are written to \fBtarget/deploy\fR by default\.
+.
+.P
+When the \fB\-\-log\fR option is specified \fIstdout\fR messages are redirected to \fBtarget/deploy/deploy\.log\fR\.
+.
+.P
+The generated script file(s) are written to \fBtarget/deploy\fR using the following naming strategy:
+.
+.IP "" 4
+.
+.nf
+
+${name}\-${version}\-${profile}\.sh
+.
+.fi
+.
+.IP "" 0
+.
+.SH "EXIT CODES"
+A >0 exit code indicates failure while a 0 exit code indicates success\.
+.
+.SH "EXAMPLES"
+.
+.SS "Deploying"
+Deploy using the default profile:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Deploy to \fIlocalhost\fR using the default profile:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-local
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Deploy the profile \fIstage\fR:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy stage
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Deploy the profiles \fItest\fR, \fIstage\fR and \fIproduction\fR:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy test stage production
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Deploy all profiles in the descriptor:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-all
+.
+.fi
+.
+.IP "" 0
+.
+.SS "Bundling"
+Bundle the default profile:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-bundle
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Bundle all profiles:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-all \-\-bundle
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Bundle profiles \fIstage\fR and \fIproduction\fR and place generated bundles in \fI~/bundles\fR:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-bundle \-\-output ~/bundles stage production
+.
+.fi
+.
+.IP "" 0
+.
+.SS "Inspecting"
+List profiles in \fIdeploy\.json\fR:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-list
+.
+.fi
+.
+.IP "" 0
+.
+.P
+List profiles in a specific descriptor:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-list \-\-descriptor ~/project/deploy\.json
+.
+.fi
+.
+.IP "" 0
+.
+.SS "Debugging"
+Inspect deployment commands but do not execute them:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-dry\-run
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Print the script that will be used for deployment:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-script
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Inspect the settings used for a \fIdefault\fR deployment:
+.
+.IP "" 4
+.
+.nf
+
+bake deploy \-\-json \-\-pretty \e\e
+    \-\-staging ~/project\-staging \e\e
+    \-\-name project \e\e
+    \-\-directory ~/www
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Display this man page:
+.
+.IP "" 4
+.
+.nf
+
+bake help deploy
+.
+.fi
+.
+.IP "" 0
+.
+.SH "ROADMAP"
+Add rsync(1) deployment type\.
+.
+.P
+Implement lock files for the local and remote scripts to prevent concurrency issues when multiple deployments are attempted\.
+.
+.P
+Add ability to rollback a deployment if an existing \fBtarget\fR directory existed prior to deployment and the deployment process fails (such as due to a network error)\.
+.
+.P
+Add \fB\-\-branch\fR option to specify a git branch to use for all profiles that are of the \fBgit\fR type\.
+.
+.P
+Add \fB\-\-refspec\fR option so that \fBgit\fR deployments may also be done from tags\.
+.
+.P
+Implement notifications using \fBmail\fR\.
+.
+.P
+Attach bundle to \fBmail\fR notifications\.
+.
+.P
+Add the \fBdeploy_ssh_options\fR and \fBdeploy_scp_options\fR environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1)\.
+.
+.P
+Add \fBenable\fR boolean property to profiles in a descriptor to prevent deployment of a profile\.
+.
+.SH "DEPENDENCIES"
+GNU tar(1) >= 1\.22, scp(1), ssh(1)
+.
+.SH "BUGS"
+\fBtask\-deploy\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBtask\-deploy\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+bake(1), task\-deploy\-json(7), scp(1), ssh(1), tar(1), make(1), autoreconf(1), growlnotify(1), checkbashisms(1)

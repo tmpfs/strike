@@ -1,0 +1,33 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "REQUIRE" "3" "April 2013" "" ""
+.
+.SH "NAME"
+\fBrequire\fR \- module loader
+.
+.SH "SYNOPSIS"
+Module loader for strike(7)\.
+.
+.SH "DESCRIPTION"
+Loads modules by name or filesystem path and adds delegate(3) functionality to modules once loaded\.
+.
+.SH "USAGE"
+.
+.nf
+
+require \'module\';
+require \'\./module\';
+require \'\.\./path/to/module\';
+require \'/path/to/module\';
+.
+.fi
+.
+.SH "BUGS"
+\fBrequire\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBrequire\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+delegate(3)

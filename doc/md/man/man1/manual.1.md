@@ -1,7 +1,136 @@
-help(3) -- help module for strike(1)
+manual(1) -- interactive man page browser
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+	manual [command] [options...]
+
+## DESCRIPTION
+
+An interactive program for viewing the strike(7) manual pages. Tab completion
+is performed on the available man pages and interactive commands (with the
+exception of the *help* command).
+
+You may use the following sequences to exit the program:
+
+* q
+* quit
+* exit
+
+## COMMANDS
+
+* `help`:
+
+	Show the manual(1) man page.
+
+## OPTIONS
+
+* `--version`:
+
+	Print the program version and exit.
+
+* `--color=auto|never|always`:
+
+	Change the configuration for printing ANSI color escape sequences.
+	The default value is *auto*. See sprintf(3).
+
+## INTERACTIVE COMMANDS
+
+The following commands are available from the interactive prompt.
+
+
+* `name.[1-8]`:
+
+	Open *name* manual page using man(1).
+
+
+* `ls`:
+
+	List available manual pages.
+
+* `?`:
+
+	Print command usage.
+
+* `help`:
+
+	Display this manual page.
+
+## DEVELOPER COMMANDS
+
+These commands are designed to be used by developers.
+
+* `build`:
+
+	Command to build the man pages from the markdown source, 
+	requires ronn(1). This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man build`.
+
+* `generate`:
+
+	Command to build the ronn documents from inline heredoc comments.
+	This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man generate`.
+
+* `compile`:
+
+	Command to compile all ronn documents to manual pages, 
+	requires ronn(1). This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man compile`.
+
+* `import`:
+
+	Import compiled manual pages into the man directory.
+	This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man import`.
+
+* `clean`:
+
+	Remove compiled manual pages from the man directory.
+	This is an alias for the task-doc(7) command that
+	corresponds to `bake doc man clean`.
+
+## EXAMPLES
+
+Launch the interactive browser:
+
+	manual
+
+Display this manual page:
+
+	manual help
+
+Switch off the color capability:
+
+	manual --color=never
+
+Print program version and exit:
+
+	manual --version
+
+## BUGS
+
+**manual** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**manual** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+man(1), sprintf(3), task-doc(7), ronn(1)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[COMMANDS]: #COMMANDS "COMMANDS"
+[OPTIONS]: #OPTIONS "OPTIONS"
+[INTERACTIVE COMMANDS]: #INTERACTIVE-COMMANDS "INTERACTIVE COMMANDS"
+[DEVELOPER COMMANDS]: #DEVELOPER-COMMANDS "DEVELOPER COMMANDS"
+[EXAMPLES]: #EXAMPLES "EXAMPLES"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

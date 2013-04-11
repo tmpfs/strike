@@ -1,0 +1,175 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "MANUAL" "1" "April 2013" "" ""
+.
+.SH "NAME"
+\fBmanual\fR \- interactive man page browser
+.
+.SH "SYNOPSIS"
+.
+.nf
+
+manual [command] [options\|\.\|\.\|\.]
+.
+.fi
+.
+.SH "DESCRIPTION"
+An interactive program for viewing the strike(7) manual pages\. Tab completion is performed on the available man pages and interactive commands (with the exception of the \fIhelp\fR command)\.
+.
+.P
+You may use the following sequences to exit the program:
+.
+.IP "\[ci]" 4
+q
+.
+.IP "\[ci]" 4
+quit
+.
+.IP "\[ci]" 4
+exit
+.
+.IP "" 0
+.
+.SH "COMMANDS"
+.
+.TP
+\fBhelp\fR:
+.
+.IP
+Show the manual(1) man page\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-\-version\fR:
+.
+.IP
+Print the program version and exit\.
+.
+.TP
+\fB\-\-color=auto|never|always\fR:
+.
+.IP
+Change the configuration for printing ANSI color escape sequences\. The default value is \fIauto\fR\. See sprintf(3)\.
+.
+.SH "INTERACTIVE COMMANDS"
+The following commands are available from the interactive prompt\.
+.
+.TP
+\fBname\.[1\-8]\fR:
+.
+.IP
+Open \fIname\fR manual page using man(1)\.
+.
+.TP
+\fBls\fR:
+.
+.IP
+List available manual pages\.
+.
+.TP
+\fB?\fR:
+.
+.IP
+Print command usage\.
+.
+.TP
+\fBhelp\fR:
+.
+.IP
+Display this manual page\.
+.
+.SH "DEVELOPER COMMANDS"
+These commands are designed to be used by developers\.
+.
+.TP
+\fBbuild\fR:
+.
+.IP
+Command to build the man pages from the markdown source, requires ronn(1)\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man build\fR\.
+.
+.TP
+\fBgenerate\fR:
+.
+.IP
+Command to build the ronn documents from inline heredoc comments\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man generate\fR\.
+.
+.TP
+\fBcompile\fR:
+.
+.IP
+Command to compile all ronn documents to manual pages, requires ronn(1)\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man compile\fR\.
+.
+.TP
+\fBimport\fR:
+.
+.IP
+Import compiled manual pages into the man directory\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man import\fR\.
+.
+.TP
+\fBclean\fR:
+.
+.IP
+Remove compiled manual pages from the man directory\. This is an alias for the task\-doc(7) command that corresponds to \fBbake doc man clean\fR\.
+.
+.SH "EXAMPLES"
+Launch the interactive browser:
+.
+.IP "" 4
+.
+.nf
+
+manual
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Display this manual page:
+.
+.IP "" 4
+.
+.nf
+
+manual help
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Switch off the color capability:
+.
+.IP "" 4
+.
+.nf
+
+manual \-\-color=never
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Print program version and exit:
+.
+.IP "" 4
+.
+.nf
+
+manual \-\-version
+.
+.fi
+.
+.IP "" 0
+.
+.SH "BUGS"
+\fBmanual\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBmanual\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+man(1), sprintf(3), task\-doc(7), ronn(1)

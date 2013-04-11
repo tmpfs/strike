@@ -1,0 +1,45 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "SEMVER" "3" "April 2013" "" ""
+.
+.SH "NAME"
+\fBsemver\fR \- semantic version parser
+.
+.SH "SYNOPSIS"
+Commands for working with semantic versioning as defined by semver(7)\.
+.
+.SH "DESCRIPTION"
+Enables parsing of semantic version strings to complex objects\.
+.
+.SH "USAGE"
+To parse a semver(7) string into an associative array use \fBsemver\.parse\fR with the string and a callback method:
+.
+.IP "" 4
+.
+.nf
+
+require \'semver\';
+callback() {
+    console info "semver keys %s" "${!semver[*]}";
+    console info "semver values %s" "${semver[*]}";
+    semver\.stringify;
+    console info "semver string %s" "$_result";
+}
+semver\.parse "2\.0\.0\-rc" "callback";
+.
+.fi
+.
+.IP "" 0
+.
+.P
+Note that the \fBsemver\.parse\fR method will not perform any operations on invalid semver(7) string values, you may invoke \fBsemver\.valid?\fR to test the validity of a string\.
+.
+.SH "BUGS"
+\fBsemver\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBsemver\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+require(3)

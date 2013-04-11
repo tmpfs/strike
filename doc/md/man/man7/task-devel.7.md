@@ -1,7 +1,71 @@
-help(3) -- help module for strike(1)
+task-devel(7) -- develelopment task(s) for bake(1)
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+Development task(s) for bake(1).
+
+## DESCRIPTION
+
+Integrates with tasks-project(7) to copy dependencies during local develelopment.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `devel` task(s) using:
+
+	require 'tasks/devel';
+
+## USAGE
+
+	bake devel push [options...] [id]
+		bake devel pull [options...] [id]
+
+## COMMANDS
+
+* `push`:
+
+		Push this project to other project dependencies.
+
+* `pull`:
+
+		Pull project dependencies into this project.
+
+## OPTIONS
+
+* `--force`:
+
+		Force overwriting of an existing dependency.
+
+* `--test`:
+
+		Run tests after a push or pull command.
+
+* `--revert`:
+
+		Revert to the version in use prior to a push or pull if tests fails.
+
+## BUGS
+
+**task-devel** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-devel** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1), tasks-project(7)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[REQUIRE]: #REQUIRE "REQUIRE"
+[USAGE]: #USAGE "USAGE"
+[COMMANDS]: #COMMANDS "COMMANDS"
+[OPTIONS]: #OPTIONS "OPTIONS"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

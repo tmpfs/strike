@@ -1,7 +1,77 @@
-help(3) -- help module for strike(1)
+task-expand(7) -- expand and unexpand whitespace
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+Change tabs with spaces and vice-versa.
+
+## DESCRIPTION
+
+Convert leading whitespace in files and write changes to the file(s).
+
+This task is interactive as the operation is destructive in that it writes the changes directly to the file with no backup , so this task prints the list of files that the operation will be performed on and presents a prompt asking for confirmation.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `expand` task(s) using:
+
+	require tasks/expand;
+
+## USAGE
+
+	bake expand [options...] [files...]
+	bake unexpand [options...] [files...]
+
+## OPTIONS
+
+* `-t [tablist]`:
+
+Set the number of spaces for a tab stop, default is 2 if this option is not specified.
+
+* `-v | --verbose`:
+
+Print more information.
+
+## EXAMPLES
+
+Replace all leading tabs with two spaces in all files in a directory:
+
+	bake expand $( find lib/modules -type f )
+
+Replace all leading tabs with four spaces in a file:
+
+	bake expand -t 4 README.md
+
+Replace two leading spaces with a tab in a file:
+
+	bake unexpand README.md
+
+Convert leading tabs to two spaces in the current file open within `vim`:
+
+	:!bake expand -v %
+
+## BUGS
+
+**task-expand** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-expand** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1), expand(1), unexpand(1)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[REQUIRE]: #REQUIRE "REQUIRE"
+[USAGE]: #USAGE "USAGE"
+[OPTIONS]: #OPTIONS "OPTIONS"
+[EXAMPLES]: #EXAMPLES "EXAMPLES"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

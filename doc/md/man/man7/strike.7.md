@@ -1,7 +1,41 @@
-help(3) -- help module for strike(1)
+strike(7) -- require for bash
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+Modular `bash` using require(3).
+
+## DESCRIPTION
+
+Brings structure and modularity to `bash` programs and provides a set of modules that can be used from any `bash` program.
+
+## MODULES
+
+Once the library code has been included the following modules are automatically available to your code.
+
+### method
+
+The method(3) module provides utility functions for determining whether functions exist, listing functions and removing methods.
+
+## BUGS
+
+**strike** is written in bash and depends upon `bash` >= 4.2 for associative arrays.
+
+## COPYRIGHT
+
+**strike** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+strike-tree(7), boilerplate(3)
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[MODULES]: #MODULES "MODULES"
+[method]: #method "method"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

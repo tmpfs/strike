@@ -1,2 +1,4 @@
 help(3) -- help module for strike(1)
 =============================================
+
+TODO: document this module

@@ -1,7 +1,67 @@
-help(3) -- help module for strike(1)
+prompt(1) -- test program for prompt(3)
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+	prompt [options]
+
+## DESCRIPTION
+
+Test program for prompt(3).
+
+## OPTIONS
+
+* `--color=[auto|never|always]`:
+
+Sets the environment variable for sprintf(3) that overrides any `--color` options passed to sprintf(3).
+
+## USAGE
+
+When invoked with no options this program prints a series of test prompts. When options are specified they are passed on to prompt(3).
+
+## EXAMPLES
+
+Run test prompt sequence:
+
+	prompt
+	
+Run test prompt sequence with no color:
+
+	prompt --color=never
+	
+Show a default confirmation prompt:
+
+	prompt confirm
+	
+Show a default line prompt:
+
+	prompt line
+	
+Run an infinite set of prompts that can execute shell commands:
+	
+	prompt line -i -e --quit="q quit exit"
+
+## BUGS
+
+**prompt** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**prompt** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+prompt(3), console(3)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[OPTIONS]: #OPTIONS "OPTIONS"
+[USAGE]: #USAGE "USAGE"
+[EXAMPLES]: #EXAMPLES "EXAMPLES"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

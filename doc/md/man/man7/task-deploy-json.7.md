@@ -1,7 +1,67 @@
-help(3) -- help module for strike(1)
+task-deploy-json(7) -- deploy.json
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+This manual describes the format of JSON documents used by task-deploy(7). These documents are named *deploy.json* and stored in the root directory of a project.
+
+## TOP LEVEL
+
+The top level of the document supports the following properties:
+
+* `host`:
+
+The remote host to connect to.
+
+* `directory`:
+
+The working directory on the remote host.
+
+## PROFILES
+
+If a profile does not declare the `host` or `directory` properties than the defaults located at the root of the document will be used.
+
+A profile is declared on the *profiles* object.
+
+## EXAMPLES
+
+A simple *deploy.json* that just defines a `host` and `directory` to be used for the *default* profile:
+
+	{
+		"host": "user@example.com",
+		"directory": "~/www"
+	}
+	
+To declare multiple profiles that share the same host and directory settings, use:
+
+	{
+		"host": "user@example.com",
+		"directory": "~/www",
+		"profiles": {
+			"test": {
+				"type": "git",
+				"branch": "test"
+			},
+			"development": {
+				"type": "git",
+				"branch": "develop"
+			},
+			"production": {
+				"type": "git",
+				"branch": "master"
+			}
+		}
+	}
+
+## SEE ALSO
+
+task-deploy(7)
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[TOP LEVEL]: #TOP-LEVEL "TOP LEVEL"
+[PROFILES]: #PROFILES "PROFILES"
+[EXAMPLES]: #EXAMPLES "EXAMPLES"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

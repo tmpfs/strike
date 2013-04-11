@@ -1,7 +1,59 @@
-help(3) -- help module for strike(1)
+task-clean(7) -- clean task(s) for bake(1)
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+Clean task(s) for bake(1).
+
+## DESCRIPTION
+
+Removes the `target` directory.
+
+The `target` directory is the staging directory used by bake(1) tasks.
+
+## REQUIRE
+
+You do not need to require(3) this task as it is a builtin task.
+
+## USAGE
+
+	bake clean [options...]
+
+## OPTIONS
+
+* `-v | --verbose`:
+
+Print files as they are deleted.
+
+## INTERACTIVE
+
+The clean task is interactive provided that both *stdin* and *stdout* are a *tty*. You can bypass interactivity by piping to *stdin* or redirecting *stdout*:
+
+	echo "" | bake clean
+	bake clean > clean.log
+
+## BUGS
+
+**task-clean** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-clean** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[REQUIRE]: #REQUIRE "REQUIRE"
+[USAGE]: #USAGE "USAGE"
+[OPTIONS]: #OPTIONS "OPTIONS"
+[INTERACTIVE]: #INTERACTIVE "INTERACTIVE"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

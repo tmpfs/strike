@@ -1,0 +1,300 @@
+.\" generated with Ronn/v0.7.3
+.\" http://github.com/rtomayko/ronn/tree/0.7.3
+.
+.TH "SPRINTF" "3" "April 2013" "" ""
+.
+.SH "NAME"
+\fBsprintf\fR \- tty printf
+.
+.SH "SYNOPSIS"
+.
+.nf
+
+sprintf [options\|\.\|\.\|\.] message [parameters\|\.\|\.\|\.]
+.
+.fi
+.
+.SH "DESCRIPTION"
+Print ANSI formatted output to a terminal\.
+.
+.P
+If either stdout or stderr is not a \fItty\fR then formatting of the output message is not performed which means that when redirecting to a file the ANSI sequence is omitted and the string is passed with parameter replacement performed but no formatting\.
+.
+.SH "OPTIONS"
+.
+.TP
+\fB\-1\fR:
+
+.
+.P
+Print to \fIstdout\fR\.
+.
+.TP
+\fB\-2\fR:
+
+.
+.P
+Print to \fIstderr\fR\.
+.
+.TP
+\fB\-\-color=[auto|always|never]\fR:
+
+.
+.P
+Determines when ANSI sequences are generated\. The value \fIauto\fR is the default behaviour\. Use \fInever\fR to never add ANSI sequences to a message and \fIalways\fR to force adding ANSI sequences to a message even if the output is not a tty\.
+.
+.TP
+\fB\-\-text=[color]\fR:
+
+.
+.P
+Set \fIcolor\fR as the text color\. See \fBCOLOR NAMES\fR\.
+.
+.TP
+\fB\-\-background=[color]\fR:
+
+.
+.P
+Set \fIcolor\fR as the background color\. See \fBCOLOR NAMES\fR\.
+.
+.TP
+\fB\-\-attribute=[name]\fR:
+
+.
+.P
+Set \fIname\fR as the message attribute\. See \fBATTRIBUTE NAMES\fR\.
+.
+.TP
+\fB\-\-prefix=[prefix]\fR:
+
+.
+.P
+Prepend \fIprefix\fR to the message\.
+.
+.TP
+\fB\-\-suffix=[suffix]\fR:
+
+.
+.P
+Append \fIsuffix\fR to the message\.
+.
+.TP
+\fB\-\-prefix\-command=[command]\fR:
+
+.
+.P
+Execute \fIcommand\fR to generate the message prefix\. The \fIcommand\fR has access to the \fBprefix\fR variable containing any current prefix and should set this variable to modify the message prefix\.
+.
+.TP
+\fB\-\-program\fR:
+
+.
+.P
+Prepend the program name to a message\.
+.
+.TP
+\fB\-\-date\fR:
+
+.
+.P
+Append a date to the message prefix\.
+.
+.TP
+\fB\-\-timestamp\fR:
+
+.
+.P
+Append a timestamp to the message prefix\.
+.
+.TP
+\fB\-\-export=[name]\fR:
+
+.
+.P
+Do not print the message assign to the variable \fIname\fR\.
+.
+.TP
+\fB\-\-no\-prefix\fR:
+
+.
+.P
+Do not print the prefix\.
+.
+.TP
+\fB\-\-no\-bright\-prefix\fR:
+
+.
+.P
+Do not apply bright styling to the message prefix\.
+.
+.TP
+\fB\-\-readline\fR:
+
+.
+.P
+Use escape sequences compatible with passing to \fBread \-ep\fR\. This allows formatting to be applied to interactive prompts using \fBread\fR\. When this option is used nothing is printed, you should use this option in conjunction with \fB\-\-export\fR and pass the resulting variable as the prompt to \fBread \-ep\fR\.
+.
+.TP
+\fB\-\-debug\fR:
+
+.
+.P
+Print debugging information\.
+.
+.SH "PARAMETER OPTIONS"
+ANSI sequences may be applied to individual parameters by using the parameter index in the range [0\-9]\.
+.
+.TP
+\fB\-\-text[n]=[color]\fR:
+
+.
+.P
+Set \fIcolor\fR as the text color for parameter \fIn\fR\. See \fBCOLOR NAMES\fR\.
+.
+.TP
+\fB\-\-background[n]=[color]\fR:
+
+.
+.P
+Set \fIcolor\fR as the background color for parameter \fIn\fR\. See \fBCOLOR NAMES\fR\.
+.
+.TP
+\fB\-\-attribute[n]=[name]\fR:
+
+.
+.P
+Set \fIname\fR as the attribute for parameter \fIn\fR\. See \fBATTRIBUTE NAMES\fR\.
+.
+.SH "HYPHENS"
+Use the \fB\-\-\fR option to signal that option processing should stop so that message and replacement values that begin with a hyphen may be processed\.
+.
+.SH "COLOR NAMES"
+The available color names are:
+.
+.IP "\[ci]" 4
+normal
+.
+.IP "\[ci]" 4
+black
+.
+.IP "\[ci]" 4
+red
+.
+.IP "\[ci]" 4
+green
+.
+.IP "\[ci]" 4
+brown
+.
+.IP "\[ci]" 4
+blue
+.
+.IP "\[ci]" 4
+magenta
+.
+.IP "\[ci]" 4
+cyan
+.
+.IP "\[ci]" 4
+gray
+.
+.IP "" 0
+.
+.P
+Each color is also available using a \fIbright\fR prefix:
+.
+.IP "\[ci]" 4
+bright\-black
+.
+.IP "\[ci]" 4
+bright\-red
+.
+.IP "\[ci]" 4
+bright\-green
+.
+.IP "\[ci]" 4
+bright\-brown
+.
+.IP "\[ci]" 4
+bright\-blue
+.
+.IP "\[ci]" 4
+bright\-magenta
+.
+.IP "\[ci]" 4
+bright\-cyan
+.
+.IP "\[ci]" 4
+bright\-gray
+.
+.IP "" 0
+.
+.SH "ATTRIBUTE NAMES"
+The available attribute names are:
+.
+.IP "\[ci]" 4
+normal
+.
+.IP "\[ci]" 4
+bright
+.
+.IP "\[ci]" 4
+faint (not widely supported)
+.
+.IP "\[ci]" 4
+italic (not widely supported)
+.
+.IP "\[ci]" 4
+underline
+.
+.IP "\[ci]" 4
+blink
+.
+.IP "\[ci]" 4
+negative
+.
+.IP "\[ci]" 4
+positive
+.
+.IP "" 0
+.
+.SH "TERMINAL EMULATORS"
+The \fB$TERM\fR variable must report one of the following values for ANSI replacement to be performed:
+.
+.IP "\[ci]" 4
+xterm
+.
+.IP "\[ci]" 4
+xterm\-color
+.
+.IP "\[ci]" 4
+vt100
+.
+.IP "\[ci]" 4
+ansi
+.
+.IP "" 0
+.
+.SH "ITERM2"
+It is recommended that users of iTerm2 uncheck the \fBDraw bold text in bright colors\fR option in \fBProfiles > Text\fR for highlighted replacement values to appear consistently with the main message colour\.
+.
+.SH "VARIABLES"
+The read only \fBansi\fR associative array stores color names and ANSI escape sequence information\.
+.
+.SH "ENVIRONMENT"
+.
+.TP
+\fBsprintf_color\fR:
+
+.
+.P
+If set to one of \fIauto\fR, \fIalways\fR or \fInever\fR this variable overrides the behaviour of any \fB\-\-color\fR option passed to sprintf(3)\.
+.
+.SH "BUGS"
+\fBsprintf\fR is written in bash and depends upon \fBbash\fR >= 4\.2\.
+.
+.SH "COPYRIGHT"
+\fBsprintf\fR is copyright (c) 2012 muji \fIhttp://xpm\.io\fR
+.
+.SH "SEE ALSO"
+console(3)

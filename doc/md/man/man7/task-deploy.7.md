@@ -1,0 +1,1105 @@
+task-deploy(7) -- deploy task(s) for bake(1)
+=============================================
+
+## SYNOPSIS
+
+	bake deploy [options...] [profiles...]
+
+## DESCRIPTION
+
+Performs a deployment for a project.
+
+## REQUIRE
+
+In your tasks(7) file `require` the `deploy` task(s) using:
+
+	require 'tasks/deploy';
+	
+## OPTIONS
+
+* `--ok`:
+
+Disable interactivity and assume *yes* for every prompt.
+
+* `--dry-run`:
+
+Print commands but do not execute them, implies `--ok` to disable interactivity.
+
+* `--quiet`:
+
+Suppress messages sent to standard output.
+
+* `--verbose`:
+
+Print more information.
+
+* `--all`:
+
+Operate on all profiles in the descriptor.
+
+* `--name [name]`:
+
+Override the default project name (determined by the name of the parent directory), see `NAMES` for project and profile name rules.
+
+* `--directory [directory]`:
+
+Use *directory* for deployment. When this option is specified it overrides any directory specified in *deploy.json* for all profiles.
+
+* `--host [user@host]`:
+
+The scp(1) and ssh(1) *user@host* specification. When this option is specified it overrides any host properties in *deploy.json*. This is useful if you wish to deploy everything using the profile(s) in *deploy.json* to a different host.
+
+* `--descriptor [file]`:
+
+Use *file* as the deployment descriptor.
+
+* `--shell [shell]`:
+
+Use *shell* for the script shebang. Must be one of *sh*, *bash*, *zsh* or *dash*.
+
+* `--staging [directory]`:
+
+Use *directory* as the staging directory.
+
+* `--list`:
+
+List profile names in a deployment descriptor. By default the default profile is not listed but if you have declared a custom configuration for the default profile then it will be included in the list.
+
+* `--log`:
+
+Redirect *stdout* messages to `target/deploy/deploy.log`. Note that when using the `--json` option that the JSON document is always sent to *stdout*.
+
+* `--flat`:
+
+Do not include the profile name in the target directory, see `TARGET` for more information.
+
+* `--include-version`:
+
+Include version information in the target directory, see `TARGET` for more information.
+
+* `--local`:
+
+Perform a deployment on the local host.
+
+* `--no-local`:
+
+Shortcut for combining `--no-local-pre` and `--no-local-post`.
+
+* `--no-local-pre`:
+
+Do not execute the pre-deployment commands on the local host.
+
+* `--no-local-post`:
+
+Do not execute the post-deployment commands on the local host.
+
+* `--no-remote`:
+
+Shortcut for combining `--no-remote-pre` and `--no-remote-post`.
+
+* `--no-remote-pre`:
+
+Do not execute the pre-deployment commands on the remote host.
+
+* `--no-remote-post`:
+
+Do not execute the post-deployment commands on the remote host.
+
+* `--no-growl`:
+
+Do not send growl notifications.
+
+* `--expand`:
+
+Do not quote command options. When this options is set parameter expansion is performed on command options declared in a deployment descriptor.
+
+## BUNDLE OPTIONS
+
+This section describes bundle options.
+
+* `--bundle`:
+
+Just create bundles do not deploy anything and do not execute any commands. Implies `--no-remote`. See the `BUNDLES` section.
+
+* `--output [directory]`:
+
+Use *directory* as the target for generated bundles, the *directory* must exist and be writable.
+
+* `--inspect`:
+
+Print the contents of a bundle after creation. This option may be combined with `--quiet` to only print the bundle contents and/or combined with the `--verbose` option to print an extended listing (similar to `ls -la`).
+
+* `--timestamp`:
+
+Append a timestamp to the bundle name.
+
+* `--author`:
+
+Prepend an author to the name of the bundle. This sanitizes the user name (determined by `id -nu`) to remove any non-alphanumeric characters.
+
+* `--pkg`:
+
+Package a directory into the *contents* directory of the bundle.
+
+* `--standalone`:
+
+Make the bundle a standalone installation. Implies the `--pkg` option.
+
+* `--include-hidden`:
+
+Also include hidden files when packaging bundle contents.
+
+* `--follow-symlinks`:
+
+Do not preserve symbolic links. Used in conjunction with the `--pkg` option this copies the symbolic link target into the bundle *contents* directory.
+
+* `--script-file [file]`:
+
+Use *file* as the script instead of the generated script. The *file* must exist and be executable. When this option is specified then the automatically generated script is ignored and *file* is used instead. It is written to disc in the same location, deployed to the remote host (or localhost with the `--local` option) and executed.
+
+When this option is specified the `--shell` option has no effect as it is only used to determine the *shebang* for generated deployment scripts.
+
+If multiple profiles are being deployed then *file* is used for all target profiles.
+
+It is important to note that because remote command execution is performed by the generated script when this option is used, remote commands specified in the deployment descriptor are *never* executed.
+
+* `--make-file [file]`:
+
+Use *file* as the makefile instead of the generated makefile. The *file* must exist and be named one of *makefile*, *Makefile* or *GNUmakefile*.
+
+### Checksums
+
+By default a `Secure Hash Algorithm` is generated for created bundles using the *512* algorithm and written to a file as a sibling of the generated bundle. You may influence the behaviour of checksum generation with the following options (last option takes precedence).
+
+* `--sha [algorithm]`:
+
+Use *algorithm* when generating checksums. Available values are *224*, *256*, *384* and *512*, specifying any other value for this option will result in an error.
+
+* `--no-sha`:
+
+Do not generate a checksum file.
+
+### Compression
+
+The default compression used is `gzip`, you may override this behaviour by specifying a compression type option (last option takes precedence).
+
+To reduce file size and network throughput, if the `xz` and `xzdec` binaries are available then the `xz` compression type is preferred. This could be problematic if the local host has the binaries but a remote host does not, in which case you should force compression to be of a type that is available on all machines.
+
+Note that whichever compression type is chosen the binaries must be available on the remote host as well as the local host when performing a remote deployment.
+
+* `--gz`:
+
+Force bundle creation to use `gzip`, bundle(s) are created with the `tgz` file extension.
+
+* `--bz`:
+
+Force bundle creation to use `bzip2`, bundle(s) are created with the `bz2` file extension.
+
+* `--xz`:
+
+Force bundle creation to use `xz`, bundle(s) are created with the `xz` file extension.
+
+* `--lzma`:
+
+Force bundle creation to use `lzma`, bundle(s) are created with the `lzma` file extension.
+
+## DEBUG OPTIONS
+
+This section describes options for debugging and unit testing.
+
+* `--json`:
+
+Dump all profile configuration settings that would be used by a deployment as a JSON document to *stdout*, implies `--dry-run`. This is useful to determine the settings that would be used when running a deployment.
+
+If this option is used in conjunction with `--script` the last option will take preference.
+
+* `--lint`:
+
+Perform a sanity check on the generated script and exit, implies `--dry-run`. You must have the checkbashisms(1) script installed in \$PATH in order to use this option. Useful for debugging the generated script. This can be used in conjunction with the `--script` option to inspect the script output as well as run the script through checkbashisms(1).
+
+Note that when using the `--script-file` option the source script becomes the target for this operation. If the `--shell` option has been specified then the *shebang* will not be `#!/bin/sh` which will cause checkbashisms(1) to output a warning but still pass the lint operation if there are no errors.
+
+This option ignores multiple profiles, it only executes for the first target profile.
+
+* `--lint-run`:
+
+Executes the script in the local target directory in the context of the *localhost*, implies the `--lint`, `--local` and `--dry-run` options. The script is only executed if the `--lint` operation succeeds. Useful for testing and debugging purposes.
+
+Note that although this option implies `--dry-run` (so no commands are executed) it does actually perform a deployment locally.
+
+This option ignores multiple profiles, it only executes for the first target profile.
+
+* `--pretty`:
+
+Use in conjunction with the `--json` option to pretty print the JSON document. Uses two spaces as the indentation.
+
+* `--print-env`:
+
+Print variables exposed to deployment descriptors and exit.
+
+* `--script`:
+
+Dump script(s) to *stdout*, implies `--dry-run`. If this option is used in conjunction with `--json` the last option will take preference. Note that when this option is used the script(s) are still written to `target/deploy`.
+	
+## TYPES
+
+The deploy tasks support the *cp*, *git*, *tar* and *npm* deployment types.
+
+### CP
+
+This deployment type uses cp(1) to copy files from a local filesystem directory, this is the type used for the default profile (see `DEFAULT PROFILE`). When deploying to remote hosts the filesystem path *must* exist on the remote host for the deployment to succeed. Hidden files are not copied by default.
+
+### GIT
+
+This deployment type will clone if the deployment directory does not exist and fetch the specified branch from the remote repository.
+
+### NPM
+
+This deployment type uses npm(1) to fetch a package and then copies over the extracted contents of the package to the target directory.
+
+### TAR
+
+This deployment type will fetch a tarball from a filesystem path or remote URL and extract the contents to the target directory.
+
+Unlike the *npm* and *git* deployment types we cannot be certain that we are only deploying a single directory. So this type uses the rule that when an archive contains a single directory then that directory is used as the final deployment directory.
+
+If the archive contains more than one file or a single non-directory file then the entire contents of the archive are copied into the final deployment directory.
+
+It is a subtle but important difference that caters to the common use case for working with archives. Generally, when packaging a project for distribution all files are placed in a single directory and that directory is converted to an archive. If we did not follow the above rule the resulting deployment would have an additional nested directory which is probably undesirable.
+
+To illustrate, if we are deploying to *~/www* with a deployment profile named *stage* and working with an archive named *project.tgz* that contains a single directory *project* then if we did not follow the above rule we would end up with a final directory of:
+
+	~/www/stage/project
+	
+Instead, by following the above rule we end up with the contents of the extracted *project* directory at the expected final directory:
+
+	~/www/stage
+	
+## URL
+
+This section describes the rules for the *url* property for the different deployment types. In the case of the *npm* type (or filesystem paths) this property does not have to be a valid URL as specified by `RFC 1738`.
+
+For the *cp* deployment type, the *url* should be a filesystem path (tilde expansion is allowed) that points to a directory and may optionally begin with the *file:* scheme which will be removed for the deployment. If is an error to use any scheme other than *file:*.
+
+The *url* used for the *git* deployment type is passed directly to git(1) so you may use any of the supported protocols: ssh, git, http, https, ftp, ftps, and rsync.
+
+The *tar* deployment type uses curl(1) to fetch the archive to deploy so you may use any protocol supported by curl(1), for example: file, ftp, ftps, scp, http or https.
+
+The *npm* deployment type may specify the *url* in any form supported by npm(1) including the `project@0.0.1` declaration.
+
+## BUNDLES
+
+The task-deploy(7) execution creates a tarball bundle of the deployment files using the project *name* and *version* concatenated with the current *profile* for the bundle file name. Assuming a project name of *project*, with version *0.0.1* and a deployment profile of *stage* the resulting bundle is `project-0.0.1-stage.tgz`.
+
+Bundles are created in the `target/deploy` directory.
+
+A generated bundle will include:
+
+* `configure`:
+
+A top-level configure script used to proxy to a bundled configure script.
+
+* `Makefile`:
+
+A GNU compatible make file, see `Makefiles`.
+
+* `descriptor.json`:
+
+The descriptor used to create the bundle.
+
+* `settings.json`:
+
+A JSON document containing the computed settings for the deployment.
+
+* `info.json`:
+
+A JSON document containing useful information about the host machine, user and options that generated the bundle.
+
+* `install.sh`:
+
+The generated deployment script or the contents of *script* if `--script-file` was specified.
+
+* `contents`:
+
+A directory containing packaged contents, see `Package`.
+
+* `scripts`:
+
+A directory containing bundled scripts, see `Scripts`.
+
+* `gitignore.txt`:
+
+A text file containing a list of all the files ignored by git(1). This file will only be present if git(1) is available and the directory being packaged is a git repository.
+
+* `.xpmignore`:
+
+If the source directory being packaged contains a file named `.xpmignore` it is copied to the root of the bundle.
+
+* `package.json`:
+
+An npm(1) conformant package descriptor used to perform the deployment, this file is only included when the deployment type is `npm`.
+
+* `env.log`:
+
+A log file containing the result of executing env(1) just before creating the bundle archive.
+
+### Makefiles
+
+A `makefile` is generated in the archive to create a consistent and familiar experience when make(1) is available. If make(1) is not available the deployment may still be performed using `./install.sh`.
+
+The rules for the behaviour of generated makefiles are as follows. If the bundle is not standalone or no makefile is included in the bundle contents then a single *install* target is created which runs the `install.sh` script.
+
+If a bundled makefile exists (in the contents directory) then the makefile generated in the root of the bundle proxies all targets to the makefile included in the contents directory. You may override this behaviour by specifying a different makefile for the root of the bundle using the `--make-file` option.
+
+### Autoreconf
+
+It's often desirable to ignore files generated by autoreconf(1) from a repository. In this instance when running with the `--standalone` (or `--bundle`) option and ignoring files that git(1) ignores (the default behaviouur) a *configure* file will not be available in the bundle contents directory.
+
+To ensure that a *configure* file is available in the bundle contents directory the following rules are followed. If the bundle contents directory contains a *configure.ac* file and autoreconf(1) is available and no *configure* file exists in the bundle contents directory then the command `autoreconf -i` is executed in the bundle contents directory prior to creating the bundle archive. It is an error if this command fails.
+
+If the `autoreconf -i` command succeeds the bundle contents directory will also contain the *configure*, *missing* and *install-sh* files.
+
+### Package
+
+A bundle may include packaged files to create a *standalone* bundle or to append/overwrite files in a deployment. Packaged files are stored in the *contents* directory within the bundle archive.
+
+Use the `--pkg` option to indicate that packaging of files should also be performed. By default when the `--pkg` option is specified task-deploy(7) will attempt to package *all* files in the directory containing the descriptor and following the rules described in `Package Ignores`.
+
+Symbolic links are preserved by default, although you may override this behaviour by specifying the `--follow-symlinks` option.
+
+### Package Ignores
+
+Hidden files or directories are ignored by default, you can specify the `--include-hidden` option to also include hidden files.
+
+Any relative paths starting with *.git* or *.svn* are automatically ignored, this behaviour is *not* affected by the `--include-hidden` option.
+
+If the source directory is a git repository the files ignored by git are excluded from packaging, files excluded by git(1) are written to `gitignore.txt`.
+
+If the source directory contains a file named `.xpmignore` the patterns defined in the file are processed against the *relative* path for each file, if the pattern matches the file is ignored. Patterns are `Extended Regular Expressions`, it is an error to specify an invalid pattern.
+
+### Directories
+
+It is common that a program relies on some directories for use cases such as logging, temporary files or pid files. Normally, these directories are not stored in a repository or included in a package therefore you may define directories to be created (globally or specific to a profile) after a successful deployment. The syntax for defining directories to be created is:
+
+	"bundle": {
+		"dirs": [			
+			{
+				"path": "server/pids",
+				"perm": "0700"
+			}
+		]
+	}
+	
+The working directory for this operation is the final deployment target. Directory creation and setting of permissions is only attempted if the directory does not exist. Directories are created using `mkdir -p` so parent directories will be created as needed.
+
+Directories are created prior to running post-deployment commands so you can rely on them existing by the time post-deployment commands are executed.
+
+Permissions declared in the *perm* property may be an octal value of any other value accepted by chmod(1), ie, g+w.
+
+You may specify absolute paths if required but you should be sure that the effective user has the correct permissions to create the directory structure. Tilde expansion is performed on *path* so you may create directories in the home directory for the effective user.
+
+### Scripts
+
+You may include custom scripts in a bundle by declaring a `scripts` array in the `bundles` object either globally or specific to a profile, the syntax is:
+
+	"bundle": {
+		"scripts": [
+			{
+				"dir": "opt/bin",		
+				"file": "script.sh"
+			}
+		]
+	}
+
+A referenced script must exist on the filesystem and must be executable. Bundled scripts are placed in a `scripts` directory automatically generated within the archive.
+	
+Filesystem references may be absolute or relative, relative paths are resolved relative to the directory containing the descriptor.
+
+Global scripts are *always* added to bundles for all profiles whereas profile specific script(s) will only be bundled for that profile.
+
+By default no hierarchy is maintained for bundled scripts so names should be unique for all bundled scripts, attempting to add a duplicate script will fail.
+
+To create a hierarchy for bundled scripts you may create a directory within the bundled `scripts` by specifying a `dir` property. Leading periods or slashes are not allowed when specifying directories to create using the `dir` property.
+
+## ROLLBACK
+
+The generated *install.sh* script attempts to rollback to a previous deployment if a deployment fails.
+
+This operation will only be performed if the final target directory for the deployment existed prior to starting a deployment, ie, the operation is a re-deployment.
+
+For the `npm` and `tar` deployment types a backup is created by moving the existing directory prior to starting deployment and moving back to the target destination if deployment fails.
+
+For the `git` deployment type a current revision is extracted from the existing repository using `rev-parse` and if the deployment fails it is reverted to the previous revision using `reset`.
+
+## JSON FORMAT
+
+The format of the *deploy.json* descriptor is described in the task-deploy-json(7) man page, to view this man page run:
+
+	bake help deploy-json
+	
+## TARGET
+
+The final deploy target is a combination of the *directory*, *name* and *profile* by default. Assuming a *directory* of `~/www` and the project name `project` with a deployment profile of `stage` the target used for deployment is:
+
+	~/www/project/stage
+	
+If you do not wish to include the profile name in the target directory specify the `--flat` option which results in:
+
+	~/www/project
+	
+It depends upon your deployment requirements as to which strategy you wish to use. Generally, if you are deploying to the same host then it makes sense to separate the deployment profiles, whereas if each deployment profile is using a different host then it is more consistent to have the same directory structure across the different hosts.
+
+You may also create separate deployment targets based on the project version using the `--include-version` option. Continuing the above example with a version of `0.0.1` and the default behaviour (no `--flat` option specified) then the target becomes:
+
+	~/www/project-0.0.1/stage
+	
+Or alternatively in conjunction with the `--flat` option the target directory becomes:
+
+	~/www/project-0.0.1
+	
+## PROFILES
+
+You may specify one or more profiles to deploy after any options. If no profiles are specified then a deploy is attempted using the *default* profile.
+
+## DEFAULT PROFILE
+
+This profile is used when no profiles are specified on the command line. The default profile uses a *cp* deployment type.
+
+For example, to execute the default profile run:
+
+	bake deploy
+	
+But if a profile is specified:
+
+	bake deploy stage
+	
+Then the default profile is not a target profile, only the *stage* profile is deployed. To also execute the default profile, declare it on the command line:
+
+	bake deploy stage default
+
+Note that when the `--all` option is specified the *default* profile is not included, if you wish to also execute the default profile in addition to execute the default profile as well:
+
+	bake deploy --all default
+
+You may override settings for the default profile by declaring a profile named *default* in the descriptor.
+
+When no *url* is available for the default profile the following rules apply. The *url* is first set to the project directory, once a descriptor has been validated then the default url is set to the parent directory for the descriptor allowing consistent behaviour when the `--descriptor` option is set. If a profile named *default* is defined in the descriptor and a *url* property for the profile is set then the value of *url* is used.
+
+## NAMES
+
+Profile and project names may not start with a hyphen and should match the pattern ^[-a-zA-Z0-9]+.
+
+## STRICT
+
+The deployment process is fail fast. Failure is always assumed and when deploying multiple profiles, failure of a profile to deploy will prevent any subsequent profiles from being processed.
+
+## FILES
+
+A *deploy.json* file must be present in the root of the project and must be valid JSON. This file may just contain '{}' if you wish to use the *default* profile and configure deployment parameters via environment variables or command line options.
+
+## ENVIRONMENT
+
+* `bake_deploy_remote`:
+
+The remote host used for deployment when none is specified in *deploy.json*.
+
+* `bake_deploy_shell`:
+
+The shell used on the remote server, defaults to `sh` if none is specified.
+
+* `bake_deploy_staging`:
+
+The directory used on the remote server for staging deployment scripts, default is `~/.deploy`.
+
+## COMMAND EXECUTION
+
+The deployment process can optionally execute arbitrary simple commands on the local and remote host. For each host, command execution is split into the pre-deployment and post-deployment execution phases.
+
+Note that when running a local deployment (using `--local`) then remote commands are executed on the local host.
+
+If any command exits with an exit code *>0* then the deployment is aborted. This is useful for running tests prior to performing a deployment or other tasks such as creating a tarball package.
+
+The general syntax for declaring commands is:
+
+	"commands": {
+		"local": {
+			"pre": [
+				{
+					"command": "ls",
+					"options": [ "-la", "lib", "man" ]
+				}
+			],
+			"post": [
+				{
+					"command": "echo",
+					"options": [ "deployment complete" ]
+				}
+			]
+		}
+	}
+	
+All commands are encapsulated by the *commands* object which can contain *local* and *remote* properties indicating whether the commands should be executed on the local or remote host. The *pre* and *post* properties are arrays of commands to execute for the deployment phase(s).
+
+A *commands* object may be declared at the top-level of the JSON descriptor document, in which case the commands will be executed for *all* profiles. A *commands* object may also be declared in a profile to execute commands specific to that profile. When *commands* are declared at the top-level of the document and in a profile then they are concatenated together and all commands are executed (global commands are executed first).
+
+### Working Directory
+
+In order to be able to resolve relative path references correctly it is important to know the working directory used for command execution.
+
+For *local* commands (pre and post execution phases) the working directory is always set to the directory that contains the deployment descriptor. This ensures consistency when executing in the context of a project as well as when the `--descriptor` option is set.
+
+For *remote* command execution the rule(s) are a little more complex.
+
+Remote pre-deployment commands follow the rule that if the final target directory does not exist (first deployment) then commands are executed in the context of the sandbox directory used to perform the deployment. If the final target directory already exists then the remote pre-deployment commands are executed in the context of the *existing* deployment. This is useful if you wish to perform an action (such as stopping a server) on the existing deployment prior to performing a re-deployment.
+
+Remote post-deployment commands are always executed in the context of the final target directory. You could use this command execution phase to restart a server after deployment.
+
+### Parameter Expansion
+
+By default parameters are not expanded - whitespace in a parameter is preserved and passed as a single argument to the command being executed. For example, imagine you wanted to list the contents of the *lib* and *man* directories, this would fail (with the default settings) if you specified both directories in a single option (`ls` would be looking for a directory named "lib man" rather than attempting to list two separate directories):
+
+	{
+		"command": "ls",
+		"options": [ "-la", "lib man" ]
+	}
+	
+You have two options to remedy this scenario. You may either decide to separate the parameters:
+
+	{
+		"command": "ls",
+		"options": [ "-la", "lib", "man" ]
+	}
+	
+So that the *lib* and *man* are passed as separate arguments to *ls*. Or you may use the `--expand` option to allow parameter expansion on command options. You should only use the `--expand` option if you are certain that you do not want to include whitespace in any options passed to command(s) being executed.
+
+### Command Environment
+
+Commands executing in a *local* context have access to the entire bake(1) variable scope chain which means that there are some useful variables exposed to your commands.
+
+* `project_name`:
+
+The name of the project.
+
+* `project_version`:
+
+The project version.
+
+* `root`:
+
+The project root directory.
+
+* `project`:
+
+The root directory for multi-module projects, when bake(1) is executing at the root of a multi-module project then `root` and `project` point to the same directory.
+
+* `target`:
+
+The `target` directory relative to `${root}` used by bake(1) for staging files.
+
+* `profile`:
+
+The name of the profile currently being deployed.
+
+* `deploy_target`:
+
+The final target directory used for the deployment, see the `TARGET` section.
+
+* `deploy_name`:
+
+The human readable name used by task-deploy(7). This is the project name and version delimited by @, for example: project@0.0.1.
+
+* `deploy_file_name`:
+
+The prefix used when defining file names. Uses - as the delimiter, for example: project-0.0.1.
+
+* `script_name`:
+
+The name of the script that will be used by task-deploy(7) for deployment.
+
+* `script`:
+
+The path to the script that will be used to perform deployment.
+
+* `log`:
+
+The path to the log file used by task-deploy(7).
+
+* `logging`:
+
+A boolean indicating whether output is being redirected to the file defined by the *log* variable.
+
+* `type`:
+
+The type of deployment being performed, see the `TYPES` section.
+
+* `noop`:
+
+A boolean indicating if this deployment is a non-operation, will be *true* if the `--dry-run` option has been specified.
+
+* `flat`:
+
+A boolean indicating if a flat directory structure is being used, see the `TARGET` section.
+
+* `include_version`:
+
+A boolean indicating if version information is being included in the directory structure, see the `TARGET` section.
+
+### Custom Environment
+
+You may declare properties specific to your deployment process in a top-level *env* object. You may then access these variables in your deployment profiles using the `env_` variable prefix.
+
+Properties declared in the *env* object may reference any variable documented in the `Command Environment` section but they may not use `Cross References` using a `doc_` variable prefix.
+
+If you attempt to create a document cross-reference in an *env* property task-deploy(7) will exit immediately with a *>0* exit code.
+
+See the section `Command Examples` for example(s).
+
+### Cross References
+
+It is recommended that you use the functionality provided by `Custom Environment` whenever possible but if you absolutely must reference other data in a deployment profile this section provides some information on using deployment descriptor cross-references.
+
+The JSON document properties are expanded to variables that you may reference in the deployment descriptor. These variables are exposed using a `doc_` prefix.
+
+This is useful to prevent duplication of information between profiles that share some (but not all) commands or properties.
+
+Consider the following example document:
+
+	{
+		"host": "user@example.com",
+		"directory": "~/www",
+		"commands": {
+			"local": {
+				"pre": [
+					{
+						"command": "echo",
+						"options": [ "$doc_directory", "$doc_host" ]
+					}
+				]
+			}
+		}
+	}
+	
+In this instance the `\$doc_` variables reference the *directory* and *host* properties declared at the top-level of the document.
+
+This results in the command (for the local host pre-deployment phase):
+
+	echo ~/www user@example.com
+	
+When the command is executed it generates the output:
+
+	~/www user@example.com
+
+You may reference any property in the document by full path delimited by an underscore (_) for the variable name.
+
+To illustrate, a convoluted example which generates the same output as the above example but also prepends the command being executed and appends the number of options being passed to the command:
+
+	{
+		"host": "user@example.com",
+		"directory": "~/www",
+		"commands": {
+			"local": {
+				"pre": [
+					{
+						"command": "echo",
+						"options": [
+							"$doc_commands_local_pre_0_command",
+							"$doc_directory",
+							"$doc_host",
+							"$doc_commands_local_pre_0_options_length"
+						]
+					}
+				]
+			}
+		}
+	}
+	
+The command becomes:
+
+	echo echo ~/www user@example.com 4
+	
+Which generates the *output*:
+
+	echo ~/www user@example.com 4
+	
+Notice how you can access array elements by index and also the the *length* properties of array types.
+	
+### Command Errors
+
+Commands (declared by the *command* property) may not contain any whitespace (space, tab or newline). It is a JSON error to declare literal whitespace characters such as \\n or \\t, if these are specified using the escaped values (allowed by JSON) the program will exit with a whitespace error.
+
+If you reference a variable that is unbound in a command the program will exit immediately with a >0 exit code and an error message.
+
+### Command Examples
+
+A complete example that uses npm(1) to create a tarball, moves it to the local `target` staging directory and copies the tarball to a remote host prior to the main deployment process which will take the created archive (on the remote host) and deploy it to the *target* directory:
+
+	{
+		"env": {
+			"archive": {
+				"name": "${project_name}-${project_version}.tgz",
+				"dir": "$target",
+				"path": "${target}/${project_name}-${project_version}.tgz"
+			}
+		},
+		"host": "user@example.com",
+		"directory": "~/www",
+		"profiles": {
+			"npm": {
+				"type": "tar",
+				"url": "~/$env_archive_name",
+				"commands": {
+					"local": {
+						"pre": [
+							{
+								"command": "npm",
+								"options": [ "pack" ]
+							},
+							{
+								"command": "mv",
+								"options": [ "$env_archive_name", "$env_archive_dir" ]
+							},
+							{
+								"command": "scp",
+								"options": [ "$env_archive_path", "${host}:~/" ]
+							}
+						]
+					}
+				}
+			}
+		}
+	}
+	
+## DEPLOYMENT PROCESS
+
+This section describes the process that task-deploy(7) uses to perform a deployment assuming that no command line options (other than profile(s)) have been specified on the command line, see `OPTIONS` for how command line options influence behaviour.
+
+Load and parse the deployment descriptor JSON document and exit with a *>0* exit code if invalid JSON is encountered.
+
+Start processing of the target profiles specified on the command line, profile execution order is the order that profiles are specified on the command line or non-determinate when executing all profiles.
+
+If no profiles are specified on the command line then a *default* profile is assumed, see `DEFAULT PROFILE`.
+
+Before profile execution starts command line options are processed that may override any settings in the deployment descriptor and the deployment descriptor is evaluated using `eval` so that variable references declared in a deployment descriptor are resolved correctly in the context of the current profile being executed. If any errors are encountered task-deploy(7) exits with a *>0* exit code.
+
+An interactive prompt is displayed asking for confirmation that you wish to deploy the profile.
+
+If global and/or profile-specific *local* pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+
+At this point the deployment process starts. When running as a *local* deployment (using `--local`) then the deployment script is copied to the local filesystem staging directory otherwise the deployment script is transferred to the staging directory on the remote host using scp(1).
+
+If global and/or profile-specific *remote* pre-deployment commands have been specified they are executed, if any command exits with a *>0* exit code the deployment is aborted.
+
+The deployment script is executed to perform the deployment based on the deployment type for the profile, see `TYPES`.
+
+If the deployment script detects any error the deployment process is aborted.
+
+If global and/or profile-specific *remote* post-deployment commands have been specified they are executed on the remote host by the deployment script.
+
+If global and/or profile-specific *local* post-deployment commands have been specified they are executed on the local host.
+
+Success or failure notifications are delivered.
+
+## INTERACTIVE
+
+Deploying code is an important process and task-deploy(7) by design presents confirmation prompt(s) to ensure you wish to proceed.
+
+This interactivity can be disabled in a variety of ways which is often necessary when executing a deployment from another program or if you are re-deploying in quick succession. The recommended way is to specify the `--ok` option.
+
+If the `--dry-run` option is specified interactive prompt(s) are not displayed as no commands are executed.
+
+Interactive prompts write to *stdout* and read from *stdin* you may also disable interactivity by piping to *stdin* or redirecting *stdout*. For example:
+
+	echo "" | bake deploy
+	bake deploy > target/deploy.log
+
+## NOTIFICATIONS
+
+### Email
+
+Email notifications are enabled by default but email will not be sent under the following situations.
+
+* If either sendmail(1) or uuencode(1) are not available.
+* If the `to` field for email notifications has not been specified or is the empty string.
+* If the `--no-mail` option has been specified.
+* If the `--script-file` option has been specified. In this instance a custom script is being used to perform the deployment and it becomes the responsibility of the script to send notifications.
+* If the `--pkg` or `--standalone` option has been specified and the bundled contents contains a *configure* executable (or *Makefile*). In this scenario it is the responsibility of the bundled contents to perform the installation therefore the generated script is not used.
+
+Email subjects lines are in the format:
+
+	[deploy] (user@host.local) project-0.0.1-profile ✓
+	[deploy] (user@host.local) project-0.0.1-profile ✘
+	
+The subject line for a successful deployment is appended with ✓ (\\u2713) whilst a ✘ (\\u2718) is appended for a failed deployment.
+
+### Growl
+
+If the *growlnotify* executable is available then a success or failure notification will be sent using *growlnotify*. Note that *growlnotify* notifications are *not* sent for a `noop` which is the case if the `--dry-run`, `--json` or `--script` options are specified.
+
+You may disable the use of growl notifications by specifying the `--no-growl` option.
+
+## FILES
+
+All generated files are written to `target/deploy` by default.
+
+When the `--log` option is specified *stdout* messages are redirected to `target/deploy/deploy.log`.
+
+The generated script file(s) are written to `target/deploy` using the following naming strategy:
+
+	${name}-${version}-${profile}.sh
+
+## EXIT CODES
+
+A >0 exit code indicates failure while a 0 exit code indicates success.
+
+## EXAMPLES
+
+### Deploying
+
+Deploy using the default profile:
+
+	bake deploy
+	
+Deploy to *localhost* using the default profile:
+
+	bake deploy --local
+	
+Deploy the profile *stage*:
+
+	bake deploy stage
+
+Deploy the profiles *test*, *stage* and *production*:
+
+	bake deploy test stage production
+
+Deploy all profiles in the descriptor:
+
+	bake deploy --all
+	
+### Bundling
+
+Bundle the default profile:
+
+	bake deploy --bundle
+	
+Bundle all profiles:
+
+	bake deploy --all --bundle
+	
+Bundle profiles *stage* and *production* and place generated bundles in *~/bundles*:
+
+	bake deploy --bundle --output ~/bundles stage production
+	
+### Inspecting
+	
+List profiles in *deploy.json*:
+
+	bake deploy --list
+	
+List profiles in a specific descriptor:
+
+	bake deploy --list --descriptor ~/project/deploy.json
+	
+### Debugging
+
+Inspect deployment commands but do not execute them:
+
+	bake deploy --dry-run
+
+Print the script that will be used for deployment:
+
+	bake deploy --script
+	
+Inspect the settings used for a *default* deployment:
+
+	bake deploy --json --pretty \\
+		--staging ~/project-staging \\
+		--name project \\
+		--directory ~/www
+		
+Display this man page:
+
+	bake help deploy
+
+## ROADMAP
+
+Add rsync(1) deployment type.
+
+Implement lock files for the local and remote scripts to prevent concurrency issues when multiple deployments are attempted.
+
+Add ability to rollback a deployment if an existing `target` directory existed prior to deployment and the deployment process fails (such as due to a network error).
+
+Add `--branch` option to specify a git branch to use for all profiles that are of the `git` type.
+
+Add `--refspec` option so that `git` deployments may also be done from tags.
+
+Implement notifications using `mail`.
+
+Attach bundle to `mail` notifications.
+
+Add the `deploy_ssh_options` and `deploy_scp_options` environment variables so that custom options (such as port numbers) can be passed on to ssh(1) and scp(1).
+
+Add `enable` boolean property to profiles in a descriptor to prevent deployment of a profile.
+
+## DEPENDENCIES
+
+GNU tar(1) >= 1.22, scp(1), ssh(1)
+
+## BUGS
+
+**task-deploy** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**task-deploy** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+bake(1), task-deploy-json(7), scp(1), ssh(1), tar(1), make(1), autoreconf(1), growlnotify(1), checkbashisms(1)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[REQUIRE]: #REQUIRE "REQUIRE"
+[OPTIONS]: #OPTIONS "OPTIONS"
+[BUNDLE OPTIONS]: #BUNDLE-OPTIONS "BUNDLE OPTIONS"
+[Checksums]: #Checksums "Checksums"
+[Compression]: #Compression "Compression"
+[DEBUG OPTIONS]: #DEBUG-OPTIONS "DEBUG OPTIONS"
+[TYPES]: #TYPES "TYPES"
+[CP]: #CP "CP"
+[GIT]: #GIT "GIT"
+[NPM]: #NPM "NPM"
+[TAR]: #TAR "TAR"
+[URL]: #URL "URL"
+[BUNDLES]: #BUNDLES "BUNDLES"
+[Makefiles]: #Makefiles "Makefiles"
+[Autoreconf]: #Autoreconf "Autoreconf"
+[Package]: #Package "Package"
+[Package Ignores]: #Package-Ignores "Package Ignores"
+[Directories]: #Directories "Directories"
+[Scripts]: #Scripts "Scripts"
+[ROLLBACK]: #ROLLBACK "ROLLBACK"
+[JSON FORMAT]: #JSON-FORMAT "JSON FORMAT"
+[TARGET]: #TARGET "TARGET"
+[PROFILES]: #PROFILES "PROFILES"
+[DEFAULT PROFILE]: #DEFAULT-PROFILE "DEFAULT PROFILE"
+[NAMES]: #NAMES "NAMES"
+[STRICT]: #STRICT "STRICT"
+[FILES]: #FILES "FILES"
+[ENVIRONMENT]: #ENVIRONMENT "ENVIRONMENT"
+[COMMAND EXECUTION]: #COMMAND-EXECUTION "COMMAND EXECUTION"
+[Working Directory]: #Working-Directory "Working Directory"
+[Parameter Expansion]: #Parameter-Expansion "Parameter Expansion"
+[Command Environment]: #Command-Environment "Command Environment"
+[Custom Environment]: #Custom-Environment "Custom Environment"
+[Cross References]: #Cross-References "Cross References"
+[Command Errors]: #Command-Errors "Command Errors"
+[Command Examples]: #Command-Examples "Command Examples"
+[DEPLOYMENT PROCESS]: #DEPLOYMENT-PROCESS "DEPLOYMENT PROCESS"
+[INTERACTIVE]: #INTERACTIVE "INTERACTIVE"
+[NOTIFICATIONS]: #NOTIFICATIONS "NOTIFICATIONS"
+[Email]: #Email "Email"
+[Growl]: #Growl "Growl"
+[FILES]: #FILES "FILES"
+[EXIT CODES]: #EXIT-CODES "EXIT CODES"
+[EXAMPLES]: #EXAMPLES "EXAMPLES"
+[Deploying]: #Deploying "Deploying"
+[Bundling]: #Bundling "Bundling"
+[Inspecting]: #Inspecting "Inspecting"
+[Debugging]: #Debugging "Debugging"
+[ROADMAP]: #ROADMAP "ROADMAP"
+[DEPENDENCIES]: #DEPENDENCIES "DEPENDENCIES"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
+
+
+[strike(1)]: strike.1.html
+[boilerplate(3)]: boilerplate.3.html
+[require(3)]: require.3.html
+[method(3)]: method.3.html
+[http(3)]: http.3.html
+[bake(1)]: bake.1.html
+[rest(1)]: rest.1.html
+[bash(1)]: http://man.cx/bash(1)
+[curl(1)]: http://man.cx/curl(1)
+[echo(1)]: http://man.cx/echo(1)
+[find(1)]: http://man.cx/find(1)
+[tee(1)]: http://man.cx/tee(1)
+[sed(1)]: http://man.cx/sed(1)
+[printf(1)]: http://man.cx/printf(1)
+[source(1)]: http://man.cx/source(1)
+[dirname(1)]: http://man.cx/dirname(1)
+[basename(1)]: http://man.cx/basename(1)
+[tar(1)]: http://man.cx/tar(1)
+[zip(1)]: http://man.cx/zip(1)
+[unzip(1)]: http://man.cx/unzip(1)
+[compress(1)]: http://man.cx/compress(1)
+[gzip(1)]: http://man.cx/gzip(1)
+[gunzip(1)]: http://man.cx/gunzip(1)
+[pdflatex(1)]: http://man.cx/pdflatex(1)
+[openssl(1)]: http://man.cx/openssl(1)
+[scp(1)]: http://man.cx/scp(1)
+[ssh(1)]: http://man.cx/ssh(1)
+[rsync(1)]: http://man.cx/rsync(1)
+[autoreconf(1)]: http://man.cx/autoreconf(1)
+[checkbashisms(1)]: http://man.cx/checkbashisms
+[growlnotify(1)]: http://scottlab.ucsc.edu/Library/init/zsh/man/html/growlnotify.html
+[sendmail(1)]: http://man.cx/sendmail(1)
+[uuencode(1)]: http://man.cx/uuencode(1)
+[epxand(1)]: http://man.cx/expand(1)
+[unepxand(1)]: http://man.cx/unexpand(1)
+[git(1)]: http://git-scm.com/
+[ronn(1)]: https://github.com/rtomayko/ronn
+[github(7)]: http://github.com/
+[json-sh(1)]: https://github.com/dominictarr/JSON.sh
+[npm(1)]: http://npmjs.org
+[ruby(3)]: http://www.ruby-lang.org/
+[rake(1)]: http://rake.rubyforge.org/
+[semver(7)]: http://semver.org/
+[ant(1)]: http://ant.apache.org/
+[mvn(1)]: http://maven.apache.org/
+[make(1)]: http://www.gnu.org/software/make/
+[jsonlint(1)]: https://github.com/zaach/jsonlint
+[jsoncheck(1)]: http://json.org/JSON_checker/
+[ere(7)]: http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
+[couchdb(7)]: http://couchdb.apache.org/
+[url(7)]: http://www.ietf.org/rfc/rfc1738.txt
+[array-file(3)]: array-file.3.html
+[array(3)]: array.3.html
+[console(1)]: console.1.html
+[console(3)]: console.3.html
+[delegate(3)]: delegate.3.html
+[executable(3)]: executable.3.html
+[git(3)]: git.3.html
+[globals(3)]: globals.3.html
+[help(3)]: help.3.html
+[json(3)]: json.3.html
+[manual(1)]: manual.1.html
+[prompt(1)]: prompt.1.html
+[prompt(3)]: prompt.3.html
+[semver(3)]: semver.3.html
+[sprintf(3)]: sprintf.3.html
+[strike-credits(7)]: strike-credits.7.html
+[strike-tree(7)]: strike-tree.7.html
+[strike(7)]: strike.7.html
+[task-ant(7)]: task-ant.7.html
+[task-archive(7)]: task-archive.7.html
+[task-clean(7)]: task-clean.7.html
+[task-compress(7)]: task-compress.7.html
+[task-deploy-json(7)]: task-deploy-json.7.html
+[task-deploy(7)]: task-deploy.7.html
+[task-devel(7)]: task-devel.7.html
+[task-doc(7)]: task-doc.7.html
+[task-expand(7)]: task-expand.7.html
+[task-latex(7)]: task-latex.7.html
+[task-ls(7)]: task-ls.7.html
+[task-make(7)]: task-make.7.html
+[task-module(7)]: task-module.7.html
+[task-mvn(7)]: task-mvn.7.html
+[task-project(7)]: task-project.7.html
+[task-rake(7)]: task-rake.7.html
+[task-semver(7)]: task-semver.7.html
+[task-test(7)]: task-test.7.html
+[task-todo(7)]: task-todo.7.html
+[version(3)]: version.3.html

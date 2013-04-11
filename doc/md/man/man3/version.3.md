@@ -1,7 +1,50 @@
-help(3) -- help module for strike(1)
+version(3) -- print version information
 =============================================
 
-TODO: document this module
+## SYNOPSIS
+
+Prints version information from a *version* file.
+
+## DESCRIPTION
+
+The version(3) module inspects the program options and if it encounters a `--version` option it attempts to print version information from the *version* file. If no `--version` option is found then nothing is done.
+
+If the `--version` option is specified but no *version* file exists the program exits with a non-zero exit code.
+
+## USAGE
+
+	require 'opts/version';
+	version.parse "$@";
+	
+## FILES
+
+The version(3) module uses version information in a file named `version` in the root of the project.
+
+## EXIT CODES
+
+If a *--version* option is encountered but no version information is available then the exit code is *>0*. Alternatively, if a *--version* option exists and version information is found then the version information is printed and version(3) exits with a *0* code.
+
+## BUGS
+
+**version** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**version** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+semver(3), task-semver(7)
+
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[USAGE]: #USAGE "USAGE"
+[FILES]: #FILES "FILES"
+[EXIT CODES]: #EXIT-CODES "EXIT CODES"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
 
 
 [strike(1)]: strike.1.html

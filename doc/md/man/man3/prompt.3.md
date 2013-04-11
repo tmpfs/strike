@@ -1,0 +1,209 @@
+prompt(3) -- user input module
+=============================================
+
+## SYNOPSIS
+
+	prompt [command] [options...]
+
+## DESCRIPTION
+
+Captures user input using `read`.
+
+## COMMANDS
+
+* `confirm`:
+
+Capture a boolean response, this is useful for confirmation prompts. By default, the values *yes* and *no* are used as the strings for comparison as to whether the confirmation was accepted or rejected. Comparison is done in a case-insensitive comparison on the first character of the received input.
+
+If the input does not match an accept or reject value then the prompt is re-displayed.
+
+* `line`:
+
+Capture a non-empty string value from a single line of input. If the received line is empty then the prompt is re-displayed.
+
+* `select`:
+
+Display a menu using the `select` builtin.
+
+## OPTIONS
+
+* `--id=[identifier]`:
+
+Associate *id* with a prompt.
+
+* `--hist-file=[file]`:
+
+Use *file* for the history file. If this option is not specified no history is maintained, if *file* does not exist it is created.
+
+* `--before=[command]`:
+
+Execute *command* before reading input.
+
+* `--response=[command]`:
+
+Execute *command* when input is received.
+
+* `--acccepted=[command]`:
+
+Execute *command* when a confirm prompt is accepted.
+
+* `--rejected=[command]`:
+
+Execute *command* when a confirm prompt is rejected.
+
+* `--validate=[command]`:
+
+Execute *command* to validate a value, if the exit code of the command is greater than zero the prompt is re-displayed. The command is passed a single argument containing the value.
+
+* `--select-error=[command]`:
+
+Execute *command* when a select menu receives input that is non-numeric.
+
+* `--select-range-error=[command]`:
+
+Execute *command* when a select menu receives input that is numeric but falls outside of the range.
+
+* `--complete=[function]`:
+
+Execute *function* when the tab key is pressed to generate custom completion specifications. This option is repeatable, functions are executed in declaration order.
+
+When this option is not specified the default readline completion is used, otherwise the complete functions override the default behaviour.
+
+* `--timeout=[seconds]`:
+
+Use *seconds* as the prompt timeout. If *seconds* is non-numeric or zero it is ignored. Equivalent to `read -t`.
+
+* `--quit=[words]`:
+
+Use in conjunction with the `--infinite` option to stop an infinite prompt if the entered value matches any word in *words*.
+
+* `--default=[value]`:
+
+Use *value* when the user input is empty. This option may be used to override the default behaviour of re-displaying a prompt when no input is received.
+
+* `-s | --silent`:
+
+Do not echo input. Use this when capturing sensitive information such as passwords. Equivalent to `read -s`.
+
+* `-m | --multiline`:
+
+Allow multiline input so that a backslash escape followed by a newline continues capturing data for a prompt. Equivalent to `read -r`.
+
+* `-e | --exec`:
+
+Allow shell command execution. When this option is present each line entered is executed as a shell command using `bash -c` so that redirection, pipes and other more complex shell commands are possible.
+
+* `-i | --infinite`:
+
+Show a prompt infinitely. After a line has been read then the prompt is re-displayed.
+
+## BUGS
+
+**prompt** is written in bash and depends upon `bash` >= 4.2.
+
+## COPYRIGHT
+
+**prompt** is copyright (c) 2012 muji <http://xpm.io>
+
+## SEE ALSO
+
+prompt(1), console(3)
+
+[SYNOPSIS]: #SYNOPSIS "SYNOPSIS"
+[DESCRIPTION]: #DESCRIPTION "DESCRIPTION"
+[COMMANDS]: #COMMANDS "COMMANDS"
+[OPTIONS]: #OPTIONS "OPTIONS"
+[BUGS]: #BUGS "BUGS"
+[COPYRIGHT]: #COPYRIGHT "COPYRIGHT"
+[SEE ALSO]: #SEE-ALSO "SEE ALSO"
+
+
+[strike(1)]: strike.1.html
+[boilerplate(3)]: boilerplate.3.html
+[require(3)]: require.3.html
+[method(3)]: method.3.html
+[http(3)]: http.3.html
+[bake(1)]: bake.1.html
+[rest(1)]: rest.1.html
+[bash(1)]: http://man.cx/bash(1)
+[curl(1)]: http://man.cx/curl(1)
+[echo(1)]: http://man.cx/echo(1)
+[find(1)]: http://man.cx/find(1)
+[tee(1)]: http://man.cx/tee(1)
+[sed(1)]: http://man.cx/sed(1)
+[printf(1)]: http://man.cx/printf(1)
+[source(1)]: http://man.cx/source(1)
+[dirname(1)]: http://man.cx/dirname(1)
+[basename(1)]: http://man.cx/basename(1)
+[tar(1)]: http://man.cx/tar(1)
+[zip(1)]: http://man.cx/zip(1)
+[unzip(1)]: http://man.cx/unzip(1)
+[compress(1)]: http://man.cx/compress(1)
+[gzip(1)]: http://man.cx/gzip(1)
+[gunzip(1)]: http://man.cx/gunzip(1)
+[pdflatex(1)]: http://man.cx/pdflatex(1)
+[openssl(1)]: http://man.cx/openssl(1)
+[scp(1)]: http://man.cx/scp(1)
+[ssh(1)]: http://man.cx/ssh(1)
+[rsync(1)]: http://man.cx/rsync(1)
+[autoreconf(1)]: http://man.cx/autoreconf(1)
+[checkbashisms(1)]: http://man.cx/checkbashisms
+[growlnotify(1)]: http://scottlab.ucsc.edu/Library/init/zsh/man/html/growlnotify.html
+[sendmail(1)]: http://man.cx/sendmail(1)
+[uuencode(1)]: http://man.cx/uuencode(1)
+[epxand(1)]: http://man.cx/expand(1)
+[unepxand(1)]: http://man.cx/unexpand(1)
+[git(1)]: http://git-scm.com/
+[ronn(1)]: https://github.com/rtomayko/ronn
+[github(7)]: http://github.com/
+[json-sh(1)]: https://github.com/dominictarr/JSON.sh
+[npm(1)]: http://npmjs.org
+[ruby(3)]: http://www.ruby-lang.org/
+[rake(1)]: http://rake.rubyforge.org/
+[semver(7)]: http://semver.org/
+[ant(1)]: http://ant.apache.org/
+[mvn(1)]: http://maven.apache.org/
+[make(1)]: http://www.gnu.org/software/make/
+[jsonlint(1)]: https://github.com/zaach/jsonlint
+[jsoncheck(1)]: http://json.org/JSON_checker/
+[ere(7)]: http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html
+[couchdb(7)]: http://couchdb.apache.org/
+[url(7)]: http://www.ietf.org/rfc/rfc1738.txt
+[array-file(3)]: array-file.3.html
+[array(3)]: array.3.html
+[console(1)]: console.1.html
+[console(3)]: console.3.html
+[delegate(3)]: delegate.3.html
+[executable(3)]: executable.3.html
+[git(3)]: git.3.html
+[globals(3)]: globals.3.html
+[help(3)]: help.3.html
+[json(3)]: json.3.html
+[manual(1)]: manual.1.html
+[prompt(1)]: prompt.1.html
+[prompt(3)]: prompt.3.html
+[semver(3)]: semver.3.html
+[sprintf(3)]: sprintf.3.html
+[strike-credits(7)]: strike-credits.7.html
+[strike-tree(7)]: strike-tree.7.html
+[strike(7)]: strike.7.html
+[task-ant(7)]: task-ant.7.html
+[task-archive(7)]: task-archive.7.html
+[task-clean(7)]: task-clean.7.html
+[task-compress(7)]: task-compress.7.html
+[task-deploy-json(7)]: task-deploy-json.7.html
+[task-deploy(7)]: task-deploy.7.html
+[task-devel(7)]: task-devel.7.html
+[task-doc(7)]: task-doc.7.html
+[task-expand(7)]: task-expand.7.html
+[task-latex(7)]: task-latex.7.html
+[task-ls(7)]: task-ls.7.html
+[task-make(7)]: task-make.7.html
+[task-module(7)]: task-module.7.html
+[task-mvn(7)]: task-mvn.7.html
+[task-project(7)]: task-project.7.html
+[task-rake(7)]: task-rake.7.html
+[task-semver(7)]: task-semver.7.html
+[task-test(7)]: task-test.7.html
+[task-todo(7)]: task-todo.7.html
+[version(3)]: version.3.html
