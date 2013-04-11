@@ -68,24 +68,65 @@ doc.man.commands.generate() {
 # removes man pages exported to ${root}/man
 doc.man.commands.clean() {
   local man="${root}/doc/man";
+  local md="${root}/doc/md/man";
   rm -fv "${man}"/*;
+  rm -rf "${md}";
 }
 
 # imports the compiled man page(s) into ${root}/man
 doc.man.commands.import() {
+  local md="${root}/doc/md/man";
   local man="${root}/doc/man";
   local mantmp="${target}/doc";
+  doc.man.commands.clean;
   if [ ! -d "$man" ]; then
     mkdir -p "$man";
   fi
-  doc.man.commands.clean;
+  if [ ! -d "${md}" ]; then
+    mkdir -p "${md}" \
+      || console quit 1 -- "could not create %s" "${md}";
+  fi
+  declare -A markdown;
+  local mddocs=();
   # copy over man pages
   local i cmd;
+  local IFS=$'\n';
   for i in {1..8}
-    do
+  do
       cmd="cp -v "${mantmp}/*.${i}" "${man}"";
       eval $cmd > /dev/null 2>&1;
+      mddocs=( $( find "${mantmp}" -name "*.${i}.markdown" ) );
+      if [ ${#mddocs[@]} -gt 0 ]; then
+        markdown[$i]="${mddocs[*]}";
+      fi
   done
+  local mandir files file name destination;
+  for i in ${!markdown[@]}
+    do
+      mandir="${md}/man${i}";
+      echo "got markdown index $i : $mandir";
+      if [ ! -d "${mandir}" ]; then
+        mkdir -p "${mandir}" \
+          || console quit 1 -- "could not create %s" "${mandir}";
+      fi
+      files=( ${markdown[$i]} );
+      #echo "got files ${files[@]}"
+      for file in "${files[@]}"
+        do
+          fs.basename "${file}" "name";
+          name="${name%markdown}";
+          name+="md";
+          destination="${mandir}/${name}";
+          if $verbose; then
+            console info -- "cp -f %s %s" "${file}" "${destination}";
+          fi
+          cp -f "${file}" "${destination}" \
+            || console quit 1 -- "could not copy %s to %s" \
+            "${file}" "${destination}";
+      done
+  done
+
+  unset IFS;
   return 0;
 }
 

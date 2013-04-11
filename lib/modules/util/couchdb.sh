@@ -337,6 +337,19 @@ couchdb.doc.copy() {
   couchdb.run "COPY" "${url}" -H "Destination: ${destination}";
 }
 
+couchdb.bulk() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local file="${3:-}";
+  url.encode "${db}" "db";
+  if [ -f "${file}" ]; then
+    local url="${host}/${db}/_bulk_docs";
+    couchdb.run "POST" "${url}" \
+      -# --data-binary "@${file}" \
+      -H "Content-Type: ${mime_types[json]}";
+  fi
+}
+
 # send an attachment
 couchdb.attach() {
   local host="${1:-}";
