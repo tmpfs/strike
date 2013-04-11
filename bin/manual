@@ -143,7 +143,7 @@ manual.completion() {
   local cmds="${1:-true}";
   local cur="${COMP_WORDS[${COMP_CWORD:-}]:-}";
   local pages="${process_dirs[man]}";
-  local files=( $(ls "${pages}") );
+  local files=( $( find "${pages}" -type f | xargs basename ) );
   local words="${files[*]:-}";
   if $cmds; then
     words="${commands[*]} ${files[*]:-}";
@@ -164,9 +164,10 @@ manual.response() {
     return 1;
   fi
   local pages="${process_dirs[man]}";
-  local page="${pages}/${input}";
+  local manpages=( $( find "${pages}" -name ${input} ) );
+  local page="${manpages[0]:-}";
   # prefer showing man pages first
-  if [ -f "${page}" ]; then
+  if [ -n "${page}" ] && [ -f "${page}" ]; then
     man "${page}"; return 0;
   fi
   # handle help
@@ -188,6 +189,7 @@ manual.response() {
 
 # show the prompt
 manual() {
+  local verbose=false;
   process.directory;
   local hist_file="${process_dirs[data]}/history.log";
   if [ ! -f "${hist_file}" ]; then
