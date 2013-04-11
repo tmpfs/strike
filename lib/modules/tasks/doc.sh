@@ -90,9 +90,6 @@ doc.man.commands.import() {
   # copy over man pages
   local i cmd;
   local IFS=$'\n';
-  # TODO: also create man1 etc. dirs for man pages
-  # TODO: requires updates to automake logic
-  # TODO: and the help module logic for finding man pages
   for i in {1..8}
     do
       #cmd="cp -v "${mantmp}/*.${i}" "${man}"";
