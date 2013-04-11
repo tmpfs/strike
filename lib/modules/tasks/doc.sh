@@ -75,7 +75,6 @@ doc.man.commands.clean() {
   rm -rf "${html}";
 }
 
-
 # imports the compiled man page(s) into ${root}/man
 doc.man.commands.import() {
   local man="${root}/doc/man";
@@ -85,7 +84,9 @@ doc.man.commands.import() {
   doc.man.commands.clean;
   fs.mkdirs "${man}" "${md}" "${html}";
   declare -A markdown;
+  declare -A manpages;
   local mddocs=();
+  local mandocs=();
   # copy over man pages
   local i cmd;
   local IFS=$'\n';
@@ -94,17 +95,38 @@ doc.man.commands.import() {
   # TODO: and the help module logic for finding man pages
   for i in {1..8}
     do
-      cmd="cp -v "${mantmp}/*.${i}" "${man}"";
-      eval $cmd > /dev/null 2>&1;
+      #cmd="cp -v "${mantmp}/*.${i}" "${man}"";
+      #eval $cmd > /dev/null 2>&1;
       mddocs=( $( find "${mantmp}" -name "*.${i}.markdown" ) );
       if [ ${#mddocs[@]} -gt 0 ]; then
         markdown[$i]="${mddocs[*]}";
       fi
+      mandocs=( $( find "${mantmp}" -name "*.${i}" ) );
+      if [ ${#mandocs[@]} -gt 0 ]; then
+        manpages[$i]="${mandocs[*]}";
+      fi
   done
   doc.import.markdown;
   doc.import.html;
+  doc.import.man;
   unset IFS;
   return 0;
+}
+
+doc.import.man() {
+  local mandir files file name destination;
+  for i in ${!manpages[@]}
+    do
+      mandir="${man}/man${i}";
+      fs.mkdirs "${mandir}";
+      files=( ${manpages[$i]} );
+      for file in "${files[@]}"
+        do
+          fs.basename "${file}" "name";
+          destination="${mandir}/${name}";
+          doc.import.copy;
+      done
+  done
 }
 
 doc.import.html() {
@@ -131,14 +153,18 @@ doc.import.markdown() {
           name="${name%markdown}";
           name+="md";
           destination="${mandir}/${name}";
-          if $verbose; then
-            console info -- "cp -f %s %s" "${file}" "${destination}";
-          fi
-          cp -f "${file}" "${destination}" \
-            || console quit 1 -- "could not copy %s to %s" \
-            "${file}" "${destination}";
+          doc.import.copy;
       done
   done
+}
+
+doc.import.copy() {
+  if $verbose; then
+    console info -- "cp -f %s %s" "${file}" "${destination}";
+  fi
+  cp -f "${file}" "${destination}" \
+    || console quit 1 -- "could not copy %s to %s" \
+    "${file}" "${destination}";
 }
 
 # compiles generated .ronn files to markdown and html
