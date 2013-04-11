@@ -114,7 +114,9 @@ doc.man.commands.import() {
 doc.import.html() {
   local files=( $( find "${mantmp}" -name "*.html" ) );
   local IFS=' ';
-  echo "got html files: ${files[*]}"
+  if [ -d "${root}/doc/assets" ]; then
+    cp -rf "${root}/doc/assets" "${html}";
+  fi
   cp "${files[@]}" "${html}" \
     || console quit 1 -- "could not copy html files";
   unset IFS;
