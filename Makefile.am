@@ -5,9 +5,9 @@ TESTS_ENVIRONMENT = cd $(srcdir) &&
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(PACKAGE_NAME).pc
 
-man1_MANS = $(srcdir)/doc/man/*.1
-man3_MANS = $(srcdir)/doc/man/*.3
-man7_MANS = $(srcdir)/doc/man/*.7
+man1_MANS = $(srcdir)/doc/man/man1/*.1
+man3_MANS = $(srcdir)/doc/man/man3/*.3
+man7_MANS = $(srcdir)/doc/man/man7/*.7
 
 maindir = $(prefix)/$(PACKAGE_NAME)
 nobase_main_DATA = \
