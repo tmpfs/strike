@@ -83,21 +83,17 @@ doc.man.commands.import() {
   local html="${root}/doc/html/man";
   local mantmp="${target}/doc";
   doc.man.commands.clean;
-  #if [ ! -d "$man" ]; then
-    #mkdir -p "$man";
-  #fi
-  #if [ ! -d "${md}" ]; then
-    #mkdir -p "${md}" \
-      #|| console quit 1 -- "could not create %s" "${md}";
-  #fi
   fs.mkdirs "${man}" "${md}" "${html}";
   declare -A markdown;
   local mddocs=();
   # copy over man pages
   local i cmd;
   local IFS=$'\n';
+  # TODO: also create man1 etc. dirs for man pages
+  # TODO: requires updates to automake logic
+  # TODO: and the help module logic for finding man pages
   for i in {1..8}
-  do
+    do
       cmd="cp -v "${mantmp}/*.${i}" "${man}"";
       eval $cmd > /dev/null 2>&1;
       mddocs=( $( find "${mantmp}" -name "*.${i}.markdown" ) );
