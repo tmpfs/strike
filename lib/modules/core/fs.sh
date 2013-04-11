@@ -23,6 +23,19 @@ fs.path.expand() {
   fi
 }
 
+fs.mkdirs() {
+  local IFS=$'\n';
+  local folder;
+  for folder in "$@"
+    do
+      if [ ! -d "${folder}" ]; then
+        mkdir -p "${folder}" \
+          || console quit 1 -- "could not create %s" "${folder}";
+      fi
+  done
+  unset IFS;
+}
+
 # escapes leading dash characters
 # fs.path.dash.escape() {
 #   _result="${1:-}";

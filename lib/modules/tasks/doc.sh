@@ -69,23 +69,28 @@ doc.man.commands.generate() {
 doc.man.commands.clean() {
   local man="${root}/doc/man";
   local md="${root}/doc/md/man";
-  rm -fv "${man}"/*;
+  local html="${root}/doc/html/man";
+  rm -rf "${man}";
   rm -rf "${md}";
+  rm -rf "${html}";
 }
+
 
 # imports the compiled man page(s) into ${root}/man
 doc.man.commands.import() {
-  local md="${root}/doc/md/man";
   local man="${root}/doc/man";
+  local md="${root}/doc/md/man";
+  local html="${root}/doc/html/man";
   local mantmp="${target}/doc";
   doc.man.commands.clean;
-  if [ ! -d "$man" ]; then
-    mkdir -p "$man";
-  fi
-  if [ ! -d "${md}" ]; then
-    mkdir -p "${md}" \
-      || console quit 1 -- "could not create %s" "${md}";
-  fi
+  #if [ ! -d "$man" ]; then
+    #mkdir -p "$man";
+  #fi
+  #if [ ! -d "${md}" ]; then
+    #mkdir -p "${md}" \
+      #|| console quit 1 -- "could not create %s" "${md}";
+  #fi
+  fs.mkdirs "${man}" "${md}" "${html}";
   declare -A markdown;
   local mddocs=();
   # copy over man pages
@@ -100,17 +105,28 @@ doc.man.commands.import() {
         markdown[$i]="${mddocs[*]}";
       fi
   done
+  doc.import.markdown;
+  doc.import.html;
+  unset IFS;
+  return 0;
+}
+
+doc.import.html() {
+  local files=( $( find "${mantmp}" -name "*.html" ) );
+  local IFS=' ';
+  echo "got html files: ${files[*]}"
+  cp "${files[@]}" "${html}" \
+    || console quit 1 -- "could not copy html files";
+  unset IFS;
+}
+
+doc.import.markdown() {
   local mandir files file name destination;
   for i in ${!markdown[@]}
     do
       mandir="${md}/man${i}";
-      echo "got markdown index $i : $mandir";
-      if [ ! -d "${mandir}" ]; then
-        mkdir -p "${mandir}" \
-          || console quit 1 -- "could not create %s" "${mandir}";
-      fi
+      fs.mkdirs "${mandir}";
       files=( ${markdown[$i]} );
-      #echo "got files ${files[@]}"
       for file in "${files[@]}"
         do
           fs.basename "${file}" "name";
@@ -125,9 +141,6 @@ doc.man.commands.import() {
             "${file}" "${destination}";
       done
   done
-
-  unset IFS;
-  return 0;
 }
 
 # compiles generated .ronn files to markdown and html
