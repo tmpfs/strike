@@ -45,7 +45,7 @@ url.commands.query() {
 
 url.commands.encode() {
   local value="${1:-}"; shift;
-  local varname="${2:-encoded}"; shift;
+  local varname="${1:-encoded}"; shift;
   local encoded;
   url.encode "${value}";
   variable.set "${varname}" "${encoded}";

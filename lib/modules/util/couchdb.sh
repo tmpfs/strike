@@ -266,6 +266,7 @@ couchdb.doc.get() {
   #echo "query string is $querystring";
   url encode "${db}" "db";
   url encode "${id}" "id";
+  echo "encoded id: $id"
   local url="${host}/${db}/${id}";
   if [ -n "${querystring}" ]; then
     url+="?${querystring}"
