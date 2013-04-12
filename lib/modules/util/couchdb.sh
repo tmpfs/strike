@@ -9,13 +9,9 @@ declare -g couchdb_session_login_auth_token="";
 declare -Ag couchdb;
 couchdb[progress]=true;
 couchdb[ua]="";
-
-# > curl -vX POST $HOST/_session -H 'Content-Type: application/x-www-form-urlencoded' -d 'name=anna&password=secret'
-
-# > curl -vX PUT $HOST/_all_dbs --cookie AuthSession=ZmZzeXM6NTBGNjdEOTY6vAyRr5A7XWPxDum-jkXglKKXgxU -H "X-CouchDB-WWW-Authenticate: Cookie" -H "Content-Type: application/x-www-form-urlencoded"
-# {"ok":true}
-
-# Set-Cookie: AuthSession=ZmZzeXM6NTBGNjdEOTY6vAyRr5A7XWPxDum-jkXglKKXgxU; Version=1; Path=/; HttpOnly
+couchdb[timeout]="0";
+couchdb[cookie-jar]="";
+couchdb[cookie]="";
 
 # centralized entry point for couchdb(3)
 # http(3) requests so that it's easier to
@@ -36,16 +32,18 @@ couchdb.run() {
       --background0="${couchdb_verbose_background}" \
       -- "%s" "${url}";
   fi
-  local opts=( "$@" );
-  # add session cookie authentication information
-  #if [ -n "${couchdb_session_login_auth_token:-}" ]; then
-    #opts+=( "-H" "X-CouchDB-WWW-Authenticate: Cookie" );
-    #opts+=( "-H" "Content-Type: application/x-www-form-urlencoded" );
-    #opts+=( "--cookie" "$couchdb_session_login_auth_token" );
-  #fi
 
+  local opts=( "$@" );
   if [ -n "${couchdb[ua]}" ]; then
     opts+=( --user-agent "${couchdb[ua]}" );
+  fi
+
+  if [ ${couchdb[timeout]:-0} -gt 0 ]; then
+    opts+=( --connect-timeout "${couchdb[timeout]}"  );
+  fi
+  # add session cookie authentication information
+  if [ -n "${couchdb[cookie]:-}" ]; then
+    opts+=(--cookie "${couchdb[cookie]}");
   fi
 
   http.curl "${opts[@]}";
@@ -56,24 +54,14 @@ couchdb.session.login() {
   local user="${2:-}";
   local pass="${3:-}";
   if [ -n "$host" ] && [ -n "$user" ] && [ -n "$pass" ]; then
-    couchdb.run "POST" "${host}/_session" \
-      "-H" "Content-Type: application/x-www-form-urlencoded" \
-      "-d" "name=${user}&password=${pass}";
-      
-    # TODO: refactor to use http_headers array which will work when redirects
-    # are in use
-    local cookie="${http_header_0_set_cookie:-}";
-    if [ -z "$cookie" ]; then
-      console warn -- \
-        "could not retrieve cookie header information for couchdb session login";
-    else
-      #AuthSession=ZmZzeXM6NTBGNjgwOEM6ROf3Gcfux_kfV_x3VDmRPCGaQ84; Version=1; Path=/; HttpOnly
-      couchdb_session_login_auth_token="${cookie%%;*}";
-      #couchdb_session_login_auth_token="${couchdb_session_login_auth_token#AuthSession=}";
-      echo "got auth session token: $couchdb_session_login_auth_token";
+    local opts=(
+      -H "Content-Type: application/x-www-form-urlencoded"
+      -d "name=${user}&password=${pass}"
+    );
+    if [ -n "${couchdb[cookie-jar]}" ]; then
+      opts+=(--cookie-jar "${couchdb[cookie-jar]}");
     fi
-    
-    #echo "got set cookie header: $http_header_0_set_cookie";
+    couchdb.run "POST" "${host}/_session" "${opts[@]}";
   fi
 }
 
