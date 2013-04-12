@@ -12,14 +12,15 @@ couchdb[ua]="";
 couchdb[timeout]="0";
 couchdb[cookie-jar]="";
 couchdb[cookie]="";
+couchdb[url]="";
 
 # centralized entry point for couchdb(3)
 # http(3) requests so that it's easier to
 # add before/after debugging statements
 couchdb.run() {
+  local verb="${1:-}";
+  local url="${2:-}";
   if $couchdb_verbose; then
-    local verb="${1:-}";
-    local url="${2:-}";
     # head requests are actually GET with --head
     # change verb to reflect that only the headers are fetched
     if array.contains? "--head" "$@"; then
@@ -37,7 +38,6 @@ couchdb.run() {
   if [ -n "${couchdb[ua]}" ]; then
     opts+=( --user-agent "${couchdb[ua]}" );
   fi
-
   if [ ${couchdb[timeout]:-0} -gt 0 ]; then
     opts+=( --connect-timeout "${couchdb[timeout]}"  );
   fi
@@ -45,7 +45,7 @@ couchdb.run() {
   if [ -n "${couchdb[cookie]:-}" ]; then
     opts+=(--cookie "${couchdb[cookie]}");
   fi
-
+  couchdb[url]="${url}";
   http.curl "${opts[@]}";
 }
 
@@ -63,6 +63,16 @@ couchdb.session.login() {
     fi
     couchdb.run "POST" "${host}/_session" "${opts[@]}";
   fi
+}
+
+couchdb.session() {
+  local host="${1:-}";
+  couchdb.run "GET" "${host}/_session";
+}
+
+couchdb.session.logout() {
+  local host="${1:-}";
+  couchdb.run "DELETE" "${host}/_session";
 }
 
 couchdb.tasks() {
