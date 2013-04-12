@@ -92,7 +92,7 @@ couchdb.log() {
   local bytes="${2:-}";
   local url="${host}/_log";
   if [[ "${bytes}" =~ ^[0-9]+$ ]]; then
-    url.encode "${bytes}" "bytes";
+    url encode "${bytes}" "bytes";
     url+="?bytes=${bytes}";
   fi
   couchdb.run "GET" "${url}";
@@ -152,7 +152,7 @@ couchdb.uuids() {
   local count="${2:-}";
   local url="${host}/_uuids";
   if [[ "${count}" =~ ^[0-9]+$ ]]; then
-    url.encode "${count}" "count";
+    url encode "${count}" "count";
     url+="?count=${count}";
   fi
   couchdb.run "GET" "${url}";
@@ -166,21 +166,21 @@ couchdb.db.list() {
 couchdb.db.head() {
   local host="${1:-}";
   local db="${2:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   couchdb.run "GET" "${host}/${db}" --head;
 }
 
 couchdb.db.purge() {
   local host="${1:-}";
   local db="${2:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   couchdb.run "POST" "${host}/${db}/_purge";
 }
 
 couchdb.db.commit() {
   local host="${1:-}";
   local db="${2:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   couchdb.run "POST" "${host}/${db}/_ensure_full_commit" \
     -H "Content-Type: ${mime_types[json]}";
 }
@@ -188,7 +188,7 @@ couchdb.db.commit() {
 couchdb.db.changes() {
   local host="${1:-}";
   local db="${2:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   couchdb.run "GET" "${host}/${db}/_changes";
 }
 
@@ -196,7 +196,7 @@ couchdb.db.revslimit() {
   local host="${1:-}";
   local db="${2:-}";
   local amount="${3:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   local url="${host}/${db}/_revs_limit";
   if [[ "${amount}" =~ ^[0-9]+$ ]]; then
     couchdb.run "PUT" "${url}" "-d" "${amount}";
@@ -208,14 +208,14 @@ couchdb.db.revslimit() {
 couchdb.db.add() {
   local host="${1:-}";
   local db="${2:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   couchdb.run "PUT" "${host}/${db}";
 }
 
 couchdb.db.rm() {
   local host="${1:-}";
   local db="${2:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   couchdb.run "DELETE" "${host}/${db}";
 }
 
@@ -223,7 +223,7 @@ couchdb.db.compact() {
   local host="${1:-}";
   local db="${2:-}";
   local design="${3:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   local url="${host}/${db}/_compact";
   if [ -n "${design}" ]; then
     url+="/${design}";
@@ -235,7 +235,7 @@ couchdb.db.compact() {
 couchdb.db.cleanup() {
   local host="${1:-}";
   local db="${2:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   couchdb.run "POST" "${host}/${db}/_view_cleanup" \
     -H "Content-Type: ${mime_types[json]}";
 }
@@ -243,7 +243,7 @@ couchdb.db.cleanup() {
 couchdb.db.info() {
   local host="${1:-}";
   local db="${2:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   couchdb.run "GET" "${host}/${db}";
 }
 
@@ -251,7 +251,7 @@ couchdb.db.alldocs() {
   local host="${1:-}";
   local db="${2:-}";
   local querystring="${3:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   local url="${host}/${db}/_all_docs"
   if [ -n "$querystring" ]; then
     url+="${querystring}";
@@ -280,9 +280,9 @@ couchdb.doc.rm() {
   local db="${2:-}";
   local id="${3:-}";
   local rev="${4:-}";
-  url.encode "${db}" "db";
-  url.encode "${id}" "id";
-  url.encode "${rev}" "rev";
+  url encode "${db}" "db";
+  url encode "${id}" "id";
+  url encode "${rev}" "rev";
   local url="${host}/${db}/${id}?rev=${rev}";
   couchdb.run "DELETE" "${url}";
 }
@@ -291,8 +291,8 @@ couchdb.doc.head() {
   local host="${1:-}";
   local db="${2:-}";
   local id="${3:-}";
-  url.encode "${db}" "db";
-  url.encode "${id}" "id";
+  url encode "${db}" "db";
+  url encode "${id}" "id";
   local url="${host}/${db}/${id}";
   couchdb.run "GET" "${url}" --head;
 }
@@ -302,8 +302,8 @@ couchdb.doc.save() {
   local db="${2:-}";
   local doc="${3:-}";
   local id="${4:-}";
-  url.encode "${db}" "db";
-  url.encode "${id}" "id";
+  url encode "${db}" "db";
+  url encode "${id}" "id";
   if [ -f "${doc}" ]; then
     local url="${host}/${db}";
     local method="PUT";
@@ -325,8 +325,8 @@ couchdb.doc.copy() {
   local sourceid="${3:-}";
   local targetid="${4:-}";
   local rev="${5:-}";
-  url.encode "${db}" "db";
-  url.encode "${sourceid}" "sourceid";
+  url encode "${db}" "db";
+  url encode "${sourceid}" "sourceid";
   local url="${host}/${db}/${sourceid}";
   # NOTE: we do not need to url encode the
   # NOTE: target id or revision as they are sent
@@ -342,7 +342,7 @@ couchdb.bulk() {
   local host="${1:-}";
   local db="${2:-}";
   local file="${3:-}";
-  url.encode "${db}" "db";
+  url encode "${db}" "db";
   if [ -f "${file}" ]; then
     local url="${host}/${db}/_bulk_docs";
     couchdb.run "POST" "${url}" \
@@ -365,10 +365,10 @@ couchdb.attach() {
     if [ -z "${name}" ]; then
       fs.basename "${file}" "name";
     fi
-    url.encode "${db}" "db";
-    url.encode "${id}" "id";
-    url.encode "${name}" "name";
-    url.encode "${rev}" "rev";
+    url encode "${db}" "db";
+    url encode "${id}" "id";
+    url encode "${name}" "name";
+    url encode "${rev}" "rev";
     if [ -z "${mime}" ]; then
       mime=$( file -b --mime "${file}" || echo "" );
     fi
@@ -392,10 +392,10 @@ couchdb.attach.rm() {
   local id="${3:-}";
   local rev="${4:-}";
   local name="${5:-}";
-  url.encode "${db}" "db";
-  url.encode "${id}" "id";
-  url.encode "${rev}" "rev";
-  url.encode "${name}" "name";
+  url encode "${db}" "db";
+  url encode "${id}" "id";
+  url encode "${rev}" "rev";
+  url encode "${name}" "name";
   local url="${host}/${db}/${id}/${name}?rev=${rev}";
   couchdb.run "DELETE" "${url}";
 }
@@ -408,10 +408,10 @@ couchdb.attach.get() {
   local rev="${4:-}";
   local name="${5:-}";
   local file="${6:-}";
-  url.encode "${db}" "db";
-  url.encode "${id}" "id";
-  url.encode "${rev}" "rev";
-  url.encode "${name}" "name";
+  url encode "${db}" "db";
+  url encode "${id}" "id";
+  url encode "${rev}" "rev";
+  url encode "${name}" "name";
   #local stderr="${http_print_stderr}";
   #http_print_stderr=${couchdb[progress]:-true};
   local url="${host}/${db}/${id}/${name}?rev=${rev}";
