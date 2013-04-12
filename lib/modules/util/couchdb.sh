@@ -31,7 +31,7 @@ couchdb.run() {
     fi
     # NOTE: must escape URL encoded values to prevent
     # NOTE: printf from interpreting them
-    url="${url//%/%%/}";
+    #url="${url//%/%%/}";
     console info --prefix="[${verb}]" \
       --background0="${couchdb_verbose_background}" \
       -- "%s" "${url}";
@@ -272,7 +272,8 @@ couchdb.doc.get() {
   if [ -n "${querystring}" ]; then
     url+="?${querystring}"
   fi
-  couchdb.run "GET" "${url}";
+  couchdb.run "GET" "${url}" \
+    -H "Accept: ${mime_types[json]}";
 }
 
 couchdb.doc.rm() {
