@@ -263,13 +263,14 @@ couchdb.doc.get() {
   local host="${1:-}";
   local db="${2:-}";
   local id="${3:-}";
-  local rev="${4:-}";
-  url.encode "${db}" "db";
-  url.encode "${id}" "id";
+  local querystring="";
+  url query querystring "${@:4}";
+  #echo "query string is $querystring";
+  url encode "${db}" "db";
+  url encode "${id}" "id";
   local url="${host}/${db}/${id}";
-  if [ -n "${rev}" ]; then
-    url.encode "${rev}" "rev";
-    url+="?rev=${rev}";
+  if [ -n "${querystring}" ]; then
+    url+="?${querystring}"
   fi
   couchdb.run "GET" "${url}";
 }
