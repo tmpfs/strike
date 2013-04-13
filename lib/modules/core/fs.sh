@@ -6,6 +6,7 @@
 ######################################################################
 fs.path.expand() {
   local dir="${1:-}";
+  local varname="${2:-}";
   if [  -d "$dir" ]; then
     local owd=`pwd`;
     cd "$dir" > /dev/null;
@@ -18,8 +19,11 @@ fs.path.expand() {
     _result="$_result/$nm";
   fi
   if [ ! -e "$dir" -o ! -e "$_result" ]; then
-    console error "unable to expand path %s" "$dir";
+    console error -- "unable to expand path %s" "$dir";
     _result="$1";
+  fi
+  if [ -n "${varname}" ]; then
+    variable.set "${varname}" "${_result}";
   fi
 }
 

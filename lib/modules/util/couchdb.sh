@@ -14,6 +14,10 @@ couchdb[cookie-jar]="";
 couchdb[cookie]="";
 couchdb[url]="";
 
+# url segments
+couchdb[utils]="_utils";
+couchdb[docs]="docs";
+
 # centralized entry point for couchdb(3)
 # http(3) requests so that it's easier to
 # add before/after debugging statements
@@ -63,6 +67,15 @@ couchdb.session.login() {
     fi
     couchdb.run "POST" "${host}/_session" "${opts[@]}";
   fi
+}
+
+couchdb.docs.head() {
+  local host="${1:-}";
+  local url="${host}/${couchdb[utils]:-}/${couchdb[docs]:-}/";
+  local redirects="${http_redirects:-true}";
+  http_redirects=false;
+  couchdb.run "GET" "${url}" --head;
+  http_redirects="${redirects}";
 }
 
 couchdb.session() {
@@ -252,6 +265,7 @@ couchdb.db.alldocs() {
   url encode "${db}" "db";
   local url="${host}/${db}/_all_docs"
   if [ -n "$querystring" ]; then
+    couchdb.querystring;
     url+="${querystring}";
   fi
   couchdb.run "GET" "${url}";
@@ -269,7 +283,8 @@ couchdb.doc.get() {
   #echo "encoded id: $id"
   local url="${host}/${db}/${id}";
   if [ -n "${querystring}" ]; then
-    url+="?${querystring}"
+    couchdb.querystring;
+    url+="${querystring}"
   fi
   couchdb.run "GET" "${url}" \
     -H "Accept: ${mime_types[json]}";
@@ -427,7 +442,15 @@ couchdb.view() {
   local querystring="${3:-}";
   local path="_design/${viewdoc}/_view/${view}";
   if [ -n "$querystring" ]; then
+    couchdb.querystring;
     path="${path}${querystring}";
   fi
   couchdb.run "GET" "${path}";
+}
+
+couchdb.querystring() {
+  if [ -n "${querystring:-}" ] \
+    && [[ ! "${querystring}" =~ ^\? ]]; then
+      querystring="?${querystring}";
+  fi
 }

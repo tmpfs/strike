@@ -17,6 +17,7 @@ declare -g http_config_name="";
 declare -g http_base_url="";
 declare -Ag http_res_headers;
 declare -Ag http_req_headers;
+declare -g http_redirects=true;
 
 # determines whether curl(1) stderr output is also
 # printed to the screen
@@ -225,8 +226,11 @@ http.curl() {
     "--request"
     "${method}"
     "--show-error"
-    "--location"
   );
+
+  if [ "${http_redirects}" == true ]; then
+    runopts+=(--location);
+  fi
   
   if [ -n "$http_auth_user" ] && [ -n "$http_auth_pass" ]; then
     runopts+=( "--user" "${http_auth_user}:${http_auth_pass}" );
