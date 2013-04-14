@@ -13,6 +13,7 @@ couchdb[timeout]="0";
 couchdb[cookie-jar]="";
 couchdb[cookie]="";
 couchdb[url]="";
+couchdb[verb]="";
 
 # url segments
 couchdb[utils]="_utils";
@@ -35,7 +36,7 @@ couchdb.run() {
     #url="${url//%/%%/}";
     console info --prefix="[${verb}]" \
       --background0="${couchdb_verbose_background}" \
-      -- "%s" "${url}";
+      -- "%s" "${url}" >&2;
   fi
 
   local opts=( "$@" );
@@ -50,6 +51,7 @@ couchdb.run() {
     opts+=(--cookie "${couchdb[cookie]}");
   fi
   couchdb[url]="${url}";
+  couchdb[verb]="${verb,,}";
   http.curl "${opts[@]}";
 }
 
