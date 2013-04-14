@@ -364,7 +364,7 @@ function process.signal.trigger {
       for method in ${callbacks[@]}
         do
           if method.exists? "$method"; then
-            "$method";
+            "$method" "$signal";
           fi
       done
       shift;
