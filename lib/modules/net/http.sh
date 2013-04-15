@@ -8,11 +8,46 @@ process.directory http;
 declare -Ag http_req_headers;
 declare -Ag http_res_headers;
 
+# writeout information from the last request
+declare -Ag http_info;
+
+# writeout string that is used
+# to gather information - newlines must be escaped
 declare -Ag http;
 http[writeout]="http[status]='%{http_code}';\n";
-http[writeout]+="http[effective.url]='%{url_effective}';\n";
-http[writeout]+="http[stats.time.total]='%{time_total}';\n";
-http[writeout]+="http[response.redirects]='%{num_redirects}';\n";
+
+http[writeout]+="http_info[response.status]='%{http_code}';\n";
+http[writeout]+="http_info[response.redirects]='%{num_redirects}';\n";
+http[writeout]+="http_info[response.content.type]='%{content_type}';\n";
+http[writeout]+="http_info[response.redirect.url]='%{redirect_url}';\n";
+
+http[writeout]+="http_info[effective.url]='%{url_effective}';\n";
+http[writeout]+="http_info[effective.filename]='%{filename_effective}';\n";
+
+http[writeout]+="http_info[network.local.ip]='%{local_ip}';\n";
+http[writeout]+="http_info[network.local.port]='%{local_port}';\n";
+http[writeout]+="http_info[network.remote.ip]='%{remote_ip}';\n";
+http[writeout]+="http_info[network.remote.port]='%{remote_port}';\n";
+
+http[writeout]+="http_info[size.download]='%{size_download}';\n";
+http[writeout]+="http_info[size.header]='%{size_header}';\n";
+http[writeout]+="http_info[size.request]='%{size_request}';\n";
+http[writeout]+="http_info[size.upload]='%{size_upload}';\n";
+
+http[writeout]+="http_info[time.appconnect]='%{time_appconnect}';\n";
+http[writeout]+="http_info[time.connect]='%{time_connect}';\n";
+http[writeout]+="http_info[time.namelookup]='%{time_namelookup}';\n";
+http[writeout]+="http_info[time.transfer.pre]='%{time_pretransfer}';\n";
+http[writeout]+="http_info[time.redirect]='%{time_redirect}';\n";
+http[writeout]+="http_info[time.transfer.start]='%{time_starttransfer}';\n";
+http[writeout]+="http_info[time.total]='%{time_total}';\n";
+
+http[writeout]+="http_info[speed.download]='%{speed_download}';\n";
+http[writeout]+="http_info[speed.upload]='%{speed_upload}';\n";
+
+http[writeout]+="http_info[misc.http.connect]='%{http_connect}';\n";
+http[writeout]+="http_info[misc.http.num.connects]='%{num_connects}';\n";
+http[writeout]+="http_info[misc.ssl.verify.result]='%{ssl_verify_result}';\n";
 
 http[redirects]=true;
 # whether to exit the program if curl(1) exits with
@@ -159,10 +194,9 @@ http.curl.execute() {
       || echo -n "$?" >| "${http[exit.file]}";
   fi
   
-  # get the write out results
-  #results=( $( < "${http[stdout.file]}" ) );
+  unset -v http_info;
+  declare -Ag http_info;
   
-  #echo "sourcing filee."
   . "${http[stdout.file]}" \
     || {
       console error -- "failed to source %s" "${http[stdout.file]}";
