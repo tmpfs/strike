@@ -2,22 +2,39 @@ require net/url;
 
 process.directory http;
 
-declare -Ag http_res_headers;
+# request and response headers
+# response headers are from the
+# last response after any redirects
 declare -Ag http_req_headers;
+declare -Ag http_res_headers;
 
 declare -Ag http;
-http[writeout]="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n%{filename_effective}\n";
+http[writeout]="http[status]='%{http_code}';\n";
+http[writeout]+="http[effective.url]='%{url_effective}';\n";
+http[writeout]+="http[stats.time.total]='%{time_total}';\n";
+http[writeout]+="http[response.redirects]='%{num_redirects}';\n";
+
 http[redirects]=true;
+# whether to exit the program if curl(1) exits with
+# a non-zero status code
 http[strict]=false;
 # determines whether curl(1) stderr output is also
 # printed to the screen
 http[printstderr]=false;
-http[response.redirects]=0;
 http[status]="000";
 http[exit.code]=1;
-http[auth.user]="";
-http[auth.pass]="";
 http[request.method]="";
+http[request.url]="";
+
+# number of redirects in the response
+http[response.redirects]=0;
+
+# effective url after redirects
+http[effective.url]="";
+
+# status lines from the headers
+http[request.status]="";
+http[response.status]="";
 
 http() {
   executable.validate curl tee;
@@ -126,38 +143,35 @@ http.curl.execute() {
       unset "$opt";
   done
 
+  #echo "config is ${http[config]}"
+
   # redirect stderr with tee, useful for also
   # displaying file download progress
   if ${http[printstderr]}; then
     echo "${http[config]}" | $cmd --config - 2>| \
       >($tee "${http[stderr.file]}" >&2) 1>| "${http[stdout.file]}" \
-      || echo -n "$?" >> "${http[exit.file]}";  
+      || echo -n "$?" >| "${http[exit.file]}";  
   # not redirecting stderr to screen as well
   # so just send to the file
   else
     echo "${http[config]}" | $cmd --config - 2>| \
       "${http[stderr.file]}" 1>| "${http[stdout.file]}" \
-      || echo -n "$?" >> "${http[exit.file]}";
+      || echo -n "$?" >| "${http[exit.file]}";
   fi
   
   # get the write out results
-  results=( $( < "${http[stdout.file]}" ) );
+  #results=( $( < "${http[stdout.file]}" ) );
   
-  # echo "got results: ${results[@]}";
+  #echo "sourcing filee."
+  . "${http[stdout.file]}" \
+    || {
+      console error -- "failed to source %s" "${http[stdout.file]}";
+      return 1;
+    }
   
   http_exit_code=0;
   if [ -f "${http[exit.file]}" ]; then
     http_exit_code=$( cat "${http[exit.file]}" );
-    http_exit_code=${http_exit_code:-0};
-  fi
-  
-  # echo "got curl exit code: $http_exit_code";
-  
-  if [ ${#results[@]} -gt 2 ]; then
-    http[status]="${results[0]}";
-    http[effective.url]="${results[1]}";
-    http[response.time.total]="${results[2]}";
-    http[response.redirects]="${results[3]:-0}";
   fi
 
   if [ "$http_exit_code" != "0" ]; then
@@ -191,9 +205,6 @@ http.curl() {
   if [ "${http[redirects]}" == true ]; then
     runopts+=(--location);
   fi
-  if [ -n "${http[auth.user]:-}" ] && [ -n "${http[auth.pass]:-}" ]; then
-    runopts+=( "--user" "${http[auth.user]}:${http[auth.pass]}" );
-  fi
   runopts+=(
     --dump-header
     "${http[head.dump.file]}"
@@ -207,18 +218,16 @@ http.curl() {
   if [ ${#opts[@]} -gt 0 ]; then
     runopts+=( "${opts[@]}" );
   fi
-  
   if ! array.contains? "-#" "${runopts[@]}" \
     || ! ${http[printstderr]}; then
     runopts+=(--silent);
   fi
-
   # this little dance prevents head
   # requests from writing an empty body
   # response to the body document
   local body="${http[body.file]}";
-  if ! array.contains? "--output" "${runopts[@]}"; then
-    if array.contains? "--head" "${runopts[@]}"; then
+  if ! array.contains? --output "${runopts[@]}"; then
+    if array.contains? --head "${runopts[@]}"; then
       http[body.file]="${http[head.file]}";
     fi
     runopts+=( --output "${http[body.file]}" );
