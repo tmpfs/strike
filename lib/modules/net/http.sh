@@ -2,17 +2,19 @@ require net/url;
 
 declare -g http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n%{filename_effective}\n";
 process.directory http;
-declare -g http_home=~/.${framework}/http;
-declare -g http_head_file="$http_home/http.head";
-declare -g http_body_file="$http_home/http.body";
-declare -g http_trace_file="$http_home/http.trace";
-declare -g http_exit_file="$http_home/http.exit";
-declare -g http_trace_ascii_file="$http_home/http.trace.ascii";
-declare -g http_head_dump_file="$http_home/http.head.dump";
-declare -g http_config_dir="$http_home/config";
-declare -g http_config_file="$http_home/http.config";
-declare -g http_stderr_file="$http_home/http.stderr";
-declare -g http_stdout_file="$http_home/http.stdout";
+declare -Ag http;
+http[home]=~/.${framework}/http;
+#declare -g http_home=~/.${framework}/http;
+declare -g http_head_file="${http[home]}/http.head";
+declare -g http_body_file="${http[home]}/http.body";
+declare -g http_trace_file="${http[home]}/http.trace";
+declare -g http_exit_file="${http[home]}/http.exit";
+declare -g http_trace_ascii_file="${http[home]}/http.trace.ascii";
+declare -g http_head_dump_file="${http[home]}/http.head.dump";
+declare -g http_config_dir="${http[home]}/config";
+declare -g http_config_file="${http[home]}/http.config";
+declare -g http_stderr_file="${http[home]}/http.stderr";
+declare -g http_stdout_file="${http[home]}/http.stdout";
 declare -g http_config_name="";
 declare -g http_base_url="";
 declare -Ag http_res_headers;
@@ -112,8 +114,8 @@ http.clean() {
 }
 
 http.initialize() {
-  if [ ! -d "$http_home" ]; then
-    mkdir -p "$http_home";
+  if [ ! -d "${http[home]}" ]; then
+    mkdir -p "${http[home]}";
   fi
 }
 
