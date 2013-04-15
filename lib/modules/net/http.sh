@@ -9,7 +9,10 @@ http[home]=~/.${framework}/http;
 http[writeout]="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n%{filename_effective}\n";
 http[redirects]=true;
 http[strict]=false;
-#declare -g http_home=~/.${framework}/http;
+# determines whether curl(1) stderr output is also
+# printed to the screen
+http[printstderr]=false;
+
 declare -g http_head_file="${http[home]}/http.head";
 declare -g http_body_file="${http[home]}/http.body";
 declare -g http_exit_file="${http[home]}/http.exit";
@@ -17,11 +20,6 @@ declare -g http_trace_ascii_file="${http[home]}/http.trace.ascii";
 declare -g http_head_dump_file="${http[home]}/http.head.dump";
 declare -g http_stderr_file="${http[home]}/http.stderr";
 declare -g http_stdout_file="${http[home]}/http.stdout";
-
-# determines whether curl(1) stderr output is also
-# printed to the screen
-declare -g http_print_stderr="";
-declare -Ag http_request_headers;
 
 # have to do this in two steps for arrays as
 # direct assignment will cause the http_files array not
@@ -90,6 +88,8 @@ http.commands.init() {
   fi
 }
 
+## PRIVATE
+
 http.clean() {
   local f;
   for f in ${http_files[@]}
@@ -127,7 +127,7 @@ http.curl.execute() {
     
   # redirect stderr with tee, useful for also
   # displaying file download progress
-  if [ ! -z "$http_print_stderr" ]; then
+  if ${http[printstderr]}; then
     echo "${http[config]}" | $cmd --config - 2>| \
       >($tee "$http_stderr_file" >&2) 1>| "$http_stdout_file" \
       || echo -n "$?" >> "$http_exit_file";  
@@ -212,14 +212,6 @@ http.curl() {
     runopts+=( "--user" "${http_auth_user}:${http_auth_pass}" );
   fi
   
-  local hname hvalue;
-  for hname in ${!http_request_headers[@]}
-    do
-      hvalue=${http_request_headers[$hname]};
-      # echo "adding request header: $hname::$hvalue";
-      runopts+=( "--header" "${hname}: $hvalue" );
-  done
-  
   runopts+=(
     "--dump-header"
     "$http_head_dump_file"
@@ -236,7 +228,7 @@ http.curl() {
   fi
   
   if ! array.contains? "-#" "${runopts[@]}" \
-    || ! $http_print_stderr; then
+    || ! ${http[printstderr]}; then
     runopts+=(
       "--silent"
     );
@@ -266,25 +258,6 @@ http.curl() {
   http_body_file="${body}";
 }
 
-http.request.add.header() {
-  local name="$1";
-  local value="${2:-}";
-  local hname hvalue;
-  # only a single parameter so parse the header out
-  if [ -z "$value" ]; then
-    hname="${name%: ?*}";
-    hvalue="${name#*:}";
-  fi
-  string.ltrim "$hvalue";
-  hvalue="$_result";
-  http_request_headers[$hname]="$hvalue";
-}
-
-######################################################################
-#
-# PRIVATE METHODS
-#
-######################################################################
 http.config() {
   local opts=( "$@" );
   local l=$#;
@@ -387,10 +360,10 @@ __http_response_parse() {
   local head=0;
   while IFS= read -r line
     do
-      __http.line;
+      http.line;
   done < "$output";
   # process last line
-  if [ -n "$line" ]; then __http.line; fi
+  if [ -n "$line" ]; then http.line; fi
 }
 
 # parse request header
@@ -427,7 +400,7 @@ http.req.headers() {
   done < "${http_trace_ascii_file}";
 }
 
-__http.line() {
+http.line() {
   #parse the HTTP declaration
   if [[ "$line" =~ ^HTTP/1.[01] ]]; then
     __http_response_parse_status "$index" "${line}";
