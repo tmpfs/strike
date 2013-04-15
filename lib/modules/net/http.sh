@@ -274,6 +274,9 @@ http.curl() {
   # build options to pass to curl(1) via stdin
   http[config]=$( http.config "${runopts[@]}" );
 
+  #echo "sending config..."
+  #echo "${http[config]}"
+
   # execute the request
   http.curl.execute "${runopts[@]}";
   
@@ -284,12 +287,20 @@ http.curl() {
 http.config() {
   local opts=( "$@" );
   local i val next;
+  local quote='"';
+  local newline=$'\n';
   for((i = 0;i < $#;i++))
     do
       val=${opts[$i]};
       next=${opts[i+1]:-};
       if [ ! -z "$next" ]; then
         if [[ ! "$next" =~ ^--[a-z] ]]; then
+          next=${next//$newline/'\n'};
+          # NOTE: must escape double quotes
+          if [[ "${next}" =~ $quote ]]; then
+            next="${next//\"/\\\"}";
+            #echo "escaped quote $next"
+          fi
           echo "$val=\"$next\"";
           i=$[i + 1];
           continue;
