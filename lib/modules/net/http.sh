@@ -13,27 +13,6 @@ http[strict]=false;
 # printed to the screen
 http[printstderr]=false;
 
-declare -g http_head_file="${http[home]}/http.head";
-declare -g http_body_file="${http[home]}/http.body";
-declare -g http_exit_file="${http[home]}/http.exit";
-declare -g http_trace_ascii_file="${http[home]}/http.trace.ascii";
-declare -g http_head_dump_file="${http[home]}/http.head.dump";
-declare -g http_stderr_file="${http[home]}/http.stderr";
-declare -g http_stdout_file="${http[home]}/http.stdout";
-
-# have to do this in two steps for arrays as
-# direct assignment will cause the http_files array not
-# to be available inside function definitions
-declare -ag http_files;
-http_files=(
-  "$http_head_file"
-  "$http_exit_file"
-  "$http_trace_ascii_file"
-  "$http_head_dump_file"
-  "$http_stderr_file"
-  "$http_stdout_file"
-);
-
 declare -g http_auth_user="";
 declare -g http_auth_pass="";
 
@@ -86,15 +65,33 @@ http.commands.init() {
   if [ ! -d "${http[home]}" ]; then
     mkdir -p "${http[home]}";
   fi
+  http[head.file]="${http[home]}/http.head";
+  http[body.file]="${http[home]}/http.body";
+  http[exit.file]="${http[home]}/http.exit";
+  http[trace.ascii.file]="${http[home]}/http.trace.ascii";
+  http[head.dump.file]="${http[home]}/http.head.dump";
+  http[stderr.file]="${http[home]}/http.stderr";
+  http[stdout.file]="${http[home]}/http.stdout";
 }
 
 ## PRIVATE
 
 http.clean() {
-  local f;
-  for f in ${http_files[@]}
+  local keys=(
+    head.file
+    exit.file
+    trace.ascii.file
+    head.dump.file
+    stderr.file
+    stdout.file
+  );
+  local k f;
+  for k in ${keys[@]}
     do
-      rm -fv "$f";
+      f="${http[$k]}";
+      if [ -f "$f" ]; then
+        rm -v "$f";
+      fi
   done
 }
 
@@ -114,7 +111,7 @@ http.curl.execute() {
   http.clean > /dev/null; 
 
   # create an empty body file
-  #echo -ne "" >| "$http_body_file";
+  #echo -ne "" >| "${http[body.file]}";
   
   #ensure we unset all variables before the next request
   #TODO: move to a method for unsetting by group
@@ -129,24 +126,24 @@ http.curl.execute() {
   # displaying file download progress
   if ${http[printstderr]}; then
     echo "${http[config]}" | $cmd --config - 2>| \
-      >($tee "$http_stderr_file" >&2) 1>| "$http_stdout_file" \
-      || echo -n "$?" >> "$http_exit_file";  
+      >($tee "${http[stderr.file]}" >&2) 1>| "${http[stdout.file]}" \
+      || echo -n "$?" >> "${http[exit.file]}";  
   # not redirecting stderr to screen as well
   # so just send to the file
   else
     echo "${http[config]}" | $cmd --config - 2>| \
-      "$http_stderr_file" 1>| "$http_stdout_file" \
-      || echo -n "$?" >> "$http_exit_file";
+      "${http[stderr.file]}" 1>| "${http[stdout.file]}" \
+      || echo -n "$?" >> "${http[exit.file]}";
   fi
   
   # get the write out results
-  results=( $( < "$http_stdout_file" ) );
+  results=( $( < "${http[stdout.file]}" ) );
   
   # echo "got results: ${results[@]}";
   
   http_exit_code=0;
-  if [ -f "$http_exit_file" ]; then
-    http_exit_code=`cat "$http_exit_file"`;
+  if [ -f "${http[exit.file]}" ]; then
+    http_exit_code=$( cat "${http[exit.file]}" );
     http_exit_code=${http_exit_code:-0};
   fi
   
@@ -161,14 +158,14 @@ http.curl.execute() {
 
   if [ "$http_exit_code" != "0" ]; then
     if [ "${http[strict]}" == true ]; then
-      if [ -f "$http_stderr_file" ]; then
-        console error -- "$( cat $http_stderr_file )";
+      if [ -f "${http[stderr.file]}" ]; then
+        console error -- "$( cat ${http[stderr.file]} )";
       fi
       console quit $http_exit_code -- \
         "curl exited with non-zero status code (%s)" "$http_exit_code";
     else
-      if [ -f "$http_stderr_file" ]; then
-        console error -- "$( cat $http_stderr_file )";
+      if [ -f "${http[stderr.file]}" ]; then
+        console error -- "$( cat ${http[stderr.file]} )";
       else
         console error -- \
           "curl exited with non-zero status code (%s)" "$http_exit_code";
@@ -176,9 +173,9 @@ http.curl.execute() {
     fi
   fi
   
-  if [ -f "$http_body_file" ] && [ "$http_exit_code" == "0" ]; then
+  if [ -f "${http[body.file]}" ] && [ "$http_exit_code" == "0" ]; then
     # parse response headers into variable data
-    __http_response_parse "${http_head_dump_file}";
+    __http_response_parse "${http[head.dump.file]}";
   fi
 }
 
@@ -214,9 +211,9 @@ http.curl() {
   
   runopts+=(
     "--dump-header"
-    "$http_head_dump_file"
+    "${http[head.dump.file]}"
     "--trace-ascii"
-    "$http_trace_ascii_file"
+    "${http[trace.ascii.file]}"
     "--write-out"
     "${http[writeout]:-}"
   );
@@ -234,12 +231,12 @@ http.curl() {
     );
   fi
 
-  local body="${http_body_file}";
+  local body="${http[body.file]}";
   if ! array.contains? "--output" "${runopts[@]}"; then
     if array.contains? "--head" "${runopts[@]}"; then
-      http_body_file="${http_head_file}";
+      http[body.file]="${http[head.file]}";
     fi
-    runopts+=( --output "$http_body_file" );
+    runopts+=( --output "${http[body.file]}" );
   fi
 
   runopts=( "${runopts[@]}" --url "$url" );
@@ -255,7 +252,7 @@ http.curl() {
   #echo "${http[config]}"; exit 0;
 
   http.curl.execute "${runopts[@]}";
-  http_body_file="${body}";
+  http[body.file]="${body}";
 }
 
 http.config() {
@@ -397,7 +394,7 @@ http.req.headers() {
           fi
         fi
       fi
-  done < "${http_trace_ascii_file}";
+  done < "${http[trace.ascii.file]}";
 }
 
 http.line() {
@@ -411,15 +408,15 @@ http.line() {
     line=`echo "$line" | tr -d "\n"`;
     if [[ -z "$line" ]] && [[ $redirects -eq 0 ]]; then
       head=1;
-      echo "" >> "$http_head_file";         
+      echo "" >> "${http[head.file]}";         
     elif [[ -z "$line" ]] && [[ $redirects -gt 0 ]]; then
       #echo "parsing next header...";
       index=$[index + 1];
       redirects=$[redirects - 1];
-      echo "" >> "$http_head_file";
+      echo "" >> "${http[head.file]}";
     else
       #append to the header file
-      echo "$line" >> "$http_head_file";
+      echo "$line" >> "${http[head.file]}";
       __http_parse_header "$index" "$line";
     fi
   fi
