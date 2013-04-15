@@ -1,13 +1,14 @@
 require net/url;
 
-declare -g http_curl_writeout="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n%{filename_effective}\n";
 process.directory http;
+
 declare -Ag http;
 http[home]=~/.${framework}/http;
+http[writeout]="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n%{filename_effective}\n";
+
 #declare -g http_home=~/.${framework}/http;
 declare -g http_head_file="${http[home]}/http.head";
 declare -g http_body_file="${http[home]}/http.body";
-declare -g http_trace_file="${http[home]}/http.trace";
 declare -g http_exit_file="${http[home]}/http.exit";
 declare -g http_trace_ascii_file="${http[home]}/http.trace.ascii";
 declare -g http_head_dump_file="${http[home]}/http.head.dump";
@@ -41,7 +42,6 @@ http_command_options=();
 declare -ag http_files;
 http_files=(
   "$http_head_file"
-  "$http_trace_file"
   "$http_exit_file"
   "$http_trace_ascii_file"
   "$http_head_dump_file"
@@ -246,16 +246,13 @@ http.curl() {
       runopts+=( "--header" "${hname}: $hvalue" );
   done
   
-  # "--trace"
-  # "$http_trace_file"
-  
   runopts+=(
     "--dump-header"
     "$http_head_dump_file"
     "--trace-ascii"
     "$http_trace_ascii_file"
     "--write-out"
-    "${curl_writeout:-"$http_curl_writeout"}"
+    "${http[writeout]:-}"
   );
   
   # add additional command options
@@ -287,6 +284,7 @@ http.curl() {
     fi
     runopts+=( --output "$http_body_file" );
   fi
+
   runopts=( "${runopts[@]}" "$url" );
   
   # echo "runopts: ${runopts[@]}";
