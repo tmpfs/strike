@@ -4,8 +4,8 @@ process.directory http;
 
 declare -Ag http_res_headers;
 declare -Ag http_req_headers;
+
 declare -Ag http;
-http[home]=~/.${framework}/http;
 http[writeout]="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n%{filename_effective}\n";
 http[redirects]=true;
 http[strict]=false;
@@ -13,19 +13,45 @@ http[strict]=false;
 # printed to the screen
 http[printstderr]=false;
 http[response.redirects]=0;
-
-declare -g http_auth_user="";
-declare -g http_auth_pass="";
+http[status]="000";
+http[exit.code]=1;
+http[auth.user]="";
+http[auth.pass]="";
+http[request.method]="";
 
 http() {
   executable.validate curl tee;
-  local commands_namespace="http.commands";
+  local namespace="http.commands";
   local cmd="${1:-}";
   shift;
-  if ! method.exists? "${commands_namespace}.$cmd"; then
-    console quit 1 -- "unknown http command %s" "$cmd";
-  fi  
-  delegate "${commands_namespace}" "$cmd" "$@";
+
+  if [ "${cmd}" != init ] && [ -z "${http[home]:-}" ]; then
+      console error -- "no http directory initialized";
+  else
+    if ! method.exists? "${namespace}.$cmd"; then
+      console error -- "unknown http command %s" "$cmd";
+    else
+      delegate "${namespace}" "$cmd" "$@";
+    fi
+  fi
+}
+
+# initialize where the module stores files
+http.commands.init() {
+  local folder="${1:-}";
+  if [ -d "${folder}" ] && [ -w "${folder}" ]; then
+    http[home]="${folder}";
+  fi
+  if [ ! -d "${http[home]}" ]; then
+    mkdir -p "${http[home]}";
+  fi
+  http[head.file]="${http[home]}/http.head";
+  http[body.file]="${http[home]}/http.body";
+  http[exit.file]="${http[home]}/http.exit";
+  http[trace.ascii.file]="${http[home]}/http.trace.ascii";
+  http[head.dump.file]="${http[home]}/http.head.dump";
+  http[stderr.file]="${http[home]}/http.stderr";
+  http[stdout.file]="${http[home]}/http.stdout";
 }
 
 http.commands.get() {
@@ -56,23 +82,6 @@ http.commands.delete() {
 http.commands.options() {
   local url="${1:-}";
   http.curl "OPTIONS" "$url";
-}
-
-http.commands.init() {
-  local folder="${1:-}";
-  if [ -d "${folder}" ] && [ -w "${folder}" ]; then
-    http[home]="${folder}";
-  fi
-  if [ ! -d "${http[home]}" ]; then
-    mkdir -p "${http[home]}";
-  fi
-  http[head.file]="${http[home]}/http.head";
-  http[body.file]="${http[home]}/http.body";
-  http[exit.file]="${http[home]}/http.exit";
-  http[trace.ascii.file]="${http[home]}/http.trace.ascii";
-  http[head.dump.file]="${http[home]}/http.head.dump";
-  http[stderr.file]="${http[home]}/http.stderr";
-  http[stdout.file]="${http[home]}/http.stdout";
 }
 
 ## PRIVATE
@@ -206,8 +215,8 @@ http.curl() {
     runopts+=(--location);
   fi
   
-  if [ -n "$http_auth_user" ] && [ -n "$http_auth_pass" ]; then
-    runopts+=( "--user" "${http_auth_user}:${http_auth_pass}" );
+  if [ -n "${http[auth.user]:-}" ] && [ -n "${http[auth.pass]:-}" ]; then
+    runopts+=( "--user" "${http[auth.user]}:${http[auth.pass]}" );
   fi
   
   runopts+=(
@@ -227,9 +236,7 @@ http.curl() {
   
   if ! array.contains? "-#" "${runopts[@]}" \
     || ! ${http[printstderr]}; then
-    runopts+=(
-      "--silent"
-    );
+    runopts+=(--silent);
   fi
 
   local body="${http[body.file]}";
@@ -244,7 +251,7 @@ http.curl() {
   
   # echo "runopts: ${runopts[@]}";
   
-  http_request_method="${method}";
+  http[request.method]="${method}";
   
   #write out the options used as a config file
   http[config]=$( http.config "${runopts[@]}" );
@@ -294,12 +301,11 @@ http.response.status.parse() {
       #TODO : change this to += 
       opts=( "${opts[@]:-}" "$opt" );
   done
-  
-  eval "export http_header_${index}_raw='${raw}'";
-  #skip the first empty element in the array
-  export "http_header_${index}_http="${opts[1]:-}"";
-  export "http_header_${index}_status="${opts[2]:-}"";
-  export "http_header_${index}_message="${opts[3]:-}"";
+  #eval "export http_header_${index}_raw='${raw}'";
+  ##skip the first empty element in the array
+  #export "http_header_${index}_http="${opts[1]:-}"";
+  #export "http_header_${index}_status="${opts[2]:-}"";
+  #export "http_header_${index}_message="${opts[3]:-}"";
 }
 
 http.header.parse() {
