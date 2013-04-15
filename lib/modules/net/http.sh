@@ -24,7 +24,6 @@ http() {
   local namespace="http.commands";
   local cmd="${1:-}";
   shift;
-
   if [ "${cmd}" != init ] && [ -z "${http[home]:-}" ]; then
       console error -- "no http directory initialized";
   else
@@ -126,9 +125,7 @@ http.curl.execute() {
     do
       unset "$opt";
   done
-  
-  #echo "$FUNCNAME: ${#runopts[@]} : ${runopts[@]}";
-    
+
   # redirect stderr with tee, useful for also
   # displaying file download progress
   if ${http[printstderr]}; then
@@ -189,43 +186,25 @@ http.curl.execute() {
 http.curl() {
   local method="${1:-GET}"; shift;
   local url="${1:-}"; shift;
-  
-  #remaining custom options
   local opts=( "$@" );
-
-  if [[ "$url" =~ ^[a-zA-Z]+: ]]; then
-    if [[ ! "$url" =~ ^https?: ]]; then
-      console warn -- "invalid url protocol must be %s or %s" "http" "https";
-      return 1;
-    fi
-  fi
-  
-  local runopts=(
-    "--request"
-    "${method}"
-    "--show-error"
-  );
-
+  local runopts=( --request "${method}" --show-error );
   if [ "${http[redirects]}" == true ]; then
     runopts+=(--location);
   fi
-  
   if [ -n "${http[auth.user]:-}" ] && [ -n "${http[auth.pass]:-}" ]; then
     runopts+=( "--user" "${http[auth.user]}:${http[auth.pass]}" );
   fi
-  
   runopts+=(
-    "--dump-header"
+    --dump-header
     "${http[head.dump.file]}"
-    "--trace-ascii"
+    --trace-ascii
     "${http[trace.ascii.file]}"
-    "--write-out"
+    --write-out
     "${http[writeout]:-}"
   );
   
   #pass in custom opts
   if [ ${#opts[@]} -gt 0 ]; then
-    #echo "adding custom options... ${opts[@]}";
     runopts+=( "${opts[@]}" );
   fi
   
@@ -234,6 +213,9 @@ http.curl() {
     runopts+=(--silent);
   fi
 
+  # this little dance prevents head
+  # requests from writing an empty body
+  # response to the body document
   local body="${http[body.file]}";
   if ! array.contains? "--output" "${runopts[@]}"; then
     if array.contains? "--head" "${runopts[@]}"; then
@@ -251,7 +233,8 @@ http.curl() {
 
   # execute the request
   http.curl.execute "${runopts[@]}";
-
+  
+  # always restore configured body file
   http[body.file]="${body}";
 }
 
