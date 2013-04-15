@@ -120,9 +120,6 @@ http.curl.execute() {
   #around when a request fails
   http.clean > /dev/null; 
 
-  # create an empty body file
-  #echo -ne "" >| "${http[body.file]}";
-  
   #ensure we unset all variables before the next request
   #TODO: move to a method for unsetting by group
   for opt in ${!http_response_*}
@@ -185,18 +182,16 @@ http.curl.execute() {
   
   if [ -f "${http[body.file]}" ] && [ "$http_exit_code" == "0" ]; then
     # parse response headers into variable data
-    __http_response_parse "${http[head.dump.file]}";
+    http.response.parse "${http[head.dump.file]}";
   fi
 }
 
 http.curl() {
   local method="${1:-GET}"; shift;
-  local path="${1:-}"; shift;
+  local url="${1:-}"; shift;
   
   #remaining custom options
   local opts=( "$@" );
-  
-  local url="$path";
 
   if [[ "$url" =~ ^[a-zA-Z]+: ]]; then
     if [[ ! "$url" =~ ^https?: ]]; then
@@ -248,26 +243,22 @@ http.curl() {
   fi
 
   runopts=( "${runopts[@]}" --url "$url" );
-  
-  # echo "runopts: ${runopts[@]}";
-  
+
   http[request.method]="${method}";
-  
-  #write out the options used as a config file
+  http[request.url]="${url}";
+  # build options to pass to curl(1) via stdin
   http[config]=$( http.config "${runopts[@]}" );
-  #http.config "${runopts[@]}";
 
-  #echo "${http[config]}"; exit 0;
-
+  # execute the request
   http.curl.execute "${runopts[@]}";
+
   http[body.file]="${body}";
 }
 
 http.config() {
   local opts=( "$@" );
-  local l=$#;
   local i val next;
-  for((i = 0;i < l;i++))
+  for((i = 0;i < $#;i++))
     do
       val=${opts[$i]};
       next=${opts[i+1]:-};
@@ -290,17 +281,15 @@ http.response.status.parse() {
   if [ "$index" -eq "${http[response.redirects]:-0}" ]; then
     http_res_status="${raw}";
   fi
-  
   # echo "got response raw : $raw";
   # echo "got response index : $index";
-  
-  local opts=();
-  for opt in ${@}
-    do
-      # echo "got opt : $opt";
-      #TODO : change this to += 
-      opts=( "${opts[@]:-}" "$opt" );
-  done
+  #local opts=();
+  #for opt in ${@}
+    #do
+      ## echo "got opt : $opt";
+      ##TODO : change this to += 
+      #opts=( "${opts[@]:-}" "$opt" );
+  #done
   #eval "export http_header_${index}_raw='${raw}'";
   ##skip the first empty element in the array
   #export "http_header_${index}_http="${opts[1]:-}"";
@@ -309,12 +298,9 @@ http.response.status.parse() {
 }
 
 http.header.parse() {
-  #echo "http.header.parse: $1 : $2";
-  
   local index="$1";
   local name="${2%: ?*}";
   local value="${2#*:}";
-
   # raw header information for final
   # set of headers
   if [ "$index" -eq "${http[response.redirects]}" ]; then
@@ -322,23 +308,25 @@ http.header.parse() {
   fi
   
   #convert hyphens to underscores
-  name="${name//-/_}";
+  #name="${name//-/_}";
   
   #lowercase name
-  name=${name,,};
+  #name=${name,,};
   
   #strip leading whitespace
-  string.ltrim "$value";
-  value="$_result";
+  #string.ltrim "$value";
+  #value="$_result";
   
   # echo "got name: $name";
   # echo "got value: $value";
   
   #TODO: only export on the last header set received
-  export "http_header_${index}_${name}=${value}";
+  #export "http_header_${index}_${name}=${value}";
 }
 
-__http_response_parse() {
+http.response.parse() {
+
+  # TODO: refactor to use the http array
   declare -g http_res_status="";
   declare -g http_req_status="";
 
@@ -403,8 +391,8 @@ http.line() {
   #parsing header lines
   elif [ $head -eq 0 ]; then
     #strip the carriage return and line feeds
-    line=`echo "$line" | tr -d "\r"`;
-    line=`echo "$line" | tr -d "\n"`;
+    line=$( echo "$line" | tr -d "\r" );
+    line=$( echo "$line" | tr -d "\n" );
     if [[ -z "$line" ]] && [[ $redirects -eq 0 ]]; then
       head=1;
       echo "" >> "${http[head.file]}";         
