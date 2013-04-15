@@ -2,39 +2,26 @@ require net/url;
 
 process.directory http;
 
+declare -Ag http_res_headers;
+declare -Ag http_req_headers;
 declare -Ag http;
 http[home]=~/.${framework}/http;
 http[writeout]="%{http_code}\n%{url_effective}\n%{time_total}\n%{num_redirects}\n%{filename_effective}\n";
-
+http[redirects]=true;
+http[strict]=false;
 #declare -g http_home=~/.${framework}/http;
 declare -g http_head_file="${http[home]}/http.head";
 declare -g http_body_file="${http[home]}/http.body";
 declare -g http_exit_file="${http[home]}/http.exit";
 declare -g http_trace_ascii_file="${http[home]}/http.trace.ascii";
 declare -g http_head_dump_file="${http[home]}/http.head.dump";
-declare -g http_config_dir="${http[home]}/config";
-declare -g http_config_file="${http[home]}/http.config";
 declare -g http_stderr_file="${http[home]}/http.stderr";
 declare -g http_stdout_file="${http[home]}/http.stdout";
-declare -g http_config_name="";
-declare -g http_base_url="";
-declare -Ag http_res_headers;
-declare -Ag http_req_headers;
-declare -g http_redirects=true;
 
 # determines whether curl(1) stderr output is also
 # printed to the screen
 declare -g http_print_stderr="";
-
-# determines whether to quit when curl(1)
-# returns a non-zero exit code, set to a
-# non-blank string to switch on
-declare -g http_strict="";
-
 declare -Ag http_request_headers;
-
-declare -ag http_command_options;
-http_command_options=();
 
 # have to do this in two steps for arrays as
 # direct assignment will cause the http_files array not
@@ -93,15 +80,13 @@ http.commands.options() {
   http.curl "OPTIONS" "$url";
 }
 
-http.config.save() {
-  local id="${1:-}";
-  if [ ! -z "$id" ] && [ -f "$http_config_file" ]; then
-    if [ ! -d "$http_config_dir" ]; then
-      mkdir -p "$http_config_dir";
-    fi
-    local configfile="${http_config_dir}/${id}"
-    copy "$http_config_file" "$configfile" \
-      || console quit 1 -- "could not copy config file to %s" "$configfile";
+http.commands.init() {
+  local folder="${1:-}";
+  if [ -d "${folder}" ] && [ -w "${folder}" ]; then
+    http[home]="${folder}";
+  fi
+  if [ ! -d "${http[home]}" ]; then
+    mkdir -p "${http[home]}";
   fi
 }
 
@@ -111,12 +96,6 @@ http.clean() {
     do
       rm -fv "$f";
   done
-}
-
-http.initialize() {
-  if [ ! -d "${http[home]}" ]; then
-    mkdir -p "${http[home]}";
-  fi
 }
 
 http.curl.execute() {
@@ -149,16 +128,12 @@ http.curl.execute() {
   # redirect stderr with tee, useful for also
   # displaying file download progress
   if [ ! -z "$http_print_stderr" ]; then
-    #$cmd "${runopts[@]}" 2>| >($tee "$http_stderr_file" >&2) 1>| "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";  
-    
     echo "${http[config]}" | $cmd --config - 2>| \
       >($tee "$http_stderr_file" >&2) 1>| "$http_stdout_file" \
       || echo -n "$?" >> "$http_exit_file";  
   # not redirecting stderr to screen as well
   # so just send to the file
   else
-    #$cmd "${runopts[@]}" 2>| "$http_stderr_file" 1>| "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";
-
     echo "${http[config]}" | $cmd --config - 2>| \
       "$http_stderr_file" 1>| "$http_stdout_file" \
       || echo -n "$?" >> "$http_exit_file";
@@ -183,13 +158,9 @@ http.curl.execute() {
     http_response_time_total="${results[2]}";
     http_response_num_redirects="${results[3]:-0}";
   fi
-  
-  if [ ! -z "$http_config_name" ]; then
-    http.config.save "$http_config_name";
-  fi
-  
+
   if [ "$http_exit_code" != "0" ]; then
-    if [ ! -z "$http_strict" ]; then
+    if [ "${http[strict]}" == true ]; then
       if [ -f "$http_stderr_file" ]; then
         console error -- "$( cat $http_stderr_file )";
       fi
@@ -219,12 +190,7 @@ http.curl() {
   local opts=( "$@" );
   
   local url="$path";
-  if [ ! -z "$http_base_url" ]; then
-    #strip any leading slash on path
-    path=${path#/};
-    url="${http_base_url}/${path}";
-  fi
-  
+
   if [[ "$url" =~ ^[a-zA-Z]+: ]]; then
     if [[ ! "$url" =~ ^https?: ]]; then
       console warn -- "invalid url protocol must be %s or %s" "http" "https";
@@ -238,7 +204,7 @@ http.curl() {
     "--show-error"
   );
 
-  if [ "${http_redirects}" == true ]; then
+  if [ "${http[redirects]}" == true ]; then
     runopts+=(--location);
   fi
   
@@ -263,15 +229,6 @@ http.curl() {
     "${http[writeout]:-}"
   );
   
-  # add additional command options
-  set +o nounset;
-  for hvalue in ${http_command_options[@]}
-    do
-      #echo "got http_command_options : $hvalue";
-      runopts+=( "$hvalue" );
-  done
-  set -o nounset;
-
   #pass in custom opts
   if [ ${#opts[@]} -gt 0 ]; then
     #echo "adding custom options... ${opts[@]}";
@@ -309,23 +266,6 @@ http.curl() {
   http_body_file="${body}";
 }
 
-######################################################################
-#
-# Adds a command line option to be passed on when executing curl.
-#
-# $1  The option name.
-# $2  The option value.
-#
-######################################################################
-http.option.add() {
-  local name=${1:-};
-  local value=${2:-};
-  if [ ! -z "$name" ] && [ ! -z "$value" ]; then
-    http_command_options+=( "$name" );
-    http_command_options+=( "$value" );
-  fi
-}
-
 http.request.add.header() {
   local name="$1";
   local value="${2:-}";
@@ -346,13 +286,6 @@ http.request.add.header() {
 #
 ######################################################################
 http.config() {
-  #echo "writing config with options: ${@}";
-  
-  #local f="$http_config_file";
-  
-  #empty the config file
-  #echo -n >| "$f";
-  
   local opts=( "$@" );
   local l=$#;
   local i val next;
@@ -360,12 +293,8 @@ http.config() {
     do
       val=${opts[$i]};
       next=${opts[i+1]:-};
-      #echo "got opt: $i .. $val";
-      # got more options to deal with 
       if [ ! -z "$next" ]; then
-        #echo "got next.. $next";
         if [[ ! "$next" =~ ^--[a-z] ]]; then
-          # echo "got next value with :: $next";
           echo "$val=\"$next\"";
           i=$[i + 1];
           continue;
