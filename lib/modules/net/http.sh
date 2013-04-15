@@ -285,14 +285,18 @@ http.curl() {
     runopts+=( --output "$http_body_file" );
   fi
 
-  runopts=( "${runopts[@]}" "$url" );
+  runopts=( "${runopts[@]}" --url "$url" );
   
   # echo "runopts: ${runopts[@]}";
   
   http_request_method="${method}";
   
   #write out the options used as a config file
-  __http_write_config "${runopts[@]}";
+  local http[config]=$( http.config "${runopts[@]}" );
+  #http.config "${runopts[@]}";
+
+  echo "${http[config]}"; exit 0;
+
   http.curl.execute "${runopts[@]}";
   http_body_file="${body}";
 }
@@ -333,40 +337,33 @@ http.request.add.header() {
 # PRIVATE METHODS
 #
 ######################################################################
-__http_write_config() {
+http.config() {
   #echo "writing config with options: ${@}";
   
-  local f="$http_config_file";
+  #local f="$http_config_file";
   
   #empty the config file
-  echo -n >| "$f";
+  #echo -n >| "$f";
   
   local opts=( "$@" );
-  
   local l=$#;
   local i val next;
   for((i = 0;i < l;i++))
     do
       val=${opts[$i]};
       next=${opts[i+1]:-};
-      
       #echo "got opt: $i .. $val";
-      
       # got more options to deal with 
       if [ ! -z "$next" ]; then
         #echo "got next.. $next";
         if [[ ! "$next" =~ ^--[a-z] ]]; then
           # echo "got next value with :: $next";
-          echo "$val=\"$next\"" >> "$f";
+          echo "$val=\"$next\"";
           i=$[i + 1];
           continue;
         else
-          echo "$val" >> "$f";
+          echo "$val";
         fi
-      # nothing left so at end of options
-      else
-        # last option should be the URL pattern
-        echo "--url=\"$val\"" >> "$f";
       fi
   done
 }
