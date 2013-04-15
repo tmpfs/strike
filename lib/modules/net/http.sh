@@ -12,6 +12,7 @@ http[strict]=false;
 # determines whether curl(1) stderr output is also
 # printed to the screen
 http[printstderr]=false;
+http[response.redirects]=0;
 
 declare -g http_auth_user="";
 declare -g http_auth_pass="";
@@ -150,10 +151,10 @@ http.curl.execute() {
   # echo "got curl exit code: $http_exit_code";
   
   if [ ${#results[@]} -gt 2 ]; then
-    http_response_status="${results[0]}";
-    http_response_url="${results[1]}";
-    http_response_time_total="${results[2]}";
-    http_response_num_redirects="${results[3]:-0}";
+    http[status]="${results[0]}";
+    http[effective.url]="${results[1]}";
+    http[response.time.total]="${results[2]}";
+    http[response.redirects]="${results[3]:-0}";
   fi
 
   if [ "$http_exit_code" != "0" ]; then
@@ -275,13 +276,11 @@ http.config() {
   done
 }
 
-__http_response_parse_status() {
+http.response.status.parse() {
   local raw="${@:2}";
-  
   local index="$1";
   shift;
-
-  if [ "$index" -eq "$http_response_num_redirects" ]; then
+  if [ "$index" -eq "${http[response.redirects]:-0}" ]; then
     http_res_status="${raw}";
   fi
   
@@ -301,16 +300,10 @@ __http_response_parse_status() {
   export "http_header_${index}_http="${opts[1]:-}"";
   export "http_header_${index}_status="${opts[2]:-}"";
   export "http_header_${index}_message="${opts[3]:-}"";
-  
-  # echo "opts length: ${#opts[@]}";
-  # echo "[__http_response_parse_status] : ${http_response_header_raw}";
-  # echo "[http_response_header_http] : ${http_response_header_http}";
-  # echo "[http_response_header_status] : ${http_response_header_status}";
-  # echo "[http_response_header_message] : ${http_response_header_message}";
 }
 
-__http_parse_header() {
-  #echo "__http_parse_header: $1 : $2";
+http.header.parse() {
+  #echo "http.header.parse: $1 : $2";
   
   local index="$1";
   local name="${2%: ?*}";
@@ -318,7 +311,7 @@ __http_parse_header() {
 
   # raw header information for final
   # set of headers
-  if [ "$index" -eq "$http_response_num_redirects" ]; then
+  if [ "$index" -eq "${http[response.redirects]}" ]; then
     http_res_headers["${name}"]="${value}";
   fi
   
@@ -351,7 +344,7 @@ __http_response_parse() {
   http.req.headers;
 
   # number of redirects corresponds to the number of headers to parse
-  local redirects=${http_response_num_redirects:-0};
+  local redirects=${http[response.redirects]:-0};
   local index=0;
   local output="$1";
   local head=0;
@@ -400,7 +393,7 @@ http.req.headers() {
 http.line() {
   #parse the HTTP declaration
   if [[ "$line" =~ ^HTTP/1.[01] ]]; then
-    __http_response_parse_status "$index" "${line}";
+    http.response.status.parse "$index" "${line}";
   #parsing header lines
   elif [ $head -eq 0 ]; then
     #strip the carriage return and line feeds
@@ -417,7 +410,7 @@ http.line() {
     else
       #append to the header file
       echo "$line" >> "${http[head.file]}";
-      __http_parse_header "$index" "$line";
+      http.header.parse "$index" "$line";
     fi
   fi
 }
