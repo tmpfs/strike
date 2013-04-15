@@ -149,11 +149,19 @@ http.curl.execute() {
   # redirect stderr with tee, useful for also
   # displaying file download progress
   if [ ! -z "$http_print_stderr" ]; then
-    $cmd "${runopts[@]}" 2>| >($tee "$http_stderr_file" >&2) 1>| "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";  
+    #$cmd "${runopts[@]}" 2>| >($tee "$http_stderr_file" >&2) 1>| "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";  
+    
+    echo "${http[config]}" | $cmd --config - 2>| \
+      >($tee "$http_stderr_file" >&2) 1>| "$http_stdout_file" \
+      || echo -n "$?" >> "$http_exit_file";  
   # not redirecting stderr to screen as well
   # so just send to the file
   else
-    $cmd "${runopts[@]}" 2>| "$http_stderr_file" 1>| "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";
+    #$cmd "${runopts[@]}" 2>| "$http_stderr_file" 1>| "$http_stdout_file" || echo -n "$?" >> "$http_exit_file";
+
+    echo "${http[config]}" | $cmd --config - 2>| \
+      "$http_stderr_file" 1>| "$http_stdout_file" \
+      || echo -n "$?" >> "$http_exit_file";
   fi
   
   # get the write out results
@@ -292,10 +300,10 @@ http.curl() {
   http_request_method="${method}";
   
   #write out the options used as a config file
-  local http[config]=$( http.config "${runopts[@]}" );
+  http[config]=$( http.config "${runopts[@]}" );
   #http.config "${runopts[@]}";
 
-  echo "${http[config]}"; exit 0;
+  #echo "${http[config]}"; exit 0;
 
   http.curl.execute "${runopts[@]}";
   http_body_file="${body}";
