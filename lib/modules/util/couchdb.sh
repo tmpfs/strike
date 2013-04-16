@@ -17,6 +17,7 @@ couchdb[verb]="";
 
 # url segments
 couchdb[utils]="_utils";
+couchdb[security]="_security";
 couchdb[docs]="docs";
 
 # centralized entry point for couchdb(3)
@@ -169,6 +170,22 @@ couchdb.uuids() {
     url+="?count=${count}";
   fi
   couchdb.run "GET" "${url}";
+}
+
+couchdb.security.get() {
+  local host="${1:-}";
+  local db="${2:-}";
+  url encode "${db}" "db";
+  couchdb.run "GET" "${host}/${db}/${couchdb[security]}";
+}
+
+couchdb.security.set() {
+  local host="${1:-}";
+  local db="${2:-}";
+  local json="${3:-}";
+  url encode "${db}" "db";
+  couchdb.run "PUT" "${host}/${db}/${couchdb[security]}" \
+    --data-binary "${json}";
 }
 
 couchdb.db.list() {
