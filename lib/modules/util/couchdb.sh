@@ -14,6 +14,7 @@ couchdb[cookie-jar]="";
 couchdb[cookie]="";
 couchdb[url]="";
 couchdb[verb]="";
+couchdb[accept]="${mime_types[json]}";
 
 # url segments
 couchdb[utils]="_utils";
@@ -51,6 +52,9 @@ couchdb.run() {
   if [ -n "${couchdb[cookie]:-}" ]; then
     opts+=(--cookie "${couchdb[cookie]}");
   fi
+  #if [ -n "${couchdb[accept]}" ]; then
+    #opts+=(--header "Accept: ${couchdb[accept]}");
+  #fi
   couchdb[url]="${url}";
   couchdb[verb]="${verb,,}";
   http.curl "${opts[@]}";
@@ -306,7 +310,7 @@ couchdb.doc.get() {
     url+="${querystring}"
   fi
   couchdb.run "GET" "${url}" \
-    -H "Accept: ${mime_types[json]}";
+    --header "Accept: ${mime_types[json]}";
 }
 
 couchdb.doc.rm() {
