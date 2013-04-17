@@ -20,9 +20,8 @@ http[writeout]+="http_info[response.status]='%{http_code}';\n";
 http[writeout]+="http_info[response.redirects]='%{num_redirects}';\n";
 http[writeout]+="http_info[response.content.type]='%{content_type}';\n";
 http[writeout]+="http_info[response.redirect.url]='%{redirect_url}';\n";
-
-http[writeout]+="http_info[effective.url]='%{url_effective}';\n";
-http[writeout]+="http_info[effective.filename]='%{filename_effective}';\n";
+http[writeout]+="http_info[response.url]='%{url_effective}';\n";
+http[writeout]+="http_info[response.filename]='%{filename_effective}';\n";
 
 http[writeout]+="http_info[network.local.ip]='%{local_ip}';\n";
 http[writeout]+="http_info[network.local.port]='%{local_port}';\n";
@@ -180,6 +179,13 @@ http.curl.execute() {
 
   #echo "config is ${http[config]}"
 
+  unset -v http_info;
+  declare -Ag http_info;
+  http_info[request.date]=$( date );
+  http_info[request.timestamp]=$( date +%s );
+  http_info[request.url]="${url}";
+  http_info[request.method]="${method}";
+
   # redirect stderr with tee, useful for also
   # displaying file download progress
   if ${http[printstderr]}; then
@@ -194,15 +200,14 @@ http.curl.execute() {
       || echo -n "$?" >| "${http[exit.file]}";
   fi
   
-  unset -v http_info;
-  declare -Ag http_info;
-  
   . "${http[stdout.file]}" \
     || {
       console error -- "failed to source %s" "${http[stdout.file]}";
       return 1;
     }
-  
+  http_info[response.date]=$( date );
+  http_info[response.timestamp]=$( date +%s );
+
   http_exit_code=0;
   if [ -f "${http[exit.file]}" ]; then
     http_exit_code=$( cat "${http[exit.file]}" );
