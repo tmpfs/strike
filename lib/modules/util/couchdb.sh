@@ -148,7 +148,7 @@ couchdb.config.set() {
   local host="${1:-}";
   local section="${2:-}";
   local key="${3:-}";
-  local json="${4:-}";
+  local file="${4:-}";
   local url="${host}/_config";
   if [ -n "${section}" ]; then
     url+="/${section}";
@@ -156,7 +156,7 @@ couchdb.config.set() {
   if [ -n "${key}" ]; then
     url+="/${key}";
   fi
-  couchdb.run "PUT" "${url}" --data-binary "${json}" \
+  couchdb.run "PUT" "${url}" --data-binary "@${file}" \
     "-H" "Content-Type: ${mime_types[json]}";
 }
 
@@ -186,10 +186,10 @@ couchdb.security.get() {
 couchdb.security.set() {
   local host="${1:-}";
   local db="${2:-}";
-  local json="${3:-}";
+  local file="${3:-}";
   url encode "${db}" "db";
   couchdb.run "PUT" "${host}/${db}/${couchdb[security]}" \
-    --data-binary "${json}";
+    --data-binary "@${file}";
 }
 
 couchdb.db.list() {
