@@ -257,7 +257,7 @@ http.curl() {
   if [ ${#opts[@]} -gt 0 ]; then
     runopts+=( "${opts[@]}" );
   fi
-  if ! array.contains? "-#" "${runopts[@]}" \
+  if ! array.contains? "--progress-bar" "${runopts[@]}" \
     || ! ${http[printstderr]}; then
     runopts+=(--silent);
   fi
