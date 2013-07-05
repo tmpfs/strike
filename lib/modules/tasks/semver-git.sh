@@ -20,7 +20,8 @@ semver.git() {
     if [ "${tag}" != "${version}" ]; then
       local file="${target}/${version}-${tag}-commits.log";
       console info -- "commits %s..%s -> %s" "${version}" "${tag}" "${file}";
-      git log "${version}".."${tag}" > "${file}";
+      git log "${version}".."${tag}" > "${file}" 2>/dev/null \
+        || console error -- "could not generate commit diff";
     fi
     if git ls-remote --tags 2>/dev/null | grep "$tag" >/dev/null 2>&1; then
       console info -- "overwrite tag %s at %s" "${tag}" "${remote}";
