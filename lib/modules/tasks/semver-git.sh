@@ -6,7 +6,6 @@ semver.git() {
   local version="$2";
   local tag="${semver}";
   local remote="origin";
-  #echo "semver git $semver : $version"
   if git.valid? "${root}"; then
     cd "${root}";
     # TODO: confirm on tag overwrite
@@ -18,11 +17,16 @@ semver.git() {
     console info -- "tag %s" "${tag}";
     git tag "${tag}" \
       || console error -- "could not create tag %s" "${tag}";
-    if [ "${semver}" != "${version}" ]; then
+    if [ "${tag}" != "${version}" ]; then
       echo "create commit diff of tags..."
+      git log "${version}".."${tag}";
     fi
+    if git ls-remote --tags | grep "$tag" >/dev/null 2>&1; then
+      console info -- "overwrite tag %s at %s" "${tag}" "${remote}";
+    fi
+    # TODO: confirm on tag overwrite remote
     console info -- "push %s to %s" "${tag}" "${remote}";
-    git push "${remote}" "${tag}" > /dev/null 2>&1 \
+    git push -f "${remote}" "${tag}" > /dev/null 2>&1 \
       || console error -- "could not push tag %s" "${tag}";
   fi
 }
