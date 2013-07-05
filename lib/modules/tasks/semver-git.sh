@@ -19,7 +19,7 @@ semver.git() {
       || console error -- "could not create tag %s" "${tag}";
     if [ "${tag}" != "${version}" ]; then
       echo "create commit diff of tags..."
-      git log "${version}".."${tag}";
+      git log "${version}".."${tag}" > "${target}/${version}-${tag}-commits.log";
     fi
     if git ls-remote --tags | grep "$tag" >/dev/null 2>&1; then
       console info -- "overwrite tag %s at %s" "${tag}" "${remote}";
