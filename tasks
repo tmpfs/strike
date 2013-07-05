@@ -1,6 +1,7 @@
 require tasks/test;
 require tasks/doc;
 require tasks/semver;
+require tasks/semver-git;
 require tasks/module;
 
 require tasks/deploy;

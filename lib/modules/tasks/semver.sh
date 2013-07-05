@@ -480,6 +480,11 @@ function __semver.write! {
   versions[semver]="$semver";
 
   __semver.print;
+
+  #
+  if method.exists? semver.git; then
+    semver.git "$semver" "$version";
+  fi
 }
 
 # write a semver to `package.json`
