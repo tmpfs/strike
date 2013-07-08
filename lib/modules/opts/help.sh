@@ -1,7 +1,7 @@
 # always prefer the process man page directory
 export MANPATH="${process_dirs[man]:-./doc/man}:${MANPATH:-}";
 declare -Ag help_aliases;
-declare -g help_stderr="$( mktemp -t "${process_name}" )";
+declare -g help_stderr="$( mktemp "/tmp/${process_name}.XXXXXX" )";
 
 # add a help man page mapping
 help.man.page() {

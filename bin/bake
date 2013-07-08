@@ -27,6 +27,7 @@ process.use strict;
 require tasks/util;
 
 # configure help
+#require opts/help;
 taskman default "bake.1";
 taskman ls "task-ls.7";
 taskman test "task-test.7";
